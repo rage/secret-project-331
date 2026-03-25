@@ -22,6 +22,7 @@ use std::{
 
 #[derive(Clone, Debug, Default)]
 pub struct RateLimitConfig {
+    pub per_second: Option<u64>,
     pub per_minute: Option<u64>,
     pub per_hour: Option<u64>,
     pub per_day: Option<u64>,
@@ -37,6 +38,7 @@ struct EndpointLimiters {
     day: Option<Arc<Limiter>>,
     hour: Option<Arc<Limiter>>,
     minute: Option<Arc<Limiter>>,
+    second: Option<Arc<Limiter>>,
 }
 
 impl EndpointLimiters {
@@ -52,6 +54,9 @@ impl EndpointLimiters {
             minute: cfg
                 .per_minute
                 .and_then(|n| build_limiter(n, Quota::per_minute)),
+            second: cfg
+                .per_second
+                .and_then(|n| build_limiter(n, Quota::per_second)),
         }
     }
 
@@ -61,10 +66,15 @@ impl EndpointLimiters {
             .chain(self.day.iter())
             .chain(self.hour.iter())
             .chain(self.minute.iter())
+            .chain(self.second.iter())
     }
 
     fn is_empty(&self) -> bool {
-        self.minute.is_none() && self.hour.is_none() && self.day.is_none() && self.month.is_none()
+        self.second.is_none()
+            && self.minute.is_none()
+            && self.hour.is_none()
+            && self.day.is_none()
+            && self.month.is_none()
     }
 }
 
@@ -89,6 +99,24 @@ pub struct RateLimit {
 }
 
 impl RateLimit {
+    /// Global `/api/v0` limits aligned with nginx ingress `limit-rps` and `limit-rpm`; relaxed when `TEST_MODE` is set.
+    pub fn global_api_rate_limit_config() -> RateLimitConfig {
+        if std::env::var("TEST_MODE").is_ok() {
+            RateLimitConfig {
+                per_second: Some(10000),
+                per_minute: Some(200000),
+                ..Default::default()
+            }
+        } else {
+            RateLimitConfig {
+                per_second: Some(20),
+                per_minute: Some(1000),
+                per_hour: Some(10000),
+                ..Default::default()
+            }
+        }
+    }
+
     pub fn new(cfg: RateLimitConfig) -> Self {
         Self {
             limiters: Arc::new(EndpointLimiters::from_config(&cfg)),
@@ -223,6 +251,7 @@ mod tests {
             per_hour,
             per_day,
             per_month,
+            ..Default::default()
         })
     }
 

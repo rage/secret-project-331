@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { isEqual } from "lodash"
-import React, { useCallback, useEffect, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -36,17 +36,24 @@ interface MessageChannelIFrameProps {
 
 const MESSAGE_CHANNEL_IFRAME_TEST_ID = "message-channel-iframe"
 
+/**
+ * Sandbox flags for exercise iframes. We include `allow-same-origin` so the embedded
+ * document has a real origin (not opaque); that enables normal HTTP cache behavior for
+ * the exercise origin. Without it, the iframe is an opaque origin, which is much
+ * cache-unfriendly for the embedded app and its assets.
+ *
+ * MDN's `<iframe>` documentation warns that `allow-scripts` + `allow-same-origin`
+ * together is dangerous when the embedded page is **same-origin** with the parent,
+ * because sandboxed scripts can then escape the sandbox. That does not apply when
+ * the embed's origin is **different** from the host: the browser's same-origin policy
+ * still blocks cross-origin scripts from accessing the parent page’s DOM.
+ */
 const useIframeSandboxingAttribute = (disableSandbox: boolean) => {
   if (disableSandbox) {
     return undefined
   }
-  // Allow same origin in development ONLY so that the Next.js dev overlay works. Note that exercise plugins should be tested with the host program in production mode.
-  if (process.env.NODE_ENV === "development") {
-    // eslint-disable-next-line i18next/no-literal-string
-    return "allow-scripts allow-forms allow-downloads allow-same-origin"
-  }
   // eslint-disable-next-line i18next/no-literal-string
-  return "allow-scripts allow-forms allow-downloads"
+  return "allow-scripts allow-forms allow-downloads allow-same-origin"
 }
 
 const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFrameProps>> = ({
@@ -63,6 +70,13 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   const language = i18n.language
   const iframeRef = useRef<HTMLIFrameElement>(null)
   const iframeSandboxAttribute = useIframeSandboxingAttribute(disableSandbox)
+  const iframeSrcOrigin = useMemo(() => {
+    try {
+      return new URL(url, window.location.href).origin
+    } catch {
+      return null
+    }
+  }, [url])
   const hasSignaledReadyRef = useRef(false)
   const lastThingPostedRef = useRef<unknown>(null)
 
@@ -258,16 +272,21 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
   }, [handlePortMessage, messageChannel, sendPortToIframe])
 
   const handleInitialReadyMessage = useEventCallback((e: WindowEventMap["message"]) => {
-    // Verify the source of the message. Origin can be "null" if the IFrame is
-    // sandboxed without allow-same-origin, or it can be the same as window.location.origin
-    if (
-      (!disableSandbox && e.origin !== "null" && e.origin !== window.location.origin) ||
-      e.source !== iframeRef.current?.contentWindow
-    ) {
+    // Verify the source. With sandbox + allow-same-origin, `e.origin` is the iframe
+    // document's origin (same as `src` URL). Opaque `"null"` is still accepted for
+    // tests and older behavior. Same-origin embeds also match `window.location.origin`.
+    const originAllowed =
+      disableSandbox ||
+      e.origin === "null" ||
+      e.origin === window.location.origin ||
+      (iframeSrcOrigin !== null && e.origin === iframeSrcOrigin)
+    if (!originAllowed || e.source !== iframeRef.current?.contentWindow) {
       if (e.data === "ready") {
         console.warn("[MessageChannelIFrame] Received ready message from invalid origin", {
           origin: e.origin,
-          expectedOrigins: ["null", window.location.origin],
+          expectedOrigins: ["null", window.location.origin, iframeSrcOrigin].filter(
+            (o): o is string => o !== null && o !== "",
+          ),
           isSandboxed: !disableSandbox,
         })
       }

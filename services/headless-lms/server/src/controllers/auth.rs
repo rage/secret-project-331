@@ -940,6 +940,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: None,
                 per_day: Some(1000),
                 per_month: None,
+                ..Default::default()
             }))
             .to(signup),
     )
@@ -950,6 +951,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(100),
                 per_day: Some(500),
                 per_month: None,
+                ..Default::default()
             }))
             .to(login),
     )
@@ -968,6 +970,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(5),
                 per_day: Some(10),
                 per_month: None,
+                ..Default::default()
             }))
             .to(delete_user_account),
     )
@@ -978,6 +981,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(5),
                 per_day: Some(20),
                 per_month: None,
+                ..Default::default()
             }))
             .to(send_delete_user_email_code),
     )
@@ -988,6 +992,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(50),
                 per_day: None,
                 per_month: None,
+                ..Default::default()
             }))
             .to(verify_email),
     );

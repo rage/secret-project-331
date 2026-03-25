@@ -68,8 +68,7 @@ function useExerciseServiceParentConnection(
         return
       }
       console.info("frame posting ready message")
-      // target origin is *, beacause this is a sandboxed iframe without the
-      // allow-same-origin permission
+      // Use "*" so the ready message reaches the parent regardless of which host embeds the exercise.
       parent.postMessage("ready", "*")
     }
 

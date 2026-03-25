@@ -624,7 +624,7 @@ describe("MessageChannelIFrame", () => {
   })
 
   describe("origin verification", () => {
-    it("accepts messages from null origin (sandboxed iframe)", async () => {
+    it("accepts messages from null origin (opaque sandboxed origin)", async () => {
       const mockChannel = createMockMessageChannel()
 
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
@@ -661,7 +661,7 @@ describe("MessageChannelIFrame", () => {
       expect(mockContentWindow.postMessage).toHaveBeenCalled()
     })
 
-    it("accepts messages from window.location.origin (non-sandboxed)", async () => {
+    it("accepts messages from window.location.origin (same-origin embed)", async () => {
       const mockChannel = createMockMessageChannel()
 
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
@@ -689,6 +689,43 @@ describe("MessageChannelIFrame", () => {
       const event = createMockMessageEvent("ready", {
         source: mockContentWindow as unknown as Window,
         origin: window.location.origin,
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event))
+      })
+
+      expect(mockContentWindow.postMessage).toHaveBeenCalled()
+    })
+
+    it("accepts messages from iframe src origin (cross-origin embed with allow-same-origin)", async () => {
+      const mockChannel = createMockMessageChannel()
+
+      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+
+      const { container } = render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      const iframe = await waitFor(() => container.querySelector("iframe"))
+      const mockContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(iframe, "contentWindow", {
+        value: mockContentWindow,
+        writable: true,
+      })
+
+      const event = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "http://example.com",
       })
 
       act(() => {

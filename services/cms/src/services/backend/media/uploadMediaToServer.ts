@@ -1,12 +1,11 @@
 import { createBlobURL, revokeBlobURL } from "@wordpress/blob"
 
+import { ALT_TEXT_NOT_CHANGED_PLACEHOLDER } from "./altTextPlaceholder"
+
 import { MediaUploadType, uploadFileFromPage } from "."
 
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import { validateFile } from "@/shared-module/common/utils/files"
-
-// Don't change this, with this default value we can detect when the teacher has not changed the alt text.
-const ALT_TEXT_NOT_CHANGED_PLACEHOLDER = "Add alt"
 
 export interface UploadMediaArgs {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

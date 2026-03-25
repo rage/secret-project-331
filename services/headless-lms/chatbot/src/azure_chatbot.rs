@@ -55,12 +55,26 @@ pub struct ContentFilterResults {
     pub self_harm: Option<ContentFilter>,
     pub sexual: Option<ContentFilter>,
     pub violence: Option<ContentFilter>,
+    //pub jailbreak: Option<ContentFilter>,
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ContentFilter {
+    pub blocked: bool,
+    pub source_type: ContentFilterSource,
+    pub content_filter_results: Vec<ContentFilterResults>,
+}
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ContentFilterResult {
     pub filtered: bool,
     pub severity: String,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum ContentFilterSource {
+    Prompt,
+    Completion,
 }
 
 /// Data in a streamed response chunk
@@ -118,13 +132,54 @@ pub struct Citation {
 
 /// Response received from LLM API
 #[derive(Deserialize, Serialize, Debug)]
-pub struct ResponseChunk {
-    pub choices: Vec<Choice>,
-    pub created: u64,
+pub struct Response {
     pub id: String,
-    pub model: String,
-    pub object: String,
-    pub system_fingerprint: Option<String>,
+}
+
+/// Incomplete response received from LLM API
+#[derive(Deserialize, Serialize, Debug)]
+pub struct IncompleteResponse {
+    pub id: String,
+    pub incomplete_details: IncompleteReason,
+    pub content_filters: Vec<ContentFilter>,
+}
+
+/// Response received from LLM API
+#[derive(Deserialize, Serialize, Debug)]
+pub struct IncompleteReason {
+    pub reason: String,
+}
+
+/// Streamed token of the response text
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ResponseOutput {
+    // type: event type
+    pub delta: Option<String>,
+    pub item: Option<OutputItem>,
+    pub response: Option<Response>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+#[serde(tag = "type")]
+pub enum OutputItem {
+    Message, // we can get annotations and full text from here, but not yet.
+    Reasoning {
+        summary: Vec<String>,
+    },
+    AzureAiSearchCall {
+        call_id: String,
+        arguments: String,
+    },
+    AzurAiSearchCallOutput {
+        call_id: String,
+        output: String, // json string
+    },
+    FunctionCall {
+        call_id: String,
+        #[serde(rename = "name")]
+        tool_name: String,
+        arguments: String,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -526,6 +581,8 @@ pub async fn make_request_and_stream<'a>(
     let peekable_lines_stream = lines_stream.peekable();
     let mut pinned_lines = Box::pin(peekable_lines_stream);
 
+    let mut event_type = "".to_string();
+
     loop {
         let line_res = pinned_lines.as_mut().peek().await;
         match line_res {
@@ -539,14 +596,36 @@ pub async fn make_request_and_stream<'a>(
                 ));
             }
             Some(Result::Ok(line)) => {
-                if !line.starts_with("data: ") {
+                // save the response_id!
+                if line.starts_with("event: ") {
+                    event_type = line.trim_start_matches("event: ").to_string();
+                };
+                /*                 if !line.starts_with("data: ") {
                     pinned_lines.next().await;
                     continue;
+                } */
+                // if event is response.function_call_arguments.delta
+                // this is a tool call case
+                // if event is response.output_text.delta
+                // this is the response
+                match event_type.as_str() {
+                    "response.created" => continue, // save the response_id
+                    "response.function_call_arguments.delta" => {
+                        return Ok(ResponseStreamType::Toolcall(pinned_lines));
+                    }
+                    "response.output_text.delta" => {
+                        return Ok(ResponseStreamType::TextResponse(pinned_lines));
+                    }
+                    _ => {
+                        pinned_lines.next().await;
+                        continue;
+                    }
                 }
+
                 let json_str = line.trim_start_matches("data: ");
-                let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
+                let response_chunk = serde_json::from_str::<OutputItem>(json_str)
                     .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
-                for choice in &response_chunk.choices {
+                /* for choice in &response_chunk.choices {
                     if let Some(d) = &choice.delta {
                         if d.content.is_some() || d.context.is_some() {
                             return Ok(ResponseStreamType::TextResponse(pinned_lines));
@@ -557,7 +636,7 @@ pub async fn make_request_and_stream<'a>(
                             continue;
                         }
                     }
-                }
+                } */
                 pinned_lines.next().await;
             }
         }
@@ -576,19 +655,32 @@ pub async fn parse_tool<'a>(
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<Vec<APIMessage>> {
     let mut function_name_id_args: Vec<(String, String, String)> = vec![];
-    let mut currently_streamed_function_name_id: Option<(String, String)> = None;
-    let mut currently_streamed_function_args = vec![];
     let mut messages = vec![];
+    let mut event_type = "".to_string();
+    let mut tool_calls_received = false;
 
     trace!("Parsing tool calls...");
 
     while let Some(val) = lines.next().await {
         let line = val?;
+        if line.starts_with("event: ") {
+            event_type = line.trim_start_matches("event: ").to_string();
+            continue;
+        };
         if !line.to_owned().starts_with("data: ") {
             continue;
         }
+        match event_type.as_str() {
+            "response.completed" => {
+                tool_calls_received = true;
+            }
+            "response.output_text.delta" => println!("ERROR"),
+            "response.output_item.done" => println!("tool call received?!!!"),
+            _ => continue,
+        };
+
         let json_str = line.trim_start_matches("data: ");
-        if json_str.trim() == "[DONE]" {
+        if tool_calls_received {
             // the stream ended
             if function_name_id_args.is_empty() {
                 return Err(anyhow::anyhow!(
@@ -631,57 +723,21 @@ pub async fn parse_tool<'a>(
             messages.extend(tool_result_msgs);
             break;
         }
-        let response_chunk = serde_json::from_str::<ResponseChunk>(json_str)
+        let response_output = serde_json::from_str::<ResponseOutput>(json_str)
             .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {} {}", e, json_str))?;
-        for choice in &response_chunk.choices {
-            if Some("tool_calls".to_string()) == choice.finish_reason {
-                // the stream is finished for now because of "tool_calls"
-                // so if we're still streaming some func call, finish it and store it
-                if let Some((name, id)) = &currently_streamed_function_name_id {
-                    // we have streamed some func call and args so let's join the args
-                    // and save the call
-                    let fn_args = currently_streamed_function_args.join("");
-                    function_name_id_args.push((
-                        name.to_owned(),
-                        id.to_owned(),
-                        fn_args.to_owned(),
-                    ));
-                    currently_streamed_function_args.clear();
-                    currently_streamed_function_name_id = None;
-                    // after this chunk, there is assumed to be a chunk that just has
-                    // content "[DONE]", we'll process the func calls at that point.
-                }
-            }
-            if let Some(delta) = &choice.delta
-                && let Some(tool_calls) = &delta.tool_calls
-            {
-                // this chunk has tool call data
-                for call in tool_calls {
-                    if let (Some(name), Some(id)) = (&call.function.name, &call.id) {
-                        // if this chunk has a tool name and id, then a new call is made.
-                        // if there is previously streamed args, then their streaming is
-                        // complete, let's join and save them before processing this new
-                        // call.
-                        if let Some((name_prev, id_prev)) = currently_streamed_function_name_id {
-                            let fn_args = currently_streamed_function_args.join("");
-                            function_name_id_args.push((
-                                name_prev.to_owned(),
-                                id_prev.to_owned(),
-                                fn_args,
-                            ));
-                            currently_streamed_function_args.clear();
-                        }
-                        // set the tool name and id from this chunk to currently_streamed
-                        // and save any arguments to currently_streamed_function_args
-                        // until the stream is complete or a new call is made.
-                        currently_streamed_function_name_id =
-                            Some((name.to_owned(), id.to_owned()));
-                    };
-                    // always save any streamed function args. it can be an empty string
-                    // but that's ok.
-                    currently_streamed_function_args.push(call.function.arguments.clone());
-                }
-            }
+        if let Some(item) = response_output.item
+            && let OutputItem::FunctionCall {
+                call_id,
+                tool_name,
+                arguments,
+            } = item
+        {
+            // this chunk has tool call data
+            function_name_id_args.push((tool_name, call_id, arguments));
+        } else {
+            // this could be a reasoning chunk
+            // this could be an azure search chunk
+            println!("ERROR? This wasn't a tool call item, wtf?")
         }
     }
     Ok(messages)
@@ -729,16 +785,33 @@ pub async fn parse_and_stream_to_user<'a>(
 
     trace!("Parsing stream to user...");
 
+    let mut event_type = "".to_string();
+    let mut response_received = false;
+
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
             let line = val?;
+            println!("🐈🐈🐈🐈🐈🐈{:?}", line);
+            if line.starts_with("event: ") {
+                event_type = line.trim_start_matches("event: ").to_string();
+                continue;
+            };
             if !line.starts_with("data: ") {
                 continue;
             }
             let mut full_response_text = full_response_text.lock().await;
-            let json_str = line.trim_start_matches("data: ");
-            if json_str.trim() == "[DONE]" {
+
+            match event_type.as_str() {
+                "response.completed" | "response.incomplete" => {response_received = true;},
+                "response.output_text.delta" => println!("stream"),
+                "response.output_item.done" => println!("check out what came, like cited documents?"),
+                "response.function_call_arguments.delta" => println!("ERROR, function call not expected: {:?}", event_type),
+                _ => continue,
+            };
+
+            if response_received {
                 let full_response_as_string = full_response_text.join("");
+                // todo: use the tokens given in the response
                 let estimated_cost = estimate_tokens(&full_response_as_string);
                 trace!(
                     "End of chatbot response stream. Estimated cost: {}. Response: {}",
@@ -755,64 +828,70 @@ pub async fn parse_and_stream_to_user<'a>(
                 ).await?;
                 break;
             }
-            let response_chunk = serde_json::from_str::<ResponseChunk>(json_str).map_err(|e| {
+            let json_str = line.trim_start_matches("data: ");
+            let response_output = serde_json::from_str::<ResponseOutput>(json_str).map_err(|e| {
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
 
-            for choice in &response_chunk.choices {
-                if let Some(delta) = &choice.delta {
-                    if let Some(content) = &delta.content {
-                        full_response_text.push(content.clone());
-                        let response = ChatResponse { text: content.clone() };
-                        let response_as_string = serde_json::to_string(&response)?;
-                        yield Bytes::from(response_as_string);
-                        yield Bytes::from("\n");
+
+            if let Some(delta) = &response_output.delta {
+                    full_response_text.push(delta.to_owned());
+                    let response = ChatResponse { text: delta.clone() };
+                    let response_as_string = serde_json::to_string(&response)?;
+                    yield Bytes::from(response_as_string);
+                    yield Bytes::from("\n");
+            }
+
+            if let Some(item) = &response_output.item {
+                match item {
+                    OutputItem::Message => continue,
+                    OutputItem::AzurAiSearchCallOutput {call_id, output} => println!("save cited documents {:?}", output),
+                    OutputItem::FunctionCall {call_id, tool_name, arguments} => println!("ERROR! Shouldn't call function here"),
+                    _ => continue,
+
+                };
+                let mut conn = pool.acquire().await?;
+                /* for (idx, cit) in context.citations.iter().enumerate() {
+                    let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
+                    let split = content.split_once(CONTENT_FIELD_SEPARATOR);
+                    if split.is_none() {
+                        error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");
                     }
-                    if let Some(context) = &delta.context {
-                        let mut conn = pool.acquire().await?;
-                        for (idx, cit) in context.citations.iter().enumerate() {
-                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
-                            let split = content.split_once(CONTENT_FIELD_SEPARATOR);
-                            if split.is_none() {
-                                error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");
-                            }
-                            let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
+                    let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
 
-                            // The title and URL come from Azure Blob Storage metadata, which was URL-encoded
-                            // (percent-encoded) because Azure Blob Storage metadata values must be ASCII-only.
-                            // We decode them back to their original UTF-8 strings before storing in the database.
-                            let decoded_title = url_decode(&cit.title)?;
-                            let decoded_url = url_decode(&cit.url)?;
+                    // The title and URL come from Azure Blob Storage metadata, which was URL-encoded
+                    // (percent-encoded) because Azure Blob Storage metadata values must be ASCII-only.
+                    // We decode them back to their original UTF-8 strings before storing in the database.
+                    let decoded_title = url_decode(&cit.title)?;
+                    let decoded_url = url_decode(&cit.url)?;
 
-                            let mut page_path = PathBuf::from(&cit.filepath);
-                            page_path.set_extension("");
-                            let page_id_str = page_path.file_name();
-                            let page_id = page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
-                            let course_material_chapter_number = if let Some(id) = page_id {
-                                let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
-                                chapter.map(|c| c.chapter_number)
-                            } else {
-                                None
-                            };
+                    let mut page_path = PathBuf::from(&cit.filepath);
+                    page_path.set_extension("");
+                    let page_id_str = page_path.file_name();
+                    let page_id = page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
+                    let course_material_chapter_number = if let Some(id) = page_id {
+                        let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
+                        chapter.map(|c| c.chapter_number)
+                    } else {
+                        None
+                    };
 
-                            models::chatbot_conversation_messages_citations::insert(
-                                &mut conn, ChatbotConversationMessageCitation {
-                                    id: Uuid::new_v4(),
-                                    created_at: Utc::now(),
-                                    updated_at: Utc::now(),
-                                    deleted_at: None,
-                                    conversation_message_id: response_message.id,
-                                    conversation_id: response_message.conversation_id,
-                                    course_material_chapter_number,
-                                    title: decoded_title,
-                                    content: cleaned_content,
-                                    document_url: decoded_url,
-                                    citation_number: (idx+1) as i32,
-                                }
-                            ).await?;
+                    models::chatbot_conversation_messages_citations::insert(
+                        &mut conn, ChatbotConversationMessageCitation {
+                            id: Uuid::new_v4(),
+                            created_at: Utc::now(),
+                            updated_at: Utc::now(),
+                            deleted_at: None,
+                            conversation_message_id: response_message.id,
+                            conversation_id: response_message.conversation_id,
+                            course_material_chapter_number,
+                            title: decoded_title,
+                            content: cleaned_content,
+                            document_url: decoded_url,
+                            citation_number: (idx+1) as i32,
                         }
-                    }
-                }
+                    ).await?;
+                } */
             }
         }
 

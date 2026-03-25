@@ -16,7 +16,7 @@ export interface PaginationInfo {
   setLimit: (newValue: number) => void
 }
 
-function usePaginationInfo(): PaginationInfo {
+function usePaginationInfo(defaultLimit: number = DEFAULT_LIMIT): PaginationInfo {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -39,13 +39,13 @@ function usePaginationInfo(): PaginationInfo {
     if (limitParam) {
       initialLimit = parseInt(limitParam)
     } else {
-      initialLimit = DEFAULT_LIMIT
+      initialLimit = defaultLimit
     }
     if (isNaN(initialLimit)) {
-      return DEFAULT_LIMIT
+      return defaultLimit
     }
     return initialLimit
-  }, [searchParams])
+  }, [searchParams, defaultLimit])
 
   const [page, setPage] = useState(initialPage)
   const [limit, setLimit] = useState(initialLimit)

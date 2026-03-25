@@ -21,6 +21,10 @@ export const checkableRowCss = css`
   }
 `
 
+export const switchRowCss = css`
+  align-items: center;
+`
+
 export const checkableInputCss = css`
   position: absolute;
   inset: 0;
@@ -62,9 +66,13 @@ export const switchTrackCss = css`
     background: var(--switch-track-on);
   }
 
+  &[data-pressed="true"] {
+    box-shadow: inset 0 0 0 1px rgba(10, 15, 23, 0.18);
+  }
+
   &[data-focus-visible="true"] {
     box-shadow:
-      0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.18),
+      0 0 0 var(--focus-ring-width) var(--switch-focus-ring),
       inset 0 0 0 1px rgba(10, 15, 23, 0.12);
   }
 
@@ -74,12 +82,16 @@ export const switchTrackCss = css`
 
   &[data-invalid="true"][data-focus-visible="true"] {
     box-shadow:
-      0 0 0 var(--focus-ring-width) rgba(8, 69, 122, 0.18),
+      0 0 0 var(--focus-ring-width) var(--switch-focus-ring),
       inset 0 0 0 1px var(--field-error-border);
   }
 
   &[data-disabled="true"] {
     opacity: 0.72;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
   }
 `
 
@@ -87,13 +99,17 @@ export const switchThumbCss = css`
   width: 24px;
   height: 24px;
   border-radius: 999px;
-  background: var(--color-primary-100);
+  background: var(--switch-thumb);
   box-shadow: 0 1px 4px rgba(10, 15, 23, 0.18);
   transform: translateX(0);
   transition: transform 0.18s ease;
 
   &[data-selected="true"] {
-    transform: translateX(18px);
+    transform: translateX(23px);
+  }
+
+  &[data-pressed="true"] {
+    box-shadow: 0 1px 3px rgba(10, 15, 23, 0.14);
   }
 
   @media (prefers-reduced-motion: reduce) {

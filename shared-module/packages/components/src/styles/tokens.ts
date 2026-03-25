@@ -245,5 +245,9 @@ export const tokensGlobal = injectGlobal`
 
     --switch-track-off: var(--color-clear-800);
     --switch-track-on: var(--color-green-600);
+
+    /* switch-specific */
+    --switch-thumb: var(--color-primary-100);
+    --switch-focus-ring: rgba(31, 105, 100, 0.18);
   }
 `

@@ -15,6 +15,7 @@ import {
   checkableRootCss,
   checkableRowCss,
   resolveCheckableSizeCss,
+  switchRowCss,
   switchThumbCss,
   switchTrackCss,
 } from "./primitives/checkableStyles"
@@ -142,7 +143,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
       >
         <label
           {...labelProps}
-          className={cx(checkableRowCss, resolveCheckableSizeCss(fieldSize))}
+          className={cx(checkableRowCss, switchRowCss, resolveCheckableSizeCss(fieldSize))}
           data-disabled={isSwitchDisabled ? "true" : "false"}
         >
           <input {...mergedInputProps} ref={inputRef} className={checkableInputCss} />

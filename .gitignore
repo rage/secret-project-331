@@ -134,6 +134,8 @@ dist
 
 # Playwright
 system-tests/src/states/
+.playwright-cli
+.playwright
 
 # vagrant
 .vagrant
@@ -149,3 +151,4 @@ hidden/
 # skaffold
 skaffold-build-output.json
 skaffold-images
+

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { Meta, StoryObj } from "@storybook/react"
+import type { Meta, StoryObj } from "@storybook/react-vite"
 
 import { FileField } from "../../src/shared-module/components"
 

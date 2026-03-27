@@ -22,8 +22,10 @@ use oauth2::ResourceOwnerUsername;
 use oauth2::StandardTokenResponse;
 use oauth2::TokenResponse;
 use oauth2::basic::BasicTokenType;
+use secrecy::ExposeSecret;
 use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use sqlx::PgConnection;
 use std::env;
 use std::pin::Pin;
@@ -33,6 +35,30 @@ pub use ts_rs::TS;
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
+
+const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
+
+#[derive(Debug, Serialize, Deserialize)]
+struct GraphQLRequest<'a> {
+    query: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    variables: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserResponse {
+    pub data: MoocfiUserResponseData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserResponseData {
+    pub user: MoocfiUserData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct MoocfiUserData {
+    pub id: Uuid,
+}
 
 // at least one field should be kept private to prevent initializing the struct outside of this module;
 // this way FromRequest is the only way to create an AuthUser
@@ -723,7 +749,7 @@ pub fn parse_secret_key_from_header(header: &HttpRequest) -> Result<&str, Contro
 }
 
 /// Authenticates the user with mooc.fi, returning the authenticated user and their oauth token.
-pub async fn authenticate_moocfi_user(
+pub async fn authenticate_tmc_mooc_fi_user(
     conn: &mut PgConnection,
     client: &OAuthClient,
     email: String,
@@ -746,9 +772,9 @@ pub async fn authenticate_moocfi_user(
         tmc_user
             .courses_mooc_fi_user_id
             .map(|uuid| uuid.to_string())
-            .unwrap_or_else(|| "None (will generate new UUID)".to_string())
+            .unwrap_or_else(|| "None (will fetch from mooc.fi or generate new UUID)".to_string())
     );
-    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, tmc_user).await?;
+    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut *conn, tmc_user, &token).await?;
     info!(
         "Successfully got user details from mooc.fi for user {}",
         user.id
@@ -817,9 +843,71 @@ pub async fn exchange_password_with_tmc(
     }
 }
 
+/// Fetches the mooc.fi UUID for a user by their upstream ID using the TMC access token.
+async fn fetch_moocfi_id_by_upstream_id(
+    tmc_access_token: &str,
+    upstream_id: i32,
+) -> anyhow::Result<Option<Uuid>> {
+    info!("Fetching mooc.fi UUID for upstream user id {}", upstream_id);
+
+    let res = REQWEST_CLIENT
+        .post(MOOCFI_GRAPHQL_URL)
+        .header(reqwest::header::CONTENT_TYPE, "application/json")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .bearer_auth(tmc_access_token)
+        .json(&GraphQLRequest {
+            query: r#"
+query ($upstreamId: Int) {
+  user(upstream_id: $upstreamId) {
+    id
+  }
+}"#,
+            variables: Some(json!({ "upstreamId": upstream_id })),
+        })
+        .send()
+        .await;
+
+    match res {
+        Ok(response) => {
+            if !response.status().is_success() {
+                debug!(
+                    "Failed to fetch mooc.fi user with status {}. Will generate new UUID instead.",
+                    response.status()
+                );
+                return Ok(None);
+            }
+
+            match response.json::<MoocfiUserResponse>().await {
+                Ok(current_user_response) => {
+                    info!(
+                        "Successfully fetched mooc.fi UUID {} for upstream id {}",
+                        current_user_response.data.user.id, upstream_id
+                    );
+                    Ok(Some(current_user_response.data.user.id))
+                }
+                Err(e) => {
+                    debug!(
+                        "Failed to parse mooc.fi response: {}. Will generate new UUID instead.",
+                        e
+                    );
+                    Ok(None)
+                }
+            }
+        }
+        Err(e) => {
+            debug!(
+                "Failed to fetch from mooc.fi: {}. Will generate new UUID instead.",
+                e
+            );
+            Ok(None)
+        }
+    }
+}
+
 pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     conn: &mut PgConnection,
     tmc_mooc_fi_user: TMCUser,
+    tmc_access_token: &SecretString,
 ) -> anyhow::Result<User> {
     let TMCUser {
         id: upstream_id,
@@ -829,7 +917,22 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
         ..
     } = tmc_mooc_fi_user;
 
-    let id = moocfi_id.unwrap_or_else(Uuid::new_v4);
+    // If moocfi_id is None, try to fetch it from mooc.fi before generating a new UUID
+    let id = match moocfi_id {
+        Some(id) => id,
+        None => match fetch_moocfi_id_by_upstream_id(tmc_access_token.expose_secret(), upstream_id)
+            .await?
+        {
+            Some(fetched_id) => {
+                info!("Successfully fetched mooc.fi UUID {} for user", fetched_id);
+                fetched_id
+            }
+            None => {
+                info!("No mooc.fi UUID found, generating new UUID for user");
+                Uuid::new_v4()
+            }
+        },
+    };
 
     // fetch existing user or create new one
     let user = match models::users::find_by_upstream_id(conn, upstream_id).await? {

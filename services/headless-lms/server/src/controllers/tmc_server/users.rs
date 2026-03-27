@@ -81,7 +81,12 @@ pub async fn create_user(
     // A transaction ensures user creation and password hash are written atomically.
     let mut tx = pool.begin().await?;
 
-    let user = get_or_create_user_from_tmc_mooc_fi_response(&mut tx, tmc_user).await?;
+    let user = get_or_create_user_from_tmc_mooc_fi_response(
+        &mut tx,
+        tmc_user,
+        tmc_client.get_admin_access_token(),
+    )
+    .await?;
 
     info!("User {} created or fetched successfully", user.id);
 

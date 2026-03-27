@@ -313,7 +313,7 @@ pub async fn authorize_multiple_actions_on_resources(
 }
 
 /**
-POST `/api/v0/auth/login` Logs in to TMC.
+POST `/api/v0/auth/login` Logs in to the system.
 Returns LoginResponse indicating success, email verification required, or failure.
 **/
 #[instrument(skip(session, pool, client, payload, app_conf, tmc_client))]
@@ -467,7 +467,7 @@ async fn handle_production_login(
 
     // Try to authenticate via TMC and store password to courses.mooc.fi if successful
     if !is_authenticated {
-        let auth_result = authorization::authenticate_moocfi_user(
+        let auth_result = authorization::authenticate_tmc_mooc_fi_user(
             conn,
             client,
             email.to_string(),

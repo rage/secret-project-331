@@ -500,4 +500,8 @@ impl TmcClient {
             ratelimit_api_key: SecretString::new("mock-api-key".to_string().into()),
         }
     }
+
+    pub fn get_admin_access_token(&self) -> &SecretString {
+        &self.admin_access_token
+    }
 }

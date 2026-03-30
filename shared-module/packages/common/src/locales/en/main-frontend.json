@@ -1177,7 +1177,6 @@
   "select-text-to-comment-on-specific-portion": "Select text with your mouse to comment on a specific portion.",
   "select-verbosity": "Model verbosity",
   "selected-text": "Selected text:",
-  "semantic-reranking-problem-notice": "Note: If you keep receiving errors from the chatbot, unchecking this setting may help.",
   "send": "Send",
   "send-your-proposal-to-review-or-select-another-paragraph": "Send your proposal to review or select another paragraph to make more changes.",
   "sent-by": "Sent by: {{user}}",

@@ -582,6 +582,7 @@ pub async fn make_request_and_stream<'a>(
     let mut pinned_lines = Box::pin(peekable_lines_stream);
 
     let mut event_type = "".to_string();
+    let mut output_item_incoming = false;
 
     loop {
         let line_res = pinned_lines.as_mut().peek().await;
@@ -599,6 +600,19 @@ pub async fn make_request_and_stream<'a>(
                 // save the response_id!
                 if line.starts_with("event: ") {
                     event_type = line.trim_start_matches("event: ").to_string();
+                } else if output_item_incoming {
+                    let json_str = line.trim_start_matches("data: ");
+                    let response_output = serde_json::from_str::<ResponseOutput>(json_str)
+                        .map_err(|e| {
+                            anyhow::anyhow!("Failed to parse response chunk: {} {}", e, json_str)
+                        })?;
+                    /* let item = response_output.item.ok_or("Expected output item");
+                    parse_output_item(conn, item, user_context); */
+                    pinned_lines.next().await;
+                    continue;
+                } else {
+                    pinned_lines.next().await;
+                    continue;
                 };
                 /*                 if !line.starts_with("data: ") {
                     pinned_lines.next().await;
@@ -610,6 +624,12 @@ pub async fn make_request_and_stream<'a>(
                 // this is the response
                 match event_type.as_str() {
                     "response.created" => continue, // save the response_id
+                    "response.output_item.done" => {
+                        println!("Doing stuff");
+                        output_item_incoming = true;
+                        pinned_lines.next().await;
+                        continue;
+                    } // there can be reasoning or tool calls, do stuff
                     "response.function_call_arguments.delta" => {
                         return Ok(ResponseStreamType::Toolcall(pinned_lines));
                     }
@@ -622,9 +642,9 @@ pub async fn make_request_and_stream<'a>(
                     }
                 }
 
-                let json_str = line.trim_start_matches("data: ");
-                let response_chunk = serde_json::from_str::<OutputItem>(json_str)
-                    .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?;
+                //let json_str = line.trim_start_matches("data: ");
+                /* let response_chunk = serde_json::from_str::<OutputItem>(json_str)
+                .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?; */
                 /* for choice in &response_chunk.choices {
                     if let Some(d) = &choice.delta {
                         if d.content.is_some() || d.context.is_some() {
@@ -637,7 +657,7 @@ pub async fn make_request_and_stream<'a>(
                         }
                     }
                 } */
-                pinned_lines.next().await;
+                //pinned_lines.next().await;
             }
         }
     }
@@ -645,6 +665,25 @@ pub async fn make_request_and_stream<'a>(
         "The response received from Azure had an unexpected shape and couldn't be parsed"
             .to_string(),
     ))
+}
+
+pub async fn parse_output_item(
+    conn: &mut PgConnection,
+    item: OutputItem,
+    user_context: &ChatbotUserContext,
+) -> anyhow::Result<String> {
+    if let OutputItem::FunctionCall {
+        call_id,
+        tool_name,
+        arguments,
+    } = item
+    {
+        // this chunk has tool call data
+    } else if let OutputItem::AzurAiSearchCallOutput { call_id, output } = item {
+        // azure
+    }
+
+    return Ok("lol".to_string());
 }
 
 /// Streams and parses a LLM response from Azure that contains function calls.

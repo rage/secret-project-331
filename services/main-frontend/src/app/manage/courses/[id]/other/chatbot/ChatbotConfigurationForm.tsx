@@ -390,6 +390,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       margin: 20px 20px;
                     `}
                   >
+                    {t("semantic-reranking-problem-notice")}
                     <CheckBox
                       label={t("use-semantic-reranking")}
                       {...register("use_semantic_reranking")}

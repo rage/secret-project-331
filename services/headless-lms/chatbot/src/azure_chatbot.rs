@@ -331,7 +331,7 @@ impl LLMRequest {
                     },
                     index_name,
                     query_type: query_type.to_string(),
-                    semantic_configuration: "default".to_string(),
+                    semantic_configuration: "azureml-default".to_string(),
                     embedding_dependency: EmbeddingDependency {
                         dep_type: "deployment_name".to_string(),
                         deployment_name: search_config.vectorizer_deployment_id.clone(),

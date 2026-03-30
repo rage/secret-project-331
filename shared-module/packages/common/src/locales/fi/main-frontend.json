@@ -1184,6 +1184,7 @@
   "select-text-to-comment-on-specific-portion": "Valitse tekstiä hiirelläsi kommentoidaksesi tiettyä tekstin osaa.",
   "select-verbosity": "Kielimallin monisanaisuus",
   "selected-text": "Valittu teksti:",
+  "semantic-reranking-problem-notice": "Huom: Jos saat toistuvasti virheitä chatbotilta, tämän asetuksen poislaittaminen voi auttaa.",
   "send": "Lähetä",
   "send-your-proposal-to-review-or-select-another-paragraph": "Lähetä ehdotuksesi tarkistettavaksi tai valitse toinen kappale tehdäksesi lisää muutoksia.",
   "sent-by": "Lähetettäjä: {{user}}",

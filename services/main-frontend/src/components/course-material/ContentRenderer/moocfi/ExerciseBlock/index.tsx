@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQueryClient } from "@tanstack/react-query"
-import { CheckCircle, Padlock, PlusHeart } from "@vectopus/atlas-icons-react"
+import { CheckCircle, Padlock } from "@vectopus/atlas-icons-react"
 import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
@@ -23,8 +23,10 @@ import UserOnWrongCourseNotification from "@/components/course-material/notifica
 import {
   ExerciseCardHeader,
   ExerciseCardPointsBadge,
+  ExerciseCardTriesBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
+import { exerciseCardPillShell } from "@/components/exercise-card/exerciseCardPillShell"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
@@ -41,7 +43,7 @@ import HideTextInSystemTests from "@/shared-module/common/components/system-test
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { useDateStringAsDateNullable } from "@/shared-module/common/hooks/useDateStringAsDate"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateDiffInDays } from "@/shared-module/common/utils/dateUtil"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
@@ -140,6 +142,74 @@ const DeadlineText = styled.div<DeadlineProps>`
 `
 
 export const getExerciseBlockBeginningScrollingId = (exerciseId: string) => exerciseId
+
+/** Smaller type on narrow viewports so longer exercise names fit without crowding the header. */
+function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
+  const long = exerciseNameIsLong
+  return {
+    heading: css`
+      font-size: ${long ? "1.03rem" : "1.08rem"};
+      font-weight: 500;
+      font-family: ${headingFont} !important;
+      overflow-wrap: anywhere;
+      min-width: 0;
+      margin-top: -2px;
+
+      ${respondToOrLarger.xxxs} {
+        font-size: ${long ? "1.06rem" : "1.14rem"};
+      }
+      ${respondToOrLarger.xxs} {
+        font-size: ${long ? "1.09rem" : "1.2rem"};
+      }
+      ${respondToOrLarger.xs} {
+        font-size: ${long ? "1.12rem" : "1.28rem"};
+      }
+      ${respondToOrLarger.sm} {
+        font-size: ${long ? "1.16rem" : "1.36rem"};
+      }
+      ${respondToOrLarger.md} {
+        font-size: ${long ? "1.2rem" : "1.46rem"};
+      }
+      ${respondToOrLarger.lg} {
+        font-size: ${long ? "1.3rem" : "1.58rem"};
+      }
+      ${respondToOrLarger.xl} {
+        font-size: ${long ? "1.4rem" : "1.7rem"};
+      }
+    `,
+    label: css`
+      font-weight: 600;
+      font-size: 0.8125rem;
+      margin-bottom: 0.25rem;
+
+      ${respondToOrLarger.xxxs} {
+        font-size: 0.875rem;
+      }
+      ${respondToOrLarger.xxs} {
+        font-size: 0.90625rem;
+      }
+      ${respondToOrLarger.xs} {
+        font-size: 0.9375rem;
+      }
+      ${respondToOrLarger.sm} {
+        font-size: 0.96875rem;
+      }
+      ${respondToOrLarger.md} {
+        font-size: 1rem;
+      }
+      ${respondToOrLarger.lg} {
+        font-size: 1.0625rem;
+      }
+      ${respondToOrLarger.xl} {
+        font-size: 1.125rem;
+      }
+    `,
+    nameLine: css`
+      line-height: 1.38;
+      padding-bottom: 0.2rem;
+    `,
+  }
+}
 
 // Special care taken here to ensure exercise content can have full width of
 // the page.
@@ -295,6 +365,8 @@ const ExerciseBlock: React.FC<
     return getCourseMaterialExercise.data.exercise.name.length > 35
   }, [getCourseMaterialExercise.data])
 
+  const exerciseTitleStyles = exerciseBlockTitleHeadingStyles(exerciseNameIsLong)
+
   if (!showExercise) {
     return <div>{t("please-select-course-instance-before-answering-exercise")}</div>
   }
@@ -397,40 +469,9 @@ const ExerciseBlock: React.FC<
       >
         <ExerciseCardHeader
           title={
-            <h2
-              id={exerciseTitleId}
-              className={css`
-                font-size: ${exerciseNameIsLong ? "1.4rem" : "1.7rem"};
-                font-weight: 500;
-                font-family: ${headingFont} !important;
-                overflow-wrap: anywhere;
-                overflow: hidden;
-                margin-top: -2px;
-              `}
-            >
-              <div
-                className={css`
-                  font-weight: 600;
-                  font-size: 18px;
-                  margin-bottom: 0.25rem;
-                  color: #1b222c;
-                `}
-              >
-                {t("label-exercise")}:
-              </div>
-              <div
-                className={css`
-                  line-height: 30px;
-                  overflow: hidden;
-                  max-height: 80px;
-                  /* Prevents some characters, like 3, from clipping */
-                  padding-bottom: 0.2rem;
-
-                  ${respondToOrLarger.xs} {
-                    max-height: 60px;
-                  }
-                `}
-              >
+            <h2 id={exerciseTitleId} className={exerciseTitleStyles.heading}>
+              <div className={exerciseTitleStyles.label}>{t("label-exercise")}:</div>
+              <div className={exerciseTitleStyles.nameLine}>
                 {getCourseMaterialExercise.data.exercise.name}
               </div>
             </h2>
@@ -438,80 +479,84 @@ const ExerciseBlock: React.FC<
           rightContent={
             <div
               className={css`
-                font-size: 9px;
-                text-align: center;
-                font-family: ${secondaryFont} !important;
-                text-transform: uppercase;
-                color: #57606f;
                 display: flex;
+                align-items: center;
                 justify-content: center;
-                flex-direction: column;
                 gap: 16px;
-
-                .tries {
-                  font-family: ${headingFont} !important;
-                  display: flex;
-                  color: #57606f;
-                  font-size: 14px;
-                  font-weight: 500;
-                  line-height: 0.8;
-                }
-
-                p {
-                  font-size: 16px;
-                }
-
+                flex-wrap: wrap;
                 width: 100%;
                 ${respondToOrLarger.xxs} {
                   width: auto;
+                  justify-content: flex-end;
                 }
               `}
             >
               {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
-                <div
-                  className={css`
-                    display: block;
-                  `}
-                >
-                  <span
-                    className={css`
-                      color: #57606f;
-                      font-size: 12px;
-                      display: inline-block;
-                      margin-bottom: 2px;
-                    `}
-                  >
-                    {t("tries")}
-                  </span>
-                  <div className="tries">
-                    <PlusHeart size={16} weight="bold" color="#394F77" />
-                    <p>{triesRemaining}</p>
-                  </div>
-                </div>
+                <ExerciseCardTriesBadge triesRemaining={triesRemaining} />
               )}
               {isExam && points === null ? (
                 <div
-                  className={css`
-                    display: flex;
-                    flex-direction: column;
-                    border-radius: 10px;
-                    background: #f0f0f0;
-                    height: 60px;
-                    padding: 8px 16px 6px 16px;
-                    box-shadow:
-                      rgba(45, 35, 66, 0) 0 2px 4px,
-                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                      #c4c4c4 0 -3px 0 inset;
-                  `}
+                  className={cx(
+                    exerciseCardPillShell,
+                    css`
+                      height: auto;
+                      min-height: 0;
+                      padding: 4px 10px 5px;
+                      box-sizing: border-box;
+                      justify-content: center;
+                      gap: 0;
+
+                      & > div {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 2px;
+                        min-width: 0;
+                        max-width: 100%;
+                      }
+
+                      .heading {
+                        color: #57606f;
+                        font-size: 10px;
+                        margin-bottom: 0;
+                        line-height: 1.15;
+                        text-align: center;
+                        overflow-wrap: anywhere;
+                        display: -webkit-box;
+                        -webkit-box-orient: vertical;
+                        -webkit-line-clamp: 2;
+                        overflow: hidden;
+
+                        ${respondToOrLarger.xs} {
+                          font-size: 12px;
+                        }
+
+                        ${respondToOrLarger.lg} {
+                          font-size: 13px;
+                        }
+                      }
+
+                      .value {
+                        font-size: 1rem;
+                        line-height: 1.2;
+                        margin-top: 0;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        max-width: 100%;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                      }
+                    `,
+                  )}
                 >
-                  <div>{t("max-points")}</div>
-                  <div
-                    className={css`
-                      font-size: 1rem;
-                      margin-top: 3px;
-                    `}
-                  >
-                    {getCourseMaterialExercise.data.exercise.score_maximum}
+                  <div>
+                    <span className="heading">{t("max-points")}</span>
+                    <div className="value">
+                      {getCourseMaterialExercise.data.exercise.score_maximum}
+                    </div>
                   </div>
                 </div>
               ) : (

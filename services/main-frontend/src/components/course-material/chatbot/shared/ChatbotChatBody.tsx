@@ -1,142 +1,40 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
+import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
+import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
-import { sendChatbotMessage } from "@/services/course-material/backend"
-import {
-  ChatbotConversation,
-  ChatbotConversationInfo,
-  ChatbotConversationMessageCitation,
-} from "@/shared-module/common/bindings"
+import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 
-interface ChatbotChatBodyProps {
-  chatbotConfigurationId: string
-  currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-  newMessage: string
-  setNewMessage: React.Dispatch<React.SetStateAction<string>>
-  error: Error | null
-  setError: (error: Error | null) => void
-}
-
-interface MessageState {
-  optimisticMessage: string | null
-  streamingMessage: string | null
-}
-
-type MessageAction =
-  | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
-  | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "RESET_MESSAGES" }
-
-const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
-  switch (action.type) {
-    case "SET_OPTIMISTIC_MESSAGE":
-      return { ...state, optimisticMessage: action.payload }
-    case "APPEND_STREAMING_MESSAGE":
-      return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
-    case "RESET_MESSAGES":
-      return { optimisticMessage: null, streamingMessage: null }
-    default:
-      return state
-  }
-}
-
-const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
+const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
-  newConversation,
-  chatbotConfigurationId,
+  newConversationMutation,
   newMessage,
   setNewMessage,
   error,
-  setError,
+  messageState,
+  chatbotMessageAnnouncement,
+  dispatch,
+  newMessageMutation,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-  const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  const [messageState, dispatch] = useReducer(messageReducer, {
-    optimisticMessage: null,
-    streamingMessage: null,
-  })
-
-  const newMessageMutation = useToastMutation(
-    async (messageToSend: string) => {
-      if (!currentConversationInfo.data?.current_conversation) {
-        throw new Error("No active conversation")
-      }
-      setChatbotMessageAnnouncement(t("chatbot-is-responding"))
-      const message = messageToSend.trim()
-      dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
-      setNewMessage("")
-      const stream = await sendChatbotMessage(
-        chatbotConfigurationId,
-        currentConversationInfo.data.current_conversation.id,
-        message,
-      )
-      const reader = stream.getReader()
-
-      let done = false
-      while (!done) {
-        const { done: doneReading, value } = await reader.read()
-        done = doneReading
-        if (value) {
-          const valueAsString = new TextDecoder().decode(value)
-          const lines = valueAsString.split("\n")
-          for (const line of lines) {
-            if (line?.indexOf("{") !== 0) {
-              continue
-            }
-            try {
-              const parsedValue = JSON.parse(line)
-              if (parsedValue.text) {
-                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.text })
-              }
-            } catch (e) {
-              console.error(e)
-            }
-          }
-        }
-      }
-      return stream
-    },
-    { notify: false },
-    {
-      onSuccess: async () => {
-        await currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
-        setError(null)
-        setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
-      },
-      onError: async (error) => {
-        if (error instanceof Error) {
-          setError(error)
-          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-        } else {
-          console.error(`Failed to send chat message: ${error}`)
-          setError(new Error("Unknown error occurred"))
-        }
-        await currentConversationInfo.refetch()
-      },
-    },
-  )
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
@@ -247,70 +145,24 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
 
   if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
     return (
-      <div
-        className={css`
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          padding: 20px;
-          overflow: hidden;
-
-          h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-          }
-
-          p {
-            margin-bottom: 5px;
-          }
-
-          ul {
-            margin-bottom: 10px;
-            padding-left: 20px;
-          }
-
-          li {
-            margin-bottom: 5px;
-          }
-        `}
-      >
-        <div
-          className={css`
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            overflow: scroll;
-          `}
-        >
-          <h2>{t("about-the-chatbot")}</h2>
-          <p>{t("chatbot-disclaimer-start")}</p>
-          <ul>
-            <li>{t("chatbot-discalimer-sensitive-information")}</li>
-            <li>{t("chatbot-disclaimer-check")}</li>
-            <li>
-              {t("chatbot-disclaimer-disclose-part-1")}
-              <a href="https://studies.helsinki.fi/instructions/article/using-ai-support-learning">
-                {" "}
-                {t("chatbot-disclaimer-disclose-part-2")}
-              </a>
-              .{" "}
-            </li>
-          </ul>
-        </div>
-        <Button
-          className={css`
-            margin-top: 6px;
-          `}
-          size="medium"
-          variant="secondary"
-          onClick={() => {
-            newConversation.mutate()
-            dispatch({ type: "RESET_MESSAGES" })
-          }}
-        >
-          {t("button-text-agree")}
-        </Button>
-      </div>
+      <ChatbotDisclaimer
+        agreeButton={
+          <Button
+            className={css`
+              margin-top: 6px;
+            `}
+            size="medium"
+            variant="secondary"
+            onClick={() => {
+              newConversationMutation.mutate()
+              dispatch({ type: "RESET_MESSAGES" })
+            }}
+            disabled={newConversationMutation.isPending}
+          >
+            {t("button-text-agree")}
+          </Button>
+        }
+      />
     )
   }
 
@@ -399,7 +251,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
-                setChatbotMessageAnnouncement("")
                 e.preventDefault()
                 if (canSubmit) {
                   newMessageMutation.mutate(newMessage)
@@ -445,7 +296,6 @@ const ChatbotChatBody: React.FC<ChatbotChatBodyProps> = ({
             disabled={!canSubmit}
             aria-label={t("send")}
             onClick={() => {
-              setChatbotMessageAnnouncement("")
               newMessageMutation.mutate(newMessage)
             }}
           >

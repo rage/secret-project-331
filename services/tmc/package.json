@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "packageManager": "pnpm@10.30.3",
   "scripts": {
-    "build": "NODE_ENV=production next build",
-    "dev": "next dev --port 3005 --turbopack",
-    "export": "next export",
+    "postinstall": "node scripts/prepare-pyodide-assets.cjs",
+    "build": "node scripts/inject-pyodide-version.cjs && next build",
+    "dev": "node scripts/inject-pyodide-version.cjs && next dev --port 3005 --turbopack",
+    "export": "node scripts/inject-pyodide-version.cjs && next export",
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
   "dependencies": {
@@ -19,6 +20,7 @@
     "@fontsource/raleway": "^5.2.8",
     "@fontsource/roboto-mono": "^5.2.8",
     "@fontsource/space-mono": "^5.2.9",
+    "@internationalized/date": "^3.12.0",
     "@json2csv/plainjs": "^7.0.6",
     "@kubernetes/client-node": "^1.4.0",
     "@monaco-editor/react": "^4.7.0",
@@ -26,6 +28,14 @@
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.5.33",
     "@react-aria/overlays": "^3.31.1",
+    "@react-aria/utils": "^3.33.1",
+    "@react-stately/collections": "^3.12.10",
+    "@react-stately/combobox": "^3.13.0",
+    "@react-stately/datepicker": "^3.16.1",
+    "@react-stately/overlays": "^3.6.23",
+    "@react-stately/radio": "^3.11.5",
+    "@react-stately/select": "^3.9.2",
+    "@react-stately/toggle": "^3.9.5",
     "@tanstack/react-query": "^5.90.21",
     "@types/node": "^25.3.3",
     "@types/ws": "^8.18.1",
@@ -64,7 +74,7 @@
     "zstddec": "^0.2.0"
   },
   "devDependencies": {
-    "@svgr/webpack": "^8.1.0",
+    "@svgr/webpack": "latest",
     "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.24",
     "@types/react": "^19.2.14",
@@ -75,7 +85,8 @@
     "jest-environment-jsdom": "^30.2.0",
     "node-loader": "^2.1.0",
     "postcss-styled-syntax": "^0.7.1",
-    "ts-jest": "^29.4.6",
+    "pyodide": "^0.29.3",
+    "ts-jest": "^29.4.4",
     "typescript": "^5.9.3"
   }
 }

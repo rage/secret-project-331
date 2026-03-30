@@ -55,7 +55,7 @@ jobs:
         working-directory: ./storybook
 
       - name: pnpm run build-storybook
-        run: pnpm run build-storybook -- --quiet
+        run: pnpm run build-storybook --quiet
         working-directory: ./storybook
 
       - name: Remove old files from repo

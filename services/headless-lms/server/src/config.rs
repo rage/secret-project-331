@@ -2,7 +2,10 @@
 
 use crate::{
     OAuthClient,
-    domain::{models_requests::JwtKey, request_span_middleware::RequestSpan},
+    domain::{
+        models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
+        request_span_middleware::RequestSpan,
+    },
 };
 use actix_http::{StatusCode, body::MessageBody};
 use actix_web::{
@@ -165,6 +168,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(tmc_client)
         .service(
             web::scope("/api/v0")
+                .wrap(RateLimit::new(RateLimit::global_api_rate_limit_config()))
                 .wrap(RequestSpan)
                 .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
         );

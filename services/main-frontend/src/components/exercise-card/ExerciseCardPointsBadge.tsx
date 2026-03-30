@@ -1,11 +1,13 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { headingFont, secondaryFont } from "@/shared-module/common/styles"
+import { exerciseCardPillShell } from "./exerciseCardPillShell"
+
+import { headingFont } from "@/shared-module/common/styles"
 
 export interface ExerciseCardPointsBadgeProps {
   score: number | null
@@ -27,56 +29,40 @@ const ExerciseCardPointsBadge: React.FC<React.PropsWithChildren<ExerciseCardPoin
 
   return (
     <div
-      className={css`
-        font-size: 9px;
-        text-align: center;
-        font-family: ${secondaryFont} !important;
-        text-transform: uppercase;
-        border-radius: 10px;
-        background: #f0f0f0;
-        height: 60px;
-        padding: 8px 16px 6px 16px;
-        color: #57606f;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        flex-direction: column;
-        gap: 16px;
-        box-shadow:
-          rgba(45, 35, 66, 0) 0 2px 4px,
-          rgba(45, 35, 66, 0) 0 7px 13px -3px,
-          #c4c4c4 0 -3px 0 inset;
+      className={cx(
+        exerciseCardPillShell,
+        css`
+          .points {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            line-height: 100%;
+            color: #57606f;
+            z-index: 999;
+          }
 
-        .points {
-          display: flex;
-          align-items: center;
-          flex-wrap: nowrap;
-          line-height: 100%;
-          color: #57606f;
-          z-index: 999;
-        }
+          .heading {
+            color: #57606f;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 2px;
+          }
 
-        .heading {
-          color: #57606f;
-          font-size: 12px;
-          display: inline-block;
-          margin-bottom: 2px;
-        }
+          sup,
+          sub {
+            font-family: ${headingFont} !important;
+            color: #57606f;
+            font-size: 15px;
+            font-weight: 500;
+            margin: 0;
+          }
 
-        sup,
-        sub {
-          font-family: ${headingFont} !important;
-          color: #57606f;
-          font-size: 15px;
-          font-weight: 500;
-          margin: 0;
-        }
-
-        svg {
-          flex-shrink: 0;
-          margin-right: 4px;
-        }
-      `}
+          svg {
+            flex-shrink: 0;
+            margin-right: 4px;
+          }
+        `,
+      )}
     >
       <div>
         <span className="heading">{t("points-label")}</span>

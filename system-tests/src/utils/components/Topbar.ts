@@ -48,5 +48,6 @@ export class Topbar {
   /** Logs out via the user menu. */
   async logout() {
     await this.userMenu.clickItem("Log out")
+    await this.loginLink.waitFor()
   }
 }

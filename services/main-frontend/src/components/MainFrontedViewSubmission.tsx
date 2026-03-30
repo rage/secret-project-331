@@ -11,9 +11,8 @@ import {
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
 import { ExerciseSlideSubmissionInfo } from "@/shared-module/common/bindings"
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { headingFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 interface MainFrontedViewSubmissionProps {
   submissionData: ExerciseSlideSubmissionInfo
@@ -43,7 +42,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
                 font-weight: 500;
                 font-family: ${headingFont} !important;
                 overflow-wrap: anywhere;
-                overflow: hidden;
+                min-width: 0;
                 margin-top: -2px;
               `}
             >
@@ -52,7 +51,6 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
                   font-weight: 600;
                   font-size: 18px;
                   margin-bottom: 0.25rem;
-                  color: ${baseTheme.colors.gray[800]};
                 `}
               >
                 {t("submission")}:
@@ -60,13 +58,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
               <div
                 className={css`
                   line-height: 30px;
-                  overflow: hidden;
-                  max-height: 80px;
                   padding-bottom: 0.2rem;
-
-                  ${respondToOrLarger.xs} {
-                    max-height: 60px;
-                  }
                 `}
               >
                 {submissionData.exercise.name}

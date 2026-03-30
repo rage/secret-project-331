@@ -3,12 +3,11 @@
 import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { Account, AddMessage, ArrowDownToBracket } from "@vectopus/atlas-icons-react"
-import React from "react"
+import React, { DOMAttributes } from "react"
 import { Button, Heading } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import ClarificationTooltip from "../../../ClarificationTooltip"
-import { DiscrChatbotDialogProps } from "../Chatbot/ChatbotChat"
 
 import DropdownMenu, { DropdownMenuItem } from "@/components/DropdownMenu"
 import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
@@ -20,10 +19,20 @@ import { baseTheme } from "@/shared-module/common/styles"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
 
+interface ChatbotDialogHeaderProps {
+  isCourseMaterialBlock: false
+  closeChatbot: () => void
+  titleProps: DOMAttributes<Element>
+}
+
+interface ChatbotNoDialogHeaderProps {
+  isCourseMaterialBlock: true
+}
+
 type ChatbotChatHeaderProps = {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
-  newConversation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
-} & DiscrChatbotDialogProps
+  newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
+} & (ChatbotDialogHeaderProps | ChatbotNoDialogHeaderProps)
 
 const headerContainerStyle = css`
   display: flex;
@@ -82,7 +91,7 @@ const buttonsWrapper = css`
 
 const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
   const { t } = useTranslation()
-  const { currentConversationInfo, newConversation, isCourseMaterialBlock } = props
+  const { currentConversationInfo, newConversationMutation, isCourseMaterialBlock } = props
 
   const createTranscript = useToastMutation(
     async () => {
@@ -110,11 +119,11 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       // eslint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-new-conversation-button",
       onAction: () => {
-        if (!newConversation.isPending) {
-          newConversation.mutate()
+        if (!newConversationMutation.isPending) {
+          newConversationMutation.mutate()
         }
       },
-      disabled: newConversation.isPending,
+      disabled: newConversationMutation.isPending,
       icon: (
         <AddMessage
           className={css`

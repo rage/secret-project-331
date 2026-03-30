@@ -10,6 +10,8 @@ export interface SpeechBalloonProps {
   className?: string
   onClick?: () => void
   children?: React.ReactNode
+  placement?: string
+  paddingValue?: string
 }
 
 const BORDER_RADIUS = "8px"
@@ -22,20 +24,20 @@ const COLORS = {
   border: baseTheme.colors.green[400],
   text: baseTheme.colors.gray[700],
   shadow: "rgba(0, 0, 0, 0.4)",
+  shadowArrow: "rgba(0, 0, 0, 0.2)",
 }
 
 const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
-  ({ children, className, onClick }, ref) => {
+  ({ children, className, onClick, placement = "top", paddingValue = "1rem 1.5rem" }, ref) => {
     const speechBalloonCss = css`
       display: inline-block;
       position: relative;
       background: ${COLORS.bg};
       color: ${COLORS.text};
-      padding: 1rem 1.5rem;
+      padding: ${paddingValue};
       border-radius: ${BORDER_RADIUS};
       border: ${BORDER_WIDTH} solid ${COLORS.border};
       box-shadow: 0 3px 15px 0px ${COLORS.shadow};
-      margin-bottom: ${POINTER_SIZE};
       transition: filter 0.3s;
       width: max-content;
 
@@ -52,29 +54,48 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
         }
       `}
 
+      ${placement == "bottom" && `margin-top: calc(${POINTER_SIZE} * 2.5);`}
+      ${placement == "top" && `margin-bottom: ${POINTER_SIZE};`}
       &:after {
+        ${placement == "bottom" &&
+        `
+          top: -${POINTER_SIZE};
+          border-bottom: ${POINTER_SIZE} solid ${COLORS.border};
+          filter: drop-shadow(0px -10px 6px ${COLORS.shadowArrow});
+        `}
+        ${placement == "top" &&
+        `
+          bottom: -${POINTER_SIZE};
+          border-top: ${POINTER_SIZE} solid ${COLORS.border};
+          filter: drop-shadow(0 8px 6px ${COLORS.shadowArrow});
+        `}
         content: "";
         position: absolute;
-        bottom: -${POINTER_SIZE};
         left: calc(50% - ${POINTER_SIZE});
         width: 0;
         height: 0;
         border-left: ${POINTER_SIZE} solid transparent;
         border-right: ${POINTER_SIZE} solid transparent;
-        border-top: ${POINTER_SIZE} solid ${COLORS.border};
-        filter: drop-shadow(0 8px 6px ${COLORS.shadow});
       }
 
       &:before {
+        ${placement == "bottom" &&
+        `
+          top: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
+          border-bottom: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
+        `}
+        ${placement == "top" &&
+        `
+          bottom: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
+          border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
+        `}
         content: "";
         position: absolute;
-        bottom: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
         left: calc(50% - ${POINTER_SIZE} + ${BORDER_WIDTH});
         width: 0;
         height: 0;
         border-left: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
         border-right: calc(${POINTER_SIZE} - ${BORDER_WIDTH}) solid transparent;
-        border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 1.5) solid ${COLORS.bg};
         z-index: 1;
       }
     `

@@ -3,7 +3,10 @@
 import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
 
 import accessibilityCheck from "./accessibilityCheck"
-import { scrollLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
+import {
+  scrollLocatorsParentIframeToViewIfNeeded,
+  waitForMessageChannelIframesToBeReady,
+} from "./iframeLocators"
 import {
   ensureImageHasBeenOptimized,
   imageSavedPageYCoordinate,
@@ -55,6 +58,8 @@ interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   scrollToYCoordinate?: number | ViewPortDict
   /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
   replaceSomePartsWithPlaceholders?: boolean
+  /** True by default. Waits until MessageChannelIFrame instances have received state and set a reasonable height. */
+  waitForMessageChannelIframeReadiness?: boolean
   testInfo: TestInfo
 }
 
@@ -86,6 +91,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   skipMobile = false,
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders = true,
+  waitForMessageChannelIframeReadiness = true,
   screenshotTarget,
   testInfo,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
@@ -166,6 +172,7 @@ export default async function expectScreenshotsToMatchSnapshots({
             axeSkip,
             scrollToYCoordinate,
             replaceSomePartsWithPlaceholders,
+            waitForMessageChannelIframeReadiness,
             useCoordinatesFromTheBottomForSavingYCoordinates,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             screenshotTarget: screenshotTarget as any,
@@ -183,6 +190,7 @@ export default async function expectScreenshotsToMatchSnapshots({
           axeSkip,
           scrollToYCoordinate,
           replaceSomePartsWithPlaceholders,
+          waitForMessageChannelIframeReadiness,
           useCoordinatesFromTheBottomForSavingYCoordinates,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           screenshotTarget: screenshotTarget as any,
@@ -228,6 +236,7 @@ async function snapshotWithViewPort({
   axeSkip,
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders,
+  waitForMessageChannelIframeReadiness,
   screenshotTarget,
   useCoordinatesFromTheBottomForSavingYCoordinates,
 }: SnapshotWithViewPortProps) {
@@ -245,6 +254,9 @@ async function snapshotWithViewPort({
   }
 
   await page.setViewportSize(viewPorts[viewPortName])
+  if (waitForMessageChannelIframeReadiness) {
+    await waitForMessageChannelIframesToBeReady(page)
+  }
   if (waitForTheseToBeVisibleAndStable) {
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
   }

@@ -42,6 +42,16 @@
         "ordinal": 7,
         "name": "has_custom_view",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "csv_export_definitions_endpoint_path",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
+        "name": "csv_export_answers_endpoint_path",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -62,7 +72,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true,
+      true
     ]
   },
   "hash": "4d5ac52430e5e6f08d01b124e9300359005224fc814313a5a2722f8c5aafe15a"

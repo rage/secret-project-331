@@ -6,7 +6,7 @@ import React, { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
-import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import { supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
@@ -98,7 +98,6 @@ const TestEditor: React.FC = () => {
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
           customBlocks={blockTypeMapForTopLevelPages}
           allowedBlocks={supportedCoreBlocks}
-          allowedBlockVariations={allowedBlockVariants}
           mediaUpload={() => {}}
           inspectorButtons={saveAndReset}
           needToRunMigrationsAndValidations={false}

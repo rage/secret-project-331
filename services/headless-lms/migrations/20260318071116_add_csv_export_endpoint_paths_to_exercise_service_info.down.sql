@@ -1,0 +1,3 @@
+ALTER TABLE exercise_service_info
+DROP COLUMN csv_export_definitions_endpoint_path,
+DROP COLUMN csv_export_answers_endpoint_path;

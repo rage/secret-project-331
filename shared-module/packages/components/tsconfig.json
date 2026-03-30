@@ -1,0 +1,14 @@
+{
+  "extends": "../common/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "types": ["jest", "node"],
+    "noEmit": true,
+    "jsxImportSource": "react"
+  },
+  "include": ["src", "__tests__", "tests"],
+  "exclude": ["node_modules", "dist"]
+}

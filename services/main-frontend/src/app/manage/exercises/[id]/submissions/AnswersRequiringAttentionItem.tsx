@@ -81,7 +81,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
       >
         <ExerciseCardWrapper>
           <ExerciseCardHeader
-            backgroundColor={baseTheme.colors.blue[600]}
             title={
               <h2
                 className={css`
@@ -141,7 +140,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               .slice()
               .sort((a, b) => a.order_number - b.order_number)
               .map((task) => (
-                <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+                <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} throttled />
               ))}
             <div
               className={css`

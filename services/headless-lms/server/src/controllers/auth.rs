@@ -313,7 +313,7 @@ pub async fn authorize_multiple_actions_on_resources(
 }
 
 /**
-POST `/api/v0/auth/login` Logs in to TMC.
+POST `/api/v0/auth/login` Logs in to the system.
 Returns LoginResponse indicating success, email verification required, or failure.
 **/
 #[instrument(skip(session, pool, client, payload, app_conf, tmc_client))]
@@ -467,7 +467,7 @@ async fn handle_production_login(
 
     // Try to authenticate via TMC and store password to courses.mooc.fi if successful
     if !is_authenticated {
-        let auth_result = authorization::authenticate_moocfi_user(
+        let auth_result = authorization::authenticate_tmc_mooc_fi_user(
             conn,
             client,
             email.to_string(),
@@ -940,6 +940,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: None,
                 per_day: Some(1000),
                 per_month: None,
+                ..Default::default()
             }))
             .to(signup),
     )
@@ -950,6 +951,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(100),
                 per_day: Some(500),
                 per_month: None,
+                ..Default::default()
             }))
             .to(login),
     )
@@ -968,6 +970,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(5),
                 per_day: Some(10),
                 per_month: None,
+                ..Default::default()
             }))
             .to(delete_user_account),
     )
@@ -978,6 +981,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(5),
                 per_day: Some(20),
                 per_month: None,
+                ..Default::default()
             }))
             .to(send_delete_user_email_code),
     )
@@ -988,6 +992,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
                 per_hour: Some(50),
                 per_day: None,
                 per_month: None,
+                ..Default::default()
             }))
             .to(verify_email),
     );

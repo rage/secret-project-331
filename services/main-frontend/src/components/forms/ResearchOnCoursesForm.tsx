@@ -76,6 +76,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             gap: 13px;
             line-height: 24px;
             align-items: center;
+            flex-shrink: 0;
             color: ${baseTheme.colors.gray[700]};
           `}
         >
@@ -94,6 +95,9 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
           className={css`
             display: flex;
             flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
             font-size: 16px;
             padding: 24px;
             border: ${baseTheme.colors.clear[700]};
@@ -168,6 +172,7 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             display: flex;
             flex-direction: row;
             justify-content: flex-end;
+            flex-shrink: 0;
             padding: 16px 20px 16px 20px;
             height: 72px;
             font-family: ${headingFont};

@@ -1,18 +1,20 @@
-import { isNumber } from "lodash"
-
 import { mainFrontendClient } from "../mainFrontendClient"
 
 import {
   Exercise,
+  ExerciseCsvExportTaskOption,
   ExerciseSlideSubmission,
   ExerciseSubmissions,
 } from "@/shared-module/common/bindings"
 import {
   isExercise,
+  isExerciseCsvExportTaskOption,
   isExerciseSlideSubmission,
   isExerciseSubmissions,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray, isNumber, validateResponse } from "@/shared-module/common/utils/fetching"
+
+export type { ExerciseCsvExportTaskOption }
 
 export const fetchExerciseSubmissions = async (
   exerciseId: string,
@@ -38,9 +40,54 @@ export interface Block<T> {
   innerBlocks: Block<unknown>[]
 }
 
+export interface DownloadedCsvFile {
+  blob: Blob
+  fileName: string
+}
+
 export const fetchExercisesByCourseId = async (courseId: string): Promise<Exercise[]> => {
   const response = await mainFrontendClient.get(`/exercises/${courseId}/exercises-by-course-id`)
   return validateResponse(response, isArray(isExercise))
+}
+
+export const fetchExerciseCsvExportTaskOptions = async (
+  exerciseId: string,
+): Promise<ExerciseCsvExportTaskOption[]> => {
+  const response = await mainFrontendClient.get(`/exercises/${exerciseId}/csv-export-task-options`)
+  return validateResponse(response, isArray(isExerciseCsvExportTaskOption))
+}
+
+export const downloadExerciseDefinitionsCsv = async (
+  exerciseId: string,
+  exerciseTaskId: string,
+): Promise<DownloadedCsvFile> => {
+  const response = await mainFrontendClient.get(
+    `/exercises/${exerciseId}/export-definitions-csv?exercise_task_id=${exerciseTaskId}`,
+    { responseType: "blob" },
+  )
+  return {
+    blob: response.data,
+    fileName: `exercise-${exerciseId}-definitions-${exerciseTaskId}.csv`,
+  }
+}
+
+export const downloadExerciseAnswersCsv = async (
+  exerciseId: string,
+  exerciseTaskId: string,
+  onlyLatestPerUser = false,
+): Promise<DownloadedCsvFile> => {
+  const params = new URLSearchParams({ exercise_task_id: exerciseTaskId })
+  if (onlyLatestPerUser) {
+    params.set("only_latest_per_user", "true")
+  }
+  const response = await mainFrontendClient.get(
+    `/exercises/${exerciseId}/export-answers-csv?${params.toString()}`,
+    { responseType: "blob" },
+  )
+  return {
+    blob: response.data,
+    fileName: `exercise-${exerciseId}-answers-${exerciseTaskId}.csv`,
+  }
 }
 
 export const fetchExerciseSubmissionsForUser = async (

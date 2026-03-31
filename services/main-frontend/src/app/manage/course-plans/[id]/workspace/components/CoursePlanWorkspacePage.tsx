@@ -306,6 +306,7 @@ export default function CoursePlanWorkspacePage() {
   const queryClient = useQueryClient()
   const [isOverviewOpen, setIsOverviewOpen] = useState(false)
   const [viewedStage, setViewedStage] = useState<CourseDesignerStage | null>(null)
+  const [analysisWorkspaceDirty, setAnalysisWorkspaceDirty] = useState(false)
   const previousActiveStageRef = useRef<CourseDesignerStage | null>(null)
 
   const planQuery = useQuery({
@@ -346,6 +347,25 @@ export default function CoursePlanWorkspacePage() {
   )
 
   const stageLabel = useCallback((stage: CourseDesignerStage) => t(STAGE_LABEL_KEYS[stage]), [t])
+
+  const handleSelectedStageChange = useCallback(
+    (stage: CourseDesignerStage) => {
+      if (analysisWorkspaceDirty && viewedStage === "Analysis" && stage !== viewedStage) {
+        // eslint-disable-next-line no-alert -- matches beforeunload for in-app navigation
+        if (!window.confirm(t("course-plans-analysis-unsaved-confirm"))) {
+          return
+        }
+      }
+      setViewedStage(stage)
+    },
+    [analysisWorkspaceDirty, viewedStage, t],
+  )
+
+  useEffect(() => {
+    if (viewedStage !== "Analysis") {
+      setAnalysisWorkspaceDirty(false)
+    }
+  }, [viewedStage])
 
   useEffect(() => {
     if (!planQuery.data) {
@@ -593,7 +613,7 @@ export default function CoursePlanWorkspacePage() {
             stages={stages}
             activeStage={currentStage ?? null}
             selectedStage={viewedStage}
-            onSelectedStageChange={setViewedStage}
+            onSelectedStageChange={handleSelectedStageChange}
             stageLabel={stageLabel}
             onOpenOverview={() => setIsOverviewOpen(true)}
             currentStageLabel={currentStage ? stageLabel(currentStage) : null}
@@ -646,6 +666,7 @@ export default function CoursePlanWorkspacePage() {
                 <AnalysisWorkspaceForm
                   planId={planId}
                   workspaceData={viewedStageData.workspace_data}
+                  onDirtyChange={setAnalysisWorkspaceDirty}
                 />
               ) : null}
             </section>

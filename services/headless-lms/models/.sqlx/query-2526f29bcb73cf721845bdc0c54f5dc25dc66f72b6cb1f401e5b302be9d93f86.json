@@ -15,33 +15,33 @@
       },
       {
         "ordinal": 2,
+        "name": "tool_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
         "name": "tool_arguments",
         "type_info": "Jsonb"
       },
       {
-        "ordinal": 3,
+        "ordinal": 4,
         "name": "tool_call_id",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 4,
+        "ordinal": 5,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 5,
+        "ordinal": 6,
         "name": "updated_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 6,
+        "ordinal": 7,
         "name": "deleted_at",
         "type_info": "Timestamptz"
-      },
-      {
-        "ordinal": 7,
-        "name": "tool_name",
-        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -59,8 +59,8 @@
       false,
       false,
       false,
-      true,
-      false
+      false,
+      true
     ]
   },
   "hash": "2526f29bcb73cf721845bdc0c54f5dc25dc66f72b6cb1f401e5b302be9d93f86"

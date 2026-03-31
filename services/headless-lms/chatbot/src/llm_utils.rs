@@ -162,49 +162,33 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(untagged)]
-pub enum APIMessageKind {
-    Text(APIMessageText),
-    ToolCall(APIMessageToolCall),
-    ToolResponse(APIMessageToolResponse),
-}
-
-/// LLM api message that contains only text
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct APIMessageText {
-    pub content: String,
-}
-
-/// LLM api message that contains tool calls. The tool calls were originally made by
-/// the LLM, but have been processed and added to the messages in a LLMRequest
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct APIMessageToolCall {
-    pub tool_calls: Vec<APIToolCall>,
-}
-
-/// LLM api message that contains outputs of tool calls
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct APIMessageToolResponse {
-    pub tool_call_id: String,
-    pub output: String,
-}
-
-impl From<ChatbotConversationMessageToolOutput> for APIMessageToolResponse {
+impl From<ChatbotConversationMessageToolOutput> for APIMessage {
     fn from(value: ChatbotConversationMessageToolOutput) -> Self {
-        APIMessageToolResponse {
-            tool_call_id: value.tool_call_id,
-            output: value.tool_output,
+        APIMessage {
+            message_type: APIMessageType::FunctionCallOutput {
+                call_id: value.tool_call_id,
+                output: value.tool_output,
+            },
         }
     }
 }
 
-impl From<APIMessageToolResponse> for ChatbotConversationMessageToolOutput {
-    fn from(value: APIMessageToolResponse) -> Self {
-        ChatbotConversationMessageToolOutput {
-            tool_output: value.output,
-            tool_call_id: value.tool_call_id,
-            ..Default::default()
+impl TryFrom<APIMessage> for ChatbotConversationMessageToolOutput {
+    type Error = ChatbotError;
+    fn try_from(value: APIMessage) -> ChatbotResult<Self> {
+        match value.message_type {
+            APIMessageType::FunctionCallOutput { call_id, output } => {
+                Ok(ChatbotConversationMessageToolOutput {
+                    tool_output: output,
+                    tool_call_id: call_id,
+                    ..Default::default()
+                })
+            }
+            _ => Err(ChatbotError::new(
+                ChatbotErrorType::Other,
+                "Can't convert APIMessage to ChatbotConversationMessageToolOutput: APIMessage type is not APIMessageType::FunctionCallOutput",
+                None,
+            )),
         }
     }
 }

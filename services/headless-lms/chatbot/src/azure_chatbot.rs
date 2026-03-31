@@ -31,10 +31,7 @@ use crate::chatbot_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
-use crate::llm_utils::{
-    APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
-    APIMessageType, APITool, APIToolCall, estimate_tokens, make_streaming_llm_request,
-};
+use crate::llm_utils::{APIMessage, APIMessageType, estimate_tokens, make_streaming_llm_request};
 use headless_lms_utils::url_encoding::url_decode;
 
 use crate::prelude::*;

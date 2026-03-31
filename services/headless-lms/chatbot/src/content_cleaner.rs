@@ -1,7 +1,6 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams};
 use crate::llm_utils::{
-    APIMessage, APIMessageKind, APIMessageText, APIMessageType, estimate_tokens,
-    make_blocking_llm_request, parse_text_completion,
+    APIMessage, APIMessageType, estimate_tokens, make_blocking_llm_request, parse_text_completion,
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
@@ -390,7 +389,6 @@ pub fn prepare_llm_messages(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::llm_utils::{APIMessageKind, APIMessageText};
     use serde_json::json;
 
     const TEST_BLOCK_NAME: &str = "test/block";

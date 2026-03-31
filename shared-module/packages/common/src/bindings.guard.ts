@@ -641,12 +641,11 @@ export function isChatbotConfiguration(obj: unknown): obj is ChatbotConfiguratio
         typeof typedObj["initial_message"] === "string" &&
         typeof typedObj["weekly_tokens_per_user"] === "number" &&
         typeof typedObj["daily_tokens_per_user"] === "number" &&
-        typeof typedObj["response_max_tokens"] === "number" &&
         typeof typedObj["temperature"] === "number" &&
         typeof typedObj["top_p"] === "number" &&
         typeof typedObj["frequency_penalty"] === "number" &&
         typeof typedObj["presence_penalty"] === "number" &&
-        typeof typedObj["max_completion_tokens"] === "number" &&
+        typeof typedObj["max_output_tokens"] === "number" &&
         isVerbosityLevel(typedObj["verbosity"]) as boolean &&
         isReasoningEffortLevel(typedObj["reasoning_effort"]) as boolean &&
         typeof typedObj["use_azure_search"] === "boolean" &&
@@ -679,12 +678,11 @@ export function isNewChatbotConf(obj: unknown): obj is NewChatbotConf {
         typeof typedObj["initial_message"] === "string" &&
         typeof typedObj["weekly_tokens_per_user"] === "number" &&
         typeof typedObj["daily_tokens_per_user"] === "number" &&
-        typeof typedObj["response_max_tokens"] === "number" &&
         typeof typedObj["temperature"] === "number" &&
         typeof typedObj["top_p"] === "number" &&
         typeof typedObj["frequency_penalty"] === "number" &&
         typeof typedObj["presence_penalty"] === "number" &&
-        typeof typedObj["max_completion_tokens"] === "number" &&
+        typeof typedObj["max_output_tokens"] === "number" &&
         isVerbosityLevel(typedObj["verbosity"]) as boolean &&
         isReasoningEffortLevel(typedObj["reasoning_effort"]) as boolean &&
         typeof typedObj["use_azure_search"] === "boolean" &&

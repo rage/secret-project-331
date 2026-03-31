@@ -303,12 +303,11 @@ export interface ChatbotConfiguration {
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  max_completion_tokens: number
+  max_output_tokens: number
   verbosity: VerbosityLevel
   reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
@@ -331,12 +330,11 @@ export interface NewChatbotConf {
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  max_completion_tokens: number
+  max_output_tokens: number
   verbosity: VerbosityLevel
   reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean

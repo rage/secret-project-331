@@ -74,6 +74,8 @@ pub fn get_azure_ai_search_tool_definition(
         "vector_simple_hybrid"
     };
 
+    let semantic_configuration = format!("{}-semantic-configuration", &index_name);
+
     Ok(AzureAISearchToolDefinition {
         data_type: "azure_ai_search".to_string(),
         azure_ai_search: AzureAISearch {
@@ -81,7 +83,7 @@ pub fn get_azure_ai_search_tool_definition(
                 index_name,
                 project_connection_id: search_config.search_connection_id.to_owned(),
                 query_type: query_type.to_string(),
-                semantic_configuration: "default".to_string(),
+                semantic_configuration,
                 embedding_dependency: EmbeddingDependency {
                     dep_type: "deployment_name".to_string(),
                     deployment_name: search_config.vectorizer_deployment_id.clone(),

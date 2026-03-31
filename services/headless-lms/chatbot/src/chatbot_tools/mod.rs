@@ -94,19 +94,21 @@ pub struct AzureLLMFunctionToolDefinition {
     pub tool_type: LLMToolType,
     pub name: String,
     pub description: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parameters: Option<LLMToolParams>,
+    pub parameters: LLMToolParams,
     /// Ensures that the LLM calls the tool with the correct params. Should be `true`
     pub strict: bool,
 }
 
 /// Parameters that a chatbot tool accepts in an AzureLLMToolDefinition
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LLMToolParams {
     #[serde(rename = "type")]
     pub tool_type: LLMToolParamType,
     pub properties: HashMap<String, LLMToolParamProperties>,
     pub required: Vec<String>,
+    /// required to be false
+    pub additional_properties: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

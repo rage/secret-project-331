@@ -21,11 +21,27 @@ pub const LLM_API_VERSION: &str = "2024-10-21";
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessage {
-    pub role: MessageRole,
-    #[serde(flatten)]
-    pub fields: APIMessageKind,
     #[serde(rename = "type")]
-    pub message_type: String, //always `message`
+    pub message_type: APIMessageType,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
+pub enum APIMessageType {
+    Message {
+        role: MessageRole,
+        content: String,
+    },
+    FunctionCall {
+        call_id: String,
+        name: String,
+        arguments: String,
+    },
+    FunctionCallOutput {
+        call_id: String,
+        output: String,
+    },
 }
 
 impl APIMessage {
@@ -38,29 +54,30 @@ impl APIMessage {
         conversation_id: Uuid,
         order_number: i32,
     ) -> ChatbotResult<ChatbotConversationMessage> {
-        let res = match self.fields.clone() {
-            APIMessageKind::Text(msg) => ChatbotConversationMessage {
-                message_role: self.role,
+        let res = match self.message_type.clone() {
+            APIMessageType::Message { role, content } => ChatbotConversationMessage {
+                message_role: role,
                 conversation_id,
                 order_number,
                 message_is_complete: true,
-                used_tokens: estimate_tokens(&msg.content),
-                message: Some(msg.content),
+                used_tokens: estimate_tokens(&content),
+                message: Some(content),
                 ..Default::default()
             },
-            APIMessageKind::ToolCall(msg) => {
-                let tool_call_fields = msg
-                    .tool_calls
-                    .iter()
-                    .map(|x| ChatbotConversationMessageToolCall::try_from(x.to_owned()))
-                    .collect::<ChatbotResult<Vec<_>>>()?;
-                let estimated_tokens: i32 = msg
-                    .tool_calls
-                    .iter()
-                    .map(|x| estimate_tokens(&x.function.arguments))
-                    .sum();
+            APIMessageType::FunctionCall {
+                call_id,
+                name,
+                arguments,
+            } => {
+                let tool_call_fields = vec![ChatbotConversationMessageToolCall {
+                    tool_arguments: serde_json::from_str(&arguments)?,
+                    tool_name: name,
+                    tool_call_id: call_id,
+                    ..Default::default()
+                }];
+                let estimated_tokens: i32 = estimate_tokens(&arguments);
                 ChatbotConversationMessage {
-                    message_role: self.role,
+                    message_role: MessageRole::Assistant,
                     conversation_id,
                     order_number,
                     message_is_complete: true,
@@ -70,14 +87,18 @@ impl APIMessage {
                     ..Default::default()
                 }
             }
-            APIMessageKind::ToolResponse(msg) => ChatbotConversationMessage {
-                message_role: self.role,
+            APIMessageType::FunctionCallOutput { call_id, output } => ChatbotConversationMessage {
+                message_role: MessageRole::Tool,
                 conversation_id,
                 order_number,
                 message_is_complete: true,
                 message: None,
                 used_tokens: 0,
-                tool_output: Some(ChatbotConversationMessageToolOutput::from(msg)),
+                tool_output: Some(ChatbotConversationMessageToolOutput {
+                    tool_call_id: call_id,
+                    tool_output: output,
+                    ..Default::default()
+                }),
                 ..Default::default()
             },
         };
@@ -91,22 +112,13 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
         let res = match message.message_role {
             MessageRole::Assistant => {
                 if !message.tool_call_fields.is_empty() {
+                    return Err(ChatbotError::new(ChatbotErrorType::Other, "lol", None)); // todo
+                } else if let Some(content) = message.message {
                     APIMessage {
-                        role: message.message_role,
-                        message_type: "message".to_string(),
-                        fields: APIMessageKind::ToolCall(APIMessageToolCall {
-                            tool_calls: message
-                                .tool_call_fields
-                                .iter()
-                                .map(|f| APIToolCall::from(f.clone()))
-                                .collect(),
-                        }),
-                    }
-                } else if let Some(msg) = message.message {
-                    APIMessage {
-                        role: message.message_role,
-                        message_type: "message".to_string(),
-                        fields: APIMessageKind::Text(APIMessageText { content: msg }),
+                        message_type: APIMessageType::Message {
+                            role: message.message_role,
+                            content,
+                        },
                     }
                 } else {
                     return Err(ChatbotError::new(
@@ -119,13 +131,10 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
             MessageRole::Tool => {
                 if let Some(tool_output) = message.tool_output {
                     APIMessage {
-                        role: message.message_role,
-                        message_type: "message".to_string(),
-                        fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
-                            tool_call_id: tool_output.tool_call_id,
-                            name: tool_output.tool_name,
-                            content: tool_output.tool_output,
-                        }),
+                        message_type: APIMessageType::FunctionCallOutput {
+                            call_id: tool_output.tool_call_id,
+                            output: tool_output.tool_output,
+                        },
                     }
                 } else {
                     return Err(ChatbotError::new(
@@ -136,11 +145,10 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 }
             }
             MessageRole::User => APIMessage {
-                role: message.message_role,
-                message_type: "message".to_string(),
-                fields: APIMessageKind::Text(APIMessageText {
+                message_type: APIMessageType::Message {
+                    role: message.message_role,
                     content: message.message.unwrap_or_default(),
-                }),
+                },
             },
             MessageRole::System => {
                 return Err(ChatbotError::new(
@@ -179,16 +187,14 @@ pub struct APIMessageToolCall {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessageToolResponse {
     pub tool_call_id: String,
-    pub name: String,
-    pub content: String,
+    pub output: String,
 }
 
 impl From<ChatbotConversationMessageToolOutput> for APIMessageToolResponse {
     fn from(value: ChatbotConversationMessageToolOutput) -> Self {
         APIMessageToolResponse {
             tool_call_id: value.tool_call_id,
-            name: value.tool_name,
-            content: value.tool_output,
+            output: value.tool_output,
         }
     }
 }
@@ -196,8 +202,7 @@ impl From<ChatbotConversationMessageToolOutput> for APIMessageToolResponse {
 impl From<APIMessageToolResponse> for ChatbotConversationMessageToolOutput {
     fn from(value: APIMessageToolResponse) -> Self {
         ChatbotConversationMessageToolOutput {
-            tool_name: value.name,
-            tool_output: value.content,
+            tool_output: value.output,
             tool_call_id: value.tool_call_id,
             ..Default::default()
         }

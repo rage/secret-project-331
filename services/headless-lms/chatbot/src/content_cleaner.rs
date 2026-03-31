@@ -1,7 +1,7 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams};
 use crate::llm_utils::{
-    APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
-    parse_text_completion,
+    APIMessage, APIMessageKind, APIMessageText, APIMessageType, estimate_tokens,
+    make_blocking_llm_request, parse_text_completion,
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
@@ -46,11 +46,10 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
 ) -> anyhow::Result<String> {
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
-        role: MessageRole::System,
-        message_type: "message".to_string(),
-        fields: APIMessageKind::Text(APIMessageText {
+        message_type: APIMessageType::Message {
+            role: MessageRole::System,
             content: SYSTEM_PROMPT.to_string(),
-        }),
+        },
     };
 
     let system_message_tokens = estimate_tokens(SYSTEM_PROMPT);
@@ -375,14 +374,13 @@ pub fn prepare_llm_messages(
     let messages = vec![
         system_message.clone(),
         APIMessage {
-            role: MessageRole::User,
-            message_type: "message".to_string(),
-            fields: APIMessageKind::Text(APIMessageText {
+            message_type: APIMessageType::Message {
+                role: MessageRole::User,
                 content: format!(
                     "{}\n\n{}{}\n{}",
                     USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
                 ),
-            }),
+            },
         },
     ];
 
@@ -466,27 +464,28 @@ mod tests {
         let blocks = vec![create_test_block("Test content")];
         let blocks_json = blocks_to_json_string(&blocks)?;
         let system_message = APIMessage {
-            role: MessageRole::System,
-            message_type: "message".to_string(),
-            fields: APIMessageKind::Text(APIMessageText {
+            message_type: APIMessageType::Message {
+                role: MessageRole::System,
                 content: "System prompt".to_string(),
-            }),
+            },
         };
 
         let messages = prepare_llm_messages(&blocks_json, &system_message)?;
 
         assert_eq!(messages.len(), 2);
-        let msg1_content = match &messages[0].fields {
-            APIMessageKind::Text(msg) => &msg.content,
-            _ => "",
-        };
-        let msg2_content = match &messages[1].fields {
-            APIMessageKind::Text(msg) => &msg.content,
-            _ => "",
-        };
-        assert_eq!(messages[0].role, MessageRole::System);
+        let (msg1_content, msg1_role): (&str, Option<&MessageRole>) =
+            match &messages[0].message_type {
+                APIMessageType::Message { role, content } => (&content, Some(role)),
+                _ => ("", None),
+            };
+        let (msg2_content, msg2_role): (&str, Option<&MessageRole>) =
+            match &messages[1].message_type {
+                APIMessageType::Message { role, content } => (&content, Some(role)),
+                _ => ("", None),
+            };
+        assert_eq!(msg1_role, Some(&MessageRole::System));
         assert_eq!(msg1_content, "System prompt");
-        assert_eq!(messages[1].role, MessageRole::User);
+        assert_eq!(msg2_role, Some(&MessageRole::User));
         assert!(msg2_content.contains(JSON_BEGIN_MARKER));
         assert!(msg2_content.contains("Test content"));
 

@@ -8,8 +8,8 @@ use crate::{
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, APIMessageKind, APIMessageText, APIMessageType, estimate_tokens,
-        make_blocking_llm_request, parse_text_completion,
+        APIMessage, APIMessageType, estimate_tokens, make_blocking_llm_request,
+        parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };

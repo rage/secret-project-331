@@ -1,6 +1,6 @@
 use headless_lms_chatbot::{
     cms_ai_suggestion::USER_PROMPT_PREFIX,
-    llm_utils::{APIMessageKind, AzureCompletionRequest},
+    llm_utils::{APIMessageType, AzureCompletionRequest},
     message_suggestion::USER_PROMPT,
 };
 
@@ -60,9 +60,12 @@ async fn mock_azure_chat_completions(
             "No messages in request, there should be at least one.",
             None,
         ))?
-        .fields;
+        .message_type;
     let message = match message_kind {
-        APIMessageKind::Text(m) => Ok(m.content.to_owned()),
+        APIMessageType::Message {
+            role: _role,
+            content,
+        } => Ok(content.to_owned()),
         _ => Err(ControllerError::new(
             ControllerErrorType::BadRequest,
             "The request had a tool call or tool response. This shouldn't happen when using message suggestion LLM.",

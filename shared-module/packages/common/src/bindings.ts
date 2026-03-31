@@ -412,7 +412,6 @@ export interface ChatbotConversationMessageToolOutput {
   updated_at: string
   deleted_at: string | null
   message_id: string
-  tool_name: string
   tool_output: string
   tool_call_id: string
 }

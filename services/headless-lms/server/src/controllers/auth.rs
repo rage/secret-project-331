@@ -3,7 +3,6 @@ Handlers for HTTP requests to `/api/v0/auth`.
 */
 
 use crate::{
-    OAuthClient,
     domain::{
         authorization::{
             self, ActionOnResource, authorize_with_fetched_list_of_roles, skip_authorize,
@@ -41,6 +40,7 @@ pub enum LoginResponse {
     Success,
     RequiresEmailVerification { email_verification_token: String },
     Failed,
+    MustChangePassword,
 }
 
 /**
@@ -316,14 +316,12 @@ pub async fn authorize_multiple_actions_on_resources(
 POST `/api/v0/auth/login` Logs in to the system.
 Returns LoginResponse indicating success, email verification required, or failure.
 **/
-#[instrument(skip(session, pool, client, payload, app_conf, tmc_client))]
+#[instrument(skip(session, pool, payload, app_conf))]
 pub async fn login(
     session: Session,
     pool: web::Data<PgPool>,
-    client: web::Data<OAuthClient>,
     app_conf: web::Data<ApplicationConfiguration>,
     payload: web::Json<Login>,
-    tmc_client: web::Data<TmcClient>,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     let mut conn = pool.acquire().await?;
     let Login { email, password } = payload.into_inner();
@@ -338,16 +336,7 @@ pub async fn login(
         return handle_test_mode_login(&session, &mut conn, &email, &password, &app_conf).await;
     };
 
-    return handle_production_login(
-        &session,
-        &mut conn,
-        &client,
-        &tmc_client,
-        &email,
-        &password,
-        &app_conf,
-    )
-    .await;
+    return handle_production_login(&session, &mut conn, &email, &password, &app_conf).await;
 }
 
 async fn handle_uuid_login(
@@ -437,99 +426,49 @@ async fn handle_test_mode_login(
 async fn handle_production_login(
     session: &Session,
     conn: &mut PgConnection,
-    client: &OAuthClient,
-    tmc_client: &TmcClient,
     email: &str,
     password: &str,
     app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
-    let mut is_authenticated = false;
-    let mut authenticated_user: Option<headless_lms_models::users::User> = None;
-
-    // Try to authenticate using password stored in courses.mooc.fi database
-    if let Ok(user) = models::users::get_by_email(conn, email).await {
-        let is_password_stored =
-            models::user_passwords::check_if_users_password_is_stored(conn, user.id).await?;
-        if is_password_stored {
-            is_authenticated = models::user_passwords::verify_user_password(
-                conn,
-                user.id,
-                &SecretString::new(password.into()),
-            )
-            .await?;
-
-            if is_authenticated {
-                info!("Authentication successful");
-                authenticated_user = Some(user);
-            }
+    let user = match models::users::get_by_email(conn, email).await {
+        Ok(u) => u,
+        Err(_) => {
+            let token = skip_authorize();
+            warn!("Authentication failed");
+            return token.authorized_ok(web::Json(LoginResponse::Failed));
         }
+    };
+
+    let is_password_stored =
+        models::user_passwords::check_if_users_password_is_stored(conn, user.id).await?;
+    if !is_password_stored {
+        let token = skip_authorize();
+        warn!("User has no password stored; must reset password");
+        return token.authorized_ok(web::Json(LoginResponse::MustChangePassword));
     }
 
-    // Try to authenticate via TMC and store password to courses.mooc.fi if successful
+    let is_authenticated = models::user_passwords::verify_user_password(
+        conn,
+        user.id,
+        &SecretString::new(password.into()),
+    )
+    .await?;
+
     if !is_authenticated {
-        let auth_result = authorization::authenticate_tmc_mooc_fi_user(
-            conn,
-            client,
-            email.to_string(),
-            password.to_string(),
-            tmc_client,
-        )
-        .await?;
-
-        if let Some((user, _token)) = auth_result {
-            // If user is autenticated in TMC successfully, hash password and save it to courses.mooc.fi database
-            let password_hash =
-                models::user_passwords::hash_password(&SecretString::new(password.into()))
-                    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
-
-            models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
-                .await
-                .map_err(|e| {
-                    ControllerError::new(
-                        ControllerErrorType::InternalServerError,
-                        "Failed to add password to database".to_string(),
-                        anyhow!(e),
-                    )
-                })?;
-
-            // Notify TMC that the password is now managed by courses.mooc.fi
-            if let Some(upstream_id) = user.upstream_id {
-                tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-                    .await
-                    .map_err(|e| {
-                        ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to notify TMC that users password is saved in courses.mooc.fi"
-                                .to_string(),
-                            anyhow!(e),
-                        )
-                    })?;
-            } else {
-                warn!("User has no upstream_id; skipping notify to TMC");
-            }
-            info!("Authentication successful");
-            authenticated_user = Some(user);
-            is_authenticated = true;
-        }
-    }
-
-    let token = skip_authorize();
-    if is_authenticated {
-        if let Some(user) = authenticated_user {
-            let is_admin = is_user_global_admin(conn, user.id).await?;
-
-            if app_conf.enable_admin_email_verification && is_admin {
-                return handle_email_verification(conn, &user).await;
-            }
-
-            authorization::remember(session, user)?;
-        }
-        token.authorized_ok(web::Json(LoginResponse::Success))
-    } else {
+        let token = skip_authorize();
         warn!("Authentication failed");
-        token.authorized_ok(web::Json(LoginResponse::Failed))
+        return token.authorized_ok(web::Json(LoginResponse::Failed));
     }
+
+    info!("Authentication successful");
+    let is_admin = is_user_global_admin(conn, user.id).await?;
+    if app_conf.enable_admin_email_verification && is_admin {
+        return handle_email_verification(conn, &user).await;
+    }
+
+    authorization::remember(session, user)?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(LoginResponse::Success))
 }
 
 /**

@@ -4995,7 +4995,11 @@ export function isLoginResponse(obj: unknown): obj is LoginResponse {
             (typedObj !== null &&
                 typeof typedObj === "object" ||
                 typeof typedObj === "function") &&
-            typedObj["type"] === "failed")
+            typedObj["type"] === "failed" ||
+            (typedObj !== null &&
+                typeof typedObj === "object" ||
+                typeof typedObj === "function") &&
+            typedObj["type"] === "must_change_password")
     )
 }
 

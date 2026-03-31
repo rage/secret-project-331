@@ -37,11 +37,6 @@
         "ordinal": 6,
         "name": "deleted_at",
         "type_info": "Timestamptz"
-      },
-      {
-        "ordinal": 7,
-        "name": "tool_name",
-        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -58,8 +53,7 @@
       false,
       false,
       false,
-      true,
-      false
+      true
     ]
   },
   "hash": "24dfe577a0dce31a308e3580f35484def8eaa0d3213ace0079f11fd1a48cbeae"

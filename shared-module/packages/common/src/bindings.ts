@@ -520,6 +520,7 @@ export interface CourseDesignerPlanStage {
   planned_ends_on: string
   actual_started_at: string | null
   actual_completed_at: string | null
+  workspace_data: unknown | null
 }
 
 export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
@@ -549,7 +550,48 @@ export interface CourseDesignerPlanStageWithTasks {
   planned_ends_on: string
   actual_started_at: string | null
   actual_completed_at: string | null
+  workspace_data: unknown | null
   tasks: Array<CourseDesignerPlanStageTask>
+}
+
+export type AnalysisCourseType = "Compulsory" | "Elective"
+
+export interface AnalysisWorkspaceV1 {
+  course_title: string | null
+  credits: number | null
+  language: string | null
+  target_group: string | null
+  mode_synchronous: boolean
+  mode_asynchronous: boolean
+  open_period_i: boolean
+  open_period_ii: boolean
+  open_period_iii: boolean
+  open_period_iv: boolean
+  open_period_all: boolean
+  responsible_teachers: string | null
+  degree_programme: string | null
+  course_type: AnalysisCourseType | null
+  students_demographic_data: string | null
+  wishes_topics: string | null
+  wishes_content_format_text: boolean
+  wishes_content_format_video: boolean
+  wishes_content_format_podcast: boolean
+  wishes_content_format_xr: boolean
+  wishes_content_format_notes: string | null
+  wishes_assessment_text: string | null
+  wishes_other_suggestions: string | null
+  market_results: string | null
+  resources_university: string | null
+  resources_purchase_budget: string | null
+  contributors_instructional_designer: string | null
+  contributors_subject_matter_experts: string | null
+  contributors_editors: string | null
+  contributors_support_staff: string | null
+}
+
+export type CourseDesignerStageWorkspace = {
+  schema: "analysis_v1"
+  payload: AnalysisWorkspaceV1
 }
 
 export type CourseDesignerPlanStatus =

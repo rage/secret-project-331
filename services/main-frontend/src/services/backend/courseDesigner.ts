@@ -1,5 +1,13 @@
 import { mainFrontendClient } from "../mainFrontendClient"
 
+import type {
+  AnalysisCourseType,
+  AnalysisWorkspaceV1,
+  CourseDesignerStageWorkspace,
+} from "@/shared-module/common/bindings"
+
+export type { AnalysisCourseType, AnalysisWorkspaceV1, CourseDesignerStageWorkspace }
+
 export type CourseDesignerStage =
   | "Analysis"
   | "Design"
@@ -52,6 +60,7 @@ export interface CourseDesignerPlanStage {
   planned_ends_on: string
   actual_started_at: string | null
   actual_completed_at: string | null
+  workspace_data: unknown | null
 }
 
 export interface CourseDesignerPlanStageTask {
@@ -211,4 +220,65 @@ export const deleteCourseDesignerStageTask = async (
   taskId: string,
 ): Promise<void> => {
   await mainFrontendClient.delete(`/course-plans/${planId}/tasks/${taskId}`)
+}
+
+export const patchCourseDesignerStageWorkspace = async (
+  planId: string,
+  stage: CourseDesignerStage,
+  workspace: CourseDesignerStageWorkspace,
+): Promise<CourseDesignerPlanDetails> => {
+  const stagePath = stage.toLowerCase()
+  const response = await mainFrontendClient.patch(
+    `/course-plans/${planId}/stages/${stagePath}/workspace`,
+    workspace,
+  )
+  return response.data as CourseDesignerPlanDetails
+}
+
+export function defaultAnalysisWorkspaceV1(): AnalysisWorkspaceV1 {
+  return {
+    course_title: null,
+    credits: null,
+    language: null,
+    target_group: null,
+    mode_synchronous: false,
+    mode_asynchronous: false,
+    open_period_i: false,
+    open_period_ii: false,
+    open_period_iii: false,
+    open_period_iv: false,
+    open_period_all: false,
+    responsible_teachers: null,
+    degree_programme: null,
+    course_type: null,
+    students_demographic_data: null,
+    wishes_topics: null,
+    wishes_content_format_text: false,
+    wishes_content_format_video: false,
+    wishes_content_format_podcast: false,
+    wishes_content_format_xr: false,
+    wishes_content_format_notes: null,
+    wishes_assessment_text: null,
+    wishes_other_suggestions: null,
+    market_results: null,
+    resources_university: null,
+    resources_purchase_budget: null,
+    contributors_instructional_designer: null,
+    contributors_subject_matter_experts: null,
+    contributors_editors: null,
+    contributors_support_staff: null,
+  }
+}
+
+export function parseAnalysisWorkspaceFromApi(
+  raw: unknown | null | undefined,
+): AnalysisWorkspaceV1 {
+  if (raw == null || typeof raw !== "object") {
+    return defaultAnalysisWorkspaceV1()
+  }
+  const o = raw as { schema?: string; payload?: unknown }
+  if (o.schema === "analysis_v1" && o.payload != null && typeof o.payload === "object") {
+    return { ...defaultAnalysisWorkspaceV1(), ...(o.payload as AnalysisWorkspaceV1) }
+  }
+  return defaultAnalysisWorkspaceV1()
 }

@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { coursePlanQueryKeys } from "../../../coursePlanQueryKeys"
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
+import AnalysisWorkspaceForm from "./AnalysisWorkspaceForm"
 import PlanOverviewPanel from "./PlanOverviewPanel"
 import StageTimelineTabStrip from "./StageTimelineTabStrip"
 import WorkspaceStageSection from "./WorkspaceStageSection"
@@ -635,13 +636,18 @@ export default function CoursePlanWorkspacePage() {
               className={`${cardStyles} ${workspaceAreaStyles} ${workspaceCardStyles}`}
               aria-label={t("course-plans-workspace-aria-label")}
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <h3 className={sectionTitleStyles}>Workspace</h3>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              <h3 className={sectionTitleStyles}>{t("course-plans-workspace-heading")}</h3>
               <p className={aboutTextStyles}>
-                This area will host tools and editors for working on the current stage of your
-                course design.
+                {viewedStage === "Analysis"
+                  ? t("course-plans-workspace-description")
+                  : t("course-plans-workspace-description-other-stages")}
               </p>
+              {viewedStage === "Analysis" && viewedStageData ? (
+                <AnalysisWorkspaceForm
+                  planId={planId}
+                  workspaceData={viewedStageData.workspace_data}
+                />
+              ) : null}
             </section>
 
             <section

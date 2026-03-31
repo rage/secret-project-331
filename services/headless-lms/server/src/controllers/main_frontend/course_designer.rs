@@ -4,6 +4,7 @@ Handlers for HTTP requests to `/api/v0/main-frontend/course-plans`.
 
 use actix_web::HttpResponse;
 use chrono::NaiveDate;
+use models::course_designer_analysis_workspace::CourseDesignerStageWorkspace;
 use models::course_designer_plans::{
     CourseDesignerCourseSize, CourseDesignerPlan, CourseDesignerPlanDetails,
     CourseDesignerPlanStageTask, CourseDesignerPlanSummary, CourseDesignerScheduleStageInput,
@@ -292,6 +293,34 @@ async fn post_advance_stage(
     token.authorized_ok(web::Json(details))
 }
 
+#[instrument(skip(pool))]
+async fn patch_stage_workspace(
+    path: web::Path<(Uuid, String)>,
+    payload: web::Json<CourseDesignerStageWorkspace>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
+    let (plan_id, stage_str) = path.into_inner();
+    let stage = parse_stage(&stage_str).ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Invalid stage name.".to_string(),
+            None,
+        )
+    })?;
+    let mut conn = pool.acquire().await?;
+    let details = models::course_designer_plans::update_stage_workspace_for_user(
+        &mut conn,
+        plan_id,
+        user.id,
+        stage,
+        payload.into_inner(),
+    )
+    .await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(details))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("", web::post().to(post_new_plan))
         .route("", web::get().to(get_plans))
@@ -313,6 +342,10 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{plan_id}/stages/{stage}/extend",
             web::post().to(post_extend_stage),
+        )
+        .route(
+            "/{plan_id}/stages/{stage}/workspace",
+            web::patch().to(patch_stage_workspace),
         )
         .route(
             "/{plan_id}/stages/{stage_id}/tasks",

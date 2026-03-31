@@ -84,7 +84,7 @@ pub struct CourseDesignerPlanMember {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, FromRow)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseDesignerPlanStage {
     pub id: Uuid,
@@ -96,6 +96,7 @@ pub struct CourseDesignerPlanStage {
     pub planned_ends_on: NaiveDate,
     pub actual_started_at: Option<DateTime<Utc>>,
     pub actual_completed_at: Option<DateTime<Utc>>,
+    pub workspace_data: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow)]
@@ -115,7 +116,7 @@ pub struct CourseDesignerPlanStageTask {
     pub created_by_user_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseDesignerPlanStageWithTasks {
     #[serde(flatten)]
@@ -123,7 +124,7 @@ pub struct CourseDesignerPlanStageWithTasks {
     pub tasks: Vec<CourseDesignerPlanStageTask>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseDesignerPlanDetails {
     pub plan: CourseDesignerPlan,
@@ -455,19 +456,19 @@ pub async fn get_plan_stages_for_user(
     plan_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<Vec<CourseDesignerPlanStage>> {
-    let stages = sqlx::query_as!(
-        CourseDesignerPlanStage,
+    let stages = sqlx::query_as::<_, CourseDesignerPlanStage>(
         r#"
 SELECT
   stages.id,
   stages.created_at,
   stages.updated_at,
-  stages.stage AS "stage: CourseDesignerStage",
-  stages.status AS "status: CourseDesignerPlanStageStatus",
+  stages.stage,
+  stages.status,
   stages.planned_starts_on,
   stages.planned_ends_on,
   stages.actual_started_at,
-  stages.actual_completed_at
+  stages.actual_completed_at,
+  stages.workspace_data
 FROM course_designer_plan_stages stages
 JOIN course_designer_plan_members self_member
   ON self_member.course_designer_plan_id = stages.course_designer_plan_id
@@ -485,9 +486,9 @@ ORDER BY
   END,
   stages.id
 "#,
-        plan_id,
-        user_id
     )
+    .bind(plan_id)
+    .bind(user_id)
     .fetch_all(conn)
     .await?;
     Ok(stages)
@@ -1060,22 +1061,22 @@ FOR UPDATE
             None,
         ));
     }
-    let stage_row: CourseDesignerPlanStage = sqlx::query_as!(
-        CourseDesignerPlanStage,
+    let stage_row: CourseDesignerPlanStage = sqlx::query_as::<_, CourseDesignerPlanStage>(
         r#"
 SELECT id, created_at, updated_at,
-  stage AS "stage: CourseDesignerStage",
-  status AS "status: CourseDesignerPlanStageStatus",
+  stage,
+  status,
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
-  actual_completed_at
+  actual_completed_at,
+  workspace_data
 FROM course_designer_plan_stages
 WHERE course_designer_plan_id = $1 AND stage = $2 AND deleted_at IS NULL
 "#,
-        plan_id,
-        stage as CourseDesignerStage
     )
+    .bind(plan_id)
+    .bind(stage)
     .fetch_one(&mut *tx)
     .await?;
     let new_ends_on = add_months_clamped(stage_row.planned_ends_on, months)?;
@@ -1097,22 +1098,22 @@ WHERE id = $1 AND deleted_at IS NULL
         .ok_or_else(|| {
             ModelError::new(ModelErrorType::Generic, "Invalid stage.".to_string(), None)
         })?;
-    let all_stages: Vec<CourseDesignerPlanStage> = sqlx::query_as!(
-        CourseDesignerPlanStage,
+    let all_stages: Vec<CourseDesignerPlanStage> = sqlx::query_as::<_, CourseDesignerPlanStage>(
         r#"
 SELECT id, created_at, updated_at,
-  stage AS "stage: CourseDesignerStage",
-  status AS "status: CourseDesignerPlanStageStatus",
+  stage,
+  status,
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
-  actual_completed_at
+  actual_completed_at,
+  workspace_data
 FROM course_designer_plan_stages
 WHERE course_designer_plan_id = $1 AND deleted_at IS NULL
 ORDER BY CASE stage WHEN 'analysis' THEN 1 WHEN 'design' THEN 2 WHEN 'development' THEN 3 WHEN 'implementation' THEN 4 WHEN 'evaluation' THEN 5 END
 "#,
-        plan_id
     )
+    .bind(plan_id)
     .fetch_all(&mut *tx)
     .await?;
     let later_stage_rows: Vec<_> = all_stages
@@ -1384,19 +1385,19 @@ RETURNING
     .fetch_one(&mut *tx)
     .await?;
 
-    let schedule_snapshot = sqlx::query_as!(
-        CourseDesignerPlanStage,
+    let schedule_snapshot = sqlx::query_as::<_, CourseDesignerPlanStage>(
         r#"
 SELECT
   id,
   created_at,
   updated_at,
-  stage AS "stage: CourseDesignerStage",
-  status AS "status: CourseDesignerPlanStageStatus",
+  stage,
+  status,
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
-  actual_completed_at
+  actual_completed_at,
+  workspace_data
 FROM course_designer_plan_stages
 WHERE course_designer_plan_id = $1
   AND deleted_at IS NULL
@@ -1410,8 +1411,8 @@ ORDER BY
   END,
   id
 "#,
-        plan_id
     )
+    .bind(plan_id)
     .fetch_all(&mut *tx)
     .await?;
 
@@ -1427,6 +1428,59 @@ ORDER BY
 
     tx.commit().await?;
     Ok(finalized_plan)
+}
+
+pub async fn update_stage_workspace_for_user(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    user_id: Uuid,
+    stage: CourseDesignerStage,
+    workspace: crate::course_designer_analysis_workspace::CourseDesignerStageWorkspace,
+) -> ModelResult<CourseDesignerPlanDetails> {
+    if stage != CourseDesignerStage::Analysis {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Workspace payload is only supported for the analysis stage.".to_string(),
+            None,
+        ));
+    }
+    let workspace_json =
+        crate::course_designer_analysis_workspace::workspace_to_json(Some(workspace))?
+            .ok_or_else(|| {
+                ModelError::new(
+                    ModelErrorType::InvalidRequest,
+                    "Workspace serialization produced no data.".to_string(),
+                    None,
+                )
+            })?;
+    let updated: Option<Uuid> = sqlx::query_scalar(
+        r#"
+UPDATE course_designer_plan_stages s
+SET workspace_data = $3
+FROM course_designer_plan_members m
+WHERE s.course_designer_plan_id = $1
+  AND s.stage = $2
+  AND s.deleted_at IS NULL
+  AND m.course_designer_plan_id = s.course_designer_plan_id
+  AND m.user_id = $4
+  AND m.deleted_at IS NULL
+RETURNING s.id
+"#,
+    )
+    .bind(plan_id)
+    .bind(stage)
+    .bind(workspace_json)
+    .bind(user_id)
+    .fetch_optional(&mut *conn)
+    .await?;
+    if updated.is_none() {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Stage not found or user is not a plan member.".to_string(),
+            None,
+        ));
+    }
+    get_plan_details_for_user(conn, plan_id, user_id).await
 }
 
 pub fn no_gap_between(previous_end: NaiveDate, next_start: NaiveDate) -> bool {

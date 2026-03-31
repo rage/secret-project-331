@@ -351,7 +351,6 @@ export default function CoursePlanWorkspacePage() {
   const handleSelectedStageChange = useCallback(
     (stage: CourseDesignerStage) => {
       if (analysisWorkspaceDirty && viewedStage === "Analysis" && stage !== viewedStage) {
-        // eslint-disable-next-line no-alert -- matches beforeunload for in-app navigation
         if (!window.confirm(t("course-plans-analysis-unsaved-confirm"))) {
           return
         }

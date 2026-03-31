@@ -2,11 +2,21 @@
 
 import { css, cx } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
+import {
+  AccountsGroupPeople,
+  ArrowDown,
+  CheckCircle,
+  Coins,
+  Document,
+  Pencil,
+  Statistics,
+  Users,
+} from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import type { ReactNode } from "react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import type { Control, UseFormRegister } from "react-hook-form"
-import { Controller, useForm, useFormState, useWatch } from "react-hook-form"
+import { Controller, useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useDebouncedCallback } from "use-debounce"
 
@@ -25,10 +35,11 @@ import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Checkbox, Radio, RadioGroup, TextArea, TextField } from "@/shared-module/components"
+import { Checkbox, ComboBox, Select, TextArea, TextField } from "@/shared-module/components"
 
 const STAGE_ANALYSIS: CourseDesignerStage = "Analysis"
 const FIELD_CREDITS = "credits"
+const FIELD_LANGUAGE = "language"
 const FIELD_COURSE_TYPE = "course_type"
 const INPUT_MODE_DECIMAL = "decimal"
 const MAILTO_PREFIX = "mailto:"
@@ -44,14 +55,95 @@ const FIELD_OPEN_PERIOD_ALL = "open_period_all"
 const INTERSECTION_ROOT_MARGIN = "-40% 0px -45% 0px"
 const SCROLL_BEHAVIOR = "smooth"
 const SCROLL_BLOCK = "start"
-const SECTION_TOGGLE_CHEVRON = "\u25bc"
 const AUTOSAVE_DEBOUNCE_MS = 1500
 const ROWS_STANDARD = 3
 const ROWS_LONG = 5
+const ROWS_SHORT = 2
+const ICON_SIZE_SECTION = 14
+const ICON_SIZE_NAV = 14
+const ICON_SIZE_SECTION_BADGE = 18
+
+const LANGUAGE_OPTIONS = [
+  { key: "en", value: "English" },
+  { key: "fi", value: "Finnish" },
+  { key: "sv", value: "Swedish" },
+  { key: "no", value: "Norwegian" },
+  { key: "da", value: "Danish" },
+  { key: "de", value: "German" },
+  { key: "fr", value: "French" },
+  { key: "es", value: "Spanish" },
+  { key: "it", value: "Italian" },
+] as const
 const SECTION_COUNT = 6
 const SECTION_DOM_PREFIX = "analysis-section-"
 
+type AnalysisSectionIndex = 1 | 2 | 3 | 4 | 5 | 6
+
+/** Stable DOM id for the section heading (aria-labelledby). */
+function analysisSectionHeadingId(n: AnalysisSectionIndex): string {
+  // eslint-disable-next-line i18next/no-literal-string -- DOM id suffix, not user-facing
+  return `${SECTION_DOM_PREFIX}${n}-heading`
+}
+
+/** Stable DOM id for the collapsible section body (aria-controls). */
+function analysisSectionBodyId(n: AnalysisSectionIndex): string {
+  // eslint-disable-next-line i18next/no-literal-string -- DOM id suffix, not user-facing
+  return `${SECTION_DOM_PREFIX}${n}-body`
+}
+
 const nullIfEmpty = { setValueAs: (v: string) => (v === "" ? null : v) }
+
+function isFilled(v: unknown): boolean {
+  if (v == null) {
+    return false
+  }
+  if (typeof v === "boolean") {
+    return v
+  }
+  if (typeof v === "string") {
+    return v.trim() !== ""
+  }
+  if (typeof v === "number") {
+    return Number.isFinite(v)
+  }
+  return false
+}
+
+function computeSectionCompletion(v: AnalysisWorkspaceV1): boolean[] {
+  const s1 =
+    isFilled(v.course_title) ||
+    v.credits != null ||
+    isFilled(v.language) ||
+    isFilled(v.target_group) ||
+    v.mode_synchronous ||
+    v.mode_asynchronous ||
+    v.open_period_i ||
+    v.open_period_ii ||
+    v.open_period_iii ||
+    v.open_period_iv ||
+    v.open_period_all ||
+    isFilled(v.responsible_teachers) ||
+    isFilled(v.degree_programme) ||
+    v.course_type != null
+  const s2 = isFilled(v.students_demographic_data)
+  const s3 =
+    isFilled(v.wishes_topics) ||
+    v.wishes_content_format_text ||
+    v.wishes_content_format_video ||
+    v.wishes_content_format_podcast ||
+    v.wishes_content_format_xr ||
+    isFilled(v.wishes_content_format_notes) ||
+    isFilled(v.wishes_assessment_text) ||
+    isFilled(v.wishes_other_suggestions)
+  const s4 = isFilled(v.market_results)
+  const s5 = isFilled(v.resources_university) || isFilled(v.resources_purchase_budget)
+  const s6 =
+    isFilled(v.contributors_instructional_designer) ||
+    isFilled(v.contributors_subject_matter_experts) ||
+    isFilled(v.contributors_editors) ||
+    isFilled(v.contributors_support_staff)
+  return [s1, s2, s3, s4, s5, s6]
+}
 
 const formRootStyles = css`
   display: flex;
@@ -59,19 +151,40 @@ const formRootStyles = css`
   gap: 1rem;
 `
 
-const stickyToolbarStyles = css`
+const stickyMergedBarStyles = css`
   position: sticky;
   top: 0;
-  z-index: 2;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.5rem 0;
+  margin: 0 0 0.5rem 0;
+  background: ${baseTheme.colors.clear[100]};
+  border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+`
+
+const stickyBarRow1Styles = css`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
-  margin: 0 0 0.25rem 0;
-  background: ${baseTheme.colors.clear[100]};
-  border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+  gap: 0.5rem 0.75rem;
+  width: 100%;
+`
+
+const statusLeftStyles = css`
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.75rem;
+  min-width: 0;
+`
+
+const progressSummaryStyles = css`
+  font-size: 0.8rem;
+  color: ${baseTheme.colors.gray[500]};
+  white-space: nowrap;
 `
 
 const saveStatusStyles = css`
@@ -84,6 +197,13 @@ const saveStatusErrorStyles = css`
   color: ${baseTheme.colors.crimson[700]};
 `
 
+const saveHintStyles = css`
+  font-size: 0.75rem;
+  color: ${baseTheme.colors.gray[500]};
+  max-width: 12rem;
+  line-height: 1.35;
+`
+
 const saveRowStyles = css`
   display: flex;
   flex-wrap: wrap;
@@ -91,20 +211,19 @@ const saveRowStyles = css`
   align-items: center;
 `
 
-const sectionNavStyles = css`
-  position: sticky;
-  top: 3.25rem;
-  z-index: 1;
+const stickyNavRowStyles = css`
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem 0.65rem;
-  padding: 0.5rem 0;
-  margin: 0 0 0.25rem 0;
-  background: ${baseTheme.colors.clear[100]};
-  border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+  padding-top: 0.35rem;
+  border-top: 1px solid ${baseTheme.colors.gray[100]};
+  width: 100%;
 `
 
 const sectionNavLinkStyles = css`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
   font-size: 0.8rem;
   font-weight: 500;
   color: ${baseTheme.colors.green[700]};
@@ -122,6 +241,15 @@ const sectionNavLinkActiveStyles = css`
   background: ${baseTheme.colors.gray[100]};
 `
 
+const navIncompleteDotStyles = css`
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: ${baseTheme.colors.gray[300]};
+  flex-shrink: 0;
+`
+
 const sectionCardStyles = css`
   display: flex;
   flex-direction: column;
@@ -131,6 +259,27 @@ const sectionCardStyles = css`
   border: 1px solid ${baseTheme.colors.gray[200]};
   background: ${baseTheme.colors.gray[50]};
 `
+
+const sectionAccentByIndex = [
+  css`
+    border-left: 4px solid ${baseTheme.colors.green[600]};
+  `,
+  css`
+    border-left: 4px solid ${baseTheme.colors.green[500]};
+  `,
+  css`
+    border-left: 4px solid ${baseTheme.colors.blue[600]};
+  `,
+  css`
+    border-left: 4px solid ${baseTheme.colors.blue[500]};
+  `,
+  css`
+    border-left: 4px solid ${baseTheme.colors.purple[600]};
+  `,
+  css`
+    border-left: 4px solid ${baseTheme.colors.green[800]};
+  `,
+]
 
 const sectionHeaderRowStyles = css`
   display: flex;
@@ -143,15 +292,21 @@ const sectionHeaderRowStyles = css`
 const sectionToggleStyles = css`
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.5rem;
   margin: 0;
-  padding: 0;
+  padding: 0.25rem 0.35rem;
+  margin-left: -0.35rem;
   border: none;
   background: transparent;
   cursor: pointer;
   text-align: left;
   font: inherit;
   color: ${baseTheme.colors.gray[900]};
+  border-radius: 0.35rem;
+
+  &:hover {
+    background: ${baseTheme.colors.gray[100]};
+  }
 
   &:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[600]};
@@ -161,25 +316,46 @@ const sectionToggleStyles = css`
 `
 
 const sectionChevronStyles = (expanded: boolean) => css`
-  display: inline-block;
-  font-size: 0.65rem;
-  line-height: 1;
+  display: inline-flex;
+  flex-shrink: 0;
+  line-height: 0;
+  color: ${baseTheme.colors.gray[500]};
   transform: rotate(${expanded ? "180deg" : "0deg"});
   transition: transform 0.15s ease;
-  color: ${baseTheme.colors.gray[500]};
 `
 
 const sectionBodyStyles = css`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.125rem;
 `
 
 const sectionTitleStyles = css`
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   color: ${baseTheme.colors.gray[900]};
   margin: 0;
+`
+
+const sectionHeaderIconWrapStyles = css`
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.375rem;
+  background: ${baseTheme.colors.green[50]};
+  color: ${baseTheme.colors.green[700]};
+`
+
+const subsectionTitleStyles = css`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[700]};
+  margin: 0.25rem 0 0 0;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid ${baseTheme.colors.gray[200]};
 `
 
 const staticTextStyles = css`
@@ -202,17 +378,42 @@ const checkboxRowStyles = css`
   gap: var(--space-4, 1rem);
 `
 
-const roleTitleStyles = css`
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[800]};
-  margin: 0.75rem 0 0.25rem 0;
+const contributorsListStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 `
 
-const dutiesTextStyles = css`
+const contributorCardStyles = css`
+  border-radius: 0.5rem;
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  background: ${baseTheme.colors.clear[50]};
+  padding: 1rem 1rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+`
+
+const contributorCardLeadStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+`
+
+const contributorCardTitleStyles = css`
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[900]};
+  margin: 0 0 0.35rem 0;
+  line-height: 1.35;
+`
+
+const contributorDutiesStyles = css`
   font-size: 0.85rem;
   color: ${baseTheme.colors.gray[600]};
-  margin: 0 0 0.5rem 0;
+  margin: 0;
+  line-height: 1.5;
 `
 
 const roleBlockStyles = css`
@@ -241,35 +442,19 @@ const modeAndPeriodsRowStyles = css`
   }
 `
 
-const courseTypeRowStyles = css`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`
-
-const uhDetailsStyles = css`
+const uhCalloutStyles = css`
   margin-top: 0.5rem;
   border-radius: 0.5rem;
-  border: 1px solid ${baseTheme.colors.gray[200]};
-  background: ${baseTheme.colors.gray[50]};
-  padding: 0;
-
-  summary {
-    cursor: pointer;
-    padding: 0.65rem 1rem;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: ${baseTheme.colors.gray[800]};
-    list-style: none;
-
-    &::-webkit-details-marker {
-      display: none;
-    }
-  }
+  border: 1px solid ${baseTheme.colors.blue[200]};
+  background: ${baseTheme.colors.blue[25]};
+  padding: 0.85rem 1rem;
 `
 
-const uhDetailsBodyStyles = css`
-  padding: 0 1rem 0.85rem 1rem;
+const uhCalloutTitleStyles = css`
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[800]};
+  margin: 0 0 0.5rem 0;
 `
 
 const uhLineStyles = css`
@@ -301,6 +486,51 @@ const SECTION_NAV_KEYS = [
   "course-plans-analysis-section-5",
   "course-plans-analysis-section-6",
 ] as const
+
+const SECTION_HEADER_ICONS = [
+  Document,
+  Users,
+  Pencil,
+  Statistics,
+  Coins,
+  AccountsGroupPeople,
+] as const
+
+/**
+ * Collapsible section title row: expand chevron, thematic Atlas icon, and heading text.
+ */
+function SectionCollapsibleHeader(props: {
+  sectionNum: AnalysisSectionIndex
+  expanded: boolean
+  onToggle: () => void
+  title: ReactNode
+}) {
+  const { sectionNum, expanded, onToggle, title } = props
+  const Icon = SECTION_HEADER_ICONS[sectionNum - 1]
+  const headingId = analysisSectionHeadingId(sectionNum)
+  const bodyControlsId = analysisSectionBodyId(sectionNum)
+  return (
+    <div className={sectionHeaderRowStyles}>
+      <button
+        type="button"
+        className={sectionToggleStyles}
+        onClick={onToggle}
+        aria-expanded={expanded}
+        aria-controls={bodyControlsId}
+      >
+        <span className={sectionChevronStyles(expanded)} aria-hidden>
+          <ArrowDown size={ICON_SIZE_SECTION} />
+        </span>
+        <span className={sectionHeaderIconWrapStyles} aria-hidden>
+          <Icon size={ICON_SIZE_SECTION_BADGE} />
+        </span>
+        <span className={sectionTitleStyles} id={headingId}>
+          {title}
+        </span>
+      </button>
+    </div>
+  )
+}
 
 const CONTENT_FORMAT_FIELDS = [
   ["wishes_content_format_text", "course-plans-analysis-format-text"],
@@ -372,7 +602,7 @@ function linkifyResourceLine(line: string): ReactNode {
 }
 
 /**
- * One key contributor role block with duties text and assigned-persons field.
+ * One key contributor role: title, duties, then full-width assignees field.
  */
 function ContributorRoleBlock(props: {
   dutiesKey: (typeof CONTRIBUTOR_ROLES)[number]["dutiesKey"]
@@ -383,14 +613,15 @@ function ContributorRoleBlock(props: {
 }) {
   const { dutiesKey, field, nameKey, register, t } = props
   return (
-    <div>
-      <p className={roleTitleStyles}>{t(nameKey)}</p>
-      <p className={dutiesTextStyles}>
-        {t("course-plans-analysis-role-responsibilities-label")}: {t(dutiesKey)}
-      </p>
-      <TextArea
+    <div className={contributorCardStyles}>
+      <div className={contributorCardLeadStyles}>
+        <p className={contributorCardTitleStyles}>{t(nameKey)}</p>
+        <p className={contributorDutiesStyles}>
+          {t("course-plans-analysis-role-responsibilities-label")}: {t(dutiesKey)}
+        </p>
+      </div>
+      <TextField
         label={t("course-plans-analysis-assigned-persons")}
-        rows={ROWS_STANDARD}
         {...register(field, nullIfEmpty)}
       />
     </div>
@@ -675,7 +906,14 @@ export default function AnalysisWorkspaceForm(props: {
     },
   )
 
-  const courseType = useWatch({ control, name: FIELD_COURSE_TYPE })
+  const formValues = watch()
+
+  const sectionCompletionFlags = useMemo(() => computeSectionCompletion(formValues), [formValues])
+
+  const sectionsWithContentCount = useMemo(
+    () => sectionCompletionFlags.filter(Boolean).length,
+    [sectionCompletionFlags],
+  )
 
   const debouncedAutosave = useDebouncedCallback(async () => {
     if (!isDirtyRef.current) {
@@ -781,70 +1019,77 @@ export default function AnalysisWorkspaceForm(props: {
 
   return (
     <form className={formRootStyles} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className={stickyToolbarStyles}>
-        <div
-          className={cx(saveStatusStyles, autosaveError && saveStatusErrorStyles)}
-          role="status"
-          aria-live="polite"
-        >
-          {statusText}
+      <div className={stickyMergedBarStyles}>
+        <div className={stickyBarRow1Styles}>
+          <div className={statusLeftStyles}>
+            <div
+              className={cx(saveStatusStyles, autosaveError && saveStatusErrorStyles)}
+              role="status"
+              aria-live="polite"
+            >
+              {statusText}
+            </div>
+            <span className={progressSummaryStyles}>
+              {t("course-plans-analysis-sections-progress", {
+                started: sectionsWithContentCount,
+                total: SECTION_COUNT,
+              })}
+            </span>
+          </div>
+          <div className={saveRowStyles}>
+            <span className={saveHintStyles}>{t("course-plans-analysis-autosave-hint")}</span>
+            <Button
+              type="submit"
+              variant="primary"
+              size="medium"
+              disabled={saving}
+              aria-label={t("course-plans-analysis-sticky-save-aria")}
+            >
+              {saving ? t("course-plans-analysis-saving") : t("course-plans-analysis-save-now")}
+            </Button>
+          </div>
         </div>
-        <div className={saveRowStyles}>
-          <Button
-            type="submit"
-            variant="primary"
-            size="medium"
-            disabled={saving}
-            aria-label={t("course-plans-analysis-sticky-save-aria")}
-          >
-            {saving ? t("course-plans-analysis-saving") : t("course-plans-analysis-save")}
-          </Button>
-        </div>
+        <nav className={stickyNavRowStyles} aria-label={t("course-plans-analysis-nav-aria-label")}>
+          {SECTION_NAV_KEYS.map((key, index) => {
+            const n = index + 1
+            const sectionId = `${SECTION_DOM_PREFIX}${n}`
+            const complete = sectionCompletionFlags[index] === true
+            return (
+              <a
+                key={sectionId}
+                href={`#${sectionId}`}
+                className={cx(
+                  sectionNavLinkStyles,
+                  activeSection === n && sectionNavLinkActiveStyles,
+                )}
+                onClick={scrollToSection(sectionId)}
+              >
+                {complete ? (
+                  <CheckCircle size={ICON_SIZE_NAV} aria-hidden />
+                ) : (
+                  <span className={navIncompleteDotStyles} aria-hidden />
+                )}
+                {t(key)}
+              </a>
+            )
+          })}
+        </nav>
       </div>
 
-      <nav className={sectionNavStyles} aria-label={t("course-plans-analysis-nav-aria-label")}>
-        {SECTION_NAV_KEYS.map((key, index) => {
-          const n = index + 1
-          const sectionId = `${SECTION_DOM_PREFIX}${n}`
-          return (
-            <a
-              key={sectionId}
-              href={`#${sectionId}`}
-              className={cx(
-                sectionNavLinkStyles,
-                activeSection === n && sectionNavLinkActiveStyles,
-              )}
-              onClick={scrollToSection(sectionId)}
-            >
-              {t(key)}
-            </a>
-          )
-        })}
-      </nav>
-
       <section
-        className={sectionCardStyles}
+        className={cx(sectionCardStyles, sectionAccentByIndex[0])}
         id={`${SECTION_DOM_PREFIX}1`}
-        aria-labelledby="analysis-section-1-heading"
+        aria-labelledby={analysisSectionHeadingId(1)}
       >
-        <div className={sectionHeaderRowStyles}>
-          <button
-            type="button"
-            className={sectionToggleStyles}
-            onClick={() => toggleSection(1)}
-            aria-expanded={expandedSections[1] !== false}
-            aria-controls="analysis-section-1-body"
-          >
-            <span className={sectionChevronStyles(expandedSections[1] !== false)} aria-hidden>
-              {SECTION_TOGGLE_CHEVRON}
-            </span>
-            <span className={sectionTitleStyles} id="analysis-section-1-heading">
-              {t("course-plans-analysis-section-1")}
-            </span>
-          </button>
-        </div>
+        <SectionCollapsibleHeader
+          sectionNum={1}
+          expanded={expandedSections[1] !== false}
+          onToggle={() => toggleSection(1)}
+          title={t("course-plans-analysis-section-1")}
+        />
         {expandedSections[1] !== false ? (
-          <div id="analysis-section-1-body" className={sectionBodyStyles}>
+          <div id={analysisSectionBodyId(1)} className={sectionBodyStyles}>
+            <h3 className={subsectionTitleStyles}>{t("course-plans-analysis-subgroup-basic")}</h3>
             <TextField
               label={t("course-plans-analysis-field-course-title")}
               description={t("course-plans-analysis-description-course-title")}
@@ -881,17 +1126,50 @@ export default function AnalysisWorkspaceForm(props: {
                   />
                 )}
               />
-              <TextField
-                label={t("course-plans-analysis-field-language")}
-                description={t("course-plans-analysis-description-language")}
-                {...register("language", nullIfEmpty)}
+              <Controller
+                name={FIELD_LANGUAGE}
+                control={control}
+                render={({ field }) => {
+                  const selectedKey =
+                    LANGUAGE_OPTIONS.find((o) => o.value === field.value)?.key ?? null
+                  return (
+                    <ComboBox
+                      label={t("course-plans-analysis-field-language")}
+                      description={t("course-plans-analysis-description-language")}
+                      items={LANGUAGE_OPTIONS}
+                      allowsCustomValue
+                      placeholder={t("course-plans-analysis-language-placeholder")}
+                      selectedKey={selectedKey}
+                      onSelectionChange={(key) => {
+                        if (key == null) {
+                          field.onChange(null)
+                          return
+                        }
+                        const opt = LANGUAGE_OPTIONS.find((o) => o.key === String(key))
+                        field.onChange(opt ? opt.value : null)
+                      }}
+                      value={field.value ?? ""}
+                      onChange={(e) => {
+                        const raw = e.target.value
+                        field.onChange(raw === "" ? null : raw)
+                      }}
+                      onBlur={field.onBlur}
+                    >
+                      {(item) => t(`course-plans-analysis-lang-${item.key}`)}
+                    </ComboBox>
+                  )
+                }}
               />
             </div>
-            <TextField
+            <TextArea
               label={t("course-plans-analysis-field-target-group")}
               description={t("course-plans-analysis-description-target-group")}
+              rows={ROWS_SHORT}
               {...register("target_group", nullIfEmpty)}
             />
+            <h3 className={subsectionTitleStyles}>
+              {t("course-plans-analysis-subgroup-logistics")}
+            </h3>
             <div className={modeAndPeriodsRowStyles}>
               <ModeCheckboxRow control={control} t={t} />
               <OpenPeriodCheckboxes
@@ -901,9 +1179,13 @@ export default function AnalysisWorkspaceForm(props: {
                 t={t}
               />
             </div>
-            <TextField
+            <h3 className={subsectionTitleStyles}>
+              {t("course-plans-analysis-subgroup-organizational")}
+            </h3>
+            <TextArea
               label={t("course-plans-analysis-field-responsible-teachers")}
               description={t("course-plans-analysis-description-responsible-teachers")}
+              rows={ROWS_SHORT}
               {...register("responsible_teachers", nullIfEmpty)}
             />
             <div className={twoColGridStyles}>
@@ -912,67 +1194,51 @@ export default function AnalysisWorkspaceForm(props: {
                 description={t("course-plans-analysis-description-degree-programme")}
                 {...register("degree_programme", nullIfEmpty)}
               />
-              <div className={courseTypeRowStyles}>
-                <RadioGroup
-                  label={t("course-plans-analysis-field-course-type")}
-                  name={FIELD_COURSE_TYPE}
-                  value={courseType == null ? "" : courseType}
-                  onChange={(v) =>
-                    setValue("course_type", v === "" ? null : (v as AnalysisCourseType), {
-                      shouldDirty: true,
-                    })
-                  }
-                >
-                  <Radio
-                    value="Compulsory"
-                    label={t("course-plans-analysis-course-type-compulsory")}
-                  />
-                  <Radio value="Elective" label={t("course-plans-analysis-course-type-elective")} />
-                </RadioGroup>
-                <Button
-                  type="button"
-                  variant="tertiary"
-                  size="small"
-                  onClick={() =>
-                    setValue("course_type", null, {
-                      shouldDirty: true,
-                    })
-                  }
-                >
-                  {t("course-plans-analysis-course-type-clear")}
-                </Button>
-              </div>
+              <Controller
+                name={FIELD_COURSE_TYPE}
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    label={t("course-plans-analysis-field-course-type")}
+                    value={field.value ?? ""}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      field.onChange(val === "" ? null : (val as AnalysisCourseType))
+                    }}
+                    onBlur={field.onBlur}
+                  >
+                    <option value="">{t("course-plans-analysis-course-type-none")}</option>
+                    <option value="Compulsory">
+                      {t("course-plans-analysis-course-type-compulsory")}
+                    </option>
+                    <option value="Elective">
+                      {t("course-plans-analysis-course-type-elective")}
+                    </option>
+                  </Select>
+                )}
+              />
             </div>
           </div>
         ) : null}
       </section>
 
       <section
-        className={sectionCardStyles}
+        className={cx(sectionCardStyles, sectionAccentByIndex[1])}
         id={`${SECTION_DOM_PREFIX}2`}
-        aria-labelledby="analysis-section-2-heading"
+        aria-labelledby={analysisSectionHeadingId(2)}
       >
-        <div className={sectionHeaderRowStyles}>
-          <button
-            type="button"
-            className={sectionToggleStyles}
-            onClick={() => toggleSection(2)}
-            aria-expanded={expandedSections[2] !== false}
-            aria-controls="analysis-section-2-body"
-          >
-            <span className={sectionChevronStyles(expandedSections[2] !== false)} aria-hidden>
-              {SECTION_TOGGLE_CHEVRON}
-            </span>
-            <span className={sectionTitleStyles} id="analysis-section-2-heading">
-              {t("course-plans-analysis-section-2")}
-            </span>
-          </button>
-        </div>
+        <SectionCollapsibleHeader
+          sectionNum={2}
+          expanded={expandedSections[2] !== false}
+          onToggle={() => toggleSection(2)}
+          title={t("course-plans-analysis-section-2")}
+        />
         {expandedSections[2] !== false ? (
-          <div id="analysis-section-2-body" className={sectionBodyStyles}>
+          <div id={analysisSectionBodyId(2)} className={sectionBodyStyles}>
             <p className={staticTextStyles}>{t("course-plans-analysis-students-needs-intro")}</p>
             <TextArea
               label={t("course-plans-analysis-field-students-demographic")}
+              description={t("course-plans-analysis-description-students-demographic")}
               rows={ROWS_LONG}
               {...register("students_demographic_data", nullIfEmpty)}
             />
@@ -981,46 +1247,40 @@ export default function AnalysisWorkspaceForm(props: {
       </section>
 
       <section
-        className={sectionCardStyles}
+        className={cx(sectionCardStyles, sectionAccentByIndex[2])}
         id={`${SECTION_DOM_PREFIX}3`}
-        aria-labelledby="analysis-section-3-heading"
+        aria-labelledby={analysisSectionHeadingId(3)}
       >
-        <div className={sectionHeaderRowStyles}>
-          <button
-            type="button"
-            className={sectionToggleStyles}
-            onClick={() => toggleSection(3)}
-            aria-expanded={expandedSections[3] !== false}
-            aria-controls="analysis-section-3-body"
-          >
-            <span className={sectionChevronStyles(expandedSections[3] !== false)} aria-hidden>
-              {SECTION_TOGGLE_CHEVRON}
-            </span>
-            <span className={sectionTitleStyles} id="analysis-section-3-heading">
-              {t("course-plans-analysis-section-3")}
-            </span>
-          </button>
-        </div>
+        <SectionCollapsibleHeader
+          sectionNum={3}
+          expanded={expandedSections[3] !== false}
+          onToggle={() => toggleSection(3)}
+          title={t("course-plans-analysis-section-3")}
+        />
         {expandedSections[3] !== false ? (
-          <div id="analysis-section-3-body" className={sectionBodyStyles}>
+          <div id={analysisSectionBodyId(3)} className={sectionBodyStyles}>
             <TextArea
               label={t("course-plans-analysis-field-wishes-topics")}
+              placeholder={t("course-plans-analysis-placeholder-wishes-topics")}
               rows={ROWS_STANDARD}
               {...register("wishes_topics", nullIfEmpty)}
             />
             <ContentFormatCheckboxes control={control} t={t} />
             <TextArea
               label={t("course-plans-analysis-field-content-format-notes")}
+              placeholder={t("course-plans-analysis-placeholder-content-format-notes")}
               rows={ROWS_STANDARD}
               {...register("wishes_content_format_notes", nullIfEmpty)}
             />
             <TextArea
               label={t("course-plans-analysis-field-assessment")}
+              placeholder={t("course-plans-analysis-placeholder-assessment")}
               rows={ROWS_STANDARD}
               {...register("wishes_assessment_text", nullIfEmpty)}
             />
             <TextArea
               label={t("course-plans-analysis-field-wishes-other")}
+              placeholder={t("course-plans-analysis-placeholder-wishes-other")}
               rows={ROWS_STANDARD}
               {...register("wishes_other_suggestions", nullIfEmpty)}
             />
@@ -1029,28 +1289,18 @@ export default function AnalysisWorkspaceForm(props: {
       </section>
 
       <section
-        className={sectionCardStyles}
+        className={cx(sectionCardStyles, sectionAccentByIndex[3])}
         id={`${SECTION_DOM_PREFIX}4`}
-        aria-labelledby="analysis-section-4-heading"
+        aria-labelledby={analysisSectionHeadingId(4)}
       >
-        <div className={sectionHeaderRowStyles}>
-          <button
-            type="button"
-            className={sectionToggleStyles}
-            onClick={() => toggleSection(4)}
-            aria-expanded={expandedSections[4] !== false}
-            aria-controls="analysis-section-4-body"
-          >
-            <span className={sectionChevronStyles(expandedSections[4] !== false)} aria-hidden>
-              {SECTION_TOGGLE_CHEVRON}
-            </span>
-            <span className={sectionTitleStyles} id="analysis-section-4-heading">
-              {t("course-plans-analysis-section-4")}
-            </span>
-          </button>
-        </div>
+        <SectionCollapsibleHeader
+          sectionNum={4}
+          expanded={expandedSections[4] !== false}
+          onToggle={() => toggleSection(4)}
+          title={t("course-plans-analysis-section-4")}
+        />
         {expandedSections[4] !== false ? (
-          <div id="analysis-section-4-body" className={sectionBodyStyles}>
+          <div id={analysisSectionBodyId(4)} className={sectionBodyStyles}>
             <TextArea
               label={t("course-plans-analysis-field-market-results")}
               description={t("course-plans-analysis-description-market-results")}
@@ -1062,91 +1312,72 @@ export default function AnalysisWorkspaceForm(props: {
       </section>
 
       <section
-        className={sectionCardStyles}
+        className={cx(sectionCardStyles, sectionAccentByIndex[4])}
         id={`${SECTION_DOM_PREFIX}5`}
-        aria-labelledby="analysis-section-5-heading"
+        aria-labelledby={analysisSectionHeadingId(5)}
       >
-        <div className={sectionHeaderRowStyles}>
-          <button
-            type="button"
-            className={sectionToggleStyles}
-            onClick={() => toggleSection(5)}
-            aria-expanded={expandedSections[5] !== false}
-            aria-controls="analysis-section-5-body"
-          >
-            <span className={sectionChevronStyles(expandedSections[5] !== false)} aria-hidden>
-              {SECTION_TOGGLE_CHEVRON}
-            </span>
-            <span className={sectionTitleStyles} id="analysis-section-5-heading">
-              {t("course-plans-analysis-section-5")}
-            </span>
-          </button>
-        </div>
+        <SectionCollapsibleHeader
+          sectionNum={5}
+          expanded={expandedSections[5] !== false}
+          onToggle={() => toggleSection(5)}
+          title={t("course-plans-analysis-section-5")}
+        />
         {expandedSections[5] !== false ? (
-          <div id="analysis-section-5-body" className={sectionBodyStyles}>
+          <div id={analysisSectionBodyId(5)} className={sectionBodyStyles}>
             <TextArea
               label={t("course-plans-analysis-field-resources-university")}
+              placeholder={t("course-plans-analysis-placeholder-resources-university")}
               rows={ROWS_STANDARD}
               {...register("resources_university", nullIfEmpty)}
             />
             <TextArea
               label={t("course-plans-analysis-field-resources-purchase")}
+              placeholder={t("course-plans-analysis-placeholder-resources-purchase")}
               rows={ROWS_STANDARD}
               {...register("resources_purchase_budget", nullIfEmpty)}
             />
             {showUhResources ? (
-              <details className={uhDetailsStyles}>
-                <summary>{t("course-plans-analysis-resources-uh-details-summary")}</summary>
-                <div className={uhDetailsBodyStyles}>
-                  <p className={staticTextStyles}>
-                    {t("course-plans-analysis-resources-uh-heading")}
+              <div className={uhCalloutStyles}>
+                <p className={uhCalloutTitleStyles}>
+                  {t("course-plans-analysis-resources-uh-heading")}
+                </p>
+                {uhLines.map((line, index) => (
+                  <p key={`uh-line-${index}`} className={uhLineStyles}>
+                    {linkifyResourceLine(line)}
                   </p>
-                  {uhLines.map((line, index) => (
-                    <p key={`uh-line-${index}`} className={uhLineStyles}>
-                      {linkifyResourceLine(line)}
-                    </p>
-                  ))}
-                </div>
-              </details>
+                ))}
+              </div>
             ) : null}
           </div>
         ) : null}
       </section>
 
       <section
-        className={sectionCardStyles}
+        className={cx(sectionCardStyles, sectionAccentByIndex[5])}
         id={`${SECTION_DOM_PREFIX}6`}
-        aria-labelledby="analysis-section-6-heading"
+        aria-labelledby={analysisSectionHeadingId(6)}
       >
-        <div className={sectionHeaderRowStyles}>
-          <button
-            type="button"
-            className={sectionToggleStyles}
-            onClick={() => toggleSection(6)}
-            aria-expanded={expandedSections[6] !== false}
-            aria-controls="analysis-section-6-body"
-          >
-            <span className={sectionChevronStyles(expandedSections[6] !== false)} aria-hidden>
-              {SECTION_TOGGLE_CHEVRON}
-            </span>
-            <span className={sectionTitleStyles} id="analysis-section-6-heading">
-              {t("course-plans-analysis-section-6")}
-            </span>
-          </button>
-        </div>
+        <SectionCollapsibleHeader
+          sectionNum={6}
+          expanded={expandedSections[6] !== false}
+          onToggle={() => toggleSection(6)}
+          title={t("course-plans-analysis-section-6")}
+        />
         {expandedSections[6] !== false ? (
-          <div id="analysis-section-6-body" className={sectionBodyStyles}>
+          <div id={analysisSectionBodyId(6)} className={sectionBodyStyles}>
             <p className={staticTextStyles}>{t("course-plans-analysis-contributors-intro")}</p>
-            {CONTRIBUTOR_ROLES.map((role) => (
-              <ContributorRoleBlock
-                key={role.field}
-                field={role.field}
-                nameKey={role.nameKey}
-                dutiesKey={role.dutiesKey}
-                register={register}
-                t={t}
-              />
-            ))}
+            <div className={contributorsListStyles}>
+              {CONTRIBUTOR_ROLES.map((role) => (
+                <ContributorRoleBlock
+                  key={role.field}
+                  field={role.field}
+                  nameKey={role.nameKey}
+                  dutiesKey={role.dutiesKey}
+                  register={register}
+                  t={t}
+                />
+              ))}
+            </div>
           </div>
         ) : null}
       </section>

@@ -15,6 +15,9 @@ export type CourseDesignerStage =
   | "Implementation"
   | "Evaluation"
 
+/** Persisted analysis workspace schema id (API contract). */
+export const ANALYSIS_WORKSPACE_SCHEMA_V1 = "analysis_v1" as const
+
 export type CourseDesignerPlanStatus =
   | "Draft"
   | "Scheduling"
@@ -277,7 +280,11 @@ export function parseAnalysisWorkspaceFromApi(
     return defaultAnalysisWorkspaceV1()
   }
   const o = raw as { schema?: string; payload?: unknown }
-  if (o.schema === "analysis_v1" && o.payload != null && typeof o.payload === "object") {
+  if (
+    o.schema === ANALYSIS_WORKSPACE_SCHEMA_V1 &&
+    o.payload != null &&
+    typeof o.payload === "object"
+  ) {
     return { ...defaultAnalysisWorkspaceV1(), ...(o.payload as AnalysisWorkspaceV1) }
   }
   return defaultAnalysisWorkspaceV1()

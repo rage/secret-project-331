@@ -370,6 +370,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
       <div ref={wrapperRef} className={cx(fieldRootCss, className)}>
         <div
           className={cx(fieldControlCss, selectRootCss)}
+          data-field-control="true"
           data-focused={state.isFocused ? "true" : "false"}
           data-floated={isFloated ? "true" : "false"}
           data-invalid={hookIsInvalid ? "true" : "false"}
@@ -380,6 +381,7 @@ export const Select = React.forwardRef<HTMLDivElement, SelectProps>(
           <button {...buttonProps} ref={buttonRef} className={resolveSelectTriggerCss(fieldSize)}>
             <span
               {...valueProps}
+              data-select-placeholder={isPlaceholderState ? "true" : undefined}
               className={cx(
                 triggerValueCss,
                 isPlaceholderState ? selectTriggerValuePlaceholderCss : undefined,

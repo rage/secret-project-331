@@ -127,6 +127,7 @@ export function FieldShell({
       <div
         {...controlProps}
         className={controlSlotClassName}
+        data-field-control={layout === "floating" ? "true" : undefined}
         data-floated={layout === "floating" ? (isFloatingRaised ? "true" : "false") : undefined}
         data-focused={layout === "floating" ? (isFloatingFocused ? "true" : "false") : undefined}
         data-invalid={layout === "floating" ? (isInvalid ? "true" : "false") : undefined}

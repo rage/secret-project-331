@@ -302,6 +302,7 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
           resolveControlSurfaceCss(fieldSize, isFloated),
           comboBoxRootCss,
         )}
+        data-field-control="true"
         data-disabled={resolvedState.isDisabled ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
         data-readonly={resolvedState.isReadOnly ? "true" : "false"}

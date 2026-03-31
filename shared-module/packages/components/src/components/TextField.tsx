@@ -180,6 +180,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       <div className={cx(fieldRootCss, className)}>
         <div
           className={fieldControlCss}
+          data-field-control="true"
           data-has-icon-start={iconStart ? "true" : undefined}
           data-has-icon-end={iconEnd ? "true" : undefined}
           data-focused={isFocused ? "true" : "false"}

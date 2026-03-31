@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { useQueryClient } from "@tanstack/react-query"
-import { Checkbox, Radio, RadioGroup, TextArea, TextField } from "components"
 import type { ReactNode } from "react"
 import { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -11,8 +10,10 @@ import { useTranslation } from "react-i18next"
 import { coursePlanQueryKeys } from "../../../coursePlanQueryKeys"
 
 import {
+  ANALYSIS_WORKSPACE_SCHEMA_V1,
   type AnalysisCourseType,
   type AnalysisWorkspaceV1,
+  type CourseDesignerStage,
   defaultAnalysisWorkspaceV1,
   parseAnalysisWorkspaceFromApi,
   patchCourseDesignerStageWorkspace,
@@ -20,6 +21,19 @@ import {
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Checkbox, Radio, RadioGroup, TextArea, TextField } from "@/shared-module/components"
+
+const STAGE_ANALYSIS: CourseDesignerStage = "Analysis"
+const FIELD_CREDITS = "credits"
+const FIELD_COURSE_TYPE = "course_type"
+const INPUT_MODE_DECIMAL = "decimal"
+const MAILTO_PREFIX = "mailto:"
+const EXTERNAL_LINK_TARGET = "_blank"
+const EXTERNAL_LINK_REL = "noopener noreferrer"
+const OPEN_PERIOD_I = "open_period_i"
+const OPEN_PERIOD_II = "open_period_ii"
+const OPEN_PERIOD_III = "open_period_iii"
+const OPEN_PERIOD_IV = "open_period_iv"
 
 const formRootStyles = css`
   display: flex;
@@ -121,14 +135,14 @@ function linkifyResourceLine(line: string): ReactNode {
     }
     const url = match[1]
     const email = match[2]
-    const href = url ?? `mailto:${email}`
+    const href = url ?? `${MAILTO_PREFIX}${email}`
     const label = match[0]
     parts.push(
       <a
         key={`${match.index}-${label}`}
         href={href}
         className={uhLinkStyles}
-        {...(url ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        {...(url ? { target: EXTERNAL_LINK_TARGET, rel: EXTERNAL_LINK_REL } : {})}
       >
         {label}
       </a>,
@@ -164,8 +178,8 @@ export default function AnalysisWorkspaceForm(props: {
 
   const saveMutation = useToastMutation(
     (payload: AnalysisWorkspaceV1) =>
-      patchCourseDesignerStageWorkspace(planId, "Analysis", {
-        schema: "analysis_v1",
+      patchCourseDesignerStageWorkspace(planId, STAGE_ANALYSIS, {
+        schema: ANALYSIS_WORKSPACE_SCHEMA_V1,
         payload,
       }),
     {
@@ -220,7 +234,7 @@ export default function AnalysisWorkspaceForm(props: {
           })}
         />
         <Controller
-          name="credits"
+          name={FIELD_CREDITS}
           control={control}
           rules={{
             validate: (v) =>
@@ -231,7 +245,7 @@ export default function AnalysisWorkspaceForm(props: {
           render={({ field, fieldState }) => (
             <TextField
               label={t("course-plans-analysis-field-credits")}
-              inputMode="decimal"
+              inputMode={INPUT_MODE_DECIMAL}
               autoComplete="off"
               errorMessage={fieldState.error?.message}
               value={field.value == null ? "" : String(field.value)}
@@ -284,22 +298,22 @@ export default function AnalysisWorkspaceForm(props: {
               <Checkbox
                 label={t("course-plans-analysis-period-i")}
                 checked={watch("open_period_i")}
-                onChange={(e) => handleOpenPeriodChange("open_period_i", e.target.checked)}
+                onChange={(e) => handleOpenPeriodChange(OPEN_PERIOD_I, e.target.checked)}
               />
               <Checkbox
                 label={t("course-plans-analysis-period-ii")}
                 checked={watch("open_period_ii")}
-                onChange={(e) => handleOpenPeriodChange("open_period_ii", e.target.checked)}
+                onChange={(e) => handleOpenPeriodChange(OPEN_PERIOD_II, e.target.checked)}
               />
               <Checkbox
                 label={t("course-plans-analysis-period-iii")}
                 checked={watch("open_period_iii")}
-                onChange={(e) => handleOpenPeriodChange("open_period_iii", e.target.checked)}
+                onChange={(e) => handleOpenPeriodChange(OPEN_PERIOD_III, e.target.checked)}
               />
               <Checkbox
                 label={t("course-plans-analysis-period-iv")}
                 checked={watch("open_period_iv")}
-                onChange={(e) => handleOpenPeriodChange("open_period_iv", e.target.checked)}
+                onChange={(e) => handleOpenPeriodChange(OPEN_PERIOD_IV, e.target.checked)}
               />
             </div>
             <Checkbox
@@ -337,7 +351,7 @@ export default function AnalysisWorkspaceForm(props: {
         />
         <RadioGroup
           label={t("course-plans-analysis-field-course-type")}
-          name="course_type"
+          name={FIELD_COURSE_TYPE}
           value={courseType ?? ""}
           onChange={(v) =>
             setValue("course_type", v === "" ? null : (v as AnalysisCourseType), {

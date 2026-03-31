@@ -597,12 +597,13 @@ pub async fn make_request_and_stream<'a>(
                 ));
             }
             Some(Result::Ok(line)) => {
+                println!("🐈🐈🐈🐈🐈🐈🐈🐈{:?}", line);
                 // save the response_id!
                 if line.starts_with("event: ") {
                     event_type = line.trim_start_matches("event: ").to_string();
                 } else if output_item_incoming && line.starts_with("data: ") {
                     let json_str = line.trim_start_matches("data: ");
-                    println!("🐈🐈🐈🐈🐈🐈🐈🐈{:?}", json_str);
+
                     let response_output = serde_json::from_str::<ResponseOutput>(json_str)
                         .map_err(|e| ChatbotError::from(e))?;
                     let item = response_output.item.ok_or(ChatbotError::new(

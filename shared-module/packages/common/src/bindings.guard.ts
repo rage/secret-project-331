@@ -828,7 +828,6 @@ export function isChatbotConversationMessageToolOutput(obj: unknown): obj is Cha
         (typedObj["deleted_at"] === null ||
             typeof typedObj["deleted_at"] === "string") &&
         typeof typedObj["message_id"] === "string" &&
-        typeof typedObj["tool_name"] === "string" &&
         typeof typedObj["tool_output"] === "string" &&
         typeof typedObj["tool_call_id"] === "string"
     )

@@ -21,7 +21,7 @@ pub const LLM_API_VERSION: &str = "2024-10-21";
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessage {
-    #[serde(rename = "type")]
+    #[serde(flatten)]
     pub message_type: APIMessageType,
 }
 
@@ -389,7 +389,10 @@ pub async fn make_streaming_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
-    trace!("Base request: {:?}", chat_request);
+    trace!(
+        "🧶🧶🧶🧶🧶🧶🧶🧶Base request: {:?}",
+        serde_json::to_string(&chat_request)
+    );
 
     let request = AzureCompletionRequest {
         base: chat_request,

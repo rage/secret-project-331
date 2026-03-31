@@ -11,6 +11,7 @@ import { login, verifyEmail } from "@/shared-module/common/services/backend/auth
 export type LoginStep =
   | { step: "credentials" }
   | { step: "verification"; token: string }
+  | { step: "must_change_password"; email: string }
   | { step: "awaiting_consent_check" }
   | { step: "consent_form" }
   | { step: "complete" }
@@ -25,6 +26,7 @@ export interface UseLoginFlowReturn {
   submitCredentials: (email: string, password: string) => Promise<void>
   submitVerification: (code: string) => Promise<void>
   onConsentSubmitted: () => void
+  backToCredentials: () => void
 }
 
 /**
@@ -53,6 +55,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
       } else if (response.type === "requires_email_verification") {
         setVerificationToken(response.email_verification_token)
         setStep({ step: "verification", token: response.email_verification_token })
+        return false
+      } else if (response.type === "must_change_password") {
+        setStep({ step: "must_change_password", email: credentials.email })
         return false
       } else {
         setCredentialsError(true)
@@ -128,6 +133,11 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     setStep({ step: "complete" })
   }
 
+  const backToCredentials = () => {
+    setStep({ step: "credentials" })
+    setCredentialsError(false)
+  }
+
   return {
     step,
     credentialsError,
@@ -138,5 +148,6 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     submitCredentials,
     submitVerification,
     onConsentSubmitted,
+    backToCredentials,
   }
 }

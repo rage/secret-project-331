@@ -2485,6 +2485,7 @@ export type LoginResponse =
   | { type: "success" }
   | { type: "requires_email_verification"; email_verification_token: string }
   | { type: "failed" }
+  | { type: "must_change_password" }
 
 export interface VerifyEmailRequest {
   email_verification_token: string

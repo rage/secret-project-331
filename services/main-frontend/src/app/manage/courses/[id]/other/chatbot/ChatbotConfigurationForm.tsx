@@ -82,11 +82,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       top_p: oldChatbotConf.top_p,
       frequency_penalty: oldChatbotConf.frequency_penalty,
       presence_penalty: oldChatbotConf.presence_penalty,
-      response_max_tokens: oldChatbotConf.response_max_tokens,
+      max_output_tokens: oldChatbotConf.max_output_tokens,
       verbosity: oldChatbotConf.verbosity,
       reasoning_effort: oldChatbotConf.reasoning_effort,
       thinking_model: oldChatbotConf.thinking_model,
-      max_completion_tokens: oldChatbotConf.max_completion_tokens,
       use_azure_search: oldChatbotConf.use_azure_search,
       use_tools: oldChatbotConf.use_tools,
       hide_citations: oldChatbotConf.hide_citations,
@@ -172,8 +171,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       top_p: +data.top_p,
       frequency_penalty: +data.frequency_penalty,
       presence_penalty: +data.presence_penalty,
-      response_max_tokens: +data.response_max_tokens,
-      max_completion_tokens: +data.max_completion_tokens,
+      max_output_tokens: +data.max_output_tokens,
       reasoning_effort: data.reasoning_effort,
       verbosity: data.verbosity,
       thinking_model: model.thinking,
@@ -326,14 +324,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 showDefaultOption={false}
                 {...register("reasoning_effort")}
               />
-              <TextField
-                className={textFieldCss}
-                type="number"
-                label={t("max-completion-tokens")}
-                error={errors.max_completion_tokens?.message}
-                disabled={!selectedModel?.thinking}
-                {...register("max_completion_tokens", { required: t("required-field") })}
-              />
               <CheckBox label={t("enable-tool-use")} {...register("use_tools")} />
             </div>
           </div>
@@ -382,6 +372,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     label={t("weekly-token-user")}
                     {...register("weekly_tokens_per_user")}
                   />
+                  <TextField
+                    className={textFieldCss}
+                    type="number"
+                    label={
+                      selectedModel?.thinking ? t("max-completion-tokens") : t("max-token-response")
+                    }
+                    error={errors.max_output_tokens?.message}
+                    {...register("max_output_tokens", { required: t("required-field") })}
+                  />
                 </div>
                 <div className={itemCss}>
                   <h4>{t("configure-search")}</h4>
@@ -410,13 +409,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                       {" "}
                       <div className={itemCss}>
                         <h3>{t("non-reasoning-model-settings")}</h3>
-                        <TextField
-                          className={textFieldCss}
-                          type="number"
-                          label={t("max-token-response")}
-                          error={errors.response_max_tokens?.message}
-                          {...register("response_max_tokens", { required: t("required-field") })}
-                        />
                         <h4>{t("configure-penalty")}</h4>
                         <TextField
                           className={textFieldCss}

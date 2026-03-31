@@ -33,7 +33,7 @@ use crate::chatbot_tools::{
 };
 use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
-    APITool, APIToolCall, estimate_tokens, make_streaming_llm_request,
+    APIMessageType, APITool, APIToolCall, estimate_tokens, make_streaming_llm_request,
 };
 use headless_lms_utils::url_encoding::url_decode;
 
@@ -161,6 +161,7 @@ pub struct ResponseOutput {
 
 #[derive(Deserialize, Serialize, Debug)]
 #[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
 pub enum OutputItem {
     Message, // we can get annotations and full text from here, but not yet.
     Reasoning {
@@ -170,7 +171,7 @@ pub enum OutputItem {
         call_id: String,
         arguments: String,
     },
-    AzurAiSearchCallOutput {
+    AzureAiSearchCallOutput {
         call_id: String,
         output: String, // json string
     },
@@ -186,6 +187,7 @@ pub enum OutputItem {
 #[serde(rename_all = "snake_case")]
 pub enum LLMToolChoice {
     Auto,
+    None,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -288,6 +290,7 @@ pub struct LLMRequest {
     pub model: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tools: Vec<AzureLLMToolDefinition>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<LLMToolChoice>,
     pub max_output_tokens: Option<i32>,
     pub text: Option<ResponseTextOptions>,
@@ -353,11 +356,10 @@ impl LLMRequest {
         api_chat_messages.insert(
             0,
             APIMessage {
-                role: MessageRole::System,
-                message_type: "message".to_string(),
-                fields: APIMessageKind::Text(APIMessageText {
+                message_type: APIMessageType::Message {
+                    role: MessageRole::System,
                     content: configuration.prompt.clone(),
-                }),
+                },
             },
         );
 
@@ -553,6 +555,7 @@ impl Drop for RequestCancelledGuard {
 }
 
 pub async fn make_request_and_stream<'a>(
+    conn: &mut PgConnection,
     chat_request: LLMRequest,
     model_name: &str,
     app_config: &ApplicationConfiguration,
@@ -600,30 +603,30 @@ pub async fn make_request_and_stream<'a>(
                 // save the response_id!
                 if line.starts_with("event: ") {
                     event_type = line.trim_start_matches("event: ").to_string();
-                } else if output_item_incoming {
+                } else if output_item_incoming && line.starts_with("data: ") {
                     let json_str = line.trim_start_matches("data: ");
+                    println!("🐈🐈🐈🐈🐈🐈🐈🐈{:?}", json_str);
                     let response_output = serde_json::from_str::<ResponseOutput>(json_str)
-                        .map_err(|e| {
-                            anyhow::anyhow!("Failed to parse response chunk: {} {}", e, json_str)
-                        })?;
-                    /* let item = response_output.item.ok_or("Expected output item");
-                    parse_output_item(conn, item, user_context); */
+                        .map_err(|e| ChatbotError::from(e))?;
+                    let item = response_output.item.ok_or(ChatbotError::new(
+                        ChatbotErrorType::DeserializationError,
+                        "Expected response ouput item",
+                        None,
+                    ))?;
+                    process_output_item(conn, item).await?;
+                    output_item_incoming = false;
                     pinned_lines.next().await;
                     continue;
                 } else {
                     pinned_lines.next().await;
                     continue;
                 };
-                /*                 if !line.starts_with("data: ") {
-                    pinned_lines.next().await;
-                    continue;
-                } */
-                // if event is response.function_call_arguments.delta
-                // this is a tool call case
-                // if event is response.output_text.delta
-                // this is the response
+
                 match event_type.as_str() {
-                    "response.created" => continue, // save the response_id
+                    "response.created" => {
+                        pinned_lines.next().await;
+                        continue;
+                    } // save the response_id
                     "response.output_item.done" => {
                         println!("Doing stuff");
                         output_item_incoming = true;
@@ -641,22 +644,6 @@ pub async fn make_request_and_stream<'a>(
                         continue;
                     }
                 }
-
-                //let json_str = line.trim_start_matches("data: ");
-                /* let response_chunk = serde_json::from_str::<OutputItem>(json_str)
-                .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {}", e))?; */
-                /* for choice in &response_chunk.choices {
-                    if let Some(d) = &choice.delta {
-                        if d.content.is_some() || d.context.is_some() {
-                            return Ok(ResponseStreamType::TextResponse(pinned_lines));
-                        } else if let Some(_calls) = &d.tool_calls {
-                            return Ok(ResponseStreamType::Toolcall(pinned_lines));
-                        } else if d.content.is_none() {
-                            pinned_lines.next().await;
-                            continue;
-                        }
-                    }
-                } */
                 //pinned_lines.next().await;
             }
         }
@@ -667,10 +654,9 @@ pub async fn make_request_and_stream<'a>(
     ))
 }
 
-pub async fn parse_output_item(
+pub async fn process_output_item(
     conn: &mut PgConnection,
     item: OutputItem,
-    user_context: &ChatbotUserContext,
 ) -> anyhow::Result<String> {
     if let OutputItem::FunctionCall {
         call_id,
@@ -679,8 +665,13 @@ pub async fn parse_output_item(
     } = item
     {
         // this chunk has tool call data
-    } else if let OutputItem::AzurAiSearchCallOutput { call_id, output } = item {
-        // azure
+        // it should already be saved!!
+    } else if let OutputItem::AzureAiSearchCallOutput { call_id, output } = item {
+        // if we want to save azure search output
+    } else if let OutputItem::Reasoning { summary } = item {
+        // save reasoning summary for some reason
+        // also we can yield some reasoning stuff for the ui
+        // but the reasoning starts in an ouput_item.added event
     }
 
     return Ok("lol".to_string());
@@ -696,7 +687,7 @@ pub async fn parse_tool<'a>(
     let mut function_name_id_args: Vec<(String, String, String)> = vec![];
     let mut messages = vec![];
     let mut event_type = "".to_string();
-    let mut tool_calls_received = false;
+    let mut response_received = false;
 
     trace!("Parsing tool calls...");
 
@@ -705,13 +696,13 @@ pub async fn parse_tool<'a>(
         if line.starts_with("event: ") {
             event_type = line.trim_start_matches("event: ").to_string();
             continue;
-        };
+        }
         if !line.to_owned().starts_with("data: ") {
             continue;
         }
         match event_type.as_str() {
             "response.completed" => {
-                tool_calls_received = true;
+                response_received = true;
             }
             "response.output_text.delta" => println!("ERROR"),
             "response.output_item.done" => println!("tool call received?!!!"),
@@ -719,7 +710,7 @@ pub async fn parse_tool<'a>(
         };
 
         let json_str = line.trim_start_matches("data: ");
-        if tool_calls_received {
+        if response_received {
             // the stream ended
             if function_name_id_args.is_empty() {
                 return Err(anyhow::anyhow!(
@@ -732,51 +723,42 @@ pub async fn parse_tool<'a>(
             for (name, id, args) in function_name_id_args.iter() {
                 let tool = get_chatbot_tool(conn, name, args, user_context).await?;
 
-                assistant_tool_calls.push(APIToolCall {
-                    function: APITool {
+                assistant_tool_calls.push(APIMessage {
+                    message_type: APIMessageType::FunctionCall {
+                        call_id: id.to_owned(),
                         name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
                     },
-                    id: id.to_owned(),
-                    tool_type: ToolCallType::Function,
                 });
                 tool_result_msgs.push(APIMessage {
-                    role: MessageRole::Tool,
-                    message_type: "message".to_string(),
-                    fields: APIMessageKind::ToolResponse(APIMessageToolResponse {
-                        content: tool.get_tool_output(),
-                        name: name.to_owned(),
-                        tool_call_id: id.to_owned(),
-                    }),
+                    message_type: APIMessageType::FunctionCallOutput {
+                        call_id: id.to_owned(),
+                        output: tool.get_tool_output(),
+                    },
                 })
             }
-            // insert all tool calls made by the bot as one message into the messages
-            messages.push(APIMessage {
-                role: MessageRole::Assistant,
-                message_type: "message".to_string(),
-                fields: APIMessageKind::ToolCall(APIMessageToolCall {
-                    tool_calls: assistant_tool_calls,
-                }),
-            });
+            // insert all tool calls made by the bot into the messages
+            messages.extend(assistant_tool_calls);
             // add tool call output messages to the messages
             messages.extend(tool_result_msgs);
             break;
         }
         let response_output = serde_json::from_str::<ResponseOutput>(json_str)
             .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {} {}", e, json_str))?;
-        if let Some(item) = response_output.item
-            && let OutputItem::FunctionCall {
+        if let Some(item) = response_output.item {
+            if let OutputItem::FunctionCall {
                 call_id,
                 tool_name,
                 arguments,
             } = item
-        {
-            // this chunk has tool call data
-            function_name_id_args.push((tool_name, call_id, arguments));
-        } else {
-            // this could be a reasoning chunk
-            // this could be an azure search chunk
-            println!("ERROR? This wasn't a tool call item, wtf?")
+            {
+                // this chunk has tool call data
+                function_name_id_args.push((tool_name, call_id, arguments));
+            } else {
+                // this could be a reasoning chunk
+                // this could be an azure search chunk
+                process_output_item(conn, item).await?;
+            }
         }
     }
     Ok(messages)
@@ -874,17 +856,17 @@ pub async fn parse_and_stream_to_user<'a>(
 
 
             if let Some(delta) = &response_output.delta {
-                    full_response_text.push(delta.to_owned());
-                    let response = ChatResponse { text: delta.clone() };
-                    let response_as_string = serde_json::to_string(&response)?;
-                    yield Bytes::from(response_as_string);
-                    yield Bytes::from("\n");
+                full_response_text.push(delta.to_owned());
+                let response = ChatResponse { text: delta.clone() };
+                let response_as_string = serde_json::to_string(&response)?;
+                yield Bytes::from(response_as_string);
+                yield Bytes::from("\n");
             }
 
             if let Some(item) = &response_output.item {
                 match item {
                     OutputItem::Message => continue,
-                    OutputItem::AzurAiSearchCallOutput {call_id, output} => println!("save cited documents {:?}", output),
+                    OutputItem::AzureAiSearchCallOutput {call_id, output} => println!("save cited documents {:?}", output),
                     OutputItem::FunctionCall {call_id, tool_name, arguments} => println!("ERROR! Shouldn't call function here"),
                     _ => continue,
 
@@ -985,9 +967,13 @@ pub async fn send_chat_request_and_parse_stream(
             ));
         }
 
-        let response_type =
-            make_request_and_stream(chat_request.clone(), &model.deployment_name, app_config)
-                .await?;
+        let response_type = make_request_and_stream(
+            conn,
+            chat_request.clone(),
+            &model.deployment_name,
+            app_config,
+        )
+        .await?;
 
         let new_tool_msgs = match response_type {
             ResponseStreamType::Toolcall(stream) => parse_tool(conn, stream, &user_context).await?,

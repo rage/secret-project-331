@@ -8,7 +8,6 @@ pub struct ChatbotConversationMessageToolOutput {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub message_id: Uuid,
-    pub tool_name: String,
     pub tool_output: String,
     pub tool_call_id: String,
 }
@@ -21,7 +20,6 @@ impl Default for ChatbotConversationMessageToolOutput {
             updated_at: Default::default(),
             deleted_at: None,
             message_id: Uuid::nil(),
-            tool_name: Default::default(),
             tool_output: Default::default(),
             tool_call_id: Default::default(),
         }
@@ -38,15 +36,13 @@ pub async fn insert(
         r#"
 INSERT INTO chatbot_conversation_message_tool_outputs (
     message_id,
-    tool_name,
     tool_output,
     tool_call_id
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3)
 RETURNING *
         "#,
         msg_id,
-        input.tool_name,
         input.tool_output,
         input.tool_call_id,
     )

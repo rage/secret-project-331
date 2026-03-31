@@ -8,8 +8,8 @@ use crate::{
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
-        parse_text_completion,
+        APIMessage, APIMessageKind, APIMessageText, APIMessageType, estimate_tokens,
+        make_blocking_llm_request, parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -218,19 +218,17 @@ pub async fn generate_paragraph_suggestions(
     }
 
     let system_message = APIMessage {
-        role: MessageRole::System,
-        message_type: "message".to_string(),
-        fields: APIMessageKind::Text(APIMessageText {
+        message_type: APIMessageType::Message {
+            role: MessageRole::System,
             content: system_instructions,
-        }),
+        },
     };
 
     let user_message = APIMessage {
-        role: MessageRole::User,
-        message_type: "message".to_string(),
-        fields: APIMessageKind::Text(APIMessageText {
+        message_type: APIMessageType::Message {
+            role: MessageRole::User,
             content: user_message_content,
-        }),
+        },
     };
 
     let (params, max_output_tokens) = if task_lm.thinking {

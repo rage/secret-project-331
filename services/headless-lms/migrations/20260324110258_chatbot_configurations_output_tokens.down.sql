@@ -15,3 +15,17 @@ ALTER TABLE chatbot_configurations DROP COLUMN max_output_tokens;
 
 COMMENT ON COLUMN chatbot_configurations.response_max_tokens IS 'The maximum number of tokens the chatbot can output in a response, i.e. maximum response length in tokens. Only used with non-reasoning models.';
 COMMENT ON COLUMN chatbot_configurations.max_completion_tokens IS 'The max. number of tokens the thinking LLM is allowed to use in generating the response, including output tokens and reasoning tokens. Only used with reasoning models.';
+
+ALTER TABLE chatbot_conversation_message_tool_outputs
+ADD COLUMN tool_name VARCHAR(255);
+
+UPDATE chatbot_conversation_message_tool_outputs
+SET tool_name = chatbot_conversation_message_tool_calls.tool_name
+FROM chatbot_conversation_message_tool_calls
+WHERE chatbot_conversation_message_tool_outputs.tool_call_id = chatbot_conversation_message_tool_calls.tool_call_id;
+
+ALTER TABLE chatbot_conversation_message_tool_outputs
+ALTER COLUMN tool_name
+SET NOT NULL;
+
+COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.tool_name IS 'The chatbot tool that was called.';

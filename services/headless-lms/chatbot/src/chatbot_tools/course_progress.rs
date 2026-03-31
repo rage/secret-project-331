@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use headless_lms_models::{
     course_modules::{CompletionPolicy, CourseModule},
     user_exercise_states::UserCourseProgress,
@@ -7,7 +9,10 @@ use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
-    chatbot_tools::{AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolType, ToolProperties},
+    chatbot_tools::{
+        AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
+        ToolProperties,
+    },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
@@ -130,7 +135,7 @@ impl ChatbotTool for CourseProgressTool {
             tool_type: LLMToolType::Function,
             name: "course_progress".to_string(),
             description: "Get the user's progress on this course, including information about exercises attempted, points gained, the passing criteria for the course and if the user meets the criteria.".to_string(),
-            parameters: None,
+            parameters: LLMToolParams {tool_type: LLMToolParamType::Object, properties: HashMap::new(), required: vec![], additional_properties: false},
             strict: true
         }
     }

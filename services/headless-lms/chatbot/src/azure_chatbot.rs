@@ -717,30 +717,26 @@ pub async fn parse_tool<'a>(
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ));
             }
-            let mut assistant_tool_calls = Vec::new();
-            let mut tool_result_msgs = Vec::new();
+            let mut tool_msgs = Vec::new();
 
             for (name, id, args) in function_name_id_args.iter() {
                 let tool = get_chatbot_tool(conn, name, args, user_context).await?;
 
-                assistant_tool_calls.push(APIMessage {
+                tool_msgs.push(APIMessage {
                     message_type: APIMessageType::FunctionCall {
                         call_id: id.to_owned(),
                         name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
                     },
                 });
-                tool_result_msgs.push(APIMessage {
+                tool_msgs.push(APIMessage {
                     message_type: APIMessageType::FunctionCallOutput {
                         call_id: id.to_owned(),
                         output: tool.get_tool_output(),
                     },
                 })
             }
-            // insert all tool calls made by the bot into the messages
-            messages.extend(assistant_tool_calls);
-            // add tool call output messages to the messages
-            messages.extend(tool_result_msgs);
+            messages.extend(tool_msgs);
             break;
         }
         let response_output = serde_json::from_str::<ResponseOutput>(json_str)

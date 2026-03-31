@@ -482,8 +482,8 @@ pub fn parse_text_completion(completion: LLMCompletionResponse) -> ChatbotResult
     completion
         .choices
         .into_iter()
-        .map(|x| match x.message.fields {
-            APIMessageKind::Text(message) => Ok(message.content),
+        .map(|x| match x.message.message_type {
+            APIMessageType::Message { role: _role, content } => Ok(content),
             _ =>  Err(ChatbotError::new( ChatbotErrorType::InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.", None)),
         })
         .collect::<ChatbotResult<Vec<String>>>()?

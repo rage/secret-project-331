@@ -191,7 +191,7 @@ fn create_conversation_from_msgs(
                 used_tokens += el.used_tokens + 5;
             } else if let Some(output) = &el.tool_output {
                 // add the tokens needed for the tool info to used_tokens
-                let s = format!("{}:\n{}\n\n", output.tool_name, output.tool_output);
+                let s = format!("Output:\n{}\n\n", output.tool_output); // todo: which tool call was it
                 used_tokens += estimate_tokens(&s);
             } else {
                 // if there is no message or tool output, skip this element.
@@ -248,7 +248,7 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
         }
         MessageRole::Tool => {
             if let Some(output) = &m.tool_output {
-                format!("Tool {}: {}\n\n", output.tool_name, output.tool_output)
+                format!("Tool output: {}\n\n", output.tool_output) // todo: get the tool name
             } else {
                 "".to_string()
             }

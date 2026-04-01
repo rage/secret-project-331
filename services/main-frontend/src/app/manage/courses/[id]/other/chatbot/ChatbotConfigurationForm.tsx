@@ -155,8 +155,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const onConfigureChatbotWrapper = handleSubmit((data) => {
     // if the model is thinking or called model-router, force search to be off
     let model: ChatbotConfigurationModel = assertNotNullOrUndefined(selectedModel)
-    let azure_search =
-      model.thinking || model.model === "model-router" ? false : data.use_azure_search
 
     configureChatbotMutation.mutate({
       course_id: oldChatbotConf.course_id, // keep the old course id
@@ -175,10 +173,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       reasoning_effort: data.reasoning_effort,
       verbosity: data.verbosity,
       thinking_model: model.thinking,
-      use_azure_search: azure_search,
+      use_azure_search: data.use_azure_search,
       // right now use_azure_search requires the next field to be true and there is no need for it to
       // be true if azure search is false, so set them as the same value
-      maintain_azure_search_index: azure_search,
+      maintain_azure_search_index: data.use_azure_search,
       hide_citations: data.hide_citations,
       use_semantic_reranking: data.use_semantic_reranking,
       use_tools: data.use_tools,
@@ -235,6 +233,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           showDefaultOption={false}
           {...register("model_id")}
         />
+        <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
+        <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
+        <CheckBox label={t("enable-tool-use")} {...register("use_tools")} />
         <CheckBox label={t("suggest-next-messages")} {...register("suggest_next_messages")} />
         {suggestMessagesFieldValue && (
           <div className={itemCss}>
@@ -288,52 +289,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
               </Button>
             </div>
           </div>
-        )}
-        {selectedModel?.thinking ? (
-          <div className={itemCss}>
-            <h4>{t("configure-reasoning")}</h4>
-            <div
-              className={css`
-                margin: 20px 20px;
-              `}
-            >
-              <SelectMenu<VerbosityLevel>
-                id="verbosity-select"
-                label={t("select-verbosity")}
-                error={errors.verbosity?.message}
-                options={[
-                  { value: LOW, label: t("reasoning-effort-low") },
-                  { value: MEDIUM, label: t("reasoning-effort-medium") },
-                  { value: HIGH, label: t("reasoning-effort-high") },
-                ]}
-                disabled={!selectedModel?.thinking}
-                showDefaultOption={false}
-                {...register("verbosity")}
-              />
-              <SelectMenu<ReasoningEffortLevel>
-                id="reasoning-effort-select"
-                label={t("select-reasoning-effort")}
-                error={errors.reasoning_effort?.message}
-                options={[
-                  { value: MINIMAL, label: t("reasoning-effort-minimal") },
-                  { value: LOW, label: t("reasoning-effort-low") },
-                  { value: MEDIUM, label: t("reasoning-effort-medium") },
-                  { value: HIGH, label: t("reasoning-effort-high") },
-                ]}
-                disabled={!selectedModel?.thinking}
-                showDefaultOption={false}
-                {...register("reasoning_effort")}
-              />
-              <CheckBox label={t("enable-tool-use")} {...register("use_tools")} />
-            </div>
-          </div>
-        ) : (
-          selectedModel?.model !== "model-router" && (
-            <>
-              <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
-              <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
-            </>
-          )
         )}
         <Accordion>
           <details
@@ -404,7 +359,44 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     margin-right: 20px;
                   `}
                 >
-                  {!selectedModel?.thinking && (
+                  {selectedModel?.thinking ? (
+                    <div className={itemCss}>
+                      <h4>{t("configure-reasoning")}</h4>
+                      <div
+                        className={css`
+                          margin: 20px 20px;
+                        `}
+                      >
+                        <SelectMenu<VerbosityLevel>
+                          id="verbosity-select"
+                          label={t("select-verbosity")}
+                          error={errors.verbosity?.message}
+                          options={[
+                            { value: LOW, label: t("reasoning-effort-low") },
+                            { value: MEDIUM, label: t("reasoning-effort-medium") },
+                            { value: HIGH, label: t("reasoning-effort-high") },
+                          ]}
+                          disabled={!selectedModel?.thinking}
+                          showDefaultOption={false}
+                          {...register("verbosity")}
+                        />
+                        <SelectMenu<ReasoningEffortLevel>
+                          id="reasoning-effort-select"
+                          label={t("select-reasoning-effort")}
+                          error={errors.reasoning_effort?.message}
+                          options={[
+                            { value: MINIMAL, label: t("reasoning-effort-minimal") },
+                            { value: LOW, label: t("reasoning-effort-low") },
+                            { value: MEDIUM, label: t("reasoning-effort-medium") },
+                            { value: HIGH, label: t("reasoning-effort-high") },
+                          ]}
+                          disabled={!selectedModel?.thinking}
+                          showDefaultOption={false}
+                          {...register("reasoning_effort")}
+                        />
+                      </div>
+                    </div>
+                  ) : (
                     <div>
                       {" "}
                       <div className={itemCss}>

@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
+        ArrayItem, ArrayProperty, JSONType, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, ResponseTextOptions, Schema,
         ThinkingParams,
     },
@@ -129,24 +129,22 @@ pub async fn generate_suggested_messages(
             verbosity: None,
             format: Some(LLMRequestResponseFormatParam {
                 format_type: JSONType::JsonSchema,
-                json_schema: JSONSchema {
-                    name: "ChatbotNextMessageSuggestionResponse".to_string(),
-                    strict: true,
-                    schema: Schema {
-                        type_field: JSONType::Object,
-                        properties: HashMap::from([(
-                            "suggestions".to_string(),
-                            ArrayProperty {
-                                type_field: JSONType::Array,
-                                items: ArrayItem {
-                                    type_field: JSONType::String,
-                                },
+                name: "ChatbotNextMessageSuggestionResponse".to_string(),
+                schema: Schema {
+                    type_field: JSONType::Object,
+                    properties: HashMap::from([(
+                        "suggestions".to_string(),
+                        ArrayProperty {
+                            type_field: JSONType::Array,
+                            items: ArrayItem {
+                                type_field: JSONType::String,
                             },
-                        )]),
-                        required: Vec::from(["suggestions".to_string()]),
-                        additional_properties: false,
-                    },
+                        },
+                    )]),
+                    required: Vec::from(["suggestions".to_string()]),
+                    additional_properties: false,
                 },
+                strict: true,
             }),
         }),
     };

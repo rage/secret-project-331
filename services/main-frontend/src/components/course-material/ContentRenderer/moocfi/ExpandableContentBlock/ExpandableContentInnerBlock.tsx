@@ -30,9 +30,6 @@ const ExpandableContentInnerBlock: React.FC<
         border-radius: 4px;
         background: #dfdfe480;
       `}
-      role="presentation"
-      onKeyDown={() => (open ? setOpen(false) : setOpen(true))}
-      onClick={() => (open ? setOpen(false) : setOpen(true))}
     >
       <div
         className={css`
@@ -40,8 +37,19 @@ const ExpandableContentInnerBlock: React.FC<
           flex-direction: row;
           font-family: ${headingFont};
           color: #4c5868;
+          cursor: pointer;
           ${open ? "padding-bottom: 1rem;" : ""}
         `}
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        onClick={() => setOpen((prev) => !prev)}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault()
+            setOpen((prev) => !prev)
+          }
+        }}
       >
         <Button variant={"icon"} size={"small"}>
           {open ? (

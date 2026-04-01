@@ -120,6 +120,8 @@
   "exercises-in-chapter-placeholder-explanation": "This block is placed on each chapter front page, e.g. /chapter-1/ for listing and navigating to different exercises within chapter.",
   "expandable-content-explanation": "This block has one or multiple headers and each have content that can be expanded/collapsed",
   "expandable-content-placeholder": "Expandable content",
+  "expandable-content-section-content": "Section content",
+  "expandable-content-section-title": "Section title",
   "failed-loading-repository-exercises": "Failed loading repository exercises",
   "flip-card-placeholder": "Flip card",
   "flip-card-placeholder-explanation": "This block is used to display a two-sided flippable card.",

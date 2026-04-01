@@ -189,6 +189,7 @@ pub enum LLMToolChoice {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ThinkingParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub reasoning: Option<Reasoning>,
 }
 
@@ -216,9 +217,13 @@ pub enum SummaryType {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct NonThinkingParams {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub temperature: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub top_p: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub frequency_penalty: Option<f32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub presence_penalty: Option<f32>,
 }
 
@@ -236,14 +241,6 @@ pub enum JSONType {
     Object,
     Array,
     String,
-}
-
-/// Schema for defining structured LLM output
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct JSONSchema {
-    pub name: String,
-    pub strict: bool,
-    pub schema: Schema,
 }
 
 /// Defines LLM structured output shape and types
@@ -278,7 +275,9 @@ pub struct ArrayItem {
 pub struct LLMRequestResponseFormatParam {
     #[serde(rename = "type")]
     pub format_type: JSONType, //should be JsonSchema
-    pub json_schema: JSONSchema,
+    pub name: String,
+    pub schema: Schema,
+    pub strict: bool, // should be true
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

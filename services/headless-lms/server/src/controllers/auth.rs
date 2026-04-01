@@ -43,6 +43,14 @@ pub enum LoginResponse {
     Failed,
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SignupResponse {
+    Success,
+    EmailAlreadyExists,
+}
+
 /**
 POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
 **/
@@ -120,6 +128,15 @@ pub async fn signup(
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
     if user.is_none() {
+        if models::users::try_get_by_email(&mut conn, &user_details.email)
+            .await?
+            .is_some()
+        {
+            let token = skip_authorize();
+            return token
+                .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
+        }
+
         let upstream_id = tmc_client
             .post_new_user_to_tmc(
                 NewUserInfo {
@@ -135,6 +152,15 @@ pub async fn signup(
             .await
             .map_err(|e| {
                 let error_message = e.message().to_string();
+                if matches!(e.error_type(), &UtilErrorType::TmcErrorResponse)
+                    && is_duplicate_email_error_message(&error_message)
+                {
+                    return ControllerError::new(
+                        ControllerErrorType::BadRequest,
+                        "Email already exists.".to_string(),
+                        Some(anyhow!(e)),
+                    );
+                }
                 let error_type = match e.error_type() {
                     UtilErrorType::TmcHttpError => ControllerErrorType::InternalServerError,
                     UtilErrorType::TmcErrorResponse => ControllerErrorType::BadRequest,
@@ -154,6 +180,13 @@ pub async fn signup(
         )
         .await
         .map_err(|e| {
+            if is_duplicate_email_error_message(e.message()) {
+                return ControllerError::new(
+                    ControllerErrorType::BadRequest,
+                    "Email already exists.".to_string(),
+                    Some(anyhow!(e)),
+                );
+            }
             ControllerError::new(
                 ControllerErrorType::InternalServerError,
                 "Failed to insert user.".to_string(),
@@ -199,7 +232,7 @@ pub async fn signup(
 
         let token = skip_authorize();
         authorization::remember(&session, user)?;
-        token.authorized_ok(HttpResponse::Ok().finish())
+        token.authorized_ok(HttpResponse::Ok().json(SignupResponse::Success))
     } else {
         Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -221,6 +254,14 @@ async fn handle_test_mode_signup(
     );
 
     warn!("Handling signup in test mode. No real account is created.");
+
+    if models::users::try_get_by_email(conn, &user_details.email)
+        .await?
+        .is_some()
+    {
+        let token = skip_authorize();
+        return token.authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
+    }
 
     let user_id = models::users::insert(
         conn,
@@ -265,7 +306,17 @@ async fn handle_test_mode_signup(
     authorization::remember(session, user)?;
 
     let token = skip_authorize();
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(HttpResponse::Ok().json(SignupResponse::Success))
+}
+
+fn is_duplicate_email_error_message(message: &str) -> bool {
+    let normalized = message.to_lowercase();
+    normalized.contains("email")
+        && (normalized.contains("already")
+            || normalized.contains("taken")
+            || normalized.contains("exists")
+            || normalized.contains("in use")
+            || normalized.contains("registered"))
 }
 
 /**

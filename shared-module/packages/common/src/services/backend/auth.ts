@@ -1,7 +1,13 @@
 import axios from "axios"
 
-import { ActionOnResource, CreateAccountDetails, LoginResponse, UserInfo } from "../../bindings"
-import { isLoginResponse, isUserInfo } from "../../bindings.guard"
+import {
+  ActionOnResource,
+  CreateAccountDetails,
+  LoginResponse,
+  SignupResponse,
+  UserInfo,
+} from "../../bindings"
+import { isLoginResponse, isSignupResponse, isUserInfo } from "../../bindings.guard"
 import { isArray, isBoolean, isNull, isUnion, validateResponse } from "../../utils/fetching"
 
 export const loggedIn = async (): Promise<boolean> => {
@@ -9,8 +15,9 @@ export const loggedIn = async (): Promise<boolean> => {
   return validateResponse(response, isBoolean)
 }
 
-export const createUser = async (newUser: CreateAccountDetails): Promise<void> => {
-  await axios.post(`/api/v0/auth/signup`, newUser)
+export const createUser = async (newUser: CreateAccountDetails): Promise<SignupResponse> => {
+  const response = await axios.post(`/api/v0/auth/signup`, newUser)
+  return validateResponse(response, isSignupResponse)
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {

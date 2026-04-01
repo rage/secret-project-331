@@ -4,7 +4,6 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
-import { AxiosError } from "axios"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -12,7 +11,7 @@ import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import { fetchCountryFromIP } from "@/services/backend/user-details"
-import { ErrorResponse } from "@/shared-module/common/bindings"
+import { SignupResponse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -157,7 +156,7 @@ const CreateAccountForm: React.FC = () => {
   const password = watch("password")
   const passwordConfirmation = watch("password_confirmation")
 
-  const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
+  const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
     async (data) => {
       const {
         first_name,
@@ -168,7 +167,7 @@ const CreateAccountForm: React.FC = () => {
         country,
         email_communication_consent,
       } = data
-      await createUser({
+      return createUser({
         email: email,
         first_name: first_name,
         last_name: last_name,
@@ -180,21 +179,6 @@ const CreateAccountForm: React.FC = () => {
       })
     },
     { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        reset({
-          first_name: "",
-          last_name: "",
-          email: "",
-          password: "",
-          password_confirmation: "",
-          country: "",
-          email_communication_consent: false,
-        })
-        setConfirmEmailPageVisible(true)
-        loginStateContext.refresh()
-      },
-    },
   )
 
   useEffect(() => {
@@ -210,31 +194,6 @@ const CreateAccountForm: React.FC = () => {
       trigger("password_confirmation")
     }
   }, [password, passwordConfirmation, trigger])
-
-  useEffect(() => {
-    if (createAccountMutation.isError && createAccountMutation.error) {
-      const error = createAccountMutation.error as AxiosError<ErrorResponse>
-      const status = error.response?.status
-      const errorMessage = error.response?.data?.message || ""
-
-      if (
-        status === 400 &&
-        errorMessage.toLowerCase().includes("email") &&
-        (errorMessage.toLowerCase().includes("already been taken") ||
-          errorMessage.toLowerCase().includes("has already been taken"))
-      ) {
-        setEmailAlreadyTakenError(t("email-already-taken"))
-        setError("email", {
-          type: "manual",
-          message: t("email-already-taken-field-error"),
-        })
-      } else {
-        setEmailAlreadyTakenError(null)
-      }
-    } else {
-      setEmailAlreadyTakenError(null)
-    }
-  }, [createAccountMutation.isError, createAccountMutation.error, setError, t])
 
   const { t: tCountries } = useTranslation("countries")
   const countriesNames = Object.entries(countries).map(([code]) => ({
@@ -294,7 +253,33 @@ const CreateAccountForm: React.FC = () => {
       <form
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
-          createAccountMutation.mutate(data)
+          try {
+            const result = await createAccountMutation.mutateAsync(data)
+
+            if (result.type === "email_already_exists") {
+              setEmailAlreadyTakenError(t("email-already-taken"))
+              setError("email", {
+                type: "manual",
+                message: t("email-already-taken-field-error"),
+              })
+              return
+            }
+
+            setEmailAlreadyTakenError(null)
+            reset({
+              first_name: "",
+              last_name: "",
+              email: "",
+              password: "",
+              password_confirmation: "",
+              country: "",
+              email_communication_consent: false,
+            })
+            setConfirmEmailPageVisible(true)
+            loginStateContext.refresh()
+          } catch {
+            setEmailAlreadyTakenError(null)
+          }
         })}
       >
         <fieldset disabled={isSubmitting}>

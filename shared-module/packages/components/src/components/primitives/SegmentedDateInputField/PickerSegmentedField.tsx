@@ -6,11 +6,7 @@ import { useDatePickerState } from "@react-stately/datepicker"
 import type React from "react"
 import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-aria"
 
-import {
-  composeRefs,
-  emitSyntheticBlur,
-  emitSyntheticFocus,
-} from "../../../lib/utils/compositeField"
+import { composeRefs } from "../../../lib/utils/compositeField"
 import { joinAriaDescribedBy, resolveFieldState } from "../../../lib/utils/field"
 import { DatePickerCalendar } from "../DatePickerCalendar"
 import { FieldShell } from "../FieldShell"
@@ -35,7 +31,11 @@ import {
   segmentedSegmentsRowCss,
   segmentedSegmentsRowRestHiddenCss,
 } from "./segmentedDateInputFieldStyles"
-import { shouldHideRestSegmentPlaceholders } from "./segmentedDateInputFieldUtils"
+import {
+  emitSyntheticBlur,
+  emitSyntheticFocus,
+  shouldHideRestSegmentPlaceholders,
+} from "./segmentedDateInputFieldUtils"
 
 export type PickerSegmentedFieldProps = {
   canClear: boolean

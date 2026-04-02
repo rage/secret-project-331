@@ -43,7 +43,6 @@ export function DateLikePickerInner({
   const parsedMaxValue = parseDateLikeValue(kind, base.max)
 
   const pickerProps = {
-    ...base.rest,
     id: base.id,
     label: base.label,
     description: base.description,

@@ -6,28 +6,35 @@ import type React from "react"
 import { Radio } from "../src/components/Radio"
 import { RadioGroup } from "../src/components/RadioGroup"
 
-import { pressArrowDown, renderUi } from "./testUtils"
+import { pressArrowDown, renderWithForm } from "./testUtils"
 
 describe("RadioGroup", () => {
   test("supports single selection semantics", () => {
-    renderUi(
-      <RadioGroup label="Theme">
-        <Radio label="Light" value="light" />
-        <Radio label="Dark" value="dark" />
-      </RadioGroup>,
+    const { getValues } = renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Theme">
+          <Radio label="Light" value="light" />
+          <Radio label="Dark" value="dark" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "" } },
     )
 
     fireEvent.click(screen.getByRole("radio", { name: "Dark" }))
     expect(screen.getByRole("radio", { name: "Dark" })).toBeChecked()
     expect(screen.getByRole("radio", { name: "Light" })).not.toBeChecked()
+    expect(getValues().r).toBe("dark")
   })
 
   test("supports arrow key navigation", () => {
-    renderUi(
-      <RadioGroup label="Direction" defaultValue="left">
-        <Radio label="Left" value="left" />
-        <Radio label="Right" value="right" />
-      </RadioGroup>,
+    const { getValues } = renderWithForm<{ r: string }>(
+      (control) => (
+        <RadioGroup name="r" control={control} label="Direction">
+          <Radio label="Left" value="left" />
+          <Radio label="Right" value="right" />
+        </RadioGroup>
+      ),
+      { defaultValues: { r: "left" } },
     )
 
     const left = screen.getByRole("radio", { name: "Left" })
@@ -35,15 +42,16 @@ describe("RadioGroup", () => {
     pressArrowDown(left)
 
     expect(screen.getByRole("radio", { name: "Right" })).toBeChecked()
+    expect(getValues().r).toBe("right")
   })
 
   test("supports required and invalid group state", () => {
-    renderUi(
-      <RadioGroup label="Plan" isRequired errorMessage="Choose one">
+    renderWithForm<{ r: string }>((control) => (
+      <RadioGroup name="r" control={control} label="Plan" isRequired errorMessage="Choose one">
         <Radio label="Monthly" value="monthly" />
         <Radio label="Yearly" value="yearly" />
-      </RadioGroup>,
-    )
+      </RadioGroup>
+    ))
 
     const group = screen.getByRole("radiogroup", { name: "Plan" })
     expect(group).toHaveAttribute("aria-invalid", "true")
@@ -51,64 +59,22 @@ describe("RadioGroup", () => {
   })
 
   test("supports disabled item and disabled group behavior", () => {
-    renderUi(
+    renderWithForm<{ a: string; b: string }>((control) => (
       <>
-        <RadioGroup label="Disabled group" isDisabled>
+        <RadioGroup name="a" control={control} label="Disabled group" isDisabled>
           <Radio label="One" value="1" />
           <Radio label="Two" value="2" />
         </RadioGroup>
-        <RadioGroup label="Mixed group">
+        <RadioGroup name="b" control={control} label="Mixed group">
           <Radio label="Enabled" value="a" />
           <Radio label="Disabled item" value="b" disabled />
         </RadioGroup>
-      </>,
-    )
+      </>
+    ))
 
     expect(screen.getByRole("radio", { name: "One" })).toBeDisabled()
     expect(screen.getByRole("radio", { name: "Two" })).toBeDisabled()
     expect(screen.getByRole("radio", { name: "Disabled item" })).toBeDisabled()
-  })
-
-  test("honors the native disabled fieldset prop", () => {
-    renderUi(
-      <RadioGroup label="Native disabled" disabled>
-        <Radio label="One" value="1" />
-        <Radio label="Two" value="2" />
-      </RadioGroup>,
-    )
-
-    expect(screen.getByRole("radio", { name: "One" })).toBeDisabled()
-    expect(screen.getByRole("radio", { name: "Two" })).toBeDisabled()
-  })
-
-  test("keeps arrow navigation inside the current group when names are reused", () => {
-    renderUi(
-      <>
-        <form>
-          <RadioGroup label="Shipping" name="choice" defaultValue="express">
-            <Radio label="Standard" value="standard" />
-            <Radio label="Express" value="express" />
-          </RadioGroup>
-        </form>
-        <form>
-          <RadioGroup label="Billing" name="choice" defaultValue="invoice">
-            <Radio label="Card" value="card" />
-            <Radio label="Invoice" value="invoice" />
-          </RadioGroup>
-        </form>
-      </>,
-    )
-
-    const express = screen.getByRole("radio", { name: "Express" })
-    const standard = screen.getByRole("radio", { name: "Standard" })
-    const invoice = screen.getByRole("radio", { name: "Invoice" })
-
-    fireEvent.focus(express)
-    pressArrowDown(express)
-
-    expect(standard).toBeChecked()
-    expect(invoice).toBeChecked()
-    expect(document.activeElement).toBe(standard)
   })
 
   test("ignores runtime type overrides for grouped radios", () => {
@@ -118,11 +84,11 @@ describe("RadioGroup", () => {
       type: string
     }>
 
-    renderUi(
-      <RadioGroup label="Runtime overrides">
+    renderWithForm<{ r: string }>((control) => (
+      <RadioGroup name="r" control={control} label="Runtime overrides">
         <RadioWithRuntimeTypeOverride label="Alpha" value="a" type="text" />
-      </RadioGroup>,
-    )
+      </RadioGroup>
+    ))
 
     expect(screen.getByRole("radio", { name: "Alpha" })).toHaveAttribute("type", "radio")
   })

@@ -2,17 +2,13 @@
 
 import { css, cx } from "@emotion/css"
 import { useSelectState } from "@react-stately/select"
-import React, { useId, useImperativeHandle, useMemo, useRef } from "react"
-import { mergeProps, useButton, useHiddenSelect, useSelect } from "react-aria"
+import React, { useId, useMemo, useRef } from "react"
+import { mergeProps, useButton, useSelect } from "react-aria"
+import type { FieldValues, Path } from "react-hook-form"
 
-import type { ButtonDomProps, SelectDomProps } from "../lib/types/domProps"
-import {
-  composeRefs,
-  emitSyntheticBlur,
-  emitSyntheticChange,
-  emitSyntheticFocus,
-} from "../lib/utils/compositeField"
-import { resolveFieldState, toInputValue } from "../lib/utils/field"
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { composeRefs } from "../lib/utils/compositeField"
+import { toInputValue } from "../lib/utils/field"
 import { resolveRenderedErrorMessage } from "../lib/utils/floatingField"
 import {
   buildSelectCollectionNodes,
@@ -37,51 +33,34 @@ import { comboChevronCss } from "./primitives/selectStyles"
 
 export type { SelectOption, SelectOptionGroup }
 
-export type SelectProps = {
+/**
+ * Custom select (listbox + button trigger) with label and error display.
+ * Uses react-hook-form; pass `name` and `control`. Field value is the option `value` string.
+ *
+ * @example
+ * <Select name="role" control={control} label="Role" options={[{ value: "a", label: "A" }]} />
+ */
+export type SelectProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
   isDisabled?: boolean
   isRequired?: boolean
-  isInvalid?: boolean
   options: readonly (SelectOption | SelectOptionGroup)[]
   placeholder?: React.ReactNode
-  onValueChange?: (value: string) => void
-  inputRef?: React.Ref<HTMLSelectElement>
   id?: string
-  name?: string
-  value?: string | number | readonly string[]
-  defaultValue?: string | number | readonly string[]
-  disabled?: boolean
-  required?: boolean
   autoComplete?: string
-  form?: string
-  onChange?: React.ChangeEventHandler<HTMLSelectElement>
-  onFocus?: React.FocusEventHandler<HTMLSelectElement>
-  onBlur?: React.FocusEventHandler<HTMLSelectElement>
   onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
   onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
-  "aria-describedby"?: string
-  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
   className?: string
-  domProps?: ButtonDomProps
-  selectDomProps?: SelectDomProps
 }
 
 const selectRootCss = css`
   position: relative;
-`
-
-const hiddenSelectContainerCss = css`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
 `
 
 const triggerValueCss = css`
@@ -103,287 +82,205 @@ const triggerChevronCss = css`
   color: var(--field-chrome);
 `
 
-export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
-  function Select(props, forwardedRef) {
-    const {
-      id,
-      label,
-      description,
-      errorMessage,
-      fieldSize = "md",
-      isDisabled,
-      isRequired,
-      isInvalid,
-      className,
-      disabled,
-      required,
-      options,
-      placeholder,
-      inputRef,
-      value,
-      defaultValue,
-      onChange,
-      onValueChange,
-      onFocus,
-      onBlur,
-      onKeyDown,
-      onKeyUp,
-      name,
-      autoComplete,
-      form,
-      "aria-describedby": ariaDescribedBy,
-      "aria-invalid": ariaInvalid,
-      domProps,
-      selectDomProps,
-    } = props
+export function Select<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: SelectProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    id,
+    label,
+    description,
+    errorMessage,
+    fieldSize = "md",
+    isDisabled = false,
+    isRequired = false,
+    className,
+    options,
+    placeholder,
+    autoComplete,
+    onKeyDown,
+    onKeyUp,
+  } = props
 
-    const generatedInputId = useId()
-    const triggerId = id ?? generatedInputId
-    const buttonRef = useRef<HTMLButtonElement>(null)
-    const hiddenSelectRef = useRef<HTMLSelectElement>(null)
-    const popoverRef = useRef<HTMLDivElement>(null)
-    const hasFocusWithinRef = useRef(false)
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
 
-    useImperativeHandle(forwardedRef, () => buttonRef.current as HTMLButtonElement)
+  const generatedInputId = useId()
+  const triggerId = id ?? generatedInputId
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+  const hasFocusWithinRef = useRef(false)
 
-    const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
-    const collectionChildren = useMemo(
-      () => buildSelectCollectionNodes(normalizedCollection),
-      [normalizedCollection],
-    )
-    const optionsByKey = useMemo(
-      () => new Map(normalizedCollection.options.map((option) => [option.key, option])),
-      [normalizedCollection.options],
-    )
+  const normalizedCollection = useMemo(() => normalizeSelectOptions(options), [options])
+  const collectionChildren = useMemo(
+    () => buildSelectCollectionNodes(normalizedCollection),
+    [normalizedCollection],
+  )
+  const optionsByKey = useMemo(
+    () => new Map(normalizedCollection.options.map((option) => [option.key, option])),
+    [normalizedCollection.options],
+  )
 
-    const controlledValue = value !== undefined ? toInputValue(value) : undefined
-    const uncontrolledValue = defaultValue !== undefined ? toInputValue(defaultValue) : undefined
-    const resolvedState = resolveFieldState({
-      disabled,
-      required,
-      isDisabled,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
-      errorMessage,
-    })
+  const controlledString = toInputValue(field.value)
+  const selectedKey = normalizedCollection.valueToKey.get(controlledString) ?? null
 
-    const selectedKey =
-      controlledValue !== undefined
-        ? normalizedCollection.valueToKey.get(controlledValue)
-        : undefined
-    const defaultSelectedKey =
-      controlledValue === undefined && uncontrolledValue !== undefined
-        ? normalizedCollection.valueToKey.get(uncontrolledValue)
-        : undefined
-    const selectValue = controlledValue !== undefined ? (selectedKey ?? null) : undefined
-    const selectDefaultValue =
-      controlledValue === undefined && uncontrolledValue !== undefined
-        ? (defaultSelectedKey ?? null)
-        : undefined
+  const state = useSelectState<NormalizedSelectOption>({
+    children: collectionChildren as never,
+    disabledKeys: normalizedCollection.disabledKeys,
+    value: selectedKey,
+    onSelectionChange: (key) => {
+      const selectedOption = key != null ? optionsByKey.get(String(key)) : undefined
+      const nextValue = selectedOption?.value ?? ""
+      field.onChange(nextValue)
+    },
+    isDisabled,
+    isRequired,
+    isInvalid,
+    label,
+    description,
+    errorMessage: resolvedError,
+  })
 
-    const state = useSelectState<NormalizedSelectOption>({
-      children: collectionChildren as never,
+  const {
+    labelProps,
+    triggerProps,
+    valueProps,
+    menuProps,
+    descriptionProps,
+    errorMessageProps,
+    isInvalid: hookIsInvalid,
+    validationErrors,
+  } = useSelect(
+    {
+      id: triggerId,
       disabledKeys: normalizedCollection.disabledKeys,
-      value: selectValue,
-      defaultValue: selectDefaultValue,
-      onSelectionChange: (key) => {
-        const selectedOption = key != null ? optionsByKey.get(String(key)) : undefined
-        const nextValue = selectedOption?.value ?? ""
-        onValueChange?.(nextValue)
-        emitSyntheticChange(hiddenSelectRef.current, onChange, nextValue)
-      },
-      isDisabled: resolvedState.isDisabled,
-      isRequired: resolvedState.isRequired,
-      isInvalid: resolvedState.isInvalid,
+      value: selectedKey,
+      isDisabled,
+      isRequired,
+      isInvalid,
       label,
       description,
-      errorMessage,
-    })
+      errorMessage: resolvedError,
+      name: field.name,
+      autoComplete,
+    },
+    state,
+    buttonRef,
+  )
 
-    const {
-      labelProps,
-      triggerProps,
-      valueProps,
-      menuProps,
-      descriptionProps,
-      errorMessageProps,
-      isInvalid: hookIsInvalid,
-      validationErrors,
-    } = useSelect(
-      {
-        id: triggerId,
-        disabledKeys: normalizedCollection.disabledKeys,
-        value: selectValue,
-        defaultValue: selectDefaultValue,
-        isDisabled: resolvedState.isDisabled,
-        isRequired: resolvedState.isRequired,
-        isInvalid: resolvedState.isInvalid,
-        label,
-        description,
-        errorMessage,
-        name,
-        autoComplete,
-        form,
-        "aria-describedby": ariaDescribedBy,
-      },
-      state,
-      buttonRef,
-    )
+  const { buttonProps } = useButton(triggerProps, buttonRef)
 
-    const hiddenSelect = useHiddenSelect(
-      {
-        autoComplete,
-        form,
-        isDisabled: resolvedState.isDisabled,
-        label,
-        name,
-        selectRef: hiddenSelectRef,
-      },
-      state,
-      buttonRef,
-    )
-    const { buttonProps } = useButton(triggerProps, buttonRef)
+  const emitCompositeBlur = (relatedTarget: EventTarget | null) => {
+    const nextFocusedNode = relatedTarget as Node | null
 
-    const emitCompositeBlur = (relatedTarget: EventTarget | null) => {
-      const nextFocusedNode = relatedTarget as Node | null
-
-      if (
-        buttonRef.current?.contains(nextFocusedNode) ||
-        popoverRef.current?.contains(nextFocusedNode)
-      ) {
-        return
-      }
-
-      if (!hasFocusWithinRef.current) {
-        return
-      }
-
-      hasFocusWithinRef.current = false
-      emitSyntheticBlur(hiddenSelectRef.current, onBlur)
+    if (
+      buttonRef.current?.contains(nextFocusedNode) ||
+      popoverRef.current?.contains(nextFocusedNode)
+    ) {
+      return
     }
 
-    const emitCompositeFocus = () => {
-      if (hasFocusWithinRef.current) {
-        return
-      }
-
-      hasFocusWithinRef.current = true
-      emitSyntheticFocus(hiddenSelectRef.current, onFocus)
+    if (!hasFocusWithinRef.current) {
+      return
     }
 
-    const mergedButtonProps = mergeProps(buttonProps, {
-      ...(domProps ?? {}),
-      onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
-        emitCompositeBlur(event.relatedTarget)
-      },
-      onFocus: () => {
-        emitCompositeFocus()
-      },
-      onKeyDown: onKeyDown as React.KeyboardEventHandler<HTMLButtonElement> | undefined,
-      onKeyUp: onKeyUp as React.KeyboardEventHandler<HTMLButtonElement> | undefined,
-    })
+    hasFocusWithinRef.current = false
+    field.onBlur()
+  }
 
-    const resolvedErrorMessage = resolveRenderedErrorMessage(
-      errorMessage,
-      hookIsInvalid,
-      validationErrors,
-    )
-    const selectedOption =
-      state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
-    const isPlaceholderState = selectedOption == null
-    const isFloated = state.isOpen || selectedOption != null
+  const emitCompositeFocus = () => {
+    if (hasFocusWithinRef.current) {
+      return
+    }
 
-    return (
-      <div className={cx(fieldRootCss, className)}>
-        <div
-          className={cx(fieldControlCss, selectRootCss)}
-          data-field-control="true"
-          data-focused={state.isFocused ? "true" : "false"}
-          data-floated={isFloated ? "true" : "false"}
-          data-invalid={hookIsInvalid ? "true" : "false"}
-          data-placeholder={isPlaceholderState ? "true" : "false"}
+    hasFocusWithinRef.current = true
+  }
+
+  const mergedButtonProps = mergeProps(buttonProps, {
+    onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
+      emitCompositeBlur(event.relatedTarget)
+    },
+    onFocus: () => {
+      emitCompositeFocus()
+    },
+    onKeyDown,
+    onKeyUp,
+  })
+
+  const resolvedRenderedError = resolveRenderedErrorMessage(
+    resolvedError,
+    hookIsInvalid,
+    validationErrors,
+  )
+  const selectedOption =
+    state.selectedKey != null ? optionsByKey.get(String(state.selectedKey)) : undefined
+  const isPlaceholderState = selectedOption == null
+  const isFloated = state.isOpen || selectedOption != null
+
+  return (
+    <div className={cx(fieldRootCss, className)}>
+      <div
+        className={cx(fieldControlCss, selectRootCss)}
+        data-field-control="true"
+        data-focused={state.isFocused ? "true" : "false"}
+        data-floated={isFloated ? "true" : "false"}
+        data-invalid={hookIsInvalid ? "true" : "false"}
+        data-placeholder={isPlaceholderState ? "true" : "false"}
+      >
+        <button
+          {...mergedButtonProps}
+          ref={composeRefs(buttonRef, field.ref)}
+          className={resolveSelectTriggerCss(fieldSize)}
+          type="button"
         >
-          <div {...hiddenSelect.containerProps} className={hiddenSelectContainerCss}>
-            <label>
-              {label}
-              <select
-                {...mergeProps(hiddenSelect.selectProps, selectDomProps ?? {})}
-                ref={composeRefs(hiddenSelectRef, inputRef)}
-              >
-                <option value="" />
-                {Array.from(state.collection.getKeys()).map((key) => {
-                  const item = state.collection.getItem(key)
-
-                  if (!item || item.type !== "item") {
-                    return null
-                  }
-
-                  return (
-                    <option key={item.key} value={item.key}>
-                      {item.textValue}
-                    </option>
-                  )
-                })}
-              </select>
-            </label>
-          </div>
-
-          <button
-            {...mergedButtonProps}
-            ref={buttonRef}
-            className={resolveSelectTriggerCss(fieldSize)}
+          <span
+            {...valueProps}
+            data-select-placeholder={isPlaceholderState ? "true" : undefined}
+            className={cx(
+              triggerValueCss,
+              isPlaceholderState ? selectTriggerValuePlaceholderCss : undefined,
+            )}
           >
-            <span
-              {...valueProps}
-              data-select-placeholder={isPlaceholderState ? "true" : undefined}
-              className={cx(
-                triggerValueCss,
-                isPlaceholderState ? selectTriggerValuePlaceholderCss : undefined,
-              )}
-            >
-              {selectedOption?.label ?? placeholder ?? null}
-            </span>
-            <span className={triggerChevronCss} aria-hidden="true">
-              <span className={comboChevronCss} />
-            </span>
-          </button>
-
-          <span {...labelProps} className={resolveSelectLabelCss(fieldSize)}>
-            {label}
+            {selectedOption?.label ?? placeholder ?? null}
           </span>
+          <span className={triggerChevronCss} aria-hidden="true">
+            <span className={comboChevronCss} />
+          </span>
+        </button>
 
-          {state.isOpen ? (
-            <Popover
-              popoverRef={popoverRef}
-              state={state}
-              triggerRef={buttonRef}
-              surfaceProps={{
-                onBlur: (event) => {
-                  emitCompositeBlur(event.relatedTarget)
-                },
-                onFocus: () => {
-                  emitCompositeFocus()
-                },
-              }}
-            >
-              <ListBox {...menuProps} state={state} />
-            </Popover>
-          ) : null}
-        </div>
+        <span {...labelProps} className={resolveSelectLabelCss(fieldSize)}>
+          {label}
+        </span>
 
-        {resolvedErrorMessage ? (
-          <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
-            {resolvedErrorMessage}
-          </p>
-        ) : description ? (
-          <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
-            {description}
-          </p>
+        {state.isOpen ? (
+          <Popover
+            popoverRef={popoverRef}
+            state={state}
+            triggerRef={buttonRef}
+            surfaceProps={{
+              onBlur: (event) => {
+                emitCompositeBlur(event.relatedTarget)
+              },
+              onFocus: () => {
+                emitCompositeFocus()
+              },
+            }}
+          >
+            <ListBox {...menuProps} state={state} />
+          </Popover>
         ) : null}
       </div>
-    )
-  },
-)
 
-Select.displayName = "Select"
+      {resolvedRenderedError ? (
+        <p {...errorMessageProps} role="alert" className={resolveMessageCss(fieldSize, true)}>
+          {resolvedRenderedError}
+        </p>
+      ) : description ? (
+        <p {...descriptionProps} className={resolveMessageCss(fieldSize, false)}>
+          {description}
+        </p>
+      ) : null}
+    </div>
+  )
+}

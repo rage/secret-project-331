@@ -6,7 +6,6 @@ import { mergeProps, useButton, useObjectRef, VisuallyHidden } from "react-aria"
 import type { AriaButtonOptions } from "react-aria"
 import { useTranslation } from "react-i18next"
 
-import type { ButtonDomProps } from "../lib/types/domProps"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 
 import {
@@ -21,6 +20,35 @@ import {
   spinnerCss,
   spinnerOverlayCss,
 } from "./primitives/buttonStyles"
+
+type OwnedButtonDomKeys =
+  | keyof PressHandlers
+  | "children"
+  | "className"
+  | "disabled"
+  | "type"
+  | "name"
+  | "value"
+  | "formAction"
+  | "onClick"
+  | "onPointerDown"
+  | "onPointerUp"
+  | "onPointerCancel"
+  | "onKeyDown"
+  | "onKeyUp"
+  | "onFocus"
+  | "onBlur"
+  | "aria-describedby"
+  | "aria-labelledby"
+  | "aria-label"
+  | "variant"
+  | "size"
+  | "icon"
+  | "iconPosition"
+  | "isLoading"
+  | "loadingLabel"
+
+export type ButtonDomProps = Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, OwnedButtonDomKeys>
 
 export type ButtonProps = PressHandlers & {
   variant?: ButtonVariant

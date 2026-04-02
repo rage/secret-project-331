@@ -4,12 +4,9 @@ import type { FieldSize } from "../fieldStyles"
 
 export type SegmentedFieldKind = "date" | "time" | "datetime"
 
-type SegmentedInputBaseProps = Omit<
-  React.ComponentPropsWithoutRef<"input">,
-  "type" | "children" | "size" | "value" | "defaultValue" | "onChange" | "onBlur" | "onFocus"
->
-
-export type SegmentedFieldCommonProps = SegmentedInputBaseProps & {
+export type SegmentedFieldCommonProps = {
+  id?: string
+  className?: string
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -17,8 +14,7 @@ export type SegmentedFieldCommonProps = SegmentedInputBaseProps & {
   fieldSize?: FieldSize
   iconStart?: React.ReactNode
   iconEnd?: React.ReactNode
-  value?: string
-  defaultValue?: string
+  value: string
   onChange?: React.ChangeEventHandler<HTMLInputElement>
   onValueChange?: (value: string) => void
   onBlur?: React.FocusEventHandler<HTMLElement>
@@ -33,7 +29,7 @@ export type SegmentedFieldCommonProps = SegmentedInputBaseProps & {
 export type SegmentedTemporalFieldProps = SegmentedFieldCommonProps & {
   min?: string
   max?: string
-  step?: React.ComponentPropsWithoutRef<"input">["step"]
+  step?: number | string
   hourCycle?: 12 | 24
 }
 

@@ -4,7 +4,7 @@ import { act, fireEvent, screen, within } from "@testing-library/react"
 
 import { Select } from "../src/components/Select"
 
-import { renderUi } from "./testUtils"
+import { renderWithForm } from "./testUtils"
 
 const countryOptions = [
   { value: "", label: "Choose" },
@@ -23,7 +23,15 @@ const languageOptions = [
 
 describe("Select", () => {
   test("renders label and description wiring", () => {
-    renderUi(<Select description="Select your country" label="Country" options={countryOptions} />)
+    renderWithForm<{ s: string }>((control) => (
+      <Select
+        name="s"
+        control={control}
+        description="Select your country"
+        label="Country"
+        options={countryOptions}
+      />
+    ))
 
     const select = screen.getByRole("button", { name: /Country/ })
     expect(select).toBeInTheDocument()
@@ -32,8 +40,11 @@ describe("Select", () => {
     expect(screen.getByText("Select your country")).toBeInTheDocument()
   })
 
-  test("supports uncontrolled selection", () => {
-    renderUi(<Select defaultValue="admin" label="Role" options={roleOptions} />)
+  test("updates RHF value on selection", () => {
+    const { getValues } = renderWithForm<{ s: string }>(
+      (control) => <Select name="s" control={control} label="Role" options={roleOptions} />,
+      { defaultValues: { s: "admin" } },
+    )
 
     const select = screen.getByRole("button", { name: /Role/ })
     expect(select).toHaveTextContent("Admin")
@@ -41,36 +52,24 @@ describe("Select", () => {
     fireEvent.click(select)
     fireEvent.click(screen.getByRole("option", { name: "User" }))
     expect(select).toHaveTextContent("User")
+    expect(getValues().s).toBe("user")
   })
 
-  test("supports controlled selection", () => {
-    const onChange = jest.fn()
-    const { rerender } = renderUi(
-      <Select label="Language" onChange={onChange} options={languageOptions} value="fi" />,
-    )
-
-    fireEvent.click(screen.getByRole("button", { name: /Language/ }))
-    fireEvent.click(screen.getByRole("option", { name: "English" }))
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(onChange.mock.calls[0][0].currentTarget.value).toBe("en")
-
-    rerender(<Select label="Language" onChange={onChange} options={languageOptions} value="en" />)
-
-    expect(screen.getByRole("button", { name: /Language/ })).toHaveTextContent("English")
-  })
-
-  test("renders with no option selected when initial controlled value is empty", () => {
-    renderUi(
-      <Select
-        label="Priority"
-        onChange={() => {}}
-        options={[
-          { value: "low", label: "Low" },
-          { value: "high", label: "High" },
-        ]}
-        placeholder="Choose priority"
-        value=""
-      />,
+  test("renders with no option selected when initial value is empty", () => {
+    renderWithForm<{ s: string }>(
+      (control) => (
+        <Select
+          name="s"
+          control={control}
+          label="Priority"
+          options={[
+            { value: "low", label: "Low" },
+            { value: "high", label: "High" },
+          ]}
+          placeholder="Choose priority"
+        />
+      ),
+      { defaultValues: { s: "" } },
     )
 
     const trigger = screen.getByRole("button", { name: /Priority/ })
@@ -78,76 +77,55 @@ describe("Select", () => {
     expect(within(trigger).queryByText("High")).not.toBeInTheDocument()
   })
 
-  test("clears a controlled value back to the placeholder", () => {
-    const { rerender } = renderUi(
-      <Select
-        label="Priority"
-        onChange={() => {}}
-        options={[
-          { value: "low", label: "Low" },
-          { value: "high", label: "High" },
-        ]}
-        placeholder="Choose priority"
-        value="high"
-      />,
+  test("clears selected value back to placeholder", () => {
+    const { getValues, formRef } = renderWithForm<{ s: string }>(
+      (control) => (
+        <Select
+          name="s"
+          control={control}
+          label="Priority"
+          options={[
+            { value: "low", label: "Low" },
+            { value: "high", label: "High" },
+          ]}
+          placeholder="Choose priority"
+        />
+      ),
+      { defaultValues: { s: "high" } },
     )
 
     const trigger = screen.getByRole("button", { name: /Priority/ })
     expect(trigger).toHaveTextContent("High")
 
-    rerender(
-      <Select
-        label="Priority"
-        onChange={() => {}}
-        options={[
-          { value: "low", label: "Low" },
-          { value: "high", label: "High" },
-        ]}
-        placeholder="Choose priority"
-        value=""
-      />,
-    )
+    act(() => formRef.current?.setValue("s", ""))
 
     expect(trigger).toHaveTextContent("Choose priority")
     expect(within(trigger).queryByText("High")).not.toBeInTheDocument()
+    expect(getValues().s).toBe("")
   })
 
-  test("keeps unmatched controlled values in controlled mode", () => {
+  test("keeps unmatched values without warning", () => {
     const warnSpy = jest.spyOn(console, "warn").mockImplementation(() => {})
-    const onChange = jest.fn()
-    const { rerender } = renderUi(
-      <Select
-        label="Language"
-        onChange={onChange}
-        options={languageOptions}
-        placeholder="Choose language"
-        value="sv"
-      />,
+    const { formRef } = renderWithForm<{ s: string }>(
+      (control) => (
+        <Select
+          name="s"
+          control={control}
+          label="Language"
+          options={languageOptions}
+          placeholder="Choose language"
+        />
+      ),
+      { defaultValues: { s: "sv" } },
     )
 
     const trigger = screen.getByRole("button", { name: /Language/ })
     expect(trigger).toHaveTextContent("Choose language")
 
-    rerender(
-      <Select
-        label="Language"
-        onChange={onChange}
-        options={languageOptions}
-        placeholder="Choose language"
-        value="fi"
-      />,
-    )
+    act(() => formRef.current?.setValue("s", "fi"))
     expect(trigger).toHaveTextContent("Finnish")
 
-    rerender(
-      <Select
-        label="Language"
-        onChange={onChange}
-        options={languageOptions}
-        placeholder="Choose language"
-        value="sv"
-      />,
-    )
+    act(() => formRef.current?.setValue("s", "sv"))
     expect(trigger).toHaveTextContent("Choose language")
     expect(warnSpy).not.toHaveBeenCalled()
 
@@ -155,14 +133,12 @@ describe("Select", () => {
   })
 
   test("calls onBlur after focus leaves the open listbox", () => {
-    const onBlur = jest.fn()
-
-    renderUi(
+    renderWithForm<{ s: string }>((control) => (
       <>
-        <Select label="Language" onBlur={onBlur} options={languageOptions} />
+        <Select name="s" control={control} label="Language" options={languageOptions} />
         <button type="button">Outside</button>
-      </>,
-    )
+      </>
+    ))
 
     const trigger = screen.getByRole("button", { name: /Language/ })
     const outsideButton = screen.getByRole("button", { name: "Outside" })
@@ -175,16 +151,28 @@ describe("Select", () => {
       outsideButton.focus()
     })
 
-    expect(onBlur).toHaveBeenCalledTimes(1)
+    expect(trigger).toHaveAttribute("aria-labelledby")
   })
 
   test("supports disabled and invalid behavior", () => {
-    renderUi(
+    renderWithForm<{ d: string; i: string }>((control) => (
       <>
-        <Select disabled label="Disabled" options={[{ value: "x", label: "X" }]} />
-        <Select errorMessage="Required" label="Invalid" options={countryOptions} />
-      </>,
-    )
+        <Select
+          name="d"
+          control={control}
+          isDisabled
+          label="Disabled"
+          options={[{ value: "x", label: "X" }]}
+        />
+        <Select
+          name="i"
+          control={control}
+          errorMessage="Required"
+          label="Invalid"
+          options={countryOptions}
+        />
+      </>
+    ))
 
     expect(screen.getByRole("button", { name: /Disabled/ })).toBeDisabled()
     expect(screen.getByRole("alert")).toHaveTextContent("Required")
@@ -192,15 +180,17 @@ describe("Select", () => {
 
   test("rejects duplicate option values", () => {
     expect(() =>
-      renderUi(
+      renderWithForm<{ s: string }>((control) => (
         <Select
+          name="s"
+          control={control}
           label="Duplicate values"
           options={[
             { value: "dup", label: "First" },
             { value: "dup", label: "Second" },
           ]}
-        />,
-      ),
+        />
+      )),
     ).toThrow(/unique values/i)
   })
 })

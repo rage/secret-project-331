@@ -15,8 +15,8 @@ import {
 import type { TFunction } from "i18next"
 import type { ReactNode } from "react"
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import type { Control, UseFormRegister } from "react-hook-form"
-import { Controller, useForm, useFormState } from "react-hook-form"
+import type { Control, UseFormSetValue } from "react-hook-form"
+import { useForm, useFormState, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useDebouncedCallback } from "use-debounce"
 
@@ -35,7 +35,16 @@ import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Checkbox, ComboBox, Select, TextArea, TextField } from "@/shared-module/components"
+import {
+  Checkbox,
+  ComboBox,
+  emptyStringToNull,
+  nullIfEmpty,
+  Select,
+  stringToNumberOrNull,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
 
 const STAGE_ANALYSIS: CourseDesignerStage = "Analysis"
 const FIELD_CREDITS = "credits"
@@ -51,7 +60,6 @@ const OPEN_PERIOD_III = "open_period_iii"
 const OPEN_PERIOD_IV = "open_period_iv"
 const FIELD_MODE_SYNCHRONOUS = "mode_synchronous"
 const FIELD_MODE_ASYNCHRONOUS = "mode_asynchronous"
-const FIELD_OPEN_PERIOD_ALL = "open_period_all"
 const INTERSECTION_ROOT_MARGIN = "-40% 0px -45% 0px"
 const SCROLL_BEHAVIOR = "smooth"
 const SCROLL_BLOCK = "start"
@@ -91,7 +99,37 @@ function analysisSectionBodyId(n: AnalysisSectionIndex): string {
   return `${SECTION_DOM_PREFIX}${n}-body`
 }
 
-const nullIfEmpty = { setValueAs: (v: string) => (v === "" ? null : v) }
+type AnalysisWorkspaceFormValues = Omit<AnalysisWorkspaceV1, "open_period_all">
+
+/** Drops `open_period_all` so it is not a registered field (derived on save). */
+function stripOpenPeriodAll(v: AnalysisWorkspaceV1): AnalysisWorkspaceFormValues {
+  const { open_period_all: _, ...rest } = v
+  return rest
+}
+
+/** API payload includes `open_period_all`, derived from the four period flags. */
+function withDerivedOpenPeriodAll(values: AnalysisWorkspaceFormValues): AnalysisWorkspaceV1 {
+  return {
+    ...values,
+    open_period_all: Boolean(
+      values.open_period_i &&
+      values.open_period_ii &&
+      values.open_period_iii &&
+      values.open_period_iv,
+    ),
+  }
+}
+
+/** Maps credits text input to `number | null` and validates finiteness. */
+function buildCreditsFieldRules(t: TFunction) {
+  return {
+    setValueAs: stringToNumberOrNull,
+    validate: (v: unknown) =>
+      v == null ||
+      (typeof v === "number" && Number.isFinite(v)) ||
+      t("course-plans-analysis-error-credits-invalid"),
+  }
+}
 
 function isFilled(v: unknown): boolean {
   if (v == null) {
@@ -109,7 +147,7 @@ function isFilled(v: unknown): boolean {
   return false
 }
 
-function computeSectionCompletion(v: AnalysisWorkspaceV1): boolean[] {
+function computeSectionCompletion(v: AnalysisWorkspaceFormValues): boolean[] {
   const s1 =
     isFilled(v.course_title) ||
     v.credits != null ||
@@ -121,7 +159,6 @@ function computeSectionCompletion(v: AnalysisWorkspaceV1): boolean[] {
     v.open_period_ii ||
     v.open_period_iii ||
     v.open_period_iv ||
-    v.open_period_all ||
     isFilled(v.responsible_teachers) ||
     isFilled(v.degree_programme) ||
     v.course_type != null
@@ -378,6 +415,13 @@ const checkboxRowStyles = css`
   gap: var(--space-4, 1rem);
 `
 
+const openPeriodAllRowStyles = css`
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  cursor: pointer;
+`
+
 const contributorsListStyles = css`
   display: flex;
   flex-direction: column;
@@ -605,13 +649,13 @@ function linkifyResourceLine(line: string): ReactNode {
  * One key contributor role: title, duties, then full-width assignees field.
  */
 function ContributorRoleBlock(props: {
+  control: Control<AnalysisWorkspaceFormValues>
   dutiesKey: (typeof CONTRIBUTOR_ROLES)[number]["dutiesKey"]
   field: ContributorFieldKey
   nameKey: (typeof CONTRIBUTOR_ROLES)[number]["nameKey"]
-  register: UseFormRegister<AnalysisWorkspaceV1>
   t: TFunction
 }) {
-  const { dutiesKey, field, nameKey, register, t } = props
+  const { control, dutiesKey, field, nameKey, t } = props
   return (
     <div className={contributorCardStyles}>
       <div className={contributorCardLeadStyles}>
@@ -621,47 +665,33 @@ function ContributorRoleBlock(props: {
         </p>
       </div>
       <TextField
+        name={field}
+        control={control}
+        rules={nullIfEmpty}
         label={t("course-plans-analysis-assigned-persons")}
-        {...register(field, nullIfEmpty)}
       />
     </div>
   )
 }
 
 /**
- * Checkbox groups for mode and content-format preferences using Controller (no watch()).
+ * Checkbox groups for mode and content-format preferences.
  */
-function ModeCheckboxRow(props: { control: Control<AnalysisWorkspaceV1>; t: TFunction }) {
+function ModeCheckboxRow(props: { control: Control<AnalysisWorkspaceFormValues>; t: TFunction }) {
   const { control, t } = props
   return (
     <fieldset className={roleBlockStyles}>
       <legend className={sectionTitleStyles}>{t("course-plans-analysis-field-mode")}</legend>
       <div className={checkboxRowStyles}>
-        <Controller
+        <Checkbox
           name={FIELD_MODE_SYNCHRONOUS}
           control={control}
-          render={({ field }) => (
-            <Checkbox
-              label={t("course-plans-analysis-mode-synchronous")}
-              checked={Boolean(field.value)}
-              onChange={(e) => {
-                field.onChange(e.target.checked)
-              }}
-            />
-          )}
+          label={t("course-plans-analysis-mode-synchronous")}
         />
-        <Controller
+        <Checkbox
           name={FIELD_MODE_ASYNCHRONOUS}
           control={control}
-          render={({ field }) => (
-            <Checkbox
-              label={t("course-plans-analysis-mode-asynchronous")}
-              checked={Boolean(field.value)}
-              onChange={(e) => {
-                field.onChange(e.target.checked)
-              }}
-            />
-          )}
+          label={t("course-plans-analysis-mode-asynchronous")}
         />
       </div>
     </fieldset>
@@ -669,20 +699,27 @@ function ModeCheckboxRow(props: { control: Control<AnalysisWorkspaceV1>; t: TFun
 }
 
 /**
- * Open-period checkboxes with "All" first; syncs open_period_all when individual periods change.
+ * Open-period checkboxes; "All" is derived from the four periods and toggles them via `setValue` (not an RHF field).
  */
 function OpenPeriodCheckboxes(props: {
-  control: Control<AnalysisWorkspaceV1>
-  getValues: () => AnalysisWorkspaceV1
-  setValue: ReturnType<typeof useForm<AnalysisWorkspaceV1>>["setValue"]
+  control: Control<AnalysisWorkspaceFormValues>
+  setValue: UseFormSetValue<AnalysisWorkspaceFormValues>
   t: TFunction
 }) {
-  const { control, getValues, setValue, t } = props
+  const { control, setValue, t } = props
 
-  const syncOpenPeriodAllFromState = (next: AnalysisWorkspaceV1) => {
-    const allSelected =
-      next.open_period_i && next.open_period_ii && next.open_period_iii && next.open_period_iv
-    setValue(FIELD_OPEN_PERIOD_ALL, Boolean(allSelected), { shouldDirty: true })
+  const [p1, p2, p3, p4] = useWatch({
+    control,
+    name: [OPEN_PERIOD_I, OPEN_PERIOD_II, OPEN_PERIOD_III, OPEN_PERIOD_IV],
+  })
+  const allSelected = Boolean(p1 && p2 && p3 && p4)
+
+  const handleToggleAll = () => {
+    const next = !allSelected
+    setValue(OPEN_PERIOD_I, next, { shouldDirty: true })
+    setValue(OPEN_PERIOD_II, next, { shouldDirty: true })
+    setValue(OPEN_PERIOD_III, next, { shouldDirty: true })
+    setValue(OPEN_PERIOD_IV, next, { shouldDirty: true })
   }
 
   return (
@@ -692,90 +729,29 @@ function OpenPeriodCheckboxes(props: {
       </legend>
       <div className={checkboxGroupStyles}>
         <div className={checkboxRowStyles}>
-          <Controller
-            name={FIELD_OPEN_PERIOD_ALL}
-            control={control}
-            render={({ field }) => (
-              <Checkbox
-                label={t("course-plans-analysis-period-all")}
-                checked={Boolean(field.value)}
-                onChange={(e) => {
-                  const c = e.target.checked
-                  field.onChange(c)
-                  if (c) {
-                    setValue("open_period_i", true, { shouldDirty: true })
-                    setValue("open_period_ii", true, { shouldDirty: true })
-                    setValue("open_period_iii", true, { shouldDirty: true })
-                    setValue("open_period_iv", true, { shouldDirty: true })
-                  } else {
-                    setValue("open_period_i", false, { shouldDirty: true })
-                    setValue("open_period_ii", false, { shouldDirty: true })
-                    setValue("open_period_iii", false, { shouldDirty: true })
-                    setValue("open_period_iv", false, { shouldDirty: true })
-                  }
-                }}
-              />
-            )}
-          />
-          <Controller
+          <label className={openPeriodAllRowStyles}>
+            <input type="checkbox" checked={allSelected} onChange={handleToggleAll} />
+            {t("course-plans-analysis-period-all")}
+          </label>
+          <Checkbox
             name={OPEN_PERIOD_I}
             control={control}
-            render={({ field }) => (
-              <Checkbox
-                label={t("course-plans-analysis-period-i")}
-                checked={Boolean(field.value)}
-                onChange={(e) => {
-                  const c = e.target.checked
-                  field.onChange(c)
-                  syncOpenPeriodAllFromState({ ...getValues(), [OPEN_PERIOD_I]: c })
-                }}
-              />
-            )}
+            label={t("course-plans-analysis-period-i")}
           />
-          <Controller
+          <Checkbox
             name={OPEN_PERIOD_II}
             control={control}
-            render={({ field }) => (
-              <Checkbox
-                label={t("course-plans-analysis-period-ii")}
-                checked={Boolean(field.value)}
-                onChange={(e) => {
-                  const c = e.target.checked
-                  field.onChange(c)
-                  syncOpenPeriodAllFromState({ ...getValues(), [OPEN_PERIOD_II]: c })
-                }}
-              />
-            )}
+            label={t("course-plans-analysis-period-ii")}
           />
-          <Controller
+          <Checkbox
             name={OPEN_PERIOD_III}
             control={control}
-            render={({ field }) => (
-              <Checkbox
-                label={t("course-plans-analysis-period-iii")}
-                checked={Boolean(field.value)}
-                onChange={(e) => {
-                  const c = e.target.checked
-                  field.onChange(c)
-                  syncOpenPeriodAllFromState({ ...getValues(), [OPEN_PERIOD_III]: c })
-                }}
-              />
-            )}
+            label={t("course-plans-analysis-period-iii")}
           />
-          <Controller
+          <Checkbox
             name={OPEN_PERIOD_IV}
             control={control}
-            render={({ field }) => (
-              <Checkbox
-                label={t("course-plans-analysis-period-iv")}
-                checked={Boolean(field.value)}
-                onChange={(e) => {
-                  const c = e.target.checked
-                  field.onChange(c)
-                  syncOpenPeriodAllFromState({ ...getValues(), [OPEN_PERIOD_IV]: c })
-                }}
-              />
-            )}
+            label={t("course-plans-analysis-period-iv")}
           />
         </div>
       </div>
@@ -784,9 +760,12 @@ function OpenPeriodCheckboxes(props: {
 }
 
 /**
- * Content format checkboxes driven by Controller.
+ * Content format checkboxes.
  */
-function ContentFormatCheckboxes(props: { control: Control<AnalysisWorkspaceV1>; t: TFunction }) {
+function ContentFormatCheckboxes(props: {
+  control: Control<AnalysisWorkspaceFormValues>
+  t: TFunction
+}) {
   const { control, t } = props
   return (
     <fieldset className={roleBlockStyles}>
@@ -795,18 +774,7 @@ function ContentFormatCheckboxes(props: { control: Control<AnalysisWorkspaceV1>;
       </legend>
       <div className={checkboxRowStyles}>
         {CONTENT_FORMAT_FIELDS.map(([name, labelKey]) => (
-          <Controller
-            key={name}
-            name={name}
-            control={control}
-            render={({ field }) => (
-              <Checkbox
-                label={t(labelKey)}
-                checked={Boolean(field.value)}
-                onChange={(e) => field.onChange(e.target.checked)}
-              />
-            )}
-          />
+          <Checkbox key={name} name={name} control={control} label={t(labelKey)} />
         ))}
       </div>
     </fieldset>
@@ -834,12 +802,14 @@ export default function AnalysisWorkspaceForm(props: {
   const [showSavedStatus, setShowSavedStatus] = useState(false)
   const isDirtyRef = useRef(false)
 
-  const form = useForm<AnalysisWorkspaceV1>({
-    defaultValues: defaultAnalysisWorkspaceV1(),
+  const form = useForm<AnalysisWorkspaceFormValues>({
+    defaultValues: stripOpenPeriodAll(defaultAnalysisWorkspaceV1()),
   })
 
-  const { control, handleSubmit, register, reset, setValue, getValues, watch, trigger } = form
+  const { control, handleSubmit, reset, setValue, getValues, watch, trigger } = form
   const { isDirty } = useFormState({ control })
+  const creditsFieldRules = useMemo(() => buildCreditsFieldRules(t), [t])
+  const languageWatch = useWatch({ control, name: FIELD_LANGUAGE })
 
   useEffect(() => {
     isDirtyRef.current = isDirty
@@ -856,7 +826,7 @@ export default function AnalysisWorkspaceForm(props: {
   }, [isDirty])
 
   useEffect(() => {
-    reset(parseAnalysisWorkspaceFromApi(workspaceData))
+    reset(stripOpenPeriodAll(parseAnalysisWorkspaceFromApi(workspaceData)))
   }, [workspaceData, reset])
 
   const patchWorkspace = useCallback(
@@ -870,7 +840,7 @@ export default function AnalysisWorkspaceForm(props: {
 
   const handleSaveSuccess = useCallback(
     async (saved: AnalysisWorkspaceV1) => {
-      reset(saved)
+      reset(stripOpenPeriodAll(saved))
       setAutosaveError(false)
       setShowSavedStatus(true)
       await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.detail(planId) })
@@ -925,7 +895,7 @@ export default function AnalysisWorkspaceForm(props: {
       return
     }
     setAutosaveError(false)
-    autosaveMutation.mutate(getValues())
+    autosaveMutation.mutate(withDerivedOpenPeriodAll(getValues()))
   }, AUTOSAVE_DEBOUNCE_MS)
 
   useEffect(() => {
@@ -976,8 +946,8 @@ export default function AnalysisWorkspaceForm(props: {
     return () => observer.disconnect()
   }, [expandedSections])
 
-  const onSubmit = (data: AnalysisWorkspaceV1) => {
-    manualSaveMutation.mutate(data)
+  const onSubmit = (data: AnalysisWorkspaceFormValues) => {
+    manualSaveMutation.mutate(withDerivedOpenPeriodAll(data))
   }
 
   const saving = autosaveMutation.isPending || manualSaveMutation.isPending
@@ -1091,140 +1061,102 @@ export default function AnalysisWorkspaceForm(props: {
           <div id={analysisSectionBodyId(1)} className={sectionBodyStyles}>
             <h3 className={subsectionTitleStyles}>{t("course-plans-analysis-subgroup-basic")}</h3>
             <TextField
+              // eslint-disable-next-line i18next/no-literal-string
+              name="course_title"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-course-title")}
               description={t("course-plans-analysis-description-course-title")}
-              {...register("course_title", nullIfEmpty)}
             />
             <div className={twoColGridStyles}>
-              <Controller
+              <TextField
                 name={FIELD_CREDITS}
                 control={control}
-                rules={{
-                  validate: (v) =>
-                    v == null ||
-                    (typeof v === "number" && Number.isFinite(v)) ||
-                    t("course-plans-analysis-error-credits-invalid"),
-                }}
-                render={({ field, fieldState }) => (
-                  <TextField
-                    label={t("course-plans-analysis-field-credits")}
-                    description={t("course-plans-analysis-description-credits")}
-                    inputMode={INPUT_MODE_DECIMAL}
-                    autoComplete="off"
-                    errorMessage={fieldState.error?.message}
-                    value={field.value == null ? "" : String(field.value)}
-                    onChange={(e) => {
-                      const raw = e.target.value.trim()
-                      if (raw === "") {
-                        field.onChange(null)
-                        return
-                      }
-                      const n = Number(raw.replace(",", "."))
-                      field.onChange(Number.isFinite(n) ? n : null)
-                    }}
-                    onBlur={field.onBlur}
-                  />
-                )}
+                rules={creditsFieldRules}
+                label={t("course-plans-analysis-field-credits")}
+                description={t("course-plans-analysis-description-credits")}
+                inputMode={INPUT_MODE_DECIMAL}
+                autoComplete="off"
               />
-              <Controller
+              <ComboBox
                 name={FIELD_LANGUAGE}
                 control={control}
-                render={({ field }) => {
-                  const selectedKey =
-                    LANGUAGE_OPTIONS.find((o) => o.value === field.value)?.key ?? null
-                  return (
-                    <ComboBox
-                      getItemKey={(item) => item.key}
-                      getItemTextValue={(item) => t(`course-plans-analysis-lang-${item.key}`)}
-                      label={t("course-plans-analysis-field-language")}
-                      description={t("course-plans-analysis-description-language")}
-                      items={LANGUAGE_OPTIONS}
-                      allowsCustomValue
-                      placeholder={t("course-plans-analysis-language-placeholder")}
-                      selectedKey={selectedKey}
-                      onSelectionChange={(key) => {
-                        if (key == null) {
-                          field.onChange(null)
-                          return
-                        }
-                        const opt = LANGUAGE_OPTIONS.find((o) => o.key === String(key))
-                        field.onChange(opt ? opt.value : null)
-                      }}
-                      inputValue={field.value ?? ""}
-                      onInputChange={(raw) => {
-                        field.onChange(raw === "" ? null : raw)
-                      }}
-                      onBlur={field.onBlur}
-                    >
-                      {(item) => t(`course-plans-analysis-lang-${item.key}`)}
-                    </ComboBox>
-                  )
+                getItemKey={(item) => item.value}
+                getItemTextValue={(item) => t(`course-plans-analysis-lang-${item.key}`)}
+                label={t("course-plans-analysis-field-language")}
+                description={t("course-plans-analysis-description-language")}
+                items={LANGUAGE_OPTIONS}
+                allowsCustomValue
+                placeholder={t("course-plans-analysis-language-placeholder")}
+                inputValue={languageWatch ?? ""}
+                onInputChange={(raw) => {
+                  setValue(FIELD_LANGUAGE, emptyStringToNull(raw), { shouldDirty: true })
                 }}
-              />
+              >
+                {(item) => t(`course-plans-analysis-lang-${item.key}`)}
+              </ComboBox>
             </div>
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="target_group"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-target-group")}
               description={t("course-plans-analysis-description-target-group")}
               rows={ROWS_SHORT}
-              {...register("target_group", nullIfEmpty)}
             />
             <h3 className={subsectionTitleStyles}>
               {t("course-plans-analysis-subgroup-logistics")}
             </h3>
             <div className={modeAndPeriodsRowStyles}>
               <ModeCheckboxRow control={control} t={t} />
-              <OpenPeriodCheckboxes
-                control={control}
-                getValues={getValues}
-                setValue={setValue}
-                t={t}
-              />
+              <OpenPeriodCheckboxes control={control} setValue={setValue} t={t} />
             </div>
             <h3 className={subsectionTitleStyles}>
               {t("course-plans-analysis-subgroup-organizational")}
             </h3>
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="responsible_teachers"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-responsible-teachers")}
               description={t("course-plans-analysis-description-responsible-teachers")}
               rows={ROWS_SHORT}
-              {...register("responsible_teachers", nullIfEmpty)}
             />
             <div className={twoColGridStyles}>
               <TextField
+                // eslint-disable-next-line i18next/no-literal-string
+                name="degree_programme"
+                control={control}
+                rules={nullIfEmpty}
                 label={t("course-plans-analysis-field-degree-programme")}
                 description={t("course-plans-analysis-description-degree-programme")}
-                {...register("degree_programme", nullIfEmpty)}
               />
-              <Controller
+              <Select
                 name={FIELD_COURSE_TYPE}
                 control={control}
-                render={({ field }) => (
-                  <Select
-                    label={t("course-plans-analysis-field-course-type")}
-                    options={[
-                      {
-                        value: "",
-                        label: t("course-plans-analysis-course-type-none"),
-                      },
-                      {
-                        // eslint-disable-next-line i18next/no-literal-string -- backend enum value
-                        value: "Compulsory",
-                        label: t("course-plans-analysis-course-type-compulsory"),
-                      },
-                      {
-                        // eslint-disable-next-line i18next/no-literal-string -- backend enum value
-                        value: "Elective",
-                        label: t("course-plans-analysis-course-type-elective"),
-                      },
-                    ]}
-                    value={field.value ?? ""}
-                    onChange={(e) => {
-                      const val = e.target.value
-                      field.onChange(val === "" ? null : (val as AnalysisCourseType))
-                    }}
-                    onBlur={field.onBlur}
-                  />
-                )}
+                rules={{
+                  setValueAs: (v: unknown) =>
+                    v === "" || v == null ? null : (v as AnalysisCourseType),
+                }}
+                label={t("course-plans-analysis-field-course-type")}
+                options={[
+                  {
+                    value: "",
+                    label: t("course-plans-analysis-course-type-none"),
+                  },
+                  {
+                    // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                    value: "Compulsory",
+                    label: t("course-plans-analysis-course-type-compulsory"),
+                  },
+                  {
+                    // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                    value: "Elective",
+                    label: t("course-plans-analysis-course-type-elective"),
+                  },
+                ]}
               />
             </div>
           </div>
@@ -1246,10 +1178,13 @@ export default function AnalysisWorkspaceForm(props: {
           <div id={analysisSectionBodyId(2)} className={sectionBodyStyles}>
             <p className={staticTextStyles}>{t("course-plans-analysis-students-needs-intro")}</p>
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="students_demographic_data"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-students-demographic")}
               description={t("course-plans-analysis-description-students-demographic")}
               rows={ROWS_LONG}
-              {...register("students_demographic_data", nullIfEmpty)}
             />
           </div>
         ) : null}
@@ -1269,29 +1204,41 @@ export default function AnalysisWorkspaceForm(props: {
         {expandedSections[3] !== false ? (
           <div id={analysisSectionBodyId(3)} className={sectionBodyStyles}>
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="wishes_topics"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-wishes-topics")}
               placeholder={t("course-plans-analysis-placeholder-wishes-topics")}
               rows={ROWS_STANDARD}
-              {...register("wishes_topics", nullIfEmpty)}
             />
             <ContentFormatCheckboxes control={control} t={t} />
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="wishes_content_format_notes"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-content-format-notes")}
               placeholder={t("course-plans-analysis-placeholder-content-format-notes")}
               rows={ROWS_STANDARD}
-              {...register("wishes_content_format_notes", nullIfEmpty)}
             />
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="wishes_assessment_text"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-assessment")}
               placeholder={t("course-plans-analysis-placeholder-assessment")}
               rows={ROWS_STANDARD}
-              {...register("wishes_assessment_text", nullIfEmpty)}
             />
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="wishes_other_suggestions"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-wishes-other")}
               placeholder={t("course-plans-analysis-placeholder-wishes-other")}
               rows={ROWS_STANDARD}
-              {...register("wishes_other_suggestions", nullIfEmpty)}
             />
           </div>
         ) : null}
@@ -1311,10 +1258,13 @@ export default function AnalysisWorkspaceForm(props: {
         {expandedSections[4] !== false ? (
           <div id={analysisSectionBodyId(4)} className={sectionBodyStyles}>
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="market_results"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-market-results")}
               description={t("course-plans-analysis-description-market-results")}
               rows={ROWS_LONG}
-              {...register("market_results", nullIfEmpty)}
             />
           </div>
         ) : null}
@@ -1334,16 +1284,22 @@ export default function AnalysisWorkspaceForm(props: {
         {expandedSections[5] !== false ? (
           <div id={analysisSectionBodyId(5)} className={sectionBodyStyles}>
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="resources_university"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-resources-university")}
               placeholder={t("course-plans-analysis-placeholder-resources-university")}
               rows={ROWS_STANDARD}
-              {...register("resources_university", nullIfEmpty)}
             />
             <TextArea
+              // eslint-disable-next-line i18next/no-literal-string
+              name="resources_purchase_budget"
+              control={control}
+              rules={nullIfEmpty}
               label={t("course-plans-analysis-field-resources-purchase")}
               placeholder={t("course-plans-analysis-placeholder-resources-purchase")}
               rows={ROWS_STANDARD}
-              {...register("resources_purchase_budget", nullIfEmpty)}
             />
             {showUhResources ? (
               <div className={uhCalloutStyles}>
@@ -1379,10 +1335,10 @@ export default function AnalysisWorkspaceForm(props: {
               {CONTRIBUTOR_ROLES.map((role) => (
                 <ContributorRoleBlock
                   key={role.field}
+                  control={control}
                   field={role.field}
                   nameKey={role.nameKey}
                   dutiesKey={role.dutiesKey}
-                  register={register}
                   t={t}
                 />
               ))}

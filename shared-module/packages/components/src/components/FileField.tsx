@@ -3,12 +3,14 @@
 import { css, cx } from "@emotion/css"
 import React, { useId, useMemo, useRef, useState } from "react"
 import { useField, VisuallyHidden } from "react-aria"
+import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import type { ButtonDomProps, InputDomProps } from "../lib/types/domProps"
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
 import { composeRefs } from "../lib/utils/compositeField"
-import { joinAriaDescribedBy, resolveFieldState } from "../lib/utils/field"
+import { joinAriaDescribedBy } from "../lib/utils/field"
 import { summarizeFiles } from "../lib/utils/files"
+import { fileListToArray } from "../lib/utils/rhfAdapters"
 
 import { FieldShell } from "./primitives/FieldShell"
 import type { FieldSize } from "./primitives/fieldStyles"
@@ -19,28 +21,6 @@ const fileSummaryCss = css`
   font-size: 0.9375rem;
   line-height: 1.45;
 `
-
-export type FileFieldProps = {
-  label: React.ReactNode
-  description?: React.ReactNode
-  errorMessage?: React.ReactNode
-  fieldSize?: FieldSize
-  buttonLabel?: React.ReactNode
-  isDisabled?: boolean
-  isRequired?: boolean
-  isInvalid?: boolean
-  summaryFormatter?: (files: FileList | null) => React.ReactNode
-  id?: string
-  name?: string
-  disabled?: boolean
-  required?: boolean
-  onChange?: React.ChangeEventHandler<HTMLInputElement>
-  "aria-describedby"?: string
-  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
-  className?: string
-  inputDomProps?: InputDomProps
-  domProps?: ButtonDomProps
-}
 
 const fileButtonSmCss = css`
   min-height: var(--control-height-sm);
@@ -75,143 +55,150 @@ function resolveFileButtonSizeCss(fieldSize: FieldSize) {
   }
 }
 
-export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
-  function FileField(props, forwardedRef) {
-    const {
-      id,
-      label,
-      description,
-      errorMessage,
-      fieldSize = "md",
-      buttonLabel: buttonLabelProp,
-      isDisabled,
-      isRequired,
-      isInvalid,
-      summaryFormatter,
-      className,
-      disabled,
-      required,
-      onChange,
-      "aria-describedby": ariaDescribedBy,
-      "aria-invalid": ariaInvalid,
-      domProps,
-      inputDomProps,
-    } = props
+/**
+ * File picker with summary text; form value is `File[]`.
+ * Uses react-hook-form; pass `name` and `control`. The hidden `<input type="file">` is the native picker only;
+ * RHF state is updated from its change event, not as a separate submission primitive.
+ *
+ * @example
+ * <FileField name="attachment" control={control} label="Attachment" />
+ */
+export type FileFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
+  label: React.ReactNode
+  description?: React.ReactNode
+  errorMessage?: React.ReactNode
+  fieldSize?: FieldSize
+  buttonLabel?: React.ReactNode
+  isDisabled?: boolean
+  isRequired?: boolean
+  summaryFormatter?: (files: File[] | null) => React.ReactNode
+  id?: string
+  className?: string
+  multiple?: boolean
+}
 
-    const { t } = useTranslation("shared-module")
-    const fileSummaryLabels = useMemo(
-      () => ({
-        empty: t("fileField.empty"),
-        unnamedFile: t("fileField.unnamed"),
-        formatMoreFiles: (additionalCount: number) =>
-          t("fileField.moreFiles", { count: additionalCount }),
-      }),
-      [t],
-    )
-    const buttonLabel = buttonLabelProp ?? t("fileField.chooseFile")
+export function FileField<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: FileFieldProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    id,
+    label,
+    description,
+    errorMessage,
+    fieldSize = "md",
+    buttonLabel: buttonLabelProp,
+    isDisabled = false,
+    isRequired = false,
+    summaryFormatter,
+    className,
+    multiple,
+  } = props
 
-    const generatedInputId = useId()
-    const inputId = id ?? generatedInputId
-    const buttonLabelId = useId()
-    const requiredStateId = useId()
-    const invalidStateId = useId()
-    const state = resolveFieldState({
-      disabled,
-      required,
-      isDisabled,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
-      errorMessage,
-    })
-    const { labelProps, fieldProps, descriptionProps, errorMessageProps } = useField({
-      label,
-      description,
-      errorMessage,
-      id: inputId,
-      isInvalid: state.isInvalid,
-      "aria-describedby": ariaDescribedBy,
-    })
-    const buttonDescribedBy = joinAriaDescribedBy(
-      typeof fieldProps["aria-describedby"] === "string"
-        ? fieldProps["aria-describedby"]
-        : undefined,
-      state.isRequired ? requiredStateId : undefined,
-      state.isInvalid && !errorMessage ? invalidStateId : undefined,
-    )
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
 
-    const inputRef = useRef<HTMLInputElement>(null)
-    const mergedInputRef = composeRefs(inputRef, forwardedRef)
-    const [fileSummary, setFileSummary] = useState<React.ReactNode>(fileSummaryLabels.empty)
+  const { t } = useTranslation("shared-module")
+  const fileSummaryLabels = useMemo(
+    () => ({
+      empty: t("fileField.empty"),
+      unnamedFile: t("fileField.unnamed"),
+      formatMoreFiles: (additionalCount: number) =>
+        t("fileField.moreFiles", { count: additionalCount }),
+    }),
+    [t],
+  )
+  const buttonLabel = buttonLabelProp ?? t("fileField.chooseFile")
 
-    return (
-      <FieldShell
-        className={className}
-        label={label}
-        labelProps={labelProps as React.HTMLAttributes<HTMLElement>}
-        description={description}
-        descriptionProps={descriptionProps as React.HTMLAttributes<HTMLElement>}
-        errorMessage={errorMessage}
-        errorMessageProps={errorMessageProps as React.HTMLAttributes<HTMLElement>}
-        isDisabled={state.isDisabled}
-        isRequired={state.isRequired}
-        layout={stackedLayout}
-      >
-        <div className={fileTriggerRowCss}>
-          <VisuallyHidden>
-            <input
-              {...(inputDomProps ?? {})}
-              ref={mergedInputRef}
-              type="file"
-              disabled={state.isDisabled}
-              required={state.isRequired}
-              aria-hidden="true"
-              tabIndex={-1}
-              onChange={(event) => {
-                setFileSummary(
-                  summaryFormatter?.(event.currentTarget.files) ??
-                    summarizeFiles(event.currentTarget.files, fileSummaryLabels),
-                )
-                onChange?.(event)
-              }}
-            />
-          </VisuallyHidden>
-          <button
-            {...fieldProps}
-            {...(domProps ?? {})}
-            className={cx(fileButtonCss, resolveFileButtonSizeCss(fieldSize))}
-            type="button"
-            disabled={state.isDisabled}
-            data-invalid={state.isInvalid ? "true" : undefined}
-            aria-describedby={buttonDescribedBy}
-            aria-labelledby={
-              typeof fieldProps["aria-labelledby"] === "string"
-                ? `${fieldProps["aria-labelledby"]} ${buttonLabelId}`
-                : buttonLabelId
-            }
-            onClick={() => {
-              inputRef.current?.click()
+  const generatedInputId = useId()
+  const inputId = id ?? generatedInputId
+  const buttonLabelId = useId()
+  const requiredStateId = useId()
+  const invalidStateId = useId()
+
+  const { labelProps, fieldProps, descriptionProps, errorMessageProps } = useField({
+    label,
+    description,
+    errorMessage: resolvedError,
+    id: inputId,
+    isInvalid,
+  })
+  const buttonDescribedBy = joinAriaDescribedBy(
+    typeof fieldProps["aria-describedby"] === "string" ? fieldProps["aria-describedby"] : undefined,
+    isRequired ? requiredStateId : undefined,
+    isInvalid && !resolvedError ? invalidStateId : undefined,
+  )
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [fileSummary, setFileSummary] = useState<React.ReactNode>(fileSummaryLabels.empty)
+
+  return (
+    <FieldShell
+      className={className}
+      label={label}
+      labelProps={labelProps as React.HTMLAttributes<HTMLElement>}
+      description={description}
+      descriptionProps={descriptionProps as React.HTMLAttributes<HTMLElement>}
+      errorMessage={resolvedError}
+      errorMessageProps={errorMessageProps as React.HTMLAttributes<HTMLElement>}
+      isDisabled={isDisabled}
+      isRequired={isRequired}
+      layout={stackedLayout}
+    >
+      <div className={fileTriggerRowCss}>
+        <VisuallyHidden>
+          <input
+            ref={composeRefs(inputRef, field.ref)}
+            type="file"
+            name={field.name}
+            multiple={multiple}
+            disabled={isDisabled}
+            required={isRequired}
+            aria-hidden="true"
+            tabIndex={-1}
+            onChange={(event) => {
+              const next = fileListToArray(event.currentTarget.files)
+              setFileSummary(summaryFormatter?.(next) ?? summarizeFiles(next, fileSummaryLabels))
+              field.onChange(next)
             }}
-          >
-            <span id={buttonLabelId}>{buttonLabel}</span>
-          </button>
-          {state.isRequired || (state.isInvalid && !errorMessage) ? (
-            <VisuallyHidden>
-              <>
-                {state.isRequired ? <span id={requiredStateId}>{t("required")}</span> : null}
-                {state.isInvalid && !errorMessage ? (
-                  <span id={invalidStateId}>{t("error-title")}</span>
-                ) : null}
-              </>
-            </VisuallyHidden>
-          ) : null}
-          <div aria-live="polite" className={fileSummaryCss} role="status">
-            {fileSummary}
-          </div>
+          />
+        </VisuallyHidden>
+        <button
+          {...fieldProps}
+          className={cx(fileButtonCss, resolveFileButtonSizeCss(fieldSize))}
+          type="button"
+          disabled={isDisabled}
+          data-invalid={isInvalid ? "true" : undefined}
+          aria-describedby={buttonDescribedBy}
+          aria-labelledby={
+            typeof fieldProps["aria-labelledby"] === "string"
+              ? `${fieldProps["aria-labelledby"]} ${buttonLabelId}`
+              : buttonLabelId
+          }
+          onClick={() => {
+            inputRef.current?.click()
+          }}
+        >
+          <span id={buttonLabelId}>{buttonLabel}</span>
+        </button>
+        {isRequired || (isInvalid && !resolvedError) ? (
+          <VisuallyHidden>
+            <>
+              {isRequired ? <span id={requiredStateId}>{t("required")}</span> : null}
+              {isInvalid && !resolvedError ? (
+                <span id={invalidStateId}>{t("error-title")}</span>
+              ) : null}
+            </>
+          </VisuallyHidden>
+        ) : null}
+        <div aria-live="polite" className={fileSummaryCss} role="status">
+          {fileSummary}
         </div>
-      </FieldShell>
-    )
-  },
-)
-
-FileField.displayName = "FileField"
+      </div>
+    </FieldShell>
+  )
+}

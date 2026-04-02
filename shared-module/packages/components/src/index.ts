@@ -8,8 +8,6 @@ export { DateField } from "./components/DateField"
 export type { DateFieldProps } from "./components/DateField"
 export { DateTimeLocalField } from "./components/DateTimeLocalField"
 export type { DateTimeLocalFieldProps } from "./components/DateTimeLocalField"
-export { EditableComponentTextArea } from "./components/compat/EditableComponentTextArea"
-export type { EditableComponentTextAreaProps } from "./components/compat/EditableComponentTextArea"
 export { FileField } from "./components/FileField"
 export type { FileFieldProps } from "./components/FileField"
 export { Link } from "./components/Link"
@@ -31,21 +29,8 @@ export type { TextFieldProps } from "./components/TextField"
 export { TimeField } from "./components/TimeField"
 export type { TimeFieldProps } from "./components/TimeField"
 export type ButtonRef = HTMLButtonElement
-export type CheckboxRef = HTMLInputElement
-export type ComboBoxRef = HTMLInputElement
-export type DateFieldRef = HTMLDivElement
-export type DateTimeLocalFieldRef = HTMLDivElement
-export type EditableComponentTextAreaRef = HTMLTextAreaElement
-export type FileFieldRef = HTMLInputElement
 export type LinkRef = HTMLAnchorElement
-export type OtpFieldRef = HTMLInputElement
 export type RadioRef = HTMLInputElement
-export type RadioGroupRef = HTMLFieldSetElement
-export type SelectRef = HTMLButtonElement
-export type SwitchRef = HTMLInputElement
-export type TextAreaRef = HTMLTextAreaElement
-export type TextFieldRef = HTMLInputElement
-export type TimeFieldRef = HTMLDivElement
 export type {
   ButtonSize,
   ButtonVariant,
@@ -53,12 +38,10 @@ export type {
   PressHandlers,
 } from "./components/primitives/buttonStyles"
 export type { FieldSize } from "./components/primitives/fieldStyles"
-export type {
-  ButtonDomProps,
-  DivDomProps,
-  FieldsetDomProps,
-  InputDomProps,
-  SelectDomProps,
-  TextareaDomProps,
-} from "./lib/types/domProps"
+export {
+  emptyStringToNull,
+  fileListToArray,
+  nullIfEmpty,
+  stringToNumberOrNull,
+} from "./lib/utils/rhfAdapters"
 export { tokensGlobal } from "./styles/tokens"

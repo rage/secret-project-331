@@ -23,12 +23,10 @@ export function TimeSegmentedInputField(
   const base = useSegmentedFieldBase(props, forwardedRef)
   const granularity = minuteGranularity
   const parsedValue = parseTimeOnlyValue(base.value)
-  const parsedDefaultValue = parseTimeOnlyValue(base.defaultValue)
   const parsedMinValue = parseTimeOnlyValue(base.min)
   const parsedMaxValue = parseTimeOnlyValue(base.max)
 
   const fieldProps = {
-    ...base.rest,
     id: base.id,
     inputRef: base.hiddenInputRef,
     label: base.label,
@@ -37,8 +35,7 @@ export function TimeSegmentedInputField(
     locale: base.locale,
     granularity,
     hourCycle: base.hourCycle,
-    value: base.isControlled ? (parsedValue ?? null) : undefined,
-    defaultValue: base.defaultValue !== undefined ? (parsedDefaultValue ?? null) : undefined,
+    value: parsedValue ?? null,
     minValue: parsedMinValue,
     maxValue: parsedMaxValue,
     isDisabled: base.resolvedState.isDisabled,

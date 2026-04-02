@@ -1,5 +1,5 @@
 import { css, cx, keyframes } from "@emotion/css"
-import type { PressEvent } from "@react-types/shared"
+import type { PressEvent } from "react-aria"
 
 export type ButtonSize = "sm" | "md" | "lg"
 export type IconPosition = "start" | "end"

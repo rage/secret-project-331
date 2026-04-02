@@ -16,7 +16,7 @@ import {
 /** Segmented control for `date` or `datetime` with optional calendar popover. */
 export function DateLikeSegmentedInputField(
   props: DateLikeFieldProps,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const base = useSegmentedFieldBase(props, forwardedRef)
   const granularity = props.kind === "date" ? dayGranularity : minuteGranularity
@@ -43,15 +43,14 @@ export function DateLikeSegmentedInputField(
   }, [base.isControlled, serializedControlledValue])
 
   const commitValue = (nextValue: DateValue | null) => {
+    const serializedValue = serializeDateLikeInputValue(props.kind, nextValue, minuteGranularity)
+
     if (!base.isControlled) {
       setUncontrolledValue(nextValue)
     }
 
-    emitSyntheticChange(
-      base.hiddenInputRef.current,
-      base.onChange,
-      serializeDateLikeInputValue(props.kind, nextValue, minuteGranularity),
-    )
+    base.onValueChange?.(serializedValue)
+    emitSyntheticChange(base.hiddenInputRef.current, base.onChange, serializedValue)
   }
 
   return (
@@ -67,6 +66,7 @@ export function DateLikeSegmentedInputField(
           setPickerResetKey((current) => current + 1)
         }
 
+        base.onValueChange?.("")
         emitSyntheticChange(base.hiddenInputRef.current, base.onChange, "")
       }}
       onCommitValue={commitValue}

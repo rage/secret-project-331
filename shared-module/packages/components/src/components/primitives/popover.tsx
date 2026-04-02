@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import type { OverlayTriggerState } from "@react-stately/overlays"
 import React from "react"
-import { DismissButton, Overlay, usePopover } from "react-aria"
+import { DismissButton, mergeProps, Overlay, usePopover } from "react-aria"
 import type { Placement } from "react-aria"
 
 import { popoverCss } from "./selectStyles"
@@ -24,6 +24,7 @@ export type PopoverProps = React.PropsWithChildren<{
   state: OverlayTriggerState
   triggerRef: React.RefObject<Element | null>
   popoverRef?: React.RefObject<HTMLDivElement | null>
+  surfaceProps?: React.HTMLAttributes<HTMLDivElement>
   placement?: Placement
   offset?: number
   isNonModal?: boolean
@@ -35,13 +36,14 @@ export function Popover({
   state,
   triggerRef,
   popoverRef,
+  surfaceProps,
   placement = "bottom start",
   offset = 8,
   isNonModal = false,
 }: PopoverProps) {
   const localPopoverRef = React.useRef<HTMLDivElement>(null)
   const resolvedPopoverRef = popoverRef ?? localPopoverRef
-  const { popoverProps, underlayProps } = usePopover(
+  const { popoverProps: overlayProps, underlayProps } = usePopover(
     {
       popoverRef: resolvedPopoverRef,
       triggerRef,
@@ -65,9 +67,15 @@ export function Popover({
     <Overlay disableFocusManagement={isNonModal}>
       <div {...underlayProps} className={popoverUnderlayCss}>
         <div
-          {...popoverProps}
+          {...mergeProps(overlayProps, surfaceProps)}
           ref={resolvedPopoverRef}
-          className={cx(popoverCss, popoverSurfaceCss, triggerWidthCss, className)}
+          className={cx(
+            popoverCss,
+            popoverSurfaceCss,
+            triggerWidthCss,
+            className,
+            surfaceProps?.className,
+          )}
         >
           <DismissButton onDismiss={state.close} />
           {children}

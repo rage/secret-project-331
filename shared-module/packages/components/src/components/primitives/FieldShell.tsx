@@ -25,12 +25,14 @@ type FieldShellProps = React.PropsWithChildren<{
   controlClassName?: string
   controlProps?: ControlProps
   label?: React.ReactNode
-  labelProps?: React.HTMLAttributes<HTMLElement>
+  labelProps?: React.HTMLAttributes<HTMLElement> | React.LabelHTMLAttributes<HTMLLabelElement>
   inputId?: string
   description?: React.ReactNode
   descriptionId?: string
+  descriptionProps?: React.HTMLAttributes<HTMLElement>
   errorMessage?: React.ReactNode
   errorMessageId?: string
+  errorMessageProps?: React.HTMLAttributes<HTMLElement>
   notice?: React.ReactNode
   noticeId?: string
   isDisabled?: boolean
@@ -54,8 +56,10 @@ export function FieldShell({
   inputId,
   description,
   descriptionId,
+  descriptionProps,
   errorMessage,
   errorMessageId,
+  errorMessageProps,
   notice,
   noticeId,
   isDisabled = false,
@@ -77,6 +81,15 @@ export function FieldShell({
   const renderStackedLabel = () => {
     if (!label) {
       return null
+    }
+
+    if (labelProps && "htmlFor" in labelProps && typeof labelProps.htmlFor === "string") {
+      return (
+        <label {...labelProps} className={cx(stackedLabelCss, labelProps.className)}>
+          {label}
+          {isRequired ? <span className={requiredMarkCss}>*</span> : null}
+        </label>
+      )
     }
 
     if (labelProps) {
@@ -102,6 +115,15 @@ export function FieldShell({
     }
 
     const labelClassName = cx(resolveFieldLabelCss(fieldSize), labelProps?.className)
+
+    if (labelProps && "htmlFor" in labelProps && typeof labelProps.htmlFor === "string") {
+      return (
+        <label {...labelProps} className={labelClassName}>
+          {label}
+          {isRequired ? <span className={requiredMarkCss}>*</span> : null}
+        </label>
+      )
+    }
 
     if (labelProps) {
       return (
@@ -141,7 +163,11 @@ export function FieldShell({
       {description || notice || errorMessage ? (
         <div className={messagesCss}>
           {description ? (
-            <div className={descriptionCss} id={descriptionId}>
+            <div
+              {...descriptionProps}
+              className={cx(descriptionCss, descriptionProps?.className)}
+              id={descriptionId ?? descriptionProps?.id}
+            >
               {description}
             </div>
           ) : null}
@@ -151,7 +177,12 @@ export function FieldShell({
             </div>
           ) : null}
           {errorMessage ? (
-            <div className={errorCss} id={errorMessageId} role="alert">
+            <div
+              {...errorMessageProps}
+              className={cx(errorCss, errorMessageProps?.className)}
+              id={errorMessageId ?? errorMessageProps?.id}
+              role={errorMessageProps?.role ?? "alert"}
+            >
               {errorMessage}
             </div>
           ) : null}

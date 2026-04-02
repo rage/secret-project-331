@@ -1,11 +1,12 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import React, { useEffect, useState } from "react"
+import React from "react"
 import { mergeProps, useObjectRef, useTextField } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
+import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
 
 import {
   fieldControlCss,
@@ -17,6 +18,7 @@ import {
   resolveInputCss,
   resolveMessageCss,
 } from "./primitives/fieldStyles"
+import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
 export type TextFieldProps = React.ComponentPropsWithoutRef<"input"> & {
   /** Visible floating label – required for accessibility. */
@@ -41,11 +43,6 @@ export type TextFieldProps = React.ComponentPropsWithoutRef<"input"> & {
   isInvalid?: boolean
   validationBehavior?: AriaTextFieldProps["validationBehavior"]
   validate?: AriaTextFieldProps["validate"]
-}
-
-/** Returns true when the current input value is non-empty. */
-function isFilled(value: unknown): boolean {
-  return typeof value === "string" ? value.length > 0 : false
 }
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
@@ -85,10 +82,11 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
     } = props
 
     const inputRef = useObjectRef(forwardedRef)
-    const [isFocused, setIsFocused] = useState(false)
-    const [isContentFilled, setIsContentFilled] = useState(() =>
-      isFilled(value) ? true : isFilled(defaultValue),
-    )
+    const floatingState = useFloatingFieldState({
+      defaultValue: typeof defaultValue === "string" ? defaultValue : undefined,
+      elementRef: inputRef,
+      value: typeof value === "string" ? value : undefined,
+    })
 
     const ariaProps: AriaTextFieldProps = {
       label,
@@ -121,36 +119,20 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       validationErrors,
     } = useTextField(ariaProps, inputRef)
 
-    useEffect(() => {
-      if (isFilled(value)) {
-        setIsContentFilled(true)
-        return
-      }
-      if (typeof value === "string") {
-        setIsContentFilled(false)
-        return
-      }
-      if (inputRef.current) {
-        setIsContentFilled(inputRef.current.value.length > 0)
-      } else {
-        setIsContentFilled(isFilled(defaultValue))
-      }
-    }, [value, defaultValue, inputRef])
-
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (typeof value !== "string") {
-        setIsContentFilled(e.target.value.length > 0)
+        floatingState.setHasValue(e.target.value.length > 0)
       }
       onChange?.(e)
     }
 
     const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(true)
+      floatingState.setIsFocused(true)
       onFocus?.(e)
     }
 
     const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-      setIsFocused(false)
+      floatingState.setIsFocused(false)
       onBlur?.(e)
     }
 
@@ -158,14 +140,14 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       onChange: handleChange,
       onFocus: handleFocus,
       onBlur: handleBlur,
-      // Single space keeps :placeholder-shown false only when the field has content,
-      // which drives the floating-label CSS transition.
-      placeholder: " ",
+      placeholder: resolveFloatingPlaceholder(),
     })
 
-    const resolvedErrorMessage =
-      errorMessage ??
-      (hookIsInvalid && validationErrors.length > 0 ? validationErrors.join(" ") : null)
+    const resolvedErrorMessage = resolveRenderedErrorMessage(
+      errorMessage,
+      hookIsInvalid,
+      validationErrors,
+    )
 
     // Combine the hook-generated aria-describedby (description/error IDs) with
     // any external aria-describedby the caller may have passed.
@@ -174,8 +156,6 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       mergedInputProps["aria-describedby"],
     )
 
-    const isFloated = isFocused || isContentFilled
-
     return (
       <div className={cx(fieldRootCss, className)}>
         <div
@@ -183,9 +163,9 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
           data-field-control="true"
           data-has-icon-start={iconStart ? "true" : undefined}
           data-has-icon-end={iconEnd ? "true" : undefined}
-          data-focused={isFocused ? "true" : "false"}
-          data-filled={isContentFilled ? "true" : "false"}
-          data-floated={isFloated ? "true" : "false"}
+          data-focused={floatingState.isFocused ? "true" : "false"}
+          data-filled={floatingState.hasValue ? "true" : "false"}
+          data-floated={floatingState.isFloated ? "true" : "false"}
           data-invalid={hookIsInvalid ? "true" : "false"}
         >
           <input

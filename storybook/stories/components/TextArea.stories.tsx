@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { AlignLeft } from "@vectopus/atlas-icons-react"
 
-import { TextArea } from "../../src/shared-module/components"
+import { EditableComponentTextArea, TextArea } from "../../src/shared-module/components"
 
 const columnCss = css`
   display: flex;
@@ -63,9 +63,8 @@ export const States = {
       <TextArea label="With error" errorMessage="Too short." rows={3} />
       <TextArea label="Disabled" disabled rows={3} />
       <TextArea label="Read only" defaultValue="Read-only content" readOnly rows={3} />
-      <TextArea
+      <EditableComponentTextArea
         label="Plain editor"
-        appearance="plain"
         rows={3}
         defaultValue="Inline editable text"
       />

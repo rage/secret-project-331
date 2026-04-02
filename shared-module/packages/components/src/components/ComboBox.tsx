@@ -3,11 +3,12 @@
 import { css, cx } from "@emotion/css"
 import { Item } from "@react-stately/collections"
 import { useComboBoxState } from "@react-stately/combobox"
-import type { Key } from "@react-types/shared"
 import React, { useMemo, useRef, useState } from "react"
 import { mergeProps, useButton, useComboBox, useFilter, useObjectRef } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/combobox"
+import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
 import { resolveFieldState, toInputValue } from "../lib/utils/field"
 
 import { ListBox } from "./primitives/ListBox"
@@ -28,16 +29,12 @@ const comboBoxRootCss = css`
 `
 
 type ComboBoxRender<T> = (item: T) => React.ReactNode
+type ComboBoxKey = string | number
 
-type ComboBoxCollectionItem<T> = {
-  item: T
-  key: Key
-  rendered: React.ReactNode
-  textValue: string
-  isDisabled: boolean
-}
-
-export type ComboBoxProps<T> = Omit<React.ComponentPropsWithoutRef<"input">, "children"> & {
+export type ComboBoxProps<T> = Omit<
+  React.ComponentPropsWithoutRef<"input">,
+  "children" | "size"
+> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -48,92 +45,21 @@ export type ComboBoxProps<T> = Omit<React.ComponentPropsWithoutRef<"input">, "ch
   isInvalid?: boolean
   items: Iterable<T>
   children?: ComboBoxRender<T>
-  selectedKey?: Key | null
-  defaultSelectedKey?: Key | null
-  onSelectionChange?: (key: Key | null) => void
+  getItemKey: (item: T) => ComboBoxKey
+  getItemTextValue: (item: T) => string
+  getItemDisabled?: (item: T) => boolean
+  inputValue?: string
+  defaultInputValue?: string
+  onInputChange?: (value: string) => void
+  selectedKey?: ComboBoxKey | null
+  defaultSelectedKey?: ComboBoxKey | null
+  onSelectionChange?: (key: ComboBoxKey | null) => void
   allowsCustomValue?: boolean
   emptyState?: React.ReactNode
 }
 
 // eslint-disable-next-line i18next/no-literal-string
 const filterSensitivityBase = "base" as const
-
-function getItemKey<T>(item: T, index: number): Key {
-  if (item == null) {
-    return index
-  }
-
-  if (typeof item === "string" || typeof item === "number") {
-    return item
-  }
-
-  if (typeof item === "object") {
-    if ("key" in item && item.key != null) {
-      return item.key as Key
-    }
-
-    if ("id" in item && item.id != null) {
-      return item.id as Key
-    }
-
-    if ("value" in item && item.value != null) {
-      return item.value as Key
-    }
-  }
-
-  return index
-}
-
-function getItemTextValue<T>(item: T): string {
-  if (item == null) {
-    return ""
-  }
-
-  if (typeof item === "string" || typeof item === "number") {
-    return String(item)
-  }
-
-  if (typeof item === "object") {
-    if ("textValue" in item && typeof item.textValue === "string") {
-      return item.textValue
-    }
-
-    if ("label" in item && typeof item.label === "string") {
-      return item.label
-    }
-
-    if ("name" in item && typeof item.name === "string") {
-      return item.name
-    }
-
-    if ("title" in item && typeof item.title === "string") {
-      return item.title
-    }
-
-    if ("value" in item && item.value != null) {
-      return String(item.value)
-    }
-  }
-
-  return String(item)
-}
-
-function normalizeItems<T>(items: Iterable<T>, renderItem?: ComboBoxRender<T>) {
-  return Array.from(items).map<ComboBoxCollectionItem<T>>((item, index) => {
-    const textValue = getItemTextValue(item)
-
-    return {
-      item,
-      key: getItemKey(item, index),
-      rendered: renderItem ? renderItem(item) : textValue,
-      textValue,
-      isDisabled:
-        typeof item === "object" && item != null && "disabled" in item
-          ? Boolean(item.disabled)
-          : false,
-    }
-  })
-}
 
 export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
   props: ComboBoxProps<T>,
@@ -147,6 +73,12 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     fieldSize = "md",
     items,
     children,
+    getItemKey,
+    getItemTextValue,
+    getItemDisabled,
+    inputValue,
+    defaultInputValue,
+    onInputChange,
     selectedKey,
     defaultSelectedKey,
     onSelectionChange,
@@ -173,7 +105,7 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     ...rest
   } = props
 
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   const toggleOptionsLabel = t("comboBox.toggleOptions")
 
   const inputRef = useObjectRef(forwardedRef)
@@ -183,7 +115,19 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
 
   const generatedInputId = React.useId()
   const inputId = id ?? generatedInputId
-  const normalizedItems = useMemo(() => normalizeItems(items, children), [children, items])
+  const accessors = useMemo<ComboBoxItemAccessors<T>>(
+    () => ({
+      getItemDisabled,
+      getItemKey,
+      getItemTextValue,
+      renderItem: children,
+    }),
+    [children, getItemDisabled, getItemKey, getItemTextValue],
+  )
+  const normalizedItems = useMemo(
+    () => normalizeComboBoxItems(items, accessors),
+    [accessors, items],
+  )
   const disabledKeys = useMemo(
     () => normalizedItems.filter((item) => item.isDisabled).map((item) => item.key),
     [normalizedItems],
@@ -200,10 +144,13 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     ariaInvalid,
     errorMessage,
   })
+  const resolvedInputValue = inputValue ?? (value !== undefined ? toInputValue(value) : undefined)
+  const resolvedDefaultInputValue =
+    defaultInputValue ?? (defaultValue !== undefined ? toInputValue(defaultValue) : undefined)
 
-  const state = useComboBoxState<ComboBoxCollectionItem<T>>({
+  const state = useComboBoxState({
     items: normalizedItems,
-    children: (item: ComboBoxCollectionItem<T>) => (
+    children: (item) => (
       <Item key={item.key} textValue={item.textValue}>
         {item.rendered}
       </Item>
@@ -213,8 +160,9 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     selectedKey,
     defaultSelectedKey: defaultSelectedKey ?? undefined,
     onSelectionChange,
-    inputValue: value !== undefined ? toInputValue(value) : undefined,
-    defaultInputValue: defaultValue !== undefined ? toInputValue(defaultValue) : undefined,
+    inputValue: resolvedInputValue,
+    defaultInputValue: resolvedDefaultInputValue,
+    onInputChange,
     allowsCustomValue,
     isDisabled: resolvedState.isDisabled,
     isReadOnly: resolvedState.isReadOnly,
@@ -224,10 +172,6 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     description,
     errorMessage,
     placeholder: placeholder ?? " ",
-    onBlur: onBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
-    onFocus: onFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
-    onKeyDown: onKeyDown as React.KeyboardEventHandler<HTMLInputElement> | undefined,
-    onKeyUp: onKeyUp as React.KeyboardEventHandler<HTMLInputElement> | undefined,
   })
 
   const {
@@ -251,8 +195,9 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
       popoverRef,
       selectedKey,
       defaultSelectedKey: defaultSelectedKey ?? undefined,
-      inputValue: value !== undefined ? toInputValue(value) : undefined,
-      defaultInputValue: defaultValue !== undefined ? toInputValue(defaultValue) : undefined,
+      inputValue: resolvedInputValue,
+      defaultInputValue: resolvedDefaultInputValue,
+      onInputChange,
       allowsCustomValue,
       isDisabled: resolvedState.isDisabled,
       isReadOnly: resolvedState.isReadOnly,
@@ -263,20 +208,16 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
       errorMessage,
       placeholder: placeholder ?? " ",
       "aria-describedby": ariaDescribedBy,
-      onBlur: onBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
-      onFocus: onFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
-      onKeyDown: onKeyDown as React.KeyboardEventHandler<HTMLInputElement> | undefined,
-      onKeyUp: onKeyUp as React.KeyboardEventHandler<HTMLInputElement> | undefined,
     },
     state,
   )
 
   const { buttonProps } = useButton(triggerProps, buttonRef)
   const [isFocused, setIsFocused] = useState(false)
-  const inputValueFromState = state.inputValue ?? ""
-  const hasValue =
-    state.selectedItem != null ||
-    (typeof inputValueFromState === "string" && inputValueFromState.trim().length > 0)
+  const hasValue = resolveComboBoxHasValue({
+    inputValue: state.inputValue,
+    selectedItem: state.selectedItem,
+  })
   const isFloated = isFocused || hasValue
 
   const mergedInputProps = mergeProps(inputProps, {
@@ -284,11 +225,15 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     onFocus: (event: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true)
       inputProps.onFocus?.(event)
+      onFocus?.(event)
     },
     onBlur: (event: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(false)
       inputProps.onBlur?.(event)
+      onBlur?.(event)
     },
+    onKeyDown,
+    onKeyUp,
   })
   const resolvedErrorMessage =
     errorMessage ??

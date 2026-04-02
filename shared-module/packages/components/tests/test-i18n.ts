@@ -6,10 +6,12 @@ import { initReactI18next } from "react-i18next"
 void i18next.use(initReactI18next).init({
   lng: "en",
   fallbackLng: "en",
+  ns: ["shared-module"],
+  defaultNS: "shared-module",
   interpolation: { escapeValue: false },
   resources: {
     en: {
-      translation: {
+      "shared-module": {
         "button.loading": "Loading",
         "checkbox.setField": "Set {{fieldName}}",
         "comboBox.toggleOptions": "Toggle options",

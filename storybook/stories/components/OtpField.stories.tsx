@@ -28,13 +28,7 @@ type Story = StoryObj<typeof meta>
 function ControlledOtpFieldStory() {
   const [value, setValue] = useState("123")
 
-  return (
-    <OtpField
-      label="Controlled"
-      value={value}
-      onChange={(event) => setValue(event.currentTarget.value)}
-    />
-  )
+  return <OtpField label="Controlled" value={value} onValueChange={setValue} />
 }
 
 export const Playground = {} satisfies Story

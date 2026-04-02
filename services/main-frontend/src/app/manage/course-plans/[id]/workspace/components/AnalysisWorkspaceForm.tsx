@@ -1134,6 +1134,8 @@ export default function AnalysisWorkspaceForm(props: {
                     LANGUAGE_OPTIONS.find((o) => o.value === field.value)?.key ?? null
                   return (
                     <ComboBox
+                      getItemKey={(item) => item.key}
+                      getItemTextValue={(item) => t(`course-plans-analysis-lang-${item.key}`)}
                       label={t("course-plans-analysis-field-language")}
                       description={t("course-plans-analysis-description-language")}
                       items={LANGUAGE_OPTIONS}
@@ -1148,9 +1150,8 @@ export default function AnalysisWorkspaceForm(props: {
                         const opt = LANGUAGE_OPTIONS.find((o) => o.key === String(key))
                         field.onChange(opt ? opt.value : null)
                       }}
-                      value={field.value ?? ""}
-                      onChange={(e) => {
-                        const raw = e.target.value
+                      inputValue={field.value ?? ""}
+                      onInputChange={(raw) => {
                         field.onChange(raw === "" ? null : raw)
                       }}
                       onBlur={field.onBlur}
@@ -1200,21 +1201,29 @@ export default function AnalysisWorkspaceForm(props: {
                 render={({ field }) => (
                   <Select
                     label={t("course-plans-analysis-field-course-type")}
+                    options={[
+                      {
+                        value: "",
+                        label: t("course-plans-analysis-course-type-none"),
+                      },
+                      {
+                        // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                        value: "Compulsory",
+                        label: t("course-plans-analysis-course-type-compulsory"),
+                      },
+                      {
+                        // eslint-disable-next-line i18next/no-literal-string -- backend enum value
+                        value: "Elective",
+                        label: t("course-plans-analysis-course-type-elective"),
+                      },
+                    ]}
                     value={field.value ?? ""}
                     onChange={(e) => {
                       const val = e.target.value
                       field.onChange(val === "" ? null : (val as AnalysisCourseType))
                     }}
                     onBlur={field.onBlur}
-                  >
-                    <option value="">{t("course-plans-analysis-course-type-none")}</option>
-                    <option value="Compulsory">
-                      {t("course-plans-analysis-course-type-compulsory")}
-                    </option>
-                    <option value="Elective">
-                      {t("course-plans-analysis-course-type-elective")}
-                    </option>
-                  </Select>
+                  />
                 )}
               />
             </div>

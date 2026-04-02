@@ -18,7 +18,7 @@ import {
 /** Segmented control for `time` inputs (no calendar). */
 export function TimeSegmentedInputField(
   props: TimeOnlyFieldProps,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const base = useSegmentedFieldBase(props, forwardedRef)
   const granularity = minuteGranularity
@@ -45,15 +45,11 @@ export function TimeSegmentedInputField(
     isReadOnly: base.resolvedState.isReadOnly,
     isRequired: base.resolvedState.isRequired,
     isInvalid: base.resolvedState.isInvalid,
-    onBlur: base.onBlur as React.FocusEventHandler<Element> | undefined,
     onChange: (nextValue: TimeValue | null) => {
-      emitSyntheticChange(
-        base.hiddenInputRef.current,
-        base.onChange,
-        serializeTimeValue(nextValue, granularity),
-      )
+      const serializedValue = serializeTimeValue(nextValue, granularity)
+      base.onValueChange?.(serializedValue)
+      emitSyntheticChange(base.hiddenInputRef.current, base.onChange, serializedValue)
     },
-    onFocus: base.onFocus as React.FocusEventHandler<Element> | undefined,
   }
 
   const state = useTimeFieldState(fieldProps)
@@ -69,6 +65,7 @@ export function TimeSegmentedInputField(
       fieldSize={base.fieldSize}
       hiddenInputRef={base.hiddenInputRef}
       hiddenInputValue={serializeTimeValue(state.value as TimeValue | null, granularity)}
+      inputRef={base.inputRef}
       iconEnd={base.iconEnd}
       iconStart={base.iconStart}
       isFocused={base.isFocused}
@@ -76,6 +73,8 @@ export function TimeSegmentedInputField(
       layout={base.layout}
       notice={base.notice}
       noticeId={base.noticeId}
+      externalOnBlur={base.externalOnBlur}
+      externalOnFocus={base.externalOnFocus}
       resolvedState={base.resolvedState}
       setIsFocused={base.setIsFocused}
       state={state}

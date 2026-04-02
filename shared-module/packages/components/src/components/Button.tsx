@@ -65,7 +65,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ...rest
     } = props
 
-    const { t } = useTranslation()
+    const { t } = useTranslation("shared-module")
     const loadingLabel = loadingLabelProp ?? t("button.loading")
 
     const isDisabled = disabled || isLoading

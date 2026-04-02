@@ -85,7 +85,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     const styledAsButtonResolved = styledAsButton === true
 
-    const { t } = useTranslation()
+    const { t } = useTranslation("shared-module")
 
     const isLoading = Boolean(isLoadingProp)
     const disabled = Boolean(isDisabledProp)

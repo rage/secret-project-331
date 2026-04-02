@@ -1,186 +1,47 @@
-import { parseDate, parseDateTime, parseTime } from "@internationalized/date"
 import React, { useId, useImperativeHandle, useRef, useState } from "react"
-import type { DateValue, TimeValue } from "react-aria"
 import { useLocale } from "react-aria"
 
+import {
+  emitSyntheticChange as emitCompositeSyntheticChange,
+  findFirstMatchingChild,
+} from "../../../lib/utils/compositeField"
 import { resolveFieldState } from "../../../lib/utils/field"
-import type { NativeInputFieldProps } from "../NativeInputField"
+import {
+  parseDateLikeValue,
+  parseTimeOnlyValue,
+  resolveMinuteStep,
+  serializeDateLikeInputValue,
+  serializeDateTimeValue,
+  serializeDateValue,
+  serializeTimeValue,
+  shouldHideRestSegmentPlaceholders,
+} from "../../../lib/utils/segmentedField"
 
 import type { SegmentedDateInputFieldProps } from "./segmentTypes"
 
-/** True when the floating label is at rest with no committed value: hide segment placeholders until focus or value. */
-export function shouldHideRestSegmentPlaceholders(
-  layout: "floating" | "stacked",
-  isFocused: boolean,
-  hasValue: boolean,
-  isPickerOpen?: boolean,
-): boolean {
-  if (layout !== "floating") {
-    return false
-  }
-
-  if (isFocused) {
-    return false
-  }
-
-  if (hasValue) {
-    return false
-  }
-
-  if (isPickerOpen === true) {
-    return false
-  }
-
-  return true
-}
-
-export function padNumber(value: number, minimumLength = 2) {
-  return String(value).padStart(minimumLength, "0")
-}
-
-export function hasDateParts(value: DateValue | TimeValue): value is DateValue & {
-  year: number
-  month: number
-  day: number
-} {
-  return "year" in value && "month" in value && "day" in value
-}
-
-export function hasTimeParts(value: DateValue | TimeValue): value is TimeValue & {
-  hour: number
-  minute: number
-  second: number
-} {
-  return "hour" in value && "minute" in value && "second" in value
-}
-
-export function formatDateValue(value: { year: number; month: number; day: number }) {
-  return `${padNumber(value.year, 4)}-${padNumber(value.month)}-${padNumber(value.day)}`
-}
-
-export function formatTimeValue(
-  value: { hour: number; minute: number; second: number },
-  granularity: "hour" | "minute" | "second",
-) {
-  const hour = padNumber(value.hour)
-
-  if (granularity === "hour") {
-    return hour
-  }
-
-  const minute = padNumber(value.minute)
-
-  if (granularity === "minute") {
-    return `${hour}:${minute}`
-  }
-
-  return `${hour}:${minute}:${padNumber(value.second)}`
-}
-
-export function parseDateLikeValue(
-  kind: "date" | "datetime",
-  value: string | number | readonly string[] | undefined,
-) {
-  if (typeof value !== "string" || value.length === 0) {
-    return undefined
-  }
-
-  try {
-    return kind === "date" ? parseDate(value) : parseDateTime(value)
-  } catch {
-    return undefined
-  }
-}
-
-export function parseTimeOnlyValue(value: string | number | readonly string[] | undefined) {
-  if (typeof value !== "string" || value.length === 0) {
-    return undefined
-  }
-
-  try {
-    return parseTime(value)
-  } catch {
-    return undefined
-  }
-}
-
-export function serializeDateValue(value: DateValue | null) {
-  return value && hasDateParts(value) ? formatDateValue(value) : ""
-}
-
-export function serializeTimeValue(
-  value: TimeValue | null,
-  granularity: "hour" | "minute" | "second",
-) {
-  return value && hasTimeParts(value) ? formatTimeValue(value, granularity) : ""
-}
-
-export function serializeDateTimeValue(
-  value: DateValue | null,
-  granularity: "hour" | "minute" | "second",
-) {
-  if (!value || !hasDateParts(value) || !hasTimeParts(value)) {
-    return ""
-  }
-
-  return `${formatDateValue(value)}T${formatTimeValue(value, granularity)}`
-}
-
-export function serializeDateLikeInputValue(
-  kind: "date" | "datetime",
-  value: DateValue | null,
-  granularity: "hour" | "minute" | "second",
-) {
-  return kind === "date" ? serializeDateValue(value) : serializeDateTimeValue(value, granularity)
-}
-
-export function resolveMinuteStep(step: NativeInputFieldProps["step"]) {
-  if (step === undefined || step === "any") {
-    return 5
-  }
-
-  const numericStep = typeof step === "number" ? step : Number(step)
-
-  if (!Number.isFinite(numericStep) || numericStep <= 0) {
-    return 1
-  }
-
-  const minuteStep = numericStep / 60
-
-  if (!Number.isInteger(minuteStep) || minuteStep < 1 || minuteStep > 59) {
-    return 1
-  }
-
-  return minuteStep
+export {
+  parseDateLikeValue,
+  parseTimeOnlyValue,
+  resolveMinuteStep,
+  serializeDateLikeInputValue,
+  serializeDateTimeValue,
+  serializeDateValue,
+  serializeTimeValue,
+  shouldHideRestSegmentPlaceholders,
 }
 
 export function emitSyntheticChange(
   input: HTMLInputElement | null,
-  onChange: NativeInputFieldProps["onChange"],
+  onChange: React.ChangeEventHandler<HTMLInputElement> | undefined,
   nextValue: string,
 ) {
-  if (!input) {
-    return
-  }
-
-  input.value = nextValue
-
-  if (!onChange) {
-    return
-  }
-
-  const syntheticEvent = {
-    currentTarget: input,
-    target: input,
-  } as React.ChangeEvent<HTMLInputElement>
-
-  onChange(syntheticEvent)
+  emitCompositeSyntheticChange(input, onChange, nextValue)
 }
 
 /** Shared refs, ids, and field chrome state for segmented date/time fields. */
 export function useSegmentedFieldBase(
   props: SegmentedDateInputFieldProps,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
     id,
@@ -203,8 +64,10 @@ export function useSegmentedFieldBase(
     value,
     defaultValue,
     onChange,
+    onValueChange,
     onBlur,
     onFocus,
+    inputRef,
     min,
     max,
     step,
@@ -221,7 +84,12 @@ export function useSegmentedFieldBase(
   const fieldRef = useRef<HTMLDivElement>(null)
   const [isFocused, setIsFocused] = useState(false)
 
-  useImperativeHandle(forwardedRef, () => hiddenInputRef.current as HTMLInputElement)
+  useImperativeHandle(forwardedRef, () => {
+    return (findFirstMatchingChild<HTMLDivElement>(fieldRef.current, '[role="spinbutton"]') ??
+      findFirstMatchingChild<HTMLDivElement>(groupRef.current, '[role="spinbutton"]') ??
+      fieldRef.current ??
+      groupRef.current) as HTMLDivElement
+  })
 
   return {
     className,
@@ -236,6 +104,7 @@ export function useSegmentedFieldBase(
     iconEnd,
     iconStart,
     id: id ?? generatedInputId,
+    inputRef,
     isControlled: value !== undefined,
     isFocused,
     label,
@@ -245,9 +114,10 @@ export function useSegmentedFieldBase(
     min,
     notice,
     noticeId,
-    onBlur,
     onChange,
-    onFocus,
+    onValueChange,
+    externalOnBlur: onBlur,
+    externalOnFocus: onFocus,
     resolvedState: resolveFieldState({
       disabled,
       readOnly,

@@ -21,7 +21,12 @@ const items: Item[] = [
 describe("ComboBox", () => {
   test("opens and closes from the toggle button", () => {
     renderUi(
-      <ComboBox label="Framework" items={items}>
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>,
     )
@@ -36,7 +41,12 @@ describe("ComboBox", () => {
 
   test("opens from the keyboard and filters results", () => {
     renderUi(
-      <ComboBox label="Framework" items={items}>
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>,
     )
@@ -53,7 +63,13 @@ describe("ComboBox", () => {
     const onSelectionChange = jest.fn()
 
     renderUi(
-      <ComboBox label="Framework" items={items} onSelectionChange={onSelectionChange}>
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+        onSelectionChange={onSelectionChange}
+      >
         {(item) => item.label}
       </ComboBox>,
     )
@@ -67,7 +83,13 @@ describe("ComboBox", () => {
 
   test("supports controlled selectedKey updates", () => {
     const { rerender } = renderUi(
-      <ComboBox label="Framework" items={items} selectedKey="alpha">
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+        selectedKey="alpha"
+      >
         {(item) => item.label}
       </ComboBox>,
     )
@@ -75,7 +97,13 @@ describe("ComboBox", () => {
     expect(screen.getByRole("combobox", { name: "Framework" })).toHaveValue("Alpha")
 
     rerender(
-      <ComboBox label="Framework" items={items} selectedKey="beta">
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+        selectedKey="beta"
+      >
         {(item) => item.label}
       </ComboBox>,
     )
@@ -85,7 +113,12 @@ describe("ComboBox", () => {
 
   test("returns focus to the input after selection and closes on tab", () => {
     renderUi(
-      <ComboBox label="Framework" items={items}>
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>,
     )
@@ -106,6 +139,8 @@ describe("ComboBox", () => {
 
     renderUi(
       <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
         label="Framework"
         items={[
           { id: "alpha", label: "Alpha" },
@@ -129,7 +164,13 @@ describe("ComboBox", () => {
 
   test("restores the committed value on blur when custom values are disallowed", () => {
     renderUi(
-      <ComboBox label="Framework" items={items} defaultSelectedKey="alpha">
+      <ComboBox
+        defaultSelectedKey="alpha"
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>,
     )
@@ -144,7 +185,14 @@ describe("ComboBox", () => {
 
   test("wires description and invalid state", () => {
     renderUi(
-      <ComboBox label="Framework" items={items} description="Pick one" errorMessage="Required">
+      <ComboBox
+        description="Pick one"
+        errorMessage="Required"
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Framework"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>,
     )

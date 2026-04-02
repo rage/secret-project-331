@@ -61,6 +61,14 @@ describe("OtpField", () => {
     expect(screen.getByLabelText("Code character 4")).toHaveValue("6")
   })
 
+  test("focuses the first slot when the label is clicked", () => {
+    renderUi(<OtpField label="Verification code" length={4} />)
+
+    fireEvent.click(screen.getByText("Verification code"))
+
+    expect(document.activeElement).toBe(screen.getByLabelText("Code character 1"))
+  })
+
   test("calls onComplete and submits the hidden form value", () => {
     const onComplete = jest.fn()
     const { container } = renderUi(
@@ -80,5 +88,14 @@ describe("OtpField", () => {
     expect(form).not.toBeNull()
     const formData = new FormData(form as HTMLFormElement)
     expect(formData.get("otp")).toBe("1234")
+  })
+
+  test("surfaces required and invalid state on the visible otp controls", () => {
+    renderUi(<OtpField errorMessage="Required" label="Verification code" required />)
+
+    expect(screen.getByRole("group", { name: /Verification code/ })).toBeInTheDocument()
+    expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-invalid", "true")
+    expect(screen.getByRole("alert")).toHaveTextContent("Required")
   })
 })

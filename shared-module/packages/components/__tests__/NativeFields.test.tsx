@@ -211,8 +211,8 @@ describe("FileField", () => {
   test("forwards file selection events and summaries", () => {
     const onChange = jest.fn()
 
-    renderUi(<FileField label="Documents" multiple onChange={onChange} />)
-    const input = screen.getByLabelText("Documents") as HTMLInputElement
+    const { container } = renderUi(<FileField label="Documents" multiple onChange={onChange} />)
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement
 
     changeFiles(input, [new File(["a"], "alpha.txt"), new File(["b"], "beta.txt")])
 
@@ -224,7 +224,16 @@ describe("FileField", () => {
     const ref = { current: null as HTMLInputElement | null }
     renderUi(<FileField ref={ref} label="Avatar" disabled />)
 
-    expect(screen.getByLabelText("Avatar")).toBeDisabled()
+    expect(screen.getByRole("button", { name: /Avatar/i })).toBeDisabled()
     expect(ref.current).toBeInstanceOf(HTMLInputElement)
+    expect(ref.current).toBeDisabled()
+  })
+
+  test("surfaces required and invalid state on the visible button", () => {
+    renderUi(<FileField label="Documents" required />)
+
+    expect(screen.getByRole("button", { name: /Documents/i })).toHaveAccessibleDescription(
+      /required/i,
+    )
   })
 })

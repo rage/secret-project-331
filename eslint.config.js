@@ -40,6 +40,7 @@ const baseIgnorePatterns = [
   "**/playwright-report/**",
   "**/storybook-static/**",
   "**/services/main-frontend/public/monaco-editor/**",
+  "**/services/tmc/public/pyodide/**",
   "**/.venv/**",
   "**/generated-docs/**",
   "**/GutenbergBlockAttributes.ts",

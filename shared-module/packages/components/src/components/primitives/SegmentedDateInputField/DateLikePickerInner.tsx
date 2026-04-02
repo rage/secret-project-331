@@ -10,7 +10,6 @@ import {
   toTime,
 } from "@internationalized/date"
 import { useDateFieldState, useDatePickerState } from "@react-stately/datepicker"
-import type React from "react"
 import type { DateValue } from "react-aria"
 import { useDateField, useDatePicker } from "react-aria"
 
@@ -59,9 +58,7 @@ export function DateLikePickerInner({
     isRequired: base.resolvedState.isRequired,
     isInvalid: base.resolvedState.isInvalid,
     shouldCloseOnSelect: kind === "date",
-    onBlur: base.onBlur as React.FocusEventHandler<Element> | undefined,
     onChange: onCommitValue,
-    onFocus: base.onFocus as React.FocusEventHandler<Element> | undefined,
   }
 
   const pickerState = useDatePickerState(pickerProps)
@@ -88,6 +85,7 @@ export function DateLikePickerInner({
       groupRef={base.groupRef}
       hiddenInputRef={base.hiddenInputRef}
       hiddenInputValue={serializeDateLikeInputValue(kind, state.value, minuteGranularity)}
+      inputRef={base.inputRef}
       iconEnd={base.iconEnd}
       iconStart={base.iconStart}
       isFocused={base.isFocused}
@@ -95,6 +93,8 @@ export function DateLikePickerInner({
       layout={base.layout}
       notice={base.notice}
       noticeId={base.noticeId}
+      externalOnBlur={base.externalOnBlur}
+      externalOnFocus={base.externalOnFocus}
       onClear={() => {
         pickerState.setOpen(false)
         onClear()

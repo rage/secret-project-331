@@ -1,18 +1,28 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useId, useImperativeHandle, useRef } from "react"
-import { VisuallyHidden } from "react-aria"
+import React, { useEffect, useId, useImperativeHandle, useRef } from "react"
+import { mergeProps, useField, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import {
+  composeRefs,
+  emitSyntheticBlur,
+  emitSyntheticChange,
+  emitSyntheticFocus,
+  findFirstMatchingChild,
+  syncHiddenInputValue,
+} from "../lib/utils/compositeField"
 import { useControllableState } from "../lib/utils/controllable"
-import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
+import { resolveFieldState } from "../lib/utils/field"
 import {
   applyOtpBackspace,
   applyOtpCharacter,
   applyOtpPaste,
   clampOtpIndex,
   joinOtpSlots,
+  type OtpAllowedCharacters,
+  resolveOtpSlotAriaLabel,
   splitOtpValue,
 } from "../lib/utils/otp"
 
@@ -56,14 +66,31 @@ const otpSlotCss = css`
   }
 `
 
-export type OtpFieldProps = React.ComponentPropsWithoutRef<"input"> & {
+export type OtpFieldProps = Omit<
+  React.ComponentPropsWithoutRef<"input">,
+  | "type"
+  | "children"
+  | "size"
+  | "value"
+  | "defaultValue"
+  | "onChange"
+  | "maxLength"
+  | "inputMode"
+  | "pattern"
+> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
   fieldSize?: FieldSize
   length?: number
+  value?: string
+  defaultValue?: string
+  onChange?: React.ChangeEventHandler<HTMLInputElement>
+  onValueChange?: (value: string) => void
   onComplete?: (value: string) => void
-  allowedCharacters?: RegExp
+  allowedCharacters?: OtpAllowedCharacters
+  inputRef?: React.Ref<HTMLInputElement>
+  getSlotAriaLabel?: (index: number, length: number) => string
   isDisabled?: boolean
   isReadOnly?: boolean
   isRequired?: boolean
@@ -113,7 +140,10 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
       fieldSize = "md",
       length = 6,
       onComplete,
+      onValueChange,
       allowedCharacters = /[0-9]/,
+      getSlotAriaLabel,
+      inputRef,
       isDisabled,
       isReadOnly,
       isRequired,
@@ -125,18 +155,34 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
       readOnly,
       required,
       onChange,
+      onFocus,
+      onBlur,
       name,
+      autoComplete,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
       ...rest
     } = props
 
-    const { t } = useTranslation()
-
+    const { t } = useTranslation("shared-module")
     const generatedInputId = useId()
     const inputId = id ?? generatedInputId
-    const descriptionId = useId()
-    const errorMessageId = useId()
+    const hiddenInputRef = useRef<HTMLInputElement>(null)
+    const slotsContainerRef = useRef<HTMLDivElement>(null)
+    const slotRefs = useRef<Array<HTMLInputElement | null>>([])
+    const hasFocusWithinRef = useRef(false)
+    // eslint-disable-next-line i18next/no-literal-string -- DOM selector, not UI copy
+    const slotInputSelector = "input"
+
+    useImperativeHandle(forwardedRef, () => {
+      return (slotRefs.current[0] ??
+        findFirstMatchingChild<HTMLInputElement>(
+          slotsContainerRef.current,
+          slotInputSelector,
+        )) as HTMLInputElement
+    })
+
+    const mergedInputRef = composeRefs(hiddenInputRef, inputRef)
     const state = resolveFieldState({
       disabled,
       readOnly,
@@ -148,42 +194,55 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
       ariaInvalid,
       errorMessage,
     })
-    const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
-      descriptionId,
-      errorMessageId,
-      hasDescription: Boolean(description),
-      hasErrorMessage: Boolean(errorMessage),
+    const { labelProps, fieldProps, descriptionProps, errorMessageProps } = useField({
+      label,
+      description,
+      errorMessage,
+      id: inputId,
+      isInvalid: state.isInvalid,
+      "aria-describedby": ariaDescribedBy,
+    })
+    const {
+      id: labelTargetId = inputId,
+      "aria-labelledby": fieldAriaLabelledBy,
+      ...groupFieldProps
+    } = fieldProps
+    const groupAriaLabelledBy = Array.from(
+      new Set(
+        [fieldAriaLabelledBy, labelProps.id]
+          .flatMap((value) => (typeof value === "string" ? value.split(" ") : []))
+          .filter((value) => value.length > 0),
+      ),
+    ).join(" ")
+    const mergedLabelProps = mergeProps(labelProps, {
+      onClick: () => {
+        if (state.isDisabled) {
+          return
+        }
+
+        slotRefs.current[0]?.focus()
+      },
     })
 
     const [otpValue, setOtpValue] = useControllableState<string>({
       value: typeof value === "string" ? value : undefined,
       defaultValue: typeof defaultValue === "string" ? defaultValue : "",
+      onChange: onValueChange,
     })
-    const hiddenInputRef = useRef<HTMLInputElement>(null)
-    const slotRefs = useRef<Array<HTMLInputElement | null>>([])
-    useImperativeHandle(forwardedRef, () => hiddenInputRef.current as HTMLInputElement)
+
+    useEffect(() => {
+      syncHiddenInputValue(hiddenInputRef.current, otpValue)
+    }, [otpValue])
 
     const slots = splitOtpValue(otpValue, length)
 
-    function commitValue(nextValue: string) {
+    const commitValue = (nextValue: string) => {
       setOtpValue(nextValue)
-
-      if (hiddenInputRef.current) {
-        hiddenInputRef.current.value = nextValue
-      }
+      syncHiddenInputValue(hiddenInputRef.current, nextValue)
+      emitSyntheticChange(hiddenInputRef.current, onChange, nextValue)
 
       if (nextValue.length === length) {
         onComplete?.(nextValue)
-      }
-
-      if (onChange && hiddenInputRef.current) {
-        const syntheticEvent = {
-          currentTarget: hiddenInputRef.current,
-          target: hiddenInputRef.current,
-        } as React.ChangeEvent<HTMLInputElement>
-
-        onChange(syntheticEvent)
       }
     }
 
@@ -191,11 +250,11 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
       <FieldShell
         className={className}
         label={label}
-        inputId={inputId}
+        labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
         description={description}
-        descriptionId={description ? descriptionId : undefined}
+        descriptionProps={descriptionProps as React.HTMLAttributes<HTMLElement>}
         errorMessage={errorMessage}
-        errorMessageId={errorMessage ? errorMessageId : undefined}
+        errorMessageProps={errorMessageProps as React.HTMLAttributes<HTMLElement>}
         isDisabled={state.isDisabled}
         isRequired={state.isRequired}
         layout={stackedLayout}
@@ -203,7 +262,7 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
         <VisuallyHidden>
           <input
             {...rest}
-            ref={hiddenInputRef}
+            ref={mergedInputRef}
             type="text"
             name={name}
             value={otpValue}
@@ -212,17 +271,41 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
             required={state.isRequired}
             aria-hidden="true"
             tabIndex={-1}
-            autoComplete="one-time-code"
+            autoComplete={autoComplete ?? "one-time-code"}
             onChange={() => {
               return
             }}
           />
         </VisuallyHidden>
 
-        <div className={otpSlotsCss} role="group">
+        <div
+          {...groupFieldProps}
+          ref={slotsContainerRef}
+          className={otpSlotsCss}
+          role="group"
+          aria-labelledby={groupAriaLabelledBy || undefined}
+          aria-disabled={state.isDisabled ? "true" : undefined}
+          onBlur={(event) => {
+            if (slotsContainerRef.current?.contains(event.relatedTarget as Node | null)) {
+              return
+            }
+
+            hasFocusWithinRef.current = false
+            emitSyntheticBlur(hiddenInputRef.current, onBlur)
+          }}
+          onFocus={() => {
+            if (hasFocusWithinRef.current) {
+              return
+            }
+
+            hasFocusWithinRef.current = true
+            emitSyntheticFocus(hiddenInputRef.current, onFocus)
+          }}
+        >
           {slots.map((slotValue, index) => (
             <input
               key={`${inputId}-${index}`}
+              id={index === 0 ? labelTargetId : undefined}
               ref={(element) => {
                 slotRefs.current[index] = element
               }}
@@ -230,16 +313,16 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
               type="text"
               inputMode="numeric"
               maxLength={1}
-              id={index === 0 ? inputId : undefined}
-              autoComplete={index === 0 ? "one-time-code" : "off"}
+              autoComplete={index === 0 ? (autoComplete ?? "one-time-code") : "off"}
               value={slotValue}
               disabled={state.isDisabled}
               readOnly={state.isReadOnly}
               data-invalid={state.isInvalid ? "true" : "false"}
-              aria-describedby={index === 0 ? describedBy : undefined}
-              aria-invalid={index === 0 && state.isInvalid ? "true" : undefined}
-              required={index === 0 ? state.isRequired : undefined}
-              aria-label={t("otp.slotLabel", { index: index + 1 })}
+              aria-invalid={state.isInvalid ? "true" : undefined}
+              aria-required={index === 0 && state.isRequired ? "true" : undefined}
+              aria-label={resolveOtpSlotAriaLabel(index, length, getSlotAriaLabel, (slotIndex) =>
+                t("otp.slotLabel", { index: slotIndex + 1 }),
+              )}
               onChange={(event) => {
                 if (state.isReadOnly) {
                   return
@@ -294,3 +377,5 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
     )
   },
 )
+
+OtpField.displayName = "OtpField"

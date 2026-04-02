@@ -5,6 +5,11 @@ import type { DateFieldState } from "@react-stately/datepicker"
 import type React from "react"
 import type { DateFieldAria } from "react-aria"
 
+import {
+  composeRefs,
+  emitSyntheticBlur,
+  emitSyntheticFocus,
+} from "../../../lib/utils/compositeField"
 import { joinAriaDescribedBy, resolveFieldState } from "../../../lib/utils/field"
 import { FieldShell } from "../FieldShell"
 import {
@@ -31,10 +36,13 @@ export type NonPickerSegmentedFieldProps = {
   className?: string
   description?: React.ReactNode
   errorMessage?: React.ReactNode
+  externalOnBlur?: React.FocusEventHandler<HTMLElement>
+  externalOnFocus?: React.FocusEventHandler<HTMLElement>
   fieldRef: React.RefObject<HTMLDivElement | null>
   fieldSize: FieldSize
   hiddenInputRef: React.RefObject<HTMLInputElement | null>
   hiddenInputValue: string
+  inputRef?: React.Ref<HTMLInputElement>
   iconEnd?: React.ReactNode
   iconStart?: React.ReactNode
   isFocused: boolean
@@ -53,10 +61,13 @@ export function NonPickerSegmentedField({
   className,
   description,
   errorMessage,
+  externalOnBlur,
+  externalOnFocus,
   fieldRef,
   fieldSize,
   hiddenInputRef,
   hiddenInputValue,
+  inputRef,
   iconEnd,
   iconStart,
   isFocused,
@@ -94,17 +105,9 @@ export function NonPickerSegmentedField({
       label={label}
       labelProps={label ? (aria.labelProps as React.HTMLAttributes<HTMLElement>) : undefined}
       description={description}
-      descriptionId={
-        description && typeof aria.descriptionProps.id === "string"
-          ? aria.descriptionProps.id
-          : undefined
-      }
+      descriptionProps={aria.descriptionProps as React.HTMLAttributes<HTMLElement>}
       errorMessage={errorMessage}
-      errorMessageId={
-        errorMessage && typeof aria.errorMessageProps.id === "string"
-          ? aria.errorMessageProps.id
-          : undefined
-      }
+      errorMessageProps={aria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
       noticeId={notice ? noticeId : undefined}
       isDisabled={resolvedState.isDisabled}
@@ -136,13 +139,26 @@ export function NonPickerSegmentedField({
         aria-readonly={resolvedState.isReadOnly ? dataStateTrue : undefined}
         aria-required={resolvedState.isRequired ? dataStateTrue : undefined}
         onBlur={(event) => {
-          if (!fieldRef.current?.contains(event.relatedTarget as Node | null)) {
+          const isLeavingField = !fieldRef.current?.contains(event.relatedTarget as Node | null)
+
+          if (isLeavingField) {
             setIsFocused(false)
+            emitSyntheticBlur(
+              hiddenInputRef.current,
+              externalOnBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
+            )
           }
 
           aria.fieldProps.onBlur?.(event)
         }}
         onFocus={(event) => {
+          if (!isFocused) {
+            emitSyntheticFocus(
+              hiddenInputRef.current,
+              externalOnFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
+            )
+          }
+
           setIsFocused(true)
           aria.fieldProps.onFocus?.(event)
         }}
@@ -160,7 +176,7 @@ export function NonPickerSegmentedField({
       </div>
       <input
         {...aria.inputProps}
-        ref={hiddenInputRef}
+        ref={composeRefs(hiddenInputRef, inputRef)}
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}

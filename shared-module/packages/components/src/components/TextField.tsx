@@ -5,6 +5,7 @@ import React from "react"
 import { mergeProps, useObjectRef, useTextField } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 
+import type { InputDomProps } from "../lib/types/domProps"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
 
@@ -20,34 +21,43 @@ import {
 } from "./primitives/fieldStyles"
 import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
-export type TextFieldProps = Omit<
-  React.ComponentPropsWithoutRef<"input">,
-  "value" | "defaultValue"
-> & {
-  /** Visible floating label – required for accessibility. */
+export type TextFieldProps = {
   label: React.ReactNode
-  /** Help text shown below the field when there is no error. */
   description?: React.ReactNode
-  /** Error message; also sets the field to invalid when provided. */
   errorMessage?: React.ReactNode
-  /** Visual size of the field control. Distinct from the native `size` (character-width) attribute. */
   fieldSize?: FieldSize
-  /** Decorative icon rendered at the leading edge of the input. */
   iconStart?: React.ReactNode
-  /** Decorative icon rendered at the trailing edge of the input. */
   iconEnd?: React.ReactNode
-  /** React Aria alias for the native `disabled` prop. */
   isDisabled?: boolean
-  /** React Aria alias for the native `readOnly` prop. */
   isReadOnly?: boolean
-  /** React Aria alias for the native `required` prop. */
   isRequired?: boolean
-  /** Marks the field invalid regardless of validation state. */
   isInvalid?: boolean
-  value?: string
-  defaultValue?: string
   validationBehavior?: AriaTextFieldProps["validationBehavior"]
   validate?: AriaTextFieldProps["validate"]
+  id?: string
+  name?: string
+  type?: React.HTMLInputTypeAttribute
+  value?: string
+  defaultValue?: string
+  disabled?: boolean
+  readOnly?: boolean
+  required?: boolean
+  autoComplete?: string
+  min?: number | string
+  max?: number | string
+  maxLength?: number
+  minLength?: number
+  pattern?: string
+  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"]
+  placeholder?: string
+  onChange?: React.ChangeEventHandler<HTMLInputElement>
+  onFocus?: React.FocusEventHandler<HTMLInputElement>
+  onBlur?: React.FocusEventHandler<HTMLInputElement>
+  "aria-describedby"?: string
+  "aria-label"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  domProps?: InputDomProps
 }
 
 export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
@@ -81,9 +91,14 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       minLength,
       pattern,
       inputMode,
+      placeholder,
       className,
       "aria-describedby": ariaDescribedByProp,
-      ...domProps
+      "aria-label": ariaLabel,
+      "aria-invalid": ariaInvalid,
+      min,
+      max,
+      domProps,
     } = props
 
     const inputRef = useObjectRef(forwardedRef)
@@ -107,8 +122,10 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       minLength,
       pattern,
       inputMode,
+      placeholder,
       validate,
       validationBehavior,
+      "aria-label": ariaLabel,
       isDisabled: isDisabled ?? disabled,
       isReadOnly: isReadOnly ?? readOnly,
       isRequired: isRequired ?? required,
@@ -141,11 +158,14 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       onBlur?.(e)
     }
 
-    const mergedInputProps = mergeProps(inputProps, domProps, {
+    const mergedInputProps = mergeProps(inputProps, domProps ?? {}, {
       onChange: handleChange,
       onFocus: handleFocus,
       onBlur: handleBlur,
       placeholder: resolveFloatingPlaceholder(),
+      min,
+      max,
+      "aria-invalid": ariaInvalid,
     })
 
     const resolvedErrorMessage = resolveRenderedErrorMessage(

@@ -6,6 +6,8 @@ import type { RadioGroupState } from "@react-stately/radio"
 import React from "react"
 import { useRadioGroup } from "react-aria"
 
+import type { FieldsetDomProps } from "../lib/types/domProps"
+
 import {
   descriptionCss,
   errorCss,
@@ -39,7 +41,7 @@ const radioListHorizontalCss = css`
   gap: var(--space-4);
 `
 
-export type RadioGroupProps = Omit<React.ComponentPropsWithoutRef<"fieldset">, "onChange"> & {
+export type RadioGroupProps = {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -52,6 +54,13 @@ export type RadioGroupProps = Omit<React.ComponentPropsWithoutRef<"fieldset">, "
   defaultValue?: string
   onChange?: (value: string) => void
   orientation?: "vertical" | "horizontal"
+  name?: string
+  disabled?: boolean
+  "aria-describedby"?: string
+  "aria-label"?: string
+  className?: string
+  children?: React.ReactNode
+  domProps?: FieldsetDomProps
 }
 
 export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>(
@@ -73,7 +82,9 @@ export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>
       className,
       children,
       name,
-      ...rest
+      "aria-describedby": ariaDescribedBy,
+      "aria-label": ariaLabel,
+      domProps,
     } = props
 
     const resolvedIsDisabled = isDisabled || disabled || false
@@ -102,6 +113,8 @@ export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>
         description,
         errorMessage,
         name,
+        "aria-describedby": ariaDescribedBy,
+        "aria-label": ariaLabel,
         orientation,
         isDisabled: resolvedIsDisabled,
         isReadOnly,
@@ -117,7 +130,7 @@ export const RadioGroup = React.forwardRef<HTMLFieldSetElement, RadioGroupProps>
 
     return (
       <fieldset
-        {...rest}
+        {...(domProps ?? {})}
         {...radioGroupProps}
         ref={forwardedRef}
         className={cx(fieldRootCss, fieldsetCss, className)}

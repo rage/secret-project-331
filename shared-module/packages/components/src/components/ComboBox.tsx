@@ -7,9 +7,10 @@ import React, { useMemo, useRef, useState } from "react"
 import { mergeProps, useButton, useComboBox, useFilter, useObjectRef } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import type { InputDomProps } from "../lib/types/domProps"
 import { normalizeComboBoxItems, resolveComboBoxHasValue } from "../lib/utils/combobox"
 import type { ComboBoxItemAccessors } from "../lib/utils/combobox"
-import { resolveFieldState, toInputValue } from "../lib/utils/field"
+import { resolveFieldState } from "../lib/utils/field"
 
 import { ListBox } from "./primitives/ListBox"
 import {
@@ -31,10 +32,7 @@ const comboBoxRootCss = css`
 type ComboBoxRender<T> = (item: T) => React.ReactNode
 type ComboBoxKey = string | number
 
-export type ComboBoxProps<T> = Omit<
-  React.ComponentPropsWithoutRef<"input">,
-  "children" | "size"
-> & {
+export type ComboBoxProps<T> = {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -56,6 +54,20 @@ export type ComboBoxProps<T> = Omit<
   onSelectionChange?: (key: ComboBoxKey | null) => void
   allowsCustomValue?: boolean
   emptyState?: React.ReactNode
+  id?: string
+  disabled?: boolean
+  readOnly?: boolean
+  required?: boolean
+  onFocus?: React.FocusEventHandler<HTMLInputElement>
+  onBlur?: React.FocusEventHandler<HTMLInputElement>
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
+  placeholder?: string
+  "aria-describedby"?: string
+  "aria-label"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  domProps?: InputDomProps
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -85,8 +97,6 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     allowsCustomValue = false,
     emptyState,
     className,
-    value,
-    defaultValue,
     disabled,
     readOnly,
     required,
@@ -94,15 +104,15 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     isReadOnly,
     isRequired,
     isInvalid,
-    onChange,
     onFocus,
     onBlur,
     onKeyDown,
     onKeyUp,
     placeholder,
     "aria-describedby": ariaDescribedBy,
+    "aria-label": ariaLabel,
     "aria-invalid": ariaInvalid,
-    ...rest
+    domProps,
   } = props
 
   const { t } = useTranslation("shared-module")
@@ -144,10 +154,6 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     ariaInvalid,
     errorMessage,
   })
-  const resolvedInputValue = inputValue ?? (value !== undefined ? toInputValue(value) : undefined)
-  const resolvedDefaultInputValue =
-    defaultInputValue ?? (defaultValue !== undefined ? toInputValue(defaultValue) : undefined)
-
   const state = useComboBoxState({
     items: normalizedItems,
     children: (item) => (
@@ -160,8 +166,8 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     selectedKey,
     defaultSelectedKey: defaultSelectedKey ?? undefined,
     onSelectionChange,
-    inputValue: resolvedInputValue,
-    defaultInputValue: resolvedDefaultInputValue,
+    inputValue,
+    defaultInputValue,
     onInputChange,
     allowsCustomValue,
     isDisabled: resolvedState.isDisabled,
@@ -185,7 +191,6 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
     validationErrors,
   } = useComboBox(
     {
-      ...rest,
       id: inputId,
       items: normalizedItems,
       disabledKeys,
@@ -195,8 +200,8 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
       popoverRef,
       selectedKey,
       defaultSelectedKey: defaultSelectedKey ?? undefined,
-      inputValue: resolvedInputValue,
-      defaultInputValue: resolvedDefaultInputValue,
+      inputValue,
+      defaultInputValue,
       onInputChange,
       allowsCustomValue,
       isDisabled: resolvedState.isDisabled,
@@ -208,6 +213,7 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
       errorMessage,
       placeholder: placeholder ?? " ",
       "aria-describedby": ariaDescribedBy,
+      "aria-label": ariaLabel,
     },
     state,
   )
@@ -220,8 +226,7 @@ export const ComboBox = React.forwardRef(function ComboBoxInner<T>(
   })
   const isFloated = isFocused || hasValue
 
-  const mergedInputProps = mergeProps(inputProps, {
-    onChange,
+  const mergedInputProps = mergeProps(inputProps, domProps ?? {}, {
     onFocus: (event: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true)
       inputProps.onFocus?.(event)

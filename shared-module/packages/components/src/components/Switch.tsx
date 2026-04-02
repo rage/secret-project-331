@@ -5,6 +5,7 @@ import { useToggleState } from "@react-stately/toggle"
 import React, { useId } from "react"
 import { mergeProps, useFocusRing, useObjectRef, useSwitch } from "react-aria"
 
+import type { InputDomProps } from "../lib/types/domProps"
 import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
 
 import { FieldShell } from "./primitives/FieldShell"
@@ -21,7 +22,7 @@ import {
 } from "./primitives/checkableStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-export type SwitchProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {
+export type SwitchProps = {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -30,6 +31,24 @@ export type SwitchProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> 
   isReadOnly?: boolean
   isRequired?: boolean
   isInvalid?: boolean
+  id?: string
+  name?: string
+  value?: string | number | readonly string[]
+  checked?: boolean
+  defaultChecked?: boolean
+  disabled?: boolean
+  readOnly?: boolean
+  required?: boolean
+  onChange?: React.ChangeEventHandler<HTMLInputElement>
+  onFocus?: React.FocusEventHandler<HTMLInputElement>
+  onBlur?: React.FocusEventHandler<HTMLInputElement>
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
+  "aria-describedby"?: string
+  "aria-label"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  domProps?: InputDomProps
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -64,7 +83,8 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
       value,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
-      ...rest
+      "aria-label": ariaLabel,
+      domProps,
     } = props
 
     const generatedInputId = useId()
@@ -91,7 +111,6 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
     })
 
     const inputRef = useObjectRef(forwardedRef)
-    const { type: _ignoredType, ...inputDomProps } = rest as typeof rest & { type?: string }
     const toggleState = useToggleState({
       isDisabled: resolvedState.isDisabled,
       isReadOnly: resolvedState.isReadOnly,
@@ -115,6 +134,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
         value: inputValue,
         isDisabled: resolvedState.isDisabled,
         isReadOnly: resolvedState.isReadOnly,
+        "aria-label": ariaLabel,
         "aria-describedby": describedBy,
       },
       toggleState,
@@ -123,7 +143,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
 
     const { focusProps, isFocusVisible } = useFocusRing()
     const mergedInputProps = mergeProps(inputProps, focusProps, {
-      ...inputDomProps,
+      ...(domProps ?? {}),
       onBlur,
       onChange,
       onFocus,

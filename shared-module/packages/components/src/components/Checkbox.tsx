@@ -5,6 +5,7 @@ import { useToggleState } from "@react-stately/toggle"
 import React, { useEffect, useId } from "react"
 import { mergeProps, useCheckbox, useFocusRing, useObjectRef } from "react-aria"
 
+import type { InputDomProps } from "../lib/types/domProps"
 import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
 
 import { FieldShell } from "./primitives/FieldShell"
@@ -30,7 +31,7 @@ import type { FieldSize } from "./primitives/fieldStyles"
  * change the checked boolean unless you also update `checked`/`onChange`; it
  * is intended to be driven by the parent.
  */
-export type CheckboxProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {
+export type CheckboxProps = {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -40,6 +41,24 @@ export type CheckboxProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"
   isRequired?: boolean
   isInvalid?: boolean
   isIndeterminate?: boolean
+  id?: string
+  name?: string
+  value?: string | number | readonly string[]
+  checked?: boolean
+  defaultChecked?: boolean
+  disabled?: boolean
+  readOnly?: boolean
+  required?: boolean
+  onChange?: React.ChangeEventHandler<HTMLInputElement>
+  onFocus?: React.FocusEventHandler<HTMLInputElement>
+  onBlur?: React.FocusEventHandler<HTMLInputElement>
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
+  "aria-describedby"?: string
+  "aria-label"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  domProps?: InputDomProps
 }
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -77,7 +96,8 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       value,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
-      ...rest
+      "aria-label": ariaLabel,
+      domProps,
     } = props
 
     const generatedInputId = useId()
@@ -124,6 +144,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
         isRequired: resolvedState.isRequired,
         isInvalid: resolvedState.isInvalid,
         isIndeterminate,
+        "aria-label": ariaLabel,
         "aria-describedby": describedBy,
       },
       toggleState,
@@ -139,7 +160,7 @@ export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     }, [inputRef, isIndeterminate])
 
     const mergedInputProps = mergeProps(inputProps, focusProps, {
-      ...rest,
+      ...(domProps ?? {}),
       onBlur,
       onFocus,
       onKeyDown,

@@ -5,6 +5,7 @@ import React, { useId, useMemo, useRef, useState } from "react"
 import { useField, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import type { ButtonDomProps, InputDomProps } from "../lib/types/domProps"
 import { composeRefs } from "../lib/utils/compositeField"
 import { joinAriaDescribedBy, resolveFieldState } from "../lib/utils/field"
 import { summarizeFiles } from "../lib/utils/files"
@@ -19,10 +20,7 @@ const fileSummaryCss = css`
   line-height: 1.45;
 `
 
-export type FileFieldProps = Omit<
-  React.ComponentPropsWithoutRef<"input">,
-  "type" | "children" | "value" | "defaultValue" | "size"
-> & {
+export type FileFieldProps = {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -32,6 +30,16 @@ export type FileFieldProps = Omit<
   isRequired?: boolean
   isInvalid?: boolean
   summaryFormatter?: (files: FileList | null) => React.ReactNode
+  id?: string
+  name?: string
+  disabled?: boolean
+  required?: boolean
+  onChange?: React.ChangeEventHandler<HTMLInputElement>
+  "aria-describedby"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  inputDomProps?: InputDomProps
+  domProps?: ButtonDomProps
 }
 
 const fileButtonSmCss = css`
@@ -86,7 +94,8 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
       onChange,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
-      ...rest
+      domProps,
+      inputDomProps,
     } = props
 
     const { t } = useTranslation("shared-module")
@@ -151,7 +160,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
         <div className={fileTriggerRowCss}>
           <VisuallyHidden>
             <input
-              {...rest}
+              {...(inputDomProps ?? {})}
               ref={mergedInputRef}
               type="file"
               disabled={state.isDisabled}
@@ -169,6 +178,7 @@ export const FileField = React.forwardRef<HTMLInputElement, FileFieldProps>(
           </VisuallyHidden>
           <button
             {...fieldProps}
+            {...(domProps ?? {})}
             className={cx(fileButtonCss, resolveFileButtonSizeCss(fieldSize))}
             type="button"
             disabled={state.isDisabled}

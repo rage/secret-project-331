@@ -53,4 +53,12 @@ export type {
   PressHandlers,
 } from "./components/primitives/buttonStyles"
 export type { FieldSize } from "./components/primitives/fieldStyles"
+export type {
+  ButtonDomProps,
+  DivDomProps,
+  FieldsetDomProps,
+  InputDomProps,
+  SelectDomProps,
+  TextareaDomProps,
+} from "./lib/types/domProps"
 export { tokensGlobal } from "./styles/tokens"

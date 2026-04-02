@@ -5,6 +5,7 @@ import React, { useEffect, useId } from "react"
 import { mergeProps, useObjectRef, useTextField } from "react-aria"
 import type { AriaTextFieldProps } from "react-aria"
 
+import type { TextareaDomProps } from "../lib/types/domProps"
 import { joinAriaDescribedBy } from "../lib/utils/aria"
 import { resolveFieldState } from "../lib/utils/field"
 import { resolveFloatingPlaceholder, resolveRenderedErrorMessage } from "../lib/utils/floatingField"
@@ -26,40 +27,41 @@ import {
 } from "./primitives/fieldStyles"
 import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
-export type TextAreaProps = Omit<
-  React.ComponentPropsWithoutRef<"textarea">,
-  "children" | "value" | "defaultValue"
-> & {
-  /** Visible floating label – required for accessibility. */
+export type TextAreaProps = {
   label: React.ReactNode
-  /** Help text shown below the field when there is no error. */
   description?: React.ReactNode
-  /** Error message; also sets the field to invalid when provided. */
   errorMessage?: React.ReactNode
-  /** Visual size of the field control: "sm", "md" (default), or "lg". */
   fieldSize?: FieldSize
-  /** Decorative icon rendered at the leading edge. Anchored to the label resting position. */
   iconStart?: React.ReactNode
-  /** Decorative icon rendered at the trailing edge. Anchored to the label resting position. */
   iconEnd?: React.ReactNode
-  /** React Aria alias for the native `disabled` prop. */
   isDisabled?: boolean
-  /** React Aria alias for the native `readOnly` prop. */
   isReadOnly?: boolean
-  /** React Aria alias for the native `required` prop. */
   isRequired?: boolean
-  /** Marks the field invalid regardless of validation state. */
   isInvalid?: boolean
   validationBehavior?: AriaTextFieldProps["validationBehavior"]
   validate?: AriaTextFieldProps["validate"]
-  /** When true the textarea grows to fit its content. */
   autoResize?: boolean
-  /** Caps the maximum height during auto-resize (in pixels). */
   autoResizeMaxHeightPx?: number
-  /** Called after the height changes due to auto-resize. */
   onAutoResized?: (heightPx: number) => void
+  id?: string
   value?: string
   defaultValue?: string
+  name?: string
+  disabled?: boolean
+  readOnly?: boolean
+  required?: boolean
+  autoComplete?: string
+  maxLength?: number
+  minLength?: number
+  placeholder?: string
+  onChange?: React.ChangeEventHandler<HTMLTextAreaElement>
+  onFocus?: React.FocusEventHandler<HTMLTextAreaElement>
+  onBlur?: React.FocusEventHandler<HTMLTextAreaElement>
+  "aria-describedby"?: string
+  "aria-label"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  domProps?: TextareaDomProps
 }
 
 export type InternalTextAreaProps = TextAreaProps & {
@@ -120,7 +122,9 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
       onAutoResized,
       "aria-describedby": ariaDescribedByProp,
       "aria-invalid": ariaInvalid,
-      ...domProps
+      "aria-label": ariaLabel,
+      name,
+      domProps,
     } = props
 
     const generatedInputId = useId()
@@ -154,6 +158,7 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
       value,
       defaultValue,
       autoComplete,
+      name,
       maxLength,
       minLength,
       validate,
@@ -162,6 +167,7 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
       isReadOnly: resolvedState.isReadOnly,
       isRequired: resolvedState.isRequired,
       isInvalid: resolvedState.isInvalid,
+      "aria-label": ariaLabel,
       // eslint-disable-next-line i18next/no-literal-string
       inputElementType: "textarea" as const,
     }
@@ -209,7 +215,7 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
       onBlur?.(e)
     }
 
-    const mergedTextareaProps = mergeProps(inputProps, domProps, {
+    const mergedTextareaProps = mergeProps(inputProps, domProps ?? {}, {
       onChange: handleChange,
       onFocus: handleFocus,
       onBlur: handleBlur,
@@ -227,7 +233,7 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
       mergedTextareaProps["aria-describedby"],
     )
     const resolvedAriaInvalid = ariaInvalid ?? mergedTextareaProps["aria-invalid"]
-    const plainTextareaProps = mergeProps(inputProps, domProps, {
+    const plainTextareaProps = mergeProps(inputProps, domProps ?? {}, {
       onChange: handleChange,
       onFocus: handleFocus,
       onBlur: handleBlur,

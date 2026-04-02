@@ -5,6 +5,7 @@ import React, { useEffect, useId, useImperativeHandle, useRef } from "react"
 import { mergeProps, useField, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
+import type { DivDomProps, InputDomProps } from "../lib/types/domProps"
 import {
   composeRefs,
   emitSyntheticBlur,
@@ -66,18 +67,7 @@ const otpSlotCss = css`
   }
 `
 
-export type OtpFieldProps = Omit<
-  React.ComponentPropsWithoutRef<"input">,
-  | "type"
-  | "children"
-  | "size"
-  | "value"
-  | "defaultValue"
-  | "onChange"
-  | "maxLength"
-  | "inputMode"
-  | "pattern"
-> & {
+export type OtpFieldProps = {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -95,6 +85,19 @@ export type OtpFieldProps = Omit<
   isReadOnly?: boolean
   isRequired?: boolean
   isInvalid?: boolean
+  id?: string
+  name?: string
+  autoComplete?: string
+  disabled?: boolean
+  readOnly?: boolean
+  required?: boolean
+  onFocus?: React.FocusEventHandler<HTMLInputElement>
+  onBlur?: React.FocusEventHandler<HTMLInputElement>
+  "aria-describedby"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  inputDomProps?: InputDomProps
+  domProps?: DivDomProps
 }
 
 const otpSlotSmCss = css`
@@ -161,7 +164,8 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
       autoComplete,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
-      ...rest
+      inputDomProps,
+      domProps,
     } = props
 
     const { t } = useTranslation("shared-module")
@@ -261,7 +265,7 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
       >
         <VisuallyHidden>
           <input
-            {...rest}
+            {...(inputDomProps ?? {})}
             ref={mergedInputRef}
             type="text"
             name={name}
@@ -279,6 +283,7 @@ export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
         </VisuallyHidden>
 
         <div
+          {...(domProps ?? {})}
           {...groupFieldProps}
           ref={slotsContainerRef}
           className={otpSlotsCss}

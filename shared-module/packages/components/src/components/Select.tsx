@@ -5,6 +5,7 @@ import { useSelectState } from "@react-stately/select"
 import React, { useId, useImperativeHandle, useMemo, useRef } from "react"
 import { mergeProps, useButton, useHiddenSelect, useSelect } from "react-aria"
 
+import type { ButtonDomProps, SelectDomProps } from "../lib/types/domProps"
 import {
   composeRefs,
   emitSyntheticBlur,
@@ -36,10 +37,7 @@ import { comboChevronCss } from "./primitives/selectStyles"
 
 export type { SelectOption, SelectOptionGroup }
 
-export type SelectProps = Omit<
-  React.ComponentPropsWithoutRef<"select">,
-  "children" | "multiple" | "size"
-> & {
+export type SelectProps = {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -51,6 +49,24 @@ export type SelectProps = Omit<
   placeholder?: React.ReactNode
   onValueChange?: (value: string) => void
   inputRef?: React.Ref<HTMLSelectElement>
+  id?: string
+  name?: string
+  value?: string | number | readonly string[]
+  defaultValue?: string | number | readonly string[]
+  disabled?: boolean
+  required?: boolean
+  autoComplete?: string
+  form?: string
+  onChange?: React.ChangeEventHandler<HTMLSelectElement>
+  onFocus?: React.FocusEventHandler<HTMLSelectElement>
+  onBlur?: React.FocusEventHandler<HTMLSelectElement>
+  onKeyDown?: React.KeyboardEventHandler<HTMLButtonElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLButtonElement>
+  "aria-describedby"?: string
+  "aria-invalid"?: React.AriaAttributes["aria-invalid"]
+  className?: string
+  domProps?: ButtonDomProps
+  selectDomProps?: SelectDomProps
 }
 
 const selectRootCss = css`
@@ -117,7 +133,8 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       form,
       "aria-describedby": ariaDescribedBy,
       "aria-invalid": ariaInvalid,
-      ...rest
+      domProps,
+      selectDomProps,
     } = props
 
     const generatedInputId = useId()
@@ -195,7 +212,6 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
       validationErrors,
     } = useSelect(
       {
-        ...rest,
         id: triggerId,
         disabledKeys: normalizedCollection.disabledKeys,
         value: selectValue,
@@ -257,6 +273,7 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
     }
 
     const mergedButtonProps = mergeProps(buttonProps, {
+      ...(domProps ?? {}),
       onBlur: (event: React.FocusEvent<HTMLButtonElement>) => {
         emitCompositeBlur(event.relatedTarget)
       },
@@ -290,7 +307,10 @@ export const Select = React.forwardRef<HTMLButtonElement, SelectProps>(
           <div {...hiddenSelect.containerProps} className={hiddenSelectContainerCss}>
             <label>
               {label}
-              <select {...hiddenSelect.selectProps} ref={composeRefs(hiddenSelectRef, inputRef)}>
+              <select
+                {...mergeProps(hiddenSelect.selectProps, selectDomProps ?? {})}
+                ref={composeRefs(hiddenSelectRef, inputRef)}
+              >
                 <option value="" />
                 {Array.from(state.collection.getKeys()).map((key) => {
                   const item = state.collection.getItem(key)

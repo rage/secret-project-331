@@ -1,6 +1,7 @@
 "use client"
 
 import { fireEvent, screen } from "@testing-library/react"
+import type React from "react"
 
 import { Radio } from "../src/components/Radio"
 import { RadioGroup } from "../src/components/RadioGroup"
@@ -108,5 +109,21 @@ describe("RadioGroup", () => {
     expect(standard).toBeChecked()
     expect(invoice).toBeChecked()
     expect(document.activeElement).toBe(standard)
+  })
+
+  test("ignores runtime type overrides for grouped radios", () => {
+    const RadioWithRuntimeTypeOverride = Radio as unknown as React.ComponentType<{
+      label: string
+      value: string
+      type: string
+    }>
+
+    renderUi(
+      <RadioGroup label="Runtime overrides">
+        <RadioWithRuntimeTypeOverride label="Alpha" value="a" type="text" />
+      </RadioGroup>,
+    )
+
+    expect(screen.getByRole("radio", { name: "Alpha" })).toHaveAttribute("type", "radio")
   })
 })

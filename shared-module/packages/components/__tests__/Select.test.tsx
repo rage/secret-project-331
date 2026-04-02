@@ -189,4 +189,18 @@ describe("Select", () => {
     expect(screen.getByRole("button", { name: /Disabled/ })).toBeDisabled()
     expect(screen.getByRole("alert")).toHaveTextContent("Required")
   })
+
+  test("rejects duplicate option values", () => {
+    expect(() =>
+      renderUi(
+        <Select
+          label="Duplicate values"
+          options={[
+            { value: "dup", label: "First" },
+            { value: "dup", label: "Second" },
+          ]}
+        />,
+      ),
+    ).toThrow(/unique values/i)
+  })
 })

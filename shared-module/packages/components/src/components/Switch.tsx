@@ -21,7 +21,7 @@ import {
 } from "./primitives/checkableStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-export type SwitchProps = React.ComponentPropsWithoutRef<"input"> & {
+export type SwitchProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -91,6 +91,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
     })
 
     const inputRef = useObjectRef(forwardedRef)
+    const { type: _ignoredType, ...inputDomProps } = rest as typeof rest & { type?: string }
     const toggleState = useToggleState({
       isDisabled: resolvedState.isDisabled,
       isReadOnly: resolvedState.isReadOnly,
@@ -122,7 +123,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
 
     const { focusProps, isFocusVisible } = useFocusRing()
     const mergedInputProps = mergeProps(inputProps, focusProps, {
-      ...rest,
+      ...inputDomProps,
       onBlur,
       onChange,
       onFocus,
@@ -130,6 +131,7 @@ export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
       onKeyUp,
       "aria-invalid": resolvedState.isInvalid ? dataStateTrue : undefined,
       required: resolvedState.isRequired,
+      type: "checkbox" as const,
     })
 
     return (

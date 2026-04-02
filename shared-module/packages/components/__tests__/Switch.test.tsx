@@ -1,6 +1,7 @@
 "use client"
 
 import { fireEvent, screen } from "@testing-library/react"
+import type React from "react"
 
 import { Switch } from "../src/components/Switch"
 
@@ -84,5 +85,19 @@ describe("Switch", () => {
     expect(root).not.toBeNull()
     expect(root).toBeInstanceOf(HTMLDivElement)
     expect(root?.className).toEqual(expect.stringContaining("switch-root"))
+  })
+
+  test("ignores runtime type overrides", () => {
+    const SwitchWithRuntimeTypeOverride = Switch as unknown as React.ComponentType<{
+      label: string
+      type: string
+    }>
+
+    renderUi(<SwitchWithRuntimeTypeOverride label="Type override" type="text" />)
+
+    expect(screen.getByRole("switch", { name: "Type override" })).toHaveAttribute(
+      "type",
+      "checkbox",
+    )
   })
 })

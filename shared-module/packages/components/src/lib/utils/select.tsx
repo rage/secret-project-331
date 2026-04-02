@@ -61,21 +61,6 @@ export function normalizeSelectOptions(
   const options: NormalizedSelectOption[] = []
   const disabledKeys: string[] = []
   const valueToKey = new Map<string, string>()
-  const seenKeys = new Set<string>()
-  let generatedIndex = 0
-
-  const getOptionKey = (value: string) => {
-    if (!seenKeys.has(value)) {
-      seenKeys.add(value)
-      return value
-    }
-
-    generatedIndex += 1
-    // eslint-disable-next-line i18next/no-literal-string -- internal fallback key prefix
-    const fallbackKey = `${value || "option"}-${generatedIndex}`
-    seenKeys.add(fallbackKey)
-    return fallbackKey
-  }
 
   const pushOption = (
     option: SelectOption,
@@ -87,9 +72,14 @@ export function normalizeSelectOptions(
       groupLabel?: React.ReactNode
     } = {},
   ) => {
-    const key = getOptionKey(option.value)
+    if (valueToKey.has(option.value)) {
+      throw new Error(
+        `Select options must have unique values. Duplicate value "${option.value}" found.`,
+      )
+    }
+
     const normalizedOption: NormalizedSelectOption = {
-      key,
+      key: option.value,
       value: option.value,
       label: option.label,
       textValue: option.textValue ?? getNodeTextValue(option.label),
@@ -98,9 +88,7 @@ export function normalizeSelectOptions(
       groupLabel,
     }
 
-    if (!valueToKey.has(normalizedOption.value)) {
-      valueToKey.set(normalizedOption.value, normalizedOption.key)
-    }
+    valueToKey.set(normalizedOption.value, normalizedOption.key)
 
     if (normalizedOption.isDisabled) {
       disabledKeys.push(normalizedOption.key)

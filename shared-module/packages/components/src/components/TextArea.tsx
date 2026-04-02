@@ -26,7 +26,10 @@ import {
 } from "./primitives/fieldStyles"
 import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
-export type TextAreaProps = Omit<React.ComponentPropsWithoutRef<"textarea">, "children"> & {
+export type TextAreaProps = Omit<
+  React.ComponentPropsWithoutRef<"textarea">,
+  "children" | "value" | "defaultValue"
+> & {
   /** Visible floating label – required for accessibility. */
   label: React.ReactNode
   /** Help text shown below the field when there is no error. */
@@ -55,6 +58,8 @@ export type TextAreaProps = Omit<React.ComponentPropsWithoutRef<"textarea">, "ch
   autoResizeMaxHeightPx?: number
   /** Called after the height changes due to auto-resize. */
   onAutoResized?: (heightPx: number) => void
+  value?: string
+  defaultValue?: string
 }
 
 export type InternalTextAreaProps = TextAreaProps & {
@@ -124,9 +129,9 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
 
     const textareaRef = useObjectRef(forwardedRef)
     const floatingState = useFloatingFieldState({
-      defaultValue: typeof defaultValue === "string" ? defaultValue : undefined,
+      defaultValue,
       elementRef: textareaRef,
-      value: typeof value === "string" ? value : undefined,
+      value,
     })
 
     const resolvedState = resolveFieldState({
@@ -146,9 +151,8 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
       description,
       errorMessage,
       id: inputId,
-      // value/defaultValue must be string for useTextField
-      value: value as string | undefined,
-      defaultValue: defaultValue as string | undefined,
+      value,
+      defaultValue,
       autoComplete,
       maxLength,
       minLength,
@@ -183,7 +187,7 @@ export const TextAreaBase = React.forwardRef<HTMLTextAreaElement, InternalTextAr
     }, [value, autoResize, autoResizeMaxHeightPx, onAutoResized, textareaRef])
 
     const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-      if (typeof value !== "string") {
+      if (value === undefined) {
         floatingState.setHasValue(e.target.value.length > 0)
       }
       if (autoResize && textareaRef.current) {

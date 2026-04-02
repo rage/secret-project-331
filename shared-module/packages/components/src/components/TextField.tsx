@@ -20,7 +20,10 @@ import {
 } from "./primitives/fieldStyles"
 import { useFloatingFieldState } from "./primitives/useFloatingFieldState"
 
-export type TextFieldProps = React.ComponentPropsWithoutRef<"input"> & {
+export type TextFieldProps = Omit<
+  React.ComponentPropsWithoutRef<"input">,
+  "value" | "defaultValue"
+> & {
   /** Visible floating label – required for accessibility. */
   label: React.ReactNode
   /** Help text shown below the field when there is no error. */
@@ -41,6 +44,8 @@ export type TextFieldProps = React.ComponentPropsWithoutRef<"input"> & {
   isRequired?: boolean
   /** Marks the field invalid regardless of validation state. */
   isInvalid?: boolean
+  value?: string
+  defaultValue?: string
   validationBehavior?: AriaTextFieldProps["validationBehavior"]
   validate?: AriaTextFieldProps["validate"]
 }
@@ -83,9 +88,9 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
 
     const inputRef = useObjectRef(forwardedRef)
     const floatingState = useFloatingFieldState({
-      defaultValue: typeof defaultValue === "string" ? defaultValue : undefined,
+      defaultValue,
       elementRef: inputRef,
-      value: typeof value === "string" ? value : undefined,
+      value,
     })
 
     const ariaProps: AriaTextFieldProps = {
@@ -95,8 +100,8 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
       id,
       name,
       type,
-      value: value as string | undefined,
-      defaultValue: defaultValue as string | undefined,
+      value,
+      defaultValue,
       autoComplete,
       maxLength,
       minLength,
@@ -120,7 +125,7 @@ export const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
     } = useTextField(ariaProps, inputRef)
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (typeof value !== "string") {
+      if (value === undefined) {
         floatingState.setHasValue(e.target.value.length > 0)
       }
       onChange?.(e)

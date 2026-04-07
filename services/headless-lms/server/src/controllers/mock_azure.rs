@@ -71,7 +71,7 @@ async fn mock_azure_chat_completions(
             "The request had a tool call or tool response. This shouldn't happen when using message suggestion LLM.",
             None,
         )),
-    }?;
+    }?.get_content_text();
 
     let suggest_prompt_match = message
         .matches(message_suggestion_user_prompt)

@@ -1,5 +1,5 @@
 use crate::{
-    azure_chatbot::{LLMRequest, ToolCallType},
+    azure_chatbot::{ChatResponse, LLMRequest, ToolCallType},
     chatbot_error::ChatbotResult,
     prelude::*,
 };
@@ -31,7 +31,7 @@ pub struct APIMessage {
 pub enum APIMessageType {
     Message {
         role: MessageRole,
-        content: String,
+        content: MessageContent,
     },
     FunctionCall {
         call_id: String,
@@ -42,6 +42,26 @@ pub enum APIMessageType {
         call_id: String,
         output: String,
     },
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(untagged)]
+pub enum MessageContent {
+    Text(String),
+    Object(Vec<ChatResponse>),
+}
+
+impl MessageContent {
+    pub fn get_content_text(self) -> String {
+        match self {
+            MessageContent::Text(msg_text) => msg_text,
+            MessageContent::Object(output) => output
+                .iter()
+                .map(|x| x.text.to_owned())
+                .collect::<Vec<String>>()
+                .join(""),
+        }
+    }
 }
 
 impl APIMessage {
@@ -55,15 +75,20 @@ impl APIMessage {
         order_number: i32,
     ) -> ChatbotResult<ChatbotConversationMessage> {
         let res = match self.message_type.clone() {
-            APIMessageType::Message { role, content } => ChatbotConversationMessage {
-                message_role: role,
-                conversation_id,
-                order_number,
-                message_is_complete: true,
-                used_tokens: estimate_tokens(&content),
-                message: Some(content),
-                ..Default::default()
-            },
+            APIMessageType::Message { role, content } => {
+                let message_text = content.get_content_text();
+                let used_tokens = estimate_tokens(&message_text);
+
+                ChatbotConversationMessage {
+                    message_role: role,
+                    conversation_id,
+                    order_number,
+                    message_is_complete: true,
+                    used_tokens,
+                    message: Some(message_text),
+                    ..Default::default()
+                }
+            }
             APIMessageType::FunctionCall {
                 call_id,
                 name,
@@ -117,7 +142,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                     APIMessage {
                         message_type: APIMessageType::Message {
                             role: message.message_role,
-                            content,
+                            content: MessageContent::Text(content),
                         },
                     }
                 } else {
@@ -147,7 +172,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
             MessageRole::User => APIMessage {
                 message_type: APIMessageType::Message {
                     role: message.message_role,
-                    content: message.message.unwrap_or_default(),
+                    content: MessageContent::Text(message.message.unwrap_or_default()),
                 },
             },
             MessageRole::System => {
@@ -244,13 +269,21 @@ pub struct AzureCompletionRequest {
 
 /// Response from LLM for simple completions
 #[derive(Deserialize, Debug)]
-pub struct LLMCompletionResponse {
-    pub choices: Vec<LLMChoice>,
+pub struct LLMResponse {
+    pub id: String,
+    pub output: Vec<APIMessage>,
 }
 
 #[derive(Deserialize, Debug)]
-pub struct LLMChoice {
+pub struct LLMOutput {
+    #[serde(rename = "type")]
+    pub output_type: String, // "message"
     pub message: APIMessage,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct APIOutputMessage {
+    pub content: Vec<ChatResponse>,
 }
 
 /// Builds common headers for LLM requests
@@ -309,7 +342,7 @@ async fn make_llm_request(
     chat_request: LLMRequest,
     endpoint: &url::Url,
     api_key: &str,
-) -> anyhow::Result<LLMCompletionResponse> {
+) -> anyhow::Result<LLMResponse> {
     debug!(
         "Preparing LLM request with {} messages",
         chat_request.input.len()
@@ -338,7 +371,7 @@ async fn make_llm_request(
 
 /// Process a non-streaming LLM response
 #[instrument(skip(response), fields(status = %response.status()))]
-async fn process_llm_response(response: Response) -> anyhow::Result<LLMCompletionResponse> {
+async fn process_llm_response(response: Response) -> anyhow::Result<LLMResponse> {
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await?;
@@ -356,10 +389,11 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LLMCompletio
 
     trace!("Processing successful LLM response");
     // Parse the response
-    let completion: LLMCompletionResponse = response.json().await?;
+    println!("!!!!!!!!!!!!!{:?}", response);
+    let completion: LLMResponse = response.json().await?;
     debug!(
         "Successfully processed LLM response with {} choices",
-        completion.choices.len()
+        completion.output.len()
     );
     Ok(completion)
 }
@@ -441,7 +475,7 @@ pub async fn make_streaming_llm_request(
 pub async fn make_blocking_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<LLMCompletionResponse> {
+) -> anyhow::Result<LLMResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
         chat_request.input.len()
@@ -464,13 +498,13 @@ pub async fn make_blocking_llm_request(
 
 /// Collects all the completion choices to a string. Assumes the completion has only
 /// text message content, no tool calls or responses.
-pub fn parse_text_completion(completion: LLMCompletionResponse) -> ChatbotResult<String> {
+pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
     let res =
     completion
-        .choices
+        .output
         .into_iter()
-        .map(|x| match x.message.message_type {
-            APIMessageType::Message { role: _role, content } => Ok(content),
+        .map(|x| match x.message_type {
+            APIMessageType::Message { role: _role, content } => Ok(content.get_content_text()),
             _ =>  Err(ChatbotError::new( ChatbotErrorType::InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.", None)),
         })
         .collect::<ChatbotResult<Vec<String>>>()?

@@ -31,7 +31,9 @@ use crate::chatbot_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
-use crate::llm_utils::{APIMessage, APIMessageType, estimate_tokens, make_streaming_llm_request};
+use crate::llm_utils::{
+    APIMessage, APIMessageType, MessageContent, estimate_tokens, make_streaming_llm_request,
+};
 use headless_lms_utils::url_encoding::url_decode;
 
 use crate::prelude::*;
@@ -354,7 +356,7 @@ impl LLMRequest {
             APIMessage {
                 message_type: APIMessageType::Message {
                     role: MessageRole::System,
-                    content: configuration.prompt.clone(),
+                    content: MessageContent::Text(configuration.prompt.clone()),
                 },
             },
         );
@@ -458,7 +460,7 @@ impl LLMRequest {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ChatResponse {
     pub text: String,
 }

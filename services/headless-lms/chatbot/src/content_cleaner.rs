@@ -1,6 +1,7 @@
 use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams};
 use crate::llm_utils::{
-    APIMessage, APIMessageType, estimate_tokens, make_blocking_llm_request, parse_text_completion,
+    APIMessage, APIMessageType, MessageContent, estimate_tokens, make_blocking_llm_request,
+    parse_text_completion,
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
@@ -47,7 +48,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     let system_message = APIMessage {
         message_type: APIMessageType::Message {
             role: MessageRole::System,
-            content: SYSTEM_PROMPT.to_string(),
+            content: MessageContent::Text(SYSTEM_PROMPT.to_string()),
         },
     };
 
@@ -370,15 +371,16 @@ pub fn prepare_llm_messages(
     chunk: &str,
     system_message: &APIMessage,
 ) -> anyhow::Result<Vec<APIMessage>> {
+    let content = format!(
+        "{}\n\n{}{}\n{}",
+        USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
+    );
     let messages = vec![
         system_message.clone(),
         APIMessage {
             message_type: APIMessageType::Message {
                 role: MessageRole::User,
-                content: format!(
-                    "{}\n\n{}{}\n{}",
-                    USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
-                ),
+                content: MessageContent::Text(content),
             },
         },
     ];
@@ -464,7 +466,7 @@ mod tests {
         let system_message = APIMessage {
             message_type: APIMessageType::Message {
                 role: MessageRole::System,
-                content: "System prompt".to_string(),
+                content: MessageContent::Text("System prompt".to_string()),
             },
         };
 
@@ -473,12 +475,16 @@ mod tests {
         assert_eq!(messages.len(), 2);
         let (msg1_content, msg1_role): (&str, Option<&MessageRole>) =
             match &messages[0].message_type {
-                APIMessageType::Message { role, content } => (&content, Some(role)),
+                APIMessageType::Message { role, content } => {
+                    (&content.to_owned().get_content_text(), Some(role))
+                }
                 _ => ("", None),
             };
         let (msg2_content, msg2_role): (&str, Option<&MessageRole>) =
             match &messages[1].message_type {
-                APIMessageType::Message { role, content } => (&content, Some(role)),
+                APIMessageType::Message { role, content } => {
+                    (&content.to_owned().get_content_text(), Some(role))
+                }
                 _ => ("", None),
             };
         assert_eq!(msg1_role, Some(&MessageRole::System));

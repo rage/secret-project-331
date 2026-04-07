@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
+        ArrayItem, ArrayProperty, JSONType, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, ResponseTextOptions, Schema,
         ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, APIMessageType, estimate_tokens, make_blocking_llm_request,
+        APIMessage, APIMessageType, MessageContent, estimate_tokens, make_blocking_llm_request,
         parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -220,14 +220,14 @@ pub async fn generate_paragraph_suggestions(
     let system_message = APIMessage {
         message_type: APIMessageType::Message {
             role: MessageRole::System,
-            content: system_instructions,
+            content: MessageContent::Text(system_instructions),
         },
     };
 
     let user_message = APIMessage {
         message_type: APIMessageType::Message {
             role: MessageRole::User,
-            content: user_message_content,
+            content: MessageContent::Text(user_message_content),
         },
     };
 
@@ -259,24 +259,22 @@ pub async fn generate_paragraph_suggestions(
             verbosity: None,
             format: Some(LLMRequestResponseFormatParam {
                 format_type: JSONType::JsonSchema,
-                json_schema: JSONSchema {
-                    name: "CmsParagraphSuggestionResponse".to_string(),
-                    strict: true,
-                    schema: Schema {
-                        type_field: JSONType::Object,
-                        properties: HashMap::from([(
-                            "suggestions".to_string(),
-                            ArrayProperty {
-                                type_field: JSONType::Array,
-                                items: ArrayItem {
-                                    type_field: JSONType::String,
-                                },
+                name: "CmsParagraphSuggestionResponse".to_string(),
+                schema: Schema {
+                    type_field: JSONType::Object,
+                    properties: HashMap::from([(
+                        "suggestions".to_string(),
+                        ArrayProperty {
+                            type_field: JSONType::Array,
+                            items: ArrayItem {
+                                type_field: JSONType::String,
                             },
-                        )]),
-                        required: vec!["suggestions".to_string()],
-                        additional_properties: false,
-                    },
+                        },
+                    )]),
+                    required: vec!["suggestions".to_string()],
+                    additional_properties: false,
                 },
+                strict: true,
             }),
         }),
     };

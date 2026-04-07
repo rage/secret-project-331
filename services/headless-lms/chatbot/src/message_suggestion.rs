@@ -8,7 +8,7 @@ use crate::{
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, APIMessageType, estimate_tokens, make_blocking_llm_request,
+        APIMessage, APIMessageType, MessageContent, estimate_tokens, make_blocking_llm_request,
         parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -90,14 +90,14 @@ pub async fn generate_suggested_messages(
     let system_prompt = APIMessage {
         message_type: APIMessageType::Message {
             role: MessageRole::System,
-            content: prompt + conversation,
+            content: MessageContent::Text(prompt + conversation),
         },
     };
 
     let user_prompt = APIMessage {
         message_type: APIMessageType::Message {
             role: MessageRole::User,
-            content: USER_PROMPT.to_string(),
+            content: MessageContent::Text(USER_PROMPT.to_string()),
         },
     };
 

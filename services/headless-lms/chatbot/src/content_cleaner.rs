@@ -1,7 +1,8 @@
-use crate::azure_chatbot::{LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams};
+use crate::azure_chatbot::{
+    LLMRequest, LLMRequestParams, NonThinkingParams, OutputItem, ThinkingParams,
+};
 use crate::llm_utils::{
-    APIMessage, APIMessageType, MessageContent, estimate_tokens, make_blocking_llm_request,
-    parse_text_completion,
+    APIMessage, MessageContent, estimate_tokens, make_blocking_llm_request, parse_text_completion,
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
@@ -46,7 +47,7 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
 ) -> anyhow::Result<String> {
     debug!("Starting content conversion with {} blocks", blocks.len());
     let system_message = APIMessage {
-        message_type: APIMessageType::Message {
+        message_type: OutputItem::Message {
             role: MessageRole::System,
             content: MessageContent::Text(SYSTEM_PROMPT.to_string()),
         },
@@ -341,7 +342,7 @@ async fn process_block_chunk(
             presence_penalty: None,
         })
     };
-    let llm_base_request: LLMRequest = LLMRequest {
+    let llm_base_request = LLMRequest {
         input,
         max_output_tokens: None,
         model: task_lm.model.to_owned(),
@@ -350,6 +351,10 @@ async fn process_block_chunk(
         params,
         text: None,
     };
+    info!(
+        "!!!!!!!!!!!!!!!!!!!!!!!!{:?}",
+        serde_json::to_string(&llm_base_request)
+    );
     info!(
         "Processing chunk of approximately {} tokens",
         estimate_tokens(chunk)
@@ -378,7 +383,7 @@ pub fn prepare_llm_messages(
     let messages = vec![
         system_message.clone(),
         APIMessage {
-            message_type: APIMessageType::Message {
+            message_type: OutputItem::Message {
                 role: MessageRole::User,
                 content: MessageContent::Text(content),
             },
@@ -464,7 +469,7 @@ mod tests {
         let blocks = vec![create_test_block("Test content")];
         let blocks_json = blocks_to_json_string(&blocks)?;
         let system_message = APIMessage {
-            message_type: APIMessageType::Message {
+            message_type: OutputItem::Message {
                 role: MessageRole::System,
                 content: MessageContent::Text("System prompt".to_string()),
             },
@@ -475,14 +480,14 @@ mod tests {
         assert_eq!(messages.len(), 2);
         let (msg1_content, msg1_role): (&str, Option<&MessageRole>) =
             match &messages[0].message_type {
-                APIMessageType::Message { role, content } => {
+                OutputItem::Message { role, content } => {
                     (&content.to_owned().get_content_text(), Some(role))
                 }
                 _ => ("", None),
             };
         let (msg2_content, msg2_role): (&str, Option<&MessageRole>) =
             match &messages[1].message_type {
-                APIMessageType::Message { role, content } => {
+                OutputItem::Message { role, content } => {
                     (&content.to_owned().get_content_text(), Some(role))
                 }
                 _ => ("", None),

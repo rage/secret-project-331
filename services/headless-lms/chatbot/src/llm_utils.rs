@@ -1,5 +1,5 @@
 use crate::{
-    azure_chatbot::{ChatResponse, LLMRequest, ToolCallType},
+    azure_chatbot::{ChatResponse, LLMRequest, OutputItem, ToolCallType},
     chatbot_error::ChatbotResult,
     prelude::*,
 };
@@ -22,26 +22,7 @@ pub const LLM_API_VERSION: &str = "2024-10-21";
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct APIMessage {
     #[serde(flatten)]
-    pub message_type: APIMessageType,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(tag = "type")]
-#[serde(rename_all = "snake_case")]
-pub enum APIMessageType {
-    Message {
-        role: MessageRole,
-        content: MessageContent,
-    },
-    FunctionCall {
-        call_id: String,
-        name: String,
-        arguments: String,
-    },
-    FunctionCallOutput {
-        call_id: String,
-        output: String,
-    },
+    pub message_type: OutputItem,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -75,7 +56,7 @@ impl APIMessage {
         order_number: i32,
     ) -> ChatbotResult<ChatbotConversationMessage> {
         let res = match self.message_type.clone() {
-            APIMessageType::Message { role, content } => {
+            OutputItem::Message { role, content } => {
                 let message_text = content.get_content_text();
                 let used_tokens = estimate_tokens(&message_text);
 
@@ -89,14 +70,14 @@ impl APIMessage {
                     ..Default::default()
                 }
             }
-            APIMessageType::FunctionCall {
+            OutputItem::FunctionCall {
                 call_id,
-                name,
+                tool_name,
                 arguments,
             } => {
                 let tool_call_fields = vec![ChatbotConversationMessageToolCall {
                     tool_arguments: serde_json::from_str(&arguments)?,
-                    tool_name: name,
+                    tool_name,
                     tool_call_id: call_id,
                     ..Default::default()
                 }];
@@ -112,7 +93,7 @@ impl APIMessage {
                     ..Default::default()
                 }
             }
-            APIMessageType::FunctionCallOutput { call_id, output } => ChatbotConversationMessage {
+            OutputItem::FunctionCallOutput { call_id, output } => ChatbotConversationMessage {
                 message_role: MessageRole::Tool,
                 conversation_id,
                 order_number,
@@ -126,6 +107,13 @@ impl APIMessage {
                 }),
                 ..Default::default()
             },
+            _ => {
+                return Result::Err(ChatbotError::new(
+                    ChatbotErrorType::Other,
+                    "converting this APIMessage to ChatbotConversationMessage is not implemented yet!!",
+                    None,
+                ));
+            }
         };
         Result::Ok(res)
     }
@@ -140,7 +128,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                     return Err(ChatbotError::new(ChatbotErrorType::Other, "lol", None)); // todo
                 } else if let Some(content) = message.message {
                     APIMessage {
-                        message_type: APIMessageType::Message {
+                        message_type: OutputItem::Message {
                             role: message.message_role,
                             content: MessageContent::Text(content),
                         },
@@ -156,7 +144,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
             MessageRole::Tool => {
                 if let Some(tool_output) = message.tool_output {
                     APIMessage {
-                        message_type: APIMessageType::FunctionCallOutput {
+                        message_type: OutputItem::FunctionCallOutput {
                             call_id: tool_output.tool_call_id,
                             output: tool_output.tool_output,
                         },
@@ -170,7 +158,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 }
             }
             MessageRole::User => APIMessage {
-                message_type: APIMessageType::Message {
+                message_type: OutputItem::Message {
                     role: message.message_role,
                     content: MessageContent::Text(message.message.unwrap_or_default()),
                 },
@@ -190,7 +178,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
 impl From<ChatbotConversationMessageToolOutput> for APIMessage {
     fn from(value: ChatbotConversationMessageToolOutput) -> Self {
         APIMessage {
-            message_type: APIMessageType::FunctionCallOutput {
+            message_type: OutputItem::FunctionCallOutput {
                 call_id: value.tool_call_id,
                 output: value.tool_output,
             },
@@ -202,7 +190,7 @@ impl TryFrom<APIMessage> for ChatbotConversationMessageToolOutput {
     type Error = ChatbotError;
     fn try_from(value: APIMessage) -> ChatbotResult<Self> {
         match value.message_type {
-            APIMessageType::FunctionCallOutput { call_id, output } => {
+            OutputItem::FunctionCallOutput { call_id, output } => {
                 Ok(ChatbotConversationMessageToolOutput {
                     tool_output: output,
                     tool_call_id: call_id,
@@ -211,7 +199,7 @@ impl TryFrom<APIMessage> for ChatbotConversationMessageToolOutput {
             }
             _ => Err(ChatbotError::new(
                 ChatbotErrorType::Other,
-                "Can't convert APIMessage to ChatbotConversationMessageToolOutput: APIMessage type is not APIMessageType::FunctionCallOutput",
+                "Can't convert APIMessage to ChatbotConversationMessageToolOutput: APIMessage type is not OutputItem::FunctionCallOutput",
                 None,
             )),
         }
@@ -389,7 +377,6 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LLMResponse>
 
     trace!("Processing successful LLM response");
     // Parse the response
-    println!("!!!!!!!!!!!!!{:?}", response);
     let completion: LLMResponse = response.json().await?;
     debug!(
         "Successfully processed LLM response with {} choices",
@@ -504,7 +491,7 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
         .output
         .into_iter()
         .map(|x| match x.message_type {
-            APIMessageType::Message { role: _role, content } => Ok(content.get_content_text()),
+            OutputItem::Message { role: _role, content } => Ok(content.get_content_text()),
             _ =>  Err(ChatbotError::new( ChatbotErrorType::InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.", None)),
         })
         .collect::<ChatbotResult<Vec<String>>>()?

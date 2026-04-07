@@ -15,11 +15,13 @@
   },
   "scripts": {
     "eslint": "eslint --fix .",
+    "export-openapi": "cd services/headless-lms && SQLX_OFFLINE=1 cargo run -p headless-lms-server --bin export_openapi",
     "eslint:ci": "eslint .",
     "eslint:format-bindings": "eslint --fix shared-module/packages/common/src/bindings.ts",
     "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
     "lint:css": "stylelint '**/*.tsx'",
+    "codegen:api": "cd services/main-frontend && pnpm run codegen:api",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },

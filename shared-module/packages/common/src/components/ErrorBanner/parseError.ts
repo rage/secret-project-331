@@ -11,6 +11,18 @@ export interface ParsedError {
   status?: number
 }
 
+function parsedErrorFromErrorResponse(errorResponse: ErrorResponse, status?: number): ParsedError {
+  const errorData = errorResponse.data
+
+  return {
+    title: errorResponse.title,
+    message: errorResponse.message,
+    sourceData: errorResponse.source,
+    linkBlockId: isErrorData(errorData) ? errorData.block_id : undefined,
+    status,
+  }
+}
+
 /**
  * Parses an unknown error value into a structure suitable for rendering.
  */
@@ -37,33 +49,24 @@ export async function parseError(error: unknown, defaultTitle: string): Promise<
       }
     }
 
+    const status = typeof err.status === "number" ? err.status : undefined
+
+    if (isErrorResponse(err)) {
+      return parsedErrorFromErrorResponse(err, status)
+    }
+
     if (isErrorResponse(err.data)) {
-      const data: ErrorResponse = err.data
-      const errorData = data.data
-      return {
-        title: data.title,
-        message: data.message,
-        sourceData: data.source,
-        linkBlockId: isErrorData(errorData) ? errorData.block_id : undefined,
-        status: typeof err.status === "number" ? err.status : undefined,
-      }
+      return parsedErrorFromErrorResponse(err.data, status)
     }
 
     if (err.isAxiosError) {
       const axiosError = err as AxiosError
       const responseData = axiosError.response?.data ?? err.data
       if (isErrorResponse(responseData)) {
-        const errorData = responseData.data
-        return {
-          title: responseData.title,
-          message: responseData.message,
-          sourceData: responseData.source,
-          linkBlockId: isErrorData(errorData) ? errorData.block_id : undefined,
-          status:
-            typeof axiosError.response?.status === "number"
-              ? axiosError.response?.status
-              : undefined,
-        }
+        return parsedErrorFromErrorResponse(
+          responseData,
+          typeof axiosError.response?.status === "number" ? axiosError.response?.status : undefined,
+        )
       }
       const responseMessage =
         typeof responseData === "object" && responseData !== null && "message" in responseData

@@ -223,6 +223,13 @@ const config = [
     },
   },
   {
+    files: ["services/main-frontend/src/generated/api/**/*.generated.ts"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
+      "no-undef": "off",
+    },
+  },
+  {
     files: ["**/*.{jsx,tsx}"],
     rules: {
       "i18next/no-literal-string": [

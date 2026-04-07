@@ -11,6 +11,7 @@ use headless_lms_models::{
     suspected_cheaters::{SuspectedCheaters, Threshold},
 };
 use std::sync::Arc;
+use utoipa::OpenApi;
 
 use headless_lms_utils::strings::is_ietf_language_code_like;
 use models::{
@@ -52,6 +53,10 @@ use crate::domain::csv_export::exercise_tasks_export::CourseExerciseTasksExportO
 use crate::domain::csv_export::general_export;
 use crate::domain::csv_export::submissions::CourseSubmissionExportOperation;
 use crate::domain::csv_export::users_export::UsersExportOperation;
+
+#[derive(OpenApi)]
+#[openapi(paths(glossary, new_glossary_term))]
+pub(crate) struct MainFrontendCoursesApiDoc;
 
 /**
 GET `/api/v0/main-frontend/courses/:course_id` - Get course.
@@ -877,7 +882,21 @@ async fn new_course_instance(
 }
 
 #[instrument(skip(pool))]
-async fn glossary(
+#[utoipa::path(
+    get,
+    path = "/{course_id}/glossary",
+    operation_id = "getCourseGlossary",
+    tag = "glossary",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Glossary terms for the course", body = [Term]),
+        (status = 401, description = "Authentication required"),
+        (status = 403, description = "User is not allowed to manage the course glossary")
+    )
+)]
+pub(crate) async fn glossary(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     user: AuthUser,
@@ -905,7 +924,22 @@ async fn _new_term(
 }
 
 #[instrument(skip(pool))]
-async fn new_glossary_term(
+#[utoipa::path(
+    post,
+    path = "/{course_id}/glossary",
+    operation_id = "createCourseGlossaryTerm",
+    tag = "glossary",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = TermUpdate,
+    responses(
+        (status = 200, description = "Created glossary term id", body = Uuid),
+        (status = 401, description = "Authentication required"),
+        (status = 403, description = "User is not allowed to manage the course glossary")
+    )
+)]
+pub(crate) async fn new_glossary_term(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
     new_term: web::Json<TermUpdate>,

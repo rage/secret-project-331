@@ -1,5 +1,7 @@
 import { isBoolean } from "lodash"
 
+import type { Term } from "@/generated/api/types.generated"
+import { createGlossaryTerm, fetchGlossaryFromApi } from "@/services/api/client"
 import { mainFrontendClient } from "@/services/mainFrontendClient"
 import {
   Chapter,
@@ -27,8 +29,6 @@ import {
   PageVisitDatumSummaryByPages,
   PartnersBlock,
   SuspectedCheaters,
-  Term,
-  TermUpdate,
   ThresholdData,
   UserCourseProgress,
   UserCourseSettings,
@@ -50,7 +50,6 @@ import {
   isPageVisitDatumSummaryByPages,
   isPartnersBlock,
   isSuspectedCheaters,
-  isTerm,
   isUserCourseProgress,
   isUserCourseSettings,
 } from "@/shared-module/common/bindings.guard"
@@ -224,8 +223,7 @@ export const newCourseInstance = async (
 }
 
 export const fetchGlossary = async (courseId: string): Promise<Array<Term>> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/glossary`)
-  return validateResponse(response, isArray(isTerm))
+  return fetchGlossaryFromApi(courseId)
 }
 
 export const postNewTerm = async (
@@ -233,11 +231,10 @@ export const postNewTerm = async (
   newTerm: string,
   newDefinition: string,
 ): Promise<void> => {
-  const term: TermUpdate = {
-    term: newTerm,
+  await createGlossaryTerm(courseId, {
     definition: newDefinition,
-  }
-  await mainFrontendClient.post(`/courses/${courseId}/glossary`, term)
+    term: newTerm,
+  })
 }
 
 export const postNewPageOrdering = async (courseId: string, pages: Page[]): Promise<void> => {

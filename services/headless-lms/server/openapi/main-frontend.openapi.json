@@ -1,0 +1,206 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Main Frontend API",
+    "description": "",
+    "contact": {
+      "name": "University of Helsinki",
+      "email": "mooc@cs.helsinki.fi"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v0/main-frontend/courses/{course_id}/glossary": {
+      "get": {
+        "tags": ["glossary"],
+        "operationId": "getCourseGlossary",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Glossary terms for the course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Term"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "User is not allowed to manage the course glossary"
+          }
+        }
+      },
+      "post": {
+        "tags": ["glossary"],
+        "operationId": "createCourseGlossaryTerm",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TermUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created glossary term id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "User is not allowed to manage the course glossary"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/glossary/{term_id}": {
+      "put": {
+        "tags": ["glossary"],
+        "operationId": "updateGlossaryTerm",
+        "parameters": [
+          {
+            "name": "term_id",
+            "in": "path",
+            "description": "Glossary term id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TermUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Glossary term updated"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "User is not allowed to manage glossary terms"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["glossary"],
+        "operationId": "deleteGlossaryTerm",
+        "parameters": [
+          {
+            "name": "term_id",
+            "in": "path",
+            "description": "Glossary term id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Glossary term deleted"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "403": {
+            "description": "User is not allowed to manage glossary terms"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Term": {
+        "type": "object",
+        "required": ["id", "term", "definition"],
+        "properties": {
+          "definition": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "term": {
+            "type": "string"
+          }
+        }
+      },
+      "TermUpdate": {
+        "type": "object",
+        "required": ["term", "definition"],
+        "properties": {
+          "definition": {
+            "type": "string"
+          },
+          "term": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "glossary",
+      "description": "Glossary endpoints used by main-frontend"
+    }
+  ]
+}

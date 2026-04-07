@@ -10,6 +10,7 @@ The server that handles the requests.
 pub mod config;
 pub mod controllers;
 pub mod domain;
+pub mod openapi;
 pub mod prelude;
 
 pub mod programs;

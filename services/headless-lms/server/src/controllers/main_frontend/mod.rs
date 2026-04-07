@@ -39,6 +39,16 @@ pub mod user_details;
 pub mod users;
 
 use actix_web::web::{self, ServiceConfig};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest(
+        (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
+        (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc)
+    )
+)]
+pub struct MainFrontendRoutesApiDoc;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {

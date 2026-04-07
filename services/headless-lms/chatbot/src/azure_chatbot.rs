@@ -31,9 +31,7 @@ use crate::chatbot_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
-use crate::llm_utils::{
-    APIMessage, APIMessageType, MessageContent, estimate_tokens, make_streaming_llm_request,
-};
+use crate::llm_utils::{APIMessage, MessageContent, estimate_tokens, make_streaming_llm_request};
 use headless_lms_utils::url_encoding::url_decode;
 
 use crate::prelude::*;
@@ -158,17 +156,20 @@ pub struct ResponseOutput {
     pub response: Option<Response>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
 pub enum OutputItem {
-    Message, // we can get annotations and full text from here, but not yet.
+    Message {
+        role: MessageRole,
+        content: MessageContent,
+    }, // we can get annotations and full text from here, but not yet.
     Reasoning {
         summary: Vec<String>,
     },
     AzureAiSearchCall {
         call_id: String,
-        arguments: String,
+        arguments: String, // json string
     },
     AzureAiSearchCallOutput {
         call_id: String,
@@ -179,6 +180,10 @@ pub enum OutputItem {
         #[serde(rename = "name")]
         tool_name: String,
         arguments: String,
+    },
+    FunctionCallOutput {
+        call_id: String,
+        output: String,
     },
 }
 
@@ -196,7 +201,7 @@ pub struct ThinkingParams {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
-pub struct ResponseTextOptions {
+pub struct RequestTextOptions {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub verbosity: Option<VerbosityLevel>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -290,8 +295,10 @@ pub struct LLMRequest {
     pub tools: Vec<AzureLLMToolDefinition>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<LLMToolChoice>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub max_output_tokens: Option<i32>,
-    pub text: Option<ResponseTextOptions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub text: Option<RequestTextOptions>,
     #[serde(flatten)]
     pub params: LLMRequestParams,
 }
@@ -354,7 +361,7 @@ impl LLMRequest {
         api_chat_messages.insert(
             0,
             APIMessage {
-                message_type: APIMessageType::Message {
+                message_type: OutputItem::Message {
                     role: MessageRole::System,
                     content: MessageContent::Text(configuration.prompt.clone()),
                 },
@@ -432,7 +439,7 @@ impl LLMRequest {
                 max_output_tokens: Some(configuration.max_output_tokens),
                 tools,
                 tool_choice,
-                text: Some(ResponseTextOptions {
+                text: Some(RequestTextOptions {
                     verbosity: Some(configuration.verbosity), // todo does it work with non-thinking?
                     format: None,
                 }),
@@ -722,14 +729,14 @@ pub async fn parse_tool<'a>(
                 let tool = get_chatbot_tool(conn, name, args, user_context).await?;
 
                 tool_msgs.push(APIMessage {
-                    message_type: APIMessageType::FunctionCall {
+                    message_type: OutputItem::FunctionCall {
                         call_id: id.to_owned(),
-                        name: name.to_owned(),
+                        tool_name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
                     },
                 });
                 tool_msgs.push(APIMessage {
-                    message_type: APIMessageType::FunctionCallOutput {
+                    message_type: OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
                         output: tool.get_tool_output(),
                     },
@@ -860,7 +867,7 @@ pub async fn parse_and_stream_to_user<'a>(
 
             if let Some(item) = &response_output.item {
                 match item {
-                    OutputItem::Message => continue,
+                    OutputItem::Message { role, content } => continue,
                     OutputItem::AzureAiSearchCallOutput {call_id, output} => println!("save cited documents {:?}", output),
                     OutputItem::FunctionCall {call_id, tool_name, arguments} => println!("ERROR! Shouldn't call function here"),
                     _ => continue,

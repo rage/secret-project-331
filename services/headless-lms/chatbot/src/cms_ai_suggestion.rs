@@ -3,12 +3,12 @@ use std::collections::HashMap;
 use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, ResponseTextOptions, Schema,
+        LLMRequestResponseFormatParam, NonThinkingParams, OutputItem, RequestTextOptions, Schema,
         ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, APIMessageType, MessageContent, estimate_tokens, make_blocking_llm_request,
+        APIMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
         parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -218,14 +218,14 @@ pub async fn generate_paragraph_suggestions(
     }
 
     let system_message = APIMessage {
-        message_type: APIMessageType::Message {
+        message_type: OutputItem::Message {
             role: MessageRole::System,
             content: MessageContent::Text(system_instructions),
         },
     };
 
     let user_message = APIMessage {
-        message_type: APIMessageType::Message {
+        message_type: OutputItem::Message {
             role: MessageRole::User,
             content: MessageContent::Text(user_message_content),
         },
@@ -255,7 +255,7 @@ pub async fn generate_paragraph_suggestions(
         tools: vec![],
         tool_choice: None,
         params,
-        text: Some(ResponseTextOptions {
+        text: Some(RequestTextOptions {
             verbosity: None,
             format: Some(LLMRequestResponseFormatParam {
                 format_type: JSONType::JsonSchema,

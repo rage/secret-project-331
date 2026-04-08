@@ -39,7 +39,6 @@ pub struct TaskLMSpec {
     pub context_utilization: f32,
     pub model: String,
     pub thinking: bool,
-    pub deployment_name: String,
     pub context_size: i32,
 }
 
@@ -98,7 +97,6 @@ SELECT
     a.context_utilization,
     model.model,
     model.thinking,
-    model.deployment_name,
     model.context_size
 FROM application_task_default_language_models AS a
 JOIN chatbot_configurations_models AS model ON model.id = a.model_id

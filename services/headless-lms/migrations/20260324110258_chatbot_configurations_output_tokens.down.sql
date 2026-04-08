@@ -29,3 +29,15 @@ ALTER COLUMN tool_name
 SET NOT NULL;
 
 COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.tool_name IS 'The chatbot tool that was called.';
+
+ALTER TABLE chatbot_configurations_models
+ADD COLUMN deployment_name VARCHAR(255);
+
+UPDATE chatbot_configurations_models
+SET deployment_name = model;
+
+ALTER TABLE chatbot_configurations_models
+ALTER COLUMN deployment_name
+SET NOT NULL;
+
+COMMENT ON COLUMN chatbot_configurations_models.deployment_name IS 'The name given to the LLM deployment in Azure. Used to access the correct Azure chatbot api endpoint.';

@@ -20,31 +20,26 @@
       },
       {
         "ordinal": 3,
-        "name": "deployment_name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 4,
         "name": "default_model",
         "type_info": "Bool"
       },
       {
-        "ordinal": 5,
+        "ordinal": 4,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 6,
+        "ordinal": 5,
         "name": "updated_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 7,
+        "ordinal": 6,
         "name": "deleted_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "context_size",
         "type_info": "Int4"
       }
@@ -53,7 +48,6 @@
       "Left": []
     },
     "nullable": [
-      false,
       false,
       false,
       false,

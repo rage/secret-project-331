@@ -13,9 +13,9 @@ import {
   downloadExerciseAnswersCsv,
   downloadExerciseDefinitionsCsv,
   ExerciseCsvExportTaskOption,
-  fetchExerciseCsvExportTaskOptions,
-  fetchExerciseSubmissions,
-  getExercise,
+  getExerciseCsvExportTaskOptions,
+  getExerciseOptions,
+  getExerciseSubmissionsOptions,
 } from "@/services/backend/exercises"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -32,20 +32,6 @@ import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 type ExportMode = "definitions" | "answers"
-
-const downloadBlobAsFile = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.setAttribute("download", fileName)
-  try {
-    document.body.appendChild(link)
-    link.click()
-    link.parentNode?.removeChild(link)
-  } finally {
-    window.URL.revokeObjectURL(url)
-  }
-}
 
 const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -64,20 +50,13 @@ const SubmissionsPage: React.FC = () => {
     crumbs,
   })
 
-  const exerciseQuery = useQuery({
-    queryKey: [`exercise`, id],
-    queryFn: () => getExercise(id),
-  })
+  const exerciseQuery = useQuery(getExerciseOptions(id))
 
-  const exerciseSubmissionsQuery = useQuery({
-    queryKey: [`exercise-submissions`, id, paginationInfo.page, paginationInfo.limit],
-    queryFn: () => fetchExerciseSubmissions(id, paginationInfo.page, paginationInfo.limit),
-  })
+  const exerciseSubmissionsQuery = useQuery(
+    getExerciseSubmissionsOptions(id, paginationInfo.page, paginationInfo.limit),
+  )
 
-  const csvExportTaskOptionsQuery = useQuery({
-    queryKey: [`exercise-csv-export-task-options`, id],
-    queryFn: () => fetchExerciseCsvExportTaskOptions(id),
-  })
+  const csvExportTaskOptionsQuery = useQuery(getExerciseCsvExportTaskOptions(id))
 
   const definitionTaskOptions = useMemo(
     () =>
@@ -118,8 +97,7 @@ const SubmissionsPage: React.FC = () => {
     },
     { notify: true, method: "POST" },
     {
-      onSuccess: (download) => {
-        downloadBlobAsFile(download.blob, download.fileName)
+      onSuccess: () => {
         closeExportDialog()
       },
     },

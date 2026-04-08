@@ -2,12 +2,35 @@
 
 use headless_lms_models::{ModelError, exercise_service_info::fetch_and_upsert_service_info};
 use models::exercise_services::{ExerciseService, ExerciseServiceNewOrUpdate};
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{domain::models_requests, prelude::*};
 
 /**
 DELETE `/api/v0/main-frontend/exercise-services/:id`
 */
+#[derive(OpenApi)]
+#[openapi(paths(
+    delete_exercise_service,
+    add_exercise_service,
+    get_exercise_service_by_id,
+    get_exercise_services,
+    update_exercise_service
+))]
+pub(crate) struct MainFrontendExerciseServicesApiDoc;
+
+#[utoipa::path(
+    delete,
+    path = "/{exercise_service_id}",
+    operation_id = "deleteExerciseService",
+    tag = "exercise_services",
+    params(
+        ("exercise_service_id" = Uuid, Path, description = "Exercise service id")
+    ),
+    responses(
+        (status = 200, description = "Deleted exercise service", body = ExerciseService)
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete_exercise_service(
     exercise_service_id: web::Path<Uuid>,
@@ -23,7 +46,7 @@ async fn delete_exercise_service(
     token.authorized_ok(web::Json(deleted))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceWithError {
     exercise_service: ExerciseService,
@@ -33,6 +56,16 @@ pub struct ExerciseServiceWithError {
 /**
 POST `/api/v0/main-frontend/exercise-services`
 */
+#[utoipa::path(
+    post,
+    path = "/",
+    operation_id = "createExerciseService",
+    tag = "exercise_services",
+    request_body = ExerciseServiceNewOrUpdate,
+    responses(
+        (status = 200, description = "Created exercise service", body = ExerciseServiceWithError)
+    )
+)]
 #[instrument(skip(pool))]
 async fn add_exercise_service(
     pool: web::Data<PgPool>,
@@ -54,6 +87,18 @@ async fn add_exercise_service(
 /**
 GET `/api/v0/main-frontend/exercise-services/:id`
 */
+#[utoipa::path(
+    get,
+    path = "/{exercise_service_id}",
+    operation_id = "getExerciseServiceById",
+    tag = "exercise_services",
+    params(
+        ("exercise_service_id" = Uuid, Path, description = "Exercise service id")
+    ),
+    responses(
+        (status = 200, description = "Exercise service", body = ExerciseService)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_exercise_service_by_id(
     exercise_service_id: web::Path<Uuid>,
@@ -71,6 +116,15 @@ async fn get_exercise_service_by_id(
 /**
 GET `/api/v0/main-frontend/exercise-services`
 */
+#[utoipa::path(
+    get,
+    path = "/",
+    operation_id = "getExerciseServices",
+    tag = "exercise_services",
+    responses(
+        (status = 200, description = "Exercise services", body = Vec<ExerciseService>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_exercise_services(
     pool: web::Data<PgPool>,
@@ -86,6 +140,19 @@ async fn get_exercise_services(
 /**
 PUT `/api/v0/main-frontend/exercise-services/:id`
 */
+#[utoipa::path(
+    put,
+    path = "/{exercise_service_id}",
+    operation_id = "updateExerciseService",
+    tag = "exercise_services",
+    params(
+        ("exercise_service_id" = Uuid, Path, description = "Exercise service id")
+    ),
+    request_body = ExerciseServiceNewOrUpdate,
+    responses(
+        (status = 200, description = "Updated exercise service", body = ExerciseServiceWithError)
+    )
+)]
 #[instrument(skip(pool))]
 async fn update_exercise_service(
     payload: web::Json<ExerciseServiceNewOrUpdate>,

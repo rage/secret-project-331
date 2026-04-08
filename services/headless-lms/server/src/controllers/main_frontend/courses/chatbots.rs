@@ -3,8 +3,30 @@ use crate::prelude::*;
 
 use headless_lms_models::chatbot_configurations::NewChatbotConf;
 use models::chatbot_configurations::ChatbotConfiguration;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_chatbots,
+    create_chatbot,
+    set_default_chatbot,
+    set_non_default_chatbot
+))]
+pub(crate) struct MainFrontendCourseChatbotsApiDoc;
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/chatbots`
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getCourseChatbots",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course chatbots", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chatbots(
     course_id: web::Path<Uuid>,
@@ -20,6 +42,19 @@ async fn get_chatbots(
 }
 
 /// POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createCourseChatbot",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id")
+    ),
+    request_body = serde_json::Value,
+    responses(
+        (status = 200, description = "Created course chatbot", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool, payload))]
 async fn create_chatbot(
     course_id: web::Path<Uuid>,
@@ -69,6 +104,19 @@ async fn create_chatbot(
 }
 
 /// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default`
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/set-as-default",
+    operation_id = "setCourseChatbotAsDefault",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id"),
+        ("chatbot_configuration_id" = String, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Updated course chatbot", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn set_default_chatbot(
     ids: web::Path<(Uuid, Uuid)>,
@@ -105,6 +153,19 @@ async fn set_default_chatbot(
 }
 
 /// POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default`
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/set-as-non-default",
+    operation_id = "setCourseChatbotAsNonDefault",
+    tag = "courses",
+    params(
+        ("course_id" = String, Path, description = "Course id"),
+        ("chatbot_configuration_id" = String, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Updated course chatbot", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn set_non_default_chatbot(
     ids: web::Path<(Uuid, Uuid)>,

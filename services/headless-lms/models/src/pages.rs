@@ -9,6 +9,7 @@ use itertools::Itertools;
 use serde_json::json;
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId, SpecFetcher,
@@ -33,7 +34,7 @@ use crate::{
     user_course_settings::{self, UserCourseSettings},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Page {
     pub id: Uuid,
@@ -53,7 +54,7 @@ pub struct Page {
     pub page_language_group_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageInfo {
     pub page_id: Uuid,
@@ -122,7 +123,7 @@ pub struct NewPage {
 }
 
 /// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageDetailsUpdate {
     pub title: String,
@@ -229,7 +230,7 @@ pub struct IsChapterFrontPage {
     pub is_chapter_front_page: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct HistoryRestoreData {
     pub history_id: Uuid,

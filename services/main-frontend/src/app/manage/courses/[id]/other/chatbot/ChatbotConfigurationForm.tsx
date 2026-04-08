@@ -7,8 +7,11 @@ import React from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { getChatbotModels } from "@/services/backend/chatbotModels"
-import { configureChatbot, deleteChatbot } from "@/services/backend/chatbots"
+import { getChatbotModelsOptions } from "@/services/backend/chatbotModels"
+import {
+  configureChatbotMutationOptions,
+  deleteChatbotMutationOptions,
+} from "@/services/backend/chatbots"
 import {
   ChatbotConfiguration,
   ChatbotConfigurationModel,
@@ -25,7 +28,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
@@ -103,8 +106,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const { fields, append, remove } = useFieldArray({ control, name: "suggested_messages" })
 
   const getChatbotModelsList = useQuery({
-    queryKey: ["chatbot-models", oldChatbotConf.course_id],
-    queryFn: () => getChatbotModels(assertNotNullOrUndefined(oldChatbotConf.course_id)),
+    ...getChatbotModelsOptions(assertNotNullOrUndefined(oldChatbotConf.course_id)),
     enabled: !!oldChatbotConf.course_id,
   })
 
@@ -122,13 +124,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     )
   }
 
-  const configureChatbotMutation = useToastMutation(
-    async (bot: NewChatbotConf) => {
-      if (oldChatbotConf === null) {
-        throw new Error("Chatbot undefined")
-      }
-      await configureChatbot(assertNotNullOrUndefined(oldChatbotConf.id), bot)
-    },
+  const configureChatbotMutation = useToastMutationOptions(
+    configureChatbotMutationOptions(),
     {
       notify: true,
       method: "POST",
@@ -140,8 +137,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     },
   )
 
-  const deleteChatbotMutation = useToastMutation(
-    async (chatbotConfigurationId: string) => await deleteChatbot(chatbotConfigurationId),
+  const deleteChatbotMutation = useToastMutationOptions(
+    deleteChatbotMutationOptions(),
     {
       method: "DELETE",
       notify: true,
@@ -160,34 +157,39 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       model.thinking || model.model === "model-router" ? false : data.use_azure_search
 
     configureChatbotMutation.mutate({
-      course_id: oldChatbotConf.course_id, // keep the old course id
-      chatbot_name: data.chatbot_name,
-      model_id: data.model_id,
-      enabled_to_students: data.enabled_to_students,
-      prompt: data.prompt,
-      initial_message: data.initial_message,
-      weekly_tokens_per_user: +data.weekly_tokens_per_user,
-      daily_tokens_per_user: +data.daily_tokens_per_user,
-      temperature: +data.temperature,
-      top_p: +data.top_p,
-      frequency_penalty: +data.frequency_penalty,
-      presence_penalty: +data.presence_penalty,
-      response_max_tokens: +data.response_max_tokens,
-      max_completion_tokens: +data.max_completion_tokens,
-      reasoning_effort: data.reasoning_effort,
-      verbosity: data.verbosity,
-      thinking_model: model.thinking,
-      use_azure_search: azure_search,
-      // right now use_azure_search requires the next field to be true and there is no need for it to
-      // be true if azure search is false, so set them as the same value
-      maintain_azure_search_index: azure_search,
-      hide_citations: data.hide_citations,
-      use_semantic_reranking: data.use_semantic_reranking,
-      use_tools: data.use_tools,
-      suggest_next_messages: data.suggest_next_messages,
-      initial_suggested_messages: data.suggested_messages.map((v) => v.message),
-      default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
-      chatbotconf_id: null,
+      body: {
+        course_id: oldChatbotConf.course_id, // keep the old course id
+        chatbot_name: data.chatbot_name,
+        model_id: data.model_id,
+        enabled_to_students: data.enabled_to_students,
+        prompt: data.prompt,
+        initial_message: data.initial_message,
+        weekly_tokens_per_user: +data.weekly_tokens_per_user,
+        daily_tokens_per_user: +data.daily_tokens_per_user,
+        temperature: +data.temperature,
+        top_p: +data.top_p,
+        frequency_penalty: +data.frequency_penalty,
+        presence_penalty: +data.presence_penalty,
+        response_max_tokens: +data.response_max_tokens,
+        max_completion_tokens: +data.max_completion_tokens,
+        reasoning_effort: data.reasoning_effort,
+        verbosity: data.verbosity,
+        thinking_model: model.thinking,
+        use_azure_search: azure_search,
+        // right now use_azure_search requires the next field to be true and there is no need for it to
+        // be true if azure search is false, so set them as the same value
+        maintain_azure_search_index: azure_search,
+        hide_citations: data.hide_citations,
+        use_semantic_reranking: data.use_semantic_reranking,
+        use_tools: data.use_tools,
+        suggest_next_messages: data.suggest_next_messages,
+        initial_suggested_messages: data.suggested_messages.map((v) => v.message),
+        default_chatbot: oldChatbotConf.default_chatbot, // keep the old default_chatbot value
+        chatbotconf_id: null,
+      },
+      path: {
+        chatbot_configuration_id: assertNotNullOrUndefined(oldChatbotConf.id),
+      },
     })
   })
 
@@ -565,7 +567,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   t("delete-chatbot-confirmation", { name: oldChatbotConf.chatbot_name }),
                 )
               ) {
-                deleteChatbotMutation.mutate(oldChatbotConf.id)
+                deleteChatbotMutation.mutate({
+                  path: {
+                    chatbot_configuration_id: oldChatbotConf.id,
+                  },
+                })
               }
             }}
           >

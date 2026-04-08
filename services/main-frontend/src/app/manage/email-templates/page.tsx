@@ -7,7 +7,7 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourse } from "@/services/backend/courses"
-import { fetchAllEmailTemplates } from "@/services/backend/email-templates"
+import { getAllEmailTemplatesOptions } from "@/services/backend/email-templates"
 import { Course, EmailTemplate, EmailTemplateType } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -29,8 +29,7 @@ const EmailTemplatesList: React.FC = () => {
   const { t } = useTranslation()
 
   const templatesQuery = useQuery({
-    queryKey: ["all-email-templates"],
-    queryFn: () => fetchAllEmailTemplates(),
+    ...getAllEmailTemplatesOptions(),
   })
 
   const uniqueCourseIds = useMemo(() => {

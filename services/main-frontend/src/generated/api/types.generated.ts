@@ -6,6 +6,597 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+/**
+ *
+ * Indicates what is the user's completion status for a exercise.
+ *
+ * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
+ */
+export type ActivityProgress = 'Initialized' | 'Started' | 'InProgress' | 'Submitted' | 'Completed';
+
+export type AutomaticCompletionRequirements = {
+    /**
+     * Course module associated with these requirements.
+     */
+    course_module_id: string;
+    number_of_exercises_attempted_treshold?: number | null;
+    number_of_points_treshold?: number | null;
+    requires_exam: boolean;
+};
+
+export type BlockProposal = (EditedBlockStillExistsData & {
+    type: 'edited-block-still-exists';
+}) | (EditedBlockNoLongerExistsData & {
+    type: 'edited-block-no-longer-exists';
+});
+
+export type BlockProposalAction = {
+    data: string;
+    tag: 'Accept';
+} | {
+    tag: 'Reject';
+};
+
+export type BlockProposalInfo = {
+    action: BlockProposalAction;
+    id: string;
+};
+
+export type CertificateGenerationRequest = {
+    certificate_configuration_id: string;
+    grade?: string | null;
+    name_on_certificate: string;
+};
+
+export type Chapter = {
+    chapter_image_url?: string | null;
+    chapter_number: number;
+    color?: string | null;
+    copied_from?: string | null;
+    course_id: string;
+    course_module_id: string;
+    created_at: string;
+    deadline?: string | null;
+    deleted_at?: string | null;
+    front_page_id?: string | null;
+    id: string;
+    name: string;
+    opens_at?: string | null;
+    updated_at: string;
+};
+
+export type ChapterUpdate = {
+    color?: string | null;
+    /**
+     * CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+     */
+    course_module_id?: string | null;
+    deadline?: string | null;
+    front_page_id?: string | null;
+    name: string;
+    opens_at?: string | null;
+};
+
+export type CodeGiveaway = {
+    course_id: string;
+    course_module_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    enabled: boolean;
+    id: string;
+    name: string;
+    require_course_specific_consent_form_question_id?: string | null;
+    updated_at: string;
+};
+
+export type CodeGiveawayCode = {
+    added_by_user_id: string;
+    code: string;
+    code_giveaway_id: string;
+    code_given_to_user_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    updated_at: string;
+};
+
+export type CompletionPolicy = (AutomaticCompletionRequirements & {
+    policy: 'automatic';
+}) | {
+    policy: 'manual';
+};
+
+export type CompletionRegistrationLink = {
+    url: string;
+};
+
+export type Course = {
+    ask_marketing_consent: boolean;
+    base_module_completion_requires_n_submodule_completions: number;
+    can_add_chatbot: boolean;
+    chapter_locking_enabled: boolean;
+    closed_additional_message?: string | null;
+    closed_at?: string | null;
+    closed_course_successor_id?: string | null;
+    content_search_language?: string | null;
+    copied_from?: string | null;
+    course_language_group_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    flagged_answers_skip_manual_review_and_allow_retry: boolean;
+    flagged_answers_threshold?: number | null;
+    id: string;
+    is_draft: boolean;
+    is_joinable_by_code_only: boolean;
+    is_test_mode: boolean;
+    is_unlisted: boolean;
+    join_code?: string | null;
+    language_code: string;
+    name: string;
+    organization_id: string;
+    slug: string;
+    updated_at: string;
+};
+
+/**
+ * Information necessary for the frontend to render an exercise task
+ */
+export type CourseMaterialExerciseTask = {
+    assignment: unknown;
+    deleted_at?: string | null;
+    /**
+     *
+     * If none, the task is not completable at the moment because the service needs to
+     * be configured to the system.
+     */
+    exercise_iframe_url?: string | null;
+    exercise_service_slug: string;
+    exercise_slide_id: string;
+    id: string;
+    model_solution_spec?: unknown;
+    order_number: number;
+    previous_submission?: null | ExerciseTaskSubmission;
+    previous_submission_grading?: null | ExerciseTaskGrading;
+    /**
+     *
+     * Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
+     * be configured to the system.
+     */
+    pseudonumous_user_id?: string | null;
+    public_spec?: unknown;
+};
+
+/**
+ *
+ * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ */
+export type CourseModule = {
+    certification_enabled: boolean;
+    completion_policy: CompletionPolicy;
+    /**
+     * If set, use this link rather than the default one when registering course completions.
+     */
+    completion_registration_link_override?: string | null;
+    copied_from?: string | null;
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    ects_credits?: number | null;
+    enable_registering_completion_to_uh_open_university: boolean;
+    id: string;
+    name?: string | null;
+    order_number: number;
+    uh_course_code?: string | null;
+    updated_at: string;
+};
+
+export type CourseModuleCompletion = {
+    completion_date: string;
+    completion_granter_user_id?: string | null;
+    completion_language: string;
+    completion_registration_attempt_date?: string | null;
+    course_id: string;
+    course_module_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    eligible_for_ects: boolean;
+    email: string;
+    grade?: number | null;
+    id: string;
+    needs_to_be_reviewed: boolean;
+    passed: boolean;
+    prerequisite_modules_completed: boolean;
+    updated_at: string;
+    user_id: string;
+};
+
+export type DatabaseChapter = {
+    chapter_image_path?: string | null;
+    chapter_number: number;
+    color?: string | null;
+    copied_from?: string | null;
+    course_id: string;
+    course_module_id: string;
+    created_at: string;
+    deadline?: string | null;
+    deleted_at?: string | null;
+    front_page_id?: string | null;
+    id: string;
+    name: string;
+    opens_at?: string | null;
+    updated_at: string;
+};
+
+export type EditProposalInfo = {
+    block_proposals: Array<BlockProposalInfo>;
+    page_id: string;
+    page_proposal_id: string;
+};
+
+export type EditedBlockNoLongerExistsData = {
+    block_id: string;
+    changed_text: string;
+    id: string;
+    original_text: string;
+    status: ProposalStatus;
+};
+
+export type EditedBlockStillExistsData = {
+    accept_preview?: string | null;
+    block_id: string;
+    changed_text: string;
+    current_text: string;
+    id: string;
+    original_text: string;
+    status: ProposalStatus;
+};
+
+export type EmailTemplate = {
+    content?: unknown;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_completions_threshold?: number | null;
+    id: string;
+    language?: string | null;
+    points_threshold?: number | null;
+    subject?: string | null;
+    template_type: EmailTemplateType;
+    updated_at: string;
+};
+
+export type EmailTemplateType = 'reset_password_email' | 'delete_user_email' | 'confirm_email_code' | 'generic';
+
+export type Exam = {
+    courses: Array<Course>;
+    ends_at?: string | null;
+    grade_manually: boolean;
+    id: string;
+    instructions: unknown;
+    language: string;
+    minimum_points_treshold: number;
+    name: string;
+    page_id: string;
+    starts_at?: string | null;
+    time_minutes: number;
+};
+
+export type ExamCourseInfo = {
+    course_id: string;
+};
+
+export type ExamEnrollment = {
+    ended_at?: string | null;
+    exam_id: string;
+    is_teacher_testing: boolean;
+    show_exercise_answers?: boolean | null;
+    started_at: string;
+    user_id: string;
+};
+
+export type Exercise = {
+    chapter_id?: string | null;
+    copied_from?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deadline?: string | null;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_language_group_id?: string | null;
+    id: string;
+    limit_number_of_tries: boolean;
+    max_tries_per_slide?: number | null;
+    name: string;
+    needs_peer_review: boolean;
+    needs_self_review: boolean;
+    order_number: number;
+    page_id: string;
+    score_maximum: number;
+    teacher_reviews_answer_after_locking: boolean;
+    updated_at: string;
+    use_course_default_peer_or_self_review_config: boolean;
+};
+
+export type ExerciseRepository = {
+    course_id?: string | null;
+    error_message?: string | null;
+    exam_id?: string | null;
+    id: string;
+    status: ExerciseRepositoryStatus;
+    url: string;
+};
+
+export type ExerciseRepositoryStatus = 'Pending' | 'Success' | 'Failure';
+
+export type ExerciseRepositoryUpdate = {
+    url: string;
+};
+
+export type ExerciseService = {
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    /**
+     * This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
+     */
+    internal_url?: string | null;
+    max_reprocessing_submissions_at_once: number;
+    name: string;
+    public_url: string;
+    slug: string;
+    updated_at: string;
+};
+
+export type ExerciseServiceNewOrUpdate = {
+    internal_url?: string | null;
+    max_reprocessing_submissions_at_once: number;
+    name: string;
+    public_url: string;
+    slug: string;
+};
+
+export type ExerciseServiceWithError = {
+    exercise_service: ExerciseService;
+    service_info_error?: string | null;
+};
+
+export type ExerciseSlideSubmission = {
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_id: string;
+    exercise_slide_id: string;
+    flag_count?: number | null;
+    id: string;
+    updated_at: string;
+    user_id: string;
+    user_points_update_strategy: UserPointsUpdateStrategy;
+};
+
+export type ExerciseSlideSubmissionAndUserExerciseState = {
+    exercise: Exercise;
+    exercise_slide_submission: ExerciseSlideSubmission;
+    teacher_grading_decision?: null | TeacherGradingDecision;
+    user_exam_enrollment: ExamEnrollment;
+    user_exercise_state: UserExerciseState;
+};
+
+export type ExerciseSlideSubmissionAndUserExerciseStateList = {
+    data: Array<ExerciseSlideSubmissionAndUserExerciseState>;
+    total_pages: number;
+};
+
+export type ExerciseSlideSubmissionInfo = {
+    exercise: Exercise;
+    exercise_slide_submission: ExerciseSlideSubmission;
+    tasks: Array<CourseMaterialExerciseTask>;
+    user_exercise_state?: null | UserExerciseState;
+};
+
+export type ExerciseTaskGrading = {
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_id: string;
+    exercise_task_id: string;
+    exercise_task_submission_id: string;
+    feedback_json?: unknown;
+    feedback_text?: string | null;
+    grading_completed_at?: string | null;
+    grading_priority: number;
+    grading_progress: GradingProgress;
+    grading_started_at?: string | null;
+    id: string;
+    score_given?: number | null;
+    unscaled_score_given?: number | null;
+    unscaled_score_maximum?: number | null;
+    updated_at: string;
+};
+
+export type ExerciseTaskSubmission = {
+    created_at: string;
+    data_json?: unknown;
+    deleted_at?: string | null;
+    exercise_slide_id: string;
+    exercise_slide_submission_id: string;
+    exercise_task_grading_id?: string | null;
+    exercise_task_id: string;
+    id: string;
+    metadata?: unknown;
+    updated_at: string;
+};
+
+/**
+ *
+ *
+ * Tells what's the status of the grading progress for a user and exercise.
+ *
+ * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
+ */
+export type GradingProgress = 'Failed' | 'NotReady' | 'PendingManual' | 'Pending' | 'FullyGraded';
+
+export type HistoryChangeReason = 'PageSaved' | 'HistoryRestored' | 'PageDeleted';
+
+export type HistoryRestoreData = {
+    history_id: string;
+};
+
+export type NewChapter = {
+    chapter_number: number;
+    color?: string | null;
+    course_id: string;
+    /**
+     * If undefined when creating a chapter, will use the course default one.
+     * CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+     */
+    course_module_id?: string | null;
+    deadline?: string | null;
+    front_page_id?: string | null;
+    name: string;
+    opens_at?: string | null;
+};
+
+export type NewCodeGiveaway = {
+    course_id: string;
+    course_module_id?: string | null;
+    name: string;
+    require_course_specific_consent_form_question_id?: string | null;
+};
+
+export type NewExam = {
+    ends_at?: string | null;
+    grade_manually: boolean;
+    minimum_points_treshold: number;
+    name: string;
+    organization_id: string;
+    starts_at?: string | null;
+    time_minutes: number;
+};
+
+export type NewExerciseRepository = {
+    course_id?: string | null;
+    deploy_key?: string | null;
+    exam_id?: string | null;
+    git_url: string;
+    public_key?: string | null;
+};
+
+export type NewTeacherGradingDecision = {
+    action: TeacherDecisionType;
+    exercise_id: string;
+    hidden: boolean;
+    justification?: string | null;
+    manual_points?: number | null;
+    user_exercise_state_id: string;
+};
+
+export type OrganizationCreatePayload = {
+    hidden: boolean;
+    name: string;
+    slug: string;
+};
+
+export type OrganizationUpdatePayload = {
+    hidden: boolean;
+    name: string;
+    slug: string;
+};
+
+export type Page = {
+    chapter_id?: string | null;
+    content: unknown;
+    copied_from?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    hidden: boolean;
+    id: string;
+    order_number: number;
+    page_language_group_id?: string | null;
+    title: string;
+    updated_at: string;
+    url_path: string;
+};
+
+export type PageAudioFile = {
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    mime_type: string;
+    page_id: string;
+    path: string;
+};
+
+/**
+ * Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
+ */
+export type PageDetailsUpdate = {
+    title: string;
+    url_path: string;
+};
+
+export type PageHistory = {
+    author_user_id: string;
+    content: unknown;
+    created_at: string;
+    history_change_reason: HistoryChangeReason;
+    id: string;
+    page_id: string;
+    restored_from_id?: string | null;
+    title: string;
+};
+
+export type PageInfo = {
+    course_id?: string | null;
+    course_name?: string | null;
+    course_slug?: string | null;
+    organization_slug?: string | null;
+    page_id: string;
+    page_title: string;
+};
+
+export type PageProposal = {
+    block_proposals: Array<BlockProposal>;
+    created_at: string;
+    id: string;
+    page_id: string;
+    page_title: string;
+    page_url_path: string;
+    pending: boolean;
+    user_id?: string | null;
+};
+
+export type ProposalCount = {
+    handled: number;
+    pending: number;
+};
+
+export type ProposalStatus = 'Pending' | 'Accepted' | 'Rejected';
+
+/**
+ *
+ * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
+ */
+export type ReviewingStage = 'NotStarted' | 'PeerReview' | 'SelfReview' | 'WaitingForPeerReviews' | 'WaitingForManualGrading' | 'ReviewedAndLocked' | 'Locked';
+
+export type TeacherDecisionType = 'FullPoints' | 'ZeroPoints' | 'CustomPoints' | 'SuspectedPlagiarism' | 'RejectAndReset';
+
+export type TeacherGradingDecision = {
+    created_at: string;
+    deleted_at?: string | null;
+    hidden?: boolean | null;
+    id: string;
+    justification?: string | null;
+    score_given: number;
+    teacher_decision: TeacherDecisionType;
+    updated_at: string;
+    user_exercise_state_id: string;
+};
+
 export type Term = {
     definition: string;
     id: string;
@@ -15,6 +606,1540 @@ export type Term = {
 export type TermUpdate = {
     definition: string;
     term: string;
+};
+
+export type ThresholdData = {
+    duration_seconds: number;
+};
+
+export type UserCompletionInformation = {
+    course_module_completion_id: string;
+    course_name: string;
+    ects_credits?: number | null;
+    email: string;
+    enable_registering_completion_to_uh_open_university: boolean;
+    uh_course_code: string;
+};
+
+export type UserExerciseState = {
+    activity_progress: ActivityProgress;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_id: string;
+    grading_progress: GradingProgress;
+    id: string;
+    reviewing_stage: ReviewingStage;
+    score_given?: number | null;
+    selected_exercise_slide_id?: string | null;
+    updated_at: string;
+    user_id: string;
+};
+
+export type UserPointsUpdateStrategy = 'CanAddPointsButCannotRemovePoints' | 'CanAddPointsAndCanRemovePoints';
+
+export type UpdateCertificateConfigurationData = {
+    body: {
+        file: Array<Array<number>>;
+        metadata: string;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/certificates';
+};
+
+export type UpdateCertificateConfigurationResponses = {
+    /**
+     * Certificate configuration updated
+     */
+    200: boolean;
+};
+
+export type UpdateCertificateConfigurationResponse = UpdateCertificateConfigurationResponses[keyof UpdateCertificateConfigurationResponses];
+
+export type DeleteCertificateConfigurationData = {
+    body?: never;
+    path: {
+        /**
+         * Certificate configuration id
+         */
+        certificate_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/configuration/{certificate_configuration_id}';
+};
+
+export type DeleteCertificateConfigurationResponses = {
+    /**
+     * Certificate configuration deleted
+     */
+    200: boolean;
+};
+
+export type DeleteCertificateConfigurationResponse = DeleteCertificateConfigurationResponses[keyof DeleteCertificateConfigurationResponses];
+
+export type GenerateCertificateData = {
+    body: CertificateGenerationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/generate';
+};
+
+export type GenerateCertificateResponses = {
+    /**
+     * Certificate generated
+     */
+    200: boolean;
+};
+
+export type GenerateCertificateResponse = GenerateCertificateResponses[keyof GenerateCertificateResponses];
+
+export type UpdateGeneratedCertificateData = {
+    body: unknown;
+    path: {
+        /**
+         * Generated certificate id
+         */
+        certificate_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/generated/{certificate_id}';
+};
+
+export type UpdateGeneratedCertificateResponses = {
+    /**
+     * Generated certificate updated
+     */
+    200: unknown;
+};
+
+export type GetCertificateByConfigurationIdData = {
+    body?: never;
+    path: {
+        /**
+         * Certificate configuration id
+         */
+        certificate_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}';
+};
+
+export type GetCertificateByConfigurationIdResponses = {
+    /**
+     * Generated certificate
+     */
+    200: unknown;
+};
+
+export type GetCertificateByVerificationIdData = {
+    body?: never;
+    path: {
+        /**
+         * Certificate verification id
+         */
+        certificate_verification_id: string;
+    };
+    query: {
+        /**
+         * Whether to render a debug certificate
+         */
+        debug: boolean;
+        /**
+         * Certificate configuration id to use for preview rendering
+         */
+        test_certificate_configuration_id?: string;
+    };
+    url: '/api/v0/main-frontend/certificates/{certificate_verification_id}';
+};
+
+export type GetCertificateByVerificationIdResponses = {
+    /**
+     * Certificate image
+     */
+    200: unknown;
+};
+
+export type CreateChapterData = {
+    body: NewChapter;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/chapters';
+};
+
+export type CreateChapterResponses = {
+    /**
+     * Created chapter
+     */
+    200: Chapter;
+};
+
+export type CreateChapterResponse = CreateChapterResponses[keyof CreateChapterResponses];
+
+export type DeleteChapterData = {
+    body?: never;
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}';
+};
+
+export type DeleteChapterResponses = {
+    /**
+     * Deleted chapter
+     */
+    200: Chapter;
+};
+
+export type DeleteChapterResponse = DeleteChapterResponses[keyof DeleteChapterResponses];
+
+export type UpdateChapterData = {
+    body: ChapterUpdate;
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}';
+};
+
+export type UpdateChapterResponses = {
+    /**
+     * Updated chapter
+     */
+    200: Chapter;
+};
+
+export type UpdateChapterResponse = UpdateChapterResponses[keyof UpdateChapterResponses];
+
+export type DeleteChapterImageData = {
+    body?: never;
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}/image';
+};
+
+export type DeleteChapterImageResponses = {
+    /**
+     * Deleted chapter image
+     */
+    200: unknown;
+};
+
+export type UpdateChapterImageData = {
+    body: {
+        file: Array<number>;
+    };
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}/image';
+};
+
+export type UpdateChapterImageResponses = {
+    /**
+     * Updated chapter image
+     */
+    200: Chapter;
+};
+
+export type UpdateChapterImageResponse = UpdateChapterImageResponses[keyof UpdateChapterImageResponses];
+
+export type GetCourseChaptersData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course';
+};
+
+export type GetCourseChaptersResponses = {
+    /**
+     * Course chapters
+     */
+    200: Array<DatabaseChapter>;
+};
+
+export type GetCourseChaptersResponse = GetCourseChaptersResponses[keyof GetCourseChaptersResponses];
+
+export type GetChatbotModelsData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    url: '/api/v0/main-frontend/chatbot-models/';
+};
+
+export type GetChatbotModelsResponses = {
+    /**
+     * Chatbot models
+     */
+    200: unknown;
+};
+
+export type GetChatbotModelData = {
+    body: string;
+    path: {
+        /**
+         * Chatbot model id
+         */
+        chatbot_model_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbot-models/{chatbot_model_id}';
+};
+
+export type GetChatbotModelResponses = {
+    /**
+     * Chatbot model
+     */
+    200: unknown;
+};
+
+export type DeleteChatbotConfigurationData = {
+    body?: never;
+    path: {
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}';
+};
+
+export type DeleteChatbotConfigurationResponses = {
+    /**
+     * Deleted chatbot configuration
+     */
+    200: unknown;
+};
+
+export type GetChatbotConfigurationData = {
+    body?: never;
+    path: {
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}';
+};
+
+export type GetChatbotConfigurationResponses = {
+    /**
+     * Chatbot configuration
+     */
+    200: unknown;
+};
+
+export type ConfigureChatbotData = {
+    body: unknown;
+    path: {
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}';
+};
+
+export type ConfigureChatbotResponses = {
+    /**
+     * Updated chatbot configuration
+     */
+    200: unknown;
+};
+
+export type CreateCodeGiveawayData = {
+    body: NewCodeGiveaway;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways';
+};
+
+export type CreateCodeGiveawayResponses = {
+    /**
+     * Created code giveaway
+     */
+    200: CodeGiveaway;
+};
+
+export type CreateCodeGiveawayResponse = CreateCodeGiveawayResponses[keyof CreateCodeGiveawayResponses];
+
+export type GetCodeGiveawaysByCourseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/by-course/{course_id}';
+};
+
+export type GetCodeGiveawaysByCourseResponses = {
+    /**
+     * Code giveaways for course
+     */
+    200: Array<CodeGiveaway>;
+};
+
+export type GetCodeGiveawaysByCourseResponse = GetCodeGiveawaysByCourseResponses[keyof GetCodeGiveawaysByCourseResponses];
+
+export type GetCodeGiveawayByIdData = {
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}';
+};
+
+export type GetCodeGiveawayByIdResponses = {
+    /**
+     * Code giveaway
+     */
+    200: CodeGiveaway;
+};
+
+export type GetCodeGiveawayByIdResponse = GetCodeGiveawayByIdResponses[keyof GetCodeGiveawayByIdResponses];
+
+export type GetCodeGiveawayCodesData = {
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes';
+};
+
+export type GetCodeGiveawayCodesResponses = {
+    /**
+     * Giveaway codes
+     */
+    200: Array<CodeGiveawayCode>;
+};
+
+export type GetCodeGiveawayCodesResponse = GetCodeGiveawayCodesResponses[keyof GetCodeGiveawayCodesResponses];
+
+export type AddCodeGiveawayCodesData = {
+    body: Array<string>;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes';
+};
+
+export type AddCodeGiveawayCodesResponses = {
+    /**
+     * Added giveaway codes
+     */
+    200: Array<CodeGiveawayCode>;
+};
+
+export type AddCodeGiveawayCodesResponse = AddCodeGiveawayCodesResponses[keyof AddCodeGiveawayCodesResponses];
+
+export type DownloadCodeGiveawayCodesCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes/csv';
+};
+
+export type DownloadCodeGiveawayCodesCsvResponses = {
+    /**
+     * Giveaway codes CSV
+     */
+    200: string;
+};
+
+export type DownloadCodeGiveawayCodesCsvResponse = DownloadCodeGiveawayCodesCsvResponses[keyof DownloadCodeGiveawayCodesCsvResponses];
+
+export type DeleteCodeGiveawayCodeData = {
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+        /**
+         * Giveaway code id
+         */
+        code_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes/{code_id}';
+};
+
+export type DeleteCodeGiveawayCodeResponses = {
+    /**
+     * Deleted giveaway code
+     */
+    200: unknown;
+};
+
+export type GetCourseInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}';
+};
+
+export type GetCourseInstanceResponses = {
+    /**
+     * Course instance
+     */
+    200: unknown;
+};
+
+export type GetCourseInstanceCompletionsData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions';
+};
+
+export type GetCourseInstanceCompletionsResponses = {
+    /**
+     * Course instance completion summary
+     */
+    200: unknown;
+};
+
+export type CreateCourseInstanceCompletionsData = {
+    body: unknown;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions';
+};
+
+export type CreateCourseInstanceCompletionsResponses = {
+    /**
+     * Manual completions added
+     */
+    200: unknown;
+};
+
+export type PreviewCourseInstanceCompletionsData = {
+    body: unknown;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions/preview';
+};
+
+export type PreviewCourseInstanceCompletionsResponses = {
+    /**
+     * Manual completion preview
+     */
+    200: unknown;
+};
+
+export type GetCourseInstanceCourseModuleCompletionsForUserData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/course-module-completions/{user_id}';
+};
+
+export type GetCourseInstanceCourseModuleCompletionsForUserResponses = {
+    /**
+     * Course module completions for user
+     */
+    200: unknown;
+};
+
+export type GetCourseInstanceDefaultCertificateConfigurationsData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/default-certificate-configurations';
+};
+
+export type GetCourseInstanceDefaultCertificateConfigurationsResponses = {
+    /**
+     * Default certificate configurations
+     */
+    200: unknown;
+};
+
+export type DeleteCourseInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/delete';
+};
+
+export type DeleteCourseInstanceResponses = {
+    /**
+     * Course instance deleted
+     */
+    200: unknown;
+};
+
+export type EditCourseInstanceData = {
+    body: unknown;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/edit';
+};
+
+export type EditCourseInstanceResponses = {
+    /**
+     * Course instance updated
+     */
+    200: unknown;
+};
+
+export type GetCourseInstanceEmailTemplatesData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates';
+};
+
+export type GetCourseInstanceEmailTemplatesResponses = {
+    /**
+     * Course instance email templates
+     */
+    200: unknown;
+};
+
+export type CreateCourseInstanceEmailTemplateData = {
+    body: unknown;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates';
+};
+
+export type CreateCourseInstanceEmailTemplateResponses = {
+    /**
+     * Created email template
+     */
+    200: unknown;
+};
+
+export type ExportCourseInstanceCompletionsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/export-completions';
+};
+
+export type ExportCourseInstanceCompletionsCsvResponses = {
+    /**
+     * Course instance completions CSV
+     */
+    200: string;
+};
+
+export type ExportCourseInstanceCompletionsCsvResponse = ExportCourseInstanceCompletionsCsvResponses[keyof ExportCourseInstanceCompletionsCsvResponses];
+
+export type ExportCourseInstancePointsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/export-points';
+};
+
+export type ExportCourseInstancePointsCsvResponses = {
+    /**
+     * Course instance points CSV
+     */
+    200: string;
+};
+
+export type ExportCourseInstancePointsCsvResponse = ExportCourseInstancePointsCsvResponses[keyof ExportCourseInstancePointsCsvResponses];
+
+export type GetCourseInstancePointsData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/points';
+};
+
+export type GetCourseInstancePointsResponses = {
+    /**
+     * Course instance points
+     */
+    200: unknown;
+};
+
+export type GetCourseInstanceUserProgressData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/progress/{user_id}';
+};
+
+export type GetCourseInstanceUserProgressResponses = {
+    /**
+     * User progress for course instance
+     */
+    200: unknown;
+};
+
+export type GetCourseInstanceExerciseStatusesForUserData = {
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/status-for-all-exercises/{user_id}';
+};
+
+export type GetCourseInstanceExerciseStatusesForUserResponses = {
+    /**
+     * Exercise statuses for user
+     */
+    200: unknown;
+};
+
+export type GetCourseModuleData = {
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}';
+};
+
+export type GetCourseModuleResponses = {
+    /**
+     * Course module
+     */
+    200: CourseModule;
+};
+
+export type GetCourseModuleResponse = GetCourseModuleResponses[keyof GetCourseModuleResponses];
+
+export type GetCourseModuleCompletionRegistrationLinkData = {
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/completion-registration-link';
+};
+
+export type GetCourseModuleCompletionRegistrationLinkResponses = {
+    /**
+     * Completion registration link
+     */
+    200: CompletionRegistrationLink;
+};
+
+export type GetCourseModuleCompletionRegistrationLinkResponse = GetCourseModuleCompletionRegistrationLinkResponses[keyof GetCourseModuleCompletionRegistrationLinkResponses];
+
+export type GetCourseModuleCompletionData = {
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/course-module-completion';
+};
+
+export type GetCourseModuleCompletionResponses = {
+    /**
+     * Best course module completion for the current user
+     */
+    200: null | CourseModuleCompletion;
+};
+
+export type GetCourseModuleCompletionResponse = GetCourseModuleCompletionResponses[keyof GetCourseModuleCompletionResponses];
+
+export type SetCourseModuleCertificateGenerationData = {
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+        /**
+         * Whether certificate generation should be enabled
+         */
+        enabled: boolean;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/set-certificate-generation/{enabled}';
+};
+
+export type SetCourseModuleCertificateGenerationResponses = {
+    /**
+     * Certificate generation updated
+     */
+    200: boolean;
+};
+
+export type SetCourseModuleCertificateGenerationResponse = SetCourseModuleCertificateGenerationResponses[keyof SetCourseModuleCertificateGenerationResponses];
+
+export type DeleteCourseModuleThresholdData = {
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/threshold';
+};
+
+export type DeleteCourseModuleThresholdResponses = {
+    /**
+     * Threshold deleted
+     */
+    200: unknown;
+};
+
+export type CreateCourseModuleThresholdData = {
+    body: ThresholdData;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/threshold';
+};
+
+export type CreateCourseModuleThresholdResponses = {
+    /**
+     * Threshold created
+     */
+    200: unknown;
+};
+
+export type GetCourseModuleUserCompletionData = {
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/user-completion';
+};
+
+export type GetCourseModuleUserCompletionResponses = {
+    /**
+     * User completion information
+     */
+    200: UserCompletionInformation;
+};
+
+export type GetCourseModuleUserCompletionResponse = GetCourseModuleUserCompletionResponses[keyof GetCourseModuleUserCompletionResponses];
+
+export type CreateCourseData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/courses';
+};
+
+export type CreateCourseResponses = {
+    /**
+     * Created course
+     */
+    200: unknown;
+};
+
+export type GetCourseByJoinCodeData = {
+    body?: never;
+    path: {
+        /**
+         * Course join code
+         */
+        join_code: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/join/{join_code}';
+};
+
+export type GetCourseByJoinCodeResponses = {
+    /**
+     * Course for join code
+     */
+    200: unknown;
+};
+
+export type DeleteCourseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}';
+};
+
+export type DeleteCourseResponses = {
+    /**
+     * Deleted course
+     */
+    200: unknown;
+};
+
+export type GetCourseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}';
+};
+
+export type GetCourseResponses = {
+    /**
+     * Course
+     */
+    200: unknown;
+};
+
+export type UpdateCourseData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}';
+};
+
+export type UpdateCourseResponses = {
+    /**
+     * Updated course
+     */
+    200: unknown;
+};
+
+export type GetCourseBreadcrumbInfoData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/breadcrumb-info';
+};
+
+export type GetCourseBreadcrumbInfoResponses = {
+    /**
+     * Course breadcrumb information
+     */
+    200: unknown;
+};
+
+export type GetCourseChatbotsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots';
+};
+
+export type GetCourseChatbotsResponses = {
+    /**
+     * Course chatbots
+     */
+    200: unknown;
+};
+
+export type CreateCourseChatbotData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots';
+};
+
+export type CreateCourseChatbotResponses = {
+    /**
+     * Created course chatbot
+     */
+    200: unknown;
+};
+
+export type SetCourseChatbotAsDefaultData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default';
+};
+
+export type SetCourseChatbotAsDefaultResponses = {
+    /**
+     * Updated course chatbot
+     */
+    200: unknown;
+};
+
+export type SetCourseChatbotAsNonDefaultData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default';
+};
+
+export type SetCourseChatbotAsNonDefaultResponses = {
+    /**
+     * Updated course chatbot
+     */
+    200: unknown;
+};
+
+export type GetCourseInstancesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-instances';
+};
+
+export type GetCourseInstancesResponses = {
+    /**
+     * Course instances
+     */
+    200: unknown;
+};
+
+export type GetCourseModuleCompletionsForUserData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-module-completions/{user_id}';
+};
+
+export type GetCourseModuleCompletionsForUserResponses = {
+    /**
+     * Course module completions for course user
+     */
+    200: unknown;
+};
+
+export type UpdateCourseModulesData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-modules';
+};
+
+export type UpdateCourseModulesResponses = {
+    /**
+     * Course modules updated
+     */
+    200: unknown;
+};
+
+export type GetCourseUsersCountsByExerciseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-users-counts-by-exercise';
+};
+
+export type GetCourseUsersCountsByExerciseResponses = {
+    /**
+     * Course users counts by exercise
+     */
+    200: unknown;
+};
+
+export type CreateCourseCopyData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/create-copy';
+};
+
+export type CreateCourseCopyResponses = {
+    /**
+     * Created course copy
+     */
+    200: unknown;
+};
+
+export type GetCourseDailySubmissionCountsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/daily-submission-counts';
+};
+
+export type GetCourseDailySubmissionCountsResponses = {
+    /**
+     * Course daily submission counts
+     */
+    200: unknown;
+};
+
+export type GetCourseDailyUsersWhoSubmittedSomethingData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/daily-users-who-have-submitted-something';
+};
+
+export type GetCourseDailyUsersWhoSubmittedSomethingResponses = {
+    /**
+     * Course daily user submission counts
+     */
+    200: unknown;
+};
+
+export type GetCourseDefaultPeerReviewData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/default-peer-review';
+};
+
+export type GetCourseDefaultPeerReviewResponses = {
+    /**
+     * Default peer review configuration
+     */
+    200: unknown;
+};
+
+export type GetCourseExercisesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/exercises';
+};
+
+export type GetCourseExercisesResponses = {
+    /**
+     * Exercises for course
+     */
+    200: unknown;
+};
+
+export type GetCourseExercisesAndAnswersRequiringAttentionCountsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/exercises-and-count-of-answers-requiring-attention';
+};
+
+export type GetCourseExercisesAndAnswersRequiringAttentionCountsResponses = {
+    /**
+     * Exercises and answer attention counts
+     */
+    200: unknown;
+};
+
+export type ExportCourseInstancesCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-course-instances';
+};
+
+export type ExportCourseInstancesCsvResponses = {
+    /**
+     * Course instances CSV
+     */
+    200: string;
+};
+
+export type ExportCourseInstancesCsvResponse = ExportCourseInstancesCsvResponses[keyof ExportCourseInstancesCsvResponses];
+
+export type ExportCourseUserConsentsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-course-user-consents';
+};
+
+export type ExportCourseUserConsentsCsvResponses = {
+    /**
+     * Course user consents CSV
+     */
+    200: string;
+};
+
+export type ExportCourseUserConsentsCsvResponse = ExportCourseUserConsentsCsvResponses[keyof ExportCourseUserConsentsCsvResponses];
+
+export type ExportCourseExerciseTasksCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-exercise-tasks';
+};
+
+export type ExportCourseExerciseTasksCsvResponses = {
+    /**
+     * Course exercise tasks CSV
+     */
+    200: string;
+};
+
+export type ExportCourseExerciseTasksCsvResponse = ExportCourseExerciseTasksCsvResponses[keyof ExportCourseExerciseTasksCsvResponses];
+
+export type ExportCourseSubmissionsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-submissions';
+};
+
+export type ExportCourseSubmissionsCsvResponses = {
+    /**
+     * Course submissions CSV
+     */
+    200: string;
+};
+
+export type ExportCourseSubmissionsCsvResponse = ExportCourseSubmissionsCsvResponses[keyof ExportCourseSubmissionsCsvResponses];
+
+export type ExportCourseUserDetailsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-user-details';
+};
+
+export type ExportCourseUserDetailsCsvResponses = {
+    /**
+     * Course user details CSV
+     */
+    200: string;
+};
+
+export type ExportCourseUserDetailsCsvResponse = ExportCourseUserDetailsCsvResponses[keyof ExportCourseUserDetailsCsvResponses];
+
+export type ExportCourseUserExerciseStatesCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-user-exercise-states';
+};
+
+export type ExportCourseUserExerciseStatesCsvResponses = {
+    /**
+     * Course user exercise states CSV
+     */
+    200: string;
+};
+
+export type ExportCourseUserExerciseStatesCsvResponse = ExportCourseUserExerciseStatesCsvResponses[keyof ExportCourseUserExerciseStatesCsvResponses];
+
+export type GetCourseFeedbackData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query: {
+        /**
+         * Whether to fetch read feedback
+         */
+        read: boolean;
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/courses/{course_id}/feedback';
+};
+
+export type GetCourseFeedbackResponses = {
+    /**
+     * Feedback for the course
+     */
+    200: unknown;
+};
+
+export type GetCourseFeedbackCountData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/feedback-count';
+};
+
+export type GetCourseFeedbackCountResponses = {
+    /**
+     * Feedback counts for the course
+     */
+    200: unknown;
 };
 
 export type GetCourseGlossaryData = {
@@ -81,6 +2206,2354 @@ export type CreateCourseGlossaryTermResponses = {
 
 export type CreateCourseGlossaryTermResponse = CreateCourseGlossaryTermResponses[keyof CreateCourseGlossaryTermResponses];
 
+export type JoinCourseWithJoinCodeData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/join-course-with-join-code';
+};
+
+export type JoinCourseWithJoinCodeResponses = {
+    /**
+     * Joined course id
+     */
+    200: string;
+};
+
+export type JoinCourseWithJoinCodeResponse = JoinCourseWithJoinCodeResponses[keyof JoinCourseWithJoinCodeResponses];
+
+export type GetCourseLanguageVersionsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/language-versions';
+};
+
+export type GetCourseLanguageVersionsResponses = {
+    /**
+     * Course language versions
+     */
+    200: unknown;
+};
+
+export type UpdateCourseChapterOrderingData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering';
+};
+
+export type UpdateCourseChapterOrderingResponses = {
+    /**
+     * Course chapter ordering updated
+     */
+    200: unknown;
+};
+
+export type CreateCourseInstanceData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/new-course-instance';
+};
+
+export type CreateCourseInstanceResponses = {
+    /**
+     * Created course instance id
+     */
+    200: string;
+};
+
+export type CreateCourseInstanceResponse = CreateCourseInstanceResponses[keyof CreateCourseInstanceResponses];
+
+export type UpdateCoursePageOrderingData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/new-page-ordering';
+};
+
+export type UpdateCoursePageOrderingResponses = {
+    /**
+     * Course page ordering updated
+     */
+    200: unknown;
+};
+
+export type GetCoursePageVisitDatumSummaryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary';
+};
+
+export type GetCoursePageVisitDatumSummaryResponses = {
+    /**
+     * Course page visit summary
+     */
+    200: unknown;
+};
+
+export type GetCoursePageVisitDatumSummaryByCountriesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-countries';
+};
+
+export type GetCoursePageVisitDatumSummaryByCountriesResponses = {
+    /**
+     * Course page visit summary by countries
+     */
+    200: unknown;
+};
+
+export type GetCoursePageVisitDatumSummaryByDeviceTypesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-device-types';
+};
+
+export type GetCoursePageVisitDatumSummaryByDeviceTypesResponses = {
+    /**
+     * Course page visit summary by device types
+     */
+    200: unknown;
+};
+
+export type GetCoursePageVisitDatumSummaryByPagesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-pages';
+};
+
+export type GetCoursePageVisitDatumSummaryByPagesResponses = {
+    /**
+     * Course page visit summary by pages
+     */
+    200: unknown;
+};
+
+export type DeleteCoursePartnersBlockData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/partners-block';
+};
+
+export type DeleteCoursePartnersBlockResponses = {
+    /**
+     * Deleted partners block
+     */
+    200: unknown;
+};
+
+export type GetCoursePartnersBlockData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/partners-block';
+};
+
+export type GetCoursePartnersBlockResponses = {
+    /**
+     * Partners block
+     */
+    200: unknown;
+};
+
+export type UpsertCoursePartnersBlockData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/partners-block';
+};
+
+export type UpsertCoursePartnersBlockResponses = {
+    /**
+     * Partners block
+     */
+    200: unknown;
+};
+
+export type GetCourseProgressForUserData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/progress/{user_id}';
+};
+
+export type GetCourseProgressForUserResponses = {
+    /**
+     * User progress for course
+     */
+    200: unknown;
+};
+
+export type GetCourseReferencesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references';
+};
+
+export type GetCourseReferencesResponses = {
+    /**
+     * Course references
+     */
+    200: unknown;
+};
+
+export type CreateCourseReferencesData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references';
+};
+
+export type CreateCourseReferencesResponses = {
+    /**
+     * Course references created
+     */
+    200: unknown;
+};
+
+export type DeleteCourseReferenceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Reference id
+         */
+        reference_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references/{reference_id}';
+};
+
+export type DeleteCourseReferenceResponses = {
+    /**
+     * Course reference deleted
+     */
+    200: unknown;
+};
+
+export type UpdateCourseReferenceData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Reference id
+         */
+        reference_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references/{reference_id}';
+};
+
+export type UpdateCourseReferenceResponses = {
+    /**
+     * Course reference updated
+     */
+    200: unknown;
+};
+
+export type ReprocessCourseCompletionsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/reprocess-completions';
+};
+
+export type ReprocessCourseCompletionsResponses = {
+    /**
+     * Course completions reprocessed
+     */
+    200: boolean;
+};
+
+export type ReprocessCourseCompletionsResponse = ReprocessCourseCompletionsResponses[keyof ReprocessCourseCompletionsResponses];
+
+export type SetCourseJoinCodeData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/set-join-code';
+};
+
+export type SetCourseJoinCodeResponses = {
+    /**
+     * Course join code set
+     */
+    200: unknown;
+};
+
+export type GetCourseCompletionsHistoryAllLanguageVersionsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}';
+};
+
+export type GetCourseCompletionsHistoryAllLanguageVersionsResponses = {
+    /**
+     * Course completions history across all language versions
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersStartedAllLanguageVersionsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/total-users-started';
+};
+
+export type GetTotalUsersStartedAllLanguageVersionsResponses = {
+    /**
+     * Total users started across all language versions
+     */
+    200: unknown;
+};
+
+export type GetUniqueUsersStartingHistoryAllLanguageVersionsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/users-starting-history/{granularity}/{time_window}';
+};
+
+export type GetUniqueUsersStartingHistoryAllLanguageVersionsResponses = {
+    /**
+     * Unique users starting history across all language versions
+     */
+    200: unknown;
+};
+
+export type GetAvgTimeToFirstSubmissionHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/avg-time-to-first-submission/{granularity}/{time_window}';
+};
+
+export type GetAvgTimeToFirstSubmissionHistoryResponses = {
+    /**
+     * Average time to first submission history
+     */
+    200: unknown;
+};
+
+export type GetCourseCompletionsHistoryByInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/completions-history/{granularity}/{time_window}';
+};
+
+export type GetCourseCompletionsHistoryByInstanceResponses = {
+    /**
+     * Course completions history by instance
+     */
+    200: unknown;
+};
+
+export type GetFirstExerciseSubmissionsHistoryByInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/first-submissions-history/{granularity}/{time_window}';
+};
+
+export type GetFirstExerciseSubmissionsHistoryByInstanceResponses = {
+    /**
+     * First exercise submissions history by instance
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersCompletedCourseByInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-completed';
+};
+
+export type GetTotalUsersCompletedCourseByInstanceResponses = {
+    /**
+     * Total users completed course by instance
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersReturnedExercisesByInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-returned-exercises';
+};
+
+export type GetTotalUsersReturnedExercisesByInstanceResponses = {
+    /**
+     * Total users returned exercises by instance
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersStartedCourseByInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-started-course';
+};
+
+export type GetTotalUsersStartedCourseByInstanceResponses = {
+    /**
+     * Total users started course by instance
+     */
+    200: unknown;
+};
+
+export type GetUsersReturningExercisesHistoryByInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-returning-exercises-history/{granularity}/{time_window}';
+};
+
+export type GetUsersReturningExercisesHistoryByInstanceResponses = {
+    /**
+     * Users returning exercises history by instance
+     */
+    200: unknown;
+};
+
+export type GetUniqueUsersStartingHistoryByInstanceData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-starting-history/{granularity}/{time_window}';
+};
+
+export type GetUniqueUsersStartingHistoryByInstanceResponses = {
+    /**
+     * Unique users starting history by instance
+     */
+    200: unknown;
+};
+
+export type GetFirstExerciseSubmissionsByModuleData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-module/first-submissions/{granularity}/{time_window}';
+};
+
+export type GetFirstExerciseSubmissionsByModuleResponses = {
+    /**
+     * First exercise submissions by module
+     */
+    200: unknown;
+};
+
+export type GetCohortActivityHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * History window
+         */
+        history_window: number;
+        /**
+         * Tracking window
+         */
+        tracking_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}';
+};
+
+export type GetCohortActivityHistoryResponses = {
+    /**
+     * Cohort activity history
+     */
+    200: unknown;
+};
+
+export type GetCourseCompletionsHistoryCustomTimePeriodData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/completions-history/custom-time-period/{start_date}/{end_date}';
+};
+
+export type GetCourseCompletionsHistoryCustomTimePeriodResponses = {
+    /**
+     * Course completions history for custom time period
+     */
+    200: unknown;
+};
+
+export type GetCourseCompletionsHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/completions-history/{granularity}/{time_window}';
+};
+
+export type GetCourseCompletionsHistoryResponses = {
+    /**
+     * Course completions history
+     */
+    200: unknown;
+};
+
+export type GetFirstExerciseSubmissionsHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/first-submissions-history/{granularity}/{time_window}';
+};
+
+export type GetFirstExerciseSubmissionsHistoryResponses = {
+    /**
+     * First exercise submissions history
+     */
+    200: unknown;
+};
+
+export type GetStudentCompletionsByCountryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+        /**
+         * Country
+         */
+        country: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/student-completions-by-country/{granularity}/{time_window}/{country}';
+};
+
+export type GetStudentCompletionsByCountryResponses = {
+    /**
+     * Student completions by country
+     */
+    200: unknown;
+};
+
+export type GetStudentEnrollmentsByCountryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+        /**
+         * Country
+         */
+        country: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/student-enrollments-by-country/{granularity}/{time_window}/{country}';
+};
+
+export type GetStudentEnrollmentsByCountryResponses = {
+    /**
+     * Student enrollments by country
+     */
+    200: unknown;
+};
+
+export type GetStudentsByCountryTotalsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/students-by-country-totals';
+};
+
+export type GetStudentsByCountryTotalsResponses = {
+    /**
+     * Students by country totals
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersCompletedCourseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed';
+};
+
+export type GetTotalUsersCompletedCourseResponses = {
+    /**
+     * Total users completed course
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersCompletedCourseCustomTimePeriodData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed/custom-time-period/{start_date}/{end_date}';
+};
+
+export type GetTotalUsersCompletedCourseCustomTimePeriodResponses = {
+    /**
+     * Total users completed course for custom time period
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersReturnedExercisesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises';
+};
+
+export type GetTotalUsersReturnedExercisesResponses = {
+    /**
+     * Total users returned exercises
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersReturnedExercisesCustomTimePeriodData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}';
+};
+
+export type GetTotalUsersReturnedExercisesCustomTimePeriodResponses = {
+    /**
+     * Total users returned exercises for custom time period
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersStartedCourseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course';
+};
+
+export type GetTotalUsersStartedCourseResponses = {
+    /**
+     * Total users started course
+     */
+    200: unknown;
+};
+
+export type GetTotalUsersStartedCourseCustomTimePeriodData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course/custom-time-period/{start_date}/{end_date}';
+};
+
+export type GetTotalUsersStartedCourseCustomTimePeriodResponses = {
+    /**
+     * Total users started course for custom time period
+     */
+    200: unknown;
+};
+
+export type GetUsersReturningExercisesHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/users-returning-exercises-history/{granularity}/{time_window}';
+};
+
+export type GetUsersReturningExercisesHistoryResponses = {
+    /**
+     * Users returning exercises history
+     */
+    200: unknown;
+};
+
+export type GetUniqueUsersStartingHistoryCustomTimePeriodData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/custom-time-period/{start_date}/{end_date}';
+};
+
+export type GetUniqueUsersStartingHistoryCustomTimePeriodResponses = {
+    /**
+     * Unique users starting history for custom time period
+     */
+    200: unknown;
+};
+
+export type GetUniqueUsersStartingHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: string;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/{granularity}/{time_window}';
+};
+
+export type GetUniqueUsersStartingHistoryResponses = {
+    /**
+     * Unique users starting history
+     */
+    200: unknown;
+};
+
+export type GetCourseExerciseStatusesForUserData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/status-for-all-exercises/{user_id}';
+};
+
+export type GetCourseExerciseStatusesForUserResponses = {
+    /**
+     * Exercise statuses for course user
+     */
+    200: unknown;
+};
+
+export type GetCourseStructureData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/structure';
+};
+
+export type GetCourseStructureResponses = {
+    /**
+     * Course structure
+     */
+    200: unknown;
+};
+
+export type GetCourseStudentsCertificatesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/certificates';
+};
+
+export type GetCourseStudentsCertificatesResponses = {
+    /**
+     * Course certificates
+     */
+    200: unknown;
+};
+
+export type GetCourseStudentsCompletionsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/completions';
+};
+
+export type GetCourseStudentsCompletionsResponses = {
+    /**
+     * Course completions
+     */
+    200: unknown;
+};
+
+export type GetCourseStudentsProgressData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/progress';
+};
+
+export type GetCourseStudentsProgressResponses = {
+    /**
+     * Course student progress overview
+     */
+    200: unknown;
+};
+
+export type GetCourseStudentsUsersData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/users';
+};
+
+export type GetCourseStudentsUsersResponses = {
+    /**
+     * Course users
+     */
+    200: unknown;
+};
+
+export type GetCourseSubmissionCountsByExerciseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/submission-counts-by-exercise';
+};
+
+export type GetCourseSubmissionCountsByExerciseResponses = {
+    /**
+     * Course submission counts by exercise
+     */
+    200: unknown;
+};
+
+export type GetCourseSuspectedCheatersData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query: {
+        /**
+         * Whether to fetch archived suspected cheaters
+         */
+        archive: boolean;
+    };
+    url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters';
+};
+
+export type GetCourseSuspectedCheatersResponses = {
+    /**
+     * Suspected cheaters for course
+     */
+    200: unknown;
+};
+
+export type ApproveCourseSuspectedCheaterData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Suspected cheater user id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}';
+};
+
+export type ApproveCourseSuspectedCheaterResponses = {
+    /**
+     * Suspected cheater approved
+     */
+    200: unknown;
+};
+
+export type ArchiveCourseSuspectedCheaterData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Suspected cheater user id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}';
+};
+
+export type ArchiveCourseSuspectedCheaterResponses = {
+    /**
+     * Suspected cheater archived
+     */
+    200: unknown;
+};
+
+export type ResetCourseProgressForEveryoneData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-everyone';
+};
+
+export type ResetCourseProgressForEveryoneResponses = {
+    /**
+     * Course progress reset for everyone
+     */
+    200: boolean;
+};
+
+export type ResetCourseProgressForEveryoneResponse = ResetCourseProgressForEveryoneResponses[keyof ResetCourseProgressForEveryoneResponses];
+
+export type ResetCourseProgressForTeacherThemselvesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-themselves';
+};
+
+export type ResetCourseProgressForTeacherThemselvesResponses = {
+    /**
+     * Teacher course progress reset
+     */
+    200: boolean;
+};
+
+export type ResetCourseProgressForTeacherThemselvesResponse = ResetCourseProgressForTeacherThemselvesResponses[keyof ResetCourseProgressForTeacherThemselvesResponses];
+
+export type GetCourseThresholdsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/thresholds';
+};
+
+export type GetCourseThresholdsResponses = {
+    /**
+     * Course thresholds
+     */
+    200: unknown;
+};
+
+export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received';
+};
+
+export type UpdateCoursePeerReviewQueueReviewsReceivedResponses = {
+    /**
+     * Peer review queue updated
+     */
+    200: boolean;
+};
+
+export type UpdateCoursePeerReviewQueueReviewsReceivedResponse = UpdateCoursePeerReviewQueueReviewsReceivedResponses[keyof UpdateCoursePeerReviewQueueReviewsReceivedResponses];
+
+export type UploadCourseMediaData = {
+    body: string;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/upload';
+};
+
+export type UploadCourseMediaResponses = {
+    /**
+     * Uploaded media result
+     */
+    200: unknown;
+};
+
+export type GetCourseUserSettingsForUserData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/user-settings/{user_id}';
+};
+
+export type GetCourseUserSettingsForUserResponses = {
+    /**
+     * User course settings
+     */
+    200: unknown;
+};
+
+export type GetCourseWeekdayHourSubmissionCountsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/weekday-hour-submission-counts';
+};
+
+export type GetCourseWeekdayHourSubmissionCountsResponses = {
+    /**
+     * Course weekday and hour submission counts
+     */
+    200: unknown;
+};
+
+export type GetEmailTemplatesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/email-templates';
+};
+
+export type GetEmailTemplatesResponses = {
+    /**
+     * Email templates
+     */
+    200: Array<EmailTemplate>;
+};
+
+export type GetEmailTemplatesResponse = GetEmailTemplatesResponses[keyof GetEmailTemplatesResponses];
+
+export type DeleteEmailTemplateData = {
+    body?: never;
+    path: {
+        /**
+         * Email template id
+         */
+        email_template_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/email-templates/{email_template_id}';
+};
+
+export type DeleteEmailTemplateResponses = {
+    /**
+     * Deleted email template
+     */
+    200: EmailTemplate;
+};
+
+export type DeleteEmailTemplateResponse = DeleteEmailTemplateResponses[keyof DeleteEmailTemplateResponses];
+
+export type GetExamExercisesData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{exam_id}/exam-exercises';
+};
+
+export type GetExamExercisesResponses = {
+    /**
+     * Exam exercises
+     */
+    200: Array<Exercise>;
+};
+
+export type GetExamExercisesResponse = GetExamExercisesResponses[keyof GetExamExercisesResponses];
+
+export type ReleaseExamGradesData = {
+    body: Array<string>;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{exam_id}/release-grades';
+};
+
+export type ReleaseExamGradesResponses = {
+    /**
+     * Exam grades released
+     */
+    200: unknown;
+};
+
+export type GetExamSubmissionsWithExamIdData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exams/{exam_id}/submissions-with-exam-id';
+};
+
+export type GetExamSubmissionsWithExamIdResponses = {
+    /**
+     * Exercise submissions with exam id
+     */
+    200: Array<Array<ExerciseSlideSubmissionAndUserExerciseState>>;
+};
+
+export type GetExamSubmissionsWithExamIdResponse = GetExamSubmissionsWithExamIdResponses[keyof GetExamSubmissionsWithExamIdResponses];
+
+export type GetExamSubmissionsWithExerciseIdData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exams/{exercise_id}/submissions-with-exercise-id';
+};
+
+export type GetExamSubmissionsWithExerciseIdResponses = {
+    /**
+     * Exercise submissions with exercise id
+     */
+    200: ExerciseSlideSubmissionAndUserExerciseStateList;
+};
+
+export type GetExamSubmissionsWithExerciseIdResponse = GetExamSubmissionsWithExerciseIdResponses[keyof GetExamSubmissionsWithExerciseIdResponses];
+
+export type GetExamData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}';
+};
+
+export type GetExamResponses = {
+    /**
+     * Exam
+     */
+    200: Exam;
+};
+
+export type GetExamResponse = GetExamResponses[keyof GetExamResponses];
+
+export type DuplicateExamData = {
+    body: NewExam;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/duplicate';
+};
+
+export type DuplicateExamResponses = {
+    /**
+     * Exam duplicated
+     */
+    200: boolean;
+};
+
+export type DuplicateExamResponse = DuplicateExamResponses[keyof DuplicateExamResponses];
+
+export type EditExamData = {
+    body: NewExam;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/edit-exam';
+};
+
+export type EditExamResponses = {
+    /**
+     * Exam edited
+     */
+    200: unknown;
+};
+
+export type ExportExamPointsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/export-points';
+};
+
+export type ExportExamPointsCsvResponses = {
+    /**
+     * Exam points CSV export
+     */
+    200: string;
+};
+
+export type ExportExamPointsCsvResponse = ExportExamPointsCsvResponses[keyof ExportExamPointsCsvResponses];
+
+export type ExportExamSubmissionsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/export-submissions';
+};
+
+export type ExportExamSubmissionsCsvResponses = {
+    /**
+     * Exam submissions CSV export
+     */
+    200: string;
+};
+
+export type ExportExamSubmissionsCsvResponse = ExportExamSubmissionsCsvResponses[keyof ExportExamSubmissionsCsvResponses];
+
+export type SetExamCourseData = {
+    body: ExamCourseInfo;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/set';
+};
+
+export type SetExamCourseResponses = {
+    /**
+     * Course set for exam
+     */
+    200: unknown;
+};
+
+export type UnsetExamCourseData = {
+    body: ExamCourseInfo;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/unset';
+};
+
+export type UnsetExamCourseResponses = {
+    /**
+     * Course unset from exam
+     */
+    200: unknown;
+};
+
+export type GetExerciseRepositoriesForCourseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/course/{course_id}';
+};
+
+export type GetExerciseRepositoriesForCourseResponses = {
+    /**
+     * Exercise repositories for course
+     */
+    200: Array<ExerciseRepository>;
+};
+
+export type GetExerciseRepositoriesForCourseResponse = GetExerciseRepositoriesForCourseResponses[keyof GetExerciseRepositoriesForCourseResponses];
+
+export type GetExerciseRepositoriesForExamData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/exam/{exam_id}';
+};
+
+export type GetExerciseRepositoriesForExamResponses = {
+    /**
+     * Exercise repositories for exam
+     */
+    200: Array<ExerciseRepository>;
+};
+
+export type GetExerciseRepositoriesForExamResponse = GetExerciseRepositoriesForExamResponses[keyof GetExerciseRepositoriesForExamResponses];
+
+export type CreateExerciseRepositoryData = {
+    body: NewExerciseRepository;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/new';
+};
+
+export type CreateExerciseRepositoryResponses = {
+    /**
+     * Created exercise repository id
+     */
+    200: string;
+};
+
+export type CreateExerciseRepositoryResponse = CreateExerciseRepositoryResponses[keyof CreateExerciseRepositoryResponses];
+
+export type DeleteExerciseRepositoryData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/{id}';
+};
+
+export type DeleteExerciseRepositoryResponses = {
+    /**
+     * Deleted exercise repository
+     */
+    200: boolean;
+};
+
+export type DeleteExerciseRepositoryResponse = DeleteExerciseRepositoryResponses[keyof DeleteExerciseRepositoryResponses];
+
+export type UpdateExerciseRepositoryData = {
+    body: ExerciseRepositoryUpdate;
+    path: {
+        /**
+         * Exercise repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/{id}';
+};
+
+export type UpdateExerciseRepositoryResponses = {
+    /**
+     * Updated exercise repository
+     */
+    200: boolean;
+};
+
+export type UpdateExerciseRepositoryResponse = UpdateExerciseRepositoryResponses[keyof UpdateExerciseRepositoryResponses];
+
+export type GetExerciseServicesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/';
+};
+
+export type GetExerciseServicesResponses = {
+    /**
+     * Exercise services
+     */
+    200: Array<ExerciseService>;
+};
+
+export type GetExerciseServicesResponse = GetExerciseServicesResponses[keyof GetExerciseServicesResponses];
+
+export type CreateExerciseServiceData = {
+    body: ExerciseServiceNewOrUpdate;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/';
+};
+
+export type CreateExerciseServiceResponses = {
+    /**
+     * Created exercise service
+     */
+    200: ExerciseServiceWithError;
+};
+
+export type CreateExerciseServiceResponse = CreateExerciseServiceResponses[keyof CreateExerciseServiceResponses];
+
+export type DeleteExerciseServiceData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise service id
+         */
+        exercise_service_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}';
+};
+
+export type DeleteExerciseServiceResponses = {
+    /**
+     * Deleted exercise service
+     */
+    200: ExerciseService;
+};
+
+export type DeleteExerciseServiceResponse = DeleteExerciseServiceResponses[keyof DeleteExerciseServiceResponses];
+
+export type GetExerciseServiceByIdData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise service id
+         */
+        exercise_service_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}';
+};
+
+export type GetExerciseServiceByIdResponses = {
+    /**
+     * Exercise service
+     */
+    200: ExerciseService;
+};
+
+export type GetExerciseServiceByIdResponse = GetExerciseServiceByIdResponses[keyof GetExerciseServiceByIdResponses];
+
+export type UpdateExerciseServiceData = {
+    body: ExerciseServiceNewOrUpdate;
+    path: {
+        /**
+         * Exercise service id
+         */
+        exercise_service_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}';
+};
+
+export type UpdateExerciseServiceResponses = {
+    /**
+     * Updated exercise service
+     */
+    200: ExerciseServiceWithError;
+};
+
+export type UpdateExerciseServiceResponse = UpdateExerciseServiceResponses[keyof UpdateExerciseServiceResponses];
+
+export type AddTeacherGradingForExamSubmissionData = {
+    body: NewTeacherGradingDecision;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-slide-submissions/add-teacher-grading-for-exam-submission';
+};
+
+export type AddTeacherGradingForExamSubmissionResponses = {
+    /**
+     * Created teacher grading decision
+     */
+    200: TeacherGradingDecision;
+};
+
+export type AddTeacherGradingForExamSubmissionResponse = AddTeacherGradingForExamSubmissionResponses[keyof AddTeacherGradingForExamSubmissionResponses];
+
+export type GetExamUserExerciseStateInfoData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    url: '/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/user-exercise-state-info';
+};
+
+export type GetExamUserExerciseStateInfoResponses = {
+    /**
+     * User exercise state for the exam submission
+     */
+    200: UserExerciseState;
+};
+
+export type GetExamUserExerciseStateInfoResponse = GetExamUserExerciseStateInfoResponses[keyof GetExamUserExerciseStateInfoResponses];
+
+export type GetExerciseSlideSubmissionInfoData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise slide submission id
+         */
+        submission_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info';
+};
+
+export type GetExerciseSlideSubmissionInfoResponses = {
+    /**
+     * Exercise slide submission info
+     */
+    200: ExerciseSlideSubmissionInfo;
+};
+
+export type GetExerciseSlideSubmissionInfoResponse = GetExerciseSlideSubmissionInfoResponses[keyof GetExerciseSlideSubmissionInfoResponses];
+
+export type GetExercisesByCourseIdData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{course_id}/exercises-by-course-id';
+};
+
+export type GetExercisesByCourseIdResponses = {
+    /**
+     * Exercises by course id
+     */
+    200: unknown;
+};
+
+export type ResetExercisesForSelectedUsersData = {
+    body: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{course_id}/reset-exercises-for-selected-users';
+};
+
+export type ResetExercisesForSelectedUsersResponses = {
+    /**
+     * Number of successful resets
+     */
+    200: number;
+};
+
+export type ResetExercisesForSelectedUsersResponse = ResetExercisesForSelectedUsersResponses[keyof ResetExercisesForSelectedUsersResponses];
+
+export type GetExerciseData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{exercise_id}';
+};
+
+export type GetExerciseResponses = {
+    /**
+     * Exercise
+     */
+    200: Exercise;
+};
+
+export type GetExerciseResponse = GetExerciseResponses[keyof GetExerciseResponses];
+
+export type GetExerciseAnswersRequiringAttentionData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/answers-requiring-attention';
+};
+
+export type GetExerciseAnswersRequiringAttentionResponses = {
+    /**
+     * Answers requiring attention
+     */
+    200: unknown;
+};
+
+export type GetExerciseCsvExportTaskOptionsData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options';
+};
+
+export type GetExerciseCsvExportTaskOptionsResponses = {
+    /**
+     * Exercise CSV export task options
+     */
+    200: unknown;
+};
+
+export type ExportExerciseAnswersCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query: {
+        /**
+         * Exercise task id
+         */
+        exercise_task_id: string;
+        /**
+         * Only include latest submission per user
+         */
+        only_latest_per_user?: boolean;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/export-answers-csv';
+};
+
+export type ExportExerciseAnswersCsvResponses = {
+    /**
+     * Exercise answers CSV
+     */
+    200: string;
+};
+
+export type ExportExerciseAnswersCsvResponse = ExportExerciseAnswersCsvResponses[keyof ExportExerciseAnswersCsvResponses];
+
+export type ExportExerciseDefinitionsCsvData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query: {
+        /**
+         * Exercise task id
+         */
+        exercise_task_id: string;
+        /**
+         * Only include latest submission per user
+         */
+        only_latest_per_user?: boolean;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/export-definitions-csv';
+};
+
+export type ExportExerciseDefinitionsCsvResponses = {
+    /**
+     * Exercise definitions CSV
+     */
+    200: string;
+};
+
+export type ExportExerciseDefinitionsCsvResponse = ExportExerciseDefinitionsCsvResponses[keyof ExportExerciseDefinitionsCsvResponses];
+
+export type GetExerciseSubmissionsData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/submissions';
+};
+
+export type GetExerciseSubmissionsResponses = {
+    /**
+     * Exercise submissions
+     */
+    200: unknown;
+};
+
+export type GetExerciseSubmissionsForUserData = {
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/submissions/user/{user_id}';
+};
+
+export type GetExerciseSubmissionsForUserResponses = {
+    /**
+     * Exercise submissions for user
+     */
+    200: unknown;
+};
+
+export type MarkFeedbackAsReadData = {
+    body: unknown;
+    path: {
+        /**
+         * Feedback id
+         */
+        feedback_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/feedback/{feedback_id}';
+};
+
+export type MarkFeedbackAsReadResponses = {
+    /**
+     * Feedback read state updated
+     */
+    200: unknown;
+};
+
+export type GetCompletionStatsByEmailDomainData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Optional year
+         */
+        year?: number;
+    };
+    url: '/api/v0/main-frontend/global-stats/completion-stats-by-email-domain';
+};
+
+export type GetCompletionStatsByEmailDomainResponses = {
+    /**
+     * Completion stats by email domain
+     */
+    200: unknown;
+};
+
+export type GetCourseCompletionStatsForEmailDomainData = {
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Email domain
+         */
+        email_domain: string;
+        /**
+         * Optional year
+         */
+        year?: number;
+    };
+    url: '/api/v0/main-frontend/global-stats/course-completion-stats-for-email-domain';
+};
+
+export type GetCourseCompletionStatsForEmailDomainResponses = {
+    /**
+     * Course completion stats for email domain
+     */
+    200: unknown;
+};
+
+export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: string;
+    };
+    url: '/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry';
+};
+
+export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses = {
+    /**
+     * Course module completion stats
+     */
+    200: unknown;
+};
+
+export type GetNumberOfPeopleCompletedACourseData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: string;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-completed-a-course';
+};
+
+export type GetNumberOfPeopleCompletedACourseResponses = {
+    /**
+     * Global completion stats
+     */
+    200: unknown;
+};
+
+export type GetNumberOfPeopleDoneAtLeastOneExerciseData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: string;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise';
+};
+
+export type GetNumberOfPeopleDoneAtLeastOneExerciseResponses = {
+    /**
+     * Exercise participation stats
+     */
+    200: unknown;
+};
+
+export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: string;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry';
+};
+
+export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses = {
+    /**
+     * Study registry completion stats
+     */
+    200: unknown;
+};
+
+export type GetNumberOfPeopleStartedCourseData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: string;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-started-course';
+};
+
+export type GetNumberOfPeopleStartedCourseResponses = {
+    /**
+     * Course start stats
+     */
+    200: unknown;
+};
+
 export type DeleteGlossaryTermData = {
     body?: never;
     path: {
@@ -137,6 +4610,1669 @@ export type UpdateGlossaryTermErrors = {
 export type UpdateGlossaryTermResponses = {
     /**
      * Glossary term updated
+     */
+    200: unknown;
+};
+
+export type GetOauthOpenidConfigurationData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/.well-known/openid-configuration';
+};
+
+export type GetOauthOpenidConfigurationResponses = {
+    /**
+     * OAuth/OpenID Connect discovery document
+     */
+    200: unknown;
+};
+
+export type AuthorizeOauthGetData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * OAuth response type
+         */
+        response_type?: string;
+        /**
+         * OAuth client id
+         */
+        client_id?: string;
+        /**
+         * Redirect URI
+         */
+        redirect_uri?: string;
+        /**
+         * Requested scopes
+         */
+        scope?: string;
+        /**
+         * OAuth state
+         */
+        state?: string;
+        /**
+         * OpenID Connect nonce
+         */
+        nonce?: string;
+        /**
+         * PKCE code challenge
+         */
+        code_challenge?: string;
+        /**
+         * PKCE code challenge method
+         */
+        code_challenge_method?: string;
+        /**
+         * Prompt behavior
+         */
+        prompt?: string;
+        /**
+         * Unsupported request object
+         */
+        request?: string;
+    };
+    url: '/api/v0/main-frontend/oauth/authorize';
+};
+
+export type AuthorizeOauthPostData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/authorize';
+};
+
+export type GetOauthAuthorizedClientsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/authorized-clients';
+};
+
+export type GetOauthAuthorizedClientsResponses = {
+    /**
+     * Authorized OAuth clients
+     */
+    200: unknown;
+};
+
+export type DeleteOauthAuthorizedClientData = {
+    body?: never;
+    path: {
+        /**
+         * OAuth client id
+         */
+        client_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/authorized-clients/{client_id}';
+};
+
+export type DeleteOauthAuthorizedClientResponses = {
+    /**
+     * Authorized client revoked
+     */
+    204: void;
+};
+
+export type DeleteOauthAuthorizedClientResponse = DeleteOauthAuthorizedClientResponses[keyof DeleteOauthAuthorizedClientResponses];
+
+export type ApproveOauthConsentData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/consent';
+};
+
+export type ApproveOauthConsentResponses = {
+    /**
+     * Consent approval response
+     */
+    200: unknown;
+};
+
+export type DenyOauthConsentData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/consent/deny';
+};
+
+export type IntrospectOauthTokenData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/introspect';
+};
+
+export type IntrospectOauthTokenResponses = {
+    /**
+     * OAuth token introspection response
+     */
+    200: unknown;
+};
+
+export type GetOauthJwksData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/jwks.json';
+};
+
+export type GetOauthJwksResponses = {
+    /**
+     * OAuth JSON Web Key Set
+     */
+    200: unknown;
+};
+
+export type RevokeOauthTokenData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/revoke';
+};
+
+export type RevokeOauthTokenResponses = {
+    /**
+     * OAuth token revocation acknowledged
+     */
+    200: unknown;
+};
+
+export type ExchangeOauthTokenData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/token';
+};
+
+export type ExchangeOauthTokenErrors = {
+    /**
+     * OAuth token error
+     */
+    401: unknown;
+};
+
+export type ExchangeOauthTokenResponses = {
+    /**
+     * OAuth token response
+     */
+    200: unknown;
+};
+
+export type GetOauthUserInfoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/userinfo';
+};
+
+export type GetOauthUserInfoErrors = {
+    /**
+     * Invalid token
+     */
+    401: unknown;
+};
+
+export type GetOauthUserInfoResponses = {
+    /**
+     * OAuth userinfo response
+     */
+    200: unknown;
+};
+
+export type PostOauthUserInfoData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/userinfo';
+};
+
+export type PostOauthUserInfoErrors = {
+    /**
+     * Invalid token
+     */
+    401: unknown;
+};
+
+export type PostOauthUserInfoResponses = {
+    /**
+     * OAuth userinfo response
+     */
+    200: unknown;
+};
+
+export type GetOrganizationBySlugData = {
+    body?: never;
+    path: {
+        /**
+         * Organization slug
+         */
+        organization_slug: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/org/{organization_slug}';
+};
+
+export type GetOrganizationBySlugResponses = {
+    /**
+     * Organization
+     */
+    200: unknown;
+};
+
+export type GetOrganizationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/organizations';
+};
+
+export type GetOrganizationsResponses = {
+    /**
+     * Organizations
+     */
+    200: unknown;
+};
+
+export type CreateOrganizationData = {
+    body: OrganizationCreatePayload;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/organizations';
+};
+
+export type CreateOrganizationResponses = {
+    /**
+     * Created organization
+     */
+    200: unknown;
+};
+
+export type GetOrganizationExamByExamIdData = {
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam';
+};
+
+export type GetOrganizationExamByExamIdResponses = {
+    /**
+     * Organization exam
+     */
+    200: unknown;
+};
+
+export type GetOrganizationData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}';
+};
+
+export type GetOrganizationResponses = {
+    /**
+     * Organization
+     */
+    200: unknown;
+};
+
+export type SoftDeleteOrganizationData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}';
+};
+
+export type SoftDeleteOrganizationResponses = {
+    /**
+     * Organization soft deleted
+     */
+    200: unknown;
+};
+
+export type UpdateOrganizationData = {
+    body: OrganizationUpdatePayload;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}';
+};
+
+export type UpdateOrganizationResponses = {
+    /**
+     * Organization updated
+     */
+    200: unknown;
+};
+
+export type GetOrganizationCourseExamsData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/course_exams';
+};
+
+export type GetOrganizationCourseExamsResponses = {
+    /**
+     * Organization course exams
+     */
+    200: unknown;
+};
+
+export type GetOrganizationCoursesData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses';
+};
+
+export type GetOrganizationCoursesResponses = {
+    /**
+     * Organization courses
+     */
+    200: unknown;
+};
+
+export type GetOrganizationActiveCoursesData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/active';
+};
+
+export type GetOrganizationActiveCoursesResponses = {
+    /**
+     * Active organization courses
+     */
+    200: unknown;
+};
+
+export type GetOrganizationActiveCourseCountData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/active/count';
+};
+
+export type GetOrganizationActiveCourseCountResponses = {
+    /**
+     * Active organization course count
+     */
+    200: unknown;
+};
+
+export type GetOrganizationCourseCountData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/count';
+};
+
+export type GetOrganizationCourseCountResponses = {
+    /**
+     * Organization course count
+     */
+    200: unknown;
+};
+
+export type GetOrganizationDuplicatableCoursesData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable';
+};
+
+export type GetOrganizationDuplicatableCoursesResponses = {
+    /**
+     * Duplicatable organization courses
+     */
+    200: unknown;
+};
+
+export type CreateOrganizationExamData = {
+    body: unknown;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/exams';
+};
+
+export type CreateOrganizationExamResponses = {
+    /**
+     * Organization exam created
+     */
+    200: unknown;
+};
+
+export type DeleteOrganizationImageData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/image';
+};
+
+export type DeleteOrganizationImageResponses = {
+    /**
+     * Organization image removed
+     */
+    200: unknown;
+};
+
+export type UpdateOrganizationImageData = {
+    body: {
+        file: Array<number>;
+    };
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/image';
+};
+
+export type UpdateOrganizationImageResponses = {
+    /**
+     * Updated organization
+     */
+    200: unknown;
+};
+
+export type GetOrganizationExamsData = {
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/org_exams';
+};
+
+export type GetOrganizationExamsResponses = {
+    /**
+     * Organization exams
+     */
+    200: unknown;
+};
+
+export type DeletePageAudioFileData = {
+    body?: never;
+    path: {
+        /**
+         * Page audio file id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/page_audio/{file_id}';
+};
+
+export type DeletePageAudioFileResponses = {
+    /**
+     * Page audio deleted
+     */
+    200: unknown;
+};
+
+export type CreatePageAudioFileData = {
+    body: {
+        file: Array<number>;
+    };
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/page_audio/{page_id}';
+};
+
+export type CreatePageAudioFileResponses = {
+    /**
+     * Page audio uploaded
+     */
+    200: boolean;
+};
+
+export type CreatePageAudioFileResponse = CreatePageAudioFileResponses[keyof CreatePageAudioFileResponses];
+
+export type GetPageAudioFilesData = {
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/page_audio/{page_id}/files';
+};
+
+export type GetPageAudioFilesResponses = {
+    /**
+     * Page audio files
+     */
+    200: Array<PageAudioFile>;
+};
+
+export type GetPageAudioFilesResponse = GetPageAudioFilesResponses[keyof GetPageAudioFilesResponses];
+
+export type CreatePageData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/pages';
+};
+
+export type CreatePageResponses = {
+    /**
+     * Created page
+     */
+    200: Page;
+};
+
+export type CreatePageResponse = CreatePageResponses[keyof CreatePageResponses];
+
+export type GetCoursePagesData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{course_id}/all-course-pages-for-course';
+};
+
+export type GetCoursePagesResponses = {
+    /**
+     * Course pages
+     */
+    200: Array<Page>;
+};
+
+export type GetCoursePagesResponse = GetCoursePagesResponses[keyof GetCoursePagesResponses];
+
+export type DeletePageData = {
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}';
+};
+
+export type DeletePageResponses = {
+    /**
+     * Deleted page
+     */
+    200: Page;
+};
+
+export type DeletePageResponse = DeletePageResponses[keyof DeletePageResponses];
+
+export type GetPageHistoryData = {
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/pages/{page_id}/history';
+};
+
+export type GetPageHistoryResponses = {
+    /**
+     * Page history entries
+     */
+    200: Array<PageHistory>;
+};
+
+export type GetPageHistoryResponse = GetPageHistoryResponses[keyof GetPageHistoryResponses];
+
+export type GetPageHistoryCountData = {
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/history_count';
+};
+
+export type GetPageHistoryCountResponses = {
+    /**
+     * Page history count
+     */
+    200: number;
+};
+
+export type GetPageHistoryCountResponse = GetPageHistoryCountResponses[keyof GetPageHistoryCountResponses];
+
+export type GetPageInfoData = {
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/info';
+};
+
+export type GetPageInfoResponses = {
+    /**
+     * Page info
+     */
+    200: PageInfo;
+};
+
+export type GetPageInfoResponse = GetPageInfoResponses[keyof GetPageInfoResponses];
+
+export type UpdatePageDetailsData = {
+    body: PageDetailsUpdate;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/page-details';
+};
+
+export type UpdatePageDetailsResponses = {
+    /**
+     * Updated page details
+     */
+    200: boolean;
+};
+
+export type UpdatePageDetailsResponse = UpdatePageDetailsResponses[keyof UpdatePageDetailsResponses];
+
+export type RestorePageHistoryData = {
+    body: HistoryRestoreData;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/restore';
+};
+
+export type RestorePageHistoryResponses = {
+    /**
+     * Restored history id
+     */
+    200: string;
+};
+
+export type RestorePageHistoryResponse = RestorePageHistoryResponses[keyof RestorePageHistoryResponses];
+
+export type ReceivePlaygroundGradingData = {
+    body: unknown;
+    path: {
+        /**
+         * Playground websocket id
+         */
+        websocket_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/playground-views/grading/{websocket_id}';
+};
+
+export type ReceivePlaygroundGradingResponses = {
+    /**
+     * Grading forwarded to websocket client
+     */
+    200: unknown;
+};
+
+export type GetPlaygroundViewsWebsocketData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground-views/ws';
+};
+
+export type GetPlaygroundExamplesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples';
+};
+
+export type GetPlaygroundExamplesResponses = {
+    /**
+     * Playground examples
+     */
+    200: unknown;
+};
+
+export type CreatePlaygroundExampleData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples';
+};
+
+export type CreatePlaygroundExampleResponses = {
+    /**
+     * Created playground example
+     */
+    200: unknown;
+};
+
+export type UpdatePlaygroundExampleData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples';
+};
+
+export type UpdatePlaygroundExampleResponses = {
+    /**
+     * Updated playground example
+     */
+    200: unknown;
+};
+
+export type DeletePlaygroundExampleData = {
+    body?: never;
+    path: {
+        /**
+         * Playground example id
+         */
+        playground_example_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples/{playground_example_id}';
+};
+
+export type DeletePlaygroundExampleResponses = {
+    /**
+     * Deleted playground example
+     */
+    200: unknown;
+};
+
+export type GetEditProposalsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query: {
+        /**
+         * Whether to fetch pending proposals
+         */
+        pending: boolean;
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/proposed-edits/course/{course_id}';
+};
+
+export type GetEditProposalsResponses = {
+    /**
+     * Edit proposals
+     */
+    200: Array<PageProposal>;
+};
+
+export type GetEditProposalsResponse = GetEditProposalsResponses[keyof GetEditProposalsResponses];
+
+export type GetEditProposalCountData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/proposed-edits/course/{course_id}/count';
+};
+
+export type GetEditProposalCountResponses = {
+    /**
+     * Edit proposal counts
+     */
+    200: ProposalCount;
+};
+
+export type GetEditProposalCountResponse = GetEditProposalCountResponses[keyof GetEditProposalCountResponses];
+
+export type ProcessEditProposalData = {
+    body: EditProposalInfo;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/proposed-edits/process-edit-proposal';
+};
+
+export type ProcessEditProposalResponses = {
+    /**
+     * Processed edit proposal
+     */
+    200: unknown;
+};
+
+export type GetRegradingsData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/regradings';
+};
+
+export type GetRegradingsResponses = {
+    /**
+     * Regradings
+     */
+    200: unknown;
+};
+
+export type CreateRegradingData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/regradings';
+};
+
+export type CreateRegradingResponses = {
+    /**
+     * Created regrading id
+     */
+    200: string;
+};
+
+export type CreateRegradingResponse = CreateRegradingResponses[keyof CreateRegradingResponses];
+
+export type GetRegradingsCountData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/regradings/count';
+};
+
+export type GetRegradingsCountResponses = {
+    /**
+     * Regradings count
+     */
+    200: number;
+};
+
+export type GetRegradingsCountResponse = GetRegradingsCountResponses[keyof GetRegradingsCountResponses];
+
+export type GetRegradingInfoData = {
+    body?: never;
+    path: {
+        /**
+         * Regrading id
+         */
+        regrading_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/regradings/{regrading_id}';
+};
+
+export type GetRegradingInfoResponses = {
+    /**
+     * Regrading info
+     */
+    200: unknown;
+};
+
+export type GetRolesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Global domain
+         */
+        global?: boolean;
+        /**
+         * Organization id
+         */
+        organization_id?: string;
+        /**
+         * Course id
+         */
+        course_id?: string;
+        /**
+         * Course instance id
+         */
+        course_instance_id?: string;
+        /**
+         * Exam id
+         */
+        exam_id?: string;
+    };
+    url: '/api/v0/main-frontend/roles';
+};
+
+export type GetRolesResponses = {
+    /**
+     * Roles
+     */
+    200: unknown;
+};
+
+export type AddRoleData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/roles/add';
+};
+
+export type AddRoleResponses = {
+    /**
+     * Role added
+     */
+    200: unknown;
+};
+
+export type GetPendingRolesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Global domain
+         */
+        global?: boolean;
+        /**
+         * Organization id
+         */
+        organization_id?: string;
+        /**
+         * Course id
+         */
+        course_id?: string;
+        /**
+         * Course instance id
+         */
+        course_instance_id?: string;
+        /**
+         * Exam id
+         */
+        exam_id?: string;
+    };
+    url: '/api/v0/main-frontend/roles/pending';
+};
+
+export type GetPendingRolesResponses = {
+    /**
+     * Pending roles
+     */
+    200: unknown;
+};
+
+export type RemoveRoleData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/roles/remove';
+};
+
+export type RemoveRoleResponses = {
+    /**
+     * Role removed
+     */
+    200: unknown;
+};
+
+export type GetStatusCronjobsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/cronjobs';
+};
+
+export type GetStatusCronjobsResponses = {
+    /**
+     * Cronjobs
+     */
+    200: unknown;
+};
+
+export type GetStatusDeploymentsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/deployments';
+};
+
+export type GetStatusDeploymentsResponses = {
+    /**
+     * Deployments
+     */
+    200: unknown;
+};
+
+export type GetStatusEventsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/events';
+};
+
+export type GetStatusEventsResponses = {
+    /**
+     * Events
+     */
+    200: unknown;
+};
+
+export type GetStatusHealthData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/health';
+};
+
+export type GetStatusHealthResponses = {
+    /**
+     * Detailed system health
+     */
+    200: unknown;
+};
+
+export type GetStatusIngressesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/ingresses';
+};
+
+export type GetStatusIngressesResponses = {
+    /**
+     * Ingresses
+     */
+    200: unknown;
+};
+
+export type GetStatusJobsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/jobs';
+};
+
+export type GetStatusJobsResponses = {
+    /**
+     * Jobs
+     */
+    200: unknown;
+};
+
+export type GetStatusPodDisruptionBudgetsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/pod-disruption-budgets';
+};
+
+export type GetStatusPodDisruptionBudgetsResponses = {
+    /**
+     * Pod disruption budgets
+     */
+    200: unknown;
+};
+
+export type GetStatusPodsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/pods';
+};
+
+export type GetStatusPodsResponses = {
+    /**
+     * Pods
+     */
+    200: unknown;
+};
+
+export type GetStatusPodLogsData = {
+    body?: never;
+    path: {
+        /**
+         * Pod name
+         */
+        pod_name: string;
+    };
+    query?: {
+        /**
+         * Container name
+         */
+        container?: string;
+        /**
+         * Number of log lines
+         */
+        tail?: number;
+    };
+    url: '/api/v0/main-frontend/status/pods/{pod_name}/logs';
+};
+
+export type GetStatusPodLogsResponses = {
+    /**
+     * Pod logs
+     */
+    200: string;
+};
+
+export type GetStatusPodLogsResponse = GetStatusPodLogsResponses[keyof GetStatusPodLogsResponses];
+
+export type GetStatusServicesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/services';
+};
+
+export type GetStatusServicesResponses = {
+    /**
+     * Services
+     */
+    200: unknown;
+};
+
+export type GetStatusSystemHealthData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/system-health';
+};
+
+export type GetStatusSystemHealthResponses = {
+    /**
+     * System health
+     */
+    200: boolean;
+};
+
+export type GetStatusSystemHealthResponse = GetStatusSystemHealthResponses[keyof GetStatusSystemHealthResponses];
+
+export type CreateTeacherGradingDecisionData = {
+    body: NewTeacherGradingDecision;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/teacher-grading-decisions';
+};
+
+export type CreateTeacherGradingDecisionResponses = {
+    /**
+     * Teacher grading decision created
+     */
+    200: null | UserExerciseState;
+};
+
+export type CreateTeacherGradingDecisionResponse = CreateTeacherGradingDecisionResponses[keyof CreateTeacherGradingDecisionResponses];
+
+export type GetCurrentTimeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/time';
+};
+
+export type GetCurrentTimeResponses = {
+    /**
+     * Current server time
+     */
+    200: string;
+};
+
+export type GetCurrentTimeResponse = GetCurrentTimeResponses[keyof GetCurrentTimeResponses];
+
+export type GetBulkUserDetailsData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/bulk-user-details';
+};
+
+export type GetBulkUserDetailsResponses = {
+    /**
+     * Bulk user details
+     */
+    200: unknown;
+};
+
+export type SearchUserDetailsByEmailData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/search-by-email';
+};
+
+export type SearchUserDetailsByEmailResponses = {
+    /**
+     * User details search results
+     */
+    200: unknown;
+};
+
+export type SearchUserDetailsByOtherDetailsData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/search-by-other-details';
+};
+
+export type SearchUserDetailsByOtherDetailsResponses = {
+    /**
+     * User details search results
+     */
+    200: unknown;
+};
+
+export type SearchUserDetailsFuzzyMatchData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/search-fuzzy-match';
+};
+
+export type SearchUserDetailsFuzzyMatchResponses = {
+    /**
+     * User details fuzzy search results
+     */
+    200: unknown;
+};
+
+export type UpdateUserInfoData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/update-user-info';
+};
+
+export type UpdateUserInfoResponses = {
+    /**
+     * Updated user details
+     */
+    200: unknown;
+};
+
+export type GetUserDetailsByCoursesData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/user-by-courses';
+};
+
+export type GetUserDetailsByCoursesResponses = {
+    /**
+     * User details
+     */
+    200: unknown;
+};
+
+export type GetUserDetailsForAuthenticatedUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/user-details-for-user';
+};
+
+export type GetUserDetailsForAuthenticatedUserResponses = {
+    /**
+     * Authenticated user details
+     */
+    200: unknown;
+};
+
+export type GetUsersIpCountryData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/users-ip-country';
+};
+
+export type GetUsersIpCountryResponses = {
+    /**
+     * Country inferred from request IP
+     */
+    200: string;
+};
+
+export type GetUsersIpCountryResponse = GetUsersIpCountryResponses[keyof GetUsersIpCountryResponses];
+
+export type GetUsersByCourseIdForUserDetailsData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/{course_id}/get-users-by-course-id';
+};
+
+export type GetUsersByCourseIdForUserDetailsResponses = {
+    /**
+     * Users by course id
+     */
+    200: unknown;
+};
+
+export type GetUserDetailsByCourseAndUserIdData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/{course_id}/user/{user_id}';
+};
+
+export type GetUserDetailsByCourseAndUserIdResponses = {
+    /**
+     * User details
+     */
+    200: unknown;
+};
+
+export type ChangeUserPasswordData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/change-password';
+};
+
+export type ChangeUserPasswordResponses = {
+    /**
+     * Password change status
+     */
+    200: boolean;
+};
+
+export type ChangeUserPasswordResponse = ChangeUserPasswordResponses[keyof ChangeUserPasswordResponses];
+
+export type GetUserResearchConsentData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/get-user-research-consent';
+};
+
+export type GetUserResearchConsentResponses = {
+    /**
+     * User research consent
+     */
+    200: unknown;
+};
+
+export type GetMyCoursesData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/my-courses';
+};
+
+export type GetMyCoursesResponses = {
+    /**
+     * Courses for authenticated user
+     */
+    200: unknown;
+};
+
+export type ResetUserPasswordData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/reset-password';
+};
+
+export type ResetUserPasswordResponses = {
+    /**
+     * Password reset status
+     */
+    200: boolean;
+};
+
+export type ResetUserPasswordResponse = ResetUserPasswordResponses[keyof ResetUserPasswordResponses];
+
+export type GetResetPasswordTokenStatusData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/reset-password-token-status';
+};
+
+export type GetResetPasswordTokenStatusResponses = {
+    /**
+     * Reset password token validity
+     */
+    200: boolean;
+};
+
+export type GetResetPasswordTokenStatusResponse = GetResetPasswordTokenStatusResponses[keyof GetResetPasswordTokenStatusResponses];
+
+export type SendResetPasswordEmailData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/send-reset-password-email';
+};
+
+export type SendResetPasswordEmailResponses = {
+    /**
+     * Reset password email accepted
+     */
+    200: boolean;
+};
+
+export type SendResetPasswordEmailResponse = SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses];
+
+export type CreateUserResearchConsentData = {
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/user-research-consents';
+};
+
+export type CreateUserResearchConsentResponses = {
+    /**
+     * User research consent
+     */
+    200: unknown;
+};
+
+export type GetUserResearchFormQuestionAnswersData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/user-research-form-question-answers';
+};
+
+export type GetUserResearchFormQuestionAnswersResponses = {
+    /**
+     * Research form answers for user
+     */
+    200: unknown;
+};
+
+export type GetUserData = {
+    body?: never;
+    path: {
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/users/{user_id}';
+};
+
+export type GetUserResponses = {
+    /**
+     * User
+     */
+    200: unknown;
+};
+
+export type GetUserCourseEnrollmentsData = {
+    body?: never;
+    path: {
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/users/{user_id}/course-enrollments';
+};
+
+export type GetUserCourseEnrollmentsResponses = {
+    /**
+     * User course enrollments
+     */
+    200: unknown;
+};
+
+export type GetUserResetExerciseLogsData = {
+    body?: never;
+    path: {
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/users/{user_id}/user-reset-exercise-logs';
+};
+
+export type GetUserResetExerciseLogsResponses = {
+    /**
+     * User reset exercise logs
      */
     200: unknown;
 };

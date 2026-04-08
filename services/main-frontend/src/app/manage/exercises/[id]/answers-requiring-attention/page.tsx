@@ -11,7 +11,7 @@ import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttent
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import { fetchAnswersRequiringAttention } from "@/services/backend/answers-requiring-attention"
+import { getExerciseAnswersRequiringAttentionOptions } from "@/services/backend/answers-requiring-attention"
 import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -73,14 +73,9 @@ const SubmissionsPage: React.FC = () => {
     }
   }, [courseStructure.data, exerciseQuery.data])
 
-  const answersQuery = useQuery({
-    queryKey: [
-      `exercises-${id}-answers-requiring-attention`,
-      paginationInfo.page,
-      paginationInfo.limit,
-    ],
-    queryFn: () => fetchAnswersRequiringAttention(id, paginationInfo.page, paginationInfo.limit),
-  })
+  const answersQuery = useQuery(
+    getExerciseAnswersRequiringAttentionOptions(id, paginationInfo.page, paginationInfo.limit),
+  )
 
   if (courseStructure.isLoading) {
     return <Spinner variant="medium" />

@@ -9,7 +9,8 @@ import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
-import { getCertificates, updateCertificate } from "@/services/backend/courses/students"
+import { getCertificateImageUrl } from "@/services/backend/certificates"
+import { getCertificatesOptions, updateCertificate } from "@/services/backend/courses/students"
 import { CertificateGridRow, CertificateUpdateRequest } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -64,8 +65,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: 
   } | null>(null)
 
   const query = useQuery({
-    queryKey: ["certificates-tab", courseId],
-    queryFn: () => getCertificates(courseId!),
+    ...getCertificatesOptions(courseId ?? ""),
     enabled: !!courseId,
   })
 
@@ -150,8 +150,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: 
 
         const handleView = () => {
           if (certificate === "Course Certificate" && verification_id) {
-            // eslint-disable-next-line i18next/no-literal-string
-            setPopupUrl(`/api/v0/main-frontend/certificates/${verification_id}`)
+            setPopupUrl(getCertificateImageUrl(verification_id))
             setVerificationId(verification_id)
           }
         }

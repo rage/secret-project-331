@@ -1,10 +1,11 @@
 use chrono::Duration;
 use std::collections::HashMap;
+use utoipa::ToSchema;
 
 use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exam {
     pub id: Uuid,
@@ -41,7 +42,7 @@ impl Exam {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct OrgExam {
     pub id: Uuid,
@@ -131,7 +132,7 @@ WHERE course_exams.exam_id = $1
     })
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseExam {
     pub id: Uuid,
@@ -140,7 +141,7 @@ pub struct CourseExam {
     pub name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewExam {
     pub name: String,
@@ -370,7 +371,7 @@ pub async fn verify_exam_submission_can_be_made(
     Ok(student_has_time && exam_is_ongoing)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExamEnrollment {
     pub user_id: Uuid,

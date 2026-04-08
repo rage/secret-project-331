@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import { getCourseEnrollmentsInfo } from "@/services/backend/users"
+import { getCourseEnrollmentsInfoOptions } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -19,10 +19,7 @@ export interface CourseEnrollmentsListProps {
 
 const CourseEnrollmentsList: React.FC<CourseEnrollmentsListProps> = ({ userId }) => {
   const { t } = useTranslation()
-  const courseEnrollmentsQuery = useQuery({
-    queryKey: ["course-enrollments", userId],
-    queryFn: () => getCourseEnrollmentsInfo(userId),
-  })
+  const courseEnrollmentsQuery = useQuery(getCourseEnrollmentsInfoOptions(userId))
   if (courseEnrollmentsQuery.isError) {
     return <ErrorBanner variant="readOnly" error={courseEnrollmentsQuery.error} />
   }

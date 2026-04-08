@@ -6,15 +6,14 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useExercises } from "@/hooks/useExercises"
-import { fetchAllChaptersByCourseId } from "@/services/backend/chapters"
-import { fetchAllPagesByCourseId } from "@/services/backend/pages"
+import { getAllChaptersByCourseIdOptions } from "@/services/backend/chapters"
+import { getAllPagesByCourseIdOptions } from "@/services/backend/pages"
 import { DatabaseChapter, Exercise, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 type Props = {
   courseId: string
@@ -40,8 +39,7 @@ const ExerciseList: React.FC<Props> = ({
     isLoading: chaptersLoading,
     error: chaptersError,
   } = useQuery({
-    queryKey: [`/chapters/${courseId}/all-chapters-by-course-id`],
-    queryFn: () => fetchAllChaptersByCourseId(assertNotNullOrUndefined(courseId)),
+    ...getAllChaptersByCourseIdOptions(courseId),
     enabled: !!courseId,
   })
 
@@ -50,8 +48,7 @@ const ExerciseList: React.FC<Props> = ({
     isLoading: pagesLoading,
     error: pagesError,
   } = useQuery({
-    queryKey: [`/pages/${courseId}/all-course-pages-by-course-id`],
-    queryFn: () => fetchAllPagesByCourseId(assertNotNullOrUndefined(courseId)),
+    ...getAllPagesByCourseIdOptions(courseId),
     enabled: !!courseId,
   })
 

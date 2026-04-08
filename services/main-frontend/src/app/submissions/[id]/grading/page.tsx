@@ -9,9 +9,9 @@ import { useTranslation } from "react-i18next"
 import SubmissionIFrame from "./SubmissionIFrame"
 
 import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
-import { fetchExam } from "@/services/backend/exams"
+import { getExamOptions } from "@/services/backend/exams"
 import { Block } from "@/services/backend/exercises"
-import { fetchSubmissionInfo } from "@/services/backend/submissions"
+import { getSubmissionInfoOptions } from "@/services/backend/submissions"
 import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -27,10 +27,7 @@ const Submission: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  const getSubmissionInfo = useQuery({
-    queryKey: [`submission-${id}`],
-    queryFn: () => fetchSubmissionInfo(id),
-  })
+  const getSubmissionInfo = useQuery(getSubmissionInfoOptions(id))
 
   const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,8 +39,8 @@ const Submission: React.FC = () => {
   const exerciseId = getSubmissionInfo.data?.exercise.id
 
   const getExam = useQuery({
-    queryKey: [`/exams/${examId}/`, examId],
-    queryFn: () => fetchExam(examId ?? ""),
+    ...getExamOptions(examId ?? ""),
+    enabled: !!examId,
   })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {

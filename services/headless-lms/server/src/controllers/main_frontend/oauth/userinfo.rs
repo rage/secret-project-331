@@ -12,6 +12,11 @@ use models::{
     user_details,
 };
 use std::collections::HashSet;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(user_info_get_doc, user_info_post_doc))]
+pub(crate) struct MainFrontendOauthUserInfoApiDoc;
 
 /// Handles `/userinfo` for returning user claims according to granted scopes.
 ///
@@ -197,6 +202,30 @@ pub async fn user_info(
             .json(res),
     )
 }
+
+#[utoipa::path(
+    get,
+    path = "/userinfo",
+    operation_id = "getOauthUserInfo",
+    tag = "oauth",
+    responses(
+        (status = 200, description = "OAuth userinfo response", body = serde_json::Value),
+        (status = 401, description = "Invalid token")
+    )
+)]
+pub(crate) fn user_info_get_doc() {}
+
+#[utoipa::path(
+    post,
+    path = "/userinfo",
+    operation_id = "postOauthUserInfo",
+    tag = "oauth",
+    responses(
+        (status = 200, description = "OAuth userinfo response", body = serde_json::Value),
+        (status = 401, description = "Invalid token")
+    )
+)]
+pub(crate) fn user_info_post_doc() {}
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route(

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import CourseCard, { CourseGrid } from "@/app/org/[organizationSlug]/CourseCard"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
-import { getMyCourses } from "@/services/backend/users"
+import { getMyCoursesOptions } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
@@ -13,10 +13,7 @@ import { manageCourseByIdRoute, navigateToCourseRoute } from "@/shared-module/co
 
 const MyCourses: React.FC = () => {
   const { t } = useTranslation()
-  const myCoursesQuery = useQuery({
-    queryKey: ["my-courses"],
-    queryFn: () => getMyCourses(),
-  })
+  const myCoursesQuery = useQuery(getMyCoursesOptions())
   const allOrganizationsQuery = useAllOrganizationsQuery()
   const canMangeCourse = useAuthorizeMultiple(
     myCoursesQuery.data?.map((course) => {

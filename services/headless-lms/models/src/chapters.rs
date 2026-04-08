@@ -14,8 +14,9 @@ use headless_lms_utils::{
     ApplicationConfiguration, file_store::FileStore,
     numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DatabaseChapter {
     pub id: Uuid,
@@ -43,7 +44,7 @@ impl DatabaseChapter {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Chapter {
     pub id: Uuid,
@@ -114,7 +115,7 @@ pub struct ChapterPagesWithExercises {
 }
 
 // Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewChapter {
     pub name: String,
@@ -129,7 +130,7 @@ pub struct NewChapter {
     pub course_module_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterUpdate {
     pub name: String,

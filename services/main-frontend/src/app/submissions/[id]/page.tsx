@@ -15,7 +15,7 @@ import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
 import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
 import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
-import { fetchSubmissionInfo } from "@/services/backend/submissions"
+import { getSubmissionInfoOptions } from "@/services/backend/submissions"
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -34,10 +34,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const getSubmissionInfo = useQuery({
-    queryKey: [`submission-${id}`],
-    queryFn: () => fetchSubmissionInfo(id),
-  })
+  const getSubmissionInfo = useQuery(getSubmissionInfoOptions(id))
 
   const userDetails = useUserDetails(
     getSubmissionInfo.data?.exercise.course_id ? [getSubmissionInfo.data.exercise.course_id] : null,

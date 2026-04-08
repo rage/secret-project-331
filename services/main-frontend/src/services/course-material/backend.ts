@@ -3,6 +3,7 @@ import { Dictionary } from "lodash"
 
 import { courseMaterialClient } from "./courseMaterialClient"
 
+import { getCurrentTime as getCurrentTimeFromApi } from "@/generated/api/sdk.generated"
 import {
   ChapterLockPreview,
   ChaptersWithStatus,
@@ -485,15 +486,15 @@ export const fetchExam = async (examId: string): Promise<ExamData> => {
 }
 
 export const fetchCurrentServerTime = async (): Promise<string> => {
-  const response = await axios.get("/api/v0/main-frontend/time", {
-    responseType: "json",
-    headers: {
-      "Cache-Control": "no-cache",
-      Pragma: "no-cache",
-    },
+  const data = await getCurrentTimeFromApi({
+    throwOnError: true,
   })
 
-  return validateResponse(response, isString)
+  if (!isString(data)) {
+    throw new Error(`Invalid data from API: ${JSON.stringify(data, undefined, 2)}`)
+  }
+
+  return data
 }
 
 export const fetchExamForTesting = async (examId: string): Promise<ExamData> => {

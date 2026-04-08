@@ -1,6 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, sqlx::Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "email_template_type", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
@@ -11,7 +12,7 @@ pub enum EmailTemplateType {
     Generic,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct EmailTemplate {
     pub id: Uuid,

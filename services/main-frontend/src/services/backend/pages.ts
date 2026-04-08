@@ -1,77 +1,136 @@
-import { isBoolean } from "lodash"
-
-import { mainFrontendClient } from "../mainFrontendClient"
+import { queryOptions } from "@tanstack/react-query"
 
 import {
-  HistoryRestoreData,
-  NewPage,
-  Page,
-  PageAudioFile,
-  PageDetailsUpdate,
-  PageHistory,
-  PageInfo,
-} from "@/shared-module/common/bindings"
+  getCoursePagesOptions as getCoursePagesGeneratedOptions,
+  getPageHistoryCountOptions as getPageHistoryCountGeneratedOptions,
+  getPageHistoryOptions as getPageHistoryGeneratedOptions,
+  getPageInfoOptions as getPageInfoGeneratedOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
-  isPage,
-  isPageAudioFile,
-  isPageHistory,
-  isPageInfo,
-} from "@/shared-module/common/bindings.guard"
-import {
-  isArray,
-  isNumber,
-  isString,
-  validateResponse,
-} from "@/shared-module/common/utils/fetching"
+  getCoursePages as getCoursePagesFromApi,
+  getPageHistoryCount as getPageHistoryCountFromApi,
+  getPageHistory as getPageHistoryFromApi,
+  getPageInfo as getPageInfoFromApi,
+} from "@/generated/api/sdk.generated"
+import type {
+  Page as GeneratedPage,
+  PageHistory as GeneratedPageHistory,
+  PageInfo as GeneratedPageInfo,
+} from "@/generated/api/types.generated"
+import { Page, PageHistory, PageInfo } from "@/shared-module/common/bindings"
 
-export const postNewPage = async (data: NewPage): Promise<Page> => {
-  const response = await mainFrontendClient.post("/pages", data)
-  return validateResponse(response, isPage)
+const normalizePage = (page: GeneratedPage): Page => ({
+  ...page,
+  chapter_id: page.chapter_id ?? null,
+  copied_from: page.copied_from ?? null,
+  course_id: page.course_id ?? null,
+  deleted_at: page.deleted_at ?? null,
+  exam_id: page.exam_id ?? null,
+  page_language_group_id: page.page_language_group_id ?? null,
+})
+
+const normalizePageHistory = (pageHistory: GeneratedPageHistory): PageHistory => ({
+  ...pageHistory,
+  restored_from_id: pageHistory.restored_from_id ?? null,
+})
+
+const normalizePageInfo = (pageInfo: GeneratedPageInfo): PageInfo => ({
+  ...pageInfo,
+  course_id: pageInfo.course_id ?? null,
+  course_name: pageInfo.course_name ?? null,
+  course_slug: pageInfo.course_slug ?? null,
+  organization_slug: pageInfo.organization_slug ?? null,
+})
+
+export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
+  const pageInfo = await getPageInfoFromApi({
+    path: {
+      page_id: pageId,
+    },
+    throwOnError: true,
+  })
+
+  return normalizePageInfo(pageInfo)
 }
 
-export const deletePage = async (page_id: string): Promise<Page> => {
-  const response = await mainFrontendClient.delete(`/pages/${page_id}`)
-  return validateResponse(response, isPage)
-}
+export const getPageInfoOptions = (pageId: string) =>
+  queryOptions({
+    ...getPageInfoGeneratedOptions({
+      path: {
+        page_id: pageId,
+      },
+    }),
+    select: (pageInfo): PageInfo => normalizePageInfo(pageInfo),
+  })
 
 export const fetchHistoryForPage = async (
   pageId: string,
   page: number,
   limit: number,
-): Promise<Array<PageHistory>> => {
-  const response = await mainFrontendClient.get(`/pages/${pageId}/history`, {
-    params: { page, limit },
+): Promise<PageHistory[]> => {
+  const history = await getPageHistoryFromApi({
+    path: {
+      page_id: pageId,
+    },
+    query: {
+      page,
+      limit,
+    },
+    throwOnError: true,
   })
-  return validateResponse(response, isArray(isPageHistory))
+
+  return history.map(normalizePageHistory)
 }
+
+export const getPageHistoryOptions = (pageId: string, page: number, limit: number) =>
+  queryOptions({
+    ...getPageHistoryGeneratedOptions({
+      path: {
+        page_id: pageId,
+      },
+      query: {
+        page,
+        limit,
+      },
+    }),
+    select: (history): PageHistory[] => history.map(normalizePageHistory),
+  })
 
 export const fetchHistoryCountForPage = async (pageId: string): Promise<number> => {
-  const response = await mainFrontendClient.get(`/pages/${pageId}/history_count`)
-  return validateResponse(response, isNumber)
+  return await getPageHistoryCountFromApi({
+    path: {
+      page_id: pageId,
+    },
+    throwOnError: true,
+  })
 }
 
-export const restorePage = async (pageId: string, historyId: string): Promise<string> => {
-  const data: HistoryRestoreData = { history_id: historyId }
-  const response = await mainFrontendClient.post(`/pages/${pageId}/restore`, data)
-  return validateResponse(response, isString)
-}
-
-export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
-  const response = await mainFrontendClient.get(`/pages/${pageId}/info`)
-  return validateResponse(response, isPageInfo)
-}
-
-export const fetchPageAudioFiles = async (pageId: string): Promise<PageAudioFile[]> => {
-  const response = await mainFrontendClient.get(`/page_audio/${pageId}/files`)
-  return validateResponse(response, isArray(isPageAudioFile))
-}
-
-export const updatePageDetails = async (pageId: string, data: PageDetailsUpdate): Promise<void> => {
-  const response = await mainFrontendClient.put(`/pages/${pageId}/page-details`, data)
-  validateResponse(response, isBoolean)
-}
+export const getPageHistoryCountOptions = (pageId: string) =>
+  queryOptions({
+    ...getPageHistoryCountGeneratedOptions({
+      path: {
+        page_id: pageId,
+      },
+    }),
+  })
 
 export const fetchAllPagesByCourseId = async (courseId: string): Promise<Page[]> => {
-  const response = await mainFrontendClient.get(`/pages/${courseId}/all-course-pages-for-course`)
-  return validateResponse(response, isArray(isPage))
+  const pages = await getCoursePagesFromApi({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  return pages.map(normalizePage)
 }
+
+export const getAllPagesByCourseIdOptions = (courseId: string) =>
+  queryOptions({
+    ...getCoursePagesGeneratedOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+    select: (pages): Page[] => pages.map(normalizePage),
+  })

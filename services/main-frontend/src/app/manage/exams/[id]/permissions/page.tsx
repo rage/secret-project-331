@@ -7,7 +7,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
-import { fetchExam } from "@/services/backend/exams"
+import { getExamOptions } from "@/services/backend/exams"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -18,7 +18,7 @@ const ExamPermissions: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  const exam = useQuery({ queryKey: [`exam-${id}`], queryFn: () => fetchExam(id) })
+  const exam = useQuery(getExamOptions(id))
 
   return (
     <div

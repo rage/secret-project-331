@@ -4,11 +4,11 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { addExerciseRepository } from "@/services/backend/exercise-repositories"
+import { addExerciseRepositoryMutationOptions } from "@/services/backend/exercise-repositories"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface Props {
   courseId: string | null
@@ -36,9 +36,8 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
     mode: "onChange",
     defaultValues: { gitUrl: "" },
   })
-  const mutation = useToastMutation(
-    (fields: Fields) =>
-      addExerciseRepository(courseId, examId, fields.gitUrl, fields.publicKey, fields.deployKey),
+  const mutation = useToastMutationOptions(
+    addExerciseRepositoryMutationOptions(),
     {
       notify: true,
       method: "POST",
@@ -53,7 +52,19 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
   )
 
   return (
-    <form onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+    <form
+      onSubmit={handleSubmit((fields) =>
+        mutation.mutate({
+          body: {
+            course_id: courseId,
+            exam_id: examId,
+            git_url: fields.gitUrl,
+            public_key: fields.publicKey.length > 0 ? fields.publicKey : null,
+            deploy_key: fields.deployKey.length > 0 ? fields.deployKey : null,
+          },
+        }),
+      )}
+    >
       <TextField
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
@@ -72,7 +83,11 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
         {...register("deployKey")}
         errorMessage={errors["deployKey"]?.message}
       />
-      <Button size="medium" variant="primary" disabled={!isValid || isSubmitting}>
+      <Button
+        size="medium"
+        variant="primary"
+        disabled={!isValid || isSubmitting || mutation.isPending}
+      >
         {t("add")}
       </Button>
       <Button size="medium" variant="tertiary" onClick={onCancel}>

@@ -4,10 +4,10 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { createTeacherGradingDecision } from "../services/backend/teacher-grading-decisions"
+import { createTeacherGradingDecisionMutationOptions } from "../services/backend/teacher-grading-decisions"
 
 import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 
@@ -29,21 +29,8 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
   const { t } = useTranslation()
 
   // Custom points mutation
-  const customPointsMutation = useToastMutation(
-    async (points: number) => {
-      if (!userExerciseStateId) {
-        throw new Error("User exercise state not found")
-      }
-      return createTeacherGradingDecision({
-        user_exercise_state_id: userExerciseStateId,
-        exercise_id: exerciseId,
-        // eslint-disable-next-line i18next/no-literal-string
-        action: "CustomPoints",
-        manual_points: points,
-        justification: null,
-        hidden: false,
-      })
-    },
+  const customPointsMutation = useToastMutationOptions(
+    createTeacherGradingDecisionMutationOptions(),
     {
       notify: true,
       method: "POST",
@@ -134,7 +121,19 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
 
       <CustomPointsPopup
         exerciseMaxPoints={exerciseMaxPoints}
-        onSubmit={(points) => customPointsMutation.mutate(points)}
+        onSubmit={(points) =>
+          customPointsMutation.mutate({
+            body: {
+              user_exercise_state_id: userExerciseStateId,
+              exercise_id: exerciseId,
+              // eslint-disable-next-line i18next/no-literal-string
+              action: "CustomPoints",
+              manual_points: points,
+              justification: null,
+              hidden: false,
+            },
+          })
+        }
         longButtonName
       />
     </div>

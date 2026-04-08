@@ -8,7 +8,7 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
-import { fetchExam } from "@/services/backend/exams"
+import { getExamOptions } from "@/services/backend/exams"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -31,8 +31,8 @@ const GradingPage: React.FC = () => {
 
   const examId = getSubmissions.data?.data[0].exercise.exam_id
   const getExam = useQuery({
-    queryKey: [`/exams/${examId}/`, examId],
-    queryFn: () => fetchExam(examId ?? ""),
+    ...getExamOptions(examId ?? ""),
+    enabled: !!examId,
   })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {

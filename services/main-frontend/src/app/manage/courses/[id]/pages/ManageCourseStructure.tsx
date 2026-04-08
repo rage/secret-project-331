@@ -19,10 +19,10 @@ import {
 } from "./PageList/PageListItem"
 
 import BottomPanel from "@/components/BottomPanel"
+import { deleteChapterMutation as deleteChapterMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import managePageOrderReducer, {
   managePageOrderInitialState,
 } from "@/reducers/managePageOrderReducer"
-import { deleteChapter } from "@/services/backend/chapters"
 import { postNewChapterOrdering, postNewPageOrdering } from "@/services/backend/courses"
 import { Chapter, CourseStructure } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -32,6 +32,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const headingDropdown = css`
@@ -53,10 +54,8 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   refetch,
 }) => {
   const { confirm } = useDialog()
-  const deleteChapterMutation = useToastMutation(
-    (chapterId: string) => {
-      return deleteChapter(chapterId)
-    },
+  const deleteChapterMutation = useToastMutationOptions(
+    deleteChapterMutationOptions(),
     { notify: true, method: "DELETE" },
     { onSuccess: () => refetch() },
   )
@@ -250,7 +249,11 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                   ) {
                                     return
                                   }
-                                  deleteChapterMutation.mutate(chapter.id)
+                                  deleteChapterMutation.mutate({
+                                    path: {
+                                      chapter_id: chapter.id,
+                                    },
+                                  })
                                 },
                               },
                             ]}

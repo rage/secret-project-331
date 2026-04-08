@@ -2,14 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchIngresses } from "../services/backend/status"
-
-import { IngressInfo } from "@/shared-module/common/bindings"
+import { getStatusIngressesOptions } from "../services/backend/status"
 
 export const useStatusIngresses = () => {
-  return useQuery<IngressInfo[]>({
-    queryKey: ["status", "ingresses"],
-    queryFn: () => fetchIngresses(),
+  return useQuery({
+    ...getStatusIngressesOptions(),
     refetchInterval: 10000,
   })
 }

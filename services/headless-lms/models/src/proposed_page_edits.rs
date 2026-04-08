@@ -4,6 +4,7 @@ use futures::future::BoxFuture;
 use headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
 use serde_json::Value;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     SpecFetcher,
@@ -24,7 +25,7 @@ pub struct NewProposedPageEdits {
     pub block_edits: Vec<NewProposedBlockEdit>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageProposal {
     pub id: Uuid,
@@ -37,7 +38,7 @@ pub struct PageProposal {
     pub page_url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct EditProposalInfo {
     pub page_id: Uuid,
@@ -45,7 +46,7 @@ pub struct EditProposalInfo {
     pub block_proposals: Vec<BlockProposalInfo>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ProposalCount {
     pub pending: u32,

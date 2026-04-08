@@ -1,5 +1,23 @@
-import { mainFrontendClient } from "../mainFrontendClient"
+import { queryOptions } from "@tanstack/react-query"
 
+import {
+  getCompletionStatsByEmailDomainOptions as getCompletionStatsByEmailDomainGeneratedOptions,
+  getCourseCompletionStatsForEmailDomainOptions as getCourseCompletionStatsForEmailDomainGeneratedOptions,
+  getCourseModuleStatsByCompletionsRegisteredToStudyRegistryOptions as getCourseModuleStatsByCompletionsRegisteredToStudyRegistryGeneratedOptions,
+  getNumberOfPeopleCompletedACourseOptions as getNumberOfPeopleCompletedACourseGeneratedOptions,
+  getNumberOfPeopleDoneAtLeastOneExerciseOptions as getNumberOfPeopleDoneAtLeastOneExerciseGeneratedOptions,
+  getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions as getNumberOfPeopleRegisteredCompletionToStudyRegistryGeneratedOptions,
+  getNumberOfPeopleStartedCourseOptions as getNumberOfPeopleStartedCourseGeneratedOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCompletionStatsByEmailDomain as getCompletionStatsByEmailDomainFromApi,
+  getCourseCompletionStatsForEmailDomain as getCourseCompletionStatsForEmailDomainFromApi,
+  getCourseModuleStatsByCompletionsRegisteredToStudyRegistry as getCourseModuleStatsByCompletionsRegisteredToStudyRegistryFromApi,
+  getNumberOfPeopleCompletedACourse as getNumberOfPeopleCompletedACourseFromApi,
+  getNumberOfPeopleDoneAtLeastOneExercise as getNumberOfPeopleDoneAtLeastOneExerciseFromApi,
+  getNumberOfPeopleRegisteredCompletionToStudyRegistry as getNumberOfPeopleRegisteredCompletionToStudyRegistryFromApi,
+  getNumberOfPeopleStartedCourse as getNumberOfPeopleStartedCourseFromApi,
+} from "@/generated/api/sdk.generated"
 import {
   CourseCompletionStats,
   DomainCompletionStats,
@@ -13,94 +31,161 @@ import {
   isGlobalCourseModuleStatEntry,
   isGlobalStatEntry,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray } from "@/shared-module/common/utils/fetching"
+
+const validateGeneratedData = <T>(data: unknown, isT: (value: unknown) => value is T): T => {
+  if (isT(data)) {
+    return data
+  }
+
+  throw new Error(`Invalid data from API: ${JSON.stringify(data, undefined, 2)}`)
+}
 
 export const getNumberOfPeopleCompletedACourse = async (
   granularity: TimeGranularity,
 ): Promise<GlobalStatEntry[]> => {
-  const params = new URLSearchParams()
-  params.append("granularity", granularity)
+  const data = await getNumberOfPeopleCompletedACourseFromApi({
+    query: { granularity },
+    throwOnError: true,
+  })
 
-  const response = await mainFrontendClient.get(
-    `/global-stats/number-of-people-completed-a-course?${params}`,
-  )
-  return validateResponse(response, isArray(isGlobalStatEntry))
+  return validateGeneratedData(data, isArray(isGlobalStatEntry))
 }
+
+export const getNumberOfPeopleCompletedACourseOptions = (granularity: TimeGranularity) =>
+  queryOptions({
+    ...getNumberOfPeopleCompletedACourseGeneratedOptions({
+      query: { granularity },
+    }),
+    select: (data): GlobalStatEntry[] => validateGeneratedData(data, isArray(isGlobalStatEntry)),
+  })
 
 export const getNumberOfPeopleRegisteredCompletionToStudyRegistry = async (
   granularity: TimeGranularity,
 ): Promise<GlobalStatEntry[]> => {
-  const params = new URLSearchParams()
-  params.append("granularity", granularity)
+  const data = await getNumberOfPeopleRegisteredCompletionToStudyRegistryFromApi({
+    query: { granularity },
+    throwOnError: true,
+  })
 
-  const response = await mainFrontendClient.get(
-    `/global-stats/number-of-people-registered-completion-to-study-registry?${params}`,
-  )
-  return validateResponse(response, isArray(isGlobalStatEntry))
+  return validateGeneratedData(data, isArray(isGlobalStatEntry))
 }
+
+export const getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions = (
+  granularity: TimeGranularity,
+) =>
+  queryOptions({
+    ...getNumberOfPeopleRegisteredCompletionToStudyRegistryGeneratedOptions({
+      query: { granularity },
+    }),
+    select: (data): GlobalStatEntry[] => validateGeneratedData(data, isArray(isGlobalStatEntry)),
+  })
 
 export const getNumberOfPeopleDoneAtLeastOneExercise = async (
   granularity: TimeGranularity,
 ): Promise<GlobalStatEntry[]> => {
-  const params = new URLSearchParams()
-  params.append("granularity", granularity)
+  const data = await getNumberOfPeopleDoneAtLeastOneExerciseFromApi({
+    query: { granularity },
+    throwOnError: true,
+  })
 
-  const response = await mainFrontendClient.get(
-    `/global-stats/number-of-people-done-at-least-one-exercise?${params}`,
-  )
-  return validateResponse(response, isArray(isGlobalStatEntry))
+  return validateGeneratedData(data, isArray(isGlobalStatEntry))
 }
 
-export const getnumberOfPeopleStartedCourse = async (
+export const getNumberOfPeopleDoneAtLeastOneExerciseOptions = (granularity: TimeGranularity) =>
+  queryOptions({
+    ...getNumberOfPeopleDoneAtLeastOneExerciseGeneratedOptions({
+      query: { granularity },
+    }),
+    select: (data): GlobalStatEntry[] => validateGeneratedData(data, isArray(isGlobalStatEntry)),
+  })
+
+export const getNumberOfPeopleStartedCourse = async (
   granularity: TimeGranularity,
 ): Promise<GlobalStatEntry[]> => {
-  const params = new URLSearchParams()
-  params.append("granularity", granularity)
+  const data = await getNumberOfPeopleStartedCourseFromApi({
+    query: { granularity },
+    throwOnError: true,
+  })
 
-  const response = await mainFrontendClient.get(
-    `/global-stats/number-of-people-started-course?${params}`,
-  )
-  return validateResponse(response, isArray(isGlobalStatEntry))
+  return validateGeneratedData(data, isArray(isGlobalStatEntry))
 }
+
+export const getNumberOfPeopleStartedCourseOptions = (granularity: TimeGranularity) =>
+  queryOptions({
+    ...getNumberOfPeopleStartedCourseGeneratedOptions({
+      query: { granularity },
+    }),
+    select: (data): GlobalStatEntry[] => validateGeneratedData(data, isArray(isGlobalStatEntry)),
+  })
+
+export const getnumberOfPeopleStartedCourse = getNumberOfPeopleStartedCourse
 
 export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = async (
   granularity: TimeGranularity,
 ): Promise<GlobalCourseModuleStatEntry[]> => {
-  const params = new URLSearchParams()
-  params.append("granularity", granularity)
+  const data = await getCourseModuleStatsByCompletionsRegisteredToStudyRegistryFromApi({
+    query: { granularity },
+    throwOnError: true,
+  })
 
-  const response = await mainFrontendClient.get(
-    `/global-stats/course-module-stats-by-completions-registered-to-study-registry?${params}`,
-  )
-  return validateResponse(response, isArray(isGlobalCourseModuleStatEntry))
+  return validateGeneratedData(data, isArray(isGlobalCourseModuleStatEntry))
 }
+
+export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistryOptions = (
+  granularity: TimeGranularity,
+) =>
+  queryOptions({
+    ...getCourseModuleStatsByCompletionsRegisteredToStudyRegistryGeneratedOptions({
+      query: { granularity },
+    }),
+    select: (data): GlobalCourseModuleStatEntry[] =>
+      validateGeneratedData(data, isArray(isGlobalCourseModuleStatEntry)),
+  })
 
 export const getCompletionStatsByEmailDomain = async (
   year?: number,
 ): Promise<DomainCompletionStats[]> => {
-  const params = new URLSearchParams()
-  if (year) {
-    params.append("year", year.toString())
-  }
+  const data = await getCompletionStatsByEmailDomainFromApi({
+    query: year === undefined ? undefined : { year },
+    throwOnError: true,
+  })
 
-  const response = await mainFrontendClient.get(
-    `/global-stats/completion-stats-by-email-domain${params.toString() ? `?${params.toString()}` : ""}`,
-  )
-  return validateResponse(response, isArray(isDomainCompletionStats))
+  return validateGeneratedData(data, isArray(isDomainCompletionStats))
 }
+
+export const getCompletionStatsByEmailDomainOptions = (year?: number) =>
+  queryOptions({
+    ...getCompletionStatsByEmailDomainGeneratedOptions(
+      year === undefined ? undefined : { query: { year } },
+    ),
+    select: (data): DomainCompletionStats[] =>
+      validateGeneratedData(data, isArray(isDomainCompletionStats)),
+  })
 
 export const getCourseCompletionStatsForEmailDomain = async (
   emailDomain: string,
   year?: number,
 ): Promise<CourseCompletionStats[]> => {
-  const params = new URLSearchParams()
-  params.append("email_domain", emailDomain)
-  if (year) {
-    params.append("year", year.toString())
-  }
+  const data = await getCourseCompletionStatsForEmailDomainFromApi({
+    query: {
+      email_domain: emailDomain,
+      year,
+    },
+    throwOnError: true,
+  })
 
-  const response = await mainFrontendClient.get(
-    `/global-stats/course-completion-stats-for-email-domain?${params.toString()}`,
-  )
-  return validateResponse(response, isArray(isCourseCompletionStats))
+  return validateGeneratedData(data, isArray(isCourseCompletionStats))
 }
+
+export const getCourseCompletionStatsForEmailDomainOptions = (emailDomain: string, year?: number) =>
+  queryOptions({
+    ...getCourseCompletionStatsForEmailDomainGeneratedOptions({
+      query: {
+        email_domain: emailDomain,
+        year,
+      },
+    }),
+    select: (data): CourseCompletionStats[] =>
+      validateGeneratedData(data, isArray(isCourseCompletionStats)),
+  })

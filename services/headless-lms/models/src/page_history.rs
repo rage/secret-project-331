@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::{
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
@@ -9,7 +10,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]
 pub enum HistoryChangeReason {
@@ -18,7 +19,7 @@ pub enum HistoryChangeReason {
     PageDeleted,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PageHistory {
     pub id: Uuid,

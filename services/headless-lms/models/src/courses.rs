@@ -1,6 +1,7 @@
 use headless_lms_utils::{
     ApplicationConfiguration, file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME,
 };
+use utoipa::ToSchema;
 
 use crate::{
     chapters::{Chapter, course_chapters},
@@ -26,7 +27,7 @@ pub struct CourseContextData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Course {
     pub id: Uuid,

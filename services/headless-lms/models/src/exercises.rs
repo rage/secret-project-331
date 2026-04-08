@@ -3,6 +3,7 @@ use futures::future::BoxFuture;
 use itertools::Itertools;
 use tracing::info;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exams, exercise_reset_logs,
@@ -25,7 +26,7 @@ use crate::{
 };
 use std::collections::HashMap;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Exercise {
     pub id: Uuid,
@@ -134,7 +135,17 @@ Indicates what is the user's completion status for a exercise.
 As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
 */
 #[derive(
-    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, Display, sqlx::Type,
+    Debug,
+    Serialize,
+    Deserialize,
+    PartialEq,
+    Eq,
+    Clone,
+    Copy,
+    Default,
+    Display,
+    sqlx::Type,
+    ToSchema,
 )]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "activity_progress", rename_all = "kebab-case")]
@@ -159,7 +170,18 @@ Tells what's the status of the grading progress for a user and exercise.
 As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
 */
 #[derive(
-    Clone, Copy, Debug, Deserialize, Eq, Serialize, Ord, PartialEq, PartialOrd, Display, sqlx::Type,
+    Clone,
+    Copy,
+    Debug,
+    Deserialize,
+    Eq,
+    Serialize,
+    Ord,
+    PartialEq,
+    PartialOrd,
+    Display,
+    sqlx::Type,
+    ToSchema,
 )]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "grading_progress", rename_all = "kebab-case")]

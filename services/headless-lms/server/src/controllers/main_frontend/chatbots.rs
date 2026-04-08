@@ -1,9 +1,26 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbots/`.
 use crate::prelude::*;
+use utoipa::OpenApi;
 
 use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
 
+#[derive(OpenApi)]
+#[openapi(paths(get_chatbot, edit_chatbot, delete_chatbot))]
+pub(crate) struct MainFrontendChatbotsApiDoc;
+
 /// GET `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}",
+    operation_id = "getChatbotConfiguration",
+    tag = "chatbots",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Chatbot configuration", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chatbot(
     chatbot_configuration_id: web::Path<Uuid>,
@@ -25,6 +42,19 @@ async fn get_chatbot(
 }
 
 /// POST `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}",
+    operation_id = "configureChatbot",
+    tag = "chatbots",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    request_body = serde_json::Value,
+    responses(
+        (status = 200, description = "Updated chatbot configuration", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool, payload))]
 async fn edit_chatbot(
     chatbot_configuration_id: web::Path<Uuid>,
@@ -53,6 +83,18 @@ async fn edit_chatbot(
 }
 
 /// DELETE `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
+#[utoipa::path(
+    delete,
+    path = "/{chatbot_configuration_id}",
+    operation_id = "deleteChatbotConfiguration",
+    tag = "chatbots",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Deleted chatbot configuration")
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete_chatbot(
     chatbot_configuration_id: web::Path<Uuid>,
@@ -75,7 +117,10 @@ async fn delete_chatbot(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/{id}", web::get().to(get_chatbot))
-        .route("/{id}", web::post().to(edit_chatbot))
-        .route("/{id}", web::delete().to(delete_chatbot));
+    cfg.route("/{chatbot_configuration_id}", web::get().to(get_chatbot))
+        .route("/{chatbot_configuration_id}", web::post().to(edit_chatbot))
+        .route(
+            "/{chatbot_configuration_id}",
+            web::delete().to(delete_chatbot),
+        );
 }

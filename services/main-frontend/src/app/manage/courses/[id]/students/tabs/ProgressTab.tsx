@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
-import { getProgress } from "@/services/backend/courses/students"
+import { getProgressOptions } from "@/services/backend/courses/students"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -55,10 +55,7 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
 }) => {
   const { t } = useTranslation()
 
-  const query = useQuery({
-    queryKey: ["progress-tab", courseId],
-    queryFn: () => getProgress(courseId),
-  })
+  const query = useQuery(getProgressOptions(courseId))
 
   const { allRows, dynamicColumns } = useMemo(() => {
     if (!query.data) {

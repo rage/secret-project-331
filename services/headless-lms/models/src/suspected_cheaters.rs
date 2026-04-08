@@ -1,5 +1,6 @@
 use crate::course_modules;
 use crate::prelude::*;
+use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -15,7 +16,7 @@ pub struct SuspectedCheaters {
     pub is_archived: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ThresholdData {
     pub duration_seconds: i32,

@@ -16,12 +16,16 @@ import { useTranslation } from "react-i18next"
 
 import ContentArea from "./ContentArea"
 
-import { deleteExerciseService, updateExerciseService } from "@/services/backend/exercise-services"
+import {
+  deleteExerciseServiceMutationOptions,
+  updateExerciseServiceMutationOptions,
+} from "@/services/backend/exercise-services"
 import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { validURL } from "@/shared-module/common/utils/validation"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
@@ -59,7 +63,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
   const onChange = (key: string) => (value: string) => {
     setService({
       ...service,
-      [key]: value,
+      [key]: key === "max_reprocessing_submissions_at_once" ? Number(value) : value,
     })
   }
 
@@ -72,20 +76,44 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
   }
 
   const updateContent = async () => {
-    window.setTimeout(() => {
-      setStatus(UpdateStatus.none)
-    }, 4000)
     if (!canSave(service)) {
       setStatus(UpdateStatus.failed)
       return
     }
-    try {
-      if ("id" in service) {
-        const preparedService: ExerciseService = prepareExerciseServiceForBackend(
-          service,
-        ) as ExerciseService
-        const updated = await updateExerciseService(service.id, preparedService)
 
+    if ("id" in service) {
+      await updateMutation.mutateAsync({
+        path: {
+          exercise_service_id: service.id,
+        },
+        body: prepareExerciseServiceForBackend(service),
+      })
+    }
+  }
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false)
+  }
+
+  const handleOpenDeleteDialog = () => {
+    setDeleteDialogOpen(true)
+  }
+
+  const deleteContent = async () => {
+    if ("id" in service) {
+      await deleteMutation.mutateAsync({
+        path: {
+          exercise_service_id: service.id,
+        },
+      })
+    }
+  }
+
+  const updateMutation = useToastMutationOptions(
+    updateExerciseServiceMutationOptions(),
+    { notify: false },
+    {
+      onSuccess: async (updated) => {
         if (updated.service_info_error) {
           showErrorNotification({
             header: t("could-not-connect-to-exercise-service-header"),
@@ -98,35 +126,32 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
         setService(updated.exercise_service)
         setStatus(UpdateStatus.saved)
         await refetch()
-      }
-    } catch (e) {
-      setStatus(UpdateStatus.failed)
-      throw e
-    }
-    window.setTimeout(() => {
-      setStatus(UpdateStatus.none)
-    }, 4000)
-  }
+        window.setTimeout(() => {
+          setStatus(UpdateStatus.none)
+        }, 4000)
+      },
+      onError: () => {
+        setStatus(UpdateStatus.failed)
+        window.setTimeout(() => {
+          setStatus(UpdateStatus.none)
+        }, 4000)
+      },
+    },
+  )
 
-  const handleCloseDeleteDialog = () => {
-    setDeleteDialogOpen(false)
-  }
-
-  const handleOpenDeleteDialog = () => {
-    setDeleteDialogOpen(true)
-  }
-
-  const deleteContent = async () => {
-    try {
-      if ("id" in service) {
-        await deleteExerciseService(service.id)
+  const deleteMutation = useToastMutationOptions(
+    deleteExerciseServiceMutationOptions(),
+    { notify: false },
+    {
+      onSuccess: async () => {
+        setDeleteDialogOpen(false)
         await refetch()
-      }
-    } catch (e) {
-      setStatus(UpdateStatus.failed)
-      throw e
-    }
-  }
+      },
+      onError: () => {
+        setStatus(UpdateStatus.failed)
+      },
+    },
+  )
 
   return (
     <div data-testid={`exercise-service-card-${exerciseService.slug}`}>

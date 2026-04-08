@@ -4,6 +4,7 @@ use futures::{Stream, TryStreamExt, future::BoxFuture};
 
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId,
@@ -18,7 +19,7 @@ use crate::{
 };
 
 /// Information necessary for the frontend to render an exercise task
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use utoipa::ToSchema;
+
 use crate::{chapters, prelude::*};
 
 /// Matches the columns in the database.
@@ -25,7 +27,7 @@ struct CourseModulesSchema {
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
  */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModule {
     pub id: Uuid,
@@ -478,7 +480,7 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AutomaticCompletionRequirements {
     /// Course module associated with these requirements.
@@ -517,7 +519,7 @@ impl AutomaticCompletionRequirements {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "policy", rename_all = "kebab-case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CompletionPolicy {

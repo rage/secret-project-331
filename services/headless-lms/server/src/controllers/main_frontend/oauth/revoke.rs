@@ -9,6 +9,11 @@ use models::{
     oauth_refresh_tokens::OAuthRefreshTokens,
 };
 use sqlx::PgPool;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(revoke))]
+pub(crate) struct MainFrontendOauthRevokeApiDoc;
 
 /// Handles the `/revoke` endpoint for OAuth 2.0 token revocation (RFC 7009).
 ///
@@ -39,6 +44,19 @@ use sqlx::PgPool;
 /// HTTP/1.1 200 OK
 /// ```
 #[instrument(skip(pool, form, app_conf))]
+#[utoipa::path(
+    post,
+    path = "/revoke",
+    operation_id = "revokeOauthToken",
+    tag = "oauth",
+    request_body(
+        content = serde_json::Value,
+        content_type = "application/x-www-form-urlencoded"
+    ),
+    responses(
+        (status = 200, description = "OAuth token revocation acknowledged")
+    )
+)]
 pub async fn revoke(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<RevokeQuery>,

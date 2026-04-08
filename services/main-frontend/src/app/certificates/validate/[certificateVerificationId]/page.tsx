@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams, useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import { fetchCertificateImage } from "@/services/backend/certificates"
+import { getCertificateByVerificationIdOptions } from "@/services/backend/certificates"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -19,23 +19,13 @@ const ModuleCertificateVerification: React.FC = () => {
   const searchParams = useSearchParams()
   const debug = searchParams.get("debug")
   const testCourseModuleId = searchParams.get("test_certificate_configuration_id")
-  const testCourseInstanceId = searchParams.get("test_course_instance_id")
 
   const certificate = useQuery({
-    queryKey: [
-      "certificate-image",
-      certificateVerificationId,
-      debug,
-      testCourseModuleId,
-      testCourseInstanceId,
-    ],
-    queryFn: async () =>
-      fetchCertificateImage(
-        certificateVerificationId!,
-        !!debug,
-        testCourseModuleId ?? undefined,
-        testCourseInstanceId ?? undefined,
-      ),
+    ...getCertificateByVerificationIdOptions(
+      certificateVerificationId ?? "",
+      !!debug,
+      testCourseModuleId ?? undefined,
+    ),
     enabled: !!certificateVerificationId,
     // This is expensive, so it doesn't make sense to retry
     retry: false,

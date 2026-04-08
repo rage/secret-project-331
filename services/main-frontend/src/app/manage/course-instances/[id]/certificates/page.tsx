@@ -14,11 +14,14 @@ import {
   updateCertificateConfiguration,
 } from "@/services/backend/certificates"
 import {
-  fetchCourseInstance,
-  fetchDefaultCertificateConfigurations,
+  getCourseInstanceDefaultCertificateConfigurationsOptions,
+  getCourseInstanceOptions,
 } from "@/services/backend/course-instances"
-import { setCertificationGeneration } from "@/services/backend/course-modules"
-import { fetchCourseStructure } from "@/services/backend/courses"
+import {
+  setCertificationGeneration,
+  setCourseModuleCertificateGenerationMutationOptions,
+} from "@/services/backend/course-modules"
+import { getCourseStructureOptions } from "@/services/backend/courses"
 import { CertificateConfigurationUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -27,6 +30,7 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -42,30 +46,15 @@ const CertificationsPage: React.FC = () => {
   const { id: courseInstanceId } = useParams<{ id: string }>()
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
-  const getCourseInstance = useQuery({
-    queryKey: ["course-instance", courseInstanceId],
-    queryFn: () => {
-      return fetchCourseInstance(courseInstanceId)
-    },
-  })
+  const getCourseInstance = useQuery(getCourseInstanceOptions(courseInstanceId))
   const courseId = getCourseInstance.data?.course_id
   const getCourse = useQuery({
-    queryKey: ["course", courseId],
-    queryFn: () => {
-      if (courseId) {
-        return fetchCourseStructure(courseId)
-      } else {
-        throw new Error("Invalid state")
-      }
-    },
+    ...getCourseStructureOptions(courseId ?? ""),
     enabled: !!courseId,
   })
-  const defaultCertificateConfigurationsQuery = useQuery({
-    queryKey: ["default-certificate-configurations-for-instance", courseInstanceId],
-    queryFn: () => {
-      return fetchDefaultCertificateConfigurations(courseInstanceId)
-    },
-  })
+  const defaultCertificateConfigurationsQuery = useQuery(
+    getCourseInstanceDefaultCertificateConfigurationsOptions(courseInstanceId),
+  )
   const updateConfigurationMutation = useToastMutation(
     ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
@@ -129,10 +118,8 @@ const CertificationsPage: React.FC = () => {
       },
     },
   )
-  const toggleCertificateGenerationEnabledMutation = useToastMutation(
-    ({ moduleId, enabled }: { moduleId: string; enabled: boolean }) => {
-      return setCertificationGeneration(moduleId, enabled)
-    },
+  const toggleCertificateGenerationEnabledMutation = useToastMutationOptions(
+    setCourseModuleCertificateGenerationMutationOptions(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -215,7 +202,7 @@ const CertificationsPage: React.FC = () => {
                             onClick={async () => {
                               if (await confirm(t("confirm-disable-generating-certificates"))) {
                                 toggleCertificateGenerationEnabledMutation.mutate({
-                                  moduleId: module.id,
+                                  id: module.id,
                                   enabled: false,
                                 })
                               }
@@ -230,7 +217,7 @@ const CertificationsPage: React.FC = () => {
                             onClick={async () => {
                               if (await confirm(t("confirm-enable-generating-certificates"))) {
                                 toggleCertificateGenerationEnabledMutation.mutate({
-                                  moduleId: module.id,
+                                  id: module.id,
                                   enabled: true,
                                 })
                               }

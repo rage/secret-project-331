@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TeacherGradingDecision {
     pub id: Uuid,
@@ -16,7 +17,7 @@ pub struct TeacherGradingDecision {
     pub hidden: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "teacher_decision_type", rename_all = "kebab-case")]
 pub enum TeacherDecisionType {
@@ -27,7 +28,7 @@ pub enum TeacherDecisionType {
     RejectAndReset,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewTeacherGradingDecision {
     pub user_exercise_state_id: Uuid,

@@ -1,5 +1,15 @@
-import { mainFrontendClient } from "../mainFrontendClient"
+import { queryOptions } from "@tanstack/react-query"
 
+import {
+  getCourseFeedbackCountOptions as getCourseFeedbackCountGeneratedOptions,
+  getCourseFeedbackOptions as getCourseFeedbackGeneratedOptions,
+  markFeedbackAsReadMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseFeedback,
+  getCourseFeedbackCount,
+  markFeedbackAsRead,
+} from "@/generated/api/sdk.generated"
 import {
   Feedback,
   FeedbackCount,
@@ -7,7 +17,15 @@ import {
   MarkAsRead,
 } from "@/shared-module/common/bindings"
 import { isFeedback, isFeedbackCount } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray } from "@/shared-module/common/utils/fetching"
+
+const validateGeneratedData = <T>(data: unknown, isT: (value: unknown) => value is T): T => {
+  if (isT(data)) {
+    return data
+  }
+
+  throw new Error(`Invalid data from API: ${JSON.stringify(data, undefined, 2)}`)
+}
 
 export const fetchFeedback = async (
   courseId: string,
@@ -19,20 +37,81 @@ export const fetchFeedback = async (
   params.page = page
   params.limit = limit
 
-  const response = await mainFrontendClient.get(`/courses/${courseId}/feedback`, {
-    params,
+  const data = await getCourseFeedback({
+    path: {
+      course_id: courseId,
+    },
+    query: params,
+    throwOnError: true,
   })
-  return validateResponse(response, isArray(isFeedback))
+
+  return validateGeneratedData(data, isArray(isFeedback))
 }
 
 export const fetchFeedbackCount = async (courseId: string): Promise<FeedbackCount> => {
-  const response = await mainFrontendClient.get(`/courses/${courseId}/feedback-count`)
-  return validateResponse(response, isFeedbackCount)
+  const data = await getCourseFeedbackCount({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  return validateGeneratedData(data, isFeedbackCount)
 }
+
+export const getFeedbackOptions = (
+  courseId: string,
+  read: boolean,
+  page?: number,
+  limit?: number,
+) => {
+  const query: GetFeedbackQuery = { read, page: undefined, limit: undefined }
+  query.page = page
+  query.limit = limit
+
+  return queryOptions({
+    ...getCourseFeedbackGeneratedOptions({
+      path: {
+        course_id: courseId,
+      },
+      query,
+    }),
+    select: (data): Feedback[] => validateGeneratedData(data, isArray(isFeedback)),
+  })
+}
+
+export const getFeedbackCountOptions = (courseId: string) =>
+  queryOptions({
+    ...getCourseFeedbackCountGeneratedOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+    select: (data): FeedbackCount => validateGeneratedData(data, isFeedbackCount),
+  })
+
+export const getUnreadFeedbackCountOptions = (courseId: string) =>
+  queryOptions({
+    ...getCourseFeedbackCountGeneratedOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+    select: (data): number => validateGeneratedData(data, isFeedbackCount).unread,
+  })
 
 export const markAsRead = async (feedbackId: string, read: boolean): Promise<void> => {
   const data: MarkAsRead = {
-    read: read,
+    read,
   }
-  await mainFrontendClient.post(`/feedback/${feedbackId}`, data)
+
+  await markFeedbackAsRead({
+    body: data,
+    path: {
+      feedback_id: feedbackId,
+    },
+    throwOnError: true,
+  })
 }
+
+export const markAsReadMutationOptions = () => markFeedbackAsReadMutation()

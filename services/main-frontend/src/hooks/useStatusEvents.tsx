@@ -2,14 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchEvents } from "../services/backend/status"
-
-import { EventInfo } from "@/shared-module/common/bindings"
+import { getStatusEventsOptions } from "../services/backend/status"
 
 export const useStatusEvents = () => {
-  return useQuery<EventInfo[]>({
-    queryKey: ["status", "events"],
-    queryFn: () => fetchEvents(),
+  return useQuery({
+    ...getStatusEventsOptions(),
     refetchInterval: 10000,
   })
 }

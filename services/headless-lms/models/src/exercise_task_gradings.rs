@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use futures::future::BoxFuture;
 use headless_lms_utils::numbers::f32_to_three_decimals;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId, exams,
@@ -16,7 +17,7 @@ use crate::{
     user_exercise_states::UserExerciseState,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskGrading {
     pub id: Uuid,
@@ -46,7 +47,7 @@ pub struct ExerciseTaskGradingRequest<'a> {
     pub submission_data: &'a Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseTaskGradingResult {
     pub grading_progress: GradingProgress,
@@ -58,7 +59,7 @@ pub struct ExerciseTaskGradingResult {
     pub set_user_variables: Option<HashMap<String, serde_json::Value>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_points_update_strategy", rename_all = "kebab-case")]
 pub enum UserPointsUpdateStrategy {

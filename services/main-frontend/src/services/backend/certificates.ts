@@ -1,98 +1,148 @@
-import { mainFrontendClient } from "../mainFrontendClient"
+import { queryOptions } from "@tanstack/react-query"
 
+import { validateGeneratedData } from "./generated"
+
+import {
+  getCertificateByConfigurationIdOptions as getCertificateByConfigurationIdGeneratedOptions,
+  getCertificateByVerificationIdOptions as getCertificateByVerificationIdGeneratedOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { client as generatedApiClient } from "@/generated/api/client.generated"
+import {
+  deleteCertificateConfiguration as deleteCertificateConfigurationFromApi,
+  generateCertificate as generateCertificateFromApi,
+  getCertificateByConfigurationId as getCertificateByConfigurationIdFromApi,
+  getCertificateByVerificationId as getCertificateByVerificationIdFromApi,
+  updateCertificateConfiguration as updateCertificateConfigurationFromApi,
+} from "@/generated/api/sdk.generated"
+import type { GetCertificateByVerificationIdData } from "@/generated/api/types.generated"
 import {
   CertificateConfigurationUpdate,
   GeneratedCertificate,
 } from "@/shared-module/common/bindings"
 import { isGeneratedCertificate } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isNull, isUnion } from "@/shared-module/common/utils/fetching"
+
+const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
+  "/api/v0/main-frontend/certificates/{certificate_verification_id}"
 
 export const generateCertificate = async (
   certificateConfigurationId: string,
   nameOnCertificate: string,
   grade: string,
 ): Promise<void> => {
-  const data = {
-    certificate_configuration_id: certificateConfigurationId,
-    name_on_certificate: nameOnCertificate,
-    grade: grade,
-  }
-  await mainFrontendClient.post(`/certificates/generate`, data)
+  await generateCertificateFromApi({
+    body: {
+      certificate_configuration_id: certificateConfigurationId,
+      name_on_certificate: nameOnCertificate,
+      grade,
+    },
+    throwOnError: true,
+  })
 }
 
 export const fetchCertificate = async (
   certificateConfigurationId: string,
 ): Promise<GeneratedCertificate | null> => {
-  const res = await mainFrontendClient.get(
-    `/certificates/get-by-configuration-id/${certificateConfigurationId}`,
-  )
-  return validateResponse(res, isGeneratedCertificate)
+  const data = await getCertificateByConfigurationIdFromApi({
+    path: {
+      certificate_configuration_id: certificateConfigurationId,
+    },
+    throwOnError: true,
+  })
+
+  return validateGeneratedData(data, isUnion(isGeneratedCertificate, isNull))
 }
 
-export const fetchCertificatesForCourseInstance = async (
-  courseInstanceId: string,
-): Promise<Array<GeneratedCertificate>> => {
-  const res = await mainFrontendClient.get(
-    `/course-instances/${courseInstanceId}/default-certificate-configurations`,
-  )
-  return validateResponse(res, isArray(isGeneratedCertificate))
-}
+export const getCertificateByConfigurationIdOptions = (certificateConfigurationId: string) =>
+  queryOptions({
+    ...getCertificateByConfigurationIdGeneratedOptions({
+      path: {
+        certificate_configuration_id: certificateConfigurationId,
+      },
+    }),
+    select: (data): GeneratedCertificate | null =>
+      validateGeneratedData(data, isUnion(isGeneratedCertificate, isNull)),
+  })
+
+export const getCertificateImageUrl = (certificateVerificationId: string): string =>
+  generatedApiClient.buildUrl({
+    path: {
+      certificate_verification_id: certificateVerificationId,
+    },
+    url: CERTIFICATE_BY_VERIFICATION_PATH,
+  })
 
 export const fetchCertificateImage = async (
   certificateVerificationId: string,
   debug: boolean,
   testCourseModuleId: string | undefined,
-  testCourseInstanceId: string | undefined,
+  _testCourseInstanceId: string | undefined,
 ): Promise<Blob> => {
-  let params:
-    | {
-        debug?: boolean
-        test_certificate_configuration_id?: string
-        test_course_instance_id?: string
-      }
-    | undefined = {}
-  if (debug) {
-    params.debug = true
-  }
-  if (testCourseModuleId) {
-    params.test_certificate_configuration_id = testCourseModuleId
-  }
-  if (testCourseInstanceId) {
-    params.test_course_instance_id = testCourseInstanceId
-  }
-  if (Object.keys(params).length === 0) {
-    params = undefined
-  }
-  const res = await mainFrontendClient.get(`/certificates/${certificateVerificationId}`, {
-    params,
-    responseType: "blob",
+  const data = await getCertificateByVerificationIdFromApi({
+    parseAs: "blob",
+    path: {
+      certificate_verification_id: certificateVerificationId,
+    },
+    query: {
+      debug,
+      test_certificate_configuration_id: testCourseModuleId,
+    },
+    throwOnError: true,
   })
-  return res.data
+
+  if (data instanceof Blob) {
+    return data
+  }
+
+  throw new Error("Invalid certificate image response")
 }
+
+export const getCertificateByVerificationIdOptions = (
+  certificateVerificationId: string,
+  debug: boolean,
+  testCourseModuleId: string | undefined,
+) =>
+  queryOptions({
+    ...getCertificateByVerificationIdGeneratedOptions({
+      parseAs: "blob",
+      path: {
+        certificate_verification_id: certificateVerificationId,
+      },
+      query: {
+        debug,
+        test_certificate_configuration_id: testCourseModuleId,
+      },
+    }),
+    select: (data): Blob => {
+      if (data instanceof Blob) {
+        return data
+      }
+
+      throw new Error("Invalid certificate image response")
+    },
+  })
 
 export const updateCertificateConfiguration = async (
   configurationUpdate: CertificateConfigurationUpdate,
   backgroundSvgFile: File | null,
   overlaySvgFile: File | null,
 ): Promise<void> => {
-  const formData = new FormData()
-  // sets the content-disposition to json
-  formData.append(
-    "metadata",
-    new Blob([JSON.stringify(configurationUpdate)], { type: "application/json" }),
-    "metadata",
-  )
-  if (overlaySvgFile !== null && configurationUpdate.overlay_svg_file_name !== null) {
-    formData.append("file", overlaySvgFile, configurationUpdate.overlay_svg_file_name)
-  }
-  if (backgroundSvgFile !== null && configurationUpdate.background_svg_file_name !== null) {
-    formData.append("file", backgroundSvgFile, configurationUpdate.background_svg_file_name)
-  }
-  await mainFrontendClient.post("/certificates", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+  const files = [overlaySvgFile, backgroundSvgFile].filter((file): file is File => file !== null)
+
+  await updateCertificateConfigurationFromApi({
+    body: {
+      metadata: JSON.stringify(configurationUpdate),
+      file: files as unknown as number[][],
+    },
+    throwOnError: true,
   })
 }
 
 export const deleteCertificateConfiguration = async (configurationId: string): Promise<void> => {
-  await mainFrontendClient.delete(`/certificates/configuration/${configurationId}`)
+  await deleteCertificateConfigurationFromApi({
+    path: {
+      certificate_configuration_id: configurationId,
+    },
+    throwOnError: true,
+  })
 }

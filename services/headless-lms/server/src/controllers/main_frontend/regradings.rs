@@ -1,13 +1,31 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/regradings/`.
 
 use models::regradings::{NewRegrading, Regrading, RegradingInfo};
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_regradings, get_regradings_count, create, get_regrading_info_by_id))]
+pub(crate) struct MainFrontendRegradingsApiDoc;
 
 /**
 GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
 */
 
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getRegradings",
+    tag = "regradings",
+    params(
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Regradings", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool, user))]
 async fn get_regradings(
     pool: web::Data<PgPool>,
@@ -24,6 +42,15 @@ async fn get_regradings(
 GET `/api/v0/main-frontend/regradings/count` - Counts regradings
 */
 
+#[utoipa::path(
+    get,
+    path = "/count",
+    operation_id = "getRegradingsCount",
+    tag = "regradings",
+    responses(
+        (status = 200, description = "Regradings count", body = i64)
+    )
+)]
 #[instrument(skip(pool, user))]
 async fn get_regradings_count(
     pool: web::Data<PgPool>,
@@ -39,6 +66,16 @@ async fn get_regradings_count(
 POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the supplied exercise task submission ids and returns the new regrading id.
 */
 
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createRegrading",
+    tag = "regradings",
+    request_body = serde_json::Value,
+    responses(
+        (status = 200, description = "Created regrading id", body = String)
+    )
+)]
 #[instrument(skip(pool, user))]
 async fn create(
     pool: web::Data<PgPool>,
@@ -56,6 +93,18 @@ async fn create(
 GET `/api/v0/main-frontend/regradings/{id}` - Returns relevant information about a regrading.
 */
 
+#[utoipa::path(
+    get,
+    path = "/{regrading_id}",
+    operation_id = "getRegradingInfo",
+    tag = "regradings",
+    params(
+        ("regrading_id" = Uuid, Path, description = "Regrading id")
+    ),
+    responses(
+        (status = 200, description = "Regrading info", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool, user))]
 async fn get_regrading_info_by_id(
     pool: web::Data<PgPool>,

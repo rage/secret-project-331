@@ -1,11 +1,12 @@
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::{ExerciseServiceInfo, get_all_exercise_services_by_type},
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseService {
     pub id: Uuid,
@@ -21,7 +22,7 @@ pub struct ExerciseService {
 }
 
 /// Exercise service definition that the CMS can use to render the editor view.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceIframeRenderingInfo {
     pub id: Uuid,
@@ -32,7 +33,7 @@ pub struct ExerciseServiceIframeRenderingInfo {
     pub has_custom_view: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseServiceNewOrUpdate {
     pub name: String,

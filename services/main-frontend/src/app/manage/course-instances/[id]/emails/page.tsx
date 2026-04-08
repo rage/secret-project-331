@@ -1,18 +1,18 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
+import { deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
-  fetchCourseInstanceEmailTemplates,
+  getCourseInstanceEmailTemplatesOptions,
   postNewEmailTemplateForCourseInstance,
 } from "@/services/backend/course-instances"
-import { deleteEmailTemplate } from "@/services/backend/email-templates"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -23,10 +23,10 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()
   const { id: courseInstanceId } = useParams<{ id: string }>()
-  const getCourseInstanceEmailTemplates = useQuery({
-    queryKey: [`course-instance-${courseInstanceId}-emails`],
-    queryFn: () => fetchCourseInstanceEmailTemplates(courseInstanceId),
-  })
+  const getCourseInstanceEmailTemplates = useQuery(
+    getCourseInstanceEmailTemplatesOptions(courseInstanceId),
+  )
+  const deleteEmailTemplateMutation = useMutation(deleteEmailTemplateMutationOptions())
   const [showForm, setShowForm] = useState(false)
 
   const handleCreateEmailTemplate = async (emailTitle: string) => {
@@ -42,7 +42,11 @@ const CourseInstanceEmailTemplates: React.FC = () => {
   }
 
   const handleOnDelete = async (templateId: string) => {
-    await deleteEmailTemplate(templateId)
+    await deleteEmailTemplateMutation.mutateAsync({
+      path: {
+        email_template_id: templateId,
+      },
+    })
     await getCourseInstanceEmailTemplates.refetch()
   }
 

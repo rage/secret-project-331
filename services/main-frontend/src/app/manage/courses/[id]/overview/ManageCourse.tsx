@@ -12,6 +12,12 @@ import ModuleCompletionReprocessButton from "@/app/manage/courses/[id]/course-in
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import {
   deleteCourse,
+  downloadCourseExerciseTasksCsv,
+  downloadCourseInstancesCsv,
+  downloadCourseSubmissionsCsv,
+  downloadCourseUserConsentsCsv,
+  downloadCourseUserDetailsCsv,
+  downloadCourseUserExerciseStatesCsv,
   setJoinCourseLinkForCourse,
   teacherResetCourseProgressForEveryone,
   teacherResetCourseProgressForThemselves,
@@ -256,52 +262,58 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             `}
           >
             <li>
-              <a
-                href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
+              <button
+                type="button"
+                onClick={() => void downloadCourseSubmissionsCsv(course.id)}
                 aria-label={t("link-export-submissions")}
               >
                 {t("link-export-submissions")}
-              </a>
+              </button>
             </li>
             <li>
-              <a
-                href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
+              <button
+                type="button"
+                onClick={() => void downloadCourseUserDetailsCsv(course.id)}
                 aria-label={t("link-export-user-details")}
               >
                 {t("link-export-user-details")}
-              </a>
+              </button>
             </li>
             <li>
-              <a
-                href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
+              <button
+                type="button"
+                onClick={() => void downloadCourseExerciseTasksCsv(course.id)}
                 aria-label={t("link-export-exercise-tasks")}
               >
                 {t("link-export-exercise-tasks")}
-              </a>
+              </button>
             </li>
             <li>
-              <a
-                href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
+              <button
+                type="button"
+                onClick={() => void downloadCourseInstancesCsv(course.id)}
                 aria-label={t("link-export-course-instances")}
               >
                 {t("link-export-course-instances")}
-              </a>
+              </button>
             </li>
             <li>
-              <a
-                href={`/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`}
+              <button
+                type="button"
+                onClick={() => void downloadCourseUserConsentsCsv(course.id)}
                 aria-label={t("link-export-course-user-consents")}
               >
                 {t("link-export-course-user-consents")}
-              </a>
+              </button>
             </li>
             <li>
-              <a
-                href={`/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`}
+              <button
+                type="button"
+                onClick={() => void downloadCourseUserExerciseStatesCsv(course.id)}
                 aria-label={t("link-export-user-exercise-states")}
               >
                 {t("link-export-user-exercise-states")}
-              </a>
+              </button>
             </li>
           </ul>
         </>

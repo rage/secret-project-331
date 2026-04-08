@@ -1,20 +1,23 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import React, { useState } from "react"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ExerciseServiceContainer from "./ExerciseServiceContainer"
 import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
 
-import { addExerciseService, fetchExerciseServices } from "@/services/backend/exercise-services"
+import {
+  createExerciseServiceMutationOptions,
+  getExerciseServicesOptions,
+} from "@/services/backend/exercise-services"
 import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { canSave } from "@/utils/canSaveExerciseService"
@@ -32,31 +35,28 @@ const ExerciseServicePage: React.FC = () => {
     max_reprocessing_submissions_at_once: 1,
   })
 
-  const sortServices = () => {
-    getExerciseServices.data?.sort((a, b) => (a.name ?? "").localeCompare(b.name ?? ""))
-  }
+  const getExerciseServices = useQuery(getExerciseServicesOptions())
 
-  const createExerciseServiceMutation = useToastMutation(
-    async () => {
-      if (!canSave(exerciseService)) {
-        return
-      }
-      const processedService = prepareExerciseServiceForBackend(exerciseService)
-      const result = await addExerciseService(processedService)
-      if (result.service_info_error) {
-        showErrorNotification({
-          header: t("could-not-connect-to-exercise-service-header"),
-          message: t("could-not-connect-to-exercise-service-message", {
-            message: result.service_info_error,
-          }),
-        })
-      }
-    },
+  const sortedExerciseServices = useMemo(
+    () => [...(getExerciseServices.data ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
+    [getExerciseServices.data],
+  )
+
+  const createExerciseServiceMutation = useToastMutationOptions(
+    createExerciseServiceMutationOptions(),
     { notify: true, method: "POST" },
     {
-      onSuccess: () => {
-        getExerciseServices.refetch()
-        sortServices()
+      onSuccess: async (result) => {
+        if (result.service_info_error) {
+          showErrorNotification({
+            header: t("could-not-connect-to-exercise-service-header"),
+            message: t("could-not-connect-to-exercise-service-message", {
+              message: result.service_info_error,
+            }),
+          })
+        }
+
+        await getExerciseServices.refetch()
         handleClose()
         resetExerciseService()
       },
@@ -99,12 +99,6 @@ const ExerciseServicePage: React.FC = () => {
     }
   }
 
-  const getExerciseServices = useQuery({
-    queryKey: [`exercise-services`],
-    queryFn: () => fetchExerciseServices(),
-  })
-  sortServices()
-
   const handleClose = () => {
     setOpen(false)
   }
@@ -127,7 +121,7 @@ const ExerciseServicePage: React.FC = () => {
       {getExerciseServices.isSuccess && (
         <>
           <ExerciseServiceContainer
-            exerciseServices={getExerciseServices.data}
+            exerciseServices={sortedExerciseServices}
             refetch={getExerciseServices.refetch}
           />
           <ExerciseServiceCreationModal
@@ -137,7 +131,13 @@ const ExerciseServicePage: React.FC = () => {
             onChange={onChangeCreationModal}
             onChangeName={onChangeName}
             handleSubmit={async () => {
-              createExerciseServiceMutation.mutateAsync()
+              if (!canSave(exerciseService)) {
+                return
+              }
+
+              await createExerciseServiceMutation.mutateAsync({
+                body: prepareExerciseServiceForBackend(exerciseService),
+              })
             }}
           />
         </>

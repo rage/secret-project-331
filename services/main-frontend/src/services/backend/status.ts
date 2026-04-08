@@ -1,6 +1,31 @@
-import { healthzClient } from "../healthzClient"
-import { mainFrontendClient } from "../mainFrontendClient"
+import { queryOptions } from "@tanstack/react-query"
 
+import {
+  getStatusCronjobsOptions as getStatusCronjobsGeneratedOptions,
+  getStatusDeploymentsOptions as getStatusDeploymentsGeneratedOptions,
+  getStatusEventsOptions as getStatusEventsGeneratedOptions,
+  getStatusHealthOptions as getStatusHealthGeneratedOptions,
+  getStatusIngressesOptions as getStatusIngressesGeneratedOptions,
+  getStatusJobsOptions as getStatusJobsGeneratedOptions,
+  getStatusPodDisruptionBudgetsOptions as getStatusPodDisruptionBudgetsGeneratedOptions,
+  getStatusPodLogsOptions as getStatusPodLogsGeneratedOptions,
+  getStatusPodsOptions as getStatusPodsGeneratedOptions,
+  getStatusServicesOptions as getStatusServicesGeneratedOptions,
+  getStatusSystemHealthOptions as getStatusSystemHealthGeneratedOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getStatusCronjobs as getStatusCronjobsFromApi,
+  getStatusDeployments as getStatusDeploymentsFromApi,
+  getStatusEvents as getStatusEventsFromApi,
+  getStatusHealth as getStatusHealthFromApi,
+  getStatusIngresses as getStatusIngressesFromApi,
+  getStatusJobs as getStatusJobsFromApi,
+  getStatusPodDisruptionBudgets as getStatusPodDisruptionBudgetsFromApi,
+  getStatusPodLogs as getStatusPodLogsFromApi,
+  getStatusPods as getStatusPodsFromApi,
+  getStatusServices as getStatusServicesFromApi,
+  getStatusSystemHealth as getStatusSystemHealthFromApi,
+} from "@/generated/api/sdk.generated"
 import {
   CronJobInfo,
   DeploymentInfo,
@@ -23,76 +48,151 @@ import {
   isServiceInfo,
   isSystemHealthStatus,
 } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { isArray, isString } from "@/shared-module/common/utils/fetching"
+
+const validateGeneratedData = <T>(data: unknown, isT: (value: unknown) => value is T): T => {
+  if (isT(data)) {
+    return data
+  }
+
+  throw new Error(`Invalid data from API: ${JSON.stringify(data, undefined, 2)}`)
+}
 
 export const fetchPods = async (): Promise<PodInfo[]> => {
-  const response = await mainFrontendClient.get("/status/pods")
-  return validateResponse(response, isArray(isPodInfo))
+  const data = await getStatusPodsFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isPodInfo))
 }
+
+export const getStatusPodsOptions = () =>
+  queryOptions({
+    ...getStatusPodsGeneratedOptions(),
+    select: (data): PodInfo[] => validateGeneratedData(data, isArray(isPodInfo)),
+  })
 
 export const fetchDeployments = async (): Promise<DeploymentInfo[]> => {
-  const response = await mainFrontendClient.get("/status/deployments")
-  return validateResponse(response, isArray(isDeploymentInfo))
+  const data = await getStatusDeploymentsFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isDeploymentInfo))
 }
+
+export const getStatusDeploymentsOptions = () =>
+  queryOptions({
+    ...getStatusDeploymentsGeneratedOptions(),
+    select: (data): DeploymentInfo[] => validateGeneratedData(data, isArray(isDeploymentInfo)),
+  })
 
 export const fetchCronJobs = async (): Promise<CronJobInfo[]> => {
-  const response = await mainFrontendClient.get("/status/cronjobs")
-  return validateResponse(response, isArray(isCronJobInfo))
+  const data = await getStatusCronjobsFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isCronJobInfo))
 }
+
+export const getStatusCronJobsOptions = () =>
+  queryOptions({
+    ...getStatusCronjobsGeneratedOptions(),
+    select: (data): CronJobInfo[] => validateGeneratedData(data, isArray(isCronJobInfo)),
+  })
 
 export const fetchJobs = async (): Promise<JobInfo[]> => {
-  const response = await mainFrontendClient.get("/status/jobs")
-  return validateResponse(response, isArray(isJobInfo))
+  const data = await getStatusJobsFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isJobInfo))
 }
+
+export const getStatusJobsOptions = () =>
+  queryOptions({
+    ...getStatusJobsGeneratedOptions(),
+    select: (data): JobInfo[] => validateGeneratedData(data, isArray(isJobInfo)),
+  })
 
 export const fetchServices = async (): Promise<ServiceInfo[]> => {
-  const response = await mainFrontendClient.get("/status/services")
-  return validateResponse(response, isArray(isServiceInfo))
+  const data = await getStatusServicesFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isServiceInfo))
 }
+
+export const getStatusServicesOptions = () =>
+  queryOptions({
+    ...getStatusServicesGeneratedOptions(),
+    select: (data): ServiceInfo[] => validateGeneratedData(data, isArray(isServiceInfo)),
+  })
 
 export const fetchEvents = async (): Promise<EventInfo[]> => {
-  const response = await mainFrontendClient.get("/status/events")
-  return validateResponse(response, isArray(isEventInfo))
+  const data = await getStatusEventsFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isEventInfo))
 }
+
+export const getStatusEventsOptions = () =>
+  queryOptions({
+    ...getStatusEventsGeneratedOptions(),
+    select: (data): EventInfo[] => validateGeneratedData(data, isArray(isEventInfo)),
+  })
 
 export const fetchIngresses = async (): Promise<IngressInfo[]> => {
-  const response = await mainFrontendClient.get("/status/ingresses")
-  return validateResponse(response, isArray(isIngressInfo))
+  const data = await getStatusIngressesFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isIngressInfo))
 }
 
+export const getStatusIngressesOptions = () =>
+  queryOptions({
+    ...getStatusIngressesGeneratedOptions(),
+    select: (data): IngressInfo[] => validateGeneratedData(data, isArray(isIngressInfo)),
+  })
+
 export const fetchPodDisruptionBudgets = async (): Promise<PodDisruptionBudgetInfo[]> => {
-  const response = await mainFrontendClient.get("/status/pod-disruption-budgets")
-  return validateResponse(response, isArray(isPodDisruptionBudgetInfo))
+  const data = await getStatusPodDisruptionBudgetsFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isArray(isPodDisruptionBudgetInfo))
 }
+
+export const getStatusPodDisruptionBudgetsOptions = () =>
+  queryOptions({
+    ...getStatusPodDisruptionBudgetsGeneratedOptions(),
+    select: (data): PodDisruptionBudgetInfo[] =>
+      validateGeneratedData(data, isArray(isPodDisruptionBudgetInfo)),
+  })
 
 export const fetchPodLogs = async (
   podName: string,
   container?: string,
   tail?: number,
 ): Promise<string> => {
-  const params = new URLSearchParams()
-  if (container) {
-    params.append("container", container)
-  }
-  if (tail !== undefined) {
-    params.append("tail", tail.toString())
-  }
-
-  const response = await mainFrontendClient.get(
-    `/status/pods/${podName}/logs${params.toString() ? `?${params.toString()}` : ""}`,
-    {
-      responseType: "text",
+  const data = await getStatusPodLogsFromApi({
+    path: {
+      pod_name: podName,
     },
-  )
-  return response.data
+    query: {
+      container,
+      tail,
+    },
+    throwOnError: true,
+  })
+
+  return validateGeneratedData(data, isString)
 }
+
+export const getStatusPodLogsOptions = (podName: string, container?: string, tail?: number) =>
+  queryOptions({
+    ...getStatusPodLogsGeneratedOptions({
+      path: {
+        pod_name: podName,
+      },
+      query: {
+        container,
+        tail,
+      },
+    }),
+    select: (data): string => validateGeneratedData(data, isString),
+  })
 
 export const fetchSystemHealth = async (): Promise<boolean> => {
-  const response = await healthzClient.get<boolean>("/system")
-  return response.data
+  return getStatusSystemHealthFromApi({ throwOnError: true })
 }
 
+export const getStatusSystemHealthOptions = () => getStatusSystemHealthGeneratedOptions()
+
 export const fetchSystemHealthDetailed = async (): Promise<SystemHealthStatus> => {
-  const response = await mainFrontendClient.get("/status/health")
-  return validateResponse(response, isSystemHealthStatus)
+  const data = await getStatusHealthFromApi({ throwOnError: true })
+  return validateGeneratedData(data, isSystemHealthStatus)
 }
+
+export const getStatusHealthOptions = () =>
+  queryOptions({
+    ...getStatusHealthGeneratedOptions(),
+    select: (data): SystemHealthStatus => validateGeneratedData(data, isSystemHealthStatus),
+  })

@@ -7,7 +7,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
-import { fetchCourseInstance } from "@/services/backend/course-instances"
+import { getCourseInstanceOptions } from "@/services/backend/course-instances"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -18,10 +18,7 @@ const CourseInstancePermissions: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  const courseInstance = useQuery({
-    queryKey: [`course-instance-${id}`],
-    queryFn: () => fetchCourseInstance(id),
-  })
+  const courseInstance = useQuery(getCourseInstanceOptions(id))
 
   return (
     <div

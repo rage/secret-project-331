@@ -5,7 +5,7 @@ import { useParams } from "next/navigation"
 import React, { useEffect } from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { fetchCompletionRegistrationLink } from "@/services/backend/course-modules"
+import { getCourseModuleCompletionRegistrationLinkOptions } from "@/services/backend/course-modules"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -13,10 +13,9 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const CompletionRedirectPage: React.FC = () => {
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
   const { t } = useTranslation()
-  const userCompletionInformation = useQuery({
-    queryKey: [`course-${courseModuleId}-completion-registration-link`],
-    queryFn: () => fetchCompletionRegistrationLink(courseModuleId),
-  })
+  const userCompletionInformation = useQuery(
+    getCourseModuleCompletionRegistrationLinkOptions(courseModuleId),
+  )
 
   useEffect(() => {
     if (!userCompletionInformation.data) {

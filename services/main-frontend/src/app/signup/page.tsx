@@ -11,7 +11,7 @@ import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
-import { fetchCountryFromIP } from "@/services/backend/user-details"
+import { getUsersIpCountryOptions } from "@/services/backend/user-details"
 import { ErrorResponse } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -127,10 +127,7 @@ const CreateAccountForm: React.FC = () => {
       mode: "onChange",
     })
 
-  const preFillCountry = useQuery({
-    queryKey: [`users-ip-country`],
-    queryFn: () => fetchCountryFromIP(),
-  })
+  const preFillCountry = useQuery(getUsersIpCountryOptions())
 
   useEffect(() => {
     if (preFillCountry.data) {

@@ -1,9 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
-import type { AxiosError } from "axios"
 
 import { getBulkUserDetails, getUserDetails } from "../services/backend/user-details"
 
-import type { ErrorResponse, UserDetail } from "@/shared-module/common/bindings"
+import type { UserDetail } from "@/shared-module/common/bindings"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface UseUserDetailsOptions {
@@ -55,12 +54,17 @@ export const useUserDetails = (
           user,
         }
       } catch (error) {
-        const axiosError = error as AxiosError<ErrorResponse>
-        const status = axiosError.response?.status
-        const message = axiosError.response?.data?.message ?? ""
+        const message =
+          typeof error === "string"
+            ? error
+            : typeof error === "object" &&
+                error !== null &&
+                "message" in error &&
+                typeof error.message === "string"
+              ? error.message
+              : JSON.stringify(error)
 
-        // Treat 404 and RecordNotFound-style responses as \"user not found/deleted\"
-        if (status === 404 || message.includes("RecordNotFound")) {
+        if (message.includes("RecordNotFound")) {
           return {
             kind: "not-found" as const,
             userId: safeUserId,

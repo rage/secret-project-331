@@ -3,11 +3,11 @@
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { addCodesToCodeGiveaway } from "@/services/backend/codeGiveaways"
+import { addCodeGiveawayCodesMutationOptions } from "@/services/backend/codeGiveaways"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 type ImportCodesFormProps = {
   codeGiveawayId: string
@@ -36,10 +36,8 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
   const valid = useMemo(() => parsedCodes.length > 0, [parsedCodes])
   const { t } = useTranslation()
 
-  const importCodesMutation = useToastMutation(
-    () => {
-      return addCodesToCodeGiveaway(codeGiveawayId, parsedCodes)
-    },
+  const importCodesMutation = useToastMutationOptions(
+    addCodeGiveawayCodesMutationOptions(),
     {
       method: "POST",
       notify: true,
@@ -71,7 +69,12 @@ const ImportCodesForm: React.FC<ImportCodesFormProps> = ({
           size="medium"
           variant="primary"
           onClick={() => {
-            importCodesMutation.mutate()
+            importCodesMutation.mutate({
+              path: {
+                id: codeGiveawayId,
+              },
+              body: parsedCodes,
+            })
           }}
           disabled={!valid || importCodesMutation.isPending}
         >

@@ -9,7 +9,7 @@ import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { getStudentsByCountryTotals } from "@/services/backend/courses/stats"
+import { getStudentsByCountryTotalsOptions } from "@/services/backend/courses/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -23,8 +23,7 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
   const query = useQuery({
-    queryKey: ["students-by-country-totals", courseId],
-    queryFn: () => getStudentsByCountryTotals(courseId),
+    ...getStudentsByCountryTotalsOptions(courseId),
   })
 
   const aggregatedData = useMemo(() => {

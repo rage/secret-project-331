@@ -10,27 +10,53 @@ import CodeGiveawayCode from "./CodeGiveawayCode"
 import ImportCodesForm from "./ImportCodesForm"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { fetchCodeGiveawayById, fetchCodesByCodeGiveawayId } from "@/services/backend/codeGiveaways"
+import {
+  downloadCodeGiveawayCodesCsv,
+  getCodeGiveawayByIdOptions,
+  getCodeGiveawayCodesOptions,
+} from "@/services/backend/codeGiveaways"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+
+const downloadBlobAsFile = (blob: Blob, fileName: string) => {
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.setAttribute("download", fileName)
+  try {
+    document.body.appendChild(link)
+    link.click()
+    link.parentNode?.removeChild(link)
+  } finally {
+    window.URL.revokeObjectURL(url)
+  }
+}
 
 const CodeGiveawayPage = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const [importDialogOpen, setImportDialogOpen] = useState(false)
-  const codeGiveawayQuery = useQuery({
-    queryKey: ["code-giveaway", id],
-    queryFn: () => fetchCodeGiveawayById(id!.toString()),
-  })
+  const codeGiveawayQuery = useQuery(getCodeGiveawayByIdOptions(id))
 
   const [revealCodes, setRevealCodes] = useState(false)
 
-  const codeGiveawayCodesQuery = useQuery({
-    queryKey: ["code-giveaway-codes", id],
-    queryFn: () => fetchCodesByCodeGiveawayId(id!.toString()),
-  })
+  const codeGiveawayCodesQuery = useQuery(getCodeGiveawayCodesOptions(id))
+  const downloadCodesCsvMutation = useToastMutation(
+    // eslint-disable-next-line i18next/no-literal-string
+    async () => downloadCodeGiveawayCodesCsv(id, `code-giveaway-${id}-codes.csv`),
+    {
+      notify: true,
+      method: "POST",
+    },
+    {
+      onSuccess: (download) => {
+        downloadBlobAsFile(download.blob, download.fileName)
+      },
+    },
+  )
 
   if (codeGiveawayQuery.isLoading || codeGiveawayCodesQuery.isLoading) {
     return <Spinner variant="medium" />
@@ -66,17 +92,18 @@ const CodeGiveawayPage = () => {
         <Button size="medium" variant="primary" onClick={() => setRevealCodes(!revealCodes)}>
           {t(revealCodes ? "hide" : "reveal")}
         </Button>
-        <a href={`/api/v0/main-frontend/code-giveaways/${id}/codes/csv`} download>
-          <Button
-            size="medium"
-            variant="primary"
-            className={css`
-              margin-top: 1rem;
-            `}
-          >
-            {t("link-export-given-codes-as-csv")}
-          </Button>
-        </a>
+        <Button
+          size="medium"
+          variant="primary"
+          className={css`
+            margin-top: 1rem;
+          `}
+          onClick={() => {
+            downloadCodesCsvMutation.mutate()
+          }}
+        >
+          {t("link-export-given-codes-as-csv")}
+        </Button>
       </div>
       <FullWidthTable>
         <thead>

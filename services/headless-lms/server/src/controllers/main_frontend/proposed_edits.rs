@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use models::proposed_page_edits::{self, EditProposalInfo, PageProposal, ProposalCount};
+use utoipa::OpenApi;
 
 use crate::{
     domain::{
@@ -9,6 +10,10 @@ use crate::{
     },
     prelude::*,
 };
+
+#[derive(OpenApi)]
+#[openapi(paths(get_edit_proposals, get_edit_proposal_count, process_edit_proposal))]
+pub(crate) struct MainFrontendProposedEditsApiDoc;
 
 #[derive(Debug, Deserialize)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -22,6 +27,21 @@ pub struct GetEditProposalsQuery {
 GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/course/{course_id}",
+    operation_id = "getEditProposals",
+    tag = "proposed_edits",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("pending" = bool, Query, description = "Whether to fetch pending proposals"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Edit proposals", body = Vec<PageProposal>)
+    )
+)]
 pub async fn get_edit_proposals(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -52,6 +72,18 @@ pub async fn get_edit_proposals(
 GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/course/{course_id}/count",
+    operation_id = "getEditProposalCount",
+    tag = "proposed_edits",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Edit proposal counts", body = ProposalCount)
+    )
+)]
 pub async fn get_edit_proposal_count(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -76,6 +108,16 @@ pub async fn get_edit_proposal_count(
 POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
 */
 #[instrument(skip(pool, app_conf))]
+#[utoipa::path(
+    post,
+    path = "/process-edit-proposal",
+    operation_id = "processEditProposal",
+    tag = "proposed_edits",
+    request_body = EditProposalInfo,
+    responses(
+        (status = 200, description = "Processed edit proposal")
+    )
+)]
 pub async fn process_edit_proposal(
     request_id: RequestId,
     proposal: web::Json<EditProposalInfo>,

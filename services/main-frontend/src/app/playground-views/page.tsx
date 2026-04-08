@@ -16,6 +16,10 @@ import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
 import {
+  getPlaygroundViewsGradingCallbackUrl,
+  getPlaygroundViewsWebsocketUrl,
+} from "@/services/backend/playground-views"
+import {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
   PlaygroundViewsMessage,
@@ -145,7 +149,6 @@ const ModelSolutionSpecArea = styled.div`
 `
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
-const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "wss://")
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
 const IframeViewPlayground: React.FC = () => {
@@ -275,7 +278,7 @@ const IframeViewPlayground: React.FC = () => {
         }
         const gradingRequest: GradingRequest = {
           // eslint-disable-next-line i18next/no-literal-string
-          grading_update_url: `${PUBLIC_ADDRESS}/api/v0/main-frontend/playground-views/grading/${websocketId}`,
+          grading_update_url: getPlaygroundViewsGradingCallbackUrl(String(websocketId)),
           exercise_spec: privateSpecParsed,
           submission_data: param.data,
         }
@@ -299,8 +302,7 @@ const IframeViewPlayground: React.FC = () => {
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
-      // eslint-disable-next-line i18next/no-literal-string
-      setWebsocket(new WebSocket(`${WEBSOCKET_ADDRESS}/api/v0/main-frontend/playground-views/ws`))
+      setWebsocket(new WebSocket(getPlaygroundViewsWebsocketUrl()))
       return
     }
     const ws = websocket

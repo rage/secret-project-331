@@ -44,8 +44,38 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
     nest(
+        (path = "/certificates", api = certificates::MainFrontendCertificatesApiDoc),
+        (path = "/chapters", api = chapters::MainFrontendChaptersApiDoc),
+        (path = "/chatbot-models", api = chatbot_models::MainFrontendChatbotModelsApiDoc),
+        (path = "/chatbots", api = chatbots::MainFrontendChatbotsApiDoc),
+        (path = "/code-giveaways", api = code_giveaways::MainFrontendCodeGiveawaysApiDoc),
+        (path = "/course-instances", api = course_instances::MainFrontendCourseInstancesApiDoc),
+        (path = "/course-modules", api = course_modules::MainFrontendCourseModulesApiDoc),
         (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
-        (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc)
+        (path = "/email-templates", api = email_templates::MainFrontendEmailTemplatesApiDoc),
+        (path = "/exams", api = exams::MainFrontendExamsApiDoc),
+        (path = "/exercise-repositories", api = exercise_repositories::MainFrontendExerciseRepositoriesApiDoc),
+        (path = "/exercise-services", api = exercise_services::MainFrontendExerciseServicesApiDoc),
+        (path = "/exercise-slide-submissions", api = exercise_slide_submissions::MainFrontendExerciseSlideSubmissionsApiDoc),
+        (path = "/exercises", api = exercises::MainFrontendExercisesApiDoc),
+        (path = "/feedback", api = feedback::MainFrontendFeedbackApiDoc),
+        (path = "/global-stats", api = global_stats::MainFrontendGlobalStatsApiDoc),
+        (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc),
+        (path = "/oauth", api = oauth::MainFrontendOauthApiDoc),
+        (path = "/org", api = org::MainFrontendOrgApiDoc),
+        (path = "/organizations", api = organizations::MainFrontendOrganizationsApiDoc),
+        (path = "/page_audio", api = page_audio_files::MainFrontendPageAudioApiDoc),
+        (path = "/pages", api = pages::MainFrontendPagesApiDoc),
+        (path = "/playground_examples", api = playground_examples::MainFrontendPlaygroundExamplesApiDoc),
+        (path = "/playground-views", api = playground_views::MainFrontendPlaygroundViewsApiDoc),
+        (path = "/proposed-edits", api = proposed_edits::MainFrontendProposedEditsApiDoc),
+        (path = "/regradings", api = regradings::MainFrontendRegradingsApiDoc),
+        (path = "/roles", api = roles::MainFrontendRolesApiDoc),
+        (path = "/status", api = status::MainFrontendStatusApiDoc),
+        (path = "/teacher-grading-decisions", api = teacher_grading_decisions::MainFrontendTeacherGradingDecisionsApiDoc),
+        (path = "/time", api = time::MainFrontendTimeApiDoc),
+        (path = "/user-details", api = user_details::MainFrontendUserDetailsApiDoc),
+        (path = "/users", api = users::MainFrontendUsersApiDoc)
     )
 )]
 pub struct MainFrontendRoutesApiDoc;

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import EditProposalPage from "./EditProposalPage"
 
-import { fetchEditProposalCount } from "@/services/backend/proposedEdits"
+import { getEditProposalCountOptions } from "@/services/backend/proposedEdits"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -26,10 +26,7 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getEditProposalCount = useQuery({
-    queryKey: [`edit-proposal-count-${courseId}`],
-    queryFn: () => fetchEditProposalCount(courseId),
-  })
+  const getEditProposalCount = useQuery(getEditProposalCountOptions(courseId))
 
   if (getEditProposalCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />

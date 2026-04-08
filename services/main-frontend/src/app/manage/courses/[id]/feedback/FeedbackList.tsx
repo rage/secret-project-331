@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import FeedbackPage from "./FeedbackPage"
 
-import { fetchFeedbackCount } from "@/services/backend/feedback"
+import { getFeedbackCountOptions } from "@/services/backend/feedback"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -21,10 +21,7 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
   const { t } = useTranslation()
   const paginationInfo = usePaginationInfo()
 
-  const getFeedbackCount = useQuery({
-    queryKey: [`feedback-count-${courseId}`],
-    queryFn: () => fetchFeedbackCount(courseId),
-  })
+  const getFeedbackCount = useQuery(getFeedbackCountOptions(courseId))
 
   if (getFeedbackCount.isError) {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />

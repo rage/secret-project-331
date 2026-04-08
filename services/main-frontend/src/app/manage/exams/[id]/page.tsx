@@ -10,18 +10,21 @@ import { useTranslation } from "react-i18next"
 import EditExamDialog from "../EditExamDialog"
 
 import {
-  fetchExam,
-  fetchOrganization,
-  fetchOrgExam,
-  setCourse,
-  unsetCourse,
+  downloadExamPointsCsv,
+  downloadExamSubmissionsCsv,
+  getExamOptions,
+  getOrganizationExamByExamIdOptions,
+  setExamCourseMutationOptions,
+  unsetExamCourseMutationOptions,
 } from "@/services/backend/exams"
+import { getOrganizationOptions } from "@/services/backend/organizations"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import {
   manageCourseByIdRoute,
@@ -44,27 +47,36 @@ const detailValue = css`
   color: ${baseTheme.colors.gray[700]};
 `
 
+const downloadBlobAsFile = (blob: Blob, fileName: string) => {
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement("a")
+  link.href = url
+  link.setAttribute("download", fileName)
+
+  try {
+    document.body.appendChild(link)
+    link.click()
+    link.parentNode?.removeChild(link)
+  } finally {
+    window.URL.revokeObjectURL(url)
+  }
+}
+
 const ManageExam: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t, i18n } = useTranslation()
-  const getExam = useQuery({ queryKey: [`exam-${id}`], queryFn: () => fetchExam(id) })
-  const organizationId = useQuery({
-    queryKey: [`organizations-${id}`],
-    queryFn: () => fetchOrgExam(id),
-  }).data?.organization_id
+  const getExam = useQuery(getExamOptions(id))
+  const organizationId = useQuery(getOrganizationExamByExamIdOptions(id)).data?.organization_id
 
   const organizationSlug = useQuery({
-    queryKey: [`organizations-${organizationId}`],
-    queryFn: () => fetchOrganization(organizationId ?? ""),
+    ...getOrganizationOptions(organizationId ?? ""),
     enabled: !!organizationId,
   }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)
   const [newCourse, setNewCourse] = useState("")
-  const setCourseMutation = useToastMutation(
-    ({ examId, courseId }: { examId: string; courseId: string }) => {
-      return setCourse(examId, courseId)
-    },
+  const setCourseMutation = useToastMutationOptions(
+    setExamCourseMutationOptions(),
     {
       notify: true,
       method: "POST",
@@ -76,10 +88,8 @@ const ManageExam: React.FC = () => {
     },
   )
 
-  const unsetCourseMutation = useToastMutation(
-    ({ examId, courseId }: { examId: string; courseId: string }) => {
-      return unsetCourse(examId, courseId)
-    },
+  const unsetCourseMutation = useToastMutationOptions(
+    unsetExamCourseMutationOptions(),
     {
       notify: true,
       method: "POST",
@@ -90,6 +100,14 @@ const ManageExam: React.FC = () => {
       },
     },
   )
+
+  const exportPointsMutation = useToastMutation(async () => downloadExamPointsCsv(id), {
+    notify: false,
+  })
+
+  const exportSubmissionsMutation = useToastMutation(async () => downloadExamSubmissionsCsv(id), {
+    notify: false,
+  })
 
   return (
     <div
@@ -214,14 +232,34 @@ const ManageExam: React.FC = () => {
               <a href={`/cms/exams/${getExam.data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
             </li>
             <li className={detailRow}>
-              <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`}>
+              <Button
+                variant="tertiary"
+                size="medium"
+                onClick={() => {
+                  exportPointsMutation.mutate(undefined, {
+                    onSuccess: (download) => {
+                      downloadBlobAsFile(download.blob, download.fileName)
+                    },
+                  })
+                }}
+              >
                 {t("link-export-points")}
-              </a>
+              </Button>
             </li>
             <li className={detailRow}>
-              <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-submissions`}>
+              <Button
+                variant="tertiary"
+                size="medium"
+                onClick={() => {
+                  exportSubmissionsMutation.mutate(undefined, {
+                    onSuccess: (download) => {
+                      downloadBlobAsFile(download.blob, download.fileName)
+                    },
+                  })
+                }}
+              >
                 {t("link-export-submissions")}
-              </a>
+              </Button>
             </li>
             <li className={detailRow}>
               <Link href={manageExamQuestionsRoute(getExam.data.id)}>{t("grading")}</Link>
@@ -261,8 +299,12 @@ const ManageExam: React.FC = () => {
               <Button
                 onClick={() => {
                   unsetCourseMutation.mutate({
-                    examId: getExam.data.id,
-                    courseId: c.id,
+                    path: {
+                      id: getExam.data.id,
+                    },
+                    body: {
+                      course_id: c.id,
+                    },
                   })
                 }}
                 variant="secondary"
@@ -284,8 +326,12 @@ const ManageExam: React.FC = () => {
           <Button
             onClick={() => {
               setCourseMutation.mutate({
-                examId: getExam.data.id,
-                courseId: newCourse,
+                path: {
+                  id: getExam.data.id,
+                },
+                body: {
+                  course_id: newCourse,
+                },
               })
               setNewCourse("")
             }}
@@ -299,6 +345,12 @@ const ManageExam: React.FC = () => {
           )}
           {unsetCourseMutation.isError && (
             <ErrorBanner variant="readOnly" error={unsetCourseMutation.error} />
+          )}
+          {exportPointsMutation.isError && (
+            <ErrorBanner variant="readOnly" error={exportPointsMutation.error} />
+          )}
+          {exportSubmissionsMutation.isError && (
+            <ErrorBanner variant="readOnly" error={exportSubmissionsMutation.error} />
           )}
         </>
       )}

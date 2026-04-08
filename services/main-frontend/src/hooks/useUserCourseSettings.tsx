@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getUserCourseSettingsForUser } from "../services/backend/courses"
+import { getUserCourseSettingsForUserOptions } from "../services/backend/courses"
 
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -11,13 +11,10 @@ export const useUserCourseSettings = (
   userId: string | null | undefined,
 ) => {
   return useQuery({
-    queryKey: ["userCourseSettings", courseId, userId],
-    queryFn: () => {
-      return getUserCourseSettingsForUser(
-        assertNotNullOrUndefined(courseId),
-        assertNotNullOrUndefined(userId),
-      )
-    },
+    ...getUserCourseSettingsForUserOptions(
+      assertNotNullOrUndefined(courseId),
+      assertNotNullOrUndefined(userId),
+    ),
     enabled: !!courseId && !!userId,
   })
 }

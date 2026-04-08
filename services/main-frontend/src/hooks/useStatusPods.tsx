@@ -2,14 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchPods } from "../services/backend/status"
-
-import { PodInfo } from "@/shared-module/common/bindings"
+import { getStatusPodsOptions } from "../services/backend/status"
 
 export const useStatusPods = () => {
-  return useQuery<PodInfo[]>({
-    queryKey: ["status", "pods"],
-    queryFn: () => fetchPods(),
+  return useQuery({
+    ...getStatusPodsOptions(),
     refetchInterval: 10000,
   })
 }

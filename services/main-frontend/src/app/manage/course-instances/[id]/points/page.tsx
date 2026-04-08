@@ -11,7 +11,10 @@ import ChapterPointsDashboard from "../ChapterPointsDashboard"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { fetchCourseInstance, getPoints } from "@/services/backend/course-instances"
+import {
+  getCourseInstanceOptions,
+  getCourseInstancePointsOptions,
+} from "@/services/backend/course-instances"
 import { UserDetail } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -40,10 +43,7 @@ const CourseInstancePointsList: React.FC = () => {
 
   const [sorting, setSorting] = useState(NAME)
 
-  const courseInstanceQuery = useQuery({
-    queryKey: ["course-instance", courseInstanceId],
-    queryFn: () => fetchCourseInstance(courseInstanceId),
-  })
+  const courseInstanceQuery = useQuery(getCourseInstanceOptions(courseInstanceId))
 
   const instanceLabel = courseInstanceQuery.data?.name || t("default-instance")
 
@@ -71,10 +71,7 @@ const CourseInstancePointsList: React.FC = () => {
     }
   }
 
-  const getPointsList = useQuery({
-    queryKey: [`point-list-${courseInstanceId}`],
-    queryFn: () => getPoints(courseInstanceId),
-  })
+  const getPointsList = useQuery(getCourseInstancePointsOptions(courseInstanceId))
 
   const instanceTotalPoints = getPointsList.isSuccess
     ? getPointsList.data.chapter_points.reduce((prev, curr) => prev + curr.score_total, 0)

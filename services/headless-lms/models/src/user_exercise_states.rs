@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use futures::Stream;
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::{
     course_modules::{self, CourseModule},
@@ -12,7 +13,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display, ToSchema)]
 #[sqlx(type_name = "reviewing_stage", rename_all = "snake_case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 /**
@@ -52,7 +53,7 @@ pub enum ReviewingStage {
 }
 
 #[cfg_attr(feature = "ts_rs", derive(TS))]
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct UserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,

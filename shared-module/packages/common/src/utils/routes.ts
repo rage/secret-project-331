@@ -98,6 +98,10 @@ export function domainStatsRoute() {
   return "/domain-stats"
 }
 
+export function certificateValidateRoute(certificateVerificationId: string) {
+  return `/certificates/validate/${certificateVerificationId}`
+}
+
 export function courseStatsRoute(courseId: string) {
   return `/manage/courses/${courseId}/stats`
 }

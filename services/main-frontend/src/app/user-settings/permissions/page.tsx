@@ -11,9 +11,9 @@ import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
 import useAuthorizedClientsQuery from "@/hooks/useAuthorizedClientsQuery"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
-import { getCourseBreadCrumbInfo } from "@/services/backend/courses"
-import { getUserDetailsForUser } from "@/services/backend/user-details"
-import { getAllResearchConsentAnswersByUserId } from "@/services/backend/users"
+import { getCourseBreadCrumbInfoOptions } from "@/services/backend/courses"
+import { getUserDetailsForUserOptions } from "@/services/backend/user-details"
+import { getUserResearchFormQuestionAnswersOptions } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
@@ -27,15 +27,9 @@ const PermissionsSettingsPage: React.FC = () => {
   const getUserConsent = useUserResearchConsentQuery()
   const { listQuery, revokeMutation } = useAuthorizedClientsQuery()
 
-  const getUserDetails = useQuery({
-    queryKey: [`user-details`],
-    queryFn: () => getUserDetailsForUser(),
-  })
+  const getUserDetails = useQuery(getUserDetailsForUserOptions())
 
-  const getAllResearchFormAnswers = useQuery({
-    queryKey: [`users-user-research-form-question-answers`],
-    queryFn: () => getAllResearchConsentAnswersByUserId(),
-  })
+  const getAllResearchFormAnswers = useQuery(getUserResearchFormQuestionAnswersOptions())
 
   const handleGeneralResearchFormButton = async () => {
     await getUserConsent.refetch()
@@ -56,9 +50,7 @@ const PermissionsSettingsPage: React.FC = () => {
   const breadcrumbQueries = useMemo(
     () =>
       allCourseIds.map((courseId) => ({
-        // eslint-disable-next-line i18next/no-literal-string
-        queryKey: [`course-${courseId}-breadcrumb-info`, courseId],
-        queryFn: () => getCourseBreadCrumbInfo(courseId),
+        ...getCourseBreadCrumbInfoOptions(courseId),
       })),
     [allCourseIds],
   )

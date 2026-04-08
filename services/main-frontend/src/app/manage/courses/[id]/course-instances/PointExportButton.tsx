@@ -2,6 +2,7 @@
 
 import { useTranslation } from "react-i18next"
 
+import { downloadCourseInstancePointsCsv } from "@/services/backend/course-instances"
 import Button from "@/shared-module/common/components/Button"
 
 const PointExportButton: React.FC<
@@ -12,9 +13,7 @@ const PointExportButton: React.FC<
     <Button
       variant="secondary"
       size="medium"
-      onClick={() =>
-        (window.location.href = `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points`)
-      }
+      onClick={() => void downloadCourseInstancePointsCsv(courseInstanceId, courseInstanceName)}
       aria-label={`${t("link-export-points")} (${courseInstanceName})`}
     >
       {t("link-export-points")}

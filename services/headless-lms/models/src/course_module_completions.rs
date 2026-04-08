@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
 use futures::Stream;
+use utoipa::ToSchema;
 
 use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseModuleCompletion {
     pub id: Uuid,

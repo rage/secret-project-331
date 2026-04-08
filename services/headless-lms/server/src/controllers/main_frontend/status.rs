@@ -10,17 +10,43 @@ use crate::{
     prelude::*,
 };
 use std::collections::HashMap;
+use utoipa::OpenApi;
 
 pub use system_health::{
     CronJobInfo, DeploymentInfo, EventInfo, IngressInfo, JobInfo, PodDisruptionBudgetInfo, PodInfo,
     ServiceInfo, ServicePortInfo,
 };
 
+#[derive(OpenApi)]
+#[openapi(paths(
+    pods,
+    deployments,
+    cronjobs,
+    jobs,
+    services,
+    events,
+    ingresses,
+    pod_disruption_budgets,
+    pod_logs,
+    health,
+    system_health
+))]
+pub(crate) struct MainFrontendStatusApiDoc;
+
 /**
 GET `/api/v0/main-frontend/status/pods`
 
 Returns the status of all Pods in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/pods",
+    operation_id = "getStatusPods",
+    tag = "status",
+    responses(
+        (status = 200, description = "Pods", body = serde_json::Value)
+    )
+)]
 pub async fn pods(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -49,6 +75,15 @@ GET `/api/v0/main-frontend/status/deployments`
 
 Returns the status of all Deployments in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/deployments",
+    operation_id = "getStatusDeployments",
+    tag = "status",
+    responses(
+        (status = 200, description = "Deployments", body = serde_json::Value)
+    )
+)]
 pub async fn deployments(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -77,6 +112,15 @@ GET `/api/v0/main-frontend/status/cronjobs`
 
 Returns the status of all CronJobs in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/cronjobs",
+    operation_id = "getStatusCronjobs",
+    tag = "status",
+    responses(
+        (status = 200, description = "Cronjobs", body = serde_json::Value)
+    )
+)]
 pub async fn cronjobs(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -105,6 +149,15 @@ GET `/api/v0/main-frontend/status/jobs`
 
 Returns the status of all Jobs in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/jobs",
+    operation_id = "getStatusJobs",
+    tag = "status",
+    responses(
+        (status = 200, description = "Jobs", body = serde_json::Value)
+    )
+)]
 pub async fn jobs(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -133,6 +186,15 @@ GET `/api/v0/main-frontend/status/services`
 
 Returns the status of all Services in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/services",
+    operation_id = "getStatusServices",
+    tag = "status",
+    responses(
+        (status = 200, description = "Services", body = serde_json::Value)
+    )
+)]
 pub async fn services(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -161,6 +223,15 @@ GET `/api/v0/main-frontend/status/events`
 
 Returns the status of all Events in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/events",
+    operation_id = "getStatusEvents",
+    tag = "status",
+    responses(
+        (status = 200, description = "Events", body = serde_json::Value)
+    )
+)]
 pub async fn events(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -189,6 +260,15 @@ GET `/api/v0/main-frontend/status/ingresses`
 
 Returns the status of all Ingresses in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/ingresses",
+    operation_id = "getStatusIngresses",
+    tag = "status",
+    responses(
+        (status = 200, description = "Ingresses", body = serde_json::Value)
+    )
+)]
 pub async fn ingresses(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -217,6 +297,15 @@ GET `/api/v0/main-frontend/status/pod-disruption-budgets`
 
 Returns the status of all PodDisruptionBudgets in the current namespace.
 */
+#[utoipa::path(
+    get,
+    path = "/pod-disruption-budgets",
+    operation_id = "getStatusPodDisruptionBudgets",
+    tag = "status",
+    responses(
+        (status = 200, description = "Pod disruption budgets", body = serde_json::Value)
+    )
+)]
 pub async fn pod_disruption_budgets(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -265,6 +354,20 @@ Query parameters:
 - container: Optional<String> - Container name (if pod has multiple containers)
 - tail: Optional<u64> - Number of lines to tail from the end (default: 1000, max: 10000)
 */
+#[utoipa::path(
+    get,
+    path = "/pods/{pod_name}/logs",
+    operation_id = "getStatusPodLogs",
+    tag = "status",
+    params(
+        ("pod_name" = String, Path, description = "Pod name"),
+        ("container" = Option<String>, Query, description = "Container name"),
+        ("tail" = Option<u64>, Query, description = "Number of log lines")
+    ),
+    responses(
+        (status = 200, description = "Pod logs", body = String)
+    )
+)]
 pub async fn pod_logs(
     path: web::Path<String>,
     query: web::Query<HashMap<String, String>>,
@@ -307,6 +410,15 @@ GET `/api/v0/main-frontend/status/health`
 
 Returns detailed system health status with issues list (admin only).
 */
+#[utoipa::path(
+    get,
+    path = "/health",
+    operation_id = "getStatusHealth",
+    tag = "status",
+    responses(
+        (status = 200, description = "Detailed system health", body = serde_json::Value)
+    )
+)]
 pub async fn health(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -338,6 +450,15 @@ GET `/api/v0/main-frontend/status/system-health` Returns a boolean indicating wh
 Uses the same underlying checking logic as the detailed health endpoint.
 Unauthenticated users get a boolean. Authenticated admins get error details on failure.
 */
+#[utoipa::path(
+    get,
+    path = "/system-health",
+    operation_id = "getStatusSystemHealth",
+    tag = "status",
+    responses(
+        (status = 200, description = "System health", body = bool)
+    )
+)]
 pub async fn system_health(
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,

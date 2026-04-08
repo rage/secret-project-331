@@ -1,7 +1,12 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbot-models/`.
 use crate::prelude::*;
+use utoipa::OpenApi;
 
 use models::chatbot_configurations_models::ChatbotConfigurationModel;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_model, get_all_models))]
+pub(crate) struct MainFrontendChatbotModelsApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
@@ -10,6 +15,19 @@ pub struct CourseInfo {
 }
 
 /// GET `/api/v0/main-frontend/chatbot-models/{chatbot_configuration_id}`
+#[utoipa::path(
+    get,
+    path = "/{chatbot_model_id}",
+    operation_id = "getChatbotModel",
+    tag = "chatbot-models",
+    params(
+        ("chatbot_model_id" = Uuid, Path, description = "Chatbot model id")
+    ),
+    request_body = String,
+    responses(
+        (status = 200, description = "Chatbot model", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_model(
     chatbot_model_id: web::Path<Uuid>,
@@ -26,6 +44,18 @@ async fn get_model(
 }
 
 /// GET `/api/v0/main-frontend/chatbot-models?course_id={course_id}`
+#[utoipa::path(
+    get,
+    path = "/",
+    operation_id = "getChatbotModels",
+    tag = "chatbot-models",
+    params(
+        ("course_id" = Uuid, Query, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Chatbot models", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_models(
     course_info: web::Query<CourseInfo>,
@@ -46,6 +76,6 @@ async fn get_all_models(
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
-    cfg.route("/{id}", web::get().to(get_model))
+    cfg.route("/{chatbot_model_id}", web::get().to(get_model))
         .route("/", web::get().to(get_all_models));
 }

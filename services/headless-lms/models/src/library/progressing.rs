@@ -690,7 +690,7 @@ pub async fn get_manual_completion_result_preview(
     })
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserCompletionInformation {
     pub course_module_completion_id: Uuid,
@@ -821,7 +821,7 @@ pub async fn get_user_module_completion_statuses_for_course(
     Ok(course_module_completion_statuses)
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, utoipa::ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CompletionRegistrationLink {
     pub url: String,

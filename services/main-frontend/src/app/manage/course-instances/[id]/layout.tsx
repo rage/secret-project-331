@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import { fetchCourseInstance } from "@/services/backend/course-instances"
+import { getCourseInstanceOptions } from "@/services/backend/course-instances"
 import {
   manageCourseInstancesRoute,
   manageCourseRoute,
@@ -18,10 +18,7 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
 
-  const courseInstanceQuery = useQuery({
-    queryKey: ["course-instance", id],
-    queryFn: () => fetchCourseInstance(id),
-  })
+  const courseInstanceQuery = useQuery(getCourseInstanceOptions(id))
 
   const courseId = courseInstanceQuery.data?.course_id ?? null
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)

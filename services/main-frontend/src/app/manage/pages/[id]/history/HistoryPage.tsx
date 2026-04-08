@@ -6,7 +6,7 @@ import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchHistoryForPage } from "@/services/backend/pages"
+import { getPageHistoryOptions } from "@/services/backend/pages"
 import { PageHistory } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
@@ -32,8 +32,7 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const { t } = useTranslation()
   const getPageHistory = useQuery({
-    queryKey: [`page-history-${pageId}-${page}-${limit}`],
-    queryFn: () => fetchHistoryForPage(pageId, page, limit),
+    ...getPageHistoryOptions(pageId, page, limit),
   })
 
   if (getPageHistory.isError) {

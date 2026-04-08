@@ -6,10 +6,10 @@ import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  deletePlaygroundExample,
-  fetchPlaygroundExamples,
-  savePlaygroundExample,
-  updatePlaygroundExample,
+  deletePlaygroundExampleMutationOptions,
+  getPlaygroundExamplesOptions,
+  savePlaygroundExampleMutationOptions,
+  updatePlaygroundExampleMutationOptions,
 } from "@/services/backend/playground-examples"
 import { PlaygroundExample } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -17,7 +17,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
@@ -34,12 +34,9 @@ const Home: React.FC = () => {
   const [combinedUrl, setCombinedUrl] = useState<string>("")
   const [invalidUrl, setInvalidUrl] = useState<boolean>(false)
   const [selectedExample, setSelectedExample] = useState<PlaygroundExample | null>(null)
-  const getPlaygroundExamples = useQuery({
-    queryKey: ["playground-examples"],
-    queryFn: () => fetchPlaygroundExamples(),
-  })
-  const saveMutation = useToastMutation(
-    savePlaygroundExample,
+  const getPlaygroundExamples = useQuery(getPlaygroundExamplesOptions())
+  const saveMutation = useToastMutationOptions(
+    savePlaygroundExampleMutationOptions(),
     {
       notify: true,
       method: "POST",
@@ -56,8 +53,8 @@ const Home: React.FC = () => {
       },
     },
   )
-  const updateMutation = useToastMutation(
-    updatePlaygroundExample,
+  const updateMutation = useToastMutationOptions(
+    updatePlaygroundExampleMutationOptions(),
     {
       notify: true,
       method: "PUT",
@@ -74,8 +71,8 @@ const Home: React.FC = () => {
       },
     },
   )
-  const deleteMutation = useToastMutation(
-    deletePlaygroundExample,
+  const deleteMutation = useToastMutationOptions(
+    deletePlaygroundExampleMutationOptions(),
     {
       notify: true,
       method: "DELETE",
@@ -144,10 +141,12 @@ const Home: React.FC = () => {
 
   const handleExampleSave = async () => {
     saveMutation.mutate({
-      name: exampleName,
-      url: exampleUrl,
-      width: exampleWidth,
-      data: JSON.parse(exampleData),
+      body: {
+        name: exampleName,
+        url: exampleUrl,
+        width: exampleWidth,
+        data: JSON.parse(exampleData),
+      },
     })
   }
 
@@ -156,11 +155,13 @@ const Home: React.FC = () => {
       return
     }
     updateMutation.mutate({
-      ...selectedExample,
-      name: exampleName,
-      url: exampleUrl,
-      width: exampleWidth,
-      data: JSON.parse(exampleData),
+      body: {
+        ...selectedExample,
+        name: exampleName,
+        url: exampleUrl,
+        width: exampleWidth,
+        data: JSON.parse(exampleData),
+      },
     })
   }
 
@@ -168,7 +169,11 @@ const Home: React.FC = () => {
     if (!selectedExample) {
       return
     }
-    deleteMutation.mutate(selectedExample.id)
+    deleteMutation.mutate({
+      path: {
+        playground_example_id: selectedExample.id,
+      },
+    })
   }
 
   return (

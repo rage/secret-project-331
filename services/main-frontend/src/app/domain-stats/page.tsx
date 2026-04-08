@@ -10,8 +10,8 @@ import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
 import YearFilter from "./YearFilter"
 
 import {
-  getCompletionStatsByEmailDomain,
-  getCourseCompletionStatsForEmailDomain,
+  getCompletionStatsByEmailDomainOptions,
+  getCourseCompletionStatsForEmailDomainOptions,
 } from "@/services/backend/global-stats"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -23,18 +23,11 @@ const DomainStatsPage = () => {
   const [selectedDomain, setSelectedDomain] = useState<string | undefined>(undefined)
 
   // Query for all domains
-  const domainStatsQuery = useQuery({
-    queryKey: ["domainCompletionStats", selectedYear],
-    queryFn: () => getCompletionStatsByEmailDomain(selectedYear),
-  })
+  const domainStatsQuery = useQuery(getCompletionStatsByEmailDomainOptions(selectedYear))
 
   // Query for courses within selected domain
   const courseStatsQuery = useQuery({
-    queryKey: ["courseCompletionStats", selectedDomain, selectedYear],
-    queryFn: () =>
-      selectedDomain
-        ? getCourseCompletionStatsForEmailDomain(selectedDomain, selectedYear)
-        : Promise.resolve([]),
+    ...getCourseCompletionStatsForEmailDomainOptions(selectedDomain ?? "", selectedYear),
     enabled: !!selectedDomain, // Only run query when domain is selected
   })
 

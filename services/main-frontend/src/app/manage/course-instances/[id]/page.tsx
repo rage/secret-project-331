@@ -11,7 +11,7 @@ import NewCourseInstanceForm from "@/app/manage/courses/[id]/course-instances/Ne
 import {
   deleteCourseInstance,
   editCourseInstance,
-  fetchCourseInstance,
+  getCourseInstanceOptions,
 } from "@/services/backend/course-instances"
 import { CourseInstanceForm } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
@@ -27,10 +27,7 @@ const ManageCourseInstances: React.FC = () => {
   const { id: courseInstanceId } = useParams<{ id: string }>()
   const router = useRouter()
 
-  const getCourseInstances = useQuery({
-    queryKey: [`course-instance-${courseInstanceId}`],
-    queryFn: () => fetchCourseInstance(courseInstanceId),
-  })
+  const getCourseInstances = useQuery(getCourseInstanceOptions(courseInstanceId))
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {

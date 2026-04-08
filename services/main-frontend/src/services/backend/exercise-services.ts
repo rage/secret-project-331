@@ -1,49 +1,112 @@
-import { mainFrontendClient } from "../mainFrontendClient"
+import { queryOptions, UseMutationOptions } from "@tanstack/react-query"
 
+import {
+  getExerciseServiceByIdOptions as getExerciseServiceByIdGeneratedOptions,
+  getExerciseServicesOptions as getExerciseServicesGeneratedOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  createExerciseService as createExerciseServiceFromApi,
+  deleteExerciseService as deleteExerciseServiceFromApi,
+  updateExerciseService as updateExerciseServiceFromApi,
+} from "@/generated/api/sdk.generated"
+import type {
+  ExerciseService as GeneratedExerciseService,
+  ExerciseServiceWithError as GeneratedExerciseServiceWithError,
+} from "@/generated/api/types.generated"
 import {
   ExerciseService,
   ExerciseServiceNewOrUpdate,
   ExerciseServiceWithError,
 } from "@/shared-module/common/bindings"
-import {
-  isExerciseService,
-  isExerciseServiceWithError,
-} from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
 
-export const fetchExerciseServices = async (): Promise<Array<ExerciseService>> => {
-  const response = await mainFrontendClient.get(`/exercise-services/`)
-  return validateResponse(response, isArray(isExerciseService))
+const normalizeExerciseService = (exerciseService: GeneratedExerciseService): ExerciseService => ({
+  ...exerciseService,
+  deleted_at: exerciseService.deleted_at ?? null,
+  internal_url: exerciseService.internal_url ?? null,
+})
+
+const normalizeExerciseServiceWithError = (
+  exerciseServiceWithError: GeneratedExerciseServiceWithError,
+): ExerciseServiceWithError => ({
+  exercise_service: normalizeExerciseService(exerciseServiceWithError.exercise_service),
+  service_info_error: exerciseServiceWithError.service_info_error ?? null,
+})
+
+export const getExerciseServicesOptions = () =>
+  queryOptions({
+    ...getExerciseServicesGeneratedOptions(),
+    select: (exerciseServices): ExerciseService[] => exerciseServices.map(normalizeExerciseService),
+  })
+
+export const getExerciseServiceByIdOptions = (exerciseServiceId: string) =>
+  queryOptions({
+    ...getExerciseServiceByIdGeneratedOptions({
+      path: {
+        exercise_service_id: exerciseServiceId,
+      },
+    }),
+    select: (exerciseService): ExerciseService => normalizeExerciseService(exerciseService),
+  })
+
+type CreateExerciseServiceVariables = {
+  body: ExerciseServiceNewOrUpdate
 }
 
-export const fetchExerciseServiceById = async (
-  exercise_service_id: string,
-): Promise<ExerciseService> => {
-  const response = await mainFrontendClient.get(`/exercise-services/${exercise_service_id}`)
-  return validateResponse(response, isExerciseService)
+type UpdateExerciseServiceVariables = {
+  path: {
+    exercise_service_id: string
+  }
+  body: ExerciseServiceNewOrUpdate
 }
 
-export const addExerciseService = async (
-  exercise_service: ExerciseServiceNewOrUpdate,
-): Promise<ExerciseServiceWithError> => {
-  const response = await mainFrontendClient.post("/exercise-services/", exercise_service)
-  return validateResponse(response, isExerciseServiceWithError)
+type DeleteExerciseServiceVariables = {
+  path: {
+    exercise_service_id: string
+  }
 }
 
-export const deleteExerciseService = async (
-  exercise_service_id: string,
-): Promise<ExerciseService> => {
-  const response = await mainFrontendClient.delete(`/exercise-services/${exercise_service_id}`)
-  return validateResponse(response, isExerciseService)
-}
+export const createExerciseServiceMutationOptions = (): UseMutationOptions<
+  ExerciseServiceWithError,
+  unknown,
+  CreateExerciseServiceVariables
+> => ({
+  mutationFn: async ({ body }) => {
+    const result = await createExerciseServiceFromApi({
+      body,
+      throwOnError: true,
+    })
 
-export const updateExerciseService = async (
-  exercise_service_id: string,
-  exercise_service: ExerciseService,
-): Promise<ExerciseServiceWithError> => {
-  const response = await mainFrontendClient.put(
-    `/exercise-services/${exercise_service_id}`,
-    exercise_service,
-  )
-  return validateResponse(response, isExerciseServiceWithError)
-}
+    return normalizeExerciseServiceWithError(result)
+  },
+})
+
+export const deleteExerciseServiceMutationOptions = (): UseMutationOptions<
+  ExerciseService,
+  unknown,
+  DeleteExerciseServiceVariables
+> => ({
+  mutationFn: async ({ path }) => {
+    const deleted = await deleteExerciseServiceFromApi({
+      path,
+      throwOnError: true,
+    })
+
+    return normalizeExerciseService(deleted)
+  },
+})
+
+export const updateExerciseServiceMutationOptions = (): UseMutationOptions<
+  ExerciseServiceWithError,
+  unknown,
+  UpdateExerciseServiceVariables
+> => ({
+  mutationFn: async ({ path, body }) => {
+    const updated = await updateExerciseServiceFromApi({
+      path,
+      body,
+      throwOnError: true,
+    })
+
+    return normalizeExerciseServiceWithError(updated)
+  },
+})

@@ -8,6 +8,10 @@ import { v4 } from "uuid"
 import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
 import {
+  getPlaygroundViewsGradingCallbackUrl,
+  getPlaygroundViewsWebsocketUrl,
+} from "@/services/backend/playground-views"
+import {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
   PlaygroundViewsMessage,
@@ -18,7 +22,6 @@ import { GradingRequest } from "@/shared-module/common/exercise-service-protocol
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
-const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "wss://")
 
 interface UsePlaygroundQueriesArguments {
   url: string
@@ -145,7 +148,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         }
         const gradingRequest: GradingRequest = {
           // eslint-disable-next-line i18next/no-literal-string
-          grading_update_url: `${PUBLIC_ADDRESS}/api/v0/main-frontend/playground-views/grading/${websocketId}`,
+          grading_update_url: getPlaygroundViewsGradingCallbackUrl(String(websocketId)),
           exercise_spec: args.parsedPrivateSpec.parsedPrivateSpec,
           submission_data: param.data,
         }
@@ -169,8 +172,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
-      // eslint-disable-next-line i18next/no-literal-string
-      setWebsocket(new WebSocket(`${WEBSOCKET_ADDRESS}/api/v0/main-frontend/playground-views/ws`))
+      setWebsocket(new WebSocket(getPlaygroundViewsWebsocketUrl()))
       return
     }
     const ws = websocket

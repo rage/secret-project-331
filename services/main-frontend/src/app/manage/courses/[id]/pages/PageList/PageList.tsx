@@ -14,12 +14,12 @@ import PageListItem, {
 } from "./PageListItem"
 import TableWrapper from "./TableWrapper"
 
+import { deletePageMutation as deletePageMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
-import { deletePage } from "@/services/backend/pages"
 import { Chapter, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, typography } from "@/shared-module/common/styles"
 
 interface Props {
@@ -41,10 +41,8 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   const { t } = useTranslation()
   const { confirm } = useDialog()
   const [showNewOrEditPageForm, setShowNewOrEditPageForm] = useState(false)
-  const deletePageMutation = useToastMutation(
-    (pageId: string) => {
-      return deletePage(pageId)
-    },
+  const deletePageMutation = useToastMutationOptions(
+    deletePageMutationOptions(),
     { notify: true, method: "DELETE" },
     { onSuccess: () => refetch() },
   )
@@ -56,7 +54,11 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
   const handleDeletePage = async (pageId: string, title: string) => {
     const result = await confirm(t("page-deletion-confirmation-message", { title }))
     if (result) {
-      deletePageMutation.mutate(pageId)
+      deletePageMutation.mutate({
+        path: {
+          page_id: pageId,
+        },
+      })
     }
   }
 

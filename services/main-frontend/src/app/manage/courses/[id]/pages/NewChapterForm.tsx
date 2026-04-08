@@ -5,13 +5,16 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postNewChapter, updateChapter } from "@/services/backend/chapters"
+import {
+  createChapterMutation as createChapterMutationOptions,
+  updateChapterMutation as updateChapterMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { Chapter, NewChapter } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/CheckboxFieldWrapper"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
 interface NewChapterFormProps {
@@ -57,29 +60,49 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
     },
   })
 
-  const submitMutation = useToastMutation(
-    (data: NewChapter) => {
-      // Temp solution to retain module information without having a way to edit modules in frontend yet.
-      data.course_module_id = initialData?.course_module_id ?? null
-      if (newRecord) {
-        return postNewChapter(data)
-      }
-      if (!initialData?.id) {
-        throw new Error("No id for chapter")
-      }
-      return updateChapter(initialData?.id, {
-        ...data,
-        course_module_id: initialData.course_module_id,
-      })
-    },
+  const createChapterMutation = useToastMutationOptions(
+    createChapterMutationOptions(),
     { notify: true, method: "POST" },
     { onSuccess: () => onSubmitForm() },
   )
+  const updateChapterMutation = useToastMutationOptions(
+    updateChapterMutationOptions(),
+    { notify: true, method: "PUT" },
+    { onSuccess: () => onSubmitForm() },
+  )
+  const isPending = createChapterMutation.isPending || updateChapterMutation.isPending
+
+  const submitForm = async (data: NewChapter) => {
+    if (newRecord) {
+      await createChapterMutation.mutateAsync({
+        body: {
+          ...data,
+          // Temp solution to retain module information without having a way to edit modules in frontend yet.
+          course_module_id: initialData?.course_module_id ?? null,
+        },
+      })
+      return
+    }
+
+    if (!initialData?.id) {
+      throw new Error("No id for chapter")
+    }
+
+    await updateChapterMutation.mutateAsync({
+      path: {
+        chapter_id: initialData.id,
+      },
+      body: {
+        ...data,
+        course_module_id: initialData.course_module_id,
+      },
+    })
+  }
 
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        submitMutation.mutate({
+        await submitForm({
           course_id: courseId,
           name: data.name,
           color: data.color,
@@ -159,7 +182,12 @@ const NewChapterForm: React.FC<React.PropsWithChildren<NewChapterFormProps>> = (
         />
       </CheckboxFieldWrapper>
       <div>
-        <Button variant="primary" size="medium" fullWidth disabled={!isValid || isSubmitting}>
+        <Button
+          variant="primary"
+          size="medium"
+          fullWidth
+          disabled={!isValid || isSubmitting || isPending}
+        >
           {newRecord ? t("button-text-create") : t("button-text-update")}
         </Button>
       </div>

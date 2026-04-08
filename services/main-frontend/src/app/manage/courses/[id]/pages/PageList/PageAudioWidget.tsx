@@ -5,13 +5,14 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { deletePageAudioFileMutation as deletePageAudioFileMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import TrashIcon from "@/imgs/trash.svg"
-import { postPageAudioFile, removePageAudioFile } from "@/services/backend/page-audio-files"
-import { fetchPageAudioFiles } from "@/services/backend/pages"
+import { getPageAudioFilesOptions, postPageAudioFile } from "@/services/backend/page-audio-files"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -38,20 +39,12 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   const pageId = id
 
   const getPageAudioFiles = useQuery({
-    queryKey: [`page-${pageId}-audio-files`],
-    queryFn: () => {
-      // fetchPageAudioFiles(pageId),
-      if (pageId) {
-        return fetchPageAudioFiles(pageId)
-      } else {
-        return Promise.reject(new Error("Page ID undefined"))
-      }
-    },
+    ...getPageAudioFilesOptions(pageId ?? ""),
     enabled: !!pageId,
   })
 
-  const deletePageAudioFile = useToastMutation(
-    (fileId: string) => removePageAudioFile(fileId),
+  const deletePageAudioFile = useToastMutationOptions(
+    deletePageAudioFileMutationOptions(),
     {
       notify: true,
       successMessage: t("audio-deleted-successfully"),
@@ -195,7 +188,11 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
                           background: #fff;
                         `}
                         onClick={() => {
-                          deletePageAudioFile.mutate(item.id)
+                          deletePageAudioFile.mutate({
+                            path: {
+                              file_id: item.id,
+                            },
+                          })
                         }}
                       />
                     </div>

@@ -1,8 +1,28 @@
-import { mainFrontendClient } from "../mainFrontendClient"
+import { queryOptions } from "@tanstack/react-query"
 
+import {
+  createExerciseRepositoryMutation,
+  deleteExerciseRepositoryMutation,
+  updateExerciseRepositoryMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  createExerciseRepository as createExerciseRepositoryFromApi,
+  deleteExerciseRepository as deleteExerciseRepositoryFromApi,
+  getExerciseRepositoriesForCourse as getExerciseRepositoriesForCourseFromApi,
+  getExerciseRepositoriesForExam as getExerciseRepositoriesForExamFromApi,
+  updateExerciseRepository as updateExerciseRepositoryFromApi,
+} from "@/generated/api/sdk.generated"
+import type { ExerciseRepository as GeneratedExerciseRepository } from "@/generated/api/types.generated"
 import { ExerciseRepository, NewExerciseRepository } from "@/shared-module/common/bindings"
-import { isExerciseRepository } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+
+const normalizeExerciseRepository = (
+  exerciseRepository: GeneratedExerciseRepository,
+): ExerciseRepository => ({
+  ...exerciseRepository,
+  course_id: exerciseRepository.course_id ?? null,
+  error_message: exerciseRepository.error_message ?? null,
+  exam_id: exerciseRepository.exam_id ?? null,
+})
 
 export const addExerciseRepository = async (
   courseId: string | null,
@@ -10,7 +30,7 @@ export const addExerciseRepository = async (
   gitUrl: string,
   publicKey: string,
   deployKey: string,
-): Promise<void> => {
+): Promise<string> => {
   const data: NewExerciseRepository = {
     course_id: courseId,
     exam_id: examId,
@@ -18,30 +38,72 @@ export const addExerciseRepository = async (
     public_key: publicKey.length > 0 ? publicKey : null,
     deploy_key: deployKey.length > 0 ? deployKey : null,
   }
-  return mainFrontendClient.post(`/exercise-repositories/new`, data)
+
+  return await createExerciseRepositoryFromApi({
+    body: data,
+    throwOnError: true,
+  })
 }
 
+export const addExerciseRepositoryMutationOptions = () => createExerciseRepositoryMutation()
+
 export const editExerciseRepository = async (id: string, gitUrl: string): Promise<void> => {
-  const data: unknown = { url: gitUrl }
-  return mainFrontendClient.put(`/exercise-repositories/${id}`, data)
+  await updateExerciseRepositoryFromApi({
+    path: {
+      id,
+    },
+    body: {
+      url: gitUrl,
+    },
+    throwOnError: true,
+  })
 }
+
+export const updateExerciseRepositoryMutationOptions = () => updateExerciseRepositoryMutation()
 
 export const getExerciseRepositories = async (
   courseId: string | null,
   examId: string | null,
 ): Promise<ExerciseRepository[]> => {
-  let url
   if (courseId) {
-    url = `/exercise-repositories/course/${courseId}`
-  } else if (examId) {
-    url = `/exercise-repositories/exam/${examId}`
-  } else {
-    throw "No course or exam id given"
+    const repositories = await getExerciseRepositoriesForCourseFromApi({
+      path: {
+        course_id: courseId,
+      },
+      throwOnError: true,
+    })
+
+    return repositories.map(normalizeExerciseRepository)
   }
-  const res = await mainFrontendClient.get(url)
-  return validateResponse(res, isArray(isExerciseRepository))
+
+  if (examId) {
+    const repositories = await getExerciseRepositoriesForExamFromApi({
+      path: {
+        exam_id: examId,
+      },
+      throwOnError: true,
+    })
+
+    return repositories.map(normalizeExerciseRepository)
+  }
+
+  throw new Error("No course or exam id given")
+}
+
+export const getExerciseRepositoriesOptions = (courseId: string | null, examId: string | null) => {
+  return queryOptions({
+    queryKey: ["getExerciseRepositories", courseId, examId],
+    queryFn: () => getExerciseRepositories(courseId, examId),
+  })
 }
 
 export const deleteExerciseRepository = async (id: string): Promise<void> => {
-  await mainFrontendClient.delete(`/exercise-repositories/${id}`)
+  await deleteExerciseRepositoryFromApi({
+    path: {
+      id,
+    },
+    throwOnError: true,
+  })
 }
+
+export const deleteExerciseRepositoryMutationOptions = () => deleteExerciseRepositoryMutation()

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
 import React, { useEffect } from "react"
 
-import { fetchCourseInstance } from "@/services/backend/course-instances"
+import { getCourseInstanceOptions } from "@/services/backend/course-instances"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -16,8 +16,7 @@ const CourseInstanceStatusSummaryRedirect: React.FC = () => {
   const router = useRouter()
   const { id: courseInstanceId, user_id } = useParams<{ id: string; user_id: string }>()
   const courseInstanceQuery = useQuery({
-    queryKey: ["course-instance", courseInstanceId],
-    queryFn: () => fetchCourseInstance(courseInstanceId),
+    ...getCourseInstanceOptions(courseInstanceId),
     enabled: !!courseInstanceId,
   })
 

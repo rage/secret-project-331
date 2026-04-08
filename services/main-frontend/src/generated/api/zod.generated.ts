@@ -4,6 +4,589 @@
 
 import * as z from 'zod';
 
+/**
+ *
+ * Indicates what is the user's completion status for a exercise.
+ *
+ * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
+ */
+export const zActivityProgress = z.enum([
+    'Initialized',
+    'Started',
+    'InProgress',
+    'Submitted',
+    'Completed'
+]);
+
+export const zAutomaticCompletionRequirements = z.object({
+    course_module_id: z.uuid(),
+    number_of_exercises_attempted_treshold: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    number_of_points_treshold: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    requires_exam: z.boolean()
+});
+
+export const zBlockProposalAction = z.union([
+    z.object({
+        data: z.string(),
+        tag: z.enum(['Accept'])
+    }),
+    z.object({
+        tag: z.enum(['Reject'])
+    })
+]);
+
+export const zBlockProposalInfo = z.object({
+    action: zBlockProposalAction,
+    id: z.uuid()
+});
+
+export const zCertificateGenerationRequest = z.object({
+    certificate_configuration_id: z.uuid(),
+    grade: z.string().nullish(),
+    name_on_certificate: z.string()
+});
+
+export const zChapter = z.object({
+    chapter_image_url: z.string().nullish(),
+    chapter_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    color: z.string().nullish(),
+    copied_from: z.uuid().nullish(),
+    course_id: z.uuid(),
+    course_module_id: z.uuid(),
+    created_at: z.iso.datetime(),
+    deadline: z.iso.datetime().nullish(),
+    deleted_at: z.iso.datetime().nullish(),
+    front_page_id: z.uuid().nullish(),
+    id: z.uuid(),
+    name: z.string(),
+    opens_at: z.iso.datetime().nullish(),
+    updated_at: z.iso.datetime()
+});
+
+export const zChapterUpdate = z.object({
+    color: z.string().nullish(),
+    course_module_id: z.uuid().nullish(),
+    deadline: z.iso.datetime().nullish(),
+    front_page_id: z.uuid().nullish(),
+    name: z.string(),
+    opens_at: z.iso.datetime().nullish()
+});
+
+export const zCodeGiveaway = z.object({
+    course_id: z.uuid(),
+    course_module_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    enabled: z.boolean(),
+    id: z.uuid(),
+    name: z.string(),
+    require_course_specific_consent_form_question_id: z.uuid().nullish(),
+    updated_at: z.iso.datetime()
+});
+
+export const zCodeGiveawayCode = z.object({
+    added_by_user_id: z.uuid(),
+    code: z.string(),
+    code_giveaway_id: z.uuid(),
+    code_given_to_user_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    id: z.uuid(),
+    updated_at: z.iso.datetime()
+});
+
+export const zCompletionPolicy = z.union([
+    zAutomaticCompletionRequirements.and(z.object({
+        policy: z.enum(['automatic'])
+    })),
+    z.object({
+        policy: z.enum(['manual'])
+    })
+]);
+
+export const zCompletionRegistrationLink = z.object({
+    url: z.string()
+});
+
+export const zCourse = z.object({
+    ask_marketing_consent: z.boolean(),
+    base_module_completion_requires_n_submodule_completions: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    can_add_chatbot: z.boolean(),
+    chapter_locking_enabled: z.boolean(),
+    closed_additional_message: z.string().nullish(),
+    closed_at: z.iso.datetime().nullish(),
+    closed_course_successor_id: z.uuid().nullish(),
+    content_search_language: z.string().nullish(),
+    copied_from: z.uuid().nullish(),
+    course_language_group_id: z.uuid(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    description: z.string().nullish(),
+    flagged_answers_skip_manual_review_and_allow_retry: z.boolean(),
+    flagged_answers_threshold: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    id: z.uuid(),
+    is_draft: z.boolean(),
+    is_joinable_by_code_only: z.boolean(),
+    is_test_mode: z.boolean(),
+    is_unlisted: z.boolean(),
+    join_code: z.string().nullish(),
+    language_code: z.string(),
+    name: z.string(),
+    organization_id: z.uuid(),
+    slug: z.string(),
+    updated_at: z.iso.datetime()
+});
+
+/**
+ *
+ * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
+ */
+export const zCourseModule = z.object({
+    certification_enabled: z.boolean(),
+    completion_policy: zCompletionPolicy,
+    completion_registration_link_override: z.string().nullish(),
+    copied_from: z.uuid().nullish(),
+    course_id: z.uuid(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    ects_credits: z.number().nullish(),
+    enable_registering_completion_to_uh_open_university: z.boolean(),
+    id: z.uuid(),
+    name: z.string().nullish(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    uh_course_code: z.string().nullish(),
+    updated_at: z.iso.datetime()
+});
+
+export const zCourseModuleCompletion = z.object({
+    completion_date: z.iso.datetime(),
+    completion_granter_user_id: z.uuid().nullish(),
+    completion_language: z.string(),
+    completion_registration_attempt_date: z.iso.datetime().nullish(),
+    course_id: z.uuid(),
+    course_module_id: z.uuid(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    eligible_for_ects: z.boolean(),
+    email: z.string(),
+    grade: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    id: z.uuid(),
+    needs_to_be_reviewed: z.boolean(),
+    passed: z.boolean(),
+    prerequisite_modules_completed: z.boolean(),
+    updated_at: z.iso.datetime(),
+    user_id: z.uuid()
+});
+
+export const zDatabaseChapter = z.object({
+    chapter_image_path: z.string().nullish(),
+    chapter_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    color: z.string().nullish(),
+    copied_from: z.uuid().nullish(),
+    course_id: z.uuid(),
+    course_module_id: z.uuid(),
+    created_at: z.iso.datetime(),
+    deadline: z.iso.datetime().nullish(),
+    deleted_at: z.iso.datetime().nullish(),
+    front_page_id: z.uuid().nullish(),
+    id: z.uuid(),
+    name: z.string(),
+    opens_at: z.iso.datetime().nullish(),
+    updated_at: z.iso.datetime()
+});
+
+export const zEditProposalInfo = z.object({
+    block_proposals: z.array(zBlockProposalInfo),
+    page_id: z.uuid(),
+    page_proposal_id: z.uuid()
+});
+
+export const zEmailTemplateType = z.enum([
+    'reset_password_email',
+    'delete_user_email',
+    'confirm_email_code',
+    'generic'
+]);
+
+export const zEmailTemplate = z.object({
+    content: z.unknown().optional(),
+    course_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    exercise_completions_threshold: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    id: z.uuid(),
+    language: z.string().nullish(),
+    points_threshold: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    subject: z.string().nullish(),
+    template_type: zEmailTemplateType,
+    updated_at: z.iso.datetime()
+});
+
+export const zExam = z.object({
+    courses: z.array(zCourse),
+    ends_at: z.iso.datetime().nullish(),
+    grade_manually: z.boolean(),
+    id: z.uuid(),
+    instructions: z.unknown(),
+    language: z.string(),
+    minimum_points_treshold: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    name: z.string(),
+    page_id: z.uuid(),
+    starts_at: z.iso.datetime().nullish(),
+    time_minutes: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zExamCourseInfo = z.object({
+    course_id: z.uuid()
+});
+
+export const zExamEnrollment = z.object({
+    ended_at: z.iso.datetime().nullish(),
+    exam_id: z.uuid(),
+    is_teacher_testing: z.boolean(),
+    show_exercise_answers: z.boolean().nullish(),
+    started_at: z.iso.datetime(),
+    user_id: z.uuid()
+});
+
+export const zExercise = z.object({
+    chapter_id: z.uuid().nullish(),
+    copied_from: z.uuid().nullish(),
+    course_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deadline: z.iso.datetime().nullish(),
+    deleted_at: z.iso.datetime().nullish(),
+    exam_id: z.uuid().nullish(),
+    exercise_language_group_id: z.uuid().nullish(),
+    id: z.uuid(),
+    limit_number_of_tries: z.boolean(),
+    max_tries_per_slide: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    name: z.string(),
+    needs_peer_review: z.boolean(),
+    needs_self_review: z.boolean(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    page_id: z.uuid(),
+    score_maximum: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    teacher_reviews_answer_after_locking: z.boolean(),
+    updated_at: z.iso.datetime(),
+    use_course_default_peer_or_self_review_config: z.boolean()
+});
+
+export const zExerciseRepositoryStatus = z.enum([
+    'Pending',
+    'Success',
+    'Failure'
+]);
+
+export const zExerciseRepository = z.object({
+    course_id: z.uuid().nullish(),
+    error_message: z.string().nullish(),
+    exam_id: z.uuid().nullish(),
+    id: z.uuid(),
+    status: zExerciseRepositoryStatus,
+    url: z.string()
+});
+
+export const zExerciseRepositoryUpdate = z.object({
+    url: z.string()
+});
+
+export const zExerciseService = z.object({
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    id: z.uuid(),
+    internal_url: z.string().nullish(),
+    max_reprocessing_submissions_at_once: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    name: z.string(),
+    public_url: z.string(),
+    slug: z.string(),
+    updated_at: z.iso.datetime()
+});
+
+export const zExerciseServiceNewOrUpdate = z.object({
+    internal_url: z.string().nullish(),
+    max_reprocessing_submissions_at_once: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    name: z.string(),
+    public_url: z.string(),
+    slug: z.string()
+});
+
+export const zExerciseServiceWithError = z.object({
+    exercise_service: zExerciseService,
+    service_info_error: z.string().nullish()
+});
+
+export const zExerciseTaskSubmission = z.object({
+    created_at: z.iso.datetime(),
+    data_json: z.unknown().optional(),
+    deleted_at: z.iso.datetime().nullish(),
+    exercise_slide_id: z.uuid(),
+    exercise_slide_submission_id: z.uuid(),
+    exercise_task_grading_id: z.uuid().nullish(),
+    exercise_task_id: z.uuid(),
+    id: z.uuid(),
+    metadata: z.unknown().optional(),
+    updated_at: z.iso.datetime()
+});
+
+/**
+ *
+ *
+ * Tells what's the status of the grading progress for a user and exercise.
+ *
+ * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
+ */
+export const zGradingProgress = z.enum([
+    'Failed',
+    'NotReady',
+    'PendingManual',
+    'Pending',
+    'FullyGraded'
+]);
+
+export const zExerciseTaskGrading = z.object({
+    course_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    exam_id: z.uuid().nullish(),
+    exercise_id: z.uuid(),
+    exercise_task_id: z.uuid(),
+    exercise_task_submission_id: z.uuid(),
+    feedback_json: z.unknown().optional(),
+    feedback_text: z.string().nullish(),
+    grading_completed_at: z.iso.datetime().nullish(),
+    grading_priority: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    grading_progress: zGradingProgress,
+    grading_started_at: z.iso.datetime().nullish(),
+    id: z.uuid(),
+    score_given: z.number().nullish(),
+    unscaled_score_given: z.number().nullish(),
+    unscaled_score_maximum: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    updated_at: z.iso.datetime()
+});
+
+/**
+ * Information necessary for the frontend to render an exercise task
+ */
+export const zCourseMaterialExerciseTask = z.object({
+    assignment: z.unknown(),
+    deleted_at: z.iso.datetime().nullish(),
+    exercise_iframe_url: z.string().nullish(),
+    exercise_service_slug: z.string(),
+    exercise_slide_id: z.uuid(),
+    id: z.uuid(),
+    model_solution_spec: z.unknown().optional(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    previous_submission: zExerciseTaskSubmission.nullish(),
+    previous_submission_grading: zExerciseTaskGrading.nullish(),
+    pseudonumous_user_id: z.uuid().nullish(),
+    public_spec: z.unknown().optional()
+});
+
+export const zHistoryChangeReason = z.enum([
+    'PageSaved',
+    'HistoryRestored',
+    'PageDeleted'
+]);
+
+export const zHistoryRestoreData = z.object({
+    history_id: z.uuid()
+});
+
+export const zNewChapter = z.object({
+    chapter_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    color: z.string().nullish(),
+    course_id: z.uuid(),
+    course_module_id: z.uuid().nullish(),
+    deadline: z.iso.datetime().nullish(),
+    front_page_id: z.uuid().nullish(),
+    name: z.string(),
+    opens_at: z.iso.datetime().nullish()
+});
+
+export const zNewCodeGiveaway = z.object({
+    course_id: z.uuid(),
+    course_module_id: z.uuid().nullish(),
+    name: z.string(),
+    require_course_specific_consent_form_question_id: z.uuid().nullish()
+});
+
+export const zNewExam = z.object({
+    ends_at: z.iso.datetime().nullish(),
+    grade_manually: z.boolean(),
+    minimum_points_treshold: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    name: z.string(),
+    organization_id: z.uuid(),
+    starts_at: z.iso.datetime().nullish(),
+    time_minutes: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zNewExerciseRepository = z.object({
+    course_id: z.uuid().nullish(),
+    deploy_key: z.string().nullish(),
+    exam_id: z.uuid().nullish(),
+    git_url: z.string(),
+    public_key: z.string().nullish()
+});
+
+export const zOrganizationCreatePayload = z.object({
+    hidden: z.boolean(),
+    name: z.string(),
+    slug: z.string()
+});
+
+export const zOrganizationUpdatePayload = z.object({
+    hidden: z.boolean(),
+    name: z.string(),
+    slug: z.string()
+});
+
+export const zPage = z.object({
+    chapter_id: z.uuid().nullish(),
+    content: z.unknown(),
+    copied_from: z.uuid().nullish(),
+    course_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    exam_id: z.uuid().nullish(),
+    hidden: z.boolean(),
+    id: z.uuid(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    page_language_group_id: z.uuid().nullish(),
+    title: z.string(),
+    updated_at: z.iso.datetime(),
+    url_path: z.string()
+});
+
+export const zPageAudioFile = z.object({
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    id: z.uuid(),
+    mime_type: z.string(),
+    page_id: z.uuid(),
+    path: z.string()
+});
+
+/**
+ * Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
+ */
+export const zPageDetailsUpdate = z.object({
+    title: z.string(),
+    url_path: z.string()
+});
+
+export const zPageHistory = z.object({
+    author_user_id: z.uuid(),
+    content: z.unknown(),
+    created_at: z.iso.datetime(),
+    history_change_reason: zHistoryChangeReason,
+    id: z.uuid(),
+    page_id: z.uuid(),
+    restored_from_id: z.uuid().nullish(),
+    title: z.string()
+});
+
+export const zPageInfo = z.object({
+    course_id: z.uuid().nullish(),
+    course_name: z.string().nullish(),
+    course_slug: z.string().nullish(),
+    organization_slug: z.string().nullish(),
+    page_id: z.uuid(),
+    page_title: z.string()
+});
+
+export const zProposalCount = z.object({
+    handled: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    pending: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zProposalStatus = z.enum([
+    'Pending',
+    'Accepted',
+    'Rejected'
+]);
+
+export const zEditedBlockNoLongerExistsData = z.object({
+    block_id: z.uuid(),
+    changed_text: z.string(),
+    id: z.uuid(),
+    original_text: z.string(),
+    status: zProposalStatus
+});
+
+export const zEditedBlockStillExistsData = z.object({
+    accept_preview: z.string().nullish(),
+    block_id: z.uuid(),
+    changed_text: z.string(),
+    current_text: z.string(),
+    id: z.uuid(),
+    original_text: z.string(),
+    status: zProposalStatus
+});
+
+export const zBlockProposal = z.union([
+    zEditedBlockStillExistsData.and(z.object({
+        type: z.enum(['edited-block-still-exists'])
+    })),
+    zEditedBlockNoLongerExistsData.and(z.object({
+        type: z.enum(['edited-block-no-longer-exists'])
+    }))
+]);
+
+export const zPageProposal = z.object({
+    block_proposals: z.array(zBlockProposal),
+    created_at: z.iso.datetime(),
+    id: z.uuid(),
+    page_id: z.uuid(),
+    page_title: z.string(),
+    page_url_path: z.string(),
+    pending: z.boolean(),
+    user_id: z.uuid().nullish()
+});
+
+/**
+ *
+ * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
+ */
+export const zReviewingStage = z.enum([
+    'NotStarted',
+    'PeerReview',
+    'SelfReview',
+    'WaitingForPeerReviews',
+    'WaitingForManualGrading',
+    'ReviewedAndLocked',
+    'Locked'
+]);
+
+export const zTeacherDecisionType = z.enum([
+    'FullPoints',
+    'ZeroPoints',
+    'CustomPoints',
+    'SuspectedPlagiarism',
+    'RejectAndReset'
+]);
+
+export const zNewTeacherGradingDecision = z.object({
+    action: zTeacherDecisionType,
+    exercise_id: z.uuid(),
+    hidden: z.boolean(),
+    justification: z.string().nullish(),
+    manual_points: z.number().nullish(),
+    user_exercise_state_id: z.uuid()
+});
+
+export const zTeacherGradingDecision = z.object({
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    hidden: z.boolean().nullish(),
+    id: z.uuid(),
+    justification: z.string().nullish(),
+    score_given: z.number(),
+    teacher_decision: zTeacherDecisionType,
+    updated_at: z.iso.datetime(),
+    user_exercise_state_id: z.uuid()
+});
+
 export const zTerm = z.object({
     definition: z.string(),
     id: z.uuid(),
@@ -13,6 +596,551 @@ export const zTerm = z.object({
 export const zTermUpdate = z.object({
     definition: z.string(),
     term: z.string()
+});
+
+export const zThresholdData = z.object({
+    duration_seconds: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zUserCompletionInformation = z.object({
+    course_module_completion_id: z.uuid(),
+    course_name: z.string(),
+    ects_credits: z.number().nullish(),
+    email: z.string(),
+    enable_registering_completion_to_uh_open_university: z.boolean(),
+    uh_course_code: z.string()
+});
+
+export const zUserExerciseState = z.object({
+    activity_progress: zActivityProgress,
+    course_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    exam_id: z.uuid().nullish(),
+    exercise_id: z.uuid(),
+    grading_progress: zGradingProgress,
+    id: z.uuid(),
+    reviewing_stage: zReviewingStage,
+    score_given: z.number().nullish(),
+    selected_exercise_slide_id: z.uuid().nullish(),
+    updated_at: z.iso.datetime(),
+    user_id: z.uuid()
+});
+
+export const zUserPointsUpdateStrategy = z.enum(['CanAddPointsButCannotRemovePoints', 'CanAddPointsAndCanRemovePoints']);
+
+export const zExerciseSlideSubmission = z.object({
+    course_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    exam_id: z.uuid().nullish(),
+    exercise_id: z.uuid(),
+    exercise_slide_id: z.uuid(),
+    flag_count: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    id: z.uuid(),
+    updated_at: z.iso.datetime(),
+    user_id: z.uuid(),
+    user_points_update_strategy: zUserPointsUpdateStrategy
+});
+
+export const zExerciseSlideSubmissionAndUserExerciseState = z.object({
+    exercise: zExercise,
+    exercise_slide_submission: zExerciseSlideSubmission,
+    teacher_grading_decision: zTeacherGradingDecision.nullish(),
+    user_exam_enrollment: zExamEnrollment,
+    user_exercise_state: zUserExerciseState
+});
+
+export const zExerciseSlideSubmissionAndUserExerciseStateList = z.object({
+    data: z.array(zExerciseSlideSubmissionAndUserExerciseState),
+    total_pages: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zExerciseSlideSubmissionInfo = z.object({
+    exercise: zExercise,
+    exercise_slide_submission: zExerciseSlideSubmission,
+    tasks: z.array(zCourseMaterialExerciseTask),
+    user_exercise_state: zUserExerciseState.nullish()
+});
+
+export const zUpdateCertificateConfigurationBody = z.object({
+    file: z.array(z.array(z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }))),
+    metadata: z.string()
+});
+
+/**
+ * Certificate configuration updated
+ */
+export const zUpdateCertificateConfigurationResponse = z.boolean();
+
+export const zDeleteCertificateConfigurationPath = z.object({
+    certificate_configuration_id: z.uuid()
+});
+
+/**
+ * Certificate configuration deleted
+ */
+export const zDeleteCertificateConfigurationResponse = z.boolean();
+
+export const zGenerateCertificateBody = zCertificateGenerationRequest;
+
+/**
+ * Certificate generated
+ */
+export const zGenerateCertificateResponse = z.boolean();
+
+export const zUpdateGeneratedCertificateBody = z.unknown();
+
+export const zUpdateGeneratedCertificatePath = z.object({
+    certificate_id: z.uuid()
+});
+
+export const zGetCertificateByConfigurationIdPath = z.object({
+    certificate_configuration_id: z.uuid()
+});
+
+export const zGetCertificateByVerificationIdPath = z.object({
+    certificate_verification_id: z.string()
+});
+
+export const zGetCertificateByVerificationIdQuery = z.object({
+    debug: z.boolean(),
+    test_certificate_configuration_id: z.uuid().optional()
+});
+
+export const zCreateChapterBody = zNewChapter;
+
+/**
+ * Created chapter
+ */
+export const zCreateChapterResponse = zChapter;
+
+export const zDeleteChapterPath = z.object({
+    chapter_id: z.uuid()
+});
+
+/**
+ * Deleted chapter
+ */
+export const zDeleteChapterResponse = zChapter;
+
+export const zUpdateChapterBody = zChapterUpdate;
+
+export const zUpdateChapterPath = z.object({
+    chapter_id: z.uuid()
+});
+
+/**
+ * Updated chapter
+ */
+export const zUpdateChapterResponse = zChapter;
+
+export const zDeleteChapterImagePath = z.object({
+    chapter_id: z.uuid()
+});
+
+export const zUpdateChapterImageBody = z.object({
+    file: z.array(z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }))
+});
+
+export const zUpdateChapterImagePath = z.object({
+    chapter_id: z.uuid()
+});
+
+/**
+ * Updated chapter image
+ */
+export const zUpdateChapterImageResponse = zChapter;
+
+export const zGetCourseChaptersPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course chapters
+ */
+export const zGetCourseChaptersResponse = z.array(zDatabaseChapter);
+
+export const zGetChatbotModelsQuery = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetChatbotModelBody = z.string();
+
+export const zGetChatbotModelPath = z.object({
+    chatbot_model_id: z.uuid()
+});
+
+export const zDeleteChatbotConfigurationPath = z.object({
+    chatbot_configuration_id: z.uuid()
+});
+
+export const zGetChatbotConfigurationPath = z.object({
+    chatbot_configuration_id: z.uuid()
+});
+
+export const zConfigureChatbotBody = z.unknown();
+
+export const zConfigureChatbotPath = z.object({
+    chatbot_configuration_id: z.uuid()
+});
+
+export const zCreateCodeGiveawayBody = zNewCodeGiveaway;
+
+/**
+ * Created code giveaway
+ */
+export const zCreateCodeGiveawayResponse = zCodeGiveaway;
+
+export const zGetCodeGiveawaysByCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Code giveaways for course
+ */
+export const zGetCodeGiveawaysByCourseResponse = z.array(zCodeGiveaway);
+
+export const zGetCodeGiveawayByIdPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Code giveaway
+ */
+export const zGetCodeGiveawayByIdResponse = zCodeGiveaway;
+
+export const zGetCodeGiveawayCodesPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Giveaway codes
+ */
+export const zGetCodeGiveawayCodesResponse = z.array(zCodeGiveawayCode);
+
+export const zAddCodeGiveawayCodesBody = z.array(z.string());
+
+export const zAddCodeGiveawayCodesPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Added giveaway codes
+ */
+export const zAddCodeGiveawayCodesResponse = z.array(zCodeGiveawayCode);
+
+export const zDownloadCodeGiveawayCodesCsvPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Giveaway codes CSV
+ */
+export const zDownloadCodeGiveawayCodesCsvResponse = z.string();
+
+export const zDeleteCodeGiveawayCodePath = z.object({
+    id: z.uuid(),
+    code_id: z.uuid()
+});
+
+export const zGetCourseInstancePath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zGetCourseInstanceCompletionsPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zCreateCourseInstanceCompletionsBody = z.unknown();
+
+export const zCreateCourseInstanceCompletionsPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zPreviewCourseInstanceCompletionsBody = z.unknown();
+
+export const zPreviewCourseInstanceCompletionsPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zGetCourseInstanceCourseModuleCompletionsForUserPath = z.object({
+    course_instance_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zGetCourseInstanceDefaultCertificateConfigurationsPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zDeleteCourseInstancePath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zEditCourseInstanceBody = z.unknown();
+
+export const zEditCourseInstancePath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zGetCourseInstanceEmailTemplatesPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zCreateCourseInstanceEmailTemplateBody = z.unknown();
+
+export const zCreateCourseInstanceEmailTemplatePath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zExportCourseInstanceCompletionsCsvPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+/**
+ * Course instance completions CSV
+ */
+export const zExportCourseInstanceCompletionsCsvResponse = z.string();
+
+export const zExportCourseInstancePointsCsvPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+/**
+ * Course instance points CSV
+ */
+export const zExportCourseInstancePointsCsvResponse = z.string();
+
+export const zGetCourseInstancePointsPath = z.object({
+    course_instance_id: z.uuid()
+});
+
+export const zGetCourseInstancePointsQuery = z.object({
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+export const zGetCourseInstanceUserProgressPath = z.object({
+    course_instance_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zGetCourseInstanceExerciseStatusesForUserPath = z.object({
+    course_instance_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zGetCourseModulePath = z.object({
+    course_module_id: z.uuid()
+});
+
+/**
+ * Course module
+ */
+export const zGetCourseModuleResponse = zCourseModule;
+
+export const zGetCourseModuleCompletionRegistrationLinkPath = z.object({
+    course_module_id: z.uuid()
+});
+
+/**
+ * Completion registration link
+ */
+export const zGetCourseModuleCompletionRegistrationLinkResponse = zCompletionRegistrationLink;
+
+export const zGetCourseModuleCompletionPath = z.object({
+    course_module_id: z.uuid()
+});
+
+/**
+ * Best course module completion for the current user
+ */
+export const zGetCourseModuleCompletionResponse = zCourseModuleCompletion.nullable();
+
+export const zSetCourseModuleCertificateGenerationPath = z.object({
+    course_module_id: z.uuid(),
+    enabled: z.boolean()
+});
+
+/**
+ * Certificate generation updated
+ */
+export const zSetCourseModuleCertificateGenerationResponse = z.boolean();
+
+export const zDeleteCourseModuleThresholdPath = z.object({
+    course_module_id: z.uuid()
+});
+
+export const zCreateCourseModuleThresholdBody = zThresholdData;
+
+export const zCreateCourseModuleThresholdPath = z.object({
+    course_module_id: z.uuid()
+});
+
+export const zGetCourseModuleUserCompletionPath = z.object({
+    course_module_id: z.uuid()
+});
+
+/**
+ * User completion information
+ */
+export const zGetCourseModuleUserCompletionResponse = zUserCompletionInformation;
+
+export const zCreateCourseBody = z.unknown();
+
+export const zGetCourseByJoinCodePath = z.object({
+    join_code: z.string()
+});
+
+export const zDeleteCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zUpdateCourseBody = z.unknown();
+
+export const zUpdateCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseBreadcrumbInfoPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseChatbotsPath = z.object({
+    course_id: z.string()
+});
+
+export const zCreateCourseChatbotBody = z.unknown();
+
+export const zCreateCourseChatbotPath = z.object({
+    course_id: z.string()
+});
+
+export const zSetCourseChatbotAsDefaultPath = z.object({
+    course_id: z.string(),
+    chatbot_configuration_id: z.string()
+});
+
+export const zSetCourseChatbotAsNonDefaultPath = z.object({
+    course_id: z.string(),
+    chatbot_configuration_id: z.string()
+});
+
+export const zGetCourseInstancesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseModuleCompletionsForUserPath = z.object({
+    course_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zUpdateCourseModulesBody = z.unknown();
+
+export const zUpdateCourseModulesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseUsersCountsByExercisePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zCreateCourseCopyBody = z.unknown();
+
+export const zCreateCourseCopyPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseDailySubmissionCountsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseDailyUsersWhoSubmittedSomethingPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseDefaultPeerReviewPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseExercisesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseExercisesAndAnswersRequiringAttentionCountsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zExportCourseInstancesCsvPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course instances CSV
+ */
+export const zExportCourseInstancesCsvResponse = z.string();
+
+export const zExportCourseUserConsentsCsvPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course user consents CSV
+ */
+export const zExportCourseUserConsentsCsvResponse = z.string();
+
+export const zExportCourseExerciseTasksCsvPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course exercise tasks CSV
+ */
+export const zExportCourseExerciseTasksCsvResponse = z.string();
+
+export const zExportCourseSubmissionsCsvPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course submissions CSV
+ */
+export const zExportCourseSubmissionsCsvResponse = z.string();
+
+export const zExportCourseUserDetailsCsvPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course user details CSV
+ */
+export const zExportCourseUserDetailsCsvResponse = z.string();
+
+export const zExportCourseUserExerciseStatesCsvPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course user exercise states CSV
+ */
+export const zExportCourseUserExerciseStatesCsvResponse = z.string();
+
+export const zGetCourseFeedbackPath = z.object({
+    course_id: z.string()
+});
+
+export const zGetCourseFeedbackQuery = z.object({
+    read: z.boolean(),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+export const zGetCourseFeedbackCountPath = z.object({
+    course_id: z.string()
 });
 
 export const zGetCourseGlossaryPath = z.object({
@@ -35,6 +1163,703 @@ export const zCreateCourseGlossaryTermPath = z.object({
  */
 export const zCreateCourseGlossaryTermResponse = z.uuid();
 
+export const zJoinCourseWithJoinCodePath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Joined course id
+ */
+export const zJoinCourseWithJoinCodeResponse = z.uuid();
+
+export const zGetCourseLanguageVersionsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zUpdateCourseChapterOrderingBody = z.unknown();
+
+export const zUpdateCourseChapterOrderingPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zCreateCourseInstanceBody = z.unknown();
+
+export const zCreateCourseInstancePath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Created course instance id
+ */
+export const zCreateCourseInstanceResponse = z.uuid();
+
+export const zUpdateCoursePageOrderingBody = z.unknown();
+
+export const zUpdateCoursePageOrderingPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCoursePageVisitDatumSummaryPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCoursePageVisitDatumSummaryByCountriesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCoursePageVisitDatumSummaryByDeviceTypesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCoursePageVisitDatumSummaryByPagesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zDeleteCoursePartnersBlockPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCoursePartnersBlockPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zUpsertCoursePartnersBlockBody = z.unknown();
+
+export const zUpsertCoursePartnersBlockPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseProgressForUserPath = z.object({
+    course_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zGetCourseReferencesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zCreateCourseReferencesBody = z.unknown();
+
+export const zCreateCourseReferencesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zDeleteCourseReferencePath = z.object({
+    course_id: z.uuid(),
+    reference_id: z.uuid()
+});
+
+export const zUpdateCourseReferenceBody = z.unknown();
+
+export const zUpdateCourseReferencePath = z.object({
+    course_id: z.uuid(),
+    reference_id: z.uuid()
+});
+
+export const zReprocessCourseCompletionsPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course completions reprocessed
+ */
+export const zReprocessCourseCompletionsResponse = z.boolean();
+
+export const zSetCourseJoinCodePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseCompletionsHistoryAllLanguageVersionsPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetTotalUsersStartedAllLanguageVersionsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetUniqueUsersStartingHistoryAllLanguageVersionsPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetAvgTimeToFirstSubmissionHistoryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetCourseCompletionsHistoryByInstancePath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetFirstExerciseSubmissionsHistoryByInstancePath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetTotalUsersCompletedCourseByInstancePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetTotalUsersReturnedExercisesByInstancePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetTotalUsersStartedCourseByInstancePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetUsersReturningExercisesHistoryByInstancePath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetUniqueUsersStartingHistoryByInstancePath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetFirstExerciseSubmissionsByModulePath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetCohortActivityHistoryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    history_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    tracking_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetCourseCompletionsHistoryCustomTimePeriodPath = z.object({
+    course_id: z.uuid(),
+    start_date: z.string(),
+    end_date: z.string()
+});
+
+export const zGetCourseCompletionsHistoryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetFirstExerciseSubmissionsHistoryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetStudentCompletionsByCountryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    country: z.string()
+});
+
+export const zGetStudentEnrollmentsByCountryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    country: z.string()
+});
+
+export const zGetStudentsByCountryTotalsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetTotalUsersCompletedCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetTotalUsersCompletedCourseCustomTimePeriodPath = z.object({
+    course_id: z.uuid(),
+    start_date: z.string(),
+    end_date: z.string()
+});
+
+export const zGetTotalUsersReturnedExercisesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetTotalUsersReturnedExercisesCustomTimePeriodPath = z.object({
+    course_id: z.uuid(),
+    start_date: z.string(),
+    end_date: z.string()
+});
+
+export const zGetTotalUsersStartedCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetTotalUsersStartedCourseCustomTimePeriodPath = z.object({
+    course_id: z.uuid(),
+    start_date: z.string(),
+    end_date: z.string()
+});
+
+export const zGetUsersReturningExercisesHistoryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetUniqueUsersStartingHistoryCustomTimePeriodPath = z.object({
+    course_id: z.uuid(),
+    start_date: z.string(),
+    end_date: z.string()
+});
+
+export const zGetUniqueUsersStartingHistoryPath = z.object({
+    course_id: z.uuid(),
+    granularity: z.string(),
+    time_window: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zGetCourseExerciseStatusesForUserPath = z.object({
+    course_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zGetCourseStructurePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseStudentsCertificatesPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseStudentsCompletionsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseStudentsProgressPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseStudentsUsersPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseSubmissionCountsByExercisePath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseSuspectedCheatersPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseSuspectedCheatersQuery = z.object({
+    archive: z.boolean()
+});
+
+export const zApproveCourseSuspectedCheaterPath = z.object({
+    course_id: z.uuid(),
+    id: z.uuid()
+});
+
+export const zArchiveCourseSuspectedCheaterPath = z.object({
+    course_id: z.uuid(),
+    id: z.uuid()
+});
+
+export const zResetCourseProgressForEveryonePath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course progress reset for everyone
+ */
+export const zResetCourseProgressForEveryoneResponse = z.boolean();
+
+export const zResetCourseProgressForTeacherThemselvesPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Teacher course progress reset
+ */
+export const zResetCourseProgressForTeacherThemselvesResponse = z.boolean();
+
+export const zGetCourseThresholdsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zUpdateCoursePeerReviewQueueReviewsReceivedPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Peer review queue updated
+ */
+export const zUpdateCoursePeerReviewQueueReviewsReceivedResponse = z.boolean();
+
+export const zUploadCourseMediaBody = z.string();
+
+export const zUploadCourseMediaPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetCourseUserSettingsForUserPath = z.object({
+    course_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zGetCourseWeekdayHourSubmissionCountsPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Email templates
+ */
+export const zGetEmailTemplatesResponse = z.array(zEmailTemplate);
+
+export const zDeleteEmailTemplatePath = z.object({
+    email_template_id: z.uuid()
+});
+
+/**
+ * Deleted email template
+ */
+export const zDeleteEmailTemplateResponse = zEmailTemplate;
+
+export const zGetExamExercisesPath = z.object({
+    exam_id: z.uuid()
+});
+
+/**
+ * Exam exercises
+ */
+export const zGetExamExercisesResponse = z.array(zExercise);
+
+export const zReleaseExamGradesBody = z.array(z.uuid());
+
+export const zReleaseExamGradesPath = z.object({
+    exam_id: z.uuid()
+});
+
+export const zGetExamSubmissionsWithExamIdPath = z.object({
+    exam_id: z.uuid()
+});
+
+export const zGetExamSubmissionsWithExamIdQuery = z.object({
+    page: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+    limit: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional()
+});
+
+/**
+ * Exercise submissions with exam id
+ */
+export const zGetExamSubmissionsWithExamIdResponse = z.array(z.array(zExerciseSlideSubmissionAndUserExerciseState));
+
+export const zGetExamSubmissionsWithExerciseIdPath = z.object({
+    exercise_id: z.uuid()
+});
+
+export const zGetExamSubmissionsWithExerciseIdQuery = z.object({
+    page: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional(),
+    limit: z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional()
+});
+
+/**
+ * Exercise submissions with exercise id
+ */
+export const zGetExamSubmissionsWithExerciseIdResponse = zExerciseSlideSubmissionAndUserExerciseStateList;
+
+export const zGetExamPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Exam
+ */
+export const zGetExamResponse = zExam;
+
+export const zDuplicateExamBody = zNewExam;
+
+export const zDuplicateExamPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Exam duplicated
+ */
+export const zDuplicateExamResponse = z.boolean();
+
+export const zEditExamBody = zNewExam;
+
+export const zEditExamPath = z.object({
+    id: z.uuid()
+});
+
+export const zExportExamPointsCsvPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Exam points CSV export
+ */
+export const zExportExamPointsCsvResponse = z.string();
+
+export const zExportExamSubmissionsCsvPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Exam submissions CSV export
+ */
+export const zExportExamSubmissionsCsvResponse = z.string();
+
+export const zSetExamCourseBody = zExamCourseInfo;
+
+export const zSetExamCoursePath = z.object({
+    id: z.uuid()
+});
+
+export const zUnsetExamCourseBody = zExamCourseInfo;
+
+export const zUnsetExamCoursePath = z.object({
+    id: z.uuid()
+});
+
+export const zGetExerciseRepositoriesForCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Exercise repositories for course
+ */
+export const zGetExerciseRepositoriesForCourseResponse = z.array(zExerciseRepository);
+
+export const zGetExerciseRepositoriesForExamPath = z.object({
+    exam_id: z.uuid()
+});
+
+/**
+ * Exercise repositories for exam
+ */
+export const zGetExerciseRepositoriesForExamResponse = z.array(zExerciseRepository);
+
+export const zCreateExerciseRepositoryBody = zNewExerciseRepository;
+
+/**
+ * Created exercise repository id
+ */
+export const zCreateExerciseRepositoryResponse = z.uuid();
+
+export const zDeleteExerciseRepositoryPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Deleted exercise repository
+ */
+export const zDeleteExerciseRepositoryResponse = z.boolean();
+
+export const zUpdateExerciseRepositoryBody = zExerciseRepositoryUpdate;
+
+export const zUpdateExerciseRepositoryPath = z.object({
+    id: z.uuid()
+});
+
+/**
+ * Updated exercise repository
+ */
+export const zUpdateExerciseRepositoryResponse = z.boolean();
+
+/**
+ * Exercise services
+ */
+export const zGetExerciseServicesResponse = z.array(zExerciseService);
+
+export const zCreateExerciseServiceBody = zExerciseServiceNewOrUpdate;
+
+/**
+ * Created exercise service
+ */
+export const zCreateExerciseServiceResponse = zExerciseServiceWithError;
+
+export const zDeleteExerciseServicePath = z.object({
+    exercise_service_id: z.uuid()
+});
+
+/**
+ * Deleted exercise service
+ */
+export const zDeleteExerciseServiceResponse = zExerciseService;
+
+export const zGetExerciseServiceByIdPath = z.object({
+    exercise_service_id: z.uuid()
+});
+
+/**
+ * Exercise service
+ */
+export const zGetExerciseServiceByIdResponse = zExerciseService;
+
+export const zUpdateExerciseServiceBody = zExerciseServiceNewOrUpdate;
+
+export const zUpdateExerciseServicePath = z.object({
+    exercise_service_id: z.uuid()
+});
+
+/**
+ * Updated exercise service
+ */
+export const zUpdateExerciseServiceResponse = zExerciseServiceWithError;
+
+export const zAddTeacherGradingForExamSubmissionBody = zNewTeacherGradingDecision;
+
+/**
+ * Created teacher grading decision
+ */
+export const zAddTeacherGradingForExamSubmissionResponse = zTeacherGradingDecision;
+
+export const zGetExamUserExerciseStateInfoPath = z.object({
+    exam_id: z.uuid()
+});
+
+export const zGetExamUserExerciseStateInfoQuery = z.object({
+    exercise_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+/**
+ * User exercise state for the exam submission
+ */
+export const zGetExamUserExerciseStateInfoResponse = zUserExerciseState;
+
+export const zGetExerciseSlideSubmissionInfoPath = z.object({
+    submission_id: z.uuid()
+});
+
+/**
+ * Exercise slide submission info
+ */
+export const zGetExerciseSlideSubmissionInfoResponse = zExerciseSlideSubmissionInfo;
+
+export const zGetExercisesByCourseIdPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zResetExercisesForSelectedUsersBody = z.unknown();
+
+export const zResetExercisesForSelectedUsersPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Number of successful resets
+ */
+export const zResetExercisesForSelectedUsersResponse = z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' });
+
+export const zGetExercisePath = z.object({
+    exercise_id: z.uuid()
+});
+
+/**
+ * Exercise
+ */
+export const zGetExerciseResponse = zExercise;
+
+export const zGetExerciseAnswersRequiringAttentionPath = z.object({
+    exercise_id: z.uuid()
+});
+
+export const zGetExerciseAnswersRequiringAttentionQuery = z.object({
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+export const zGetExerciseCsvExportTaskOptionsPath = z.object({
+    exercise_id: z.uuid()
+});
+
+export const zExportExerciseAnswersCsvPath = z.object({
+    exercise_id: z.uuid()
+});
+
+export const zExportExerciseAnswersCsvQuery = z.object({
+    exercise_task_id: z.uuid(),
+    only_latest_per_user: z.boolean().optional()
+});
+
+/**
+ * Exercise answers CSV
+ */
+export const zExportExerciseAnswersCsvResponse = z.string();
+
+export const zExportExerciseDefinitionsCsvPath = z.object({
+    exercise_id: z.uuid()
+});
+
+export const zExportExerciseDefinitionsCsvQuery = z.object({
+    exercise_task_id: z.uuid(),
+    only_latest_per_user: z.boolean().optional()
+});
+
+/**
+ * Exercise definitions CSV
+ */
+export const zExportExerciseDefinitionsCsvResponse = z.string();
+
+export const zGetExerciseSubmissionsPath = z.object({
+    exercise_id: z.uuid()
+});
+
+export const zGetExerciseSubmissionsQuery = z.object({
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+export const zGetExerciseSubmissionsForUserPath = z.object({
+    exercise_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zMarkFeedbackAsReadBody = z.unknown();
+
+export const zMarkFeedbackAsReadPath = z.object({
+    feedback_id: z.string()
+});
+
+export const zGetCompletionStatsByEmailDomainQuery = z.object({
+    year: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional()
+});
+
+export const zGetCourseCompletionStatsForEmailDomainQuery = z.object({
+    email_domain: z.string(),
+    year: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).optional()
+});
+
+export const zGetCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery = z.object({
+    granularity: z.string().optional()
+});
+
+export const zGetNumberOfPeopleCompletedACourseQuery = z.object({
+    granularity: z.string().optional()
+});
+
+export const zGetNumberOfPeopleDoneAtLeastOneExerciseQuery = z.object({
+    granularity: z.string().optional()
+});
+
+export const zGetNumberOfPeopleRegisteredCompletionToStudyRegistryQuery = z.object({
+    granularity: z.string().optional()
+});
+
+export const zGetNumberOfPeopleStartedCourseQuery = z.object({
+    granularity: z.string().optional()
+});
+
 export const zDeleteGlossaryTermPath = z.object({
     term_id: z.uuid()
 });
@@ -43,4 +1868,403 @@ export const zUpdateGlossaryTermBody = zTermUpdate;
 
 export const zUpdateGlossaryTermPath = z.object({
     term_id: z.uuid()
+});
+
+export const zAuthorizeOauthGetQuery = z.object({
+    response_type: z.string().optional(),
+    client_id: z.string().optional(),
+    redirect_uri: z.string().optional(),
+    scope: z.string().optional(),
+    state: z.string().optional(),
+    nonce: z.string().optional(),
+    code_challenge: z.string().optional(),
+    code_challenge_method: z.string().optional(),
+    prompt: z.string().optional(),
+    request: z.string().optional()
+});
+
+export const zAuthorizeOauthPostBody = z.unknown();
+
+export const zDeleteOauthAuthorizedClientPath = z.object({
+    client_id: z.uuid()
+});
+
+/**
+ * Authorized client revoked
+ */
+export const zDeleteOauthAuthorizedClientResponse = z.void();
+
+export const zApproveOauthConsentBody = z.unknown();
+
+export const zDenyOauthConsentBody = z.unknown();
+
+export const zIntrospectOauthTokenBody = z.unknown();
+
+export const zRevokeOauthTokenBody = z.unknown();
+
+export const zExchangeOauthTokenBody = z.unknown();
+
+export const zGetOrganizationBySlugPath = z.object({
+    organization_slug: z.string()
+});
+
+export const zCreateOrganizationBody = zOrganizationCreatePayload;
+
+export const zGetOrganizationExamByExamIdPath = z.object({
+    exam_id: z.uuid()
+});
+
+export const zGetOrganizationPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zSoftDeleteOrganizationPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zUpdateOrganizationBody = zOrganizationUpdatePayload;
+
+export const zUpdateOrganizationPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zGetOrganizationCourseExamsPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zGetOrganizationCoursesPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zGetOrganizationCoursesQuery = z.object({
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+export const zGetOrganizationActiveCoursesPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zGetOrganizationActiveCoursesQuery = z.object({
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+export const zGetOrganizationActiveCourseCountPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zGetOrganizationCourseCountPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zGetOrganizationDuplicatableCoursesPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zCreateOrganizationExamBody = z.unknown();
+
+export const zCreateOrganizationExamPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zDeleteOrganizationImagePath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zUpdateOrganizationImageBody = z.object({
+    file: z.array(z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }))
+});
+
+export const zUpdateOrganizationImagePath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zGetOrganizationExamsPath = z.object({
+    organization_id: z.uuid()
+});
+
+export const zDeletePageAudioFilePath = z.object({
+    file_id: z.uuid()
+});
+
+export const zCreatePageAudioFileBody = z.object({
+    file: z.array(z.int().gte(0).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }))
+});
+
+export const zCreatePageAudioFilePath = z.object({
+    page_id: z.uuid()
+});
+
+/**
+ * Page audio uploaded
+ */
+export const zCreatePageAudioFileResponse = z.boolean();
+
+export const zGetPageAudioFilesPath = z.object({
+    page_id: z.uuid()
+});
+
+/**
+ * Page audio files
+ */
+export const zGetPageAudioFilesResponse = z.array(zPageAudioFile);
+
+export const zCreatePageBody = z.unknown();
+
+/**
+ * Created page
+ */
+export const zCreatePageResponse = zPage;
+
+export const zGetCoursePagesPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Course pages
+ */
+export const zGetCoursePagesResponse = z.array(zPage);
+
+export const zDeletePagePath = z.object({
+    page_id: z.uuid()
+});
+
+/**
+ * Deleted page
+ */
+export const zDeletePageResponse = zPage;
+
+export const zGetPageHistoryPath = z.object({
+    page_id: z.uuid()
+});
+
+export const zGetPageHistoryQuery = z.object({
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+/**
+ * Page history entries
+ */
+export const zGetPageHistoryResponse = z.array(zPageHistory);
+
+export const zGetPageHistoryCountPath = z.object({
+    page_id: z.uuid()
+});
+
+/**
+ * Page history count
+ */
+export const zGetPageHistoryCountResponse = z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' });
+
+export const zGetPageInfoPath = z.object({
+    page_id: z.uuid()
+});
+
+/**
+ * Page info
+ */
+export const zGetPageInfoResponse = zPageInfo;
+
+export const zUpdatePageDetailsBody = zPageDetailsUpdate;
+
+export const zUpdatePageDetailsPath = z.object({
+    page_id: z.uuid()
+});
+
+/**
+ * Updated page details
+ */
+export const zUpdatePageDetailsResponse = z.boolean();
+
+export const zRestorePageHistoryBody = zHistoryRestoreData;
+
+export const zRestorePageHistoryPath = z.object({
+    page_id: z.uuid()
+});
+
+/**
+ * Restored history id
+ */
+export const zRestorePageHistoryResponse = z.uuid();
+
+export const zReceivePlaygroundGradingBody = z.unknown();
+
+export const zReceivePlaygroundGradingPath = z.object({
+    websocket_id: z.uuid()
+});
+
+export const zCreatePlaygroundExampleBody = z.unknown();
+
+export const zUpdatePlaygroundExampleBody = z.unknown();
+
+export const zDeletePlaygroundExamplePath = z.object({
+    playground_example_id: z.uuid()
+});
+
+export const zGetEditProposalsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetEditProposalsQuery = z.object({
+    pending: z.boolean(),
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+/**
+ * Edit proposals
+ */
+export const zGetEditProposalsResponse = z.array(zPageProposal);
+
+export const zGetEditProposalCountPath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Edit proposal counts
+ */
+export const zGetEditProposalCountResponse = zProposalCount;
+
+export const zProcessEditProposalBody = zEditProposalInfo;
+
+export const zGetRegradingsQuery = z.object({
+    page: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional(),
+    limit: z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+export const zCreateRegradingBody = z.unknown();
+
+/**
+ * Created regrading id
+ */
+export const zCreateRegradingResponse = z.string();
+
+/**
+ * Regradings count
+ */
+export const zGetRegradingsCountResponse = z.coerce.bigint().min(BigInt('-9223372036854775808'), { error: 'Invalid value: Expected int64 to be >= -9223372036854775808' }).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' });
+
+export const zGetRegradingInfoPath = z.object({
+    regrading_id: z.uuid()
+});
+
+export const zGetRolesQuery = z.object({
+    global: z.boolean().optional(),
+    organization_id: z.uuid().optional(),
+    course_id: z.uuid().optional(),
+    course_instance_id: z.uuid().optional(),
+    exam_id: z.uuid().optional()
+});
+
+export const zAddRoleBody = z.unknown();
+
+export const zGetPendingRolesQuery = z.object({
+    global: z.boolean().optional(),
+    organization_id: z.uuid().optional(),
+    course_id: z.uuid().optional(),
+    course_instance_id: z.uuid().optional(),
+    exam_id: z.uuid().optional()
+});
+
+export const zRemoveRoleBody = z.unknown();
+
+export const zGetStatusPodLogsPath = z.object({
+    pod_name: z.string()
+});
+
+export const zGetStatusPodLogsQuery = z.object({
+    container: z.string().optional(),
+    tail: z.coerce.bigint().gte(BigInt(0)).max(BigInt('9223372036854775807'), { error: 'Invalid value: Expected int64 to be <= 9223372036854775807' }).optional()
+});
+
+/**
+ * Pod logs
+ */
+export const zGetStatusPodLogsResponse = z.string();
+
+/**
+ * System health
+ */
+export const zGetStatusSystemHealthResponse = z.boolean();
+
+export const zCreateTeacherGradingDecisionBody = zNewTeacherGradingDecision;
+
+/**
+ * Teacher grading decision created
+ */
+export const zCreateTeacherGradingDecisionResponse = zUserExerciseState.nullable();
+
+/**
+ * Current server time
+ */
+export const zGetCurrentTimeResponse = z.string();
+
+export const zGetBulkUserDetailsBody = z.unknown();
+
+export const zSearchUserDetailsByEmailBody = z.unknown();
+
+export const zSearchUserDetailsByOtherDetailsBody = z.unknown();
+
+export const zSearchUserDetailsFuzzyMatchBody = z.unknown();
+
+export const zUpdateUserInfoBody = z.unknown();
+
+export const zGetUserDetailsByCoursesBody = z.unknown();
+
+/**
+ * Country inferred from request IP
+ */
+export const zGetUsersIpCountryResponse = z.string();
+
+export const zGetUsersByCourseIdForUserDetailsPath = z.object({
+    course_id: z.uuid()
+});
+
+export const zGetUserDetailsByCourseAndUserIdPath = z.object({
+    course_id: z.uuid(),
+    user_id: z.uuid()
+});
+
+export const zChangeUserPasswordBody = z.unknown();
+
+/**
+ * Password change status
+ */
+export const zChangeUserPasswordResponse = z.boolean();
+
+export const zResetUserPasswordBody = z.unknown();
+
+/**
+ * Password reset status
+ */
+export const zResetUserPasswordResponse = z.boolean();
+
+export const zGetResetPasswordTokenStatusBody = z.unknown();
+
+/**
+ * Reset password token validity
+ */
+export const zGetResetPasswordTokenStatusResponse = z.boolean();
+
+export const zSendResetPasswordEmailBody = z.unknown();
+
+/**
+ * Reset password email accepted
+ */
+export const zSendResetPasswordEmailResponse = z.boolean();
+
+export const zCreateUserResearchConsentBody = z.unknown();
+
+export const zGetUserPath = z.object({
+    user_id: z.uuid()
+});
+
+export const zGetUserCourseEnrollmentsPath = z.object({
+    user_id: z.uuid()
+});
+
+export const zGetUserResetExerciseLogsPath = z.object({
+    user_id: z.uuid()
 });

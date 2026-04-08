@@ -1,12 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getUserProgressForCourse } from "../services/backend/courses"
+import { getCourseProgressForUserOptions } from "../services/backend/courses"
 
 /** Fetches UserCourseProgress for the given course and user. */
 export const useCourseInstanceProgress = (courseId: string, userId: string) => {
   return useQuery({
-    queryKey: [`course-${courseId}-progress-${userId}`],
-    queryFn: () => getUserProgressForCourse(courseId, userId),
+    ...getCourseProgressForUserOptions(courseId, userId),
     enabled: !!courseId && !!userId,
   })
 }

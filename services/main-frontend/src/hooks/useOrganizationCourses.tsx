@@ -2,16 +2,14 @@
 
 import { QueryClient, useQuery } from "@tanstack/react-query"
 
-import { fetchOrganizationCourses } from "../services/backend/organizations"
+import { getOrganizationCoursesOptions } from "../services/backend/organizations"
 
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-const QUERY_KEY_PREFIX = "organization-courses"
-
-export const invalidateOrganizationCourses = (queryClient: QueryClient, organizationId: string) => {
-  queryClient.invalidateQueries({
-    queryKey: [QUERY_KEY_PREFIX, organizationId],
-  })
+export const invalidateOrganizationCourses = (
+  queryClient: QueryClient,
+  _organizationId: string,
+) => {
+  // eslint-disable-next-line i18next/no-literal-string
+  queryClient.invalidateQueries({ queryKey: ["getOrganizationCourses"] })
 }
 
 export const useOrganizationCourses = (
@@ -20,8 +18,7 @@ export const useOrganizationCourses = (
   limit: number,
 ) => {
   const getOrgCourses = useQuery({
-    queryKey: [QUERY_KEY_PREFIX, organizationId, page, limit],
-    queryFn: () => fetchOrganizationCourses(assertNotNullOrUndefined(organizationId), page, limit),
+    ...getOrganizationCoursesOptions(organizationId ?? "", page, limit),
     enabled: !!organizationId,
   })
 

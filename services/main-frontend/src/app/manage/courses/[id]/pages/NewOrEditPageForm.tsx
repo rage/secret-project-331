@@ -5,11 +5,14 @@ import styled from "@emotion/styled"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { postNewPage, updatePageDetails } from "@/services/backend/pages"
-import { Page } from "@/shared-module/common/bindings"
+import {
+  createPageMutation as createPageMutationOptions,
+  updatePageDetailsMutation as updatePageDetailsMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { NewPage, Page } from "@/shared-module/common/bindings"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { normalizePath } from "@/utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
@@ -55,38 +58,63 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
   const [path, setPath] = useState(initialPath)
   const [title, setTitle] = useState(savedPage?.title ?? "")
 
-  const saveMutation = useToastMutation(
-    async () => {
-      if (isUpdate) {
-        if (!savedPage) {
-          throw new Error("Saved page is missing")
-        }
-        await updatePageDetails(savedPage.id, { title, url_path: `${prefix}${path}` })
-      } else {
-        await postNewPage({
-          course_id: courseId,
-          content: [],
-          url_path: `${prefix}${path}`,
-          title,
-          chapter_id: chapterId ?? null,
-          front_page_of_chapter_id: null,
-          exercises: [],
-          exercise_slides: [],
-          exercise_tasks: [],
-          exam_id: null,
-          content_search_language: null,
-        })
-      }
-      onSubmitForm()
-    },
+  const createPageMutation = useToastMutationOptions(
+    createPageMutationOptions(),
     {
       notify: true,
-      method: isUpdate ? "PUT" : "POST",
+      method: "POST",
+    },
+    {
+      onSuccess: () => onSubmitForm(),
     },
   )
+  const updatePageDetailsMutation = useToastMutationOptions(
+    updatePageDetailsMutationOptions(),
+    {
+      notify: true,
+      method: "PUT",
+    },
+    {
+      onSuccess: () => onSubmitForm(),
+    },
+  )
+  const isPending = createPageMutation.isPending || updatePageDetailsMutation.isPending
 
-  const handleSubmit = () => {
-    saveMutation.mutate()
+  const handleSubmit = async () => {
+    if (isUpdate) {
+      if (!savedPage) {
+        throw new Error("Saved page is missing")
+      }
+
+      await updatePageDetailsMutation.mutateAsync({
+        path: {
+          page_id: savedPage.id,
+        },
+        body: {
+          title,
+          url_path: `${prefix}${path}`,
+        },
+      })
+      return
+    }
+
+    const newPage: NewPage = {
+      course_id: courseId,
+      content: [],
+      url_path: `${prefix}${path}`,
+      title,
+      chapter_id: chapterId ?? null,
+      front_page_of_chapter_id: null,
+      exercises: [],
+      exercise_slides: [],
+      exercise_tasks: [],
+      exam_id: null,
+      content_search_language: null,
+    }
+
+    await createPageMutation.mutateAsync({
+      body: newPage,
+    })
   }
 
   return (
@@ -96,10 +124,12 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
       title={isUpdate ? t("heading-edit-page") : t("heading-new-page")}
       buttons={[
         {
-          disabled: saveMutation.isPending,
+          disabled: isPending,
 
           variant: "primary",
-          onClick: handleSubmit,
+          onClick: () => {
+            void handleSubmit()
+          },
           children: isUpdate ? t("button-text-update") : t("button-text-create"),
         },
       ]}

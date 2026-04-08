@@ -6,7 +6,7 @@ import { useMemo } from "react"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import { getChatbotConfiguration } from "@/services/backend/chatbots"
+import { getChatbotConfigurationOptions } from "@/services/backend/chatbots"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseRoute, organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
@@ -14,8 +14,7 @@ export default function ChatbotLayout({ children }: { children: React.ReactNode 
   const { id } = useParams<{ id: string }>()
 
   const chatbotQuery = useQuery({
-    queryKey: ["chatbot", id],
-    queryFn: () => getChatbotConfiguration(assertNotNullOrUndefined(id)),
+    ...getChatbotConfigurationOptions(assertNotNullOrUndefined(id)),
     enabled: !!id,
   })
 

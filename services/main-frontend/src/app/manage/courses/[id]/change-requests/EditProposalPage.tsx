@@ -6,11 +6,15 @@ import { useTranslation } from "react-i18next"
 
 import EditProposalView from "./EditProposalView"
 
-import { fetchEditProposals, processProposal } from "@/services/backend/proposedEdits"
+import {
+  getEditProposalsOptions,
+  processProposalMutationOptions,
+} from "@/services/backend/proposedEdits"
 import { BlockProposalInfo } from "@/shared-module/common/bindings"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { fontWeights, typography } from "@/shared-module/common/styles/typography"
 
 interface Props {
@@ -29,17 +33,17 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
   onChange,
 }) => {
   const { t } = useTranslation()
-  const getEditProposalList = useQuery({
-    queryKey: [`edit-proposal-list-${courseId}-${pending}-${page}-${limit}`],
-    queryFn: () => fetchEditProposals(courseId, pending, page, limit),
-    select: (data) => data.filter((p) => p.pending === pending),
+  const getEditProposalList = useQuery(getEditProposalsOptions(courseId, pending, page, limit))
+  const processProposalMutation = useToastMutationOptions(processProposalMutationOptions(), {
+    notify: true,
+    method: "POST",
   })
 
   const proposalsForDeletedBlocks = getEditProposalList.data?.filter(
     (p) => p.block_proposals[0].type === "edited-block-no-longer-exists",
   )
 
-  const EditProposalList = getEditProposalList.data?.filter(
+  const editProposalList = getEditProposalList.data?.filter(
     (p) => p.block_proposals[0].type === "edited-block-still-exists",
   )
 
@@ -48,7 +52,13 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     pageProposalId: string,
     blockProposals: BlockProposalInfo[],
   ) {
-    await processProposal(pageId, pageProposalId, blockProposals)
+    await processProposalMutation.mutateAsync({
+      body: {
+        page_id: pageId,
+        page_proposal_id: pageProposalId,
+        block_proposals: blockProposals,
+      },
+    })
     await getEditProposalList.refetch()
     await onChange()
   }
@@ -83,8 +93,8 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
           padding: 0;
         `}
       >
-        {EditProposalList &&
-          EditProposalList.map((p) => (
+        {editProposalList &&
+          editProposalList.map((p) => (
             <li key={p.id}>
               <EditProposalView proposal={p} handleProposal={handleProposal} />
             </li>

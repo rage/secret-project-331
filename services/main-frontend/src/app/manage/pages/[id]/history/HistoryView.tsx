@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import HistoryList from "./HistoryList"
 
-import { fetchHistoryForPage } from "@/services/backend/pages"
+import { getPageHistoryOptions } from "@/services/backend/pages"
 import { PageHistory } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -26,21 +26,9 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
   const [selectedRevision, setSelectedRevision] = useState<string | null>(null)
 
   const getCurrentPageHistory = useQuery({
-    queryKey: [`page-history-current-${pageId}`],
-    queryFn: async () => {
-      const history = await fetchHistoryForPage(pageId, 1, 1)
-      if (history.length === 0) {
-        // there is always at least one history entry corresponding to the current state of the page
-        throw new Error(t("error-could-not-find-edit-history-for-page"))
-      }
-      const initial = JSON.stringify(history[0].content, null, 2)
-      setCurrentTitle(history[0].title)
-      setSelectedTitle(history[0].title)
-      setCurrentRevision(initial)
-      setSelectedRevision(initial)
-      return history[0]
-    },
+    ...getPageHistoryOptions(pageId, 1, 1),
   })
+  const currentPageHistory = getCurrentPageHistory.data?.[0]
 
   useEffect(() => {
     const callback = () => {
@@ -54,6 +42,18 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
     window.addEventListener("testing-mode-replace-content-for-screenshot", callback)
     return () => window.removeEventListener("testing-mode-replace-content-for-screenshot", callback)
   }, [currentRevision, selectedRevision])
+
+  useEffect(() => {
+    if (!currentPageHistory) {
+      return
+    }
+
+    const initial = JSON.stringify(currentPageHistory.content, null, 2)
+    setCurrentTitle(currentPageHistory.title)
+    setSelectedTitle(currentPageHistory.title)
+    setCurrentRevision(initial)
+    setSelectedRevision(initial)
+  }, [currentPageHistory])
 
   function onCompare(ph: PageHistory) {
     setSelectedTitle(ph.title)
@@ -71,7 +71,10 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
         <ErrorBanner variant={"readOnly"} error={getCurrentPageHistory.error} />
       )}
       {getCurrentPageHistory.isLoading && <Spinner variant={"medium"} />}
-      {getCurrentPageHistory.isSuccess && (
+      {getCurrentPageHistory.isSuccess && !currentPageHistory && (
+        <div>{t("error-could-not-find-edit-history-for-page")}</div>
+      )}
+      {getCurrentPageHistory.isSuccess && currentPageHistory && (
         <div>
           <p
             className={css`
@@ -93,7 +96,7 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
           />
           <HistoryList
             pageId={pageId}
-            initialSelectedRevisionId={getCurrentPageHistory.data.id}
+            initialSelectedRevisionId={currentPageHistory.id}
             onCompare={onCompare}
             onRestore={onRestore}
           />

@@ -7,17 +7,16 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  deleteThresholdForModule,
-  fetchCourseStructure,
-  getAllThresholds,
-  postThresholdForModule,
-} from "@/services/backend/courses"
-import { CourseModule, ThresholdData } from "@/shared-module/common/bindings"
+  createCourseModuleThresholdMutationOptions,
+  deleteCourseModuleThresholdMutationOptions,
+} from "@/services/backend/course-modules"
+import { fetchCourseStructure, getAllThresholds } from "@/services/backend/courses"
+import { CourseModule } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 interface CheatersThresholdConfigProps {
@@ -64,22 +63,30 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
 
   const handleUpdateThreshold = async (moduleId: string, durationHours: number | undefined) => {
     if (durationHours === undefined) {
-      return deleteThresholdForModuleMutation.mutate(moduleId)
+      return deleteThresholdForModuleMutation.mutate({
+        path: {
+          course_module_id: moduleId,
+        },
+      })
     }
     const convertedDuration = durationHours * 3600
     const threshold = { duration_seconds: convertedDuration }
-    return postThresholdForModuleMutation.mutate({ moduleId, threshold })
+    return postThresholdForModuleMutation.mutate({
+      path: {
+        course_module_id: moduleId,
+      },
+      body: threshold,
+    })
   }
 
-  const postThresholdForModuleMutation = useToastMutation(
-    ({ moduleId, threshold }: { moduleId: string; threshold: ThresholdData }) =>
-      postThresholdForModule(moduleId, threshold),
+  const postThresholdForModuleMutation = useToastMutationOptions(
+    createCourseModuleThresholdMutationOptions(),
     { notify: true, successMessage: t("threshold-added-successfully"), method: "POST" },
     { onSuccess: () => thresholdsQuery.refetch() },
   )
 
-  const deleteThresholdForModuleMutation = useToastMutation(
-    (moduleId: string) => deleteThresholdForModule(moduleId),
+  const deleteThresholdForModuleMutation = useToastMutationOptions(
+    deleteCourseModuleThresholdMutationOptions(),
     { notify: true, successMessage: t("threshold-removed-successfully"), method: "DELETE" },
     { onSuccess: () => thresholdsQuery.refetch() },
   )

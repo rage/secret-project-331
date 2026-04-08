@@ -6,17 +6,14 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
-import { fetchOrganization } from "@/services/backend/organizations"
+import { getOrganizationOptions } from "@/services/backend/organizations"
 import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 export default function OrganizationLayout({ children }: { children: React.ReactNode }) {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
 
-  const orgQuery = useQuery({
-    queryKey: ["organization", id],
-    queryFn: () => fetchOrganization(id),
-  })
+  const orgQuery = useQuery(getOrganizationOptions(id))
 
   const crumbs = useMemo(
     () => [

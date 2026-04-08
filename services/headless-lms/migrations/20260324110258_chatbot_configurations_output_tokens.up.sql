@@ -15,3 +15,5 @@ ALTER TABLE chatbot_configurations DROP COLUMN response_max_tokens,
 COMMENT ON COLUMN chatbot_configurations.max_output_tokens IS 'The max. number of tokens the thinking LLM is allowed to use in generating the response, including tokens outputted in the response and hidden reasoning tokens. Should generally be larger with reasoning (thinking) models, and smaller with non-thinking models.';
 
 ALTER TABLE chatbot_conversation_message_tool_outputs DROP COLUMN tool_name;
+
+ALTER TABLE chatbot_configurations_models DROP COLUMN deployment_name;

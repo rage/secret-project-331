@@ -562,10 +562,9 @@ impl Drop for RequestCancelledGuard {
 pub async fn make_request_and_stream<'a>(
     conn: &mut PgConnection,
     chat_request: LLMRequest,
-    model_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<ResponseStreamType<'a>> {
-    let response = make_streaming_llm_request(chat_request, model_name, app_config).await?;
+    let response = make_streaming_llm_request(chat_request, app_config).await?;
 
     trace!("Receiving chat response with {:?}", response.version());
 
@@ -969,13 +968,7 @@ pub async fn send_chat_request_and_parse_stream(
             ));
         }
 
-        let response_type = make_request_and_stream(
-            conn,
-            chat_request.clone(),
-            &model.deployment_name,
-            app_config,
-        )
-        .await?;
+        let response_type = make_request_and_stream(conn, chat_request.clone(), app_config).await?;
 
         let new_tool_msgs = match response_type {
             ResponseStreamType::Toolcall(stream) => parse_tool(conn, stream, &user_context).await?,

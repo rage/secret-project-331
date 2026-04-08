@@ -393,7 +393,6 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LLMResponse>
 ))]
 pub async fn make_streaming_llm_request(
     chat_request: LLMRequest,
-    model_deployment_name: &str,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<Response> {
     debug!(

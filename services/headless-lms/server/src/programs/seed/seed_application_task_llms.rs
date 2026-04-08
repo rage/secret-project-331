@@ -24,7 +24,6 @@ pub async fn seed_application_task_llms(
             model: "mock-gpt".to_string(),
             thinking: false,
             default_model: true,
-            deployment_name: "mock-gpt".to_string(),
             context_size: 10000,
         },
     )

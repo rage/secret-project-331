@@ -360,7 +360,6 @@ export interface ChatbotConfigurationModel {
   model: string
   thinking: boolean
   default_model: boolean
-  deployment_name: string
   context_size: number
 }
 

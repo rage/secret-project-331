@@ -47,7 +47,6 @@ const ChangeUserPasswordForm: React.FC = () => {
             old_password: data.current_password,
             new_password: data.new_password,
           },
-          throwOnError: true,
         }),
         isBoolean,
       )

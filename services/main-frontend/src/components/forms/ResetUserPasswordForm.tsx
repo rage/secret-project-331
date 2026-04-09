@@ -48,7 +48,6 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
             token,
             new_password,
           },
-          throwOnError: true,
         }),
         isBoolean,
       )

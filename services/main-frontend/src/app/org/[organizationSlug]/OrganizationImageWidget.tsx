@@ -35,7 +35,6 @@ const OrganizationImageWidget: React.FC<
         path: {
           organization_id: organization.id,
         },
-        throwOnError: true,
       })
     },
     {
@@ -62,7 +61,6 @@ const OrganizationImageWidget: React.FC<
         path: {
           organization_id: organization.id,
         },
-        throwOnError: true,
       })
       onOrganizationUpdated()
       setError(undefined)

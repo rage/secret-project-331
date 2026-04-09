@@ -115,7 +115,6 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
         path: {
           current_page_id: currentPageId,
         },
-        throwOnError: true,
       }),
   })
 
@@ -133,7 +132,6 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
           chapter_id: assertNotNullOrUndefined(chapterId),
           course_instance_id: assertNotNullOrUndefined(courseInstanceId),
         },
-        throwOnError: true,
       }),
     enabled: shouldFetchChapterProgress && Boolean(chapterId && courseInstanceId),
   })

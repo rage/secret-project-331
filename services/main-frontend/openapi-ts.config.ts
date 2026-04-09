@@ -19,6 +19,10 @@ const createConfig = (input: string, path: string) =>
       },
     },
     plugins: [
+      {
+        name: "@hey-api/client-fetch",
+        throwOnError: true,
+      },
       "@hey-api/typescript",
       "zod",
       {

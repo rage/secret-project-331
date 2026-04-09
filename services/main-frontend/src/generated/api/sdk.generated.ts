@@ -27,7 +27,7 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
  *
  * Updates the certificate configuration for a given module.
  */
-export const updateCertificateConfiguration = <ThrowOnError extends boolean = false>(options: Options<UpdateCertificateConfigurationData, ThrowOnError>) => (options.client ?? client).post<UpdateCertificateConfigurationResponses, unknown, ThrowOnError, 'data'>({
+export const updateCertificateConfiguration = <ThrowOnError extends boolean = true>(options: Options<UpdateCertificateConfigurationData, ThrowOnError>) => (options.client ?? client).post<UpdateCertificateConfigurationResponses, unknown, ThrowOnError, 'data'>({
     ...formDataBodySerializer,
     responseValidator: async (data) => await zUpdateCertificateConfigurationResponse.parseAsync(data),
     responseStyle: 'data',
@@ -45,7 +45,7 @@ export const updateCertificateConfiguration = <ThrowOnError extends boolean = fa
  *
  * Deletes the given configuration.
  */
-export const deleteCertificateConfiguration = <ThrowOnError extends boolean = false>(options: Options<DeleteCertificateConfigurationData, ThrowOnError>) => (options.client ?? client).delete<DeleteCertificateConfigurationResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCertificateConfiguration = <ThrowOnError extends boolean = true>(options: Options<DeleteCertificateConfigurationData, ThrowOnError>) => (options.client ?? client).delete<DeleteCertificateConfigurationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeleteCertificateConfigurationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/certificates/configuration/{certificate_configuration_id}',
@@ -58,7 +58,7 @@ export const deleteCertificateConfiguration = <ThrowOnError extends boolean = fa
  *
  * Generates a certificate for a given certificate configuration id.
  */
-export const generateCertificate = <ThrowOnError extends boolean = false>(options: Options<GenerateCertificateData, ThrowOnError>) => (options.client ?? client).post<GenerateCertificateResponses, unknown, ThrowOnError, 'data'>({
+export const generateCertificate = <ThrowOnError extends boolean = true>(options: Options<GenerateCertificateData, ThrowOnError>) => (options.client ?? client).post<GenerateCertificateResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGenerateCertificateResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/certificates/generate',
@@ -69,7 +69,7 @@ export const generateCertificate = <ThrowOnError extends boolean = false>(option
     }
 });
 
-export const updateGeneratedCertificate = <ThrowOnError extends boolean = false>(options: Options<UpdateGeneratedCertificateData, ThrowOnError>) => (options.client ?? client).put<UpdateGeneratedCertificateResponses, unknown, ThrowOnError, 'data'>({
+export const updateGeneratedCertificate = <ThrowOnError extends boolean = true>(options: Options<UpdateGeneratedCertificateData, ThrowOnError>) => (options.client ?? client).put<UpdateGeneratedCertificateResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateGeneratedCertificateResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/certificates/generated/{certificate_id}',
@@ -86,7 +86,7 @@ export const updateGeneratedCertificate = <ThrowOnError extends boolean = false>
  *
  * Fetches the user's certificate for the given course module and course instance.
  */
-export const getCertificateByConfigurationId = <ThrowOnError extends boolean = false>(options: Options<GetCertificateByConfigurationIdData, ThrowOnError>) => (options.client ?? client).get<GetCertificateByConfigurationIdResponses, unknown, ThrowOnError, 'data'>({
+export const getCertificateByConfigurationId = <ThrowOnError extends boolean = true>(options: Options<GetCertificateByConfigurationIdData, ThrowOnError>) => (options.client ?? client).get<GetCertificateByConfigurationIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCertificateByConfigurationIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}',
@@ -101,7 +101,7 @@ export const getCertificateByConfigurationId = <ThrowOnError extends boolean = f
  *
  * Response: the certificate as a png.
  */
-export const getCertificateByVerificationId = <ThrowOnError extends boolean = false>(options: Options<GetCertificateByVerificationIdData, ThrowOnError>) => (options.client ?? client).get<GetCertificateByVerificationIdResponses, unknown, ThrowOnError, 'data'>({
+export const getCertificateByVerificationId = <ThrowOnError extends boolean = true>(options: Options<GetCertificateByVerificationIdData, ThrowOnError>) => (options.client ?? client).get<GetCertificateByVerificationIdResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/certificates/{certificate_verification_id}',
     ...options
@@ -125,7 +125,7 @@ export const getCertificateByVerificationId = <ThrowOnError extends boolean = fa
  * }
  * ```
  */
-export const createChapter = <ThrowOnError extends boolean = false>(options: Options<CreateChapterData, ThrowOnError>) => (options.client ?? client).post<CreateChapterResponses, unknown, ThrowOnError, 'data'>({
+export const createChapter = <ThrowOnError extends boolean = true>(options: Options<CreateChapterData, ThrowOnError>) => (options.client ?? client).post<CreateChapterResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateChapterResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chapters',
@@ -140,7 +140,7 @@ export const createChapter = <ThrowOnError extends boolean = false>(options: Opt
  *
  * DELETE `/api/v0/main-frontend/chapters/:chapter_id` - Delete a chapter.
  */
-export const deleteChapter = <ThrowOnError extends boolean = false>(options: Options<DeleteChapterData, ThrowOnError>) => (options.client ?? client).delete<DeleteChapterResponses, unknown, ThrowOnError, 'data'>({
+export const deleteChapter = <ThrowOnError extends boolean = true>(options: Options<DeleteChapterData, ThrowOnError>) => (options.client ?? client).delete<DeleteChapterResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeleteChapterResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chapters/{chapter_id}',
@@ -166,7 +166,7 @@ export const deleteChapter = <ThrowOnError extends boolean = false>(options: Opt
  *
  * ```
  */
-export const updateChapter = <ThrowOnError extends boolean = false>(options: Options<UpdateChapterData, ThrowOnError>) => (options.client ?? client).put<UpdateChapterResponses, unknown, ThrowOnError, 'data'>({
+export const updateChapter = <ThrowOnError extends boolean = true>(options: Options<UpdateChapterData, ThrowOnError>) => (options.client ?? client).put<UpdateChapterResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateChapterResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chapters/{chapter_id}',
@@ -188,7 +188,7 @@ export const updateChapter = <ThrowOnError extends boolean = false>(options: Opt
  * DELETE /api/v0/main-frontend/chapters/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
  * ```
  */
-export const deleteChapterImage = <ThrowOnError extends boolean = false>(options: Options<DeleteChapterImageData, ThrowOnError>) => (options.client ?? client).delete<DeleteChapterImageResponses, unknown, ThrowOnError, 'data'>({
+export const deleteChapterImage = <ThrowOnError extends boolean = true>(options: Options<DeleteChapterImageData, ThrowOnError>) => (options.client ?? client).delete<DeleteChapterImageResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chapters/{chapter_id}/image',
     ...options
@@ -208,7 +208,7 @@ export const deleteChapterImage = <ThrowOnError extends boolean = false>(options
  * BINARY_DATA
  * ```
  */
-export const updateChapterImage = <ThrowOnError extends boolean = false>(options: Options<UpdateChapterImageData, ThrowOnError>) => (options.client ?? client).put<UpdateChapterImageResponses, unknown, ThrowOnError, 'data'>({
+export const updateChapterImage = <ThrowOnError extends boolean = true>(options: Options<UpdateChapterImageData, ThrowOnError>) => (options.client ?? client).put<UpdateChapterImageResponses, unknown, ThrowOnError, 'data'>({
     ...formDataBodySerializer,
     responseValidator: async (data) => await zUpdateChapterImageResponse.parseAsync(data),
     responseStyle: 'data',
@@ -224,7 +224,7 @@ export const updateChapterImage = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course - Gets all chapters with a course_id
  */
-export const getCourseChapters = <ThrowOnError extends boolean = false>(options: Options<GetCourseChaptersData, ThrowOnError>) => (options.client ?? client).get<GetCourseChaptersResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseChapters = <ThrowOnError extends boolean = true>(options: Options<GetCourseChaptersData, ThrowOnError>) => (options.client ?? client).get<GetCourseChaptersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseChaptersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course',
@@ -234,7 +234,7 @@ export const getCourseChapters = <ThrowOnError extends boolean = false>(options:
 /**
  * GET `/api/v0/main-frontend/chatbot-models?course_id={course_id}`
  */
-export const getChatbotModels = <ThrowOnError extends boolean = false>(options: Options<GetChatbotModelsData, ThrowOnError>) => (options.client ?? client).get<GetChatbotModelsResponses, unknown, ThrowOnError, 'data'>({
+export const getChatbotModels = <ThrowOnError extends boolean = true>(options: Options<GetChatbotModelsData, ThrowOnError>) => (options.client ?? client).get<GetChatbotModelsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetChatbotModelsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chatbot-models/',
@@ -244,7 +244,7 @@ export const getChatbotModels = <ThrowOnError extends boolean = false>(options: 
 /**
  * GET `/api/v0/main-frontend/chatbot-models/{chatbot_configuration_id}`
  */
-export const getChatbotModel = <ThrowOnError extends boolean = false>(options: Options<GetChatbotModelData, ThrowOnError>) => (options.client ?? client).get<GetChatbotModelResponses, unknown, ThrowOnError, 'data'>({
+export const getChatbotModel = <ThrowOnError extends boolean = true>(options: Options<GetChatbotModelData, ThrowOnError>) => (options.client ?? client).get<GetChatbotModelResponses, unknown, ThrowOnError, 'data'>({
     bodySerializer: null,
     responseValidator: async (data) => await zGetChatbotModelResponse.parseAsync(data),
     responseStyle: 'data',
@@ -259,7 +259,7 @@ export const getChatbotModel = <ThrowOnError extends boolean = false>(options: O
 /**
  * DELETE `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
  */
-export const deleteChatbotConfiguration = <ThrowOnError extends boolean = false>(options: Options<DeleteChatbotConfigurationData, ThrowOnError>) => (options.client ?? client).delete<DeleteChatbotConfigurationResponses, unknown, ThrowOnError, 'data'>({
+export const deleteChatbotConfiguration = <ThrowOnError extends boolean = true>(options: Options<DeleteChatbotConfigurationData, ThrowOnError>) => (options.client ?? client).delete<DeleteChatbotConfigurationResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}',
     ...options
@@ -268,7 +268,7 @@ export const deleteChatbotConfiguration = <ThrowOnError extends boolean = false>
 /**
  * GET `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
  */
-export const getChatbotConfiguration = <ThrowOnError extends boolean = false>(options: Options<GetChatbotConfigurationData, ThrowOnError>) => (options.client ?? client).get<GetChatbotConfigurationResponses, unknown, ThrowOnError, 'data'>({
+export const getChatbotConfiguration = <ThrowOnError extends boolean = true>(options: Options<GetChatbotConfigurationData, ThrowOnError>) => (options.client ?? client).get<GetChatbotConfigurationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetChatbotConfigurationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}',
@@ -278,7 +278,7 @@ export const getChatbotConfiguration = <ThrowOnError extends boolean = false>(op
 /**
  * POST `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
  */
-export const configureChatbot = <ThrowOnError extends boolean = false>(options: Options<ConfigureChatbotData, ThrowOnError>) => (options.client ?? client).post<ConfigureChatbotResponses, unknown, ThrowOnError, 'data'>({
+export const configureChatbot = <ThrowOnError extends boolean = true>(options: Options<ConfigureChatbotData, ThrowOnError>) => (options.client ?? client).post<ConfigureChatbotResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zConfigureChatbotResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}',
@@ -293,7 +293,7 @@ export const configureChatbot = <ThrowOnError extends boolean = false>(options: 
  *
  * * POST `/api/v0/main-frontend/code-giveaways - Creates a new code giveaway.
  */
-export const createCodeGiveaway = <ThrowOnError extends boolean = false>(options: Options<CreateCodeGiveawayData, ThrowOnError>) => (options.client ?? client).post<CreateCodeGiveawayResponses, unknown, ThrowOnError, 'data'>({
+export const createCodeGiveaway = <ThrowOnError extends boolean = true>(options: Options<CreateCodeGiveawayData, ThrowOnError>) => (options.client ?? client).post<CreateCodeGiveawayResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateCodeGiveawayResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/code-giveaways',
@@ -308,7 +308,7 @@ export const createCodeGiveaway = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
  */
-export const getCodeGiveawaysByCourse = <ThrowOnError extends boolean = false>(options: Options<GetCodeGiveawaysByCourseData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawaysByCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getCodeGiveawaysByCourse = <ThrowOnError extends boolean = true>(options: Options<GetCodeGiveawaysByCourseData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawaysByCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCodeGiveawaysByCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/code-giveaways/by-course/{course_id}',
@@ -319,7 +319,7 @@ export const getCodeGiveawaysByCourse = <ThrowOnError extends boolean = false>(o
  *
  * * GET `/api/v0/main-frontend/code-giveaways/:id - Gets a code giveaway by ID.
  */
-export const getCodeGiveawayById = <ThrowOnError extends boolean = false>(options: Options<GetCodeGiveawayByIdData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawayByIdResponses, unknown, ThrowOnError, 'data'>({
+export const getCodeGiveawayById = <ThrowOnError extends boolean = true>(options: Options<GetCodeGiveawayByIdData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawayByIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCodeGiveawayByIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/code-giveaways/{id}',
@@ -330,7 +330,7 @@ export const getCodeGiveawayById = <ThrowOnError extends boolean = false>(option
  *
  * * GET `/api/v0/main-frontend/code-giveaways/:id/codes - Gets codes for a code giveaway by ID.
  */
-export const getCodeGiveawayCodes = <ThrowOnError extends boolean = false>(options: Options<GetCodeGiveawayCodesData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawayCodesResponses, unknown, ThrowOnError, 'data'>({
+export const getCodeGiveawayCodes = <ThrowOnError extends boolean = true>(options: Options<GetCodeGiveawayCodesData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawayCodesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCodeGiveawayCodesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/code-giveaways/{id}/codes',
@@ -341,7 +341,7 @@ export const getCodeGiveawayCodes = <ThrowOnError extends boolean = false>(optio
  *
  * * POST `/api/v0/main-frontend/code-giveaways/:id/codes - Adds new codes to a code giveaway.
  */
-export const addCodeGiveawayCodes = <ThrowOnError extends boolean = false>(options: Options<AddCodeGiveawayCodesData, ThrowOnError>) => (options.client ?? client).post<AddCodeGiveawayCodesResponses, unknown, ThrowOnError, 'data'>({
+export const addCodeGiveawayCodes = <ThrowOnError extends boolean = true>(options: Options<AddCodeGiveawayCodesData, ThrowOnError>) => (options.client ?? client).post<AddCodeGiveawayCodesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zAddCodeGiveawayCodesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/code-giveaways/{id}/codes',
@@ -356,7 +356,7 @@ export const addCodeGiveawayCodes = <ThrowOnError extends boolean = false>(optio
  *
  * * GET `/api/v0/main-frontend/code-giveaways/:id/codes/csv - Gets codes for a code giveaway by ID as CSV.
  */
-export const downloadCodeGiveawayCodesCsv = <ThrowOnError extends boolean = false>(options: Options<DownloadCodeGiveawayCodesCsvData, ThrowOnError>) => (options.client ?? client).get<DownloadCodeGiveawayCodesCsvResponses, unknown, ThrowOnError, 'data'>({
+export const downloadCodeGiveawayCodesCsv = <ThrowOnError extends boolean = true>(options: Options<DownloadCodeGiveawayCodesCsvData, ThrowOnError>) => (options.client ?? client).get<DownloadCodeGiveawayCodesCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDownloadCodeGiveawayCodesCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/code-giveaways/{id}/codes/csv',
@@ -367,7 +367,7 @@ export const downloadCodeGiveawayCodesCsv = <ThrowOnError extends boolean = fals
  *
  * * DELETE `/api/v0/main-frontend/code-giveaways/:id/codes/:code_id - Deletes a code giveaway code.
  */
-export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = false>(options: Options<DeleteCodeGiveawayCodeData, ThrowOnError>) => (options.client ?? client).delete<DeleteCodeGiveawayCodeResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(options: Options<DeleteCodeGiveawayCodeData, ThrowOnError>) => (options.client ?? client).delete<DeleteCodeGiveawayCodeResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/code-giveaways/{id}/codes/{code_id}',
     ...options
@@ -377,7 +377,7 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = false>(opt
  *
  * GET /course-instances/:id
  */
-export const getCourseInstance = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstanceData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstance = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstanceData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}',
@@ -388,7 +388,7 @@ export const getCourseInstance = <ThrowOnError extends boolean = false>(options:
  *
  * GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
  */
-export const getCourseInstanceCompletions = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstanceCompletionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceCompletionsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstanceCompletions = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstanceCompletionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceCompletionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseInstanceCompletionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions',
@@ -399,7 +399,7 @@ export const getCourseInstanceCompletions = <ThrowOnError extends boolean = fals
  *
  * POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
  */
-export const createCourseInstanceCompletions = <ThrowOnError extends boolean = false>(options: Options<CreateCourseInstanceCompletionsData, ThrowOnError>) => (options.client ?? client).post<CreateCourseInstanceCompletionsResponses, unknown, ThrowOnError, 'data'>({
+export const createCourseInstanceCompletions = <ThrowOnError extends boolean = true>(options: Options<CreateCourseInstanceCompletionsData, ThrowOnError>) => (options.client ?? client).post<CreateCourseInstanceCompletionsResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions',
     ...options,
@@ -409,7 +409,7 @@ export const createCourseInstanceCompletions = <ThrowOnError extends boolean = f
     }
 });
 
-export const previewCourseInstanceCompletions = <ThrowOnError extends boolean = false>(options: Options<PreviewCourseInstanceCompletionsData, ThrowOnError>) => (options.client ?? client).post<PreviewCourseInstanceCompletionsResponses, unknown, ThrowOnError, 'data'>({
+export const previewCourseInstanceCompletions = <ThrowOnError extends boolean = true>(options: Options<PreviewCourseInstanceCompletionsData, ThrowOnError>) => (options.client ?? client).post<PreviewCourseInstanceCompletionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPreviewCourseInstanceCompletionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions/preview',
@@ -424,7 +424,7 @@ export const previewCourseInstanceCompletions = <ThrowOnError extends boolean = 
  *
  * GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
  */
-export const getCourseInstanceCourseModuleCompletionsForUser = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstanceCourseModuleCompletionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceCourseModuleCompletionsForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstanceCourseModuleCompletionsForUser = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstanceCourseModuleCompletionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceCourseModuleCompletionsForUserResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/course-module-completions/{user_id}',
     ...options
@@ -434,7 +434,7 @@ export const getCourseInstanceCourseModuleCompletionsForUser = <ThrowOnError ext
  *
  * GET /course-instances/:id/default-certificate-configurations - gets default certificate configurations of the given course instance. A default certificate configuration requires only one course module to be completed.
  */
-export const getCourseInstanceDefaultCertificateConfigurations = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstanceDefaultCertificateConfigurationsData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceDefaultCertificateConfigurationsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstanceDefaultCertificateConfigurations = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstanceDefaultCertificateConfigurationsData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceDefaultCertificateConfigurationsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseInstanceDefaultCertificateConfigurationsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/default-certificate-configurations',
@@ -445,7 +445,7 @@ export const getCourseInstanceDefaultCertificateConfigurations = <ThrowOnError e
  *
  * POST /course-instances/:id/delete
  */
-export const deleteCourseInstance = <ThrowOnError extends boolean = false>(options: Options<DeleteCourseInstanceData, ThrowOnError>) => (options.client ?? client).post<DeleteCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCourseInstance = <ThrowOnError extends boolean = true>(options: Options<DeleteCourseInstanceData, ThrowOnError>) => (options.client ?? client).post<DeleteCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/delete',
     ...options
@@ -455,7 +455,7 @@ export const deleteCourseInstance = <ThrowOnError extends boolean = false>(optio
  *
  * POST /course-instances/:id/edit
  */
-export const editCourseInstance = <ThrowOnError extends boolean = false>(options: Options<EditCourseInstanceData, ThrowOnError>) => (options.client ?? client).post<EditCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const editCourseInstance = <ThrowOnError extends boolean = true>(options: Options<EditCourseInstanceData, ThrowOnError>) => (options.client ?? client).post<EditCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/edit',
     ...options,
@@ -465,14 +465,14 @@ export const editCourseInstance = <ThrowOnError extends boolean = false>(options
     }
 });
 
-export const getCourseInstanceEmailTemplates = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstanceEmailTemplatesData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceEmailTemplatesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstanceEmailTemplates = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstanceEmailTemplatesData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceEmailTemplatesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseInstanceEmailTemplatesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates',
     ...options
 });
 
-export const createCourseInstanceEmailTemplate = <ThrowOnError extends boolean = false>(options: Options<CreateCourseInstanceEmailTemplateData, ThrowOnError>) => (options.client ?? client).post<CreateCourseInstanceEmailTemplateResponses, unknown, ThrowOnError, 'data'>({
+export const createCourseInstanceEmailTemplate = <ThrowOnError extends boolean = true>(options: Options<CreateCourseInstanceEmailTemplateData, ThrowOnError>) => (options.client ?? client).post<CreateCourseInstanceEmailTemplateResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateCourseInstanceEmailTemplateResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates',
@@ -487,7 +487,7 @@ export const createCourseInstanceEmailTemplate = <ThrowOnError extends boolean =
  *
  * GET /course-instances/:id/export-completions - gets CSV of course completion based on course_instance ID.
  */
-export const exportCourseInstanceCompletionsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseInstanceCompletionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseInstanceCompletionsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseInstanceCompletionsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseInstanceCompletionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseInstanceCompletionsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseInstanceCompletionsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/export-completions',
@@ -498,14 +498,14 @@ export const exportCourseInstanceCompletionsCsv = <ThrowOnError extends boolean 
  *
  * GET `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points` - gets CSV of course instance points based on course_instance ID.
  */
-export const exportCourseInstancePointsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseInstancePointsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseInstancePointsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseInstancePointsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseInstancePointsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseInstancePointsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseInstancePointsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/export-points',
     ...options
 });
 
-export const getCourseInstancePoints = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstancePointsData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstancePointsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstancePoints = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstancePointsData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstancePointsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseInstancePointsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/points',
@@ -516,7 +516,7 @@ export const getCourseInstancePoints = <ThrowOnError extends boolean = false>(op
  *
  * GET /api/v0/main-frontend/course-instance/:course_instance_id/progress/:user_id - returns user progress information.
  */
-export const getCourseInstanceUserProgress = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstanceUserProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceUserProgressResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstanceUserProgress = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstanceUserProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceUserProgressResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/progress/{user_id}',
     ...options
@@ -526,7 +526,7 @@ export const getCourseInstanceUserProgress = <ThrowOnError extends boolean = fal
  *
  * GET /course-instances/:id/status-for-all-exercises/:user_id - Returns a status for all exercises in a course instance for a given user.
  */
-export const getCourseInstanceExerciseStatusesForUser = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstanceExerciseStatusesForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceExerciseStatusesForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstanceExerciseStatusesForUser = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstanceExerciseStatusesForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstanceExerciseStatusesForUserResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-instances/{course_instance_id}/status-for-all-exercises/{user_id}',
     ...options
@@ -538,7 +538,7 @@ export const getCourseInstanceExerciseStatusesForUser = <ThrowOnError extends bo
  *
  * Returns information about the course module.
  */
-export const getCourseModule = <ThrowOnError extends boolean = false>(options: Options<GetCourseModuleData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseModule = <ThrowOnError extends boolean = true>(options: Options<GetCourseModuleData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseModuleResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-modules/{course_module_id}',
@@ -549,7 +549,7 @@ export const getCourseModule = <ThrowOnError extends boolean = false>(options: O
  *
  * GET `/api/v0/main-frontend/course-modules/{course_slug}/completion-registration-link`
  */
-export const getCourseModuleCompletionRegistrationLink = <ThrowOnError extends boolean = false>(options: Options<GetCourseModuleCompletionRegistrationLinkData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleCompletionRegistrationLinkResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseModuleCompletionRegistrationLink = <ThrowOnError extends boolean = true>(options: Options<GetCourseModuleCompletionRegistrationLinkData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleCompletionRegistrationLinkResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseModuleCompletionRegistrationLinkResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-modules/{course_module_id}/completion-registration-link',
@@ -562,14 +562,14 @@ export const getCourseModuleCompletionRegistrationLink = <ThrowOnError extends b
  *
  * Gets users's best completion for the course.
  */
-export const getCourseModuleCompletion = <ThrowOnError extends boolean = false>(options: Options<GetCourseModuleCompletionData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleCompletionResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseModuleCompletion = <ThrowOnError extends boolean = true>(options: Options<GetCourseModuleCompletionData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleCompletionResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseModuleCompletionResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-modules/{course_module_id}/course-module-completion',
     ...options
 });
 
-export const setCourseModuleCertificateGeneration = <ThrowOnError extends boolean = false>(options: Options<SetCourseModuleCertificateGenerationData, ThrowOnError>) => (options.client ?? client).post<SetCourseModuleCertificateGenerationResponses, unknown, ThrowOnError, 'data'>({
+export const setCourseModuleCertificateGeneration = <ThrowOnError extends boolean = true>(options: Options<SetCourseModuleCertificateGenerationData, ThrowOnError>) => (options.client ?? client).post<SetCourseModuleCertificateGenerationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSetCourseModuleCertificateGenerationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-modules/{course_module_id}/set-certificate-generation/{enabled}',
@@ -580,7 +580,7 @@ export const setCourseModuleCertificateGeneration = <ThrowOnError extends boolea
  *
  * DELETE /api/v0/main-frontend/course-modules/${course_module_id}/threshold - delete threshold for a specific course module.
  */
-export const deleteCourseModuleThreshold = <ThrowOnError extends boolean = false>(options: Options<DeleteCourseModuleThresholdData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseModuleThresholdResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCourseModuleThreshold = <ThrowOnError extends boolean = true>(options: Options<DeleteCourseModuleThresholdData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseModuleThresholdResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-modules/{course_module_id}/threshold',
     ...options
@@ -590,7 +590,7 @@ export const deleteCourseModuleThreshold = <ThrowOnError extends boolean = false
  *
  * POST /api/v0/main-frontend/course-modules/${course_module_id}/threshold - post threshold for a specific course module.
  */
-export const createCourseModuleThreshold = <ThrowOnError extends boolean = false>(options: Options<CreateCourseModuleThresholdData, ThrowOnError>) => (options.client ?? client).post<CreateCourseModuleThresholdResponses, unknown, ThrowOnError, 'data'>({
+export const createCourseModuleThreshold = <ThrowOnError extends boolean = true>(options: Options<CreateCourseModuleThresholdData, ThrowOnError>) => (options.client ?? client).post<CreateCourseModuleThresholdResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-modules/{course_module_id}/threshold',
     ...options,
@@ -606,7 +606,7 @@ export const createCourseModuleThreshold = <ThrowOnError extends boolean = false
  *
  * Gets active users's completion for the course, if it exists.
  */
-export const getCourseModuleUserCompletion = <ThrowOnError extends boolean = false>(options: Options<GetCourseModuleUserCompletionData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleUserCompletionResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseModuleUserCompletion = <ThrowOnError extends boolean = true>(options: Options<GetCourseModuleUserCompletionData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleUserCompletionResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseModuleUserCompletionResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/course-modules/{course_module_id}/user-completion',
@@ -630,7 +630,7 @@ export const getCourseModuleUserCompletion = <ThrowOnError extends boolean = fal
  * }
  * ```
  */
-export const createCourse = <ThrowOnError extends boolean = false>(options: Options<CreateCourseData, ThrowOnError>) => (options.client ?? client).post<CreateCourseResponses, unknown, ThrowOnError, 'data'>({
+export const createCourse = <ThrowOnError extends boolean = true>(options: Options<CreateCourseData, ThrowOnError>) => (options.client ?? client).post<CreateCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses',
@@ -645,7 +645,7 @@ export const createCourse = <ThrowOnError extends boolean = false>(options: Opti
  *
  * GET /courses/join/:join_code - Gets the course related to join code
  */
-export const getCourseByJoinCode = <ThrowOnError extends boolean = false>(options: Options<GetCourseByJoinCodeData, ThrowOnError>) => (options.client ?? client).get<GetCourseByJoinCodeResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseByJoinCode = <ThrowOnError extends boolean = true>(options: Options<GetCourseByJoinCodeData, ThrowOnError>) => (options.client ?? client).get<GetCourseByJoinCodeResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseByJoinCodeResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/join/{join_code}',
@@ -656,7 +656,7 @@ export const getCourseByJoinCode = <ThrowOnError extends boolean = false>(option
  *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a course.
  */
-export const deleteCourse = <ThrowOnError extends boolean = false>(options: Options<DeleteCourseData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCourse = <ThrowOnError extends boolean = true>(options: Options<DeleteCourseData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}',
     ...options
@@ -666,7 +666,7 @@ export const deleteCourse = <ThrowOnError extends boolean = false>(options: Opti
  *
  * GET `/api/v0/main-frontend/courses/:course_id` - Get course.
  */
-export const getCourse = <ThrowOnError extends boolean = false>(options: Options<GetCourseData, ThrowOnError>) => (options.client ?? client).get<GetCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getCourse = <ThrowOnError extends boolean = true>(options: Options<GetCourseData, ThrowOnError>) => (options.client ?? client).get<GetCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}',
@@ -689,7 +689,7 @@ export const getCourse = <ThrowOnError extends boolean = false>(options: Options
  *
  * ```
  */
-export const updateCourse = <ThrowOnError extends boolean = false>(options: Options<UpdateCourseData, ThrowOnError>) => (options.client ?? client).put<UpdateCourseResponses, unknown, ThrowOnError, 'data'>({
+export const updateCourse = <ThrowOnError extends boolean = true>(options: Options<UpdateCourseData, ThrowOnError>) => (options.client ?? client).put<UpdateCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}',
@@ -704,7 +704,7 @@ export const updateCourse = <ThrowOnError extends boolean = false>(options: Opti
  *
  * GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information to display breadcrumbs on the manage course pages.
  */
-export const getCourseBreadcrumbInfo = <ThrowOnError extends boolean = false>(options: Options<GetCourseBreadcrumbInfoData, ThrowOnError>) => (options.client ?? client).get<GetCourseBreadcrumbInfoResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseBreadcrumbInfo = <ThrowOnError extends boolean = true>(options: Options<GetCourseBreadcrumbInfoData, ThrowOnError>) => (options.client ?? client).get<GetCourseBreadcrumbInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseBreadcrumbInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/breadcrumb-info',
@@ -714,7 +714,7 @@ export const getCourseBreadcrumbInfo = <ThrowOnError extends boolean = false>(op
 /**
  * GET `/api/v0/main-frontend/courses/{course_id}/chatbots`
  */
-export const getCourseChatbots = <ThrowOnError extends boolean = false>(options: Options<GetCourseChatbotsData, ThrowOnError>) => (options.client ?? client).get<GetCourseChatbotsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseChatbots = <ThrowOnError extends boolean = true>(options: Options<GetCourseChatbotsData, ThrowOnError>) => (options.client ?? client).get<GetCourseChatbotsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseChatbotsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/chatbots',
@@ -724,7 +724,7 @@ export const getCourseChatbots = <ThrowOnError extends boolean = false>(options:
 /**
  * POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
  */
-export const createCourseChatbot = <ThrowOnError extends boolean = false>(options: Options<CreateCourseChatbotData, ThrowOnError>) => (options.client ?? client).post<CreateCourseChatbotResponses, unknown, ThrowOnError, 'data'>({
+export const createCourseChatbot = <ThrowOnError extends boolean = true>(options: Options<CreateCourseChatbotData, ThrowOnError>) => (options.client ?? client).post<CreateCourseChatbotResponses, unknown, ThrowOnError, 'data'>({
     bodySerializer: null,
     responseValidator: async (data) => await zCreateCourseChatbotResponse.parseAsync(data),
     responseStyle: 'data',
@@ -739,7 +739,7 @@ export const createCourseChatbot = <ThrowOnError extends boolean = false>(option
 /**
  * POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default`
  */
-export const setCourseChatbotAsDefault = <ThrowOnError extends boolean = false>(options: Options<SetCourseChatbotAsDefaultData, ThrowOnError>) => (options.client ?? client).post<SetCourseChatbotAsDefaultResponses, unknown, ThrowOnError, 'data'>({
+export const setCourseChatbotAsDefault = <ThrowOnError extends boolean = true>(options: Options<SetCourseChatbotAsDefaultData, ThrowOnError>) => (options.client ?? client).post<SetCourseChatbotAsDefaultResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSetCourseChatbotAsDefaultResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default',
@@ -749,7 +749,7 @@ export const setCourseChatbotAsDefault = <ThrowOnError extends boolean = false>(
 /**
  * POST `/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default`
  */
-export const setCourseChatbotAsNonDefault = <ThrowOnError extends boolean = false>(options: Options<SetCourseChatbotAsNonDefaultData, ThrowOnError>) => (options.client ?? client).post<SetCourseChatbotAsNonDefaultResponses, unknown, ThrowOnError, 'data'>({
+export const setCourseChatbotAsNonDefault = <ThrowOnError extends boolean = true>(options: Options<SetCourseChatbotAsNonDefaultData, ThrowOnError>) => (options.client ?? client).post<SetCourseChatbotAsNonDefaultResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSetCourseChatbotAsNonDefaultResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default',
@@ -760,7 +760,7 @@ export const setCourseChatbotAsNonDefault = <ThrowOnError extends boolean = fals
  *
  * GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course instances for given course id.
  */
-export const getCourseInstances = <ThrowOnError extends boolean = false>(options: Options<GetCourseInstancesData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstancesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseInstances = <ThrowOnError extends boolean = true>(options: Options<GetCourseInstancesData, ThrowOnError>) => (options.client ?? client).get<GetCourseInstancesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseInstancesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/course-instances',
@@ -771,14 +771,14 @@ export const getCourseInstances = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/courses/:course_id/course-module-completions/:user_id` - Returns all course module completions for a given user for this course.
  */
-export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean = false>(options: Options<GetCourseModuleCompletionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleCompletionsForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseModuleCompletionsForUser = <ThrowOnError extends boolean = true>(options: Options<GetCourseModuleCompletionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseModuleCompletionsForUserResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseModuleCompletionsForUserResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/course-module-completions/{user_id}',
     ...options
 });
 
-export const updateCourseModules = <ThrowOnError extends boolean = false>(options: Options<UpdateCourseModulesData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseModulesResponses, unknown, ThrowOnError, 'data'>({
+export const updateCourseModules = <ThrowOnError extends boolean = true>(options: Options<UpdateCourseModulesData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseModulesResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/course-modules',
     ...options,
@@ -792,7 +792,7 @@ export const updateCourseModules = <ThrowOnError extends boolean = false>(option
  *
  * GET `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Returns the amount of users for each exercise.
  */
-export const getCourseUsersCountsByExercise = <ThrowOnError extends boolean = false>(options: Options<GetCourseUsersCountsByExerciseData, ThrowOnError>) => (options.client ?? client).get<GetCourseUsersCountsByExerciseResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseUsersCountsByExercise = <ThrowOnError extends boolean = true>(options: Options<GetCourseUsersCountsByExerciseData, ThrowOnError>) => (options.client ?? client).get<GetCourseUsersCountsByExerciseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseUsersCountsByExerciseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/course-users-counts-by-exercise',
@@ -843,7 +843,7 @@ export const getCourseUsersCountsByExercise = <ThrowOnError extends boolean = fa
  * }
  * ```
  */
-export const createCourseCopy = <ThrowOnError extends boolean = false>(options: Options<CreateCourseCopyData, ThrowOnError>) => (options.client ?? client).post<CreateCourseCopyResponses, unknown, ThrowOnError, 'data'>({
+export const createCourseCopy = <ThrowOnError extends boolean = true>(options: Options<CreateCourseCopyData, ThrowOnError>) => (options.client ?? client).post<CreateCourseCopyResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateCourseCopyResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/create-copy',
@@ -858,7 +858,7 @@ export const createCourseCopy = <ThrowOnError extends boolean = false>(options: 
  *
  * GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submission counts grouped by day.
  */
-export const getCourseDailySubmissionCounts = <ThrowOnError extends boolean = false>(options: Options<GetCourseDailySubmissionCountsData, ThrowOnError>) => (options.client ?? client).get<GetCourseDailySubmissionCountsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseDailySubmissionCounts = <ThrowOnError extends boolean = true>(options: Options<GetCourseDailySubmissionCountsData, ThrowOnError>) => (options.client ?? client).get<GetCourseDailySubmissionCountsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseDailySubmissionCountsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/daily-submission-counts',
@@ -869,14 +869,14 @@ export const getCourseDailySubmissionCounts = <ThrowOnError extends boolean = fa
  *
  * GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something` - Returns a count of users who have submitted something grouped by day.
  */
-export const getCourseDailyUsersWhoSubmittedSomething = <ThrowOnError extends boolean = false>(options: Options<GetCourseDailyUsersWhoSubmittedSomethingData, ThrowOnError>) => (options.client ?? client).get<GetCourseDailyUsersWhoSubmittedSomethingResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseDailyUsersWhoSubmittedSomething = <ThrowOnError extends boolean = true>(options: Options<GetCourseDailyUsersWhoSubmittedSomethingData, ThrowOnError>) => (options.client ?? client).get<GetCourseDailyUsersWhoSubmittedSomethingResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseDailyUsersWhoSubmittedSomethingResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/daily-users-who-have-submitted-something',
     ...options
 });
 
-export const getCourseDefaultPeerReview = <ThrowOnError extends boolean = false>(options: Options<GetCourseDefaultPeerReviewData, ThrowOnError>) => (options.client ?? client).get<GetCourseDefaultPeerReviewResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(options: Options<GetCourseDefaultPeerReviewData, ThrowOnError>) => (options.client ?? client).get<GetCourseDefaultPeerReviewResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/default-peer-review',
     ...options
@@ -886,7 +886,7 @@ export const getCourseDefaultPeerReview = <ThrowOnError extends boolean = false>
  *
  * GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for the course.
  */
-export const getCourseExercises = <ThrowOnError extends boolean = false>(options: Options<GetCourseExercisesData, ThrowOnError>) => (options.client ?? client).get<GetCourseExercisesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseExercises = <ThrowOnError extends boolean = true>(options: Options<GetCourseExercisesData, ThrowOnError>) => (options.client ?? client).get<GetCourseExercisesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseExercisesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/exercises',
@@ -897,7 +897,7 @@ export const getCourseExercises = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-attention` - Returns all exercises for the course and count of answers requiring attention in them.
  */
-export const getCourseExercisesAndAnswersRequiringAttentionCounts = <ThrowOnError extends boolean = false>(options: Options<GetCourseExercisesAndAnswersRequiringAttentionCountsData, ThrowOnError>) => (options.client ?? client).get<GetCourseExercisesAndAnswersRequiringAttentionCountsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseExercisesAndAnswersRequiringAttentionCounts = <ThrowOnError extends boolean = true>(options: Options<GetCourseExercisesAndAnswersRequiringAttentionCountsData, ThrowOnError>) => (options.client ?? client).get<GetCourseExercisesAndAnswersRequiringAttentionCountsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/exercises-and-count-of-answers-requiring-attention',
@@ -910,7 +910,7 @@ export const getCourseExercisesAndAnswersRequiringAttentionCounts = <ThrowOnErro
  *
  * gets SCV course instances for course
  */
-export const exportCourseInstancesCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseInstancesCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseInstancesCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseInstancesCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseInstancesCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseInstancesCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseInstancesCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/export-course-instances',
@@ -923,7 +923,7 @@ export const exportCourseInstancesCsv = <ThrowOnError extends boolean = false>(o
  *
  * gets SCV course specific research form questions and user answers for course
  */
-export const exportCourseUserConsentsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseUserConsentsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseUserConsentsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseUserConsentsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseUserConsentsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseUserConsentsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseUserConsentsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/export-course-user-consents',
@@ -936,7 +936,7 @@ export const exportCourseUserConsentsCsv = <ThrowOnError extends boolean = false
  *
  * gets SCV all exercise-tasks' private specs in course
  */
-export const exportCourseExerciseTasksCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseExerciseTasksCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseExerciseTasksCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseExerciseTasksCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseExerciseTasksCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseExerciseTasksCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseExerciseTasksCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/export-exercise-tasks',
@@ -949,7 +949,7 @@ export const exportCourseExerciseTasksCsv = <ThrowOnError extends boolean = fals
  *
  * gets SCV of course exercise submissions
  */
-export const exportCourseSubmissionsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseSubmissionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseSubmissionsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseSubmissionsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseSubmissionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseSubmissionsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseSubmissionsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/export-submissions',
@@ -962,7 +962,7 @@ export const exportCourseSubmissionsCsv = <ThrowOnError extends boolean = false>
  *
  * gets SCV of user details for all users having submitted an exercise in the course
  */
-export const exportCourseUserDetailsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseUserDetailsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseUserDetailsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseUserDetailsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseUserDetailsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseUserDetailsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseUserDetailsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/export-user-details',
@@ -975,7 +975,7 @@ export const exportCourseUserDetailsCsv = <ThrowOnError extends boolean = false>
  *
  * gets CSV for course specific user exercise states
  */
-export const exportCourseUserExerciseStatesCsv = <ThrowOnError extends boolean = false>(options: Options<ExportCourseUserExerciseStatesCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseUserExerciseStatesCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportCourseUserExerciseStatesCsv = <ThrowOnError extends boolean = true>(options: Options<ExportCourseUserExerciseStatesCsvData, ThrowOnError>) => (options.client ?? client).get<ExportCourseUserExerciseStatesCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportCourseUserExerciseStatesCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/export-user-exercise-states',
@@ -986,7 +986,7 @@ export const exportCourseUserExerciseStatesCsv = <ThrowOnError extends boolean =
  *
  * GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
  */
-export const getCourseFeedback = <ThrowOnError extends boolean = false>(options: Options<GetCourseFeedbackData, ThrowOnError>) => (options.client ?? client).get<GetCourseFeedbackResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseFeedback = <ThrowOnError extends boolean = true>(options: Options<GetCourseFeedbackData, ThrowOnError>) => (options.client ?? client).get<GetCourseFeedbackResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseFeedbackResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/feedback',
@@ -997,21 +997,21 @@ export const getCourseFeedback = <ThrowOnError extends boolean = false>(options:
  *
  * GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of feedback for the given course.
  */
-export const getCourseFeedbackCount = <ThrowOnError extends boolean = false>(options: Options<GetCourseFeedbackCountData, ThrowOnError>) => (options.client ?? client).get<GetCourseFeedbackCountResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(options: Options<GetCourseFeedbackCountData, ThrowOnError>) => (options.client ?? client).get<GetCourseFeedbackCountResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseFeedbackCountResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/feedback-count',
     ...options
 });
 
-export const getCourseGlossary = <ThrowOnError extends boolean = false>(options: Options<GetCourseGlossaryData, ThrowOnError>) => (options.client ?? client).get<GetCourseGlossaryResponses, GetCourseGlossaryErrors, ThrowOnError, 'data'>({
+export const getCourseGlossary = <ThrowOnError extends boolean = true>(options: Options<GetCourseGlossaryData, ThrowOnError>) => (options.client ?? client).get<GetCourseGlossaryResponses, GetCourseGlossaryErrors, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseGlossaryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/glossary',
     ...options
 });
 
-export const createCourseGlossaryTerm = <ThrowOnError extends boolean = false>(options: Options<CreateCourseGlossaryTermData, ThrowOnError>) => (options.client ?? client).post<CreateCourseGlossaryTermResponses, CreateCourseGlossaryTermErrors, ThrowOnError, 'data'>({
+export const createCourseGlossaryTerm = <ThrowOnError extends boolean = true>(options: Options<CreateCourseGlossaryTermData, ThrowOnError>) => (options.client ?? client).post<CreateCourseGlossaryTermResponses, CreateCourseGlossaryTermErrors, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateCourseGlossaryTermResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/glossary',
@@ -1026,7 +1026,7 @@ export const createCourseGlossaryTerm = <ThrowOnError extends boolean = false>(o
  *
  * POST /courses/:course_id/join-course-with-join-code - Adds the user to join_code_uses so the user gets access to the course
  */
-export const joinCourseWithJoinCode = <ThrowOnError extends boolean = false>(options: Options<JoinCourseWithJoinCodeData, ThrowOnError>) => (options.client ?? client).post<JoinCourseWithJoinCodeResponses, unknown, ThrowOnError, 'data'>({
+export const joinCourseWithJoinCode = <ThrowOnError extends boolean = true>(options: Options<JoinCourseWithJoinCodeData, ThrowOnError>) => (options.client ?? client).post<JoinCourseWithJoinCodeResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zJoinCourseWithJoinCodeResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/join-course-with-join-code',
@@ -1045,7 +1045,7 @@ export const joinCourseWithJoinCode = <ThrowOnError extends boolean = false>(opt
  * Content-Type: application/json
  * ```
  */
-export const getCourseLanguageVersions = <ThrowOnError extends boolean = false>(options: Options<GetCourseLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(options: Options<GetCourseLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseLanguageVersionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/language-versions',
@@ -1058,7 +1058,7 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = false>(
  *
  * Creates redirects if url_path changes.
  */
-export const updateCourseChapterOrdering = <ThrowOnError extends boolean = false>(options: Options<UpdateCourseChapterOrderingData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseChapterOrderingResponses, unknown, ThrowOnError, 'data'>({
+export const updateCourseChapterOrdering = <ThrowOnError extends boolean = true>(options: Options<UpdateCourseChapterOrderingData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseChapterOrderingResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering',
     ...options,
@@ -1072,7 +1072,7 @@ export const updateCourseChapterOrdering = <ThrowOnError extends boolean = false
  *
  * POST `/api/v0/main-frontend/courses/:id/new-course-instance`
  */
-export const createCourseInstance = <ThrowOnError extends boolean = false>(options: Options<CreateCourseInstanceData, ThrowOnError>) => (options.client ?? client).post<CreateCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const createCourseInstance = <ThrowOnError extends boolean = true>(options: Options<CreateCourseInstanceData, ThrowOnError>) => (options.client ?? client).post<CreateCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateCourseInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/new-course-instance',
@@ -1091,7 +1091,7 @@ export const createCourseInstance = <ThrowOnError extends boolean = false>(optio
  *
  * Creates redirects if url_path changes.
  */
-export const updateCoursePageOrdering = <ThrowOnError extends boolean = false>(options: Options<UpdateCoursePageOrderingData, ThrowOnError>) => (options.client ?? client).post<UpdateCoursePageOrderingResponses, unknown, ThrowOnError, 'data'>({
+export const updateCoursePageOrdering = <ThrowOnError extends boolean = true>(options: Options<UpdateCoursePageOrderingData, ThrowOnError>) => (options.client ?? client).post<UpdateCoursePageOrderingResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/new-page-ordering',
     ...options,
@@ -1105,7 +1105,7 @@ export const updateCoursePageOrdering = <ThrowOnError extends boolean = false>(o
  *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets aggregated statistics for page visits for the course.
  */
-export const getCoursePageVisitDatumSummary = <ThrowOnError extends boolean = false>(options: Options<GetCoursePageVisitDatumSummaryData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryResponses, unknown, ThrowOnError, 'data'>({
+export const getCoursePageVisitDatumSummary = <ThrowOnError extends boolean = true>(options: Options<GetCoursePageVisitDatumSummaryData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCoursePageVisitDatumSummaryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary',
@@ -1116,7 +1116,7 @@ export const getCoursePageVisitDatumSummary = <ThrowOnError extends boolean = fa
  *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-countries` - Gets aggregated statistics for page visits for the course.
  */
-export const getCoursePageVisitDatumSummaryByCountries = <ThrowOnError extends boolean = false>(options: Options<GetCoursePageVisitDatumSummaryByCountriesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryByCountriesResponses, unknown, ThrowOnError, 'data'>({
+export const getCoursePageVisitDatumSummaryByCountries = <ThrowOnError extends boolean = true>(options: Options<GetCoursePageVisitDatumSummaryByCountriesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryByCountriesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCoursePageVisitDatumSummaryByCountriesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-countries',
@@ -1127,7 +1127,7 @@ export const getCoursePageVisitDatumSummaryByCountries = <ThrowOnError extends b
  *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-device-types` - Gets aggregated statistics for page visits for the course.
  */
-export const getCoursePageVisitDatumSummaryByDeviceTypes = <ThrowOnError extends boolean = false>(options: Options<GetCoursePageVisitDatumSummaryByDeviceTypesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryByDeviceTypesResponses, unknown, ThrowOnError, 'data'>({
+export const getCoursePageVisitDatumSummaryByDeviceTypes = <ThrowOnError extends boolean = true>(options: Options<GetCoursePageVisitDatumSummaryByDeviceTypesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryByDeviceTypesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCoursePageVisitDatumSummaryByDeviceTypesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-device-types',
@@ -1138,7 +1138,7 @@ export const getCoursePageVisitDatumSummaryByDeviceTypes = <ThrowOnError extends
  *
  * GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-pages` - Gets aggregated statistics for page visits for the course.
  */
-export const getCoursePageVisitDatumSummaryByPages = <ThrowOnError extends boolean = false>(options: Options<GetCoursePageVisitDatumSummaryByPagesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryByPagesResponses, unknown, ThrowOnError, 'data'>({
+export const getCoursePageVisitDatumSummaryByPages = <ThrowOnError extends boolean = true>(options: Options<GetCoursePageVisitDatumSummaryByPagesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePageVisitDatumSummaryByPagesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCoursePageVisitDatumSummaryByPagesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-pages',
@@ -1149,7 +1149,7 @@ export const getCoursePageVisitDatumSummaryByPages = <ThrowOnError extends boole
  *
  * DELETE `/api/v0/main-frontend/courses/:course_id` - Delete a partners block in a course.
  */
-export const deleteCoursePartnersBlock = <ThrowOnError extends boolean = false>(options: Options<DeleteCoursePartnersBlockData, ThrowOnError>) => (options.client ?? client).delete<DeleteCoursePartnersBlockResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCoursePartnersBlock = <ThrowOnError extends boolean = true>(options: Options<DeleteCoursePartnersBlockData, ThrowOnError>) => (options.client ?? client).delete<DeleteCoursePartnersBlockResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/partners-block',
     ...options
@@ -1159,7 +1159,7 @@ export const deleteCoursePartnersBlock = <ThrowOnError extends boolean = false>(
  *
  * GET /courses/:course_id/partners_blocks - Gets a partners block related to a course
  */
-export const getCoursePartnersBlock = <ThrowOnError extends boolean = false>(options: Options<GetCoursePartnersBlockData, ThrowOnError>) => (options.client ?? client).get<GetCoursePartnersBlockResponses, unknown, ThrowOnError, 'data'>({
+export const getCoursePartnersBlock = <ThrowOnError extends boolean = true>(options: Options<GetCoursePartnersBlockData, ThrowOnError>) => (options.client ?? client).get<GetCoursePartnersBlockResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/partners-block',
     ...options
@@ -1169,7 +1169,7 @@ export const getCoursePartnersBlock = <ThrowOnError extends boolean = false>(opt
  *
  * POST /api/v0/main-frontend/courses/:course_id/partners_block - Create or updates a partners block for a course
  */
-export const upsertCoursePartnersBlock = <ThrowOnError extends boolean = false>(options: Options<UpsertCoursePartnersBlockData, ThrowOnError>) => (options.client ?? client).post<UpsertCoursePartnersBlockResponses, unknown, ThrowOnError, 'data'>({
+export const upsertCoursePartnersBlock = <ThrowOnError extends boolean = true>(options: Options<UpsertCoursePartnersBlockData, ThrowOnError>) => (options.client ?? client).post<UpsertCoursePartnersBlockResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/partners-block',
     ...options,
@@ -1183,21 +1183,21 @@ export const upsertCoursePartnersBlock = <ThrowOnError extends boolean = false>(
  *
  * GET `/api/v0/main-frontend/courses/:course_id/progress/:user_id` - Returns user progress for the course.
  */
-export const getCourseProgressForUser = <ThrowOnError extends boolean = false>(options: Options<GetCourseProgressForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseProgressForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseProgressForUser = <ThrowOnError extends boolean = true>(options: Options<GetCourseProgressForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseProgressForUserResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseProgressForUserResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/progress/{user_id}',
     ...options
 });
 
-export const getCourseReferences = <ThrowOnError extends boolean = false>(options: Options<GetCourseReferencesData, ThrowOnError>) => (options.client ?? client).get<GetCourseReferencesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseReferences = <ThrowOnError extends boolean = true>(options: Options<GetCourseReferencesData, ThrowOnError>) => (options.client ?? client).get<GetCourseReferencesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseReferencesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/references',
     ...options
 });
 
-export const createCourseReferences = <ThrowOnError extends boolean = false>(options: Options<CreateCourseReferencesData, ThrowOnError>) => (options.client ?? client).post<CreateCourseReferencesResponses, unknown, ThrowOnError, 'data'>({
+export const createCourseReferences = <ThrowOnError extends boolean = true>(options: Options<CreateCourseReferencesData, ThrowOnError>) => (options.client ?? client).post<CreateCourseReferencesResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/references',
     ...options,
@@ -1207,13 +1207,13 @@ export const createCourseReferences = <ThrowOnError extends boolean = false>(opt
     }
 });
 
-export const deleteCourseReference = <ThrowOnError extends boolean = false>(options: Options<DeleteCourseReferenceData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseReferenceResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCourseReference = <ThrowOnError extends boolean = true>(options: Options<DeleteCourseReferenceData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseReferenceResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/references/{reference_id}',
     ...options
 });
 
-export const updateCourseReference = <ThrowOnError extends boolean = false>(options: Options<UpdateCourseReferenceData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseReferenceResponses, unknown, ThrowOnError, 'data'>({
+export const updateCourseReference = <ThrowOnError extends boolean = true>(options: Options<UpdateCourseReferenceData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseReferenceResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/references/{reference_id}',
     ...options,
@@ -1229,7 +1229,7 @@ export const updateCourseReference = <ThrowOnError extends boolean = false>(opti
  *
  * Reprocesses all module completions for the given course instance. Only available to admins.
  */
-export const reprocessCourseCompletions = <ThrowOnError extends boolean = false>(options: Options<ReprocessCourseCompletionsData, ThrowOnError>) => (options.client ?? client).post<ReprocessCourseCompletionsResponses, unknown, ThrowOnError, 'data'>({
+export const reprocessCourseCompletions = <ThrowOnError extends boolean = true>(options: Options<ReprocessCourseCompletionsData, ThrowOnError>) => (options.client ?? client).post<ReprocessCourseCompletionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zReprocessCourseCompletionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/reprocess-completions',
@@ -1240,7 +1240,7 @@ export const reprocessCourseCompletions = <ThrowOnError extends boolean = false>
  *
  * POST /api/v0/main-frontend/courses/:course_id/generate-join-code - Generates a code that is used as a part of URL to join course
  */
-export const setCourseJoinCode = <ThrowOnError extends boolean = false>(options: Options<SetCourseJoinCodeData, ThrowOnError>) => (options.client ?? client).post<SetCourseJoinCodeResponses, unknown, ThrowOnError, 'data'>({
+export const setCourseJoinCode = <ThrowOnError extends boolean = true>(options: Options<SetCourseJoinCodeData, ThrowOnError>) => (options.client ?? client).post<SetCourseJoinCodeResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/set-join-code',
     ...options
@@ -1253,7 +1253,7 @@ export const setCourseJoinCode = <ThrowOnError extends boolean = false>(options:
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getCourseCompletionsHistoryAllLanguageVersions = <ThrowOnError extends boolean = false>(options: Options<GetCourseCompletionsHistoryAllLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryAllLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseCompletionsHistoryAllLanguageVersions = <ThrowOnError extends boolean = true>(options: Options<GetCourseCompletionsHistoryAllLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryAllLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseCompletionsHistoryAllLanguageVersionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}',
@@ -1263,7 +1263,7 @@ export const getCourseCompletionsHistoryAllLanguageVersions = <ThrowOnError exte
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/all-language-versions/total-users-started`
  */
-export const getTotalUsersStartedAllLanguageVersions = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersStartedAllLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedAllLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersStartedAllLanguageVersions = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersStartedAllLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedAllLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersStartedAllLanguageVersionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/total-users-started',
@@ -1277,7 +1277,7 @@ export const getTotalUsersStartedAllLanguageVersions = <ThrowOnError extends boo
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getUniqueUsersStartingHistoryAllLanguageVersions = <ThrowOnError extends boolean = false>(options: Options<GetUniqueUsersStartingHistoryAllLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryAllLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
+export const getUniqueUsersStartingHistoryAllLanguageVersions = <ThrowOnError extends boolean = true>(options: Options<GetUniqueUsersStartingHistoryAllLanguageVersionsData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryAllLanguageVersionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUniqueUsersStartingHistoryAllLanguageVersionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/users-starting-history/{granularity}/{time_window}',
@@ -1291,7 +1291,7 @@ export const getUniqueUsersStartingHistoryAllLanguageVersions = <ThrowOnError ex
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getAvgTimeToFirstSubmissionHistory = <ThrowOnError extends boolean = false>(options: Options<GetAvgTimeToFirstSubmissionHistoryData, ThrowOnError>) => (options.client ?? client).get<GetAvgTimeToFirstSubmissionHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const getAvgTimeToFirstSubmissionHistory = <ThrowOnError extends boolean = true>(options: Options<GetAvgTimeToFirstSubmissionHistoryData, ThrowOnError>) => (options.client ?? client).get<GetAvgTimeToFirstSubmissionHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetAvgTimeToFirstSubmissionHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/avg-time-to-first-submission/{granularity}/{time_window}',
@@ -1305,7 +1305,7 @@ export const getAvgTimeToFirstSubmissionHistory = <ThrowOnError extends boolean 
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getCourseCompletionsHistoryByInstance = <ThrowOnError extends boolean = false>(options: Options<GetCourseCompletionsHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseCompletionsHistoryByInstance = <ThrowOnError extends boolean = true>(options: Options<GetCourseCompletionsHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseCompletionsHistoryByInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/completions-history/{granularity}/{time_window}',
@@ -1319,7 +1319,7 @@ export const getCourseCompletionsHistoryByInstance = <ThrowOnError extends boole
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getFirstExerciseSubmissionsHistoryByInstance = <ThrowOnError extends boolean = false>(options: Options<GetFirstExerciseSubmissionsHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetFirstExerciseSubmissionsHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getFirstExerciseSubmissionsHistoryByInstance = <ThrowOnError extends boolean = true>(options: Options<GetFirstExerciseSubmissionsHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetFirstExerciseSubmissionsHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetFirstExerciseSubmissionsHistoryByInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/first-submissions-history/{granularity}/{time_window}',
@@ -1329,7 +1329,7 @@ export const getFirstExerciseSubmissionsHistoryByInstance = <ThrowOnError extend
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-completed`
  */
-export const getTotalUsersCompletedCourseByInstance = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersCompletedCourseByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersCompletedCourseByInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersCompletedCourseByInstance = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersCompletedCourseByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersCompletedCourseByInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersCompletedCourseByInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-completed',
@@ -1339,7 +1339,7 @@ export const getTotalUsersCompletedCourseByInstance = <ThrowOnError extends bool
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-returned-exercises`
  */
-export const getTotalUsersReturnedExercisesByInstance = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersReturnedExercisesByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersReturnedExercisesByInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersReturnedExercisesByInstance = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersReturnedExercisesByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersReturnedExercisesByInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersReturnedExercisesByInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-returned-exercises',
@@ -1349,7 +1349,7 @@ export const getTotalUsersReturnedExercisesByInstance = <ThrowOnError extends bo
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/by-instance/total-users-started-course`
  */
-export const getTotalUsersStartedCourseByInstance = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersStartedCourseByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedCourseByInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersStartedCourseByInstance = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersStartedCourseByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedCourseByInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersStartedCourseByInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-started-course',
@@ -1363,7 +1363,7 @@ export const getTotalUsersStartedCourseByInstance = <ThrowOnError extends boolea
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getUsersReturningExercisesHistoryByInstance = <ThrowOnError extends boolean = false>(options: Options<GetUsersReturningExercisesHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetUsersReturningExercisesHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getUsersReturningExercisesHistoryByInstance = <ThrowOnError extends boolean = true>(options: Options<GetUsersReturningExercisesHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetUsersReturningExercisesHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUsersReturningExercisesHistoryByInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-returning-exercises-history/{granularity}/{time_window}',
@@ -1377,7 +1377,7 @@ export const getUsersReturningExercisesHistoryByInstance = <ThrowOnError extends
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getUniqueUsersStartingHistoryByInstance = <ThrowOnError extends boolean = false>(options: Options<GetUniqueUsersStartingHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getUniqueUsersStartingHistoryByInstance = <ThrowOnError extends boolean = true>(options: Options<GetUniqueUsersStartingHistoryByInstanceData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryByInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUniqueUsersStartingHistoryByInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-starting-history/{granularity}/{time_window}',
@@ -1392,7 +1392,7 @@ export const getUniqueUsersStartingHistoryByInstance = <ThrowOnError extends boo
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getFirstExerciseSubmissionsByModule = <ThrowOnError extends boolean = false>(options: Options<GetFirstExerciseSubmissionsByModuleData, ThrowOnError>) => (options.client ?? client).get<GetFirstExerciseSubmissionsByModuleResponses, unknown, ThrowOnError, 'data'>({
+export const getFirstExerciseSubmissionsByModule = <ThrowOnError extends boolean = true>(options: Options<GetFirstExerciseSubmissionsByModuleData, ThrowOnError>) => (options.client ?? client).get<GetFirstExerciseSubmissionsByModuleResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetFirstExerciseSubmissionsByModuleResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/by-module/first-submissions/{granularity}/{time_window}',
@@ -1402,7 +1402,7 @@ export const getFirstExerciseSubmissionsByModule = <ThrowOnError extends boolean
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}`
  */
-export const getCohortActivityHistory = <ThrowOnError extends boolean = false>(options: Options<GetCohortActivityHistoryData, ThrowOnError>) => (options.client ?? client).get<GetCohortActivityHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const getCohortActivityHistory = <ThrowOnError extends boolean = true>(options: Options<GetCohortActivityHistoryData, ThrowOnError>) => (options.client ?? client).get<GetCohortActivityHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCohortActivityHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}',
@@ -1417,7 +1417,7 @@ export const getCohortActivityHistory = <ThrowOnError extends boolean = false>(o
  * - start_date: YYYY-MM-DD
  * - end_date: YYYY-MM-DD
  */
-export const getCourseCompletionsHistoryCustomTimePeriod = <ThrowOnError extends boolean = false>(options: Options<GetCourseCompletionsHistoryCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseCompletionsHistoryCustomTimePeriod = <ThrowOnError extends boolean = true>(options: Options<GetCourseCompletionsHistoryCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseCompletionsHistoryCustomTimePeriodResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/completions-history/custom-time-period/{start_date}/{end_date}',
@@ -1431,7 +1431,7 @@ export const getCourseCompletionsHistoryCustomTimePeriod = <ThrowOnError extends
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getCourseCompletionsHistory = <ThrowOnError extends boolean = false>(options: Options<GetCourseCompletionsHistoryData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseCompletionsHistory = <ThrowOnError extends boolean = true>(options: Options<GetCourseCompletionsHistoryData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionsHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseCompletionsHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/completions-history/{granularity}/{time_window}',
@@ -1445,7 +1445,7 @@ export const getCourseCompletionsHistory = <ThrowOnError extends boolean = false
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getFirstExerciseSubmissionsHistory = <ThrowOnError extends boolean = false>(options: Options<GetFirstExerciseSubmissionsHistoryData, ThrowOnError>) => (options.client ?? client).get<GetFirstExerciseSubmissionsHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const getFirstExerciseSubmissionsHistory = <ThrowOnError extends boolean = true>(options: Options<GetFirstExerciseSubmissionsHistoryData, ThrowOnError>) => (options.client ?? client).get<GetFirstExerciseSubmissionsHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetFirstExerciseSubmissionsHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/first-submissions-history/{granularity}/{time_window}',
@@ -1459,7 +1459,7 @@ export const getFirstExerciseSubmissionsHistory = <ThrowOnError extends boolean 
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getStudentCompletionsByCountry = <ThrowOnError extends boolean = false>(options: Options<GetStudentCompletionsByCountryData, ThrowOnError>) => (options.client ?? client).get<GetStudentCompletionsByCountryResponses, unknown, ThrowOnError, 'data'>({
+export const getStudentCompletionsByCountry = <ThrowOnError extends boolean = true>(options: Options<GetStudentCompletionsByCountryData, ThrowOnError>) => (options.client ?? client).get<GetStudentCompletionsByCountryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStudentCompletionsByCountryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/student-completions-by-country/{granularity}/{time_window}/{country}',
@@ -1473,7 +1473,7 @@ export const getStudentCompletionsByCountry = <ThrowOnError extends boolean = fa
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getStudentEnrollmentsByCountry = <ThrowOnError extends boolean = false>(options: Options<GetStudentEnrollmentsByCountryData, ThrowOnError>) => (options.client ?? client).get<GetStudentEnrollmentsByCountryResponses, unknown, ThrowOnError, 'data'>({
+export const getStudentEnrollmentsByCountry = <ThrowOnError extends boolean = true>(options: Options<GetStudentEnrollmentsByCountryData, ThrowOnError>) => (options.client ?? client).get<GetStudentEnrollmentsByCountryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStudentEnrollmentsByCountryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/student-enrollments-by-country/{granularity}/{time_window}/{country}',
@@ -1485,7 +1485,7 @@ export const getStudentEnrollmentsByCountry = <ThrowOnError extends boolean = fa
  *
  * Returns all enrolled students grouped by country.
  */
-export const getStudentsByCountryTotals = <ThrowOnError extends boolean = false>(options: Options<GetStudentsByCountryTotalsData, ThrowOnError>) => (options.client ?? client).get<GetStudentsByCountryTotalsResponses, unknown, ThrowOnError, 'data'>({
+export const getStudentsByCountryTotals = <ThrowOnError extends boolean = true>(options: Options<GetStudentsByCountryTotalsData, ThrowOnError>) => (options.client ?? client).get<GetStudentsByCountryTotalsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStudentsByCountryTotalsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/students-by-country-totals',
@@ -1495,7 +1495,7 @@ export const getStudentsByCountryTotals = <ThrowOnError extends boolean = false>
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/total-users-completed`
  */
-export const getTotalUsersCompletedCourse = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersCompletedCourseData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersCompletedCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersCompletedCourse = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersCompletedCourseData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersCompletedCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersCompletedCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed',
@@ -1505,7 +1505,7 @@ export const getTotalUsersCompletedCourse = <ThrowOnError extends boolean = fals
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/total-users-completed/custom-time-period/{start_date}/{end_date}`
  */
-export const getTotalUsersCompletedCourseCustomTimePeriod = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersCompletedCourseCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersCompletedCourseCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersCompletedCourseCustomTimePeriod = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersCompletedCourseCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersCompletedCourseCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersCompletedCourseCustomTimePeriodResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed/custom-time-period/{start_date}/{end_date}',
@@ -1515,7 +1515,7 @@ export const getTotalUsersCompletedCourseCustomTimePeriod = <ThrowOnError extend
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/total-users-returned-exercises`
  */
-export const getTotalUsersReturnedExercises = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersReturnedExercisesData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersReturnedExercisesResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersReturnedExercises = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersReturnedExercisesData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersReturnedExercisesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersReturnedExercisesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises',
@@ -1525,7 +1525,7 @@ export const getTotalUsersReturnedExercises = <ThrowOnError extends boolean = fa
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}`
  */
-export const getTotalUsersReturnedExercisesCustomTimePeriod = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersReturnedExercisesCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersReturnedExercisesCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersReturnedExercisesCustomTimePeriod = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersReturnedExercisesCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersReturnedExercisesCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersReturnedExercisesCustomTimePeriodResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}',
@@ -1535,7 +1535,7 @@ export const getTotalUsersReturnedExercisesCustomTimePeriod = <ThrowOnError exte
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course`
  */
-export const getTotalUsersStartedCourse = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersStartedCourseData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersStartedCourse = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersStartedCourseData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersStartedCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course',
@@ -1545,7 +1545,7 @@ export const getTotalUsersStartedCourse = <ThrowOnError extends boolean = false>
 /**
  * GET `/api/v0/main-frontend/{course_id}/stats/total-users-started-course/custom-time-period/{start_date}/{end_date}`
  */
-export const getTotalUsersStartedCourseCustomTimePeriod = <ThrowOnError extends boolean = false>(options: Options<GetTotalUsersStartedCourseCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedCourseCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
+export const getTotalUsersStartedCourseCustomTimePeriod = <ThrowOnError extends boolean = true>(options: Options<GetTotalUsersStartedCourseCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetTotalUsersStartedCourseCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetTotalUsersStartedCourseCustomTimePeriodResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course/custom-time-period/{start_date}/{end_date}',
@@ -1559,7 +1559,7 @@ export const getTotalUsersStartedCourseCustomTimePeriod = <ThrowOnError extends 
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getUsersReturningExercisesHistory = <ThrowOnError extends boolean = false>(options: Options<GetUsersReturningExercisesHistoryData, ThrowOnError>) => (options.client ?? client).get<GetUsersReturningExercisesHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const getUsersReturningExercisesHistory = <ThrowOnError extends boolean = true>(options: Options<GetUsersReturningExercisesHistoryData, ThrowOnError>) => (options.client ?? client).get<GetUsersReturningExercisesHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUsersReturningExercisesHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/users-returning-exercises-history/{granularity}/{time_window}',
@@ -1571,7 +1571,7 @@ export const getUsersReturningExercisesHistory = <ThrowOnError extends boolean =
  *
  * Returns unique users starting statistics with specified time period.
  */
-export const getUniqueUsersStartingHistoryCustomTimePeriod = <ThrowOnError extends boolean = false>(options: Options<GetUniqueUsersStartingHistoryCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
+export const getUniqueUsersStartingHistoryCustomTimePeriod = <ThrowOnError extends boolean = true>(options: Options<GetUniqueUsersStartingHistoryCustomTimePeriodData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryCustomTimePeriodResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUniqueUsersStartingHistoryCustomTimePeriodResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/custom-time-period/{start_date}/{end_date}',
@@ -1585,7 +1585,7 @@ export const getUniqueUsersStartingHistoryCustomTimePeriod = <ThrowOnError exten
  * - granularity: "year", "month", or "day"
  * - time_window: number of time units to look back
  */
-export const getUniqueUsersStartingHistory = <ThrowOnError extends boolean = false>(options: Options<GetUniqueUsersStartingHistoryData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const getUniqueUsersStartingHistory = <ThrowOnError extends boolean = true>(options: Options<GetUniqueUsersStartingHistoryData, ThrowOnError>) => (options.client ?? client).get<GetUniqueUsersStartingHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUniqueUsersStartingHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/{granularity}/{time_window}',
@@ -1596,7 +1596,7 @@ export const getUniqueUsersStartingHistory = <ThrowOnError extends boolean = fal
  *
  * GET `/api/v0/main-frontend/courses/:course_id/status-for-all-exercises/:user_id` - Returns status for all exercises in the course for a given user.
  */
-export const getCourseExerciseStatusesForUser = <ThrowOnError extends boolean = false>(options: Options<GetCourseExerciseStatusesForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseExerciseStatusesForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseExerciseStatusesForUser = <ThrowOnError extends boolean = true>(options: Options<GetCourseExerciseStatusesForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseExerciseStatusesForUserResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseExerciseStatusesForUserResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/status-for-all-exercises/{user_id}',
@@ -1650,7 +1650,7 @@ export const getCourseExerciseStatusesForUser = <ThrowOnError extends boolean = 
  * }
  * ```
  */
-export const getCourseStructure = <ThrowOnError extends boolean = false>(options: Options<GetCourseStructureData, ThrowOnError>) => (options.client ?? client).get<GetCourseStructureResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseStructure = <ThrowOnError extends boolean = true>(options: Options<GetCourseStructureData, ThrowOnError>) => (options.client ?? client).get<GetCourseStructureResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseStructureResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/structure',
@@ -1660,7 +1660,7 @@ export const getCourseStructure = <ThrowOnError extends boolean = false>(options
 /**
  * GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
  */
-export const getCourseStudentsCertificates = <ThrowOnError extends boolean = false>(options: Options<GetCourseStudentsCertificatesData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsCertificatesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseStudentsCertificates = <ThrowOnError extends boolean = true>(options: Options<GetCourseStudentsCertificatesData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsCertificatesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseStudentsCertificatesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/students/certificates',
@@ -1670,7 +1670,7 @@ export const getCourseStudentsCertificates = <ThrowOnError extends boolean = fal
 /**
  * GET `/api/v0/main-frontend/courses/{course_id}/students/completions`
  */
-export const getCourseStudentsCompletions = <ThrowOnError extends boolean = false>(options: Options<GetCourseStudentsCompletionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsCompletionsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseStudentsCompletions = <ThrowOnError extends boolean = true>(options: Options<GetCourseStudentsCompletionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsCompletionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseStudentsCompletionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/students/completions',
@@ -1680,7 +1680,7 @@ export const getCourseStudentsCompletions = <ThrowOnError extends boolean = fals
 /**
  * GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
  */
-export const getCourseStudentsProgress = <ThrowOnError extends boolean = false>(options: Options<GetCourseStudentsProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsProgressResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseStudentsProgress = <ThrowOnError extends boolean = true>(options: Options<GetCourseStudentsProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsProgressResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseStudentsProgressResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/students/progress',
@@ -1690,7 +1690,7 @@ export const getCourseStudentsProgress = <ThrowOnError extends boolean = false>(
 /**
  * GET `/api/v0/main-frontend/courses/{course_id}/students/users`
  */
-export const getCourseStudentsUsers = <ThrowOnError extends boolean = false>(options: Options<GetCourseStudentsUsersData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsUsersResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseStudentsUsers = <ThrowOnError extends boolean = true>(options: Options<GetCourseStudentsUsersData, ThrowOnError>) => (options.client ?? client).get<GetCourseStudentsUsersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseStudentsUsersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/students/users',
@@ -1701,7 +1701,7 @@ export const getCourseStudentsUsers = <ThrowOnError extends boolean = false>(opt
  *
  * GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns submission counts grouped by weekday and hour.
  */
-export const getCourseSubmissionCountsByExercise = <ThrowOnError extends boolean = false>(options: Options<GetCourseSubmissionCountsByExerciseData, ThrowOnError>) => (options.client ?? client).get<GetCourseSubmissionCountsByExerciseResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseSubmissionCountsByExercise = <ThrowOnError extends boolean = true>(options: Options<GetCourseSubmissionCountsByExerciseData, ThrowOnError>) => (options.client ?? client).get<GetCourseSubmissionCountsByExerciseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseSubmissionCountsByExerciseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/submission-counts-by-exercise',
@@ -1712,7 +1712,7 @@ export const getCourseSubmissionCountsByExercise = <ThrowOnError extends boolean
  *
  * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.
  */
-export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = false>(options: Options<GetCourseSuspectedCheatersData, ThrowOnError>) => (options.client ?? client).get<GetCourseSuspectedCheatersResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = true>(options: Options<GetCourseSuspectedCheatersData, ThrowOnError>) => (options.client ?? client).get<GetCourseSuspectedCheatersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseSuspectedCheatersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters',
@@ -1723,7 +1723,7 @@ export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = false>
  *
  * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
  */
-export const approveCourseSuspectedCheater = <ThrowOnError extends boolean = false>(options: Options<ApproveCourseSuspectedCheaterData, ThrowOnError>) => (options.client ?? client).post<ApproveCourseSuspectedCheaterResponses, unknown, ThrowOnError, 'data'>({
+export const approveCourseSuspectedCheater = <ThrowOnError extends boolean = true>(options: Options<ApproveCourseSuspectedCheaterData, ThrowOnError>) => (options.client ?? client).post<ApproveCourseSuspectedCheaterResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}',
     ...options
@@ -1733,7 +1733,7 @@ export const approveCourseSuspectedCheater = <ThrowOnError extends boolean = fal
  *
  * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
  */
-export const archiveCourseSuspectedCheater = <ThrowOnError extends boolean = false>(options: Options<ArchiveCourseSuspectedCheaterData, ThrowOnError>) => (options.client ?? client).post<ArchiveCourseSuspectedCheaterResponses, unknown, ThrowOnError, 'data'>({
+export const archiveCourseSuspectedCheater = <ThrowOnError extends boolean = true>(options: Options<ArchiveCourseSuspectedCheaterData, ThrowOnError>) => (options.client ?? client).post<ArchiveCourseSuspectedCheaterResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}',
     ...options
@@ -1745,7 +1745,7 @@ export const archiveCourseSuspectedCheater = <ThrowOnError extends boolean = fal
  *
  * Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
  */
-export const resetCourseProgressForEveryone = <ThrowOnError extends boolean = false>(options: Options<ResetCourseProgressForEveryoneData, ThrowOnError>) => (options.client ?? client).delete<ResetCourseProgressForEveryoneResponses, unknown, ThrowOnError, 'data'>({
+export const resetCourseProgressForEveryone = <ThrowOnError extends boolean = true>(options: Options<ResetCourseProgressForEveryoneData, ThrowOnError>) => (options.client ?? client).delete<ResetCourseProgressForEveryoneResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zResetCourseProgressForEveryoneResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-everyone',
@@ -1758,7 +1758,7 @@ export const resetCourseProgressForEveryone = <ThrowOnError extends boolean = fa
  *
  * Deletes submissions, user exercise states, and peer reviews etc. for all the course instances of this course.
  */
-export const resetCourseProgressForTeacherThemselves = <ThrowOnError extends boolean = false>(options: Options<ResetCourseProgressForTeacherThemselvesData, ThrowOnError>) => (options.client ?? client).delete<ResetCourseProgressForTeacherThemselvesResponses, unknown, ThrowOnError, 'data'>({
+export const resetCourseProgressForTeacherThemselves = <ThrowOnError extends boolean = true>(options: Options<ResetCourseProgressForTeacherThemselvesData, ThrowOnError>) => (options.client ?? client).delete<ResetCourseProgressForTeacherThemselvesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zResetCourseProgressForTeacherThemselvesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-themselves',
@@ -1769,7 +1769,7 @@ export const resetCourseProgressForTeacherThemselves = <ThrowOnError extends boo
  *
  * GET /api/v0/main-frontend/courses/${course.id}/thresholds - get all thresholds for all modules in a course.
  */
-export const getCourseThresholds = <ThrowOnError extends boolean = false>(options: Options<GetCourseThresholdsData, ThrowOnError>) => (options.client ?? client).get<GetCourseThresholdsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseThresholds = <ThrowOnError extends boolean = true>(options: Options<GetCourseThresholdsData, ThrowOnError>) => (options.client ?? client).get<GetCourseThresholdsResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/thresholds',
     ...options
@@ -1781,7 +1781,7 @@ export const getCourseThresholds = <ThrowOnError extends boolean = false>(option
  *
  * Updates reviews received for all the students in the peer review queue for a specific course. Updates only entries that have not received enough peer reviews in the table. Only available to admins.
  */
-export const updateCoursePeerReviewQueueReviewsReceived = <ThrowOnError extends boolean = false>(options: Options<UpdateCoursePeerReviewQueueReviewsReceivedData, ThrowOnError>) => (options.client ?? client).post<UpdateCoursePeerReviewQueueReviewsReceivedResponses, unknown, ThrowOnError, 'data'>({
+export const updateCoursePeerReviewQueueReviewsReceived = <ThrowOnError extends boolean = true>(options: Options<UpdateCoursePeerReviewQueueReviewsReceivedData, ThrowOnError>) => (options.client ?? client).post<UpdateCoursePeerReviewQueueReviewsReceivedResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateCoursePeerReviewQueueReviewsReceivedResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received',
@@ -1803,7 +1803,7 @@ export const updateCoursePeerReviewQueueReviewsReceived = <ThrowOnError extends 
  * BINARY_DATA
  * ```
  */
-export const uploadCourseMedia = <ThrowOnError extends boolean = false>(options: Options<UploadCourseMediaData, ThrowOnError>) => (options.client ?? client).post<UploadCourseMediaResponses, unknown, ThrowOnError, 'data'>({
+export const uploadCourseMedia = <ThrowOnError extends boolean = true>(options: Options<UploadCourseMediaData, ThrowOnError>) => (options.client ?? client).post<UploadCourseMediaResponses, unknown, ThrowOnError, 'data'>({
     ...formDataBodySerializer,
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/upload',
@@ -1818,7 +1818,7 @@ export const uploadCourseMedia = <ThrowOnError extends boolean = false>(options:
  *
  * GET `/api/v0/main-frontend/courses/:course_id/user-settings/:user_id` - Get current course settings for a specific user.
  */
-export const getCourseUserSettingsForUser = <ThrowOnError extends boolean = false>(options: Options<GetCourseUserSettingsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseUserSettingsForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseUserSettingsForUser = <ThrowOnError extends boolean = true>(options: Options<GetCourseUserSettingsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseUserSettingsForUserResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseUserSettingsForUserResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/user-settings/{user_id}',
@@ -1829,7 +1829,7 @@ export const getCourseUserSettingsForUser = <ThrowOnError extends boolean = fals
  *
  * GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns submission counts grouped by weekday and hour.
  */
-export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolean = false>(options: Options<GetCourseWeekdayHourSubmissionCountsData, ThrowOnError>) => (options.client ?? client).get<GetCourseWeekdayHourSubmissionCountsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolean = true>(options: Options<GetCourseWeekdayHourSubmissionCountsData, ThrowOnError>) => (options.client ?? client).get<GetCourseWeekdayHourSubmissionCountsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseWeekdayHourSubmissionCountsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/weekday-hour-submission-counts',
@@ -1840,7 +1840,7 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
  *
  * GET `/api/v0/main-frontend/email-templates`
  */
-export const getEmailTemplates = <ThrowOnError extends boolean = false>(options?: Options<GetEmailTemplatesData, ThrowOnError>) => (options?.client ?? client).get<GetEmailTemplatesResponses, unknown, ThrowOnError, 'data'>({
+export const getEmailTemplates = <ThrowOnError extends boolean = true>(options?: Options<GetEmailTemplatesData, ThrowOnError>) => (options?.client ?? client).get<GetEmailTemplatesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetEmailTemplatesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/email-templates',
@@ -1851,7 +1851,7 @@ export const getEmailTemplates = <ThrowOnError extends boolean = false>(options?
  *
  * DELETE `/api/v0/main-frontend/email-templates/:id`
  */
-export const deleteEmailTemplate = <ThrowOnError extends boolean = false>(options: Options<DeleteEmailTemplateData, ThrowOnError>) => (options.client ?? client).delete<DeleteEmailTemplateResponses, unknown, ThrowOnError, 'data'>({
+export const deleteEmailTemplate = <ThrowOnError extends boolean = true>(options: Options<DeleteEmailTemplateData, ThrowOnError>) => (options.client ?? client).delete<DeleteEmailTemplateResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeleteEmailTemplateResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/email-templates/{email_template_id}',
@@ -1862,7 +1862,7 @@ export const deleteEmailTemplate = <ThrowOnError extends boolean = false>(option
  *
  * GET `/api/v0/main-frontend/exam/:exam_id/exam-exercises` - Returns all the exercises with exam_id.
  */
-export const getExamExercises = <ThrowOnError extends boolean = false>(options: Options<GetExamExercisesData, ThrowOnError>) => (options.client ?? client).get<GetExamExercisesResponses, unknown, ThrowOnError, 'data'>({
+export const getExamExercises = <ThrowOnError extends boolean = true>(options: Options<GetExamExercisesData, ThrowOnError>) => (options.client ?? client).get<GetExamExercisesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExamExercisesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{exam_id}/exam-exercises',
@@ -1873,7 +1873,7 @@ export const getExamExercises = <ThrowOnError extends boolean = false>(options: 
  *
  * POST `/api/v0/main-frontend/exam/:exam_id/release-grades` - Publishes grading results of an exam by updating user_exercise_states according to teacher_grading_decisons and changes teacher_grading_decisions hidden field to false. Takes teacher grading decision ids as input.
  */
-export const releaseExamGrades = <ThrowOnError extends boolean = false>(options: Options<ReleaseExamGradesData, ThrowOnError>) => (options.client ?? client).post<ReleaseExamGradesResponses, unknown, ThrowOnError, 'data'>({
+export const releaseExamGrades = <ThrowOnError extends boolean = true>(options: Options<ReleaseExamGradesData, ThrowOnError>) => (options.client ?? client).post<ReleaseExamGradesResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{exam_id}/release-grades',
     ...options,
@@ -1887,7 +1887,7 @@ export const releaseExamGrades = <ThrowOnError extends boolean = false>(options:
  *
  * GET `/api/v0/main-frontend/exam/:exam_id/submissions-with-exam-id` - Returns all the exercise submissions and user exercise states with exam_id.
  */
-export const getExamSubmissionsWithExamId = <ThrowOnError extends boolean = false>(options: Options<GetExamSubmissionsWithExamIdData, ThrowOnError>) => (options.client ?? client).get<GetExamSubmissionsWithExamIdResponses, unknown, ThrowOnError, 'data'>({
+export const getExamSubmissionsWithExamId = <ThrowOnError extends boolean = true>(options: Options<GetExamSubmissionsWithExamIdData, ThrowOnError>) => (options.client ?? client).get<GetExamSubmissionsWithExamIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExamSubmissionsWithExamIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{exam_id}/submissions-with-exam-id',
@@ -1898,7 +1898,7 @@ export const getExamSubmissionsWithExamId = <ThrowOnError extends boolean = fals
  *
  * GET `/api/v0/main-frontend/exam/:exercise_id/submissions-with-exercise_id` - Returns all the exercise submissions and user exercise states with exercise_id.
  */
-export const getExamSubmissionsWithExerciseId = <ThrowOnError extends boolean = false>(options: Options<GetExamSubmissionsWithExerciseIdData, ThrowOnError>) => (options.client ?? client).get<GetExamSubmissionsWithExerciseIdResponses, unknown, ThrowOnError, 'data'>({
+export const getExamSubmissionsWithExerciseId = <ThrowOnError extends boolean = true>(options: Options<GetExamSubmissionsWithExerciseIdData, ThrowOnError>) => (options.client ?? client).get<GetExamSubmissionsWithExerciseIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExamSubmissionsWithExerciseIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{exercise_id}/submissions-with-exercise-id',
@@ -1909,7 +1909,7 @@ export const getExamSubmissionsWithExerciseId = <ThrowOnError extends boolean = 
  *
  * GET `/api/v0/main-frontend/exams/:id
  */
-export const getExam = <ThrowOnError extends boolean = false>(options: Options<GetExamData, ThrowOnError>) => (options.client ?? client).get<GetExamResponses, unknown, ThrowOnError, 'data'>({
+export const getExam = <ThrowOnError extends boolean = true>(options: Options<GetExamData, ThrowOnError>) => (options.client ?? client).get<GetExamResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExamResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{id}',
@@ -1920,7 +1920,7 @@ export const getExam = <ThrowOnError extends boolean = false>(options: Options<G
  *
  * * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
  */
-export const duplicateExam = <ThrowOnError extends boolean = false>(options: Options<DuplicateExamData, ThrowOnError>) => (options.client ?? client).post<DuplicateExamResponses, unknown, ThrowOnError, 'data'>({
+export const duplicateExam = <ThrowOnError extends boolean = true>(options: Options<DuplicateExamData, ThrowOnError>) => (options.client ?? client).post<DuplicateExamResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDuplicateExamResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{id}/duplicate',
@@ -1935,7 +1935,7 @@ export const duplicateExam = <ThrowOnError extends boolean = false>(options: Opt
  *
  * POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
  */
-export const editExam = <ThrowOnError extends boolean = false>(options: Options<EditExamData, ThrowOnError>) => (options.client ?? client).post<EditExamResponses, unknown, ThrowOnError, 'data'>({
+export const editExam = <ThrowOnError extends boolean = true>(options: Options<EditExamData, ThrowOnError>) => (options.client ?? client).post<EditExamResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{id}/edit-exam',
     ...options,
@@ -1949,7 +1949,7 @@ export const editExam = <ThrowOnError extends boolean = false>(options: Options<
  *
  * GET `/api/v0/main-frontend/exams/:id/export-points`
  */
-export const exportExamPointsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportExamPointsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExamPointsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportExamPointsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportExamPointsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExamPointsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportExamPointsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{id}/export-points',
@@ -1960,7 +1960,7 @@ export const exportExamPointsCsv = <ThrowOnError extends boolean = false>(option
  *
  * GET `/api/v0/main-frontend/exams/:id/export-submissions`
  */
-export const exportExamSubmissionsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportExamSubmissionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExamSubmissionsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportExamSubmissionsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportExamSubmissionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExamSubmissionsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportExamSubmissionsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{id}/export-submissions',
@@ -1971,7 +1971,7 @@ export const exportExamSubmissionsCsv = <ThrowOnError extends boolean = false>(o
  *
  * POST `/api/v0/main-frontend/exams/:id/set`
  */
-export const setExamCourse = <ThrowOnError extends boolean = false>(options: Options<SetExamCourseData, ThrowOnError>) => (options.client ?? client).post<SetExamCourseResponses, unknown, ThrowOnError, 'data'>({
+export const setExamCourse = <ThrowOnError extends boolean = true>(options: Options<SetExamCourseData, ThrowOnError>) => (options.client ?? client).post<SetExamCourseResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{id}/set',
     ...options,
@@ -1985,7 +1985,7 @@ export const setExamCourse = <ThrowOnError extends boolean = false>(options: Opt
  *
  * POST `/api/v0/main-frontend/exams/:id/unset`
  */
-export const unsetExamCourse = <ThrowOnError extends boolean = false>(options: Options<UnsetExamCourseData, ThrowOnError>) => (options.client ?? client).post<UnsetExamCourseResponses, unknown, ThrowOnError, 'data'>({
+export const unsetExamCourse = <ThrowOnError extends boolean = true>(options: Options<UnsetExamCourseData, ThrowOnError>) => (options.client ?? client).post<UnsetExamCourseResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exams/{id}/unset',
     ...options,
@@ -1999,7 +1999,7 @@ export const unsetExamCourse = <ThrowOnError extends boolean = false>(options: O
  *
  * GET `/api/v0/main-frontend/exercise-repositories/course/:id`
  */
-export const getExerciseRepositoriesForCourse = <ThrowOnError extends boolean = false>(options: Options<GetExerciseRepositoriesForCourseData, ThrowOnError>) => (options.client ?? client).get<GetExerciseRepositoriesForCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseRepositoriesForCourse = <ThrowOnError extends boolean = true>(options: Options<GetExerciseRepositoriesForCourseData, ThrowOnError>) => (options.client ?? client).get<GetExerciseRepositoriesForCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseRepositoriesForCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-repositories/course/{course_id}',
@@ -2010,7 +2010,7 @@ export const getExerciseRepositoriesForCourse = <ThrowOnError extends boolean = 
  *
  * GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
  */
-export const getExerciseRepositoriesForExam = <ThrowOnError extends boolean = false>(options: Options<GetExerciseRepositoriesForExamData, ThrowOnError>) => (options.client ?? client).get<GetExerciseRepositoriesForExamResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseRepositoriesForExam = <ThrowOnError extends boolean = true>(options: Options<GetExerciseRepositoriesForExamData, ThrowOnError>) => (options.client ?? client).get<GetExerciseRepositoriesForExamResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseRepositoriesForExamResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-repositories/exam/{exam_id}',
@@ -2021,7 +2021,7 @@ export const getExerciseRepositoriesForExam = <ThrowOnError extends boolean = fa
  *
  * POST `/api/v0/main-frontend/exercise-repositories/new
  */
-export const createExerciseRepository = <ThrowOnError extends boolean = false>(options: Options<CreateExerciseRepositoryData, ThrowOnError>) => (options.client ?? client).post<CreateExerciseRepositoryResponses, unknown, ThrowOnError, 'data'>({
+export const createExerciseRepository = <ThrowOnError extends boolean = true>(options: Options<CreateExerciseRepositoryData, ThrowOnError>) => (options.client ?? client).post<CreateExerciseRepositoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateExerciseRepositoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-repositories/new',
@@ -2036,7 +2036,7 @@ export const createExerciseRepository = <ThrowOnError extends boolean = false>(o
  *
  * DELETE `/api/v0/main-frontend/exercise-repositories/:id`
  */
-export const deleteExerciseRepository = <ThrowOnError extends boolean = false>(options: Options<DeleteExerciseRepositoryData, ThrowOnError>) => (options.client ?? client).delete<DeleteExerciseRepositoryResponses, unknown, ThrowOnError, 'data'>({
+export const deleteExerciseRepository = <ThrowOnError extends boolean = true>(options: Options<DeleteExerciseRepositoryData, ThrowOnError>) => (options.client ?? client).delete<DeleteExerciseRepositoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeleteExerciseRepositoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-repositories/{id}',
@@ -2047,7 +2047,7 @@ export const deleteExerciseRepository = <ThrowOnError extends boolean = false>(o
  *
  * PUT `/api/v0/main-frontend/exercise-repositories/:id`
  */
-export const updateExerciseRepository = <ThrowOnError extends boolean = false>(options: Options<UpdateExerciseRepositoryData, ThrowOnError>) => (options.client ?? client).put<UpdateExerciseRepositoryResponses, unknown, ThrowOnError, 'data'>({
+export const updateExerciseRepository = <ThrowOnError extends boolean = true>(options: Options<UpdateExerciseRepositoryData, ThrowOnError>) => (options.client ?? client).put<UpdateExerciseRepositoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateExerciseRepositoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-repositories/{id}',
@@ -2062,7 +2062,7 @@ export const updateExerciseRepository = <ThrowOnError extends boolean = false>(o
  *
  * GET `/api/v0/main-frontend/exercise-services`
  */
-export const getExerciseServices = <ThrowOnError extends boolean = false>(options?: Options<GetExerciseServicesData, ThrowOnError>) => (options?.client ?? client).get<GetExerciseServicesResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseServices = <ThrowOnError extends boolean = true>(options?: Options<GetExerciseServicesData, ThrowOnError>) => (options?.client ?? client).get<GetExerciseServicesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseServicesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-services/',
@@ -2073,7 +2073,7 @@ export const getExerciseServices = <ThrowOnError extends boolean = false>(option
  *
  * POST `/api/v0/main-frontend/exercise-services`
  */
-export const createExerciseService = <ThrowOnError extends boolean = false>(options: Options<CreateExerciseServiceData, ThrowOnError>) => (options.client ?? client).post<CreateExerciseServiceResponses, unknown, ThrowOnError, 'data'>({
+export const createExerciseService = <ThrowOnError extends boolean = true>(options: Options<CreateExerciseServiceData, ThrowOnError>) => (options.client ?? client).post<CreateExerciseServiceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateExerciseServiceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-services/',
@@ -2084,7 +2084,7 @@ export const createExerciseService = <ThrowOnError extends boolean = false>(opti
     }
 });
 
-export const deleteExerciseService = <ThrowOnError extends boolean = false>(options: Options<DeleteExerciseServiceData, ThrowOnError>) => (options.client ?? client).delete<DeleteExerciseServiceResponses, unknown, ThrowOnError, 'data'>({
+export const deleteExerciseService = <ThrowOnError extends boolean = true>(options: Options<DeleteExerciseServiceData, ThrowOnError>) => (options.client ?? client).delete<DeleteExerciseServiceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeleteExerciseServiceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}',
@@ -2095,7 +2095,7 @@ export const deleteExerciseService = <ThrowOnError extends boolean = false>(opti
  *
  * GET `/api/v0/main-frontend/exercise-services/:id`
  */
-export const getExerciseServiceById = <ThrowOnError extends boolean = false>(options: Options<GetExerciseServiceByIdData, ThrowOnError>) => (options.client ?? client).get<GetExerciseServiceByIdResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseServiceById = <ThrowOnError extends boolean = true>(options: Options<GetExerciseServiceByIdData, ThrowOnError>) => (options.client ?? client).get<GetExerciseServiceByIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseServiceByIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}',
@@ -2106,7 +2106,7 @@ export const getExerciseServiceById = <ThrowOnError extends boolean = false>(opt
  *
  * PUT `/api/v0/main-frontend/exercise-services/:id`
  */
-export const updateExerciseService = <ThrowOnError extends boolean = false>(options: Options<UpdateExerciseServiceData, ThrowOnError>) => (options.client ?? client).put<UpdateExerciseServiceResponses, unknown, ThrowOnError, 'data'>({
+export const updateExerciseService = <ThrowOnError extends boolean = true>(options: Options<UpdateExerciseServiceData, ThrowOnError>) => (options.client ?? client).put<UpdateExerciseServiceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateExerciseServiceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}',
@@ -2121,7 +2121,7 @@ export const updateExerciseService = <ThrowOnError extends boolean = false>(opti
  *
  * PUT `/api/v0/main-frontend/exercise-slide-submissions/add_teacher_grading"` - Adds a new teacher grading decision, without updating user exercise state
  */
-export const addTeacherGradingForExamSubmission = <ThrowOnError extends boolean = false>(options: Options<AddTeacherGradingForExamSubmissionData, ThrowOnError>) => (options.client ?? client).put<AddTeacherGradingForExamSubmissionResponses, unknown, ThrowOnError, 'data'>({
+export const addTeacherGradingForExamSubmission = <ThrowOnError extends boolean = true>(options: Options<AddTeacherGradingForExamSubmissionData, ThrowOnError>) => (options.client ?? client).put<AddTeacherGradingForExamSubmissionResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zAddTeacherGradingForExamSubmissionResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-slide-submissions/add-teacher-grading-for-exam-submission',
@@ -2136,7 +2136,7 @@ export const addTeacherGradingForExamSubmission = <ThrowOnError extends boolean 
  *
  * GET `/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/{exercise_id}/{user_id}/user-exercise-state-info`-
  */
-export const getExamUserExerciseStateInfo = <ThrowOnError extends boolean = false>(options: Options<GetExamUserExerciseStateInfoData, ThrowOnError>) => (options.client ?? client).get<GetExamUserExerciseStateInfoResponses, unknown, ThrowOnError, 'data'>({
+export const getExamUserExerciseStateInfo = <ThrowOnError extends boolean = true>(options: Options<GetExamUserExerciseStateInfoData, ThrowOnError>) => (options.client ?? client).get<GetExamUserExerciseStateInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExamUserExerciseStateInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/user-exercise-state-info',
@@ -2147,7 +2147,7 @@ export const getExamUserExerciseStateInfo = <ThrowOnError extends boolean = fals
  *
  * GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
  */
-export const getExerciseSlideSubmissionInfo = <ThrowOnError extends boolean = false>(options: Options<GetExerciseSlideSubmissionInfoData, ThrowOnError>) => (options.client ?? client).get<GetExerciseSlideSubmissionInfoResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseSlideSubmissionInfo = <ThrowOnError extends boolean = true>(options: Options<GetExerciseSlideSubmissionInfoData, ThrowOnError>) => (options.client ?? client).get<GetExerciseSlideSubmissionInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseSlideSubmissionInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info',
@@ -2158,7 +2158,7 @@ export const getExerciseSlideSubmissionInfo = <ThrowOnError extends boolean = fa
  *
  * GET `/api/v0/main-frontend/exercises/:course_id/exercises-by-course-id` - Returns all exercises for a course with course_id
  */
-export const getExercisesByCourseId = <ThrowOnError extends boolean = false>(options: Options<GetExercisesByCourseIdData, ThrowOnError>) => (options.client ?? client).get<GetExercisesByCourseIdResponses, unknown, ThrowOnError, 'data'>({
+export const getExercisesByCourseId = <ThrowOnError extends boolean = true>(options: Options<GetExercisesByCourseIdData, ThrowOnError>) => (options.client ?? client).get<GetExercisesByCourseIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExercisesByCourseIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{course_id}/exercises-by-course-id',
@@ -2169,7 +2169,7 @@ export const getExercisesByCourseId = <ThrowOnError extends boolean = false>(opt
  *
  * POST `/api/v0/main-frontend/exercises/:course_id/reset-exercises-for-selected-users` - Resets all selected exercises for selected users and then logs the resets to exercise_reset_logs table
  */
-export const resetExercisesForSelectedUsers = <ThrowOnError extends boolean = false>(options: Options<ResetExercisesForSelectedUsersData, ThrowOnError>) => (options.client ?? client).post<ResetExercisesForSelectedUsersResponses, unknown, ThrowOnError, 'data'>({
+export const resetExercisesForSelectedUsers = <ThrowOnError extends boolean = true>(options: Options<ResetExercisesForSelectedUsersData, ThrowOnError>) => (options.client ?? client).post<ResetExercisesForSelectedUsersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zResetExercisesForSelectedUsersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{course_id}/reset-exercises-for-selected-users',
@@ -2184,7 +2184,7 @@ export const resetExercisesForSelectedUsers = <ThrowOnError extends boolean = fa
  *
  * GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
  */
-export const getExercise = <ThrowOnError extends boolean = false>(options: Options<GetExerciseData, ThrowOnError>) => (options.client ?? client).get<GetExerciseResponses, unknown, ThrowOnError, 'data'>({
+export const getExercise = <ThrowOnError extends boolean = true>(options: Options<GetExerciseData, ThrowOnError>) => (options.client ?? client).get<GetExerciseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{exercise_id}',
@@ -2195,7 +2195,7 @@ export const getExercise = <ThrowOnError extends boolean = false>(options: Optio
  *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
-export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolean = false>(options: Options<GetExerciseAnswersRequiringAttentionData, ThrowOnError>) => (options.client ?? client).get<GetExerciseAnswersRequiringAttentionResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolean = true>(options: Options<GetExerciseAnswersRequiringAttentionData, ThrowOnError>) => (options.client ?? client).get<GetExerciseAnswersRequiringAttentionResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseAnswersRequiringAttentionResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{exercise_id}/answers-requiring-attention',
@@ -2206,7 +2206,7 @@ export const getExerciseAnswersRequiringAttention = <ThrowOnError extends boolea
  *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
  */
-export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = false>(options: Options<GetExerciseCsvExportTaskOptionsData, ThrowOnError>) => (options.client ?? client).get<GetExerciseCsvExportTaskOptionsResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = true>(options: Options<GetExerciseCsvExportTaskOptionsData, ThrowOnError>) => (options.client ?? client).get<GetExerciseCsvExportTaskOptionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseCsvExportTaskOptionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options',
@@ -2217,7 +2217,7 @@ export const getExerciseCsvExportTaskOptions = <ThrowOnError extends boolean = f
  *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/export-answers-csv` - Exports all answers for one exercise task as CSV using the task's exercise service.
  */
-export const exportExerciseAnswersCsv = <ThrowOnError extends boolean = false>(options: Options<ExportExerciseAnswersCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExerciseAnswersCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportExerciseAnswersCsv = <ThrowOnError extends boolean = true>(options: Options<ExportExerciseAnswersCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExerciseAnswersCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportExerciseAnswersCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{exercise_id}/export-answers-csv',
@@ -2228,7 +2228,7 @@ export const exportExerciseAnswersCsv = <ThrowOnError extends boolean = false>(o
  *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/export-definitions-csv` - Exports one exercise task definition as CSV using the task's exercise service.
  */
-export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = false>(options: Options<ExportExerciseDefinitionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExerciseDefinitionsCsvResponses, unknown, ThrowOnError, 'data'>({
+export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = true>(options: Options<ExportExerciseDefinitionsCsvData, ThrowOnError>) => (options.client ?? client).get<ExportExerciseDefinitionsCsvResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zExportExerciseDefinitionsCsvResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{exercise_id}/export-definitions-csv',
@@ -2239,7 +2239,7 @@ export const exportExerciseDefinitionsCsv = <ThrowOnError extends boolean = fals
  *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
-export const getExerciseSubmissions = <ThrowOnError extends boolean = false>(options: Options<GetExerciseSubmissionsData, ThrowOnError>) => (options.client ?? client).get<GetExerciseSubmissionsResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseSubmissions = <ThrowOnError extends boolean = true>(options: Options<GetExerciseSubmissionsData, ThrowOnError>) => (options.client ?? client).get<GetExerciseSubmissionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseSubmissionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{exercise_id}/submissions',
@@ -2250,7 +2250,7 @@ export const getExerciseSubmissions = <ThrowOnError extends boolean = false>(opt
  *
  * GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
  */
-export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = false>(options: Options<GetExerciseSubmissionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetExerciseSubmissionsForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = true>(options: Options<GetExerciseSubmissionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetExerciseSubmissionsForUserResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetExerciseSubmissionsForUserResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/exercises/{exercise_id}/submissions/user/{user_id}',
@@ -2261,7 +2261,7 @@ export const getExerciseSubmissionsForUser = <ThrowOnError extends boolean = fal
  *
  * POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
  */
-export const markFeedbackAsRead = <ThrowOnError extends boolean = false>(options: Options<MarkFeedbackAsReadData, ThrowOnError>) => (options.client ?? client).post<MarkFeedbackAsReadResponses, unknown, ThrowOnError, 'data'>({
+export const markFeedbackAsRead = <ThrowOnError extends boolean = true>(options: Options<MarkFeedbackAsReadData, ThrowOnError>) => (options.client ?? client).post<MarkFeedbackAsReadResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/feedback/{feedback_id}',
     ...options,
@@ -2278,7 +2278,7 @@ export const markFeedbackAsRead = <ThrowOnError extends boolean = false>(options
  * * Query parameters:
  * * - year: Optional<i32> - Filter results to specific year (e.g. ?year=2023)
  */
-export const getCompletionStatsByEmailDomain = <ThrowOnError extends boolean = false>(options?: Options<GetCompletionStatsByEmailDomainData, ThrowOnError>) => (options?.client ?? client).get<GetCompletionStatsByEmailDomainResponses, unknown, ThrowOnError, 'data'>({
+export const getCompletionStatsByEmailDomain = <ThrowOnError extends boolean = true>(options?: Options<GetCompletionStatsByEmailDomainData, ThrowOnError>) => (options?.client ?? client).get<GetCompletionStatsByEmailDomainResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCompletionStatsByEmailDomainResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/global-stats/completion-stats-by-email-domain',
@@ -2293,7 +2293,7 @@ export const getCompletionStatsByEmailDomain = <ThrowOnError extends boolean = f
  * * - email_domain: String - The email domain to get stats for (required)
  * * - year: Optional<i32> - Filter results to specific year (e.g. ?year=2023)
  */
-export const getCourseCompletionStatsForEmailDomain = <ThrowOnError extends boolean = false>(options: Options<GetCourseCompletionStatsForEmailDomainData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionStatsForEmailDomainResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseCompletionStatsForEmailDomain = <ThrowOnError extends boolean = true>(options: Options<GetCourseCompletionStatsForEmailDomainData, ThrowOnError>) => (options.client ?? client).get<GetCourseCompletionStatsForEmailDomainResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseCompletionStatsForEmailDomainResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/global-stats/course-completion-stats-for-email-domain',
@@ -2307,7 +2307,7 @@ export const getCourseCompletionStatsForEmailDomain = <ThrowOnError extends bool
  * * Query parameters:
  * * - granularity: String - Either "year" or "month" (defaults to "year")
  */
-export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = <ThrowOnError extends boolean = false>(options?: Options<GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData, ThrowOnError>) => (options?.client ?? client).get<GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = <ThrowOnError extends boolean = true>(options?: Options<GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData, ThrowOnError>) => (options?.client ?? client).get<GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry',
@@ -2321,7 +2321,7 @@ export const getCourseModuleStatsByCompletionsRegisteredToStudyRegistry = <Throw
  * Query parameters:
  * - granularity: String - Either "year" or "month" (defaults to "year")
  */
-export const getNumberOfPeopleCompletedACourse = <ThrowOnError extends boolean = false>(options?: Options<GetNumberOfPeopleCompletedACourseData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleCompletedACourseResponses, unknown, ThrowOnError, 'data'>({
+export const getNumberOfPeopleCompletedACourse = <ThrowOnError extends boolean = true>(options?: Options<GetNumberOfPeopleCompletedACourseData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleCompletedACourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetNumberOfPeopleCompletedACourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/global-stats/number-of-people-completed-a-course',
@@ -2335,7 +2335,7 @@ export const getNumberOfPeopleCompletedACourse = <ThrowOnError extends boolean =
  * Query parameters:
  * - granularity: String - Either "year" or "month" (defaults to "year")
  */
-export const getNumberOfPeopleDoneAtLeastOneExercise = <ThrowOnError extends boolean = false>(options?: Options<GetNumberOfPeopleDoneAtLeastOneExerciseData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleDoneAtLeastOneExerciseResponses, unknown, ThrowOnError, 'data'>({
+export const getNumberOfPeopleDoneAtLeastOneExercise = <ThrowOnError extends boolean = true>(options?: Options<GetNumberOfPeopleDoneAtLeastOneExerciseData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleDoneAtLeastOneExerciseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetNumberOfPeopleDoneAtLeastOneExerciseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise',
@@ -2349,7 +2349,7 @@ export const getNumberOfPeopleDoneAtLeastOneExercise = <ThrowOnError extends boo
  * Query parameters:
  * - granularity: String - Either "year" or "month" (defaults to "year")
  */
-export const getNumberOfPeopleRegisteredCompletionToStudyRegistry = <ThrowOnError extends boolean = false>(options?: Options<GetNumberOfPeopleRegisteredCompletionToStudyRegistryData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses, unknown, ThrowOnError, 'data'>({
+export const getNumberOfPeopleRegisteredCompletionToStudyRegistry = <ThrowOnError extends boolean = true>(options?: Options<GetNumberOfPeopleRegisteredCompletionToStudyRegistryData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry',
@@ -2363,20 +2363,20 @@ export const getNumberOfPeopleRegisteredCompletionToStudyRegistry = <ThrowOnErro
  * Query parameters:
  * - granularity: String - Either "year" or "month" (defaults to "year")
  */
-export const getNumberOfPeopleStartedCourse = <ThrowOnError extends boolean = false>(options?: Options<GetNumberOfPeopleStartedCourseData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleStartedCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getNumberOfPeopleStartedCourse = <ThrowOnError extends boolean = true>(options?: Options<GetNumberOfPeopleStartedCourseData, ThrowOnError>) => (options?.client ?? client).get<GetNumberOfPeopleStartedCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetNumberOfPeopleStartedCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/global-stats/number-of-people-started-course',
     ...options
 });
 
-export const deleteGlossaryTerm = <ThrowOnError extends boolean = false>(options: Options<DeleteGlossaryTermData, ThrowOnError>) => (options.client ?? client).delete<DeleteGlossaryTermResponses, DeleteGlossaryTermErrors, ThrowOnError, 'data'>({
+export const deleteGlossaryTerm = <ThrowOnError extends boolean = true>(options: Options<DeleteGlossaryTermData, ThrowOnError>) => (options.client ?? client).delete<DeleteGlossaryTermResponses, DeleteGlossaryTermErrors, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/glossary/{term_id}',
     ...options
 });
 
-export const updateGlossaryTerm = <ThrowOnError extends boolean = false>(options: Options<UpdateGlossaryTermData, ThrowOnError>) => (options.client ?? client).put<UpdateGlossaryTermResponses, UpdateGlossaryTermErrors, ThrowOnError, 'data'>({
+export const updateGlossaryTerm = <ThrowOnError extends boolean = true>(options: Options<UpdateGlossaryTermData, ThrowOnError>) => (options.client ?? client).put<UpdateGlossaryTermResponses, UpdateGlossaryTermErrors, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/glossary/{term_id}',
     ...options,
@@ -2424,19 +2424,19 @@ export const updateGlossaryTerm = <ThrowOnError extends boolean = false>(options
  * }
  * ```
  */
-export const getOauthOpenidConfiguration = <ThrowOnError extends boolean = false>(options?: Options<GetOauthOpenidConfigurationData, ThrowOnError>) => (options?.client ?? client).get<GetOauthOpenidConfigurationResponses, unknown, ThrowOnError, 'data'>({
+export const getOauthOpenidConfiguration = <ThrowOnError extends boolean = true>(options?: Options<GetOauthOpenidConfigurationData, ThrowOnError>) => (options?.client ?? client).get<GetOauthOpenidConfigurationResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/.well-known/openid-configuration',
     ...options
 });
 
-export const authorizeOauthGet = <ThrowOnError extends boolean = false>(options?: Options<AuthorizeOauthGetData, ThrowOnError>) => (options?.client ?? client).get<unknown, unknown, ThrowOnError, 'data'>({
+export const authorizeOauthGet = <ThrowOnError extends boolean = true>(options?: Options<AuthorizeOauthGetData, ThrowOnError>) => (options?.client ?? client).get<unknown, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/authorize',
     ...options
 });
 
-export const authorizeOauthPost = <ThrowOnError extends boolean = false>(options: Options<AuthorizeOauthPostData, ThrowOnError>) => (options.client ?? client).post<unknown, unknown, ThrowOnError, 'data'>({
+export const authorizeOauthPost = <ThrowOnError extends boolean = true>(options: Options<AuthorizeOauthPostData, ThrowOnError>) => (options.client ?? client).post<unknown, unknown, ThrowOnError, 'data'>({
     ...urlSearchParamsBodySerializer,
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/authorize',
@@ -2447,14 +2447,14 @@ export const authorizeOauthPost = <ThrowOnError extends boolean = false>(options
     }
 });
 
-export const getOauthAuthorizedClients = <ThrowOnError extends boolean = false>(options?: Options<GetOauthAuthorizedClientsData, ThrowOnError>) => (options?.client ?? client).get<GetOauthAuthorizedClientsResponses, unknown, ThrowOnError, 'data'>({
+export const getOauthAuthorizedClients = <ThrowOnError extends boolean = true>(options?: Options<GetOauthAuthorizedClientsData, ThrowOnError>) => (options?.client ?? client).get<GetOauthAuthorizedClientsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOauthAuthorizedClientsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/authorized-clients',
     ...options
 });
 
-export const deleteOauthAuthorizedClient = <ThrowOnError extends boolean = false>(options: Options<DeleteOauthAuthorizedClientData, ThrowOnError>) => (options.client ?? client).delete<DeleteOauthAuthorizedClientResponses, unknown, ThrowOnError, 'data'>({
+export const deleteOauthAuthorizedClient = <ThrowOnError extends boolean = true>(options: Options<DeleteOauthAuthorizedClientData, ThrowOnError>) => (options.client ?? client).delete<DeleteOauthAuthorizedClientResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeleteOauthAuthorizedClientResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/authorized-clients/{client_id}',
@@ -2482,7 +2482,7 @@ export const deleteOauthAuthorizedClient = <ThrowOnError extends boolean = false
  * Location: /api/v0/main-frontend/oauth/authorize?client_id=...
  * ```
  */
-export const approveOauthConsent = <ThrowOnError extends boolean = false>(options: Options<ApproveOauthConsentData, ThrowOnError>) => (options.client ?? client).post<ApproveOauthConsentResponses, unknown, ThrowOnError, 'data'>({
+export const approveOauthConsent = <ThrowOnError extends boolean = true>(options: Options<ApproveOauthConsentData, ThrowOnError>) => (options.client ?? client).post<ApproveOauthConsentResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zApproveOauthConsentResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/consent',
@@ -2511,7 +2511,7 @@ export const approveOauthConsent = <ThrowOnError extends boolean = false>(option
  * Location: http://localhost?error=access_denied&state=random123
  * ```
  */
-export const denyOauthConsent = <ThrowOnError extends boolean = false>(options: Options<DenyOauthConsentData, ThrowOnError>) => (options.client ?? client).post<DenyOauthConsentResponses, unknown, ThrowOnError, 'data'>({
+export const denyOauthConsent = <ThrowOnError extends boolean = true>(options: Options<DenyOauthConsentData, ThrowOnError>) => (options.client ?? client).post<DenyOauthConsentResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDenyOauthConsentResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/consent/deny',
@@ -2595,7 +2595,7 @@ export const denyOauthConsent = <ThrowOnError extends boolean = false>(options: 
  * }
  * ```
  */
-export const introspectOauthToken = <ThrowOnError extends boolean = false>(options: Options<IntrospectOauthTokenData, ThrowOnError>) => (options.client ?? client).post<IntrospectOauthTokenResponses, unknown, ThrowOnError, 'data'>({
+export const introspectOauthToken = <ThrowOnError extends boolean = true>(options: Options<IntrospectOauthTokenData, ThrowOnError>) => (options.client ?? client).post<IntrospectOauthTokenResponses, unknown, ThrowOnError, 'data'>({
     ...urlSearchParamsBodySerializer,
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/introspect',
@@ -2634,7 +2634,7 @@ export const introspectOauthToken = <ThrowOnError extends boolean = false>(optio
  * }
  * ```
  */
-export const getOauthJwks = <ThrowOnError extends boolean = false>(options?: Options<GetOauthJwksData, ThrowOnError>) => (options?.client ?? client).get<GetOauthJwksResponses, unknown, ThrowOnError, 'data'>({
+export const getOauthJwks = <ThrowOnError extends boolean = true>(options?: Options<GetOauthJwksData, ThrowOnError>) => (options?.client ?? client).get<GetOauthJwksResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/jwks.json',
     ...options
@@ -2670,7 +2670,7 @@ export const getOauthJwks = <ThrowOnError extends boolean = false>(options?: Opt
  * HTTP/1.1 200 OK
  * ```
  */
-export const revokeOauthToken = <ThrowOnError extends boolean = false>(options: Options<RevokeOauthTokenData, ThrowOnError>) => (options.client ?? client).post<RevokeOauthTokenResponses, unknown, ThrowOnError, 'data'>({
+export const revokeOauthToken = <ThrowOnError extends boolean = true>(options: Options<RevokeOauthTokenData, ThrowOnError>) => (options.client ?? client).post<RevokeOauthTokenResponses, unknown, ThrowOnError, 'data'>({
     ...urlSearchParamsBodySerializer,
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/revoke',
@@ -2750,7 +2750,7 @@ export const revokeOauthToken = <ThrowOnError extends boolean = false>(options: 
  * WWW-Authenticate: DPoP error="use_dpop_proof", error_description="Missing DPoP header"
  * ```
  */
-export const exchangeOauthToken = <ThrowOnError extends boolean = false>(options: Options<ExchangeOauthTokenData, ThrowOnError>) => (options.client ?? client).post<ExchangeOauthTokenResponses, ExchangeOauthTokenErrors, ThrowOnError, 'data'>({
+export const exchangeOauthToken = <ThrowOnError extends boolean = true>(options: Options<ExchangeOauthTokenData, ThrowOnError>) => (options.client ?? client).post<ExchangeOauthTokenResponses, ExchangeOauthTokenErrors, ThrowOnError, 'data'>({
     ...urlSearchParamsBodySerializer,
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/token',
@@ -2761,13 +2761,13 @@ export const exchangeOauthToken = <ThrowOnError extends boolean = false>(options
     }
 });
 
-export const getOauthUserInfo = <ThrowOnError extends boolean = false>(options?: Options<GetOauthUserInfoData, ThrowOnError>) => (options?.client ?? client).get<GetOauthUserInfoResponses, GetOauthUserInfoErrors, ThrowOnError, 'data'>({
+export const getOauthUserInfo = <ThrowOnError extends boolean = true>(options?: Options<GetOauthUserInfoData, ThrowOnError>) => (options?.client ?? client).get<GetOauthUserInfoResponses, GetOauthUserInfoErrors, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/userinfo',
     ...options
 });
 
-export const postOauthUserInfo = <ThrowOnError extends boolean = false>(options?: Options<PostOauthUserInfoData, ThrowOnError>) => (options?.client ?? client).post<PostOauthUserInfoResponses, PostOauthUserInfoErrors, ThrowOnError, 'data'>({
+export const postOauthUserInfo = <ThrowOnError extends boolean = true>(options?: Options<PostOauthUserInfoData, ThrowOnError>) => (options?.client ?? client).post<PostOauthUserInfoResponses, PostOauthUserInfoErrors, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/oauth/userinfo',
     ...options
@@ -2777,7 +2777,7 @@ export const postOauthUserInfo = <ThrowOnError extends boolean = false>(options?
  *
  * GET `/api/v0/main-frontend/org/:slug
  */
-export const getOrganizationBySlug = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationBySlugData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationBySlugResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationBySlug = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationBySlugData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationBySlugResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationBySlugResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/org/{organization_slug}',
@@ -2788,7 +2788,7 @@ export const getOrganizationBySlug = <ThrowOnError extends boolean = false>(opti
  *
  * GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
  */
-export const getOrganizations = <ThrowOnError extends boolean = false>(options?: Options<GetOrganizationsData, ThrowOnError>) => (options?.client ?? client).get<GetOrganizationsResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizations = <ThrowOnError extends boolean = true>(options?: Options<GetOrganizationsData, ThrowOnError>) => (options?.client ?? client).get<GetOrganizationsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations',
@@ -2812,7 +2812,7 @@ export const getOrganizations = <ThrowOnError extends boolean = false>(options?:
  * # Permissions
  * Only users with the `Admin` role can access this endpoint.
  */
-export const createOrganization = <ThrowOnError extends boolean = false>(options: Options<CreateOrganizationData, ThrowOnError>) => (options.client ?? client).post<CreateOrganizationResponses, unknown, ThrowOnError, 'data'>({
+export const createOrganization = <ThrowOnError extends boolean = true>(options: Options<CreateOrganizationData, ThrowOnError>) => (options.client ?? client).post<CreateOrganizationResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations',
     ...options,
@@ -2826,7 +2826,7 @@ export const createOrganization = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam
  */
-export const getOrganizationExamByExamId = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationExamByExamIdData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationExamByExamIdResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationExamByExamId = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationExamByExamIdData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationExamByExamIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationExamByExamIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam',
@@ -2837,14 +2837,14 @@ export const getOrganizationExamByExamId = <ThrowOnError extends boolean = false
  *
  * GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
  */
-export const getOrganization = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganization = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}',
     ...options
 });
 
-export const softDeleteOrganization = <ThrowOnError extends boolean = false>(options: Options<SoftDeleteOrganizationData, ThrowOnError>) => (options.client ?? client).patch<SoftDeleteOrganizationResponses, unknown, ThrowOnError, 'data'>({
+export const softDeleteOrganization = <ThrowOnError extends boolean = true>(options: Options<SoftDeleteOrganizationData, ThrowOnError>) => (options.client ?? client).patch<SoftDeleteOrganizationResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}',
     ...options
@@ -2856,7 +2856,7 @@ export const softDeleteOrganization = <ThrowOnError extends boolean = false>(opt
  *
  * Updates an organization's name, hidden status, and slug.
  */
-export const updateOrganization = <ThrowOnError extends boolean = false>(options: Options<UpdateOrganizationData, ThrowOnError>) => (options.client ?? client).put<UpdateOrganizationResponses, unknown, ThrowOnError, 'data'>({
+export const updateOrganization = <ThrowOnError extends boolean = true>(options: Options<UpdateOrganizationData, ThrowOnError>) => (options.client ?? client).put<UpdateOrganizationResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}',
     ...options,
@@ -2870,7 +2870,7 @@ export const updateOrganization = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
  */
-export const getOrganizationCourseExams = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationCourseExamsData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationCourseExamsResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationCourseExams = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationCourseExamsData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationCourseExamsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationCourseExamsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/course_exams',
@@ -2881,28 +2881,28 @@ export const getOrganizationCourseExams = <ThrowOnError extends boolean = false>
  *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
  */
-export const getOrganizationCourses = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationCoursesData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationCoursesResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationCourses = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationCoursesData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationCoursesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationCoursesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/courses',
     ...options
 });
 
-export const getOrganizationActiveCourses = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationActiveCoursesData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationActiveCoursesResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationActiveCourses = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationActiveCoursesData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationActiveCoursesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationActiveCoursesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/courses/active',
     ...options
 });
 
-export const getOrganizationActiveCourseCount = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationActiveCourseCountData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationActiveCourseCountResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationActiveCourseCount = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationActiveCourseCountData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationActiveCourseCountResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationActiveCourseCountResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/courses/active/count',
     ...options
 });
 
-export const getOrganizationCourseCount = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationCourseCountData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationCourseCountResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationCourseCount = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationCourseCountData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationCourseCountResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationCourseCountResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/courses/count',
@@ -2913,7 +2913,7 @@ export const getOrganizationCourseCount = <ThrowOnError extends boolean = false>
  *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable"` - Returns a list of all courses in a organization that the current user has permission to duplicate.
  */
-export const getOrganizationDuplicatableCourses = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationDuplicatableCoursesData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationDuplicatableCoursesResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationDuplicatableCourses = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationDuplicatableCoursesData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationDuplicatableCoursesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationDuplicatableCoursesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable',
@@ -2924,7 +2924,7 @@ export const getOrganizationDuplicatableCourses = <ThrowOnError extends boolean 
  *
  * POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
  */
-export const createOrganizationExam = <ThrowOnError extends boolean = false>(options: Options<CreateOrganizationExamData, ThrowOnError>) => (options.client ?? client).post<CreateOrganizationExamResponses, unknown, ThrowOnError, 'data'>({
+export const createOrganizationExam = <ThrowOnError extends boolean = true>(options: Options<CreateOrganizationExamData, ThrowOnError>) => (options.client ?? client).post<CreateOrganizationExamResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/exams',
     ...options,
@@ -2945,7 +2945,7 @@ export const createOrganizationExam = <ThrowOnError extends boolean = false>(opt
  * DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
  * ```
  */
-export const deleteOrganizationImage = <ThrowOnError extends boolean = false>(options: Options<DeleteOrganizationImageData, ThrowOnError>) => (options.client ?? client).delete<DeleteOrganizationImageResponses, unknown, ThrowOnError, 'data'>({
+export const deleteOrganizationImage = <ThrowOnError extends boolean = true>(options: Options<DeleteOrganizationImageData, ThrowOnError>) => (options.client ?? client).delete<DeleteOrganizationImageResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/image',
     ...options
@@ -2965,7 +2965,7 @@ export const deleteOrganizationImage = <ThrowOnError extends boolean = false>(op
  * BINARY_DATA
  * ```
  */
-export const updateOrganizationImage = <ThrowOnError extends boolean = false>(options: Options<UpdateOrganizationImageData, ThrowOnError>) => (options.client ?? client).put<UpdateOrganizationImageResponses, unknown, ThrowOnError, 'data'>({
+export const updateOrganizationImage = <ThrowOnError extends boolean = true>(options: Options<UpdateOrganizationImageData, ThrowOnError>) => (options.client ?? client).put<UpdateOrganizationImageResponses, unknown, ThrowOnError, 'data'>({
     ...formDataBodySerializer,
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/image',
@@ -2980,7 +2980,7 @@ export const updateOrganizationImage = <ThrowOnError extends boolean = false>(op
  *
  * GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
  */
-export const getOrganizationExams = <ThrowOnError extends boolean = false>(options: Options<GetOrganizationExamsData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationExamsResponses, unknown, ThrowOnError, 'data'>({
+export const getOrganizationExams = <ThrowOnError extends boolean = true>(options: Options<GetOrganizationExamsData, ThrowOnError>) => (options.client ?? client).get<GetOrganizationExamsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetOrganizationExamsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/organizations/{organization_id}/org_exams',
@@ -2998,7 +2998,7 @@ export const getOrganizationExams = <ThrowOnError extends boolean = false>(optio
  * DELETE /api/v0/main-frontend/page_audio/d332f3d9-39a5-4a18-80f4-251727693c37 HTTP/1.1
  * ```
  */
-export const deletePageAudioFile = <ThrowOnError extends boolean = false>(options: Options<DeletePageAudioFileData, ThrowOnError>) => (options.client ?? client).delete<DeletePageAudioFileResponses, unknown, ThrowOnError, 'data'>({
+export const deletePageAudioFile = <ThrowOnError extends boolean = true>(options: Options<DeletePageAudioFileData, ThrowOnError>) => (options.client ?? client).delete<DeletePageAudioFileResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/page_audio/{file_id}',
     ...options
@@ -3018,7 +3018,7 @@ export const deletePageAudioFile = <ThrowOnError extends boolean = false>(option
  * BINARY_DATA
  * ```
  */
-export const createPageAudioFile = <ThrowOnError extends boolean = false>(options: Options<CreatePageAudioFileData, ThrowOnError>) => (options.client ?? client).post<CreatePageAudioFileResponses, unknown, ThrowOnError, 'data'>({
+export const createPageAudioFile = <ThrowOnError extends boolean = true>(options: Options<CreatePageAudioFileData, ThrowOnError>) => (options.client ?? client).post<CreatePageAudioFileResponses, unknown, ThrowOnError, 'data'>({
     ...formDataBodySerializer,
     responseValidator: async (data) => await zCreatePageAudioFileResponse.parseAsync(data),
     responseStyle: 'data',
@@ -3036,7 +3036,7 @@ export const createPageAudioFile = <ThrowOnError extends boolean = false>(option
  *
  * Request: `GET /api/v0/cms/page_audio/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/files`
  */
-export const getPageAudioFiles = <ThrowOnError extends boolean = false>(options: Options<GetPageAudioFilesData, ThrowOnError>) => (options.client ?? client).get<GetPageAudioFilesResponses, unknown, ThrowOnError, 'data'>({
+export const getPageAudioFiles = <ThrowOnError extends boolean = true>(options: Options<GetPageAudioFilesData, ThrowOnError>) => (options.client ?? client).get<GetPageAudioFilesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetPageAudioFilesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/page_audio/{page_id}/files',
@@ -3072,7 +3072,7 @@ export const getPageAudioFiles = <ThrowOnError extends boolean = false>(options:
  * }
  * ```
  */
-export const createPage = <ThrowOnError extends boolean = false>(options: Options<CreatePageData, ThrowOnError>) => (options.client ?? client).post<CreatePageResponses, unknown, ThrowOnError, 'data'>({
+export const createPage = <ThrowOnError extends boolean = true>(options: Options<CreatePageData, ThrowOnError>) => (options.client ?? client).post<CreatePageResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreatePageResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages',
@@ -3087,7 +3087,7 @@ export const createPage = <ThrowOnError extends boolean = false>(options: Option
  *
  * GET `/api/v0/main-frontend/pages/:course_id/all-course-pages-for-course` - Get all pages of a course
  */
-export const getCoursePages = <ThrowOnError extends boolean = false>(options: Options<GetCoursePagesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePagesResponses, unknown, ThrowOnError, 'data'>({
+export const getCoursePages = <ThrowOnError extends boolean = true>(options: Options<GetCoursePagesData, ThrowOnError>) => (options.client ?? client).get<GetCoursePagesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCoursePagesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages/{course_id}/all-course-pages-for-course',
@@ -3103,7 +3103,7 @@ export const getCoursePages = <ThrowOnError extends boolean = false>(options: Op
  *
  * Request: `DELETE /api/v0/main-frontend/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
  */
-export const deletePage = <ThrowOnError extends boolean = false>(options: Options<DeletePageData, ThrowOnError>) => (options.client ?? client).delete<DeletePageResponses, unknown, ThrowOnError, 'data'>({
+export const deletePage = <ThrowOnError extends boolean = true>(options: Options<DeletePageData, ThrowOnError>) => (options.client ?? client).delete<DeletePageResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeletePageResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages/{page_id}',
@@ -3114,7 +3114,7 @@ export const deletePage = <ThrowOnError extends boolean = false>(options: Option
  *
  * GET /api/v0/main-frontend/pages/:page_id/history
  */
-export const getPageHistory = <ThrowOnError extends boolean = false>(options: Options<GetPageHistoryData, ThrowOnError>) => (options.client ?? client).get<GetPageHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const getPageHistory = <ThrowOnError extends boolean = true>(options: Options<GetPageHistoryData, ThrowOnError>) => (options.client ?? client).get<GetPageHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetPageHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages/{page_id}/history',
@@ -3125,7 +3125,7 @@ export const getPageHistory = <ThrowOnError extends boolean = false>(options: Op
  *
  * GET /api/v0/main-frontend/pages/:page_id/history_count
  */
-export const getPageHistoryCount = <ThrowOnError extends boolean = false>(options: Options<GetPageHistoryCountData, ThrowOnError>) => (options.client ?? client).get<GetPageHistoryCountResponses, unknown, ThrowOnError, 'data'>({
+export const getPageHistoryCount = <ThrowOnError extends boolean = true>(options: Options<GetPageHistoryCountData, ThrowOnError>) => (options.client ?? client).get<GetPageHistoryCountResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetPageHistoryCountResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages/{page_id}/history_count',
@@ -3138,7 +3138,7 @@ export const getPageHistoryCount = <ThrowOnError extends boolean = false>(option
  *
  * Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
  */
-export const getPageInfo = <ThrowOnError extends boolean = false>(options: Options<GetPageInfoData, ThrowOnError>) => (options.client ?? client).get<GetPageInfoResponses, unknown, ThrowOnError, 'data'>({
+export const getPageInfo = <ThrowOnError extends boolean = true>(options: Options<GetPageInfoData, ThrowOnError>) => (options.client ?? client).get<GetPageInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetPageInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages/{page_id}/info',
@@ -3149,7 +3149,7 @@ export const getPageInfo = <ThrowOnError extends boolean = false>(options: Optio
  *
  * POST `/api/v0/main-frontend/pages/:page_id/page-details` - Update pages title and url_path.
  */
-export const updatePageDetails = <ThrowOnError extends boolean = false>(options: Options<UpdatePageDetailsData, ThrowOnError>) => (options.client ?? client).put<UpdatePageDetailsResponses, unknown, ThrowOnError, 'data'>({
+export const updatePageDetails = <ThrowOnError extends boolean = true>(options: Options<UpdatePageDetailsData, ThrowOnError>) => (options.client ?? client).put<UpdatePageDetailsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdatePageDetailsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages/{page_id}/page-details',
@@ -3164,7 +3164,7 @@ export const updatePageDetails = <ThrowOnError extends boolean = false>(options:
  *
  * POST /api/v0/main-frontend/pages/:page_id/restore
  */
-export const restorePageHistory = <ThrowOnError extends boolean = false>(options: Options<RestorePageHistoryData, ThrowOnError>) => (options.client ?? client).post<RestorePageHistoryResponses, unknown, ThrowOnError, 'data'>({
+export const restorePageHistory = <ThrowOnError extends boolean = true>(options: Options<RestorePageHistoryData, ThrowOnError>) => (options.client ?? client).post<RestorePageHistoryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zRestorePageHistoryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/pages/{page_id}/restore',
@@ -3179,7 +3179,7 @@ export const restorePageHistory = <ThrowOnError extends boolean = false>(options
  * playground-views passes a URL pointing to this route to an exercise service when sending submissions so that if
  * the service has an update for a pending grading, it will be sent here and passed on to through the websocket
  */
-export const receivePlaygroundGrading = <ThrowOnError extends boolean = false>(options: Options<ReceivePlaygroundGradingData, ThrowOnError>) => (options.client ?? client).post<ReceivePlaygroundGradingResponses, unknown, ThrowOnError, 'data'>({
+export const receivePlaygroundGrading = <ThrowOnError extends boolean = true>(options: Options<ReceivePlaygroundGradingData, ThrowOnError>) => (options.client ?? client).post<ReceivePlaygroundGradingResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/playground-views/grading/{websocket_id}',
     ...options,
@@ -3192,7 +3192,7 @@ export const receivePlaygroundGrading = <ThrowOnError extends boolean = false>(o
 /**
  * Starts a new websocket connection.
  */
-export const getPlaygroundViewsWebsocket = <ThrowOnError extends boolean = false>(options?: Options<GetPlaygroundViewsWebsocketData, ThrowOnError>) => (options?.client ?? client).get<unknown, unknown, ThrowOnError, 'data'>({
+export const getPlaygroundViewsWebsocket = <ThrowOnError extends boolean = true>(options?: Options<GetPlaygroundViewsWebsocketData, ThrowOnError>) => (options?.client ?? client).get<unknown, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/playground-views/ws',
     ...options
@@ -3202,7 +3202,7 @@ export const getPlaygroundViewsWebsocket = <ThrowOnError extends boolean = false
  *
  * GET `/api/v0/main-frontend/playground_examples` - Returns all playground examples that are not deleted.
  */
-export const getPlaygroundExamples = <ThrowOnError extends boolean = false>(options?: Options<GetPlaygroundExamplesData, ThrowOnError>) => (options?.client ?? client).get<GetPlaygroundExamplesResponses, unknown, ThrowOnError, 'data'>({
+export const getPlaygroundExamples = <ThrowOnError extends boolean = true>(options?: Options<GetPlaygroundExamplesData, ThrowOnError>) => (options?.client ?? client).get<GetPlaygroundExamplesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetPlaygroundExamplesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/playground_examples',
@@ -3213,7 +3213,7 @@ export const getPlaygroundExamples = <ThrowOnError extends boolean = false>(opti
  *
  * POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
  */
-export const createPlaygroundExample = <ThrowOnError extends boolean = false>(options: Options<CreatePlaygroundExampleData, ThrowOnError>) => (options.client ?? client).post<CreatePlaygroundExampleResponses, unknown, ThrowOnError, 'data'>({
+export const createPlaygroundExample = <ThrowOnError extends boolean = true>(options: Options<CreatePlaygroundExampleData, ThrowOnError>) => (options.client ?? client).post<CreatePlaygroundExampleResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreatePlaygroundExampleResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/playground_examples',
@@ -3228,7 +3228,7 @@ export const createPlaygroundExample = <ThrowOnError extends boolean = false>(op
  *
  * PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground example.
  */
-export const updatePlaygroundExample = <ThrowOnError extends boolean = false>(options: Options<UpdatePlaygroundExampleData, ThrowOnError>) => (options.client ?? client).put<UpdatePlaygroundExampleResponses, unknown, ThrowOnError, 'data'>({
+export const updatePlaygroundExample = <ThrowOnError extends boolean = true>(options: Options<UpdatePlaygroundExampleData, ThrowOnError>) => (options.client ?? client).put<UpdatePlaygroundExampleResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdatePlaygroundExampleResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/playground_examples',
@@ -3243,7 +3243,7 @@ export const updatePlaygroundExample = <ThrowOnError extends boolean = false>(op
  *
  * DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground example if exists.
  */
-export const deletePlaygroundExample = <ThrowOnError extends boolean = false>(options: Options<DeletePlaygroundExampleData, ThrowOnError>) => (options.client ?? client).delete<DeletePlaygroundExampleResponses, unknown, ThrowOnError, 'data'>({
+export const deletePlaygroundExample = <ThrowOnError extends boolean = true>(options: Options<DeletePlaygroundExampleData, ThrowOnError>) => (options.client ?? client).delete<DeletePlaygroundExampleResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zDeletePlaygroundExampleResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/playground_examples/{playground_example_id}',
@@ -3254,7 +3254,7 @@ export const deletePlaygroundExample = <ThrowOnError extends boolean = false>(op
  *
  * GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
  */
-export const getEditProposals = <ThrowOnError extends boolean = false>(options: Options<GetEditProposalsData, ThrowOnError>) => (options.client ?? client).get<GetEditProposalsResponses, unknown, ThrowOnError, 'data'>({
+export const getEditProposals = <ThrowOnError extends boolean = true>(options: Options<GetEditProposalsData, ThrowOnError>) => (options.client ?? client).get<GetEditProposalsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetEditProposalsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/proposed-edits/course/{course_id}',
@@ -3265,7 +3265,7 @@ export const getEditProposals = <ThrowOnError extends boolean = false>(options: 
  *
  * GET `/api/v0/main-frontend/proposed-edits/course/:id/count` - Returns the amount of feedback for the given course.
  */
-export const getEditProposalCount = <ThrowOnError extends boolean = false>(options: Options<GetEditProposalCountData, ThrowOnError>) => (options.client ?? client).get<GetEditProposalCountResponses, unknown, ThrowOnError, 'data'>({
+export const getEditProposalCount = <ThrowOnError extends boolean = true>(options: Options<GetEditProposalCountData, ThrowOnError>) => (options.client ?? client).get<GetEditProposalCountResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetEditProposalCountResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/proposed-edits/course/{course_id}/count',
@@ -3276,7 +3276,7 @@ export const getEditProposalCount = <ThrowOnError extends boolean = false>(optio
  *
  * POST `/api/v0/main-frontend/proposed-edits/process-edit-proposal` - Processes the given edit proposal.
  */
-export const processEditProposal = <ThrowOnError extends boolean = false>(options: Options<ProcessEditProposalData, ThrowOnError>) => (options.client ?? client).post<ProcessEditProposalResponses, unknown, ThrowOnError, 'data'>({
+export const processEditProposal = <ThrowOnError extends boolean = true>(options: Options<ProcessEditProposalData, ThrowOnError>) => (options.client ?? client).post<ProcessEditProposalResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/proposed-edits/process-edit-proposal',
     ...options,
@@ -3290,7 +3290,7 @@ export const processEditProposal = <ThrowOnError extends boolean = false>(option
  *
  * GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
  */
-export const getRegradings = <ThrowOnError extends boolean = false>(options?: Options<GetRegradingsData, ThrowOnError>) => (options?.client ?? client).get<GetRegradingsResponses, unknown, ThrowOnError, 'data'>({
+export const getRegradings = <ThrowOnError extends boolean = true>(options?: Options<GetRegradingsData, ThrowOnError>) => (options?.client ?? client).get<GetRegradingsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetRegradingsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/regradings',
@@ -3301,7 +3301,7 @@ export const getRegradings = <ThrowOnError extends boolean = false>(options?: Op
  *
  * POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the supplied exercise task submission ids and returns the new regrading id.
  */
-export const createRegrading = <ThrowOnError extends boolean = false>(options: Options<CreateRegradingData, ThrowOnError>) => (options.client ?? client).post<CreateRegradingResponses, unknown, ThrowOnError, 'data'>({
+export const createRegrading = <ThrowOnError extends boolean = true>(options: Options<CreateRegradingData, ThrowOnError>) => (options.client ?? client).post<CreateRegradingResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateRegradingResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/regradings',
@@ -3316,7 +3316,7 @@ export const createRegrading = <ThrowOnError extends boolean = false>(options: O
  *
  * GET `/api/v0/main-frontend/regradings/count` - Counts regradings
  */
-export const getRegradingsCount = <ThrowOnError extends boolean = false>(options?: Options<GetRegradingsCountData, ThrowOnError>) => (options?.client ?? client).get<GetRegradingsCountResponses, unknown, ThrowOnError, 'data'>({
+export const getRegradingsCount = <ThrowOnError extends boolean = true>(options?: Options<GetRegradingsCountData, ThrowOnError>) => (options?.client ?? client).get<GetRegradingsCountResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetRegradingsCountResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/regradings/count',
@@ -3327,7 +3327,7 @@ export const getRegradingsCount = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/regradings/{id}` - Returns relevant information about a regrading.
  */
-export const getRegradingInfo = <ThrowOnError extends boolean = false>(options: Options<GetRegradingInfoData, ThrowOnError>) => (options.client ?? client).get<GetRegradingInfoResponses, unknown, ThrowOnError, 'data'>({
+export const getRegradingInfo = <ThrowOnError extends boolean = true>(options: Options<GetRegradingInfoData, ThrowOnError>) => (options.client ?? client).get<GetRegradingInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetRegradingInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/regradings/{regrading_id}',
@@ -3338,7 +3338,7 @@ export const getRegradingInfo = <ThrowOnError extends boolean = false>(options: 
  *
  * * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
-export const getRoles = <ThrowOnError extends boolean = false>(options?: Options<GetRolesData, ThrowOnError>) => (options?.client ?? client).get<GetRolesResponses, unknown, ThrowOnError, 'data'>({
+export const getRoles = <ThrowOnError extends boolean = true>(options?: Options<GetRolesData, ThrowOnError>) => (options?.client ?? client).get<GetRolesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetRolesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/roles',
@@ -3349,7 +3349,7 @@ export const getRoles = <ThrowOnError extends boolean = false>(options?: Options
  *
  * * POST /api/v0/main-frontend/roles/add - Give a role to a user.
  */
-export const addRole = <ThrowOnError extends boolean = false>(options: Options<AddRoleData, ThrowOnError>) => (options.client ?? client).post<AddRoleResponses, unknown, ThrowOnError, 'data'>({
+export const addRole = <ThrowOnError extends boolean = true>(options: Options<AddRoleData, ThrowOnError>) => (options.client ?? client).post<AddRoleResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/roles/add',
     ...options,
@@ -3363,7 +3363,7 @@ export const addRole = <ThrowOnError extends boolean = false>(options: Options<A
  *
  * * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
  */
-export const getPendingRoles = <ThrowOnError extends boolean = false>(options?: Options<GetPendingRolesData, ThrowOnError>) => (options?.client ?? client).get<GetPendingRolesResponses, unknown, ThrowOnError, 'data'>({
+export const getPendingRoles = <ThrowOnError extends boolean = true>(options?: Options<GetPendingRolesData, ThrowOnError>) => (options?.client ?? client).get<GetPendingRolesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetPendingRolesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/roles/pending',
@@ -3374,7 +3374,7 @@ export const getPendingRoles = <ThrowOnError extends boolean = false>(options?: 
  *
  * * POST /api/v0/main-frontend/roles/remove - Remove a role from a user.
  */
-export const removeRole = <ThrowOnError extends boolean = false>(options: Options<RemoveRoleData, ThrowOnError>) => (options.client ?? client).post<RemoveRoleResponses, unknown, ThrowOnError, 'data'>({
+export const removeRole = <ThrowOnError extends boolean = true>(options: Options<RemoveRoleData, ThrowOnError>) => (options.client ?? client).post<RemoveRoleResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/roles/remove',
     ...options,
@@ -3390,7 +3390,7 @@ export const removeRole = <ThrowOnError extends boolean = false>(options: Option
  *
  * Returns the status of all CronJobs in the current namespace.
  */
-export const getStatusCronjobs = <ThrowOnError extends boolean = false>(options?: Options<GetStatusCronjobsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusCronjobsResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusCronjobs = <ThrowOnError extends boolean = true>(options?: Options<GetStatusCronjobsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusCronjobsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusCronjobsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/cronjobs',
@@ -3403,7 +3403,7 @@ export const getStatusCronjobs = <ThrowOnError extends boolean = false>(options?
  *
  * Returns the status of all Deployments in the current namespace.
  */
-export const getStatusDeployments = <ThrowOnError extends boolean = false>(options?: Options<GetStatusDeploymentsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusDeploymentsResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusDeployments = <ThrowOnError extends boolean = true>(options?: Options<GetStatusDeploymentsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusDeploymentsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusDeploymentsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/deployments',
@@ -3416,7 +3416,7 @@ export const getStatusDeployments = <ThrowOnError extends boolean = false>(optio
  *
  * Returns the status of all Events in the current namespace.
  */
-export const getStatusEvents = <ThrowOnError extends boolean = false>(options?: Options<GetStatusEventsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusEventsResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusEvents = <ThrowOnError extends boolean = true>(options?: Options<GetStatusEventsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusEventsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusEventsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/events',
@@ -3429,7 +3429,7 @@ export const getStatusEvents = <ThrowOnError extends boolean = false>(options?: 
  *
  * Returns detailed system health status with issues list (admin only).
  */
-export const getStatusHealth = <ThrowOnError extends boolean = false>(options?: Options<GetStatusHealthData, ThrowOnError>) => (options?.client ?? client).get<GetStatusHealthResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusHealth = <ThrowOnError extends boolean = true>(options?: Options<GetStatusHealthData, ThrowOnError>) => (options?.client ?? client).get<GetStatusHealthResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusHealthResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/health',
@@ -3442,7 +3442,7 @@ export const getStatusHealth = <ThrowOnError extends boolean = false>(options?: 
  *
  * Returns the status of all Ingresses in the current namespace.
  */
-export const getStatusIngresses = <ThrowOnError extends boolean = false>(options?: Options<GetStatusIngressesData, ThrowOnError>) => (options?.client ?? client).get<GetStatusIngressesResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusIngresses = <ThrowOnError extends boolean = true>(options?: Options<GetStatusIngressesData, ThrowOnError>) => (options?.client ?? client).get<GetStatusIngressesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusIngressesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/ingresses',
@@ -3455,7 +3455,7 @@ export const getStatusIngresses = <ThrowOnError extends boolean = false>(options
  *
  * Returns the status of all Jobs in the current namespace.
  */
-export const getStatusJobs = <ThrowOnError extends boolean = false>(options?: Options<GetStatusJobsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusJobsResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusJobs = <ThrowOnError extends boolean = true>(options?: Options<GetStatusJobsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusJobsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusJobsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/jobs',
@@ -3468,7 +3468,7 @@ export const getStatusJobs = <ThrowOnError extends boolean = false>(options?: Op
  *
  * Returns the status of all PodDisruptionBudgets in the current namespace.
  */
-export const getStatusPodDisruptionBudgets = <ThrowOnError extends boolean = false>(options?: Options<GetStatusPodDisruptionBudgetsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusPodDisruptionBudgetsResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusPodDisruptionBudgets = <ThrowOnError extends boolean = true>(options?: Options<GetStatusPodDisruptionBudgetsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusPodDisruptionBudgetsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusPodDisruptionBudgetsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/pod-disruption-budgets',
@@ -3481,7 +3481,7 @@ export const getStatusPodDisruptionBudgets = <ThrowOnError extends boolean = fal
  *
  * Returns the status of all Pods in the current namespace.
  */
-export const getStatusPods = <ThrowOnError extends boolean = false>(options?: Options<GetStatusPodsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusPodsResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusPods = <ThrowOnError extends boolean = true>(options?: Options<GetStatusPodsData, ThrowOnError>) => (options?.client ?? client).get<GetStatusPodsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusPodsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/pods',
@@ -3498,7 +3498,7 @@ export const getStatusPods = <ThrowOnError extends boolean = false>(options?: Op
  * - container: Optional<String> - Container name (if pod has multiple containers)
  * - tail: Optional<u64> - Number of lines to tail from the end (default: 1000, max: 10000)
  */
-export const getStatusPodLogs = <ThrowOnError extends boolean = false>(options: Options<GetStatusPodLogsData, ThrowOnError>) => (options.client ?? client).get<GetStatusPodLogsResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusPodLogs = <ThrowOnError extends boolean = true>(options: Options<GetStatusPodLogsData, ThrowOnError>) => (options.client ?? client).get<GetStatusPodLogsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusPodLogsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/pods/{pod_name}/logs',
@@ -3511,7 +3511,7 @@ export const getStatusPodLogs = <ThrowOnError extends boolean = false>(options: 
  *
  * Returns the status of all Services in the current namespace.
  */
-export const getStatusServices = <ThrowOnError extends boolean = false>(options?: Options<GetStatusServicesData, ThrowOnError>) => (options?.client ?? client).get<GetStatusServicesResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusServices = <ThrowOnError extends boolean = true>(options?: Options<GetStatusServicesData, ThrowOnError>) => (options?.client ?? client).get<GetStatusServicesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusServicesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/services',
@@ -3525,7 +3525,7 @@ export const getStatusServices = <ThrowOnError extends boolean = false>(options?
  * Uses the same underlying checking logic as the detailed health endpoint.
  * Unauthenticated users get a boolean. Authenticated admins get error details on failure.
  */
-export const getStatusSystemHealth = <ThrowOnError extends boolean = false>(options?: Options<GetStatusSystemHealthData, ThrowOnError>) => (options?.client ?? client).get<GetStatusSystemHealthResponses, unknown, ThrowOnError, 'data'>({
+export const getStatusSystemHealth = <ThrowOnError extends boolean = true>(options?: Options<GetStatusSystemHealthData, ThrowOnError>) => (options?.client ?? client).get<GetStatusSystemHealthResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetStatusSystemHealthResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/status/system-health',
@@ -3536,7 +3536,7 @@ export const getStatusSystemHealth = <ThrowOnError extends boolean = false>(opti
  *
  * POST `/api/v0/main-frontend/teacher-grading-decisions` - Creates a new teacher grading decision, overriding the points a user has received from an exercise.
  */
-export const createTeacherGradingDecision = <ThrowOnError extends boolean = false>(options: Options<CreateTeacherGradingDecisionData, ThrowOnError>) => (options.client ?? client).post<CreateTeacherGradingDecisionResponses, unknown, ThrowOnError, 'data'>({
+export const createTeacherGradingDecision = <ThrowOnError extends boolean = true>(options: Options<CreateTeacherGradingDecisionData, ThrowOnError>) => (options.client ?? client).post<CreateTeacherGradingDecisionResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateTeacherGradingDecisionResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/teacher-grading-decisions',
@@ -3554,7 +3554,7 @@ export const createTeacherGradingDecision = <ThrowOnError extends boolean = fals
  * Response body example:
  * `"2026-02-18T12:34:56.789Z"`
  */
-export const getCurrentTime = <ThrowOnError extends boolean = false>(options?: Options<GetCurrentTimeData, ThrowOnError>) => (options?.client ?? client).get<GetCurrentTimeResponses, unknown, ThrowOnError, 'data'>({
+export const getCurrentTime = <ThrowOnError extends boolean = true>(options?: Options<GetCurrentTimeData, ThrowOnError>) => (options?.client ?? client).get<GetCurrentTimeResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCurrentTimeResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/time',
@@ -3566,7 +3566,7 @@ export const getCurrentTime = <ThrowOnError extends boolean = false>(options?: O
  * POST `/api/v0/main-frontend/user-details/bulk-user-details` - Get user details for a list of user IDs with course permission check
  * Only returns user details for users who are actually enrolled in the specified course
  */
-export const getBulkUserDetails = <ThrowOnError extends boolean = false>(options: Options<GetBulkUserDetailsData, ThrowOnError>) => (options.client ?? client).post<GetBulkUserDetailsResponses, unknown, ThrowOnError, 'data'>({
+export const getBulkUserDetails = <ThrowOnError extends boolean = true>(options: Options<GetBulkUserDetailsData, ThrowOnError>) => (options.client ?? client).post<GetBulkUserDetailsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetBulkUserDetailsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/bulk-user-details',
@@ -3581,7 +3581,7 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user by their email
  */
-export const searchUserDetailsByEmail = <ThrowOnError extends boolean = false>(options: Options<SearchUserDetailsByEmailData, ThrowOnError>) => (options.client ?? client).post<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, 'data'>({
+export const searchUserDetailsByEmail = <ThrowOnError extends boolean = true>(options: Options<SearchUserDetailsByEmailData, ThrowOnError>) => (options.client ?? client).post<SearchUserDetailsByEmailResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSearchUserDetailsByEmailResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/search-by-email',
@@ -3596,7 +3596,7 @@ export const searchUserDetailsByEmail = <ThrowOnError extends boolean = false>(o
  *
  * GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to search user by their names etc.
  */
-export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = false>(options: Options<SearchUserDetailsByOtherDetailsData, ThrowOnError>) => (options.client ?? client).post<SearchUserDetailsByOtherDetailsResponses, unknown, ThrowOnError, 'data'>({
+export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = true>(options: Options<SearchUserDetailsByOtherDetailsData, ThrowOnError>) => (options.client ?? client).post<SearchUserDetailsByOtherDetailsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSearchUserDetailsByOtherDetailsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/search-by-other-details',
@@ -3611,7 +3611,7 @@ export const searchUserDetailsByOtherDetails = <ThrowOnError extends boolean = f
  *
  * GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the right user details in cases where there is a small typing error in the search query
  */
-export const searchUserDetailsFuzzyMatch = <ThrowOnError extends boolean = false>(options: Options<SearchUserDetailsFuzzyMatchData, ThrowOnError>) => (options.client ?? client).post<SearchUserDetailsFuzzyMatchResponses, unknown, ThrowOnError, 'data'>({
+export const searchUserDetailsFuzzyMatch = <ThrowOnError extends boolean = true>(options: Options<SearchUserDetailsFuzzyMatchData, ThrowOnError>) => (options.client ?? client).post<SearchUserDetailsFuzzyMatchResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSearchUserDetailsFuzzyMatchResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/search-fuzzy-match',
@@ -3626,7 +3626,7 @@ export const searchUserDetailsFuzzyMatch = <ThrowOnError extends boolean = false
  *
  * POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
  */
-export const updateUserInfo = <ThrowOnError extends boolean = false>(options: Options<UpdateUserInfoData, ThrowOnError>) => (options.client ?? client).post<UpdateUserInfoResponses, unknown, ThrowOnError, 'data'>({
+export const updateUserInfo = <ThrowOnError extends boolean = true>(options: Options<UpdateUserInfoData, ThrowOnError>) => (options.client ?? client).post<UpdateUserInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateUserInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/update-user-info',
@@ -3642,7 +3642,7 @@ export const updateUserInfo = <ThrowOnError extends boolean = false>(options: Op
  * POST `/api/v0/main-frontend/user-details/user-by-courses` - Find user details by user id with multi-course permission check
  * Returns user details if the user has permission to view user details through any of the specified courses
  */
-export const getUserDetailsByCourses = <ThrowOnError extends boolean = false>(options: Options<GetUserDetailsByCoursesData, ThrowOnError>) => (options.client ?? client).post<GetUserDetailsByCoursesResponses, unknown, ThrowOnError, 'data'>({
+export const getUserDetailsByCourses = <ThrowOnError extends boolean = true>(options: Options<GetUserDetailsByCoursesData, ThrowOnError>) => (options.client ?? client).post<GetUserDetailsByCoursesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUserDetailsByCoursesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/user-by-courses',
@@ -3657,14 +3657,14 @@ export const getUserDetailsByCourses = <ThrowOnError extends boolean = false>(op
  *
  * GET `/api/v0/main-frontend/user-details/user-details-for-user` - Get authenticated user's own details
  */
-export const getUserDetailsForAuthenticatedUser = <ThrowOnError extends boolean = false>(options?: Options<GetUserDetailsForAuthenticatedUserData, ThrowOnError>) => (options?.client ?? client).get<GetUserDetailsForAuthenticatedUserResponses, unknown, ThrowOnError, 'data'>({
+export const getUserDetailsForAuthenticatedUser = <ThrowOnError extends boolean = true>(options?: Options<GetUserDetailsForAuthenticatedUserData, ThrowOnError>) => (options?.client ?? client).get<GetUserDetailsForAuthenticatedUserResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUserDetailsForAuthenticatedUserResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/user-details-for-user',
     ...options
 });
 
-export const getUsersIpCountry = <ThrowOnError extends boolean = false>(options?: Options<GetUsersIpCountryData, ThrowOnError>) => (options?.client ?? client).get<GetUsersIpCountryResponses, unknown, ThrowOnError, 'data'>({
+export const getUsersIpCountry = <ThrowOnError extends boolean = true>(options?: Options<GetUsersIpCountryData, ThrowOnError>) => (options?.client ?? client).get<GetUsersIpCountryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUsersIpCountryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/users-ip-country',
@@ -3675,7 +3675,7 @@ export const getUsersIpCountry = <ThrowOnError extends boolean = false>(options?
  *
  * GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user details of users that are in the course
  */
-export const getUsersByCourseIdForUserDetails = <ThrowOnError extends boolean = false>(options: Options<GetUsersByCourseIdForUserDetailsData, ThrowOnError>) => (options.client ?? client).get<GetUsersByCourseIdForUserDetailsResponses, unknown, ThrowOnError, 'data'>({
+export const getUsersByCourseIdForUserDetails = <ThrowOnError extends boolean = true>(options: Options<GetUsersByCourseIdForUserDetailsData, ThrowOnError>) => (options.client ?? client).get<GetUsersByCourseIdForUserDetailsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUsersByCourseIdForUserDetailsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/{course_id}/get-users-by-course-id',
@@ -3687,14 +3687,14 @@ export const getUsersByCourseIdForUserDetails = <ThrowOnError extends boolean = 
  * GET `/api/v0/main-frontend/user-details/{course_id}/user/{user_id}` - Find user details by user id with course permission check
  * Only returns user details if the user is enrolled in the specified course
  */
-export const getUserDetailsByCourseAndUserId = <ThrowOnError extends boolean = false>(options: Options<GetUserDetailsByCourseAndUserIdData, ThrowOnError>) => (options.client ?? client).get<GetUserDetailsByCourseAndUserIdResponses, unknown, ThrowOnError, 'data'>({
+export const getUserDetailsByCourseAndUserId = <ThrowOnError extends boolean = true>(options: Options<GetUserDetailsByCourseAndUserIdData, ThrowOnError>) => (options.client ?? client).get<GetUserDetailsByCourseAndUserIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUserDetailsByCourseAndUserIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/user-details/{course_id}/user/{user_id}',
     ...options
 });
 
-export const changeUserPassword = <ThrowOnError extends boolean = false>(options: Options<ChangeUserPasswordData, ThrowOnError>) => (options.client ?? client).post<ChangeUserPasswordResponses, unknown, ThrowOnError, 'data'>({
+export const changeUserPassword = <ThrowOnError extends boolean = true>(options: Options<ChangeUserPasswordData, ThrowOnError>) => (options.client ?? client).post<ChangeUserPasswordResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zChangeUserPasswordResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/change-password',
@@ -3709,7 +3709,7 @@ export const changeUserPassword = <ThrowOnError extends boolean = false>(options
  *
  * GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users research consent.
  */
-export const getUserResearchConsent = <ThrowOnError extends boolean = false>(options?: Options<GetUserResearchConsentData, ThrowOnError>) => (options?.client ?? client).get<GetUserResearchConsentResponses, unknown, ThrowOnError, 'data'>({
+export const getUserResearchConsent = <ThrowOnError extends boolean = true>(options?: Options<GetUserResearchConsentData, ThrowOnError>) => (options?.client ?? client).get<GetUserResearchConsentResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUserResearchConsentResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/get-user-research-consent',
@@ -3720,14 +3720,14 @@ export const getUserResearchConsent = <ThrowOnError extends boolean = false>(opt
  *
  * GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
  */
-export const getMyCourses = <ThrowOnError extends boolean = false>(options?: Options<GetMyCoursesData, ThrowOnError>) => (options?.client ?? client).get<GetMyCoursesResponses, unknown, ThrowOnError, 'data'>({
+export const getMyCourses = <ThrowOnError extends boolean = true>(options?: Options<GetMyCoursesData, ThrowOnError>) => (options?.client ?? client).get<GetMyCoursesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetMyCoursesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/my-courses',
     ...options
 });
 
-export const resetUserPassword = <ThrowOnError extends boolean = false>(options: Options<ResetUserPasswordData, ThrowOnError>) => (options.client ?? client).post<ResetUserPasswordResponses, unknown, ThrowOnError, 'data'>({
+export const resetUserPassword = <ThrowOnError extends boolean = true>(options: Options<ResetUserPasswordData, ThrowOnError>) => (options.client ?? client).post<ResetUserPasswordResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zResetUserPasswordResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/reset-password',
@@ -3738,7 +3738,7 @@ export const resetUserPassword = <ThrowOnError extends boolean = false>(options:
     }
 });
 
-export const getResetPasswordTokenStatus = <ThrowOnError extends boolean = false>(options: Options<GetResetPasswordTokenStatusData, ThrowOnError>) => (options.client ?? client).post<GetResetPasswordTokenStatusResponses, unknown, ThrowOnError, 'data'>({
+export const getResetPasswordTokenStatus = <ThrowOnError extends boolean = true>(options: Options<GetResetPasswordTokenStatusData, ThrowOnError>) => (options.client ?? client).post<GetResetPasswordTokenStatusResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetResetPasswordTokenStatusResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/reset-password-token-status',
@@ -3749,7 +3749,7 @@ export const getResetPasswordTokenStatus = <ThrowOnError extends boolean = false
     }
 });
 
-export const sendResetPasswordEmail = <ThrowOnError extends boolean = false>(options: Options<SendResetPasswordEmailData, ThrowOnError>) => (options.client ?? client).post<SendResetPasswordEmailResponses, unknown, ThrowOnError, 'data'>({
+export const sendResetPasswordEmail = <ThrowOnError extends boolean = true>(options: Options<SendResetPasswordEmailData, ThrowOnError>) => (options.client ?? client).post<SendResetPasswordEmailResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSendResetPasswordEmailResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/send-reset-password-email',
@@ -3764,7 +3764,7 @@ export const sendResetPasswordEmail = <ThrowOnError extends boolean = false>(opt
  *
  * POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research consent for a student.
  */
-export const createUserResearchConsent = <ThrowOnError extends boolean = false>(options: Options<CreateUserResearchConsentData, ThrowOnError>) => (options.client ?? client).post<CreateUserResearchConsentResponses, unknown, ThrowOnError, 'data'>({
+export const createUserResearchConsent = <ThrowOnError extends boolean = true>(options: Options<CreateUserResearchConsentData, ThrowOnError>) => (options.client ?? client).post<CreateUserResearchConsentResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zCreateUserResearchConsentResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/user-research-consents',
@@ -3779,7 +3779,7 @@ export const createUserResearchConsent = <ThrowOnError extends boolean = false>(
  *
  * GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users research consents for a course specific research form.
  */
-export const getUserResearchFormQuestionAnswers = <ThrowOnError extends boolean = false>(options?: Options<GetUserResearchFormQuestionAnswersData, ThrowOnError>) => (options?.client ?? client).get<GetUserResearchFormQuestionAnswersResponses, unknown, ThrowOnError, 'data'>({
+export const getUserResearchFormQuestionAnswers = <ThrowOnError extends boolean = true>(options?: Options<GetUserResearchFormQuestionAnswersData, ThrowOnError>) => (options?.client ?? client).get<GetUserResearchFormQuestionAnswersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUserResearchFormQuestionAnswersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/user-research-form-question-answers',
@@ -3790,7 +3790,7 @@ export const getUserResearchFormQuestionAnswers = <ThrowOnError extends boolean 
  *
  * GET `/api/v0/main-frontend/users/:id`
  */
-export const getUser = <ThrowOnError extends boolean = false>(options: Options<GetUserData, ThrowOnError>) => (options.client ?? client).get<GetUserResponses, unknown, ThrowOnError, 'data'>({
+export const getUser = <ThrowOnError extends boolean = true>(options: Options<GetUserData, ThrowOnError>) => (options.client ?? client).get<GetUserResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/{user_id}',
     ...options
@@ -3800,7 +3800,7 @@ export const getUser = <ThrowOnError extends boolean = false>(options: Options<G
  *
  * GET `/api/v0/main-frontend/users/:id/course-enrollments`
  */
-export const getUserCourseEnrollments = <ThrowOnError extends boolean = false>(options: Options<GetUserCourseEnrollmentsData, ThrowOnError>) => (options.client ?? client).get<GetUserCourseEnrollmentsResponses, unknown, ThrowOnError, 'data'>({
+export const getUserCourseEnrollments = <ThrowOnError extends boolean = true>(options: Options<GetUserCourseEnrollmentsData, ThrowOnError>) => (options.client ?? client).get<GetUserCourseEnrollmentsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUserCourseEnrollmentsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/{user_id}/course-enrollments',
@@ -3811,7 +3811,7 @@ export const getUserCourseEnrollments = <ThrowOnError extends boolean = false>(o
  *
  * GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
  */
-export const getUserResetExerciseLogs = <ThrowOnError extends boolean = false>(options: Options<GetUserResetExerciseLogsData, ThrowOnError>) => (options.client ?? client).get<GetUserResetExerciseLogsResponses, unknown, ThrowOnError, 'data'>({
+export const getUserResetExerciseLogs = <ThrowOnError extends boolean = true>(options: Options<GetUserResetExerciseLogsData, ThrowOnError>) => (options.client ?? client).get<GetUserResetExerciseLogsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetUserResetExerciseLogsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/users/{user_id}/user-reset-exercise-logs',

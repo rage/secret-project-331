@@ -32,7 +32,6 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
           chapter_id: chapterId,
           course_instance_id: courseInstanceId,
         },
-        throwOnError: true,
       }),
   })
 

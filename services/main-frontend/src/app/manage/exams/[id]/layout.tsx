@@ -39,7 +39,6 @@ export default function ExamLayout({ children }: { children: React.ReactNode }) 
         path: {
           organization_id: assertNotNullOrUndefined(organizationId),
         },
-        throwOnError: true,
       }),
     enabled: organizationId != null,
   })

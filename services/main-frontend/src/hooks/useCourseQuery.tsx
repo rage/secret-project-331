@@ -16,7 +16,6 @@ const getCourseQueryOptions = (courseId: string | null | undefined) =>
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
   })
 

@@ -23,7 +23,6 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
           query: {
             url: props.url,
           },
-          throwOnError: true,
         })
         if (response.html) {
           setEmbedHtml(response.html)

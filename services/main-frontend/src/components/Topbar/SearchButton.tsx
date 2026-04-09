@@ -252,7 +252,6 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
               course_id: courseId,
             },
             signal: abortControllerRef.current.signal,
-            throwOnError: true,
           }),
           searchPagesWithWords({
             body: { query: debouncedQuery },
@@ -260,7 +259,6 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
               course_id: courseId,
             },
             signal: abortControllerRef.current.signal,
-            throwOnError: true,
           }),
         ])
         setPhraseSearchResults(pagesWithPhrase)

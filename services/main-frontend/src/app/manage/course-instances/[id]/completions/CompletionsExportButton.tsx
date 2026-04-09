@@ -44,7 +44,6 @@ const CompletionsExportButton: React.FC<React.PropsWithChildren<Props>> = ({
           path: {
             course_instance_id: courseInstanceId,
           },
-          throwOnError: true,
         }).then((csv) =>
           downloadTextFile(
             csv,

@@ -20,7 +20,6 @@ const useNewPagePath = (
                 course_id,
                 page_language_group_id,
               },
-              throwOnError: true,
             })
         : skipToken,
     enabled: !!course_id && !!page_language_group_id,

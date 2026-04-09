@@ -31,7 +31,6 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
         path: {
           course_instance_id: assertNotNullOrUndefined(courseInstanceId),
         },
-        throwOnError: true,
       }),
     enabled: !!courseInstanceId && loginStateContext.signedIn === true,
   })

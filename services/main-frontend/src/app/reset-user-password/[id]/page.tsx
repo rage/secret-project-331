@@ -25,7 +25,6 @@ const ResetPassword: React.FC = () => {
           body: {
             token,
           },
-          throwOnError: true,
         }),
         isBoolean,
       ),

@@ -69,7 +69,6 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
         body: {
           file: file as unknown as number[],
         },
-        throwOnError: true,
       }),
     {
       notify: true,

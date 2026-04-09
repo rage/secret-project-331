@@ -59,7 +59,6 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
     enabled: courseId !== null,
   })
@@ -97,7 +96,6 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
     {
       notify: true,

@@ -42,7 +42,6 @@ const CodeGiveawayBlock: React.FC<
             path: {
               id: codeGiveawayId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: Boolean(codeGiveawayId && loginContext.signedIn),

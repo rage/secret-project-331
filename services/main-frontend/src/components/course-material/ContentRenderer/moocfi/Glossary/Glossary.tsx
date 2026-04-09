@@ -25,7 +25,6 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }),
   })
 

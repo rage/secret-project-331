@@ -26,7 +26,6 @@ const useUserMarketingConsent = (
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseId && loginState.signedIn === true && enabled,

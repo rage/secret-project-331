@@ -44,7 +44,6 @@ const downloadCourseSubmissionsCsv = async (courseId: string): Promise<void> => 
     path: {
       course_id: courseId,
     },
-    throwOnError: true,
   })
 
   downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_SUBMISSIONS_CSV_SUFFIX}`)
@@ -55,7 +54,6 @@ const downloadCourseUserDetailsCsv = async (courseId: string): Promise<void> => 
     path: {
       course_id: courseId,
     },
-    throwOnError: true,
   })
 
   downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_USER_DETAILS_CSV_SUFFIX}`)
@@ -66,7 +64,6 @@ const downloadCourseExerciseTasksCsv = async (courseId: string): Promise<void> =
     path: {
       course_id: courseId,
     },
-    throwOnError: true,
   })
 
   downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_EXERCISE_TASKS_CSV_SUFFIX}`)
@@ -77,7 +74,6 @@ const downloadCourseInstancesCsv = async (courseId: string): Promise<void> => {
     path: {
       course_id: courseId,
     },
-    throwOnError: true,
   })
 
   downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_INSTANCES_CSV_SUFFIX}`)
@@ -88,7 +84,6 @@ const downloadCourseUserConsentsCsv = async (courseId: string): Promise<void> =>
     path: {
       course_id: courseId,
     },
-    throwOnError: true,
   })
 
   downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_USER_CONSENTS_CSV_SUFFIX}`)
@@ -99,7 +94,6 @@ const downloadCourseUserExerciseStatesCsv = async (courseId: string): Promise<vo
     path: {
       course_id: courseId,
     },
-    throwOnError: true,
   })
 
   downloadTextFile(
@@ -128,7 +122,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         path: {
           course_id: course.id,
         },
-        throwOnError: true,
       })
       await refetch()
     },
@@ -150,7 +143,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         path: {
           course_id: course.id,
         },
-        throwOnError: true,
       })
     },
     {
@@ -166,7 +158,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         path: {
           course_id: course.id,
         },
-        throwOnError: true,
       })
     },
     {
@@ -186,7 +177,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       })
     },
     {

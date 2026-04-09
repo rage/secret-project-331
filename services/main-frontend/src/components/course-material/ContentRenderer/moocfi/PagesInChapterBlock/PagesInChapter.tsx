@@ -32,7 +32,6 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
         path: {
           chapter_id: chapterId,
         },
-        throwOnError: true,
       }),
   })
 

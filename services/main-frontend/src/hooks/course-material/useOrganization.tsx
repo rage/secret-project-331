@@ -15,7 +15,6 @@ const useOrganization = (organizationId: string | undefined | null) => {
             path: {
               organization_id: organizationId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!organizationId,

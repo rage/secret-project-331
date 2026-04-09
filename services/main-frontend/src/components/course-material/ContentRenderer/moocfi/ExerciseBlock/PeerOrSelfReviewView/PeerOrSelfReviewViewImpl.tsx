@@ -125,7 +125,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           peer_review_question_answers: Array.from(answers.values()),
           token,
         },
-        throwOnError: true,
       })
     },
     { notify: true, method: "POST" },
@@ -187,7 +186,6 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
           peer_or_self_review_config_id: peerOrSelfReviewData.peer_or_self_review_config.id,
           token,
         },
-        throwOnError: true,
       })
     },
     { notify: true, method: "POST" },

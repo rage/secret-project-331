@@ -69,10 +69,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   const preFillCountry = useQuery({
     queryKey: [`users-ip-country`],
-    queryFn: () =>
-      getCourseMaterialCountryFromIp({
-        throwOnError: true,
-      }),
+    queryFn: () => getCourseMaterialCountryFromIp({}),
   })
 
   useEffect(() => {
@@ -101,7 +98,6 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           first_name,
           last_name,
         },
-        throwOnError: true,
       })
     },
 

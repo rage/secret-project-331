@@ -21,13 +21,13 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
-export const deleteCourseMaterialGlossaryTerm = <ThrowOnError extends boolean = false>(options: Options<DeleteCourseMaterialGlossaryTermData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseMaterialGlossaryTermResponses, unknown, ThrowOnError, 'data'>({
+export const deleteCourseMaterialGlossaryTerm = <ThrowOnError extends boolean = true>(options: Options<DeleteCourseMaterialGlossaryTermData, ThrowOnError>) => (options.client ?? client).delete<DeleteCourseMaterialGlossaryTermResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/course-material/acronyms/{id}/delete',
     ...options
 });
 
-export const updateCourseMaterialGlossaryTerm = <ThrowOnError extends boolean = false>(options: Options<UpdateCourseMaterialGlossaryTermData, ThrowOnError>) => (options.client ?? client).put<UpdateCourseMaterialGlossaryTermResponses, unknown, ThrowOnError, 'data'>({
+export const updateCourseMaterialGlossaryTerm = <ThrowOnError extends boolean = true>(options: Options<UpdateCourseMaterialGlossaryTermData, ThrowOnError>) => (options.client ?? client).put<UpdateCourseMaterialGlossaryTermResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/course-material/acronyms/{id}/update',
     ...options,
@@ -41,7 +41,7 @@ export const updateCourseMaterialGlossaryTerm = <ThrowOnError extends boolean = 
  *
  * GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
  */
-export const getCourseMaterialChapterPagesWithExercises = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChapterPagesWithExercisesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterPagesWithExercisesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapterPagesWithExercises = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChapterPagesWithExercisesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterPagesWithExercisesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChapterPagesWithExercisesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chapters/{chapter_id}/exercises',
@@ -62,7 +62,7 @@ export const getCourseMaterialChapterPagesWithExercises = <ThrowOnError extends 
  * - Unlocks next chapters for the user
  * *
  */
-export const lockCourseMaterialChapter = <ThrowOnError extends boolean = false>(options: Options<LockCourseMaterialChapterData, ThrowOnError>) => (options.client ?? client).post<LockCourseMaterialChapterResponses, unknown, ThrowOnError, 'data'>({
+export const lockCourseMaterialChapter = <ThrowOnError extends boolean = true>(options: Options<LockCourseMaterialChapterData, ThrowOnError>) => (options.client ?? client).post<LockCourseMaterialChapterResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zLockCourseMaterialChapterResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chapters/{chapter_id}/lock',
@@ -76,7 +76,7 @@ export const lockCourseMaterialChapter = <ThrowOnError extends boolean = false>(
  * Returns information about unreturned exercises in the chapter before locking.
  * *
  */
-export const getCourseMaterialChapterLockPreview = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChapterLockPreviewData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterLockPreviewResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapterLockPreview = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChapterLockPreviewData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterLockPreviewResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChapterLockPreviewResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chapters/{chapter_id}/lock-preview',
@@ -87,7 +87,7 @@ export const getCourseMaterialChapterLockPreview = <ThrowOnError extends boolean
  *
  * GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
  */
-export const getCourseMaterialChapterPages = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChapterPagesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterPagesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapterPages = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChapterPagesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterPagesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChapterPagesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chapters/{chapter_id}/pages',
@@ -98,7 +98,7 @@ export const getCourseMaterialChapterPages = <ThrowOnError extends boolean = fal
  *
  * GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
  */
-export const getCourseMaterialChapterPagesExcludingFrontPage = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChapterPagesExcludingFrontPageData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterPagesExcludingFrontPageResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapterPagesExcludingFrontPage = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChapterPagesExcludingFrontPageData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterPagesExcludingFrontPageResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChapterPagesExcludingFrontPageResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chapters/{chapter_id}/pages-exclude-mainfrontpage',
@@ -111,7 +111,7 @@ export const getCourseMaterialChapterPagesExcludingFrontPage = <ThrowOnError ext
  *
  * Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
  */
-export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boolean = false>(options: Options<GetDefaultChatbotConfigurationForCourseData, ThrowOnError>) => (options.client ?? client).get<GetDefaultChatbotConfigurationForCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boolean = true>(options: Options<GetDefaultChatbotConfigurationForCourseData, ThrowOnError>) => (options.client ?? client).get<GetDefaultChatbotConfigurationForCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetDefaultChatbotConfigurationForCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chatbot/default-for-course/{course_id}',
@@ -124,7 +124,7 @@ export const getDefaultChatbotConfigurationForCourse = <ThrowOnError extends boo
  *
  * Returns the current conversation for the user.
  */
-export const getChatbotCurrentConversationInfo = <ThrowOnError extends boolean = false>(options: Options<GetChatbotCurrentConversationInfoData, ThrowOnError>) => (options.client ?? client).get<GetChatbotCurrentConversationInfoResponses, unknown, ThrowOnError, 'data'>({
+export const getChatbotCurrentConversationInfo = <ThrowOnError extends boolean = true>(options: Options<GetChatbotCurrentConversationInfoData, ThrowOnError>) => (options.client ?? client).get<GetChatbotCurrentConversationInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetChatbotCurrentConversationInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current',
@@ -137,7 +137,7 @@ export const getChatbotCurrentConversationInfo = <ThrowOnError extends boolean =
  *
  * Sends a new chat message to the chatbot.
  */
-export const newChatbotConversation = <ThrowOnError extends boolean = false>(options: Options<NewChatbotConversationData, ThrowOnError>) => (options.client ?? client).post<NewChatbotConversationResponses, unknown, ThrowOnError, 'data'>({
+export const newChatbotConversation = <ThrowOnError extends boolean = true>(options: Options<NewChatbotConversationData, ThrowOnError>) => (options.client ?? client).post<NewChatbotConversationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zNewChatbotConversationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/new',
@@ -150,7 +150,7 @@ export const newChatbotConversation = <ThrowOnError extends boolean = false>(opt
  *
  * Sends a new chat message to the chatbot.
  */
-export const sendChatbotMessage = <ThrowOnError extends boolean = false>(options: Options<SendChatbotMessageData, ThrowOnError>) => (options.client ?? client).post<SendChatbotMessageResponses, unknown, ThrowOnError, 'data'>({
+export const sendChatbotMessage = <ThrowOnError extends boolean = true>(options: Options<SendChatbotMessageData, ThrowOnError>) => (options.client ?? client).post<SendChatbotMessageResponses, unknown, ThrowOnError, 'data'>({
     bodySerializer: null,
     responseValidator: async (data) => await zSendChatbotMessageResponse.parseAsync(data),
     responseStyle: 'data',
@@ -166,7 +166,7 @@ export const sendChatbotMessage = <ThrowOnError extends boolean = false>(options
  *
  * POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.
  */
-export const claimCodeFromCodeGiveaway = <ThrowOnError extends boolean = false>(options: Options<ClaimCodeFromCodeGiveawayData, ThrowOnError>) => (options.client ?? client).post<ClaimCodeFromCodeGiveawayResponses, unknown, ThrowOnError, 'data'>({
+export const claimCodeFromCodeGiveaway = <ThrowOnError extends boolean = true>(options: Options<ClaimCodeFromCodeGiveawayData, ThrowOnError>) => (options.client ?? client).post<ClaimCodeFromCodeGiveawayResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zClaimCodeFromCodeGiveawayResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/code-giveaways/{id}/claim',
@@ -177,7 +177,7 @@ export const claimCodeFromCodeGiveaway = <ThrowOnError extends boolean = false>(
  *
  * GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
  */
-export const getCodeGiveawayStatus = <ThrowOnError extends boolean = false>(options: Options<GetCodeGiveawayStatusData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawayStatusResponses, unknown, ThrowOnError, 'data'>({
+export const getCodeGiveawayStatus = <ThrowOnError extends boolean = true>(options: Options<GetCodeGiveawayStatusData, ThrowOnError>) => (options.client ?? client).get<GetCodeGiveawayStatusResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCodeGiveawayStatusResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/code-giveaways/{id}/status',
@@ -188,7 +188,7 @@ export const getCodeGiveawayStatus = <ThrowOnError extends boolean = false>(opti
  *
  * GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
  */
-export const getCourseMaterialBackgroundQuestionsAndAnswers = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialBackgroundQuestionsAndAnswersData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialBackgroundQuestionsAndAnswersResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialBackgroundQuestionsAndAnswers = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialBackgroundQuestionsAndAnswersData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialBackgroundQuestionsAndAnswersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialBackgroundQuestionsAndAnswersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-instances/{course_instance_id}/background-questions-and-answers',
@@ -199,7 +199,7 @@ export const getCourseMaterialBackgroundQuestionsAndAnswers = <ThrowOnError exte
  *
  * GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
  */
-export const getCourseMaterialChapterExerciseProgress = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChapterExerciseProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterExerciseProgressResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapterExerciseProgress = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChapterExerciseProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterExerciseProgressResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChapterExerciseProgressResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-instances/{course_instance_id}/chapters/{chapter_id}/exercises/progress',
@@ -210,7 +210,7 @@ export const getCourseMaterialChapterExerciseProgress = <ThrowOnError extends bo
  *
  * GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
  */
-export const getCourseMaterialChapterProgress = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChapterProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterProgressResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapterProgress = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChapterProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterProgressResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChapterProgressResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-instances/{course_instance_id}/chapters/{chapter_id}/progress',
@@ -221,7 +221,7 @@ export const getCourseMaterialChapterProgress = <ThrowOnError extends boolean = 
  *
  * GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
  */
-export const getCourseMaterialCourseModuleCompletionsForUser = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialCourseModuleCompletionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCourseModuleCompletionsForUserResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialCourseModuleCompletionsForUser = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialCourseModuleCompletionsForUserData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCourseModuleCompletionsForUserResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialCourseModuleCompletionsForUserResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-instances/{course_instance_id}/course-module-completions/{user_id}',
@@ -232,7 +232,7 @@ export const getCourseMaterialCourseModuleCompletionsForUser = <ThrowOnError ext
  *
  * GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
  */
-export const getCourseMaterialUserModuleCompletions = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialUserModuleCompletionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserModuleCompletionsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialUserModuleCompletions = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialUserModuleCompletionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserModuleCompletionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialUserModuleCompletionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-instances/{course_instance_id}/module-completions',
@@ -243,7 +243,7 @@ export const getCourseMaterialUserModuleCompletions = <ThrowOnError extends bool
  *
  * GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
  */
-export const getCourseMaterialUserCourseProgress = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialUserCourseProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserCourseProgressResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialUserCourseProgress = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialUserCourseProgressData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserCourseProgressResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialUserCourseProgressResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-instances/{course_instance_id}/progress',
@@ -254,7 +254,7 @@ export const getCourseMaterialUserCourseProgress = <ThrowOnError extends boolean
  *
  * POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
  */
-export const saveCourseMaterialCourseSettings = <ThrowOnError extends boolean = false>(options: Options<SaveCourseMaterialCourseSettingsData, ThrowOnError>) => (options.client ?? client).post<SaveCourseMaterialCourseSettingsResponses, unknown, ThrowOnError, 'data'>({
+export const saveCourseMaterialCourseSettings = <ThrowOnError extends boolean = true>(options: Options<SaveCourseMaterialCourseSettingsData, ThrowOnError>) => (options.client ?? client).post<SaveCourseMaterialCourseSettingsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSaveCourseMaterialCourseSettingsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-instances/{course_instance_id}/save-course-settings',
@@ -271,7 +271,7 @@ export const saveCourseMaterialCourseSettings = <ThrowOnError extends boolean = 
  *
  * Returns course module id based on chapter.
  */
-export const getCourseMaterialModuleIdByChapterId = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialModuleIdByChapterIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialModuleIdByChapterIdResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialModuleIdByChapterId = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialModuleIdByChapterIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialModuleIdByChapterIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialModuleIdByChapterIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-modules/chapter/{chapter_id}',
@@ -284,7 +284,7 @@ export const getCourseMaterialModuleIdByChapterId = <ThrowOnError extends boolea
  *
  * Returns course module id based on chapter.
  */
-export const getCourseMaterialDefaultModuleIdByCourseId = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialDefaultModuleIdByCourseIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialDefaultModuleIdByCourseIdResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialDefaultModuleIdByCourseId = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialDefaultModuleIdByCourseIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialDefaultModuleIdByCourseIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialDefaultModuleIdByCourseIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-modules/course/{course_id}',
@@ -297,7 +297,7 @@ export const getCourseMaterialDefaultModuleIdByCourseId = <ThrowOnError extends 
  *
  * Returns exercise submissions for user to be used in en exercise service Custom view.
  */
-export const getCourseMaterialExerciseTasksByModuleAndType = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialExerciseTasksByModuleAndTypeData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialExerciseTasksByModuleAndTypeResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialExerciseTasksByModuleAndType = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialExerciseTasksByModuleAndTypeData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialExerciseTasksByModuleAndTypeResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialExerciseTasksByModuleAndTypeResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/course-modules/{course_module_id}/exercise-tasks/{exercise_type}/{course_instance_id}',
@@ -308,7 +308,7 @@ export const getCourseMaterialExerciseTasksByModuleAndType = <ThrowOnError exten
  *
  * GET `/api/v0/course-material/courses/:course_id` - Get course.
  */
-export const getCourseMaterialCourse = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialCourseData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCourseResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialCourse = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialCourseData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCourseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialCourseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}',
@@ -319,7 +319,7 @@ export const getCourseMaterialCourse = <ThrowOnError extends boolean = false>(op
  *
  * GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
  */
-export const getCourseMaterialChapters = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChaptersData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChaptersResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapters = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChaptersData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChaptersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChaptersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/chapters',
@@ -330,7 +330,7 @@ export const getCourseMaterialChapters = <ThrowOnError extends boolean = false>(
  *
  * GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
  */
-export const getCourseMaterialCourseInstances = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialCourseInstancesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCourseInstancesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialCourseInstances = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialCourseInstancesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCourseInstancesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialCourseInstancesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/course-instances',
@@ -341,7 +341,7 @@ export const getCourseMaterialCourseInstances = <ThrowOnError extends boolean = 
  *
  * GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
-export const getCourseMaterialStudentCountries = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialStudentCountriesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialStudentCountriesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialStudentCountries = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialStudentCountriesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialStudentCountriesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialStudentCountriesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/course-instances/{course_instance_id}/student-countries',
@@ -352,7 +352,7 @@ export const getCourseMaterialStudentCountries = <ThrowOnError extends boolean =
  *
  * POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
  */
-export const postCourseMaterialStudentCountry = <ThrowOnError extends boolean = false>(options: Options<PostCourseMaterialStudentCountryData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialStudentCountryResponses, unknown, ThrowOnError, 'data'>({
+export const postCourseMaterialStudentCountry = <ThrowOnError extends boolean = true>(options: Options<PostCourseMaterialStudentCountryData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialStudentCountryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostCourseMaterialStudentCountryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}',
@@ -363,7 +363,7 @@ export const postCourseMaterialStudentCountry = <ThrowOnError extends boolean = 
  *
  * GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
  */
-export const getCurrentCourseMaterialCourseInstance = <ThrowOnError extends boolean = false>(options: Options<GetCurrentCourseMaterialCourseInstanceData, ThrowOnError>) => (options.client ?? client).get<GetCurrentCourseMaterialCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
+export const getCurrentCourseMaterialCourseInstance = <ThrowOnError extends boolean = true>(options: Options<GetCurrentCourseMaterialCourseInstanceData, ThrowOnError>) => (options.client ?? client).get<GetCurrentCourseMaterialCourseInstanceResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCurrentCourseMaterialCourseInstanceResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/current-instance',
@@ -374,7 +374,7 @@ export const getCurrentCourseMaterialCourseInstance = <ThrowOnError extends bool
  *
  * GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.
  */
-export const getCourseMaterialCustomPrivacyPolicyCheckboxTexts = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialCustomPrivacyPolicyCheckboxTextsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCustomPrivacyPolicyCheckboxTextsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialCustomPrivacyPolicyCheckboxTexts = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialCustomPrivacyPolicyCheckboxTextsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCustomPrivacyPolicyCheckboxTextsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialCustomPrivacyPolicyCheckboxTextsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/custom-privacy-policy-checkbox-texts',
@@ -385,7 +385,7 @@ export const getCourseMaterialCustomPrivacyPolicyCheckboxTexts = <ThrowOnError e
  *
  * POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
  */
-export const postFeedback = <ThrowOnError extends boolean = false>(options: Options<PostFeedbackData, ThrowOnError>) => (options.client ?? client).post<PostFeedbackResponses, unknown, ThrowOnError, 'data'>({
+export const postFeedback = <ThrowOnError extends boolean = true>(options: Options<PostFeedbackData, ThrowOnError>) => (options.client ?? client).post<PostFeedbackResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostFeedbackResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/feedback',
@@ -400,14 +400,14 @@ export const postFeedback = <ThrowOnError extends boolean = false>(options: Opti
  *
  * GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`
  */
-export const getCourseMaterialUserMarketingConsent = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialUserMarketingConsentData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserMarketingConsentResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialUserMarketingConsent = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialUserMarketingConsentData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserMarketingConsentResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialUserMarketingConsentResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/fetch-user-marketing-consent',
     ...options
 });
 
-export const getCourseMaterialGlossary = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialGlossaryData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialGlossaryResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialGlossary = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialGlossaryData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialGlossaryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialGlossaryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/glossary',
@@ -418,7 +418,7 @@ export const getCourseMaterialGlossary = <ThrowOnError extends boolean = false>(
  *
  * GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.
  */
-export const getCourseMaterialLanguageVersionNavigationInfos = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialLanguageVersionNavigationInfosData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialLanguageVersionNavigationInfosResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialLanguageVersionNavigationInfos = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialLanguageVersionNavigationInfosData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialLanguageVersionNavigationInfosResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialLanguageVersionNavigationInfosResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/language-versions-navigation-info/from-page/{page_id}',
@@ -431,7 +431,7 @@ export const getCourseMaterialLanguageVersionNavigationInfos = <ThrowOnError ext
  *
  * Since anyone can access this endpoint, any unlisted pages are omited from these results.
  */
-export const getCourseMaterialCoursePages = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialCoursePagesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCoursePagesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialCoursePages = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialCoursePagesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCoursePagesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialCoursePagesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/pages',
@@ -442,7 +442,7 @@ export const getCourseMaterialCoursePages = <ThrowOnError extends boolean = fals
  *
  * GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
-export const getCourseMaterialPageByCourseIdAndLanguageGroupId = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPageByCourseIdAndLanguageGroupIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageByCourseIdAndLanguageGroupIdResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPageByCourseIdAndLanguageGroupId = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPageByCourseIdAndLanguageGroupIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageByCourseIdAndLanguageGroupIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPageByCourseIdAndLanguageGroupIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/pages/by-language-group-id/{page_language_group_id}',
@@ -453,7 +453,7 @@ export const getCourseMaterialPageByCourseIdAndLanguageGroupId = <ThrowOnError e
  *
  * GET /courses/:course_id/partners-block - Gets a partners block related to a course
  */
-export const getCourseMaterialPartnersBlock = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPartnersBlockData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPartnersBlockResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPartnersBlock = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPartnersBlockData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPartnersBlockResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPartnersBlockResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/partners-block',
@@ -464,14 +464,14 @@ export const getCourseMaterialPartnersBlock = <ThrowOnError extends boolean = fa
  *
  * GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
  */
-export const getCourseMaterialPrivacyLink = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPrivacyLinkData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPrivacyLinkResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPrivacyLink = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPrivacyLinkData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPrivacyLinkResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPrivacyLinkResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/privacy-link',
     ...options
 });
 
-export const getCourseMaterialReferences = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialReferencesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialReferencesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialReferences = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialReferencesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialReferencesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialReferencesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/references',
@@ -482,7 +482,7 @@ export const getCourseMaterialReferences = <ThrowOnError extends boolean = false
  *
  * GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
  */
-export const getCourseMaterialResearchConsentForm = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialResearchConsentFormData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialResearchConsentFormResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialResearchConsentForm = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialResearchConsentFormData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialResearchConsentFormResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialResearchConsentFormResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/research-consent-form',
@@ -493,7 +493,7 @@ export const getCourseMaterialResearchConsentForm = <ThrowOnError extends boolea
  *
  * GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
  */
-export const getCourseMaterialResearchConsentFormQuestions = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialResearchConsentFormQuestionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialResearchConsentFormQuestionsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialResearchConsentFormQuestions = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialResearchConsentFormQuestionsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialResearchConsentFormQuestionsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialResearchConsentFormQuestionsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/research-consent-form-questions',
@@ -504,7 +504,7 @@ export const getCourseMaterialResearchConsentFormQuestions = <ThrowOnError exten
  *
  * POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
  */
-export const postCourseMaterialResearchConsentFormAnswer = <ThrowOnError extends boolean = false>(options: Options<PostCourseMaterialResearchConsentFormAnswerData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialResearchConsentFormAnswerResponses, unknown, ThrowOnError, 'data'>({
+export const postCourseMaterialResearchConsentFormAnswer = <ThrowOnError extends boolean = true>(options: Options<PostCourseMaterialResearchConsentFormAnswerData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialResearchConsentFormAnswerResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostCourseMaterialResearchConsentFormAnswerResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/research-consent-form-questions-answer',
@@ -519,7 +519,7 @@ export const postCourseMaterialResearchConsentFormAnswer = <ThrowOnError extends
  *
  * GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
  */
-export const getCourseMaterialResearchConsentFormAnswers = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialResearchConsentFormAnswersData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialResearchConsentFormAnswersResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialResearchConsentFormAnswers = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialResearchConsentFormAnswersData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialResearchConsentFormAnswersResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialResearchConsentFormAnswersResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/research-consent-form-user-answers',
@@ -545,7 +545,7 @@ export const getCourseMaterialResearchConsentFormAnswers = <ThrowOnError extends
  * }
  * ```
  */
-export const searchPagesWithPhrase = <ThrowOnError extends boolean = false>(options: Options<SearchPagesWithPhraseData, ThrowOnError>) => (options.client ?? client).post<SearchPagesWithPhraseResponses, unknown, ThrowOnError, 'data'>({
+export const searchPagesWithPhrase = <ThrowOnError extends boolean = true>(options: Options<SearchPagesWithPhraseData, ThrowOnError>) => (options.client ?? client).post<SearchPagesWithPhraseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSearchPagesWithPhraseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/search-pages-with-phrase',
@@ -575,7 +575,7 @@ export const searchPagesWithPhrase = <ThrowOnError extends boolean = false>(opti
  * }
  * ```
  */
-export const searchPagesWithWords = <ThrowOnError extends boolean = false>(options: Options<SearchPagesWithWordsData, ThrowOnError>) => (options.client ?? client).post<SearchPagesWithWordsResponses, unknown, ThrowOnError, 'data'>({
+export const searchPagesWithWords = <ThrowOnError extends boolean = true>(options: Options<SearchPagesWithWordsData, ThrowOnError>) => (options.client ?? client).post<SearchPagesWithWordsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zSearchPagesWithWordsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/search-pages-with-words',
@@ -590,7 +590,7 @@ export const searchPagesWithWords = <ThrowOnError extends boolean = false>(optio
  *
  * GET /api/v0/course-material/courses/:course_id/top-level-pages
  */
-export const getCourseMaterialTopLevelPages = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialTopLevelPagesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialTopLevelPagesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialTopLevelPages = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialTopLevelPagesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialTopLevelPagesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialTopLevelPagesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/top-level-pages',
@@ -604,7 +604,7 @@ export const getCourseMaterialTopLevelPages = <ThrowOnError extends boolean = fa
  * Returns all chapters that the authenticated user has unlocked or completed for the specified course.
  * *
  */
-export const getCourseMaterialUserChapterLocks = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialUserChapterLocksData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserChapterLocksResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialUserChapterLocks = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialUserChapterLocksData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserChapterLocksResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialUserChapterLocksResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/user-chapter-locks',
@@ -615,7 +615,7 @@ export const getCourseMaterialUserChapterLocks = <ThrowOnError extends boolean =
  *
  * POST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.
  */
-export const updateMarketingConsent = <ThrowOnError extends boolean = false>(options: Options<UpdateMarketingConsentData, ThrowOnError>) => (options.client ?? client).post<UpdateMarketingConsentResponses, unknown, ThrowOnError, 'data'>({
+export const updateMarketingConsent = <ThrowOnError extends boolean = true>(options: Options<UpdateMarketingConsentData, ThrowOnError>) => (options.client ?? client).post<UpdateMarketingConsentResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateMarketingConsentResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/user-marketing-consent',
@@ -630,7 +630,7 @@ export const updateMarketingConsent = <ThrowOnError extends boolean = false>(opt
  *
  * GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
  */
-export const getCourseMaterialUserCourseSettings = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialUserCourseSettingsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserCourseSettingsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialUserCourseSettings = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialUserCourseSettingsData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialUserCourseSettingsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialUserCourseSettingsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_id}/user-settings',
@@ -641,7 +641,7 @@ export const getCourseMaterialUserCourseSettings = <ThrowOnError extends boolean
  *
  * GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
  */
-export const getCourseMaterialStudentCountry = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialStudentCountryData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialStudentCountryResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialStudentCountry = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialStudentCountryData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialStudentCountryResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialStudentCountryResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_instance_id}/student-country',
@@ -657,7 +657,7 @@ export const getCourseMaterialStudentCountry = <ThrowOnError extends boolean = f
  * # Example
  * GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
  */
-export const getCourseMaterialCoursePageByPath = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialCoursePageByPathData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCoursePageByPathResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialCoursePageByPath = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialCoursePageByPathData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialCoursePageByPathResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialCoursePageByPathResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_slug}/page-by-path/{url_path}',
@@ -668,7 +668,7 @@ export const getCourseMaterialCoursePageByPath = <ThrowOnError extends boolean =
  *
  * POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
  */
-export const postCourseMaterialCourseEditProposal = <ThrowOnError extends boolean = false>(options: Options<PostCourseMaterialCourseEditProposalData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialCourseEditProposalResponses, unknown, ThrowOnError, 'data'>({
+export const postCourseMaterialCourseEditProposal = <ThrowOnError extends boolean = true>(options: Options<PostCourseMaterialCourseEditProposalData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialCourseEditProposalResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostCourseMaterialCourseEditProposalResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/courses/{course_slug}/propose-edit',
@@ -685,7 +685,7 @@ export const postCourseMaterialCourseEditProposal = <ThrowOnError extends boolea
  *
  * Fetches an exam for testing.
  */
-export const fetchExamForTesting = <ThrowOnError extends boolean = false>(options: Options<FetchExamForTestingData, ThrowOnError>) => (options.client ?? client).get<FetchExamForTestingResponses, unknown, ThrowOnError, 'data'>({
+export const fetchExamForTesting = <ThrowOnError extends boolean = true>(options: Options<FetchExamForTestingData, ThrowOnError>) => (options.client ?? client).get<FetchExamForTestingResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zFetchExamForTestingResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exams/testexam/{id}/fetch-exam-for-testing',
@@ -698,7 +698,7 @@ export const fetchExamForTesting = <ThrowOnError extends boolean = false>(option
  *
  * Used for testing an exam, resets exercise submissions and restarts the exam time.
  */
-export const resetExamProgress = <ThrowOnError extends boolean = false>(options: Options<ResetExamProgressData, ThrowOnError>) => (options.client ?? client).post<ResetExamProgressResponses, unknown, ThrowOnError, 'data'>({
+export const resetExamProgress = <ThrowOnError extends boolean = true>(options: Options<ResetExamProgressData, ThrowOnError>) => (options.client ?? client).post<ResetExamProgressResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/course-material/exams/testexam/{id}/reset-exam-progress',
     ...options
@@ -710,7 +710,7 @@ export const resetExamProgress = <ThrowOnError extends boolean = false>(options:
  *
  * Used for testing an exam, updates wheter exercise answers are shown.
  */
-export const updateShowExerciseAnswers = <ThrowOnError extends boolean = false>(options: Options<UpdateShowExerciseAnswersData, ThrowOnError>) => (options.client ?? client).post<UpdateShowExerciseAnswersResponses, unknown, ThrowOnError, 'data'>({
+export const updateShowExerciseAnswers = <ThrowOnError extends boolean = true>(options: Options<UpdateShowExerciseAnswersData, ThrowOnError>) => (options.client ?? client).post<UpdateShowExerciseAnswersResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/course-material/exams/testexam/{id}/update-show-exercise-answers',
     ...options,
@@ -724,7 +724,7 @@ export const updateShowExerciseAnswers = <ThrowOnError extends boolean = false>(
  *
  * GET /api/v0/course-material/exams/:id
  */
-export const fetchExam = <ThrowOnError extends boolean = false>(options: Options<FetchExamData, ThrowOnError>) => (options.client ?? client).get<FetchExamResponses, unknown, ThrowOnError, 'data'>({
+export const fetchExam = <ThrowOnError extends boolean = true>(options: Options<FetchExamData, ThrowOnError>) => (options.client ?? client).get<FetchExamResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zFetchExamResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exams/{id}',
@@ -737,7 +737,7 @@ export const fetchExam = <ThrowOnError extends boolean = false>(options: Options
  *
  * Used for marking the students exam as ended in the exam enrollment
  */
-export const endExamTime = <ThrowOnError extends boolean = false>(options: Options<EndExamTimeData, ThrowOnError>) => (options.client ?? client).post<EndExamTimeResponses, unknown, ThrowOnError, 'data'>({
+export const endExamTime = <ThrowOnError extends boolean = true>(options: Options<EndExamTimeData, ThrowOnError>) => (options.client ?? client).post<EndExamTimeResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/course-material/exams/{id}/end-exam-time',
     ...options
@@ -747,7 +747,7 @@ export const endExamTime = <ThrowOnError extends boolean = false>(options: Optio
  *
  * POST /api/v0/course-material/exams/:id/enroll
  */
-export const enrollInExam = <ThrowOnError extends boolean = false>(options: Options<EnrollInExamData, ThrowOnError>) => (options.client ?? client).post<EnrollInExamResponses, unknown, ThrowOnError, 'data'>({
+export const enrollInExam = <ThrowOnError extends boolean = true>(options: Options<EnrollInExamData, ThrowOnError>) => (options.client ?? client).post<EnrollInExamResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/course-material/exams/{id}/enroll',
     ...options,
@@ -761,7 +761,7 @@ export const enrollInExam = <ThrowOnError extends boolean = false>(options: Opti
  *
  * GET /api/v0/course-material/exams/:id/enrollment
  */
-export const fetchExamEnrollment = <ThrowOnError extends boolean = false>(options: Options<FetchExamEnrollmentData, ThrowOnError>) => (options.client ?? client).get<FetchExamEnrollmentResponses, unknown, ThrowOnError, 'data'>({
+export const fetchExamEnrollment = <ThrowOnError extends boolean = true>(options: Options<FetchExamEnrollmentData, ThrowOnError>) => (options.client ?? client).get<FetchExamEnrollmentResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zFetchExamEnrollmentResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exams/{id}/enrollment',
@@ -776,7 +776,7 @@ export const fetchExamEnrollment = <ThrowOnError extends boolean = false>(option
  * This endpoint does not expose exercise's private spec because it would
  * expose the correct answers to the user.
  */
-export const getCourseMaterialExercise = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialExerciseData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialExerciseResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialExercise = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialExerciseData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialExerciseResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialExerciseResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exercises/{exercise_id}',
@@ -787,7 +787,7 @@ export const getCourseMaterialExercise = <ThrowOnError extends boolean = false>(
  *
  * GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
  */
-export const fetchPeerReviewDataReceivedByExerciseId = <ThrowOnError extends boolean = false>(options: Options<FetchPeerReviewDataReceivedByExerciseIdData, ThrowOnError>) => (options.client ?? client).get<FetchPeerReviewDataReceivedByExerciseIdResponses, unknown, ThrowOnError, 'data'>({
+export const fetchPeerReviewDataReceivedByExerciseId = <ThrowOnError extends boolean = true>(options: Options<FetchPeerReviewDataReceivedByExerciseIdData, ThrowOnError>) => (options.client ?? client).get<FetchPeerReviewDataReceivedByExerciseIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zFetchPeerReviewDataReceivedByExerciseIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exercises/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received',
@@ -798,7 +798,7 @@ export const fetchPeerReviewDataReceivedByExerciseId = <ThrowOnError extends boo
  *
  * * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
  */
-export const postFlagAnswerInPeerReview = <ThrowOnError extends boolean = false>(options: Options<PostFlagAnswerInPeerReviewData, ThrowOnError>) => (options.client ?? client).post<PostFlagAnswerInPeerReviewResponses, unknown, ThrowOnError, 'data'>({
+export const postFlagAnswerInPeerReview = <ThrowOnError extends boolean = true>(options: Options<PostFlagAnswerInPeerReviewData, ThrowOnError>) => (options.client ?? client).post<PostFlagAnswerInPeerReviewResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostFlagAnswerInPeerReviewResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exercises/{exercise_id}/flag-peer-review-answer',
@@ -814,7 +814,7 @@ export const postFlagAnswerInPeerReview = <ThrowOnError extends boolean = false>
  * * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
  * * exercise submission.
  */
-export const postPeerOrSelfReviewSubmission = <ThrowOnError extends boolean = false>(options: Options<PostPeerOrSelfReviewSubmissionData, ThrowOnError>) => (options.client ?? client).post<PostPeerOrSelfReviewSubmissionResponses, unknown, ThrowOnError, 'data'>({
+export const postPeerOrSelfReviewSubmission = <ThrowOnError extends boolean = true>(options: Options<PostPeerOrSelfReviewSubmissionData, ThrowOnError>) => (options.client ?? client).post<PostPeerOrSelfReviewSubmissionResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostPeerOrSelfReviewSubmissionResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exercises/{exercise_id}/peer-or-self-reviews',
@@ -833,7 +833,7 @@ export const postPeerOrSelfReviewSubmission = <ThrowOnError extends boolean = fa
  * * This operation is only valid for exercises marked for peer reviews. No further submissions will be
  * * accepted after posting to this endpoint.
  */
-export const postStartPeerOrSelfReview = <ThrowOnError extends boolean = false>(options: Options<PostStartPeerOrSelfReviewData, ThrowOnError>) => (options.client ?? client).post<PostStartPeerOrSelfReviewResponses, unknown, ThrowOnError, 'data'>({
+export const postStartPeerOrSelfReview = <ThrowOnError extends boolean = true>(options: Options<PostStartPeerOrSelfReviewData, ThrowOnError>) => (options.client ?? client).post<PostStartPeerOrSelfReviewResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostStartPeerOrSelfReviewResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exercises/{exercise_id}/peer-or-self-reviews/start',
@@ -846,7 +846,7 @@ export const postStartPeerOrSelfReview = <ThrowOnError extends boolean = false>(
  *
  * This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
  */
-export const fetchPeerOrSelfReviewDataByExerciseId = <ThrowOnError extends boolean = false>(options: Options<FetchPeerOrSelfReviewDataByExerciseIdData, ThrowOnError>) => (options.client ?? client).get<FetchPeerOrSelfReviewDataByExerciseIdResponses, unknown, ThrowOnError, 'data'>({
+export const fetchPeerOrSelfReviewDataByExerciseId = <ThrowOnError extends boolean = true>(options: Options<FetchPeerOrSelfReviewDataByExerciseIdData, ThrowOnError>) => (options.client ?? client).get<FetchPeerOrSelfReviewDataByExerciseIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zFetchPeerOrSelfReviewDataByExerciseIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exercises/{exercise_id}/peer-review',
@@ -874,7 +874,7 @@ export const fetchPeerOrSelfReviewDataByExerciseId = <ThrowOnError extends boole
  * }
  * ```
  */
-export const postSubmission = <ThrowOnError extends boolean = false>(options: Options<PostSubmissionData, ThrowOnError>) => (options.client ?? client).post<PostSubmissionResponses, unknown, ThrowOnError, 'data'>({
+export const postSubmission = <ThrowOnError extends boolean = true>(options: Options<PostSubmissionData, ThrowOnError>) => (options.client ?? client).post<PostSubmissionResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zPostSubmissionResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/exercises/{exercise_id}/submissions',
@@ -889,7 +889,7 @@ export const postSubmission = <ThrowOnError extends boolean = false>(options: Op
  *
  * GET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`
  */
-export const getCourseMaterialMentimeterOembed = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialMentimeterOembedData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialMentimeterOembedResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialMentimeterOembed = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialMentimeterOembedData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialMentimeterOembedResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialMentimeterOembedResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/oembed/mentimeter',
@@ -900,14 +900,14 @@ export const getCourseMaterialMentimeterOembed = <ThrowOnError extends boolean =
  *
  * GET /organizations/:organization_id - Get organization.
  */
-export const getCourseMaterialOrganization = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialOrganizationData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialOrganizationResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialOrganization = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialOrganizationData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialOrganizationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialOrganizationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/organizations/{organization_id}',
     ...options
 });
 
-export const getCourseMaterialPageAudioFiles = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPageAudioFilesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageAudioFilesResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPageAudioFiles = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPageAudioFilesData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageAudioFilesResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPageAudioFilesResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/page_audio/{page_id}/files',
@@ -918,7 +918,7 @@ export const getCourseMaterialPageAudioFiles = <ThrowOnError extends boolean = f
  *
  * GET /api/v0/course-material/pages/exam/{page_id}
  */
-export const getCourseMaterialPageByExamId = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPageByExamIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageByExamIdResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPageByExamId = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPageByExamIdData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageByExamIdResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPageByExamIdResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/pages/exam/{page_id}',
@@ -929,7 +929,7 @@ export const getCourseMaterialPageByExamId = <ThrowOnError extends boolean = fal
  *
  * GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs
  */
-export const getCourseMaterialPageChapterAndCourseInformation = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPageChapterAndCourseInformationData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageChapterAndCourseInformationResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPageChapterAndCourseInformation = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPageChapterAndCourseInformationData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageChapterAndCourseInformationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPageChapterAndCourseInformationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/pages/{current_page_id}/chapter-and-course-information',
@@ -940,14 +940,14 @@ export const getCourseMaterialPageChapterAndCourseInformation = <ThrowOnError ex
  *
  * GET /api/v0/course-material/page/{page_id}
  */
-export const getCourseMaterialChapterFrontPage = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialChapterFrontPageData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterFrontPageResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialChapterFrontPage = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialChapterFrontPageData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialChapterFrontPageResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialChapterFrontPageResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/pages/{current_page_id}/chapter-front-page',
     ...options
 });
 
-export const getCourseMaterialIsPageChapterFrontPage = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialIsPageChapterFrontPageData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialIsPageChapterFrontPageResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialIsPageChapterFrontPage = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialIsPageChapterFrontPageData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialIsPageChapterFrontPageResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialIsPageChapterFrontPageResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/pages/{current_page_id}/is-chapter-front-page',
@@ -958,7 +958,7 @@ export const getCourseMaterialIsPageChapterFrontPage = <ThrowOnError extends boo
  *
  * GET /api/v0/course-material/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
  */
-export const getCourseMaterialPageNavigation = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPageNavigationData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageNavigationResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPageNavigation = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPageNavigationData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageNavigationResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPageNavigationResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/pages/{current_page_id}/page-navigation',
@@ -973,7 +973,7 @@ export const getCourseMaterialPageNavigation = <ThrowOnError extends boolean = f
  * "chapter-1/page-2"
  * ```
  */
-export const getCourseMaterialPageUrlPath = <ThrowOnError extends boolean = false>(options: Options<GetCourseMaterialPageUrlPathData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageUrlPathResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialPageUrlPath = <ThrowOnError extends boolean = true>(options: Options<GetCourseMaterialPageUrlPathData, ThrowOnError>) => (options.client ?? client).get<GetCourseMaterialPageUrlPathResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialPageUrlPathResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/pages/{current_page_id}/url-path',
@@ -984,7 +984,7 @@ export const getCourseMaterialPageUrlPath = <ThrowOnError extends boolean = fals
  *
  * POST `/api/v0/course-material/proposed-edits/:course-id`
  */
-export const postCourseMaterialProposedEdits = <ThrowOnError extends boolean = false>(options: Options<PostCourseMaterialProposedEditsData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialProposedEditsResponses, unknown, ThrowOnError, 'data'>({
+export const postCourseMaterialProposedEdits = <ThrowOnError extends boolean = true>(options: Options<PostCourseMaterialProposedEditsData, ThrowOnError>) => (options.client ?? client).post<PostCourseMaterialProposedEditsResponses, unknown, ThrowOnError, 'data'>({
     responseStyle: 'data',
     url: '/api/v0/course-material/proposed-edits/{course_id}',
     ...options,
@@ -998,7 +998,7 @@ export const postCourseMaterialProposedEdits = <ThrowOnError extends boolean = f
  *
  * POST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent
  */
-export const updateCourseMaterialUserInfo = <ThrowOnError extends boolean = false>(options: Options<UpdateCourseMaterialUserInfoData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseMaterialUserInfoResponses, unknown, ThrowOnError, 'data'>({
+export const updateCourseMaterialUserInfo = <ThrowOnError extends boolean = true>(options: Options<UpdateCourseMaterialUserInfoData, ThrowOnError>) => (options.client ?? client).post<UpdateCourseMaterialUserInfoResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zUpdateCourseMaterialUserInfoResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/user-details/update-user-info',
@@ -1013,7 +1013,7 @@ export const updateCourseMaterialUserInfo = <ThrowOnError extends boolean = fals
  *
  * GET `/api/v0/course-material/user-details/user` - Find user details by user id
  */
-export const getCourseMaterialAuthenticatedUserDetails = <ThrowOnError extends boolean = false>(options?: Options<GetCourseMaterialAuthenticatedUserDetailsData, ThrowOnError>) => (options?.client ?? client).get<GetCourseMaterialAuthenticatedUserDetailsResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialAuthenticatedUserDetails = <ThrowOnError extends boolean = true>(options?: Options<GetCourseMaterialAuthenticatedUserDetailsData, ThrowOnError>) => (options?.client ?? client).get<GetCourseMaterialAuthenticatedUserDetailsResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialAuthenticatedUserDetailsResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/user-details/user',
@@ -1024,7 +1024,7 @@ export const getCourseMaterialAuthenticatedUserDetails = <ThrowOnError extends b
  *
  * GET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address
  */
-export const getCourseMaterialCountryFromIp = <ThrowOnError extends boolean = false>(options?: Options<GetCourseMaterialCountryFromIpData, ThrowOnError>) => (options?.client ?? client).get<GetCourseMaterialCountryFromIpResponses, unknown, ThrowOnError, 'data'>({
+export const getCourseMaterialCountryFromIp = <ThrowOnError extends boolean = true>(options?: Options<GetCourseMaterialCountryFromIpData, ThrowOnError>) => (options?.client ?? client).get<GetCourseMaterialCountryFromIpResponses, unknown, ThrowOnError, 'data'>({
     responseValidator: async (data) => await zGetCourseMaterialCountryFromIpResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/course-material/user-details/users-ip-country',

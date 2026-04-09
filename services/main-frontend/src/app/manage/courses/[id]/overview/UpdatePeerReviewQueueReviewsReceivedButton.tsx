@@ -28,7 +28,6 @@ const UpdatePeerReviewQueueReviewsReceivedButton: React.FC<
           path: {
             course_id: courseId,
           },
-          throwOnError: true,
         }),
         isBoolean,
       )

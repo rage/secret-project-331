@@ -35,7 +35,6 @@ const CourseMaterialPageBreadcrumbs: React.FC<
         path: {
           current_page_id: page.id,
         },
-        throwOnError: true,
       })
     },
     enabled: !!page && !isCourseFrontPage,

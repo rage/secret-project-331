@@ -100,7 +100,6 @@ const useChatbotStateAndData = (
           conversation_id: currentConversationInfo.data.current_conversation.id,
         },
         responseStyle: "data",
-        throwOnError: true,
         url: SEND_CHATBOT_MESSAGE_PATH,
       })
       const reader = stream.getReader()

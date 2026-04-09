@@ -30,7 +30,6 @@ const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProp
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }),
     {
       notify: true,

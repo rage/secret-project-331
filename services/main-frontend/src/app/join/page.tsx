@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import {} from "@/generated/api/@tanstack/react-query.generated"
 import {
   getCourseBreadcrumbInfo as getCourseBreadCrumbInfoFromApi,
   getCourseByJoinCode as getCourseByJoinCodeFromApi,
@@ -32,7 +31,6 @@ const getCourseByJoinCodeQueryOptions = (joinCode: string | null) =>
         path: {
           join_code: assertNotNullOrUndefined(joinCode),
         },
-        throwOnError: true,
       }),
   })
 
@@ -46,7 +44,6 @@ const getCourseBreadcrumbInfoQueryOptions = (courseId: string | null | undefined
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
   })
 
@@ -94,7 +91,6 @@ const JoinCoursePage: React.FC = () => {
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       })
     },
     {

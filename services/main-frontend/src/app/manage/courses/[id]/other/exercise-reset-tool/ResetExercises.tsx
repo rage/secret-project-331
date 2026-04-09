@@ -67,7 +67,6 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }),
     {
       notify: true,

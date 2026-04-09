@@ -84,7 +84,6 @@ const ManageExam: React.FC = () => {
             path: {
               organization_id: assertNotNullOrUndefined(organizationId),
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: organizationId != null,
@@ -125,7 +124,6 @@ const ManageExam: React.FC = () => {
         path: {
           id,
         },
-        throwOnError: true,
       })
 
       if (!(data instanceof Blob)) {
@@ -149,7 +147,6 @@ const ManageExam: React.FC = () => {
         path: {
           id,
         },
-        throwOnError: true,
       })
 
       if (!(data instanceof Blob)) {

@@ -19,7 +19,6 @@ const getExerciseSubmissionsForUserQueryOptions = (
           exercise_id: assertNotNullOrUndefined(exerciseId),
           user_id: assertNotNullOrUndefined(userId),
         },
-        throwOnError: true,
       }),
   })
 

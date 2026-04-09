@@ -38,7 +38,6 @@ const SearchUsersPage: React.FC = () => {
         body: {
           query: assertNotNullOrUndefined(searchQuery),
         },
-        throwOnError: true,
       }),
     enabled: trimmedSearchQuery !== "",
   })
@@ -49,7 +48,6 @@ const SearchUsersPage: React.FC = () => {
         body: {
           query: assertNotNullOrUndefined(searchQuery),
         },
-        throwOnError: true,
       }),
     enabled: trimmedSearchQuery !== "",
   })
@@ -60,7 +58,6 @@ const SearchUsersPage: React.FC = () => {
         body: {
           query: assertNotNullOrUndefined(searchQuery),
         },
-        throwOnError: true,
       }),
     enabled: trimmedSearchQuery !== "",
   })

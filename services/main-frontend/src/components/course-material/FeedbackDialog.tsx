@@ -57,7 +57,6 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       })
     },
     {

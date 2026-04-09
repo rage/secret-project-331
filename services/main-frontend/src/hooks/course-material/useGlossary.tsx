@@ -25,7 +25,6 @@ const useGlossary = (
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: Boolean(courseId) && exam === null && isMaterialPage && enabled,

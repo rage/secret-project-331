@@ -67,7 +67,6 @@ const CodeGiveawayPage = () => {
         path: {
           id,
         },
-        throwOnError: true,
       })
 
       if (!(data instanceof Blob)) {

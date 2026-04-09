@@ -39,7 +39,6 @@ const ManageCourseInstances: React.FC = () => {
         path: {
           course_instance_id: courseInstanceId,
         },
-        throwOnError: true,
       })
     },
     {
@@ -58,7 +57,6 @@ const ManageCourseInstances: React.FC = () => {
         path: {
           course_instance_id: courseInstanceId,
         },
-        throwOnError: true,
       })
     },
     {

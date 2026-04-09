@@ -25,7 +25,6 @@ export const useChapterProgress = (courseInstanceId: string | undefined, chapter
               chapter_id: chapterId,
               course_instance_id: courseInstanceId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseInstanceId && loginStateContext.signedIn === true,

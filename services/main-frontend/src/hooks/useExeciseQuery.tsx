@@ -15,7 +15,6 @@ const getExerciseQueryOptions = (exerciseId: string | null) =>
         path: {
           exercise_id: assertNotNullOrUndefined(exerciseId),
         },
-        throwOnError: true,
       }),
   })
 

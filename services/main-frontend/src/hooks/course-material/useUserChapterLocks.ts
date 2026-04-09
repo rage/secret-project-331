@@ -23,7 +23,6 @@ export const useUserChapterLocks = (courseId: string | null | undefined) => {
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseId,

@@ -45,7 +45,6 @@ const ChapterExerciseListGroupedByPage: React.FC<
               course_instance_id: courseInstanceId,
               chapter_id: chapterId,
             },
-            throwOnError: true,
           })
       : skipToken,
     select: (data) => {

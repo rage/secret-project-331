@@ -64,7 +64,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseId,

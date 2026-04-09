@@ -25,7 +25,6 @@ const useCourseLanguageVersionNavigationInfos = (
                 course_id: courseId,
                 page_id,
               },
-              throwOnError: true,
             })
         : skipToken,
     enabled: !!courseId && !!page_id,

@@ -395,7 +395,6 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
                   path: {
                     certificate_id: editData.id,
                   },
-                  throwOnError: true,
                 })
                 setEditData(null)
                 await query.refetch()

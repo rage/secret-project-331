@@ -23,7 +23,6 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseId,

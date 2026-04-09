@@ -26,7 +26,6 @@ const useResearchConsentForm = (
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: loginState.signedIn === true && Boolean(courseId) && enabled,

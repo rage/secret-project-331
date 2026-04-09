@@ -58,7 +58,6 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
         path: {
           chapter_id: chapterId,
         },
-        throwOnError: true,
       }),
     onSuccess: async () => {
       // eslint-disable-next-line i18next/no-literal-string
@@ -82,7 +81,6 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
         path: {
           chapter_id: chapterId,
         },
-        throwOnError: true,
       })
       setIsLoadingPreview(false)
 

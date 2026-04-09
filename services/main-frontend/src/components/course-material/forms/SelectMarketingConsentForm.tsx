@@ -36,7 +36,6 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }),
     enabled: courseId !== undefined && loginStateContext.signedIn === true,
   })
@@ -48,7 +47,6 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }),
     enabled: courseId !== undefined,
   })

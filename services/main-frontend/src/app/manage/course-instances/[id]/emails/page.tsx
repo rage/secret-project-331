@@ -43,7 +43,6 @@ const CourseInstanceEmailTemplates: React.FC = () => {
       path: {
         course_instance_id: courseInstanceId,
       },
-      throwOnError: true,
     })
     setShowForm(!showForm)
     window.location.assign(`/cms/email-templates/${result.id}/edit`)

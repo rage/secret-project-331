@@ -105,7 +105,6 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
         path: {
           course_id: course.id,
         },
-        throwOnError: true,
       })
       onSubmitForm()
       onClose()

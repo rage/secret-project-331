@@ -36,7 +36,6 @@ export default function ConsentPage() {
   const onApprove = async () => {
     const res = await approveOauthConsent({
       body: query,
-      throwOnError: true,
     })
     if (res.redirect_uri) {
       window.location.assign(res.redirect_uri)
@@ -49,7 +48,6 @@ export default function ConsentPage() {
         redirect_uri: query.redirect_uri,
         state: query.state,
       },
-      throwOnError: true,
     })
     if (res.redirect_uri) {
       window.location.assign(res.redirect_uri)

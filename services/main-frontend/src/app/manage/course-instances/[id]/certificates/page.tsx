@@ -48,7 +48,6 @@ const getCourseStructureQueryOptions = (courseId: string | null | undefined) =>
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
   })
 
@@ -119,7 +118,6 @@ const CertificationsPage: React.FC = () => {
           metadata: JSON.stringify(update),
           file: files as unknown as number[][],
         },
-        throwOnError: true,
       })
     },
     { method: "POST", notify: true },
@@ -137,13 +135,11 @@ const CertificationsPage: React.FC = () => {
           course_module_id: moduleId,
           enabled: false,
         },
-        throwOnError: true,
       }).then(() =>
         deleteCertificateConfiguration({
           path: {
             certificate_configuration_id: configurationId,
           },
-          throwOnError: true,
         }),
       )
     },

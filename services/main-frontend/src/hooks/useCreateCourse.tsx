@@ -63,7 +63,6 @@ export const useCreateCourse = () => {
           path: {
             course_id: courseId,
           },
-          throwOnError: true,
         })
       }
 
@@ -79,7 +78,6 @@ export const useCreateCourse = () => {
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
         }
 
@@ -92,13 +90,11 @@ export const useCreateCourse = () => {
           path: {
             course_id: courseId,
           },
-          throwOnError: true,
         })
       }
 
       return createCourse({
         body: newCourse,
-        throwOnError: true,
       })
     },
     {

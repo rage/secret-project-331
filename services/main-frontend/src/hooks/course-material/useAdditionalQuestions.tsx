@@ -24,7 +24,6 @@ const useAdditionalQuestions = (
             path: {
               course_instance_id: instanceId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!instanceId && enabled,

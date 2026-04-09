@@ -18,7 +18,6 @@ const getCourseLanguageVersionsQueryOptions = (courseId: string | null | undefin
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
   })
 

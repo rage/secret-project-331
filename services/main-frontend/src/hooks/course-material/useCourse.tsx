@@ -21,7 +21,6 @@ const useCourse = (courseId: string | undefined | null, options: UseCourseOption
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseId && enabled,

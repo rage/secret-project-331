@@ -53,7 +53,6 @@ const EmailTemplatesList: React.FC = () => {
           path: {
             course_id: courseId,
           },
-          throwOnError: true,
         }).then((course) => ({
           courseId,
           course,

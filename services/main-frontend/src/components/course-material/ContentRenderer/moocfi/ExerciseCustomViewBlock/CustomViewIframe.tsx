@@ -62,7 +62,6 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
                 course_instance_id: courseInstanceId,
                 user_id: userId,
               },
-              throwOnError: true,
             })
         : skipToken,
     enabled: Boolean(courseInstanceId && userId),
@@ -77,7 +76,6 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
             path: {
               chapter_id: chapterId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: Boolean(chapterId),
@@ -91,7 +89,6 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: Boolean(courseId),
@@ -114,7 +111,6 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
                 exercise_type: exerciseServiceSlug,
                 course_instance_id: courseInstanceId,
               },
-              throwOnError: true,
             })
         : skipToken,
     enabled: Boolean(moduleId && courseInstanceId),

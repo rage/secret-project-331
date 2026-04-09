@@ -127,7 +127,6 @@ const SubmissionsPage: React.FC = () => {
           query: {
             exercise_task_id: taskId,
           },
-          throwOnError: true,
         })
 
         downloadTextFile(
@@ -145,7 +144,6 @@ const SubmissionsPage: React.FC = () => {
           exercise_task_id: taskId,
           only_latest_per_user: onlyLatest ?? undefined,
         },
-        throwOnError: true,
       })
 
       downloadTextFile(

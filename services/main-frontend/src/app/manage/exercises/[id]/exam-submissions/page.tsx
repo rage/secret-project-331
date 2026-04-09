@@ -38,7 +38,6 @@ const GradingPage: React.FC = () => {
         path: {
           id: assertNotNullOrUndefined(examId),
         },
-        throwOnError: true,
       }),
     enabled: !!examId,
   })

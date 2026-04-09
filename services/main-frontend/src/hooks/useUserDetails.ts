@@ -48,7 +48,6 @@ const getUserDetailsQueryOptions = (
             user_id: assertNotNullOrUndefined(userId),
             course_ids: assertNotNullOrUndefined(courseIds),
           },
-          throwOnError: true,
         })
 
         return {
@@ -90,7 +89,6 @@ const getBulkUserDetailsQueryOptions = (
           user_ids: assertNotNullOrUndefined(userIds),
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
   })
 

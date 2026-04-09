@@ -48,7 +48,6 @@ export const materialQueryAtom = atomWithQuery((get) => {
           course_slug: materialCourseSlug,
           url_path: materialPath,
         },
-        throwOnError: true,
       })
       return data
     },
@@ -75,13 +74,11 @@ export const examQueryAtom = atomWithQuery((get) => {
             path: {
               id: examId,
             },
-            throwOnError: true,
           })
         : await fetchExam({
             path: {
               id: examId,
             },
-            throwOnError: true,
           })
 
       return data

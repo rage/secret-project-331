@@ -27,7 +27,6 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }),
   })
 

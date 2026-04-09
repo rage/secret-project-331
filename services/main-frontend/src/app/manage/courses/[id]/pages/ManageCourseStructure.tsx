@@ -85,7 +85,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         path: {
           course_id: courseStructure.course.id,
         },
-        throwOnError: true,
       })
     },
     {
@@ -106,7 +105,6 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         path: {
           course_id: courseStructure.course.id,
         },
-        throwOnError: true,
       })
     },
     {

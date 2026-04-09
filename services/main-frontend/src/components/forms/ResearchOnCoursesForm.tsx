@@ -41,7 +41,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
         body: {
           consent: assertNotNullOrUndefined(consent),
         },
-        throwOnError: true,
       }),
     {
       notify: true,

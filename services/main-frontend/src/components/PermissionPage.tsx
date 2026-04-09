@@ -163,11 +163,9 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     ({ email, oldRole, newRole }: { email: string; oldRole: UserRole; newRole: UserRole }) =>
       removeRoleFromApi({
         body: { email, role: oldRole, domain },
-        throwOnError: true,
       }).then(() =>
         addRoleFromApi({
           body: { email, role: newRole, domain },
-          throwOnError: true,
         }),
       ),
     { notify: true, method: "POST" },

@@ -37,7 +37,6 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
         body: {
           file: imageFile as unknown as number[],
         },
-        throwOnError: true,
       })
     },
     {
@@ -62,7 +61,6 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
         path: {
           chapter_id: chapter.id,
         },
-        throwOnError: true,
       }),
     {
       notify: true,

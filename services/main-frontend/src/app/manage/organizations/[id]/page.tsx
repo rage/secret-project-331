@@ -83,7 +83,6 @@ const ManageOrganization: React.FC = () => {
           role: data.role as UserRole,
           domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
         },
-        throwOnError: true,
       })
     },
     { notify: true, method: "POST" },
@@ -115,7 +114,6 @@ const ManageOrganization: React.FC = () => {
           role: userToDelete.role,
           domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
         },
-        throwOnError: true,
       })
         .then(() => {
           roleQuery.refetch()
@@ -145,7 +143,6 @@ const ManageOrganization: React.FC = () => {
         role: editUser.role,
         domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
       },
-      throwOnError: true,
     })
       .then(() =>
         addRoleFromApi({
@@ -157,7 +154,6 @@ const ManageOrganization: React.FC = () => {
               id,
             },
           },
-          throwOnError: true,
         }),
       )
       .then(() => {

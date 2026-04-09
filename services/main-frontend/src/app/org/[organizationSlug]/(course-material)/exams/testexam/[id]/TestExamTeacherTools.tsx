@@ -42,7 +42,6 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
         path: {
           id: examId,
         },
-        throwOnError: true,
       }),
     { notify: false },
     { onSuccess: () => queryClient.refetchQueries() },
@@ -54,7 +53,6 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
         path: {
           id: examId,
         },
-        throwOnError: true,
       }),
     {
       notify: true,

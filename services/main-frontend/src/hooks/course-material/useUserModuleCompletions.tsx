@@ -15,7 +15,6 @@ const useUserModuleCompletions = (courseInstanceId: string | undefined | null) =
             path: {
               course_instance_id: courseInstanceId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseInstanceId,

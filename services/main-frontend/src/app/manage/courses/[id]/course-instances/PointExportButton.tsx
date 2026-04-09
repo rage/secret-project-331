@@ -21,7 +21,6 @@ const PointExportButton: React.FC<
           path: {
             course_instance_id: courseInstanceId,
           },
-          throwOnError: true,
         }).then((csv) => downloadTextFile(csv, `${courseInstanceName}${POINTS_CSV_FILE_SUFFIX}`))
       }
       aria-label={`${t("link-export-points")} (${courseInstanceName})`}

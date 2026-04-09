@@ -124,7 +124,6 @@ const SelectCourseInstanceForm: React.FC<
         path: {
           course_id: getCourse.data.id,
         },
-        throwOnError: true,
       })
     }
   }

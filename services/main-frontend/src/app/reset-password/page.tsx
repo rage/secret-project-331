@@ -41,7 +41,6 @@ const ResetPassword: React.FC = () => {
             email: data.email,
             language: i18n.language,
           },
-          throwOnError: true,
         }),
         isBoolean,
       ),

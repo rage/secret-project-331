@@ -21,7 +21,6 @@ const useAuthorizedClientsQuery = () => {
         path: {
           client_id: clientId,
         },
-        throwOnError: true,
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: authorizedClientsQueryKey })

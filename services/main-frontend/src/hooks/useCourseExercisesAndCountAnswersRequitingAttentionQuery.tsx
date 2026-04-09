@@ -29,7 +29,6 @@ const getCourseExercisesAndAnswersRequiringAttentionCountsQueryOptions = (
         path: {
           course_id: assertNotNullOrUndefined(courseId),
         },
-        throwOnError: true,
       }),
   })
 

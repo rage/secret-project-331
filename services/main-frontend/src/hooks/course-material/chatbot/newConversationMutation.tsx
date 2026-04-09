@@ -21,7 +21,6 @@ const useNewConversationMutation = (
         path: {
           chatbot_configuration_id: chatbotConfigurationId,
         },
-        throwOnError: true,
       }),
     { notify: false },
     {

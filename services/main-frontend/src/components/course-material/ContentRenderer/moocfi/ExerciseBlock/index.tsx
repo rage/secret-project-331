@@ -291,7 +291,6 @@ const ExerciseBlock: React.FC<
           exercise_id: id,
         },
         body: submission,
-        throwOnError: true,
       }),
     {
       notify: false,
@@ -365,7 +364,6 @@ const ExerciseBlock: React.FC<
         path: {
           exercise_id: id,
         },
-        throwOnError: true,
       }),
     { notify: false },
     {

@@ -33,7 +33,6 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }).then((pages) =>
         pages.filter((x) => x.url_path !== "/").sort((a, b) => a.order_number - b.order_number),
       ),

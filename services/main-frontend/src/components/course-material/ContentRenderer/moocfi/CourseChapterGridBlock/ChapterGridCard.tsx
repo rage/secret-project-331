@@ -71,7 +71,6 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
           path: {
             current_page_id: chapter.front_page_id,
           },
-          throwOnError: true,
         })
       } else {
         return `/chapter-${chapter.chapter_number}`

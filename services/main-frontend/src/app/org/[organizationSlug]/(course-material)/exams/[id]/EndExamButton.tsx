@@ -24,7 +24,6 @@ export default function EndExamButton({ examId, disabled, onEnded }: EndExamButt
         path: {
           id: examId,
         },
-        throwOnError: true,
       }),
     { notify: true, method: "POST" },
     { onSuccess: onEnded },

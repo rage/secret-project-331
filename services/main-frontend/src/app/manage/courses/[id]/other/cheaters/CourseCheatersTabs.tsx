@@ -52,7 +52,6 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
           course_id: courseId,
           id,
         },
-        throwOnError: true,
       })
     },
     {
@@ -78,7 +77,6 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
           course_id: courseId,
           id,
         },
-        throwOnError: true,
       })
     },
     {

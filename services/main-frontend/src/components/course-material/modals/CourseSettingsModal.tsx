@@ -134,7 +134,6 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           path: {
             course_instance_id: variables.instanceId,
           },
-          throwOnError: true,
         })
 
         if (newLanguage) {

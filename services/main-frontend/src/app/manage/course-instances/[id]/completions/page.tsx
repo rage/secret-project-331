@@ -86,7 +86,6 @@ const CompletionsPage: React.FC = () => {
         path: {
           course_instance_id: courseInstanceId,
         },
-        throwOnError: true,
       }),
     { notify: true, method: "POST", successMessage: t("completions-submitted-successfully") },
     {
@@ -125,7 +124,6 @@ const CompletionsPage: React.FC = () => {
       path: {
         course_instance_id: courseInstanceId,
       },
-      throwOnError: true,
     })
 
     const updatedAlreadyCompletedUsers = previewDataFromBackend.already_completed_users.map(

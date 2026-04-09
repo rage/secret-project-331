@@ -41,7 +41,6 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
           course_id: courseId,
           reference_id: id,
         },
-        throwOnError: true,
       }),
     {
       notify: true,
@@ -63,7 +62,6 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
           course_id: courseId,
           reference_id: id,
         },
-        throwOnError: true,
       }),
     {
       notify: true,

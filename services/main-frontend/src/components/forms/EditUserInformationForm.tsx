@@ -85,7 +85,6 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           country,
           email_communication_consent: emailCommunicationConsent,
         },
-        throwOnError: true,
       })
     },
     {

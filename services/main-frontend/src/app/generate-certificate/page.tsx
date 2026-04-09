@@ -49,7 +49,6 @@ const ModuleCertificate: React.FC = () => {
         path: {
           certificate_configuration_id: assertNotNullOrUndefined(certificateConfigurationId),
         },
-        throwOnError: true,
       }),
     enabled: certificateConfigurationId !== null,
   })
@@ -67,13 +66,11 @@ const ModuleCertificate: React.FC = () => {
         path: {
           course_module_id: assertNotNullOrUndefined(moduleId),
         },
-        throwOnError: true,
       })
       const course = await getCourseFromApi({
         path: {
           course_id: courseModule.course_id,
         },
-        throwOnError: true,
       })
       return { module: courseModule, course }
     },
@@ -95,7 +92,6 @@ const ModuleCertificate: React.FC = () => {
         path: {
           course_module_id: assertNotNullOrUndefined(moduleId),
         },
-        throwOnError: true,
       })
       if (!courseModule) {
         throw new Error("Course module completion not found")
@@ -104,7 +100,6 @@ const ModuleCertificate: React.FC = () => {
         path: {
           course_id: courseModule.course_id,
         },
-        throwOnError: true,
       })
       return { module: courseModule, course }
     },

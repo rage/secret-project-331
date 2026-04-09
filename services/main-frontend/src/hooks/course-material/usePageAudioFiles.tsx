@@ -25,7 +25,6 @@ const usePageAudioFiles = (
             path: {
               page_id: pageId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: Boolean(courseId) && isMaterialPage && Boolean(pageId) && enabled,

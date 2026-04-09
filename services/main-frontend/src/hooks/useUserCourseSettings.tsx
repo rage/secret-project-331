@@ -24,7 +24,6 @@ const getUserCourseSettingsForUserQueryOptions = (
           course_id: assertNotNullOrUndefined(courseId),
           user_id: assertNotNullOrUndefined(userId),
         },
-        throwOnError: true,
       }),
   })
 

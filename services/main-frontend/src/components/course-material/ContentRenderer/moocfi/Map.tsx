@@ -98,7 +98,6 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
                 course_id: courseId,
                 course_instance_id: courseInstanceId,
               },
-              throwOnError: true,
             })
         : skipToken,
     enabled: Boolean(courseId && courseInstanceId),
@@ -112,7 +111,6 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
             path: {
               course_instance_id: courseInstanceId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: Boolean(courseInstanceId),
@@ -151,7 +149,6 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
           course_instance_id: courseInstanceId,
           country_code: country,
         },
-        throwOnError: true,
       })
     },
     {

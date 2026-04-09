@@ -14,7 +14,6 @@ export const usePageInfo = (pageId: string | null) =>
         path: {
           page_id: assertNotNullOrUndefined(pageId),
         },
-        throwOnError: true,
       }),
     enabled: pageId !== null,
   })

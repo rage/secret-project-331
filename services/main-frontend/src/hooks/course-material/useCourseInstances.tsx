@@ -21,7 +21,6 @@ const useCourseInstances = (courseId: string | null, options: UseCourseInstances
             path: {
               course_id: courseId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!courseId && enabled,

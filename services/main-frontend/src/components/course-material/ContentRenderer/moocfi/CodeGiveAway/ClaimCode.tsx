@@ -21,7 +21,6 @@ const ClaimCode: React.FC<ClaimCodeProps> = ({ codeGiveawayId, onClaimed }) => {
         path: {
           id: codeGiveawayId,
         },
-        throwOnError: true,
       }),
     { notify: false },
   )

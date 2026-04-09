@@ -15,7 +15,6 @@ const useIsPageChapterFrontPage = (pageId: string | undefined) => {
             path: {
               current_page_id: pageId,
             },
-            throwOnError: true,
           })
       : skipToken,
     enabled: !!pageId,

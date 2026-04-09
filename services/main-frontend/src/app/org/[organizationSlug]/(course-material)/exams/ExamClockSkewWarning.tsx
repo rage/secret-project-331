@@ -25,9 +25,7 @@ interface ClockSkewEstimate {
 
 const sampleClockOffset = async (): Promise<ClockSkewSample | null> => {
   const t0 = Date.now()
-  const serverTime = await getCurrentTime({
-    throwOnError: true,
-  })
+  const serverTime = await getCurrentTime({})
   const t1 = Date.now()
   if (typeof serverTime !== "string") {
     return null

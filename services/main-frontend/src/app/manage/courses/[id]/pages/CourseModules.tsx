@@ -359,7 +359,6 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       })
     },
     { notify: true, method: "POST" },

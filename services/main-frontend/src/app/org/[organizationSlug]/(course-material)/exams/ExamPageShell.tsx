@@ -89,7 +89,6 @@ export default function ExamPageShell({
         path: {
           id: examId,
         },
-        throwOnError: true,
       }),
     { notify: true, method: "POST" },
     { onSuccess: handleRefresh },

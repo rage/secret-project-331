@@ -43,7 +43,6 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
         path: {
           course_id: courseId,
         },
-        throwOnError: true,
       }),
   })
   const getUserLocks = useUserChapterLocks(courseId)

@@ -42,7 +42,6 @@ pub struct EditedBlockNoLongerExistsData {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[serde(tag = "type", rename_all = "kebab-case")]
-
 pub enum BlockProposal {
     EditedBlockStillExists(EditedBlockStillExistsData),
     EditedBlockNoLongerExists(EditedBlockNoLongerExistsData),

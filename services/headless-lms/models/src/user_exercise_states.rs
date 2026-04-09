@@ -15,7 +15,6 @@ use crate::{
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display, ToSchema)]
 #[sqlx(type_name = "reviewing_stage", rename_all = "snake_case")]
-
 /**
 Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
 */

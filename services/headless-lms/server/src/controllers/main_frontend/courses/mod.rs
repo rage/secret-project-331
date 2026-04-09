@@ -782,7 +782,6 @@ async fn get_all_course_language_versions(
 
 #[derive(Deserialize, Debug, utoipa::ToSchema)]
 #[serde(tag = "mode", rename_all = "snake_case")]
-
 pub enum CopyCourseMode {
     /// Create a completely separate copy with a new course language group
     Duplicate,

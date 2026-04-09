@@ -7,7 +7,6 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "peer_review_question_type", rename_all = "snake_case")]
-
 pub enum PeerOrSelfReviewQuestionType {
     Essay,
     Scale,

@@ -521,7 +521,6 @@ impl AutomaticCompletionRequirements {
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "policy", rename_all = "kebab-case")]
-
 pub enum CompletionPolicy {
     Automatic(AutomaticCompletionRequirements),
     Manual,

@@ -9,7 +9,6 @@ use utoipa::ToSchema;
     type_name = "course_background_question_type",
     rename_all = "snake_case"
 )]
-
 pub enum CourseBackgroundQuestionType {
     Checkbox,
     Text,

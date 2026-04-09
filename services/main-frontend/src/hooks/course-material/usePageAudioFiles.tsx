@@ -1,14 +1,13 @@
 "use client"
 
-import { skipToken, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { getCourseMaterialPageAudioFiles } from "@/generated/course-material-api/sdk.generated"
+import { getCourseMaterialPageAudioFilesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UsePageAudioFilesOptions {
   enabled?: boolean
 }
-
-const COURSE_MATERIAL_PAGE_AUDIO_FILES_QUERY_KEY = "courseMaterialPageAudioFiles"
 
 const usePageAudioFiles = (
   pageId: string | null | undefined,
@@ -17,18 +16,19 @@ const usePageAudioFiles = (
   options: UsePageAudioFilesOptions = {},
 ) => {
   const { enabled = true } = options
-  const query = useQuery({
-    queryKey: [COURSE_MATERIAL_PAGE_AUDIO_FILES_QUERY_KEY, pageId] as const,
-    queryFn: pageId
-      ? () =>
-          getCourseMaterialPageAudioFiles({
-            path: {
-              page_id: pageId,
-            },
-          })
-      : skipToken,
-    enabled: Boolean(courseId) && isMaterialPage && Boolean(pageId) && enabled,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: pageId,
+      enabled: Boolean(courseId) && isMaterialPage && enabled,
+      isReady: (pageId): pageId is string => Boolean(pageId),
+      build: (pageId) =>
+        getCourseMaterialPageAudioFilesOptions({
+          path: {
+            page_id: pageId,
+          },
+        }),
+    }),
+  )
   return query
 }
 

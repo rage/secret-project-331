@@ -1,24 +1,23 @@
 "use client"
 
-import { skipToken, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { getCourseMaterialIsPageChapterFrontPage } from "@/generated/course-material-api/sdk.generated"
-
-const COURSE_MATERIAL_IS_PAGE_CHAPTER_FRONT_PAGE_QUERY_KEY = "courseMaterialIsPageChapterFrontPage"
+import { getCourseMaterialIsPageChapterFrontPageOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const useIsPageChapterFrontPage = (pageId: string | undefined) => {
-  const isChapterFrontPageQuery = useQuery({
-    queryKey: [COURSE_MATERIAL_IS_PAGE_CHAPTER_FRONT_PAGE_QUERY_KEY, pageId] as const,
-    queryFn: pageId
-      ? () =>
-          getCourseMaterialIsPageChapterFrontPage({
-            path: {
-              current_page_id: pageId,
-            },
-          })
-      : skipToken,
-    enabled: !!pageId,
-  })
+  const isChapterFrontPageQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: pageId,
+      isReady: (pageId): pageId is string => Boolean(pageId),
+      build: (pageId) =>
+        getCourseMaterialIsPageChapterFrontPageOptions({
+          path: {
+            current_page_id: pageId,
+          },
+        }),
+    }),
+  )
   return isChapterFrontPageQuery
 }
 

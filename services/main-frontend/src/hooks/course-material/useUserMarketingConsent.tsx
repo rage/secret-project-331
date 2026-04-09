@@ -1,16 +1,15 @@
 "use client"
 
-import { skipToken, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { getCourseMaterialUserMarketingConsent } from "@/generated/course-material-api/sdk.generated"
+import { getCourseMaterialUserMarketingConsentOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseUserMarketingConsentOptions {
   enabled?: boolean
 }
-
-const COURSE_MATERIAL_USER_MARKETING_CONSENT_QUERY_KEY = "courseMaterialUserMarketingConsent"
 
 const useUserMarketingConsent = (
   courseId: string | null,
@@ -18,18 +17,19 @@ const useUserMarketingConsent = (
 ) => {
   const { enabled = true } = options
   const loginState = useContext(LoginStateContext)
-  const query = useQuery({
-    queryKey: [COURSE_MATERIAL_USER_MARKETING_CONSENT_QUERY_KEY, courseId] as const,
-    queryFn: courseId
-      ? () =>
-          getCourseMaterialUserMarketingConsent({
-            path: {
-              course_id: courseId,
-            },
-          })
-      : skipToken,
-    enabled: !!courseId && loginState.signedIn === true && enabled,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: loginState.signedIn === true && enabled,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCourseMaterialUserMarketingConsentOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
   return query
 }
 

@@ -1,30 +1,30 @@
 "use client"
 
-import { skipToken, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { getCourseMaterialCourse } from "@/generated/course-material-api/sdk.generated"
+import { getCourseMaterialCourseOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseCourseOptions {
   enabled?: boolean
 }
 
-const COURSE_MATERIAL_COURSE_QUERY_KEY = "courseMaterialCourse"
-
 const useCourse = (courseId: string | undefined | null, options: UseCourseOptions = {}) => {
   const { enabled = true } = options
 
-  const query = useQuery({
-    queryKey: [COURSE_MATERIAL_COURSE_QUERY_KEY, courseId] as const,
-    queryFn: courseId
-      ? () =>
-          getCourseMaterialCourse({
-            path: {
-              course_id: courseId,
-            },
-          })
-      : skipToken,
-    enabled: !!courseId && enabled,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCourseMaterialCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
   return query
 }
 

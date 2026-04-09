@@ -1,14 +1,13 @@
 "use client"
 
-import { skipToken, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { getCourseMaterialBackgroundQuestionsAndAnswers } from "@/generated/course-material-api/sdk.generated"
+import { getCourseMaterialBackgroundQuestionsAndAnswersOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseAdditionalQuestionsOptions {
   enabled?: boolean
 }
-
-const COURSE_MATERIAL_ADDITIONAL_QUESTIONS_QUERY_KEY = "courseMaterialAdditionalQuestions"
 
 const useAdditionalQuestions = (
   instanceId: string | null | undefined,
@@ -16,18 +15,19 @@ const useAdditionalQuestions = (
 ) => {
   const { enabled = true } = options
 
-  const query = useQuery({
-    queryKey: [COURSE_MATERIAL_ADDITIONAL_QUESTIONS_QUERY_KEY, instanceId] as const,
-    queryFn: instanceId
-      ? () =>
-          getCourseMaterialBackgroundQuestionsAndAnswers({
-            path: {
-              course_instance_id: instanceId,
-            },
-          })
-      : skipToken,
-    enabled: !!instanceId && enabled,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: instanceId,
+      enabled,
+      isReady: (instanceId): instanceId is string => Boolean(instanceId),
+      build: (instanceId) =>
+        getCourseMaterialBackgroundQuestionsAndAnswersOptions({
+          path: {
+            course_instance_id: instanceId,
+          },
+        }),
+    }),
+  )
   return query
 }
 

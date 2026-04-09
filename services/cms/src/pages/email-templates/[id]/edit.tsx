@@ -3,12 +3,9 @@
 import React, { useEffect, useState } from "react"
 
 import CourseContext from "../../../contexts/CourseContext"
-import {
-  fetchEmailTemplateWithId,
-  updateExistingEmailTemplate,
-} from "../../../services/backend/email-templates"
 
 import { EmailTemplateUpdate } from "@/generated/api"
+import { getCmsEmailTemplate, updateCmsEmailTemplate } from "@/generated/api/sdk.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -34,7 +31,11 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
   const emailTemplateId = query.id
   // eslint-disable-next-line i18next/no-literal-string
   const templateQuery = useStateQuery(["email-template", emailTemplateId], (_emailTemplateId) =>
-    fetchEmailTemplateWithId(_emailTemplateId),
+    getCmsEmailTemplate({
+      path: {
+        email_template_id: _emailTemplateId,
+      },
+    }),
   )
 
   useEffect(() => {
@@ -44,7 +45,13 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
   }, [templateQuery.state, templateQuery.data])
 
   const saveMutation = useToastMutation(
-    (template: EmailTemplateUpdate) => updateExistingEmailTemplate(emailTemplateId, template),
+    (template: EmailTemplateUpdate) =>
+      updateCmsEmailTemplate({
+        path: {
+          email_template_id: emailTemplateId,
+        },
+        body: template,
+      }),
     {
       notify: true,
       method: "PUT",

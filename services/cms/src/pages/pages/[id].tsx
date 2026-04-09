@@ -1,14 +1,17 @@
 "use client"
 
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchPageWithId, updateExistingPage } from "../../services/backend/pages"
 import { denormalizeDocument } from "../../utils/documentSchemaProcessor"
 
 import { CmsPageUpdate, Page } from "@/generated/api"
-import { fetchCourseById } from "@/services/backend/courses"
+import {
+  getCmsCourseOptions,
+  getCmsPageOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { updateCmsPage } from "@/generated/api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -17,9 +20,9 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface PagesProps {
   query: SimplifiedUrlQuery<"id">
@@ -32,14 +35,12 @@ const Pages = ({ query }: PagesProps) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const queryClient = useQueryClient()
   const getPage = useQuery({
-    queryKey: [`page-${id}`],
+    ...getCmsPageOptions({
+      path: {
+        page_id: id,
+      },
+    }),
     gcTime: 0,
-    queryFn: async () => {
-      const res = await fetchPageWithId(id)
-      // This only works when gCTime is set to 0
-      setNeedToRunMigrationsAndValidations(true)
-      return res
-    },
     select: (data) => {
       if (!isGutenbergBlockArray(data.page.content)) {
         throw new Error("Content is not a GutenbergBlock array")
@@ -59,15 +60,33 @@ const Pages = ({ query }: PagesProps) => {
       return page
     },
   })
+  useEffect(() => {
+    if (getPage.isSuccess) {
+      setNeedToRunMigrationsAndValidations(true)
+    }
+  }, [getPage.isSuccess])
   const courseId = getPage.data?.course_id
-  const course = useQuery({
-    queryKey: ["courses", courseId],
-    queryFn: async () => fetchCourseById(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const course = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   const mutate = useToastMutation(
-    (newPage: CmsPageUpdate) => updateExistingPage(id, newPage),
+    (newPage: CmsPageUpdate) =>
+      updateCmsPage({
+        path: {
+          page_id: id,
+        },
+        body: newPage,
+      }),
     {
       notify: true,
       dismissable: true,

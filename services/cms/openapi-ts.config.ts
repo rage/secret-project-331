@@ -36,4 +36,7 @@ const createConfig = (input: string, path: string) =>
     ],
   }) satisfies UserConfig
 
-export default createConfig("../headless-lms/server/openapi/cms.openapi.json", "src/generated/api")
+export default createConfig(
+  "../headless-lms/server/openapi/cms.openapi.json",
+  "../cms/src/generated/api",
+)

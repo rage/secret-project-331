@@ -6,7 +6,7 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
+import mediaUploadBuilder from "../../services/mediaUpload"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 

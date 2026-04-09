@@ -5,7 +5,10 @@ import React from "react"
 import CourseContext from "../../../contexts/CourseContext"
 
 import { PartnersBlock } from "@/generated/api"
-import { fetchPartnersBlock, setPartnerBlockForCourse } from "@/services/backend/partners-block"
+import {
+  getCmsCoursePartnersBlock,
+  upsertCmsCoursePartnersBlock,
+} from "@/generated/api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -29,7 +32,11 @@ const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> =
   const courseId = query.id
   // eslint-disable-next-line i18next/no-literal-string
   const blockQuery = useStateQuery(["partners-block", courseId], (courseId) =>
-    fetchPartnersBlock(courseId),
+    getCmsCoursePartnersBlock({
+      path: {
+        course_id: courseId,
+      },
+    }),
   )
 
   if (blockQuery.state === "error") {
@@ -45,9 +52,14 @@ const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> =
   }
 
   const handleSave = async (data: unknown): Promise<PartnersBlock> => {
-    const res = await setPartnerBlockForCourse(courseId, data ?? [])
+    const res = await upsertCmsCoursePartnersBlock({
+      path: {
+        course_id: courseId,
+      },
+      body: data ?? [],
+    })
     await blockQuery.refetch()
-    return res
+    return res as PartnersBlock
   }
 
   return (

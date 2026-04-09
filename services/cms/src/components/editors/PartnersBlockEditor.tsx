@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { allowedPartnerCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
+import mediaUploadBuilder from "../../services/mediaUpload"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 
 import { PartnersBlock } from "@/generated/api"

@@ -13,7 +13,6 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 import { ConditionAttributes } from "."
 
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
-import { fetchCodeGiveawaysByCourseId } from "@/services/backend/code-giveaways"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
@@ -32,6 +31,11 @@ const Wrapper = styled.div`
   height: auto;
 `
 
+interface CodeGiveawayOption {
+  id: string
+  name: string
+}
+
 const CodeGiveawayBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
 > = ({ attributes, clientId, setAttributes }) => {
@@ -40,7 +44,15 @@ const CodeGiveawayBlockEditor: React.FC<
 
   const codeGivawayQuery = useQuery({
     queryKey: [`/code-giveaways/by-course/${courseId}`],
-    queryFn: () => fetchCodeGiveawaysByCourseId(assertNotNullOrUndefined(courseId)),
+    queryFn: async () => {
+      const response = await fetch(
+        `/api/v0/cms/code-giveaways/by-course/${assertNotNullOrUndefined(courseId)}`,
+      )
+      if (!response.ok) {
+        throw new Error("Failed to fetch code giveaways")
+      }
+      return response.json() as Promise<CodeGiveawayOption[]>
+    },
     enabled: !!courseId,
   })
 

@@ -2,10 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getAllExerciseServicesOptions } from "../services/backend/exercise-services"
+import { getCmsExerciseServicesOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 const useAllExerciseServices = () => {
-  return useQuery(getAllExerciseServicesOptions())
+  return useQuery(getCmsExerciseServicesOptions())
 }
 
 export default useAllExerciseServices

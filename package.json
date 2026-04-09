@@ -15,7 +15,7 @@
   },
   "scripts": {
     "eslint": "eslint --fix .",
-    "export-openapi": "cd services/headless-lms && SQLX_OFFLINE=1 cargo run -p headless-lms-server --bin export_openapi",
+    "export-openapi": "cd services/headless-lms && SQLX_OFFLINE=1 cargo run -p headless-lms-entrypoint -- export-openapi",
     "eslint:ci": "eslint .",
     "eslint:format-bindings": "eslint --fix shared-module/packages/common/src/bindings.ts",
     "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",

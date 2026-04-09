@@ -2389,8 +2389,10 @@ dependencies = [
  "anyhow",
  "futures-util",
  "headless-lms-server",
+ "serde_json",
  "tikv-jemallocator",
  "tokio",
+ "utoipa",
 ]
 
 [[package]]

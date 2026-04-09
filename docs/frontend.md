@@ -1,24 +1,86 @@
 ## Interacting with the backend
 
-You can use an axios instance to avoid repeating the root of the API URL for every request. For example, `main-frontend` has the following client:
+Use generated API clients and React Query option builders from `src/generated/**`.
 
-```ts
-export const mainFrontendClient = axios.create({ baseURL: "/api/v0/main-frontend" })
+Regenerate backend-calling clients/types with:
+
+```bash
+bin/generate-bindings
 ```
 
-Frontend services should prefer Hey API generated types and schemas for backend contracts, and then use small local compatibility types only for service-internal iframe/protocol messages that are not covered by an OpenAPI spec. For example, `main-frontend` fetches `/api/v0/main-frontend/organizations` with generated Zod validation:
+### Queries
+
+Use generated `...Options(...)` with `useQuery` directly.
 
 ```ts
-import { z } from "@/generated/api/zod"
-import { type Organization } from "@/generated/api"
-import { zOrganization } from "@/generated/api/zod.generated"
-import { parseMainFrontendResponse } from "@/services/backend/parseMainFrontendResponse"
+import { useQuery } from "@tanstack/react-query"
 
-export const fetchOrganizations = async (): Promise<Array<Organization>> => {
-  const response = await mainFrontendClient.get("/organizations", { responseType: "json" })
-  return parseMainFrontendResponse(response, z.array(zOrganization))
-}
+import { getCourseMaterialOrganizationOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+
+const organizationQuery = useQuery(
+  getCourseMaterialOrganizationOptions({
+    path: {
+      organization_id: organizationId,
+    },
+  }),
+)
 ```
+
+If query params are optional (for example nullable route params), build options with `optionalGeneratedQueryOptions`:
+
+```ts
+import { useQuery } from "@tanstack/react-query"
+
+import { getCourseMaterialCourseOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+
+const courseQuery = useQuery(
+  optionalGeneratedQueryOptions({
+    value: courseId,
+    isReady: (courseId): courseId is string => Boolean(courseId),
+    build: (courseId) =>
+      getCourseMaterialCourseOptions({
+        path: {
+          course_id: courseId,
+        },
+      }),
+  }),
+)
+```
+
+### Mutations
+
+Use generated `...Mutation(...)` options with `useToastMutationOptions` when you want standard toast behavior.
+
+```ts
+import { setCourseModuleCertificateGenerationMutation } from "@/generated/api/@tanstack/react-query.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+
+const toggleCertificateGenerationEnabledMutation = useToastMutationOptions(
+  setCourseModuleCertificateGenerationMutation(),
+  { notify: true, method: "POST" },
+  {
+    onSuccess: () => {
+      getCourse.refetch()
+    },
+  },
+)
+```
+
+For multi-step custom flows that are not a single generated mutation call, use `useToastMutation` with a custom mutation function.
+
+### Cache invalidation
+
+After successful mutations, invalidate or refetch relevant queries using generated query keys/options.
+
+```ts
+import { getOauthAuthorizedClientsOptions } from "@/generated/api/@tanstack/react-query.generated"
+
+const authorizedClientsQueryKey = getOauthAuthorizedClientsOptions().queryKey
+queryClient.invalidateQueries({ queryKey: authorizedClientsQueryKey })
+```
+
+Use local compatibility types only for internal service-specific protocol messages that are not part of generated backend contracts.
 
 ## Creating forms
 

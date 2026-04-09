@@ -354,7 +354,12 @@ impl From<reqwest::Error> for ModelError {
 }
 
 // Generate error creation macros for ModelError
-headless_lms_utils::define_error_macros!(model, ModelError, ModelErrorType);
+headless_lms_utils::define_err_macro!(
+    model_err,
+    ModelError,
+    ModelErrorType,
+    "Create a ModelError with less boilerplate."
+);
 
 /// Helper function for `.map_err()` chains to wrap any error as ModelError.
 ///

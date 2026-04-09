@@ -206,7 +206,12 @@ impl From<ModelError> for ChatbotError {
 }
 
 // Generate error creation macros for ChatbotError
-headless_lms_utils::define_error_macros!(chatbot, ChatbotError, ChatbotErrorType);
+headless_lms_utils::define_err_macro!(
+    chatbot_err,
+    ChatbotError,
+    ChatbotErrorType,
+    "Create a ChatbotError with less boilerplate."
+);
 
 /// Helper function for `.map_err()` chains to wrap any error as ChatbotError.
 ///

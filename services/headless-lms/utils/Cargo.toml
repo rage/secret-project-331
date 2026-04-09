@@ -90,8 +90,6 @@ redis = { version = "1.0.4", features = [
 ] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
-# Macro for concatenating identifiers.
-paste = "1.0.15"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

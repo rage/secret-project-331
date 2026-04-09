@@ -228,7 +228,12 @@ impl From<anyhow::Error> for UtilError {
 }
 
 // Generate error creation macros for UtilError
-crate::define_error_macros!(util, UtilError, UtilErrorType);
+crate::define_err_macro!(
+    util_err,
+    UtilError,
+    UtilErrorType,
+    "Create a UtilError with less boilerplate."
+);
 
 /// Helper function for `.map_err()` chains to wrap any error as UtilError.
 ///

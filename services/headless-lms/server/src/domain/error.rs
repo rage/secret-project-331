@@ -743,7 +743,12 @@ impl From<ChatbotError> for ControllerError {
 }
 
 // Generate error creation macros for ControllerError
-headless_lms_utils::define_error_macros!(controller, ControllerError, ControllerErrorType);
+headless_lms_utils::define_err_macro!(
+    controller_err,
+    ControllerError,
+    ControllerErrorType,
+    "Create a ControllerError with less boilerplate."
+);
 
 /// Helper function for `.map_err()` chains to wrap any error as ControllerError.
 ///

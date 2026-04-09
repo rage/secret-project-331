@@ -182,18 +182,17 @@ INSERT INTO exercises (id, name, course_id) VALUES (e1.id, e1.name, e1.course_id
 
 Most usable QueryBuilder is for bulk inserting or updating.
 
-## Generating frontend API types
+## Generating frontend API clients and types
 
-Frontend services now consume OpenAPI exports with Hey API instead of `bindings.ts` / `bindings.guard.ts`.
+Run `bin/generate-bindings` from repo root to regenerate the frontend API clients and types used for backend calls.
 
-When a request or response model changes:
+To ensure endpoints are included in generated clients:
 
-1. Make sure the model derives the schema traits needed by the relevant OpenAPI document.
-2. Add or update the endpoint in the correct `utoipa` document in `services/headless-lms/server/src/openapi.rs`.
-3. Export the specs with `pnpm run export-openapi`.
-4. Regenerate frontend types with the relevant codegen command such as `pnpm run codegen:api` or `pnpm run codegen:cms-api`.
-
-If a frontend still needs a type for an internal iframe/protocol message that is not part of an OpenAPI contract, keep that as a small local TypeScript compatibility type in the consuming service.
+1. Add `#[utoipa::path(...)]` to each endpoint handler with correct method, path, params, request body, and response types.
+2. Ensure all request/response DTOs used by the endpoint derive the OpenAPI schema traits (for example `ToSchema`), including nested DTOs.
+3. Register the endpoint in the correct OpenAPI document in `services/headless-lms/server/src/openapi.rs` under the matching `paths(...)` section.
+4. Register any schemas that are not auto-collected into the same document's `components(schemas(...))` section.
+5. Run `bin/generate-bindings` after changes.
 
 ## New endpoint
 

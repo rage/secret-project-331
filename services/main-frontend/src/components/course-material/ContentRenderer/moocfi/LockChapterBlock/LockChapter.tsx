@@ -14,8 +14,11 @@ import LockChapterLoadingView from "./LockChapterLoadingView"
 import LockChapterLockedView from "./LockChapterLockedView"
 import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
+import {
+  getCourseMaterialChapterLockPreview,
+  lockCourseMaterialChapter,
+} from "@/generated/course-material-api/sdk.generated"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import { getChapterLockPreview, lockChapter } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -50,7 +53,13 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const course = courseMaterialState.course
 
   const lockMutation = useMutation({
-    mutationFn: () => lockChapter(chapterId),
+    mutationFn: () =>
+      lockCourseMaterialChapter({
+        path: {
+          chapter_id: chapterId,
+        },
+        throwOnError: true,
+      }),
     onSuccess: async () => {
       // eslint-disable-next-line i18next/no-literal-string
       setLockState("locking")
@@ -69,7 +78,12 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     setPreviewError(null)
     setIsLoadingPreview(true)
     try {
-      const preview = await getChapterLockPreview(chapterId)
+      const preview = await getCourseMaterialChapterLockPreview({
+        path: {
+          chapter_id: chapterId,
+        },
+        throwOnError: true,
+      })
       setIsLoadingPreview(false)
 
       let message: React.ReactNode = (

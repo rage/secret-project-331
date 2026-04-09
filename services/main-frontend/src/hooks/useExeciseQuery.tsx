@@ -1,15 +1,28 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 
-import { getExerciseOptions } from "../services/backend/exercises"
-
+import { getExercise } from "@/generated/api/sdk.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+
+const GET_EXERCISE_QUERY_KEY = "getExercise"
+
+const getExerciseQueryOptions = (exerciseId: string | null) =>
+  queryOptions({
+    queryKey: [GET_EXERCISE_QUERY_KEY, exerciseId] as const,
+    queryFn: () =>
+      getExercise({
+        path: {
+          exercise_id: assertNotNullOrUndefined(exerciseId),
+        },
+        throwOnError: true,
+      }),
+  })
 
 const useExerciseQuery = (exerciseId: string | null) => {
   return useQuery({
-    ...getExerciseOptions(assertNotNullOrUndefined(exerciseId)),
-    enabled: exerciseId !== null,
+    ...getExerciseQueryOptions(exerciseId),
+    enabled: !!exerciseId,
   })
 }
 

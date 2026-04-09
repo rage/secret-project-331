@@ -9,9 +9,10 @@ import { useTranslation } from "react-i18next"
 import Grid from "./Grid"
 
 import { CHAPTER_GRID_SCROLLING_DESTINATION_CLASSNAME_DOES_NOT_AFFECT_STYLING } from "@/components/course-material/LandingPageHeroSection"
+import { getCourseMaterialChapters } from "@/generated/course-material-api/sdk.generated"
+import type { ChaptersWithStatus } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import { fetchChaptersInTheCourse } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont, secondaryFont } from "@/shared-module/common/styles"
@@ -37,7 +38,13 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
   const now = useTime()
   const getChaptersInCourse = useQuery({
     queryKey: [`course-${courseId}-chapters`],
-    queryFn: () => fetchChaptersInTheCourse(courseId),
+    queryFn: (): Promise<ChaptersWithStatus> =>
+      getCourseMaterialChapters({
+        path: {
+          course_id: courseId,
+        },
+        throwOnError: true,
+      }),
   })
   const getUserLocks = useUserChapterLocks(courseId)
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()

@@ -9,10 +9,9 @@ import { useTranslation } from "react-i18next"
 import SubmissionIFrame from "./SubmissionIFrame"
 
 import GradeExamAnswerForm from "@/components/forms/GradeExamAnswerForm"
-import { getExamOptions } from "@/services/backend/exams"
-import { Block } from "@/services/backend/exercises"
-import { getSubmissionInfoOptions } from "@/services/backend/submissions"
-import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
+import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
+import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
@@ -21,13 +20,28 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+interface Block<T> {
+  name: string
+  isValid: boolean
+  clientId: string
+  attributes: T
+  innerBlocks: Block<unknown>[]
+}
 
 const Submission: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  const getSubmissionInfo = useQuery(getSubmissionInfoOptions(id))
+  const getSubmissionInfo = useQuery({
+    ...getExerciseSlideSubmissionInfoOptions({
+      path: {
+        submission_id: id,
+      },
+    }),
+  })
 
   const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,7 +53,14 @@ const Submission: React.FC = () => {
   const exerciseId = getSubmissionInfo.data?.exercise.id
 
   const getExam = useQuery({
-    ...getExamOptions(examId ?? ""),
+    queryKey: ["getExam", examId],
+    queryFn: async () =>
+      getExamFromApi({
+        path: {
+          id: assertNotNullOrUndefined(examId),
+        },
+        throwOnError: true,
+      }),
     enabled: !!examId,
   })
 

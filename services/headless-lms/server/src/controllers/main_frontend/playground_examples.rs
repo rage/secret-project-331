@@ -21,7 +21,7 @@ GET `/api/v0/main-frontend/playground_examples` - Returns all playground example
     operation_id = "getPlaygroundExamples",
     tag = "playground-examples",
     responses(
-        (status = 200, description = "Playground examples", body = serde_json::Value)
+        (status = 200, description = "Playground examples", body = Vec<PlaygroundExample>)
     )
 )]
 #[instrument(skip(pool))]
@@ -43,9 +43,9 @@ POST `/api/v0/main-frontend/playground_examples` - Saves a playground example.
     path = "",
     operation_id = "createPlaygroundExample",
     tag = "playground-examples",
-    request_body = serde_json::Value,
+    request_body = PlaygroundExampleData,
     responses(
-        (status = 200, description = "Created playground example", body = serde_json::Value)
+        (status = 200, description = "Created playground example", body = PlaygroundExample)
     )
 )]
 #[instrument(skip(pool))]
@@ -71,9 +71,9 @@ PUT `/api/v0/main-frontend/playground_examples` - Updates existing playground ex
     path = "",
     operation_id = "updatePlaygroundExample",
     tag = "playground-examples",
-    request_body = serde_json::Value,
+    request_body = PlaygroundExample,
     responses(
-        (status = 200, description = "Updated playground example", body = serde_json::Value)
+        (status = 200, description = "Updated playground example", body = PlaygroundExample)
     )
 )]
 #[instrument(skip(pool))]
@@ -103,7 +103,7 @@ DELETE `/api/v0/main-frontend/playground_examples` - Deletes a playground exampl
         ("playground_example_id" = Uuid, Path, description = "Playground example id")
     ),
     responses(
-        (status = 200, description = "Deleted playground example", body = serde_json::Value)
+        (status = 200, description = "Deleted playground example", body = PlaygroundExample)
     )
 )]
 #[instrument(skip(pool))]

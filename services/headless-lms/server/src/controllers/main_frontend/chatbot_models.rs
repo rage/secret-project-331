@@ -25,7 +25,7 @@ pub struct CourseInfo {
     ),
     request_body = String,
     responses(
-        (status = 200, description = "Chatbot model", body = serde_json::Value)
+        (status = 200, description = "Chatbot model", body = ChatbotConfigurationModel)
     )
 )]
 #[instrument(skip(pool))]
@@ -53,7 +53,7 @@ async fn get_model(
         ("course_id" = Uuid, Query, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Chatbot models", body = serde_json::Value)
+        (status = 200, description = "Chatbot models", body = Vec<ChatbotConfigurationModel>)
     )
 )]
 #[instrument(skip(pool))]

@@ -9,11 +9,11 @@ import { useTranslation } from "react-i18next"
 
 import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import { getUserDetailsForAuthenticatedUserOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getUserResearchFormQuestionAnswersOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getCourseBreadcrumbInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useAuthorizedClientsQuery from "@/hooks/useAuthorizedClientsQuery"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
-import { getCourseBreadCrumbInfoOptions } from "@/services/backend/courses"
-import { getUserDetailsForUserOptions } from "@/services/backend/user-details"
-import { getUserResearchFormQuestionAnswersOptions } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
@@ -27,9 +27,13 @@ const PermissionsSettingsPage: React.FC = () => {
   const getUserConsent = useUserResearchConsentQuery()
   const { listQuery, revokeMutation } = useAuthorizedClientsQuery()
 
-  const getUserDetails = useQuery(getUserDetailsForUserOptions())
+  const getUserDetails = useQuery({
+    ...getUserDetailsForAuthenticatedUserOptions(),
+  })
 
-  const getAllResearchFormAnswers = useQuery(getUserResearchFormQuestionAnswersOptions())
+  const getAllResearchFormAnswers = useQuery({
+    ...getUserResearchFormQuestionAnswersOptions(),
+  })
 
   const handleGeneralResearchFormButton = async () => {
     await getUserConsent.refetch()
@@ -50,7 +54,11 @@ const PermissionsSettingsPage: React.FC = () => {
   const breadcrumbQueries = useMemo(
     () =>
       allCourseIds.map((courseId) => ({
-        ...getCourseBreadCrumbInfoOptions(courseId),
+        ...getCourseBreadcrumbInfoOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
       })),
     [allCourseIds],
   )

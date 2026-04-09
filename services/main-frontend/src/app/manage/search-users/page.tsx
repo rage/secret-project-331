@@ -9,10 +9,10 @@ import { useTranslation } from "react-i18next"
 import SearchUsersResults from "./SearchUsersResults"
 
 import {
-  searchForUserDetailsByEmail,
-  searchForUserDetailsByOtherDetails,
-  searchForUserDetailsFuzzyMatch,
-} from "@/services/backend/user-details"
+  searchUserDetailsByEmail,
+  searchUserDetailsByOtherDetails,
+  searchUserDetailsFuzzyMatch,
+} from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -33,17 +33,35 @@ const SearchUsersPage: React.FC = () => {
   const trimmedSearchQuery = searchQuery.trim()
   const searchByEmailQuery = useQuery({
     queryKey: ["searchUsersByEmail", searchQuery],
-    queryFn: () => searchForUserDetailsByEmail(assertNotNullOrUndefined(searchQuery)),
+    queryFn: async () =>
+      searchUserDetailsByEmail({
+        body: {
+          query: assertNotNullOrUndefined(searchQuery),
+        },
+        throwOnError: true,
+      }),
     enabled: trimmedSearchQuery !== "",
   })
   const searchByOtherDetailsQuery = useQuery({
     queryKey: ["searchUsersByOtherDetails", searchQuery],
-    queryFn: () => searchForUserDetailsByOtherDetails(assertNotNullOrUndefined(searchQuery)),
+    queryFn: async () =>
+      searchUserDetailsByOtherDetails({
+        body: {
+          query: assertNotNullOrUndefined(searchQuery),
+        },
+        throwOnError: true,
+      }),
     enabled: trimmedSearchQuery !== "",
   })
   const searchFuzzyMatchQuery = useQuery({
     queryKey: ["searchUsersFuzzyMatch", searchQuery],
-    queryFn: () => searchForUserDetailsFuzzyMatch(assertNotNullOrUndefined(searchQuery)),
+    queryFn: async () =>
+      searchUserDetailsFuzzyMatch({
+        body: {
+          query: assertNotNullOrUndefined(searchQuery),
+        },
+        throwOnError: true,
+      }),
     enabled: trimmedSearchQuery !== "",
   })
   const onSearch = () => {

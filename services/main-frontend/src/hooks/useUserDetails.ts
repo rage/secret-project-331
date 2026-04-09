@@ -1,8 +1,7 @@
-import { useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 
-import { getBulkUserDetails, getUserDetails } from "../services/backend/user-details"
-
-import type { UserDetail } from "@/shared-module/common/bindings"
+import { getBulkUserDetails, getUserDetailsByCourses } from "@/generated/api/sdk.generated"
+import type { UserDetail } from "@/generated/api/types.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export interface UseUserDetailsOptions {
@@ -36,21 +35,24 @@ export const isUserDetailsNotFound = (
   return result?.kind === "not-found"
 }
 
-export const useUserDetails = (
+const getUserDetailsQueryOptions = (
   courseIds: string[] | null | undefined,
   userId: string | null | undefined,
-  options?: UseUserDetailsOptions,
-) => {
-  return useQuery<UserDetailsResult>({
+) =>
+  queryOptions({
     queryKey: ["user-details/user", courseIds, userId],
-    queryFn: async () => {
-      const safeCourseIds = assertNotNullOrUndefined(courseIds)
-      const safeUserId = assertNotNullOrUndefined(userId)
-
+    queryFn: async (): Promise<UseUserDetailsResult> => {
       try {
-        const user = await getUserDetails(safeCourseIds, safeUserId)
+        const user = await getUserDetailsByCourses({
+          body: {
+            user_id: assertNotNullOrUndefined(userId),
+            course_ids: assertNotNullOrUndefined(courseIds),
+          },
+          throwOnError: true,
+        })
+
         return {
-          kind: "ok" as const,
+          kind: "ok",
           user,
         }
       } catch (error) {
@@ -66,16 +68,40 @@ export const useUserDetails = (
 
         if (message.includes("RecordNotFound")) {
           return {
-            kind: "not-found" as const,
-            userId: safeUserId,
+            kind: "not-found",
+            userId: assertNotNullOrUndefined(userId),
           }
         }
 
-        // For all other failures, surface a real error to the caller
         throw error
       }
     },
-    enabled: !!courseIds && !!userId,
+  })
+
+const getBulkUserDetailsQueryOptions = (
+  courseId: string | null | undefined,
+  userIds: string[] | null | undefined,
+) =>
+  queryOptions({
+    queryKey: ["user-details/bulk", courseId, userIds],
+    queryFn: () =>
+      getBulkUserDetails({
+        body: {
+          user_ids: assertNotNullOrUndefined(userIds),
+          course_id: assertNotNullOrUndefined(courseId),
+        },
+        throwOnError: true,
+      }),
+  })
+
+export const useUserDetails = (
+  courseIds: string[] | null | undefined,
+  userId: string | null | undefined,
+  options?: UseUserDetailsOptions,
+) => {
+  return useQuery({
+    ...getUserDetailsQueryOptions(courseIds, userId),
+    enabled: !!userId && !!courseIds && courseIds.length > 0,
     staleTime: options?.staleTime,
     gcTime: options?.gcTime,
     refetchOnWindowFocus: options?.refetchOnWindowFocus,
@@ -86,10 +112,10 @@ export const useBulkUserDetails = (
   courseId: string | null | undefined,
   userIds: string[] | null | undefined,
 ) => {
-  return useQuery<UserDetail[]>({
-    queryKey: ["user-details/bulk", courseId, userIds],
-    queryFn: () =>
-      getBulkUserDetails(assertNotNullOrUndefined(courseId), assertNotNullOrUndefined(userIds)),
+  return useQuery({
+    ...getBulkUserDetailsQueryOptions(courseId, userIds),
     enabled: !!courseId && !!userIds && userIds.length > 0,
   })
 }
+
+type UseUserDetailsResult = UserDetailsResult

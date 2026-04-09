@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import Head from "next/head"
 import { usePathname } from "next/navigation"
@@ -9,7 +9,8 @@ import React, { ReactNode } from "react"
 
 import Topbar from "./Topbar"
 
-import { fetchPrivacyLink } from "@/services/course-material/backend"
+import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
+import type { PrivacyLink } from "@/generated/course-material-api/types.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
@@ -38,7 +39,15 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
 
   const getPrivacyLink = useQuery({
     queryKey: ["privacy-link", courseId],
-    queryFn: () => fetchPrivacyLink(courseId as NonNullable<string>),
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialPrivacyLink({
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
     enabled: !!courseId,
   })
 

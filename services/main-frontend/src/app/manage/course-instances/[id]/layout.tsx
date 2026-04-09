@@ -6,8 +6,8 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import { getCourseInstanceOptions } from "@/services/backend/course-instances"
 import {
   manageCourseInstancesRoute,
   manageCourseRoute,
@@ -18,7 +18,13 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
 
-  const courseInstanceQuery = useQuery(getCourseInstanceOptions(id))
+  const courseInstanceQuery = useQuery({
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: id,
+      },
+    }),
+  })
 
   const courseId = courseInstanceQuery.data?.course_id ?? null
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)

@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,9 +9,11 @@ import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
 import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"
 
 import {
-  deleteExerciseRepositoryMutationOptions,
-  getExerciseRepositoriesOptions,
-} from "@/services/backend/exercise-repositories"
+  deleteExerciseRepositoryMutation as deleteExerciseRepositoryMutationOptions,
+  getExerciseRepositoriesForCourseOptions,
+  getExerciseRepositoriesForExamOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseRepository } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -21,12 +24,19 @@ interface Props {
   examId: string | null
 }
 
-const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
+interface ExerciseRepositoriesContentProps extends Props {
+  exerciseRepositories: UseQueryResult<ExerciseRepository[], Error>
+}
+
+const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = ({
+  courseId,
+  examId,
+  exerciseRepositories,
+}) => {
   const { t } = useTranslation()
 
   const [addingRepo, setAddingRepo] = useState(false)
   const [editingRepo, setEditingRepo] = useState<string | null>(null)
-  const exerciseRepositories = useQuery(getExerciseRepositoriesOptions(courseId, examId))
 
   useEffect(() => {
     setAddingRepo(false)
@@ -137,6 +147,60 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
       </ul>
     </>
   )
+}
+
+const CourseExerciseRepositories: React.FC<{ courseId: string; examId: string | null }> = ({
+  courseId,
+  examId,
+}) => {
+  const exerciseRepositories = useQuery(
+    getExerciseRepositoriesForCourseOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  )
+
+  return (
+    <ExerciseRepositoriesContent
+      courseId={courseId}
+      examId={examId}
+      exerciseRepositories={exerciseRepositories}
+    />
+  )
+}
+
+const ExamExerciseRepositories: React.FC<{ courseId: string | null; examId: string }> = ({
+  courseId,
+  examId,
+}) => {
+  const exerciseRepositories = useQuery(
+    getExerciseRepositoriesForExamOptions({
+      path: {
+        exam_id: examId,
+      },
+    }),
+  )
+
+  return (
+    <ExerciseRepositoriesContent
+      courseId={courseId}
+      examId={examId}
+      exerciseRepositories={exerciseRepositories}
+    />
+  )
+}
+
+const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
+  if (courseId) {
+    return <CourseExerciseRepositories courseId={courseId} examId={examId} />
+  }
+
+  if (examId) {
+    return <ExamExerciseRepositories courseId={courseId} examId={examId} />
+  }
+
+  return null
 }
 
 export default ExerciseRepositories

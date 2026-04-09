@@ -75,7 +75,7 @@ pub struct ExerciseGradingStatus {
     pub updated_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatusSummaryForUser {
     pub exercise: Exercise,
@@ -91,7 +91,7 @@ pub struct ExerciseStatusSummaryForUser {
     pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialExercise {
     pub exercise: Exercise,
@@ -204,7 +204,7 @@ impl GradingProgress {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseStatus {
     // None when grading has not completed yet. Max score can be found from the associated exercise.

@@ -1,6 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
@@ -68,7 +69,7 @@ impl Role {
     }
 }
 
-#[derive(Debug, Clone, Copy, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag", content = "id")]
 pub enum RoleDomain {
@@ -79,7 +80,7 @@ pub enum RoleDomain {
     Exam(Uuid),
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleInfo {
     pub email: String,
@@ -87,7 +88,7 @@ pub struct RoleInfo {
     pub domain: RoleDomain,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleUser {
     pub user_id: Uuid,

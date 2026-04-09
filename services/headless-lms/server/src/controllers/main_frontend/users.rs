@@ -7,7 +7,7 @@ use models::{
     user_research_consents::UserResearchConsent, users::User,
 };
 use secrecy::SecretString;
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -65,7 +65,7 @@ GET `/api/v0/main-frontend/users/:id/course-enrollments`
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "User course enrollments", body = serde_json::Value)
+        (status = 200, description = "User course enrollments", body = CourseEnrollmentsInfo)
     )
 )]
 pub async fn get_course_enrollments_for_user(
@@ -88,7 +88,7 @@ pub async fn get_course_enrollments_for_user(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ConsentData {
     pub consent: bool,
@@ -103,9 +103,9 @@ POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research cons
     path = "/user-research-consents",
     operation_id = "createUserResearchConsent",
     tag = "users",
-    request_body = serde_json::Value,
+    request_body = ConsentData,
     responses(
-        (status = 200, description = "User research consent", body = serde_json::Value)
+        (status = 200, description = "User research consent", body = UserResearchConsent)
     )
 )]
 pub async fn post_user_consents(
@@ -136,7 +136,7 @@ GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users researc
     operation_id = "getUserResearchConsent",
     tag = "users",
     responses(
-        (status = 200, description = "User research consent", body = serde_json::Value)
+        (status = 200, description = "User research consent", body = UserResearchConsent)
     )
 )]
 pub async fn get_research_consent_by_user_id(
@@ -162,7 +162,7 @@ GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users re
     operation_id = "getUserResearchFormQuestionAnswers",
     tag = "users",
     responses(
-        (status = 200, description = "Research form answers for user", body = serde_json::Value)
+        (status = 200, description = "Research form answers for user", body = [ResearchFormQuestionAnswer])
     )
 )]
 async fn get_all_research_form_answers_with_user_id(
@@ -189,7 +189,7 @@ GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has
     operation_id = "getMyCourses",
     tag = "users",
     responses(
-        (status = 200, description = "Courses for authenticated user", body = serde_json::Value)
+        (status = 200, description = "Courses for authenticated user", body = [Course])
     )
 )]
 async fn get_my_courses(
@@ -231,7 +231,7 @@ GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "User reset exercise logs", body = serde_json::Value)
+        (status = 200, description = "User reset exercise logs", body = [ExerciseResetLog])
     )
 )]
 pub async fn get_user_reset_exercise_logs(

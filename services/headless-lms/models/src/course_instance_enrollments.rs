@@ -2,8 +2,9 @@ use crate::{
     course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
     courses::Course, prelude::*, user_course_settings::UserCourseSettings,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceEnrollment {
     pub user_id: Uuid,
@@ -24,7 +25,7 @@ pub struct CourseInstanceEnrollmentsInfo {
     pub course_module_completions: Vec<CourseModuleCompletion>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseEnrollmentInfo {
     pub course_id: Uuid,
@@ -36,7 +37,7 @@ pub struct CourseEnrollmentInfo {
     pub is_current: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseEnrollmentsInfo {
     pub course_enrollments: Vec<CourseEnrollmentInfo>,

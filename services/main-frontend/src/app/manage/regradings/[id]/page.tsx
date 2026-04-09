@@ -8,8 +8,7 @@ import type React from "react"
 import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { getRegradingInfoOptions } from "@/services/backend/regradings"
-import { RegradingInfo } from "@/shared-module/common/bindings"
+import { getRegradingInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ProgressBar from "@/shared-module/common/components/CourseProgress/ProgressBar"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -23,9 +22,13 @@ const ViewRegradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
 
   const query = useQuery({
-    ...getRegradingInfoOptions(id),
+    ...getRegradingInfoOptions({
+      path: {
+        regrading_id: id,
+      },
+    }),
     refetchInterval: (query) => {
-      const data = query.state.data as RegradingInfo | undefined
+      const data = query.state.data
       if (!data || data.regrading.total_grading_progress === "FullyGraded") {
         return false
       }
@@ -51,7 +54,7 @@ const ViewRegradingPage: React.FC = () => {
     )
   }
 
-  const data = query.data as RegradingInfo
+  const data = query.data
   const nRegradingsReady = data.submission_infos.filter(
     (i) => i.grading_after_regrading?.grading_progress === "FullyGraded",
   ).length

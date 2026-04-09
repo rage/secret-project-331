@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewProposedBlockEdit {
     pub block_id: Uuid,

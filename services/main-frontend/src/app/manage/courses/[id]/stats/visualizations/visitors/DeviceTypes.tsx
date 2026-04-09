@@ -9,7 +9,7 @@ import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { fetchCoursePageVisitDatumSummariesByDeviceTypes } from "@/services/backend/courses"
+import { getCoursePageVisitDatumSummaryByDeviceTypesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -45,8 +45,11 @@ const chartsContainerStyles = css`
 
 const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ courseId }) => {
   const query = useQuery({
-    queryKey: [`course-page-visit-datum-summary-by-device-type-${courseId}`],
-    queryFn: () => fetchCoursePageVisitDatumSummariesByDeviceTypes(courseId),
+    ...getCoursePageVisitDatumSummaryByDeviceTypesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const { t } = useTranslation()

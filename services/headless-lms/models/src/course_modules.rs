@@ -623,7 +623,7 @@ RETURNING *
     Ok(res.into())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewModule {
     name: String,
@@ -636,7 +636,7 @@ pub struct NewModule {
     enable_registering_completion_to_uh_open_university: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ModifiedModule {
     id: Uuid,
@@ -649,7 +649,7 @@ pub struct ModifiedModule {
     enable_registering_completion_to_uh_open_university: bool,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ModuleUpdates {
     new_modules: Vec<NewModule>,

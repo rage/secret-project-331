@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getStatusDeploymentsOptions } from "../services/backend/status"
+import { getStatusDeploymentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusDeployments = () => {
   return useQuery({

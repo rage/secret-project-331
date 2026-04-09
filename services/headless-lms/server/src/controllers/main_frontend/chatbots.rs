@@ -18,7 +18,7 @@ pub(crate) struct MainFrontendChatbotsApiDoc;
         ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
     ),
     responses(
-        (status = 200, description = "Chatbot configuration", body = serde_json::Value)
+        (status = 200, description = "Chatbot configuration", body = ChatbotConfiguration)
     )
 )]
 #[instrument(skip(pool))]
@@ -50,9 +50,9 @@ async fn get_chatbot(
     params(
         ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
     ),
-    request_body = serde_json::Value,
+    request_body = NewChatbotConf,
     responses(
-        (status = 200, description = "Updated chatbot configuration", body = serde_json::Value)
+        (status = 200, description = "Updated chatbot configuration", body = ChatbotConfiguration)
     )
 )]
 #[instrument(skip(pool, payload))]

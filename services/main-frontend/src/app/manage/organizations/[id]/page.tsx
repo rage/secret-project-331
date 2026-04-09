@@ -14,17 +14,24 @@ import DeleteOrganizationPopup from "./DeleteOrganizationPopup"
 import EditUserPopup from "./EditUserPopup"
 
 import {
+  getOrganizationOptions,
+  getRolesOptions,
   softDeleteOrganizationMutation as softDeleteOrganizationMutationOptions,
   updateOrganizationMutation as updateOrganizationMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  addRole as addRoleFromApi,
+  removeRole as removeRoleFromApi,
+} from "@/generated/api/sdk.generated"
 import type { Options } from "@/generated/api/sdk.generated"
 import type {
+  Organization,
+  RoleDomain,
+  RoleUser,
   SoftDeleteOrganizationData,
   UpdateOrganizationData,
+  UserRole,
 } from "@/generated/api/types.generated"
-import { getOrganizationOptions } from "@/services/backend/organizations"
-import { fetchRoles, giveRole, removeRole } from "@/services/backend/roles"
-import { Organization, RoleDomain, RoleUser, UserRole } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -46,6 +53,7 @@ type NamedRoleUser = RoleUser & { name: string }
 const GENERAL_TAB = "general"
 const PERMISSIONS_TAB = "permissions"
 const DEFAULT_TAB = GENERAL_TAB
+const ORGANIZATION_ROLE_DOMAIN_TAG = "Organization" as const
 
 type TabKey = typeof GENERAL_TAB | typeof PERMISSIONS_TAB
 
@@ -69,7 +77,14 @@ const ManageOrganization: React.FC = () => {
   const addMutation = useToastMutation(
     (data: { email: string; role: string }) => {
       // eslint-disable-next-line i18next/no-literal-string
-      return giveRole(data.email, data.role as UserRole, { tag: "Organization", id })
+      return addRoleFromApi({
+        body: {
+          email: data.email,
+          role: data.role as UserRole,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+        },
+        throwOnError: true,
+      })
     },
     { notify: true, method: "POST" },
     {
@@ -94,8 +109,14 @@ const ManageOrganization: React.FC = () => {
 
   const handleDelete = (userToDelete: NamedRoleUser) => {
     if (window.confirm(t("confirm-delete-user", { email: userToDelete.email }))) {
-      // eslint-disable-next-line i18next/no-literal-string
-      removeRole(userToDelete.email, userToDelete.role, { tag: "Organization", id })
+      removeRoleFromApi({
+        body: {
+          email: userToDelete.email,
+          role: userToDelete.role,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+        },
+        throwOnError: true,
+      })
         .then(() => {
           roleQuery.refetch()
         })
@@ -118,12 +139,25 @@ const ManageOrganization: React.FC = () => {
     }
 
     // eslint-disable-next-line i18next/no-literal-string
-    void removeRole(editUser.email, editUser.role, { tag: "Organization", id })
+    void removeRoleFromApi({
+      body: {
+        email: editUser.email,
+        role: editUser.role,
+        domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+      },
+      throwOnError: true,
+    })
       .then(() =>
-        giveRole(editUser.email, editRole as UserRole, {
-          // eslint-disable-next-line i18next/no-literal-string
-          tag: "Organization",
-          id,
+        addRoleFromApi({
+          body: {
+            email: editUser.email,
+            role: editRole as UserRole,
+            domain: {
+              tag: ORGANIZATION_ROLE_DOMAIN_TAG,
+              id,
+            },
+          },
+          throwOnError: true,
         }),
       )
       .then(() => {
@@ -146,16 +180,20 @@ const ManageOrganization: React.FC = () => {
     },
   )
 
-  // eslint-disable-next-line i18next/no-literal-string
-  const domain: RoleDomain = { tag: "Organization", id }
+  const domain: RoleDomain = { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id }
 
   const roleQuery = useQuery({
-    queryKey: ["roles", domain, id],
-    queryFn: () => fetchRoles({ organization_id: id }),
+    ...getRolesOptions({
+      query: { organization_id: id },
+    }),
   })
 
   const organization = useQuery({
-    ...getOrganizationOptions(id),
+    ...getOrganizationOptions({
+      path: {
+        organization_id: id,
+      },
+    }),
   })
 
   React.useEffect(() => {

@@ -10,9 +10,9 @@ import EditCourseModuleForm, { EditCourseModuleFormFields } from "./EditCourseMo
 import NewCourseModuleForm, { Fields } from "./NewCourseModuleForm"
 
 import BottomPanel from "@/components/BottomPanel"
-import { submitChanges as submitModuleChanges } from "@/services/backend/course-modules"
-import { fetchCourseStructure } from "@/services/backend/courses"
-import { CompletionPolicy, ModifiedModule, NewModule } from "@/shared-module/common/bindings"
+import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { updateCourseModules } from "@/generated/api/sdk.generated"
+import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -163,8 +163,11 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
 
   // queries and mutations
   const courseStructureQuery = useQuery({
-    queryKey: ["course-structure", courseId],
-    queryFn: () => fetchCourseStructure(courseId),
+    ...getCourseStructureOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
     select: (courseStructure) => {
       const chapterNumbers = courseStructure.chapters
         .sort((l, r) => l.chapter_number - r.chapter_number)
@@ -186,38 +189,40 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           if (m.completion_policy.policy === "automatic") {
             return {
               id: m.id,
-              name: m.name,
+              name: m.name ?? null,
               order_number: m.order_number,
               firstChapter,
               lastChapter,
               isNew: false,
-              uh_course_code: m.uh_course_code,
-              ects_credits: m.ects_credits,
+              uh_course_code: m.uh_course_code ?? null,
+              ects_credits: m.ects_credits ?? null,
               automatic_completion: true,
               automatic_completion_number_of_points_treshold:
-                m.completion_policy.number_of_points_treshold,
+                m.completion_policy.number_of_points_treshold ?? null,
               automatic_completion_number_of_exercises_attempted_treshold:
-                m.completion_policy.number_of_exercises_attempted_treshold,
+                m.completion_policy.number_of_exercises_attempted_treshold ?? null,
               automatic_completion_requires_exam: m.completion_policy.requires_exam,
-              completion_registration_link_override: m.completion_registration_link_override,
+              completion_registration_link_override:
+                m.completion_registration_link_override ?? null,
               enable_registering_completion_to_uh_open_university:
                 m.enable_registering_completion_to_uh_open_university,
             }
           } else {
             return {
               id: m.id,
-              name: m.name,
+              name: m.name ?? null,
               order_number: m.order_number,
               firstChapter,
               lastChapter,
               isNew: false,
-              uh_course_code: m.uh_course_code,
-              ects_credits: m.ects_credits,
+              uh_course_code: m.uh_course_code ?? null,
+              ects_credits: m.ects_credits ?? null,
               automatic_completion: false,
               automatic_completion_number_of_points_treshold: null,
               automatic_completion_number_of_exercises_attempted_treshold: null,
               automatic_completion_requires_exam: false,
-              completion_registration_link_override: m.completion_registration_link_override,
+              completion_registration_link_override:
+                m.completion_registration_link_override ?? null,
               enable_registering_completion_to_uh_open_university:
                 m.enable_registering_completion_to_uh_open_university,
             }
@@ -344,13 +349,18 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
         }
       }
 
-      return submitModuleChanges(
-        courseId,
-        Array.from(newModules.values()),
-        deletedModules,
-        modifiedModules,
-        movedChapters,
-      )
+      return updateCourseModules({
+        body: {
+          new_modules: Array.from(newModules.values()),
+          deleted_modules: deletedModules,
+          modified_modules: modifiedModules,
+          moved_chapters: movedChapters,
+        },
+        path: {
+          course_id: courseId,
+        },
+        throwOnError: true,
+      })
     },
     { notify: true, method: "POST" },
     {

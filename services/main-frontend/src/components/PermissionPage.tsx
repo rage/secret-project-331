@@ -9,17 +9,25 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { assert, Equals } from "tsafe"
 
-import { getPendingRolesOptionsForQuery } from "../services/backend/pendingRoles"
-import {
-  getRolesOptionsForQuery,
-  giveRole,
-  giveRoleMutationOptions,
-  removeRole,
-  removeRoleMutationOptions,
-} from "../services/backend/roles"
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
-import { RoleDomain, RoleQuery, RoleUser, UserRole } from "@/shared-module/common/bindings"
+import {
+  addRoleMutation as addRoleMutationOptions,
+  getPendingRolesOptions,
+  getRolesOptions,
+  removeRoleMutation as removeRoleMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  addRole as addRoleFromApi,
+  removeRole as removeRoleFromApi,
+} from "@/generated/api/sdk.generated"
+import type {
+  GetRolesData,
+  PendingRole,
+  RoleDomain,
+  RoleUser,
+  UserRole,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
@@ -28,6 +36,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -81,6 +90,8 @@ interface Props {
   domain: RoleDomain
 }
 
+type RoleQuery = NonNullable<GetRolesData["query"]>
+
 const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
   const { t } = useTranslation()
   const router = useRouter()
@@ -127,10 +138,18 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
-  const roleQuery = useQuery(getRolesOptionsForQuery(query))
-  const pendingRolesQuery = useQuery(getPendingRolesOptionsForQuery(query))
+  const roleQuery = useQuery({
+    ...getRolesOptions({
+      query,
+    }),
+  })
+  const pendingRolesQuery = useQuery({
+    ...getPendingRolesOptions({
+      query,
+    }),
+  })
   const addMutation = useToastMutationOptions(
-    giveRoleMutationOptions(),
+    addRoleMutationOptions(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -142,7 +161,15 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   )
   const editMutation = useToastMutation(
     ({ email, oldRole, newRole }: { email: string; oldRole: UserRole; newRole: UserRole }) =>
-      removeRole(email, oldRole, domain).then(() => giveRole(email, newRole, domain)),
+      removeRoleFromApi({
+        body: { email, role: oldRole, domain },
+        throwOnError: true,
+      }).then(() =>
+        addRoleFromApi({
+          body: { email, role: newRole, domain },
+          throwOnError: true,
+        }),
+      ),
     { notify: true, method: "POST" },
     {
       onSuccess: () => roleQuery.refetch(),

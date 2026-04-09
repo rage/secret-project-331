@@ -1,3 +1,5 @@
+import { queryOptions } from "@tanstack/react-query"
+
 import { cmsClient } from "./cmsClient"
 
 import {
@@ -12,6 +14,7 @@ import {
   isPageNavigationInformation,
 } from "@/shared-module/common/bindings.guard"
 import { isNull, isUnion, validateResponse } from "@/shared-module/common/utils/fetching"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const fetchPageWithId = async (pageId: string): Promise<ContentManagementPage> => {
   const response = await cmsClient.get(`/pages/${pageId}`, { responseType: "json" })
@@ -22,6 +25,12 @@ export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
   const response = await cmsClient.get(`/pages/${pageId}/info`, { responseType: "json" })
   return validateResponse(response, isPageInfo)
 }
+
+export const getPageInfoOptions = (pageId: string | null | undefined) =>
+  queryOptions({
+    queryKey: ["page-info", pageId],
+    queryFn: () => fetchPageInfo(assertNotNullOrUndefined(pageId)),
+  })
 
 export const fetchNextPageRoutingData = async (
   currentPageId: string,

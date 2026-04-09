@@ -2,11 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getStatusCronJobsOptions } from "../services/backend/status"
+import { getStatusCronjobsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusCronJobs = () => {
   return useQuery({
-    ...getStatusCronJobsOptions(),
+    ...getStatusCronjobsOptions(),
     refetchInterval: 10000,
   })
 }

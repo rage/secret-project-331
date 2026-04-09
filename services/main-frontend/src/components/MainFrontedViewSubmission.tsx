@@ -10,7 +10,7 @@ import {
   ExerciseCardPointsBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
-import { ExerciseSlideSubmissionInfo } from "@/shared-module/common/bindings"
+import type { ExerciseSlideSubmissionInfo } from "@/generated/api/types.generated"
 import { headingFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 

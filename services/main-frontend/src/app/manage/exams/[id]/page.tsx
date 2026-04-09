@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
@@ -10,14 +10,16 @@ import { useTranslation } from "react-i18next"
 import EditExamDialog from "../EditExamDialog"
 
 import {
-  downloadExamPointsCsv,
-  downloadExamSubmissionsCsv,
   getExamOptions,
   getOrganizationExamByExamIdOptions,
-  setExamCourseMutationOptions,
-  unsetExamCourseMutationOptions,
-} from "@/services/backend/exams"
-import { getOrganizationOptions } from "@/services/backend/organizations"
+  setExamCourseMutation,
+  unsetExamCourseMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  exportExamPointsCsv,
+  exportExamSubmissionsCsv,
+  getOrganization,
+} from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -26,6 +28,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import {
   manageCourseByIdRoute,
   manageExamQuestionsRoute,
@@ -33,6 +36,13 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { downloadBlobAsFile } from "@/utils/downloadBlobAsFile"
+
+const GET_ORGANIZATION_QUERY_KEY = "getOrganization"
+const BLOB_PARSE_AS = "blob" as const
+const EXAM_POINTS_CSV_FILE_PREFIX = "exam-"
+const EXAM_POINTS_CSV_FILE_SUFFIX = "-points.csv"
+const EXAM_SUBMISSIONS_CSV_FILE_SUFFIX = "-submissions.csv"
 
 const detailRow = css`
   font-family: ${primaryFont};
@@ -47,36 +57,43 @@ const detailValue = css`
   color: ${baseTheme.colors.gray[700]};
 `
 
-const downloadBlobAsFile = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.setAttribute("download", fileName)
-
-  try {
-    document.body.appendChild(link)
-    link.click()
-    link.parentNode?.removeChild(link)
-  } finally {
-    window.URL.revokeObjectURL(url)
-  }
-}
-
 const ManageExam: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t, i18n } = useTranslation()
-  const getExam = useQuery(getExamOptions(id))
-  const organizationId = useQuery(getOrganizationExamByExamIdOptions(id)).data?.organization_id
+  const getExam = useQuery({
+    ...getExamOptions({
+      path: {
+        id,
+      },
+    }),
+  })
+  const organizationExam = useQuery({
+    ...getOrganizationExamByExamIdOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
+  })
+  const organizationId = organizationExam.data?.organization_id
 
   const organizationSlug = useQuery({
-    ...getOrganizationOptions(organizationId ?? ""),
-    enabled: !!organizationId,
+    queryKey: [GET_ORGANIZATION_QUERY_KEY, organizationId] as const,
+    queryFn: organizationId
+      ? () =>
+          getOrganization({
+            path: {
+              organization_id: assertNotNullOrUndefined(organizationId),
+            },
+            throwOnError: true,
+          })
+      : skipToken,
+    enabled: organizationId != null,
   }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)
   const [newCourse, setNewCourse] = useState("")
   const setCourseMutation = useToastMutationOptions(
-    setExamCourseMutationOptions(),
+    setExamCourseMutation(),
     {
       notify: true,
       method: "POST",
@@ -89,7 +106,7 @@ const ManageExam: React.FC = () => {
   )
 
   const unsetCourseMutation = useToastMutationOptions(
-    unsetExamCourseMutationOptions(),
+    unsetExamCourseMutation(),
     {
       notify: true,
       method: "POST",
@@ -101,13 +118,53 @@ const ManageExam: React.FC = () => {
     },
   )
 
-  const exportPointsMutation = useToastMutation(async () => downloadExamPointsCsv(id), {
-    notify: false,
-  })
+  const exportPointsMutation = useToastMutation(
+    async () => {
+      const data: unknown = await exportExamPointsCsv({
+        parseAs: BLOB_PARSE_AS,
+        path: {
+          id,
+        },
+        throwOnError: true,
+      })
 
-  const exportSubmissionsMutation = useToastMutation(async () => downloadExamSubmissionsCsv(id), {
-    notify: false,
-  })
+      if (!(data instanceof Blob)) {
+        throw new Error("Invalid exam points CSV response")
+      }
+
+      return {
+        blob: data,
+        fileName: `${EXAM_POINTS_CSV_FILE_PREFIX}${id}${EXAM_POINTS_CSV_FILE_SUFFIX}`,
+      }
+    },
+    {
+      notify: false,
+    },
+  )
+
+  const exportSubmissionsMutation = useToastMutation(
+    async () => {
+      const data: unknown = await exportExamSubmissionsCsv({
+        parseAs: BLOB_PARSE_AS,
+        path: {
+          id,
+        },
+        throwOnError: true,
+      })
+
+      if (!(data instanceof Blob)) {
+        throw new Error("Invalid exam submissions CSV response")
+      }
+
+      return {
+        blob: data,
+        fileName: `${EXAM_POINTS_CSV_FILE_PREFIX}${id}${EXAM_SUBMISSIONS_CSV_FILE_SUFFIX}`,
+      }
+    },
+    {
+      notify: false,
+    },
+  )
 
   return (
     <div

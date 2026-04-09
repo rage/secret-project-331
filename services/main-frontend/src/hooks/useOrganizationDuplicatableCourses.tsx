@@ -2,11 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getOrganizationDuplicatableCoursesOptions } from "../services/backend/organizations"
+import { getOrganizationDuplicatableCoursesOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useOrganizationDuplicatableCourses = (organizationId: string | null) => {
   const getDuplicatableCourses = useQuery({
-    ...getOrganizationDuplicatableCoursesOptions(organizationId ?? ""),
+    ...getOrganizationDuplicatableCoursesOptions({
+      path: {
+        organization_id: organizationId!,
+      },
+    }),
     enabled: !!organizationId,
   })
 

@@ -21,7 +21,7 @@ pub(crate) struct MainFrontendCourseStudentsApiDoc;
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course student progress overview", body = serde_json::Value)
+        (status = 200, description = "Course student progress overview", body = ProgressOverview)
     )
 )]
 #[instrument(skip(pool))]
@@ -54,7 +54,7 @@ async fn get_progress(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course users", body = serde_json::Value)
+        (status = 200, description = "Course users", body = [CourseUserInfo])
     )
 )]
 #[instrument(skip(pool))]
@@ -87,7 +87,7 @@ async fn get_course_users(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course completions", body = serde_json::Value)
+        (status = 200, description = "Course completions", body = [CompletionGridRow])
     )
 )]
 #[instrument(skip(pool))]
@@ -122,7 +122,7 @@ async fn get_completions(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course certificates", body = serde_json::Value)
+        (status = 200, description = "Course certificates", body = [CertificateGridRow])
     )
 )]
 #[instrument(skip(pool))]

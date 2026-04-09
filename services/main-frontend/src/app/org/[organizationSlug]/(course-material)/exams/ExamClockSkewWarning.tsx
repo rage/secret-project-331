@@ -5,8 +5,8 @@ import { addMilliseconds, differenceInMilliseconds, parseISO } from "date-fns"
 import React, { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { getCurrentTime } from "@/generated/api/sdk.generated"
 import useTime from "@/hooks/course-material/useTime"
-import { fetchCurrentServerTime } from "@/services/course-material/backend"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 const MINUTE_MS = 60_000
@@ -25,8 +25,13 @@ interface ClockSkewEstimate {
 
 const sampleClockOffset = async (): Promise<ClockSkewSample | null> => {
   const t0 = Date.now()
-  const serverTime = await fetchCurrentServerTime()
+  const serverTime = await getCurrentTime({
+    throwOnError: true,
+  })
   const t1 = Date.now()
+  if (typeof serverTime !== "string") {
+    return null
+  }
   const serverDate = parseISO(serverTime)
   const serverMs = serverDate.getTime()
 

@@ -1,12 +1,14 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 
-import { fetchGlossary } from "@/services/course-material/backend"
+import { getCourseMaterialGlossary } from "@/generated/course-material-api/sdk.generated"
 
 interface UseGlossaryOptions {
   enabled?: boolean
 }
+
+const COURSE_MATERIAL_GLOSSARY_QUERY_KEY = "courseMaterialGlossary"
 
 const useGlossary = (
   courseId: string | null | undefined,
@@ -16,9 +18,17 @@ const useGlossary = (
 ) => {
   const { enabled = true } = options
   const query = useQuery({
-    queryKey: [`glossary-${courseId}`, exam, isMaterialPage],
-    queryFn: () => (courseId && exam === null && isMaterialPage ? fetchGlossary(courseId) : []),
-    enabled: enabled,
+    queryKey: [COURSE_MATERIAL_GLOSSARY_QUERY_KEY, courseId] as const,
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialGlossary({
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
+    enabled: Boolean(courseId) && exam === null && isMaterialPage && enabled,
   })
   return query
 }

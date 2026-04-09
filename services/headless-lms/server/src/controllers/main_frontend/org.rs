@@ -21,7 +21,7 @@ GET `/api/v0/main-frontend/org/:slug
         ("organization_slug" = String, Path, description = "Organization slug")
     ),
     responses(
-        (status = 200, description = "Organization", body = serde_json::Value)
+        (status = 200, description = "Organization", body = Organization)
     )
 )]
 #[instrument(skip(pool, file_store, app_conf))]

@@ -4,9 +4,8 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { createTeacherGradingDecisionMutationOptions } from "../services/backend/teacher-grading-decisions"
-
 import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
+import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
@@ -30,7 +29,7 @@ const ExerciseGradingCard: React.FC<ExerciseGradingCardProps> = ({
 
   // Custom points mutation
   const customPointsMutation = useToastMutationOptions(
-    createTeacherGradingDecisionMutationOptions(),
+    createTeacherGradingDecisionMutation(),
     {
       notify: true,
       method: "POST",

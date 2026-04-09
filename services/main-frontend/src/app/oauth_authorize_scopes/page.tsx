@@ -4,30 +4,24 @@ import { css } from "@emotion/css"
 import { useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import {
-  postOAuthConsent as approveConsent,
-  postOAuthDeny as denyConsent,
-} from "@/services/backend/users"
+import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export default function ConsentPage() {
   const searchParams = useSearchParams()
   const { t } = useTranslation("main-frontend")
 
   const query = {
-    client_id: String(searchParams.get("client_id") ?? ""),
-    client_name: String(searchParams.get("client_name") ?? ""),
-    redirect_uri: String(searchParams.get("redirect_uri") ?? ""),
-    response_type: String(searchParams.get("response_type") ?? ""),
-    scope: String(searchParams.get("scope") ?? ""),
-    state: String(searchParams.get("state") ?? ""),
-    nonce: String(searchParams.get("nonce") ?? ""),
-    code_challenge: searchParams.get("code_challenge")
-      ? String(searchParams.get("code_challenge"))
-      : null,
-    code_challenge_method: searchParams.get("code_challenge_method")
-      ? String(searchParams.get("code_challenge_method"))
-      : null,
+    client_id: assertNotNullOrUndefined(searchParams.get("client_id")),
+    client_name: assertNotNullOrUndefined(searchParams.get("client_name")),
+    redirect_uri: assertNotNullOrUndefined(searchParams.get("redirect_uri")),
+    response_type: assertNotNullOrUndefined(searchParams.get("response_type")),
+    scope: assertNotNullOrUndefined(searchParams.get("scope")),
+    state: assertNotNullOrUndefined(searchParams.get("state")),
+    nonce: assertNotNullOrUndefined(searchParams.get("nonce")),
+    code_challenge: searchParams.get("code_challenge"),
+    code_challenge_method: searchParams.get("code_challenge_method"),
   }
 
   const scopes = query.scope.split(" ").filter(Boolean)
@@ -40,16 +34,22 @@ export default function ConsentPage() {
   }
 
   const onApprove = async () => {
-    const res = await approveConsent(query)
+    const res = await approveOauthConsent({
+      body: query,
+      throwOnError: true,
+    })
     if (res.redirect_uri) {
       window.location.assign(res.redirect_uri)
     }
   }
   const onDeny = async () => {
-    const res = await denyConsent({
-      client_id: query.client_id,
-      redirect_uri: query.redirect_uri,
-      state: query.state,
+    const res = await denyOauthConsent({
+      body: {
+        client_id: query.client_id,
+        redirect_uri: query.redirect_uri,
+        state: query.state,
+      },
+      throwOnError: true,
     })
     if (res.redirect_uri) {
       window.location.assign(res.redirect_uri)

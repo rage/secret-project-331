@@ -2,19 +2,28 @@
 
 import { QueryClient, useQuery } from "@tanstack/react-query"
 
-import { getOrganizationCourseCountOptions } from "../services/backend/organizations"
+import { getOrganizationCourseCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const invalidateOrganizationCourseCount = (
   queryClient: QueryClient,
-  _organizationId: string,
+  organizationId: string,
 ) => {
-  // eslint-disable-next-line i18next/no-literal-string
-  queryClient.invalidateQueries({ queryKey: ["getOrganizationCourseCount"] })
+  queryClient.invalidateQueries({
+    queryKey: getOrganizationCourseCountOptions({
+      path: {
+        organization_id: organizationId,
+      },
+    }).queryKey,
+  })
 }
 
 export const useOrganizationCourseCount = (organizationId: string | null) => {
   const getOrgCourseCount = useQuery({
-    ...getOrganizationCourseCountOptions(organizationId ?? ""),
+    ...getOrganizationCourseCountOptions({
+      path: {
+        organization_id: organizationId!,
+      },
+    }),
     enabled: !!organizationId,
   })
 

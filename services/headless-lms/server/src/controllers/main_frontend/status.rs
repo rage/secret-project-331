@@ -44,7 +44,7 @@ Returns the status of all Pods in the current namespace.
     operation_id = "getStatusPods",
     tag = "status",
     responses(
-        (status = 200, description = "Pods", body = serde_json::Value)
+        (status = 200, description = "Pods", body = [PodInfo])
     )
 )]
 pub async fn pods(
@@ -81,7 +81,7 @@ Returns the status of all Deployments in the current namespace.
     operation_id = "getStatusDeployments",
     tag = "status",
     responses(
-        (status = 200, description = "Deployments", body = serde_json::Value)
+        (status = 200, description = "Deployments", body = [DeploymentInfo])
     )
 )]
 pub async fn deployments(
@@ -118,7 +118,7 @@ Returns the status of all CronJobs in the current namespace.
     operation_id = "getStatusCronjobs",
     tag = "status",
     responses(
-        (status = 200, description = "Cronjobs", body = serde_json::Value)
+        (status = 200, description = "Cronjobs", body = [CronJobInfo])
     )
 )]
 pub async fn cronjobs(
@@ -155,7 +155,7 @@ Returns the status of all Jobs in the current namespace.
     operation_id = "getStatusJobs",
     tag = "status",
     responses(
-        (status = 200, description = "Jobs", body = serde_json::Value)
+        (status = 200, description = "Jobs", body = [JobInfo])
     )
 )]
 pub async fn jobs(
@@ -192,7 +192,7 @@ Returns the status of all Services in the current namespace.
     operation_id = "getStatusServices",
     tag = "status",
     responses(
-        (status = 200, description = "Services", body = serde_json::Value)
+        (status = 200, description = "Services", body = [ServiceInfo])
     )
 )]
 pub async fn services(
@@ -229,7 +229,7 @@ Returns the status of all Events in the current namespace.
     operation_id = "getStatusEvents",
     tag = "status",
     responses(
-        (status = 200, description = "Events", body = serde_json::Value)
+        (status = 200, description = "Events", body = [EventInfo])
     )
 )]
 pub async fn events(
@@ -266,7 +266,7 @@ Returns the status of all Ingresses in the current namespace.
     operation_id = "getStatusIngresses",
     tag = "status",
     responses(
-        (status = 200, description = "Ingresses", body = serde_json::Value)
+        (status = 200, description = "Ingresses", body = [IngressInfo])
     )
 )]
 pub async fn ingresses(
@@ -303,7 +303,7 @@ Returns the status of all PodDisruptionBudgets in the current namespace.
     operation_id = "getStatusPodDisruptionBudgets",
     tag = "status",
     responses(
-        (status = 200, description = "Pod disruption budgets", body = serde_json::Value)
+        (status = 200, description = "Pod disruption budgets", body = [PodDisruptionBudgetInfo])
     )
 )]
 pub async fn pod_disruption_budgets(
@@ -416,7 +416,7 @@ Returns detailed system health status with issues list (admin only).
     operation_id = "getStatusHealth",
     tag = "status",
     responses(
-        (status = 200, description = "Detailed system health", body = serde_json::Value)
+        (status = 200, description = "Detailed system health", body = SystemHealthStatus)
     )
 )]
 pub async fn health(

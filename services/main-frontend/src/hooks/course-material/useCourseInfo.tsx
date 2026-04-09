@@ -1,17 +1,24 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 
-import { fetchCourseById } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseMaterialCourse } from "@/generated/course-material-api/sdk.generated"
+
+const COURSE_MATERIAL_COURSE_INFO_QUERY_KEY = "courseMaterialCourseInfo"
 
 const useCourseInfo = (courseId: string | undefined | null) => {
   const query = useQuery({
-    queryKey: [`courses-${courseId}`],
-    queryFn: () => {
-      return fetchCourseById(assertNotNullOrUndefined(courseId))
-    },
-    enabled: courseId !== undefined && courseId !== null,
+    queryKey: [COURSE_MATERIAL_COURSE_INFO_QUERY_KEY, courseId] as const,
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialCourse({
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
+    enabled: !!courseId,
   })
   return query
 }

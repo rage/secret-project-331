@@ -2,11 +2,10 @@
 
 import { useTranslation } from "react-i18next"
 
-import { claimCodeFromCodeGiveaway } from "@/services/course-material/backend"
+import { claimCodeFromCodeGiveaway } from "@/generated/course-material-api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface ClaimCodeProps {
   codeGiveawayId: string
@@ -17,7 +16,13 @@ const ClaimCode: React.FC<ClaimCodeProps> = ({ codeGiveawayId, onClaimed }) => {
   const { t } = useTranslation()
 
   const claimCodeMutation = useToastMutation(
-    () => claimCodeFromCodeGiveaway(assertNotNullOrUndefined(codeGiveawayId)),
+    () =>
+      claimCodeFromCodeGiveaway({
+        path: {
+          id: codeGiveawayId,
+        },
+        throwOnError: true,
+      }),
     { notify: false },
   )
 

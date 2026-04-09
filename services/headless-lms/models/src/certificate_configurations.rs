@@ -1,5 +1,7 @@
 use std::fmt;
 
+use utoipa::ToSchema;
+
 use crate::{
     certificate_configuration_to_requirements::{
         CertificateAllRequirements, get_all_requirements_for_certificate_configuration,
@@ -7,7 +9,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "kebab-case")]
 #[sqlx(type_name = "certificate_paper_size", rename_all = "kebab-case")]
@@ -32,7 +34,7 @@ impl PaperSize {
 }
 
 /// How text should be positioned relative to the given coordinates. See <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "kebab-case")]
 #[sqlx(type_name = "certificate_text_anchor", rename_all = "kebab-case")]
@@ -52,14 +54,14 @@ impl fmt::Display for CertificateTextAnchor {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateConfigurationAndRequirements {
     pub certificate_configuration: CertificateConfiguration,
     pub requirements: CertificateAllRequirements,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateConfiguration {
     pub id: Uuid,

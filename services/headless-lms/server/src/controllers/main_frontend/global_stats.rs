@@ -10,15 +10,18 @@ use std::collections::HashMap;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
-#[openapi(paths(
-    get_number_of_people_completed_a_course,
-    get_number_of_people_registered_completion_to_study_registry,
-    get_number_of_people_done_at_least_one_exercise,
-    get_number_of_people_started_course,
-    get_course_module_stats_by_completions_registered_to_study_registry,
-    get_completion_stats_by_email_domain,
-    get_course_completion_stats_for_email_domain
-))]
+#[openapi(
+    paths(
+        get_number_of_people_completed_a_course,
+        get_number_of_people_registered_completion_to_study_registry,
+        get_number_of_people_done_at_least_one_exercise,
+        get_number_of_people_started_course,
+        get_course_module_stats_by_completions_registered_to_study_registry,
+        get_completion_stats_by_email_domain,
+        get_course_completion_stats_for_email_domain
+    ),
+    components(schemas(TimeGranularity))
+)]
 pub(crate) struct MainFrontendGlobalStatsApiDoc;
 
 /**
@@ -33,10 +36,10 @@ Query parameters:
     operation_id = "getNumberOfPeopleCompletedACourse",
     tag = "global-stats",
     params(
-        ("granularity" = Option<String>, Query, description = "Time granularity")
+        ("granularity" = Option<TimeGranularity>, Query, description = "Time granularity")
     ),
     responses(
-        (status = 200, description = "Global completion stats", body = serde_json::Value)
+        (status = 200, description = "Global completion stats", body = [GlobalStatEntry])
     )
 )]
 #[instrument(skip(pool))]
@@ -80,10 +83,10 @@ Query parameters:
     operation_id = "getNumberOfPeopleRegisteredCompletionToStudyRegistry",
     tag = "global-stats",
     params(
-        ("granularity" = Option<String>, Query, description = "Time granularity")
+        ("granularity" = Option<TimeGranularity>, Query, description = "Time granularity")
     ),
     responses(
-        (status = 200, description = "Study registry completion stats", body = serde_json::Value)
+        (status = 200, description = "Study registry completion stats", body = [GlobalStatEntry])
     )
 )]
 #[instrument(skip(pool))]
@@ -123,10 +126,10 @@ Query parameters:
     operation_id = "getNumberOfPeopleDoneAtLeastOneExercise",
     tag = "global-stats",
     params(
-        ("granularity" = Option<String>, Query, description = "Time granularity")
+        ("granularity" = Option<TimeGranularity>, Query, description = "Time granularity")
     ),
     responses(
-        (status = 200, description = "Exercise participation stats", body = serde_json::Value)
+        (status = 200, description = "Exercise participation stats", body = [GlobalStatEntry])
     )
 )]
 #[instrument(skip(pool))]
@@ -170,10 +173,10 @@ Query parameters:
     operation_id = "getNumberOfPeopleStartedCourse",
     tag = "global-stats",
     params(
-        ("granularity" = Option<String>, Query, description = "Time granularity")
+        ("granularity" = Option<TimeGranularity>, Query, description = "Time granularity")
     ),
     responses(
-        (status = 200, description = "Course start stats", body = serde_json::Value)
+        (status = 200, description = "Course start stats", body = [GlobalStatEntry])
     )
 )]
 #[instrument(skip(pool))]
@@ -215,10 +218,14 @@ async fn get_number_of_people_started_course(
     operation_id = "getCourseModuleStatsByCompletionsRegisteredToStudyRegistry",
     tag = "global-stats",
     params(
-        ("granularity" = Option<String>, Query, description = "Time granularity")
+        ("granularity" = Option<TimeGranularity>, Query, description = "Time granularity")
     ),
     responses(
-        (status = 200, description = "Course module completion stats", body = serde_json::Value)
+        (
+            status = 200,
+            description = "Course module completion stats",
+            body = [GlobalCourseModuleStatEntry]
+        )
     )
 )]
 #[instrument(skip(pool))]
@@ -261,7 +268,11 @@ async fn get_course_module_stats_by_completions_registered_to_study_registry(
         ("year" = Option<i32>, Query, description = "Optional year")
     ),
     responses(
-        (status = 200, description = "Completion stats by email domain", body = serde_json::Value)
+        (
+            status = 200,
+            description = "Completion stats by email domain",
+            body = [DomainCompletionStats]
+        )
     )
 )]
 #[instrument(skip(pool))]
@@ -304,7 +315,11 @@ async fn get_completion_stats_by_email_domain(
         ("year" = Option<i32>, Query, description = "Optional year")
     ),
     responses(
-        (status = 200, description = "Course completion stats for email domain", body = serde_json::Value)
+        (
+            status = 200,
+            description = "Course completion stats for email domain",
+            body = [CourseCompletionStats]
+        )
     )
 )]
 #[instrument(skip(pool))]

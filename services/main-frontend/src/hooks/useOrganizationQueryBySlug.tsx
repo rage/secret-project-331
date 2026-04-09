@@ -2,12 +2,16 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getOrganizationBySlugOptions } from "../services/backend/organizations"
+import { getOrganizationBySlugOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 const useOrganizationBySlug = (organizationSlug: string | null) => {
   return useQuery({
-    ...getOrganizationBySlugOptions(organizationSlug ?? ""),
-    enabled: organizationSlug !== null,
+    ...getOrganizationBySlugOptions({
+      path: {
+        organization_slug: organizationSlug!,
+      },
+    }),
+    enabled: !!organizationSlug,
   })
 }
 

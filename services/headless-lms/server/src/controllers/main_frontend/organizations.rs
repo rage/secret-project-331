@@ -59,7 +59,7 @@ GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
     operation_id = "getOrganizations",
     tag = "organizations",
     responses(
-        (status = 200, description = "Organizations", body = serde_json::Value)
+        (status = 200, description = "Organizations", body = [Organization])
     )
 )]
 #[instrument(skip(pool, file_store, app_conf))]
@@ -107,7 +107,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a
         ("limit" = Option<i64>, Query, description = "Page size")
     ),
     responses(
-        (status = 200, description = "Organization courses", body = serde_json::Value)
+        (status = 200, description = "Organization courses", body = [Course])
     )
 )]
 #[instrument(skip(pool))]
@@ -144,7 +144,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable"
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
     responses(
-        (status = 200, description = "Duplicatable organization courses", body = serde_json::Value)
+        (status = 200, description = "Duplicatable organization courses", body = [Course])
     )
 )]
 #[instrument(skip(pool))]
@@ -189,7 +189,7 @@ async fn get_organization_duplicatable_courses(
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
     responses(
-        (status = 200, description = "Organization course count", body = serde_json::Value)
+        (status = 200, description = "Organization course count", body = CourseCount)
     )
 )]
 #[instrument(skip(pool))]
@@ -216,7 +216,7 @@ async fn get_organization_course_count(
         ("limit" = Option<i64>, Query, description = "Page size")
     ),
     responses(
-        (status = 200, description = "Active organization courses", body = serde_json::Value)
+        (status = 200, description = "Active organization courses", body = [Course])
     )
 )]
 #[instrument(skip(pool))]
@@ -246,7 +246,7 @@ async fn get_organization_active_courses(
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
     responses(
-        (status = 200, description = "Active organization course count", body = serde_json::Value)
+        (status = 200, description = "Active organization course count", body = CourseCount)
     )
 )]
 #[instrument(skip(pool))]
@@ -426,7 +426,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organiz
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
     responses(
-        (status = 200, description = "Organization", body = serde_json::Value)
+        (status = 200, description = "Organization", body = Organization)
     )
 )]
 #[instrument(skip(pool, file_store, app_conf))]
@@ -630,7 +630,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Retur
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
     responses(
-        (status = 200, description = "Organization course exams", body = serde_json::Value)
+        (status = 200, description = "Organization course exams", body = [CourseExam])
     )
 )]
 #[instrument(skip(pool))]
@@ -657,7 +657,7 @@ GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an o
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
     responses(
-        (status = 200, description = "Organization exams", body = serde_json::Value)
+        (status = 200, description = "Organization exams", body = [OrgExam])
     )
 )]
 #[instrument(skip(pool))]
@@ -684,7 +684,7 @@ GET `/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam
         ("exam_id" = Uuid, Path, description = "Exam id")
     ),
     responses(
-        (status = 200, description = "Organization exam", body = serde_json::Value)
+        (status = 200, description = "Organization exam", body = OrgExam)
     )
 )]
 #[instrument(skip(pool))]

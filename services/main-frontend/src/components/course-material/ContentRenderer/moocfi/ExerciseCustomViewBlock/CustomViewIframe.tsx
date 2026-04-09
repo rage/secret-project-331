@@ -1,18 +1,18 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
 import { useAtomValue } from "jotai"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import {
-  fetchCourseModuleExercisesAndSubmissionsByType,
-  fetchDefaultModuleIdByCourseId,
-  fetchModuleIdByChapterId,
-  getAllCourseModuleCompletionsForUserAndCourseInstance,
-} from "@/services/course-material/backend"
+  getCourseMaterialCourseModuleCompletionsForUser,
+  getCourseMaterialDefaultModuleIdByCourseId,
+  getCourseMaterialExerciseTasksByModuleAndType,
+  getCourseMaterialModuleIdByChapterId,
+} from "@/generated/course-material-api/sdk.generated"
+import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import {
@@ -20,7 +20,6 @@ import {
   UserVariablesMap,
 } from "@/shared-module/common/exercise-service-protocol-types"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import {
   currentPageDataAtom,
   materialInstanceAtom,
@@ -32,6 +31,11 @@ interface CustomViewIframeProps {
   url: string | undefined
   title: string
 }
+
+const COURSE_MODULE_COMPLETIONS_FOR_USER_QUERY_KEY = "courseMaterialCourseModuleCompletionsForUser"
+const MODULE_ID_BY_CHAPTER_QUERY_KEY = "courseMaterialModuleIdByChapterId"
+const DEFAULT_MODULE_ID_BY_COURSE_QUERY_KEY = "courseMaterialDefaultModuleIdByCourseId"
+const EXERCISE_TASKS_BY_MODULE_AND_TYPE_QUERY_KEY = "courseMaterialExerciseTasksByModuleAndType"
 
 const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>> = ({
   exerciseServiceSlug,
@@ -46,49 +50,81 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   const chapterId = pageData?.chapter_id
   const courseInstanceId = materialInstance?.id
   const courseId = materialSettings?.current_course_id
+  const userId = userInfo.data?.user_id
 
   const courseModuleCompletionsQuery = useQuery({
-    queryKey: [`${courseInstanceId}-course-module-completions-${userInfo.data?.user_id}`],
-    queryFn: () =>
-      getAllCourseModuleCompletionsForUserAndCourseInstance(
-        assertNotNullOrUndefined(courseInstanceId),
-        assertNotNullOrUndefined(userInfo.data?.user_id),
-      ),
-    enabled: !!courseInstanceId && !!userInfo.data?.user_id,
+    queryKey: [COURSE_MODULE_COMPLETIONS_FOR_USER_QUERY_KEY, courseInstanceId, userId] as const,
+    queryFn:
+      courseInstanceId && userId
+        ? () =>
+            getCourseMaterialCourseModuleCompletionsForUser({
+              path: {
+                course_instance_id: courseInstanceId,
+                user_id: userId,
+              },
+              throwOnError: true,
+            })
+        : skipToken,
+    enabled: Boolean(courseInstanceId && userId),
   })
   const courseInfo = useCourseInfo(materialSettings?.current_course_id)
 
   const moduleIdByChapter = useQuery({
-    queryKey: [`course-modules-chapter-${chapterId}`],
-    queryFn: () => fetchModuleIdByChapterId(assertNotNullOrUndefined(chapterId)),
-    enabled: !!chapterId,
+    queryKey: [MODULE_ID_BY_CHAPTER_QUERY_KEY, chapterId] as const,
+    queryFn: chapterId
+      ? () =>
+          getCourseMaterialModuleIdByChapterId({
+            path: {
+              chapter_id: chapterId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
+    enabled: Boolean(chapterId),
   })
 
   const moduleIdByCourse = useQuery({
-    queryKey: [`course-modules-course-${courseId}`],
-    queryFn: () => fetchDefaultModuleIdByCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
+    queryKey: [DEFAULT_MODULE_ID_BY_COURSE_QUERY_KEY, courseId] as const,
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialDefaultModuleIdByCourseId({
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
+    enabled: Boolean(courseId),
   })
   const moduleId = moduleIdByChapter.data ?? moduleIdByCourse.data
 
-  const submissions_by_exercise = useQuery({
+  const submissionsByExerciseQuery = useQuery({
     queryKey: [
-      `course-modules-${moduleId}-exercise-tasks-${exerciseServiceSlug}-${courseInstanceId}`,
-    ],
-    queryFn: () =>
-      fetchCourseModuleExercisesAndSubmissionsByType(
-        assertNotNullOrUndefined(moduleId),
-        exerciseServiceSlug,
-        assertNotNullOrUndefined(courseInstanceId),
-      ),
-    enabled: !!moduleId && !!courseInstanceId,
+      EXERCISE_TASKS_BY_MODULE_AND_TYPE_QUERY_KEY,
+      moduleId,
+      exerciseServiceSlug,
+      courseInstanceId,
+    ] as const,
+    queryFn:
+      moduleId && courseInstanceId
+        ? () =>
+            getCourseMaterialExerciseTasksByModuleAndType({
+              path: {
+                course_module_id: moduleId,
+                exercise_type: exerciseServiceSlug,
+                course_instance_id: courseInstanceId,
+              },
+              throwOnError: true,
+            })
+        : skipToken,
+    enabled: Boolean(moduleId && courseInstanceId),
   })
 
   const completionDate = courseModuleCompletionsQuery.data?.find(
     (compl) => compl.course_module_id === moduleId,
   )?.completion_date
 
-  const submission_data = submissions_by_exercise.data
+  const submission_data = submissionsByExerciseQuery.data
   const subs_by_exercise = useMemo(() => {
     if (!submission_data) {
       return null

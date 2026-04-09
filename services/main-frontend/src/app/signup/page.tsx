@@ -11,8 +11,7 @@ import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
-import { getUsersIpCountryOptions } from "@/services/backend/user-details"
-import { ErrorResponse } from "@/shared-module/common/bindings"
+import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -28,6 +27,10 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+
+type CreateUserErrorResponse = {
+  message?: string
+}
 
 interface FormFields {
   first_name: string
@@ -210,7 +213,7 @@ const CreateAccountForm: React.FC = () => {
 
   useEffect(() => {
     if (createAccountMutation.isError && createAccountMutation.error) {
-      const error = createAccountMutation.error as AxiosError<ErrorResponse>
+      const error = createAccountMutation.error as AxiosError<CreateUserErrorResponse>
       const status = error.response?.status
       const errorMessage = error.response?.data?.message || ""
 

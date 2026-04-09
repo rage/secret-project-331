@@ -3,14 +3,13 @@
 import { QueryClient, useQueryClient } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { createCourseCopy, createNewCourse } from "../services/backend/courses"
-
 import { invalidateCourseLanguageVersions } from "./useCourseLanguageVersions"
 import { invalidateCourseQuery } from "./useCourseQuery"
 import { invalidateOrganizationCourseCount } from "./useOrganizationCourseCount"
 import { invalidateOrganizationCourses } from "./useOrganizationCourses"
 
-import { CopyCourseMode, Course, NewCourse } from "@/shared-module/common/bindings"
+import { createCourse, createCourseCopy } from "@/generated/api/sdk.generated"
+import type { CopyCourseMode, Course, NewCourse } from "@/generated/api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { normalizeIETFLanguageTag } from "@/shared-module/common/utils/strings"
 
@@ -56,9 +55,15 @@ export const useCreateCourse = () => {
       if (isLanguageVersion && courseId) {
         const mode = createLanguageVersionMode(Boolean(useExistingLanguageGroup), targetCourseId)
 
-        return createCourseCopy(courseId, {
-          ...newCourse,
-          mode,
+        return createCourseCopy({
+          body: {
+            ...newCourse,
+            mode,
+          },
+          path: {
+            course_id: courseId,
+          },
+          throwOnError: true,
         })
       }
 
@@ -66,20 +71,35 @@ export const useCreateCourse = () => {
         if (createAsLanguageVersion) {
           const mode = createLanguageVersionMode(Boolean(useExistingLanguageGroup), targetCourseId)
 
-          return createCourseCopy(courseId, {
-            ...newCourse,
-            mode,
+          return createCourseCopy({
+            body: {
+              ...newCourse,
+              mode,
+            },
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
           })
         }
 
-        return createCourseCopy(courseId, {
-          ...newCourse,
-          // eslint-disable-next-line i18next/no-literal-string
-          mode: { mode: "duplicate" },
+        return createCourseCopy({
+          body: {
+            ...newCourse,
+            // eslint-disable-next-line i18next/no-literal-string
+            mode: { mode: "duplicate" },
+          },
+          path: {
+            course_id: courseId,
+          },
+          throwOnError: true,
         })
       }
 
-      return createNewCourse(newCourse)
+      return createCourse({
+        body: newCourse,
+        throwOnError: true,
+      })
     },
     {
       notify: true,

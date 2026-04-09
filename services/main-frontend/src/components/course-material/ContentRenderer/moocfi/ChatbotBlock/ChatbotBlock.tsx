@@ -1,18 +1,17 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 
 import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/SelectionListener"
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
-import { getDefaultChatbotConfigurationForCourse } from "@/services/course-material/backend"
+import { getDefaultChatbotConfigurationForCourse } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface ChatbotBlockProps {
   chatbotConfigurationId: string
@@ -26,7 +25,15 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
 
   const defaultChatbotConfiguration = useQuery({
     queryKey: ["chatbot", "default-for-course", courseId],
-    queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
+    queryFn: courseId
+      ? () =>
+          getDefaultChatbotConfigurationForCourse({
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
     enabled: courseId != null,
   })
 

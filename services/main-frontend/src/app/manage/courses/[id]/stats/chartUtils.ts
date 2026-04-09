@@ -4,7 +4,7 @@ import type { CallbackDataParams } from "echarts/types/src/util/types"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { CountResult } from "@/shared-module/common/bindings"
+import { CountResult } from "@/generated/api/types.generated"
 
 type DateFormatType = "yyyy-MM-dd" | "yyyy-MM"
 

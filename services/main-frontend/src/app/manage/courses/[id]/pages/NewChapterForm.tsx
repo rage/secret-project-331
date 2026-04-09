@@ -9,7 +9,7 @@ import {
   createChapterMutation as createChapterMutationOptions,
   updateChapterMutation as updateChapterMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { Chapter, NewChapter } from "@/shared-module/common/bindings"
+import type { Chapter, NewChapter } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import CheckboxFieldWrapper from "@/shared-module/common/components/InputFields/CheckboxFieldWrapper"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"

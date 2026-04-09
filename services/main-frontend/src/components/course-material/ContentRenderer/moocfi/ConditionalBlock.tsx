@@ -6,8 +6,8 @@ import React, { useContext } from "react"
 import { BlockRendererProps } from ".."
 import InnerBlocks from "../util/InnerBlocks"
 
+import type { UserCourseSettings } from "@/generated/course-material-api/types.generated"
 import useUserModuleCompletions from "@/hooks/course-material/useUserModuleCompletions"
-import { UserCourseSettings } from "@/shared-module/common/bindings"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { courseMaterialAtom } from "@/state/course-material"
 

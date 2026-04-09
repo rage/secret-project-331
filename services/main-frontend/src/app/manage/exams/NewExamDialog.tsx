@@ -5,16 +5,18 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import NewExamForm from "@/components/forms/NewExamForm"
-import { createOrganizationExamMutation as createOrganizationExamMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { duplicateExamMutationOptions } from "@/services/backend/exams"
-import { NewExam, OrgExam } from "@/shared-module/common/bindings"
+import {
+  createOrganizationExamMutation as createOrganizationExamMutationOptions,
+  duplicateExamMutation as duplicateExamMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { NewExam, OrgExam } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface ExamDialogProps {
   organizationId: string
-  getOrgExams: UseQueryResult<OrgExam[], unknown>
+  getOrgExams: UseQueryResult<OrgExam[], Error>
   open: boolean
   close: () => void
 }

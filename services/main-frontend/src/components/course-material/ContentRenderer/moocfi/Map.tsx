@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import React, { Fragment, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -11,16 +11,15 @@ import { countryList } from "./../util/Countries"
 import WorldMap from "./worldMap.svg"
 
 import {
-  fetchStudentCountries,
-  fetchStudentCountry,
-  postStudentCountry,
-} from "@/services/course-material/backend"
+  getCourseMaterialStudentCountries,
+  getCourseMaterialStudentCountry,
+  postCourseMaterialStudentCountry,
+} from "@/generated/course-material-api/sdk.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseMaterialAtom } from "@/state/course-material"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
@@ -72,6 +71,9 @@ interface CountryCountPair {
 
 export type MapProps = React.HTMLAttributes<HTMLDivElement> & MapExtraProps
 
+const STUDENT_COUNTRIES_QUERY_KEY = "courseMaterialStudentCountries"
+const STUDENT_COUNTRY_QUERY_KEY = "courseMaterialStudentCountry"
+
 const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   let countryCodeCount: CountryCountPair[] = useMemo(() => [], [])
 
@@ -87,21 +89,33 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
   const userId = userInfo.data?.user_id
 
   const getCountries = useQuery({
-    queryKey: [`course-${courseId}-courseInstanceId-${courseInstanceId}-countries`],
-    queryFn: () => {
-      return fetchStudentCountries(
-        assertNotNullOrUndefined(courseId),
-        assertNotNullOrUndefined(courseInstanceId),
-      )
-    },
+    queryKey: [STUDENT_COUNTRIES_QUERY_KEY, courseId, courseInstanceId] as const,
+    queryFn:
+      courseId && courseInstanceId
+        ? () =>
+            getCourseMaterialStudentCountries({
+              path: {
+                course_id: courseId,
+                course_instance_id: courseInstanceId,
+              },
+              throwOnError: true,
+            })
+        : skipToken,
+    enabled: Boolean(courseId && courseInstanceId),
   })
 
   const getCountry = useQuery({
-    queryKey: [`course-${courseInstanceId}-country`],
-    queryFn: () => {
-      return fetchStudentCountry(assertNotNullOrUndefined(courseInstanceId))
-    },
-    enabled: !!courseInstanceId,
+    queryKey: [STUDENT_COUNTRY_QUERY_KEY, courseInstanceId] as const,
+    queryFn: courseInstanceId
+      ? () =>
+          getCourseMaterialStudentCountry({
+            path: {
+              course_instance_id: courseInstanceId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
+    enabled: Boolean(courseInstanceId),
   })
 
   const getElementBySelectorAsync = (selector: string): Promise<SVGLineElement> =>
@@ -131,7 +145,14 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
         throw new Error("Course instance id undefined")
       }
 
-      return postStudentCountry(courseId, courseInstanceId, country)
+      return postCourseMaterialStudentCountry({
+        path: {
+          course_id: courseId,
+          course_instance_id: courseInstanceId,
+          country_code: country,
+        },
+        throwOnError: true,
+      })
     },
     {
       notify: true,
@@ -242,7 +263,11 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     activeStudentCountry = getCountry.data.country_code
   }
 
-  if (getCountries.isSuccess && getCountries.data.length !== 0 && activeStudentCountry) {
+  if (
+    getCountries.isSuccess &&
+    Object.keys(getCountries.data).length !== 0 &&
+    activeStudentCountry
+  ) {
     const storedCountryCodes = Object.entries(getCountries.data).map(([key, value]) => ({
       code: `.${key}`,
       count: value,

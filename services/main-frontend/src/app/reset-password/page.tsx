@@ -6,15 +6,17 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { sendResetPasswordLink } from "@/services/backend/users"
+import { sendResetPasswordEmail } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 type SubmitEmailFormFields = {
   email: string
@@ -32,7 +34,17 @@ const ResetPassword: React.FC = () => {
   } = useForm<SubmitEmailFormFields>()
 
   const postResetPassword = useToastMutation(
-    (data: SubmitEmailFormFields) => sendResetPasswordLink(data.email, i18n.language),
+    async (data: SubmitEmailFormFields) =>
+      validateGeneratedData(
+        await sendResetPasswordEmail({
+          body: {
+            email: data.email,
+            language: i18n.language,
+          },
+          throwOnError: true,
+        }),
+        isBoolean,
+      ),
     { method: "POST", notify: true },
     {
       onSuccess: (_, variables) => {

@@ -24,7 +24,7 @@ pub(crate) struct MainFrontendCourseChatbotsApiDoc;
         ("course_id" = String, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course chatbots", body = serde_json::Value)
+        (status = 200, description = "Course chatbots", body = Vec<ChatbotConfiguration>)
     )
 )]
 #[instrument(skip(pool))]
@@ -50,9 +50,9 @@ async fn get_chatbots(
     params(
         ("course_id" = String, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = String,
     responses(
-        (status = 200, description = "Created course chatbot", body = serde_json::Value)
+        (status = 200, description = "Created course chatbot", body = ChatbotConfiguration)
     )
 )]
 #[instrument(skip(pool, payload))]
@@ -114,7 +114,7 @@ async fn create_chatbot(
         ("chatbot_configuration_id" = String, Path, description = "Chatbot configuration id")
     ),
     responses(
-        (status = 200, description = "Updated course chatbot", body = serde_json::Value)
+        (status = 200, description = "Updated course chatbot", body = ChatbotConfiguration)
     )
 )]
 #[instrument(skip(pool))]
@@ -163,7 +163,7 @@ async fn set_default_chatbot(
         ("chatbot_configuration_id" = String, Path, description = "Chatbot configuration id")
     ),
     responses(
-        (status = 200, description = "Updated course chatbot", body = serde_json::Value)
+        (status = 200, description = "Updated course chatbot", body = ChatbotConfiguration)
     )
 )]
 #[instrument(skip(pool))]

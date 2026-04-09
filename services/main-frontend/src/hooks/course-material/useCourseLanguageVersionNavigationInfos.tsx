@@ -1,25 +1,35 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 
-import { fetchCourseLanguageVersionNavigationInfos } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseMaterialLanguageVersionNavigationInfos } from "@/generated/course-material-api/sdk.generated"
+
+const COURSE_MATERIAL_LANGUAGE_VERSION_NAVIGATION_INFOS_QUERY_KEY =
+  "courseMaterialLanguageVersionNavigationInfos"
 
 const useCourseLanguageVersionNavigationInfos = (
   courseId: string | undefined | null,
   page_id: string | undefined | null,
 ) => {
   const query = useQuery({
-    queryKey: ["course-language-version-navigation-infos", courseId, page_id],
-    queryFn: () => {
-      return fetchCourseLanguageVersionNavigationInfos(
-        assertNotNullOrUndefined(courseId),
-        assertNotNullOrUndefined(page_id),
-      )
-    },
-    enabled:
-      courseId !== undefined && courseId !== null && page_id !== undefined && page_id !== null,
-    staleTime: 5 * 60 * 1000, // 5 minutes - language versions don't change often
+    queryKey: [
+      COURSE_MATERIAL_LANGUAGE_VERSION_NAVIGATION_INFOS_QUERY_KEY,
+      courseId,
+      page_id,
+    ] as const,
+    queryFn:
+      courseId && page_id
+        ? () =>
+            getCourseMaterialLanguageVersionNavigationInfos({
+              path: {
+                course_id: courseId,
+                page_id,
+              },
+              throwOnError: true,
+            })
+        : skipToken,
+    enabled: !!courseId && !!page_id,
+    staleTime: 5 * 60 * 1000,
   })
   return query
 }

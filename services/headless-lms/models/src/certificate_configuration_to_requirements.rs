@@ -1,6 +1,8 @@
+use utoipa::ToSchema;
+
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateConfigurationToRequirement {
     pub id: Uuid,
@@ -11,7 +13,7 @@ pub struct CertificateConfigurationToRequirement {
     pub course_module_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateAllRequirements {
     pub certificate_configuration_id: Uuid,

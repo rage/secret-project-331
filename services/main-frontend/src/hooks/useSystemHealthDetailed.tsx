@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getStatusHealthOptions } from "../services/backend/status"
+import { getStatusHealthOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useSystemHealthDetailed = () => {
   return useQuery({

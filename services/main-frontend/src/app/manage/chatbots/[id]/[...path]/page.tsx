@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import ChatbotConfigurationForm from "@/app/manage/courses/[id]/other/chatbot/ChatbotConfigurationForm"
-import { getChatbotConfigurationOptions } from "@/services/backend/chatbots"
+import { getChatbotConfigurationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -19,7 +19,11 @@ const CustomizeChatbotPage = () => {
   const { id } = useParams<{ id: string }>()
 
   const chatbotQuery = useQuery({
-    ...getChatbotConfigurationOptions(assertNotNullOrUndefined(id)),
+    ...getChatbotConfigurationOptions({
+      path: {
+        chatbot_configuration_id: assertNotNullOrUndefined(id),
+      },
+    }),
     enabled: !!id,
   })
 

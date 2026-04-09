@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchChaptersPagesExcludeFrontpage } from "@/services/course-material/backend"
+import { getCourseMaterialChapterPagesExcludingFrontPage } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PagesInChapterBox from "@/shared-module/common/components/PagesInChapterBox"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -27,7 +27,13 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
   const { t } = useTranslation()
   const getPagesInChapterExcludeFrontpage = useQuery({
     queryKey: [`chapter-${chapterId}-pages-excluding-frontpage`],
-    queryFn: () => fetchChaptersPagesExcludeFrontpage(chapterId),
+    queryFn: () =>
+      getCourseMaterialChapterPagesExcludingFrontPage({
+        path: {
+          chapter_id: chapterId,
+        },
+        throwOnError: true,
+      }),
   })
 
   return (

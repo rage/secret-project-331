@@ -1,10 +1,11 @@
 "use client"
 
 import type { QueryClient } from "@tanstack/react-query"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 
-import { getUserChapterLocks } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseMaterialUserChapterLocksQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { getCourseMaterialUserChapterLocks } from "@/generated/course-material-api/sdk.generated"
+import type { UserChapterLockingStatus } from "@/generated/course-material-api/types.generated"
 import { userChapterLocksQueryKey } from "@/state/course-material/queries"
 
 /**
@@ -15,8 +16,16 @@ import { userChapterLocksQueryKey } from "@/state/course-material/queries"
  */
 export const useUserChapterLocks = (courseId: string | null | undefined) => {
   return useQuery({
-    queryKey: userChapterLocksQueryKey(courseId),
-    queryFn: () => getUserChapterLocks(assertNotNullOrUndefined(courseId)),
+    queryKey: ["courseUserChapterLocks", courseId] as const,
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialUserChapterLocks({
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
     enabled: !!courseId,
   })
 }
@@ -36,6 +45,12 @@ export const refetchUserChapterLocks = async (
     return
   }
   await queryClient.refetchQueries({
-    queryKey: userChapterLocksQueryKey(courseId),
+    queryKey:
+      userChapterLocksQueryKey(courseId) ??
+      getCourseMaterialUserChapterLocksQueryKey({
+        path: {
+          course_id: courseId,
+        },
+      }),
   })
 }

@@ -10,12 +10,37 @@ use models::{
     library::progressing::UserModuleCompletionStatus,
     user_exercise_states::{UserCourseChapterExerciseProgress, UserCourseProgress},
 };
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_user_progress_for_course_instance,
+    get_user_progress_for_course_instance_chapter,
+    get_user_progress_for_course_instance_chapter_exercises,
+    get_module_completions_for_course_instance,
+    save_course_settings,
+    get_all_get_all_course_module_completions_for_user_by_course_instance_id,
+    get_background_questions_and_answers
+))]
+pub(crate) struct CourseMaterialCourseInstancesApiDoc;
 
 /**
  GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/progress",
+    operation_id = "getCourseMaterialUserCourseProgress",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "User course progress", body = Vec<UserCourseProgress>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance(
     user: AuthUser,
@@ -39,6 +64,19 @@ async fn get_user_progress_for_course_instance(
 /**
 GET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/chapters/{chapter_id}/progress",
+    operation_id = "getCourseMaterialChapterProgress",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Course instance chapter progress", body = UserCourseInstanceChapterProgress)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter(
     user: AuthUser,
@@ -62,6 +100,19 @@ async fn get_user_progress_for_course_instance_chapter(
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/chapters/{chapter_id}/exercises/progress",
+    operation_id = "getCourseMaterialChapterExerciseProgress",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Course instance chapter exercise progress", body = Vec<UserCourseChapterExerciseProgress>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_progress_for_course_instance_chapter_exercises(
     user: AuthUser,
@@ -98,6 +149,18 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
 /**
 GET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`
  */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/module-completions",
+    operation_id = "getCourseMaterialUserModuleCompletions",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "User module completion statuses", body = Vec<UserModuleCompletionStatus>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_module_completions_for_course_instance(
     user: AuthUser,
@@ -126,7 +189,7 @@ async fn get_module_completions_for_course_instance(
     token.authorized_ok(web::Json(module_completion_statuses))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SaveCourseSettingsPayload {
     pub background_question_answers: Vec<NewCourseBackgroundQuestionAnswer>,
@@ -135,6 +198,19 @@ pub struct SaveCourseSettingsPayload {
 /**
 POST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_instance_id}/save-course-settings",
+    operation_id = "saveCourseMaterialCourseSettings",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    request_body = SaveCourseSettingsPayload,
+    responses(
+        (status = 200, description = "Course instance enrollment", body = CourseInstanceEnrollment)
+    )
+)]
 #[instrument(skip(pool))]
 async fn save_course_settings(
     pool: web::Data<PgPool>,
@@ -158,6 +234,19 @@ async fn save_course_settings(
 /**
 GET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/course-module-completions/{user_id}",
+    operation_id = "getCourseMaterialCourseModuleCompletionsForUser",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "Course module completions for user", body = Vec<CourseModuleCompletion>)
+    )
+)]
 #[instrument(skip(pool))]
 
 async fn get_all_get_all_course_module_completions_for_user_by_course_instance_id(
@@ -191,6 +280,18 @@ async fn get_all_get_all_course_module_completions_for_user_by_course_instance_i
 /**
 GET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/background-questions-and-answers",
+    operation_id = "getCourseMaterialBackgroundQuestionsAndAnswers",
+    tag = "course-material-course-instances",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "Background questions and answers", body = CourseBackgroundQuestionsAndAnswers)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_background_questions_and_answers(
     pool: web::Data<PgPool>,

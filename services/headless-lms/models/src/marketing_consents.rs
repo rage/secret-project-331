@@ -1,9 +1,10 @@
 use itertools::multiunzip;
 use serde_json::json;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserMarketingConsent {
     pub id: Uuid,

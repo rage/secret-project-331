@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { addCodeGiveawayCodesMutationOptions } from "@/services/backend/codeGiveaways"
+import { addCodeGiveawayCodesMutation as addCodeGiveawayCodesMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"

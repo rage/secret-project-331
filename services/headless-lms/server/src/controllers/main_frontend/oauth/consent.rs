@@ -41,9 +41,9 @@ pub(crate) struct MainFrontendOauthConsentApiDoc;
     path = "/consent",
     operation_id = "approveOauthConsent",
     tag = "oauth",
-    request_body = serde_json::Value,
+    request_body = ConsentQuery,
     responses(
-        (status = 200, description = "Consent approval response", body = serde_json::Value)
+        (status = 200, description = "Consent approval response", body = ConsentResponse)
     )
 )]
 pub async fn approve_consent(
@@ -136,9 +136,9 @@ pub async fn approve_consent(
     path = "/consent/deny",
     operation_id = "denyOauthConsent",
     tag = "oauth",
-    request_body = serde_json::Value,
+    request_body = ConsentDenyQuery,
     responses(
-        (status = 302, description = "Redirect with access_denied error")
+        (status = 200, description = "Consent denial response", body = ConsentResponse)
     )
 )]
 pub async fn deny_consent(
@@ -181,9 +181,9 @@ pub async fn deny_consent(
         }
     }
 
-    Ok(HttpResponse::Found()
-        .append_header(("Location", url.to_string()))
-        .finish())
+    Ok(HttpResponse::Ok().json(ConsentResponse {
+        redirect_uri: url.to_string(),
+    }))
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

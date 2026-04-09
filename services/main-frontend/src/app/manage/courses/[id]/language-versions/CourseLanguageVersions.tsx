@@ -8,7 +8,7 @@ import CourseLanguageVersionsList from "./CourseLanguageVersionsList"
 import NewCourseLanguageVersionDialog from "./NewCourseLanguageVersionDialog"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
-import { formatLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
+import { getCourseLanguageVersionsQueryKey } from "@/hooks/useCourseLanguageVersions"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -26,7 +26,7 @@ const CourseLanguageVersionsPage: React.FC<React.PropsWithChildren<CourseManagem
   const handleSuccess = async () => {
     await getCourseQuery.refetch()
     setShowNewLanguageVersionForm(false)
-    queryClient.invalidateQueries({ queryKey: [formatLanguageVersionsQueryKey(courseId)] })
+    queryClient.invalidateQueries({ queryKey: getCourseLanguageVersionsQueryKey(courseId) })
   }
 
   return (

@@ -1,7 +1,8 @@
 use super::TimeGranularity;
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GlobalStatEntry {
     pub course_name: String,
@@ -13,7 +14,7 @@ pub struct GlobalStatEntry {
     pub value: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GlobalCourseModuleStatEntry {
     pub course_name: String,
@@ -27,7 +28,7 @@ pub struct GlobalCourseModuleStatEntry {
     pub course_module_ects_credits: Option<f32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DomainCompletionStats {
     pub email_domain: String,
@@ -42,7 +43,7 @@ pub struct DomainCompletionStats {
     pub not_registered_ects_credits: f32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseCompletionStats {
     pub course_id: Uuid,

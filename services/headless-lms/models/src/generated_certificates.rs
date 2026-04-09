@@ -1,7 +1,8 @@
 use crate::prelude::*;
 use headless_lms_utils as utils;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct GeneratedCertificate {
     pub id: Uuid,
@@ -126,7 +127,7 @@ fn generate_verification_id() -> String {
     utils::strings::generate_easily_writable_random_string(15)
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateUpdateRequest {
     pub date_issued: DateTime<Utc>,

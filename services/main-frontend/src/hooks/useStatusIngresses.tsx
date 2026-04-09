@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getStatusIngressesOptions } from "../services/backend/status"
+import { getStatusIngressesOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusIngresses = () => {
   return useQuery({

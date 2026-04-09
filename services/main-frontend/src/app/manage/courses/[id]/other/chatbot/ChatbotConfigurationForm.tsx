@@ -7,18 +7,18 @@ import React from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { getChatbotModelsOptions } from "@/services/backend/chatbotModels"
 import {
-  configureChatbotMutationOptions,
-  deleteChatbotMutationOptions,
-} from "@/services/backend/chatbots"
-import {
+  configureChatbotMutation as configureChatbotMutationOptions,
+  deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
+  getChatbotModelsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type {
   ChatbotConfiguration,
   ChatbotConfigurationModel,
   NewChatbotConf,
   ReasoningEffortLevel,
   VerbosityLevel,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -106,7 +106,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const { fields, append, remove } = useFieldArray({ control, name: "suggested_messages" })
 
   const getChatbotModelsList = useQuery({
-    ...getChatbotModelsOptions(assertNotNullOrUndefined(oldChatbotConf.course_id)),
+    ...getChatbotModelsOptions({
+      query: {
+        course_id: assertNotNullOrUndefined(oldChatbotConf.course_id),
+      },
+    }),
     enabled: !!oldChatbotConf.course_id,
   })
 

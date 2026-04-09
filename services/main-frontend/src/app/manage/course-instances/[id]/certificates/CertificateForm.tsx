@@ -5,11 +5,11 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
+import type {
   CertificateConfigurationAndRequirements,
   CertificateTextAnchor,
   PaperSize,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import FileField from "@/shared-module/common/components/InputFields/FileField"

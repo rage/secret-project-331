@@ -17,10 +17,10 @@ import { useTranslation } from "react-i18next"
 import ContentArea from "./ContentArea"
 
 import {
-  deleteExerciseServiceMutationOptions,
-  updateExerciseServiceMutationOptions,
-} from "@/services/backend/exercise-services"
-import { ExerciseService, ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+  deleteExerciseServiceMutation as deleteExerciseServiceMutationOptions,
+  updateExerciseServiceMutation as updateExerciseServiceMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseService, ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
@@ -279,7 +279,7 @@ const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardP
           />
           <ContentArea
             title={t("title-internal-url")}
-            text={service.internal_url}
+            text={service.internal_url ?? null}
             editing={editing}
             // eslint-disable-next-line i18next/no-literal-string
             onChange={onChange("internal_url")}

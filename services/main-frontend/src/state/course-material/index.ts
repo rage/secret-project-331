@@ -10,7 +10,7 @@ import type {
   Organization,
   Page,
   UserCourseSettings,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
 
 export type CourseMaterialState = {
   status: "loading" | "ready" | "error"

@@ -11,15 +11,19 @@ import ImportCodesForm from "./ImportCodesForm"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
-  downloadCodeGiveawayCodesCsv,
   getCodeGiveawayByIdOptions,
   getCodeGiveawayCodesOptions,
-} from "@/services/backend/codeGiveaways"
+} from "@/generated/api/@tanstack/react-query.generated"
+import { downloadCodeGiveawayCodesCsv } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+
+const BLOB_PARSE_AS = "blob" as const
+const CODE_GIVEAWAY_CODES_CSV_PREFIX = "code-giveaway-"
+const CODE_GIVEAWAY_CODES_CSV_SUFFIX = "-codes.csv"
 
 const downloadBlobAsFile = (blob: Blob, fileName: string) => {
   const url = window.URL.createObjectURL(blob)
@@ -39,21 +43,49 @@ const CodeGiveawayPage = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const [importDialogOpen, setImportDialogOpen] = useState(false)
-  const codeGiveawayQuery = useQuery(getCodeGiveawayByIdOptions(id))
+  const codeGiveawayQuery = useQuery(
+    getCodeGiveawayByIdOptions({
+      path: {
+        id,
+      },
+    }),
+  )
 
   const [revealCodes, setRevealCodes] = useState(false)
 
-  const codeGiveawayCodesQuery = useQuery(getCodeGiveawayCodesOptions(id))
+  const codeGiveawayCodesQuery = useQuery(
+    getCodeGiveawayCodesOptions({
+      path: {
+        id,
+      },
+    }),
+  )
   const downloadCodesCsvMutation = useToastMutation(
-    // eslint-disable-next-line i18next/no-literal-string
-    async () => downloadCodeGiveawayCodesCsv(id, `code-giveaway-${id}-codes.csv`),
+    async () => {
+      const data: unknown = await downloadCodeGiveawayCodesCsv({
+        parseAs: BLOB_PARSE_AS,
+        path: {
+          id,
+        },
+        throwOnError: true,
+      })
+
+      if (!(data instanceof Blob)) {
+        throw new Error("Invalid code giveaway CSV response")
+      }
+
+      return data
+    },
     {
       notify: true,
       method: "POST",
     },
     {
-      onSuccess: (download) => {
-        downloadBlobAsFile(download.blob, download.fileName)
+      onSuccess: (blob) => {
+        downloadBlobAsFile(
+          blob,
+          `${CODE_GIVEAWAY_CODES_CSV_PREFIX}${id}${CODE_GIVEAWAY_CODES_CSV_SUFFIX}`,
+        )
       },
     },
   )

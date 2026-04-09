@@ -14,6 +14,35 @@ export type ClientOptions = {
  */
 export type ActivityProgress = 'Initialized' | 'Started' | 'InProgress' | 'Submitted' | 'Completed';
 
+export type AnswerRequiringAttentionWithTasks = {
+    created_at: string;
+    data_json?: unknown;
+    deleted_at?: string | null;
+    exercise_id: string;
+    given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>;
+    grading_progress: GradingProgress;
+    id: string;
+    received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>;
+    received_peer_review_flagging_reports: Array<FlaggedAnswer>;
+    score_given?: number | null;
+    submission_id: string;
+    tasks: Array<CourseMaterialExerciseTask>;
+    updated_at: string;
+    user_id: string;
+};
+
+export type AnswersRequiringAttention = {
+    data: Array<AnswerRequiringAttentionWithTasks>;
+    exercise_max_points: number;
+    total_pages: number;
+};
+
+export type AuthorizedClientInfo = {
+    client_id: string;
+    client_name: string;
+    scopes: Array<string>;
+};
+
 export type AutomaticCompletionRequirements = {
     /**
      * Course module associated with these requirements.
@@ -22,6 +51,21 @@ export type AutomaticCompletionRequirements = {
     number_of_exercises_attempted_treshold?: number | null;
     number_of_points_treshold?: number | null;
     requires_exam: boolean;
+};
+
+/**
+ * A generic result representing an average metric over a time period.
+ * The average value (e.g. average time in seconds) may be absent if no data is available.
+ */
+export type AverageMetric = {
+    /**
+     * The average value. For example, the average time (in seconds) from course start to first submission.
+     */
+    average?: number | null;
+    /**
+     * The start of the time period (e.g., day, week, month) associated with this metric.
+     */
+    period?: string | null;
 };
 
 export type BlockProposal = (EditedBlockStillExistsData & {
@@ -42,10 +86,78 @@ export type BlockProposalInfo = {
     id: string;
 };
 
+export type BulkUserDetailsRequest = {
+    course_id: string;
+    user_ids: Array<string>;
+};
+
+export type CertificateAllRequirements = {
+    certificate_configuration_id: string;
+    course_module_ids: Array<string>;
+};
+
+export type CertificateConfiguration = {
+    background_svg_file_upload_id: string;
+    background_svg_path: string;
+    certificate_date_font_size: string;
+    certificate_date_text_anchor: CertificateTextAnchor;
+    certificate_date_text_color: string;
+    certificate_date_x_pos: string;
+    certificate_date_y_pos: string;
+    certificate_grade_font_size?: string | null;
+    certificate_grade_text_anchor?: null | CertificateTextAnchor;
+    certificate_grade_text_color?: string | null;
+    certificate_grade_x_pos?: string | null;
+    certificate_grade_y_pos?: string | null;
+    certificate_locale: string;
+    certificate_owner_name_font_size: string;
+    certificate_owner_name_text_anchor: CertificateTextAnchor;
+    certificate_owner_name_text_color: string;
+    certificate_owner_name_x_pos: string;
+    certificate_owner_name_y_pos: string;
+    certificate_validate_url_font_size: string;
+    certificate_validate_url_text_anchor: CertificateTextAnchor;
+    certificate_validate_url_text_color: string;
+    certificate_validate_url_x_pos: string;
+    certificate_validate_url_y_pos: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    overlay_svg_file_upload_id?: string | null;
+    overlay_svg_path?: string | null;
+    paper_size: PaperSize;
+    render_certificate_grade: boolean;
+    updated_at: string;
+};
+
+export type CertificateConfigurationAndRequirements = {
+    certificate_configuration: CertificateConfiguration;
+    requirements: CertificateAllRequirements;
+};
+
 export type CertificateGenerationRequest = {
     certificate_configuration_id: string;
     grade?: string | null;
     name_on_certificate: string;
+};
+
+export type CertificateGridRow = {
+    certificate: string;
+    certificate_id?: string | null;
+    date_issued?: string | null;
+    name_on_certificate?: string | null;
+    student: string;
+    verification_id?: string | null;
+};
+
+/**
+ * How text should be positioned relative to the given coordinates. See <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.
+ */
+export type CertificateTextAnchor = 'start' | 'middle' | 'end';
+
+export type CertificateUpdateRequest = {
+    date_issued: string;
+    name_on_certificate?: string | null;
 };
 
 export type Chapter = {
@@ -65,6 +177,19 @@ export type Chapter = {
     updated_at: string;
 };
 
+export type ChapterAvailability = {
+    chapter_id: string;
+    chapter_name: string;
+    chapter_number: number;
+    exercises_available: number;
+    points_available: number;
+};
+
+export type ChapterScore = DatabaseChapter & {
+    score_given: number;
+    score_total: number;
+};
+
 export type ChapterUpdate = {
     color?: string | null;
     /**
@@ -75,6 +200,50 @@ export type ChapterUpdate = {
     front_page_id?: string | null;
     name: string;
     opens_at?: string | null;
+};
+
+export type ChatbotConfiguration = {
+    chatbot_name: string;
+    course_id: string;
+    created_at: string;
+    daily_tokens_per_user: number;
+    default_chatbot: boolean;
+    deleted_at?: string | null;
+    enabled_to_students: boolean;
+    frequency_penalty: number;
+    hide_citations: boolean;
+    id: string;
+    initial_message: string;
+    initial_suggested_messages?: Array<string> | null;
+    maintain_azure_search_index: boolean;
+    max_completion_tokens: number;
+    model_id: string;
+    presence_penalty: number;
+    prompt: string;
+    reasoning_effort: ReasoningEffortLevel;
+    response_max_tokens: number;
+    suggest_next_messages: boolean;
+    temperature: number;
+    thinking_model: boolean;
+    top_p: number;
+    updated_at: string;
+    use_azure_search: boolean;
+    use_semantic_reranking: boolean;
+    use_tools: boolean;
+    verbosity: VerbosityLevel;
+    weekly_tokens_per_user: number;
+};
+
+export type ChatbotConfigurationModel = {
+    context_size: number;
+    created_at: string;
+    default_model: boolean;
+    deleted_at?: string | null;
+    deployment_name: string;
+    id: string;
+    model: string;
+    thinking: boolean;
+    updated_at: string;
 };
 
 export type CodeGiveaway = {
@@ -100,6 +269,37 @@ export type CodeGiveawayCode = {
     updated_at: string;
 };
 
+/**
+ * Represents cohort activity metrics for both weekly and daily cohorts.
+ * For daily cohorts, `offset` will be populated (and `activity_period` may be computed from it);
+ * for weekly cohorts, `offset` will be `None` and `activity_period` indicates the week start.
+ */
+export type CohortActivity = {
+    /**
+     * The number of active users in this cohort for the given period.
+     */
+    active_users: number;
+    /**
+     * The activity period (for example, the start of the week or the computed activity day).
+     */
+    activity_period?: string | null;
+    /**
+     * The start date of the cohort (either day or week).
+     */
+    cohort_start?: string | null;
+    /**
+     * The day offset from the cohort start (only applicable for daily cohorts).
+     */
+    offset?: number | null;
+};
+
+export type CompletionGridRow = {
+    grade: string;
+    module?: string | null;
+    status: string;
+    student: string;
+};
+
 export type CompletionPolicy = (AutomaticCompletionRequirements & {
     policy: 'automatic';
 }) | {
@@ -108,6 +308,62 @@ export type CompletionPolicy = (AutomaticCompletionRequirements & {
 
 export type CompletionRegistrationLink = {
     url: string;
+};
+
+export type ConsentData = {
+    consent: boolean;
+};
+
+export type ConsentDenyQuery = {
+    client_id: string;
+    redirect_uri: string;
+    state: string;
+};
+
+export type ConsentQuery = {
+    client_id: string;
+    code_challenge?: string | null;
+    code_challenge_method?: string | null;
+    nonce: string;
+    redirect_uri: string;
+    response_type: string;
+    scope: string;
+    state: string;
+};
+
+export type ConsentResponse = {
+    redirect_uri: string;
+};
+
+export type CopyCourseMode = {
+    mode: 'duplicate';
+} | {
+    mode: 'same_language_group';
+} | {
+    mode: 'existing_language_group';
+    target_course_id: string;
+} | {
+    mode: 'new_language_group';
+};
+
+export type CopyCourseRequest = NewCourse & {
+    mode: CopyCourseMode;
+};
+
+/**
+ * A generic result representing a count metric over a time period.
+ * When the time period is not applicable (for overall totals), `period` will be `None`.
+ */
+export type CountResult = {
+    /**
+     * The count (for example, the number of users).
+     */
+    count: number;
+    /**
+     * The start of the time period (e.g., day, week, month) associated with this count.
+     * For overall totals, this will be `None`.
+     */
+    period?: string | null;
 };
 
 export type Course = {
@@ -137,6 +393,83 @@ export type Course = {
     organization_id: string;
     slug: string;
     updated_at: string;
+};
+
+export type CourseBreadcrumbInfo = {
+    course_id: string;
+    course_name: string;
+    course_slug: string;
+    organization_name: string;
+    organization_slug: string;
+};
+
+export type CourseCompletionStats = {
+    course_id: string;
+    course_name: string;
+    not_registered_completions: number;
+    not_registered_ects_credits: number;
+    registered_completion_percentage?: number | null;
+    registered_completions: number;
+    registered_ects_credits: number;
+    total_completions: number;
+    unique_users: number;
+    users_with_some_registered_completions: number;
+    users_with_some_unregistered_completions: number;
+};
+
+export type CourseCount = {
+    count: number;
+};
+
+export type CourseEnrollmentInfo = {
+    course: Course;
+    course_id: string;
+    course_instances: Array<CourseInstance>;
+    course_module_completions: Array<CourseModuleCompletion>;
+    first_enrolled_at: string;
+    is_current: boolean;
+    user_course_settings?: null | UserCourseSettings;
+};
+
+export type CourseEnrollmentsInfo = {
+    course_enrollments: Array<CourseEnrollmentInfo>;
+};
+
+export type CourseExam = {
+    course_id: string;
+    course_name: string;
+    id: string;
+    name: string;
+};
+
+export type CourseInstance = {
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    ends_at?: string | null;
+    id: string;
+    name?: string | null;
+    starts_at?: string | null;
+    support_email?: string | null;
+    teacher_in_charge_email: string;
+    teacher_in_charge_name: string;
+    updated_at: string;
+};
+
+export type CourseInstanceCompletionSummary = {
+    course_modules: Array<CourseModule>;
+    users_with_course_module_completions: Array<UserWithModuleCompletions>;
+};
+
+export type CourseInstanceForm = {
+    closing_time?: string | null;
+    description?: string | null;
+    name?: string | null;
+    opening_time?: string | null;
+    support_email?: string | null;
+    teacher_in_charge_email: string;
+    teacher_in_charge_name: string;
 };
 
 /**
@@ -211,6 +544,80 @@ export type CourseModuleCompletion = {
     user_id: string;
 };
 
+export type CourseModuleCompletionWithRegistrationInfo = {
+    completion_date: string;
+    /**
+     * When the student has attempted to register the completion.
+     */
+    completion_registration_attempt_date?: string | null;
+    /**
+     * ID of the course module.
+     */
+    course_module_id: string;
+    /**
+     * When the record was created
+     */
+    created_at: string;
+    /**
+     * Grade that the student received for the completion.
+     */
+    grade?: number | null;
+    /**
+     * Whether or not the student is eligible for credit for the completion.
+     */
+    passed: boolean;
+    /**
+     * Whether or not the student is qualified for credit based on other modules in the course.
+     */
+    prerequisite_modules_completed: boolean;
+    /**
+     * Whether or not the completion has been registered to a study registry.
+     */
+    registered: boolean;
+    /**
+     * ID of the user for the completion.
+     */
+    user_id: string;
+};
+
+export type CourseStructure = {
+    chapters: Array<Chapter>;
+    course: Course;
+    modules: Array<CourseModule>;
+    pages: Array<Page>;
+};
+
+export type CourseUpdate = {
+    ask_marketing_consent: boolean;
+    can_add_chatbot: boolean;
+    chapter_locking_enabled: boolean;
+    closed_additional_message?: string | null;
+    closed_at?: string | null;
+    closed_course_successor_id?: string | null;
+    description?: string | null;
+    flagged_answers_skip_manual_review_and_allow_retry: boolean;
+    flagged_answers_threshold: number;
+    is_draft: boolean;
+    is_joinable_by_code_only: boolean;
+    is_test_mode: boolean;
+    is_unlisted: boolean;
+    name: string;
+};
+
+export type CourseUserInfo = {
+    course_instance?: string | null;
+    email?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    user_id: string;
+};
+
+export type CronJobInfo = {
+    last_schedule_time?: string | null;
+    name: string;
+    schedule: string;
+};
+
 export type DatabaseChapter = {
     chapter_image_path?: string | null;
     chapter_number: number;
@@ -226,6 +633,28 @@ export type DatabaseChapter = {
     name: string;
     opens_at?: string | null;
     updated_at: string;
+};
+
+export type DeploymentInfo = {
+    name: string;
+    ready_replicas: number;
+    replicas: number;
+    selector_labels: {
+        [key: string]: string;
+    };
+};
+
+export type DomainCompletionStats = {
+    email_domain: string;
+    not_registered_completions: number;
+    not_registered_ects_credits: number;
+    registered_completion_percentage?: number | null;
+    registered_completions: number;
+    registered_ects_credits: number;
+    total_completions: number;
+    unique_users: number;
+    users_with_some_registered_completions: number;
+    users_with_some_unregistered_completions: number;
 };
 
 export type EditProposalInfo = {
@@ -266,7 +695,26 @@ export type EmailTemplate = {
     updated_at: string;
 };
 
+export type EmailTemplateNew = {
+    content?: unknown;
+    language?: string | null;
+    subject?: string | null;
+    template_type: EmailTemplateType;
+};
+
 export type EmailTemplateType = 'reset_password_email' | 'delete_user_email' | 'confirm_email_code' | 'generic';
+
+export type EventInfo = {
+    count?: number | null;
+    first_timestamp?: string | null;
+    involved_object_kind?: string | null;
+    involved_object_name?: string | null;
+    last_timestamp?: string | null;
+    message?: string | null;
+    name: string;
+    reason?: string | null;
+    type_?: string | null;
+};
 
 export type Exam = {
     courses: Array<Course>;
@@ -318,6 +766,23 @@ export type Exercise = {
     use_course_default_peer_or_self_review_config: boolean;
 };
 
+export type ExerciseAnswersInCourseRequiringAttentionCount = {
+    chapter_id?: string | null;
+    count?: number | null;
+    id: string;
+    name: string;
+    order_number: number;
+    page_id: string;
+};
+
+export type ExerciseCsvExportTaskOption = {
+    exercise_task_id: string;
+    exercise_type: string;
+    order_number: number;
+    supports_csv_export_answers: boolean;
+    supports_csv_export_definitions: boolean;
+};
+
 export type ExerciseRepository = {
     course_id?: string | null;
     error_message?: string | null;
@@ -331,6 +796,22 @@ export type ExerciseRepositoryStatus = 'Pending' | 'Success' | 'Failure';
 
 export type ExerciseRepositoryUpdate = {
     url: string;
+};
+
+export type ExerciseResetLog = {
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_id: string;
+    exercise_name: string;
+    id: string;
+    reason?: string | null;
+    reset_at: string;
+    reset_by?: string | null;
+    reset_by_first_name?: string | null;
+    reset_by_last_name?: string | null;
+    reset_for: string;
+    updated_at: string;
 };
 
 export type ExerciseService = {
@@ -388,11 +869,46 @@ export type ExerciseSlideSubmissionAndUserExerciseStateList = {
     total_pages: number;
 };
 
+export type ExerciseSlideSubmissionCount = {
+    count?: number | null;
+    date?: string | null;
+};
+
+export type ExerciseSlideSubmissionCountByExercise = {
+    count?: number | null;
+    exercise_id: string;
+    exercise_name: string;
+};
+
+export type ExerciseSlideSubmissionCountByWeekAndHour = {
+    count?: number | null;
+    hour?: number | null;
+    isodow?: number | null;
+};
+
 export type ExerciseSlideSubmissionInfo = {
     exercise: Exercise;
     exercise_slide_submission: ExerciseSlideSubmission;
     tasks: Array<CourseMaterialExerciseTask>;
     user_exercise_state?: null | UserExerciseState;
+};
+
+export type ExerciseStatusSummaryForUser = {
+    exercise: Exercise;
+    exercise_slide_submissions: Array<ExerciseSlideSubmission>;
+    given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>;
+    given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>;
+    peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>;
+    peer_review_queue_entry?: null | PeerReviewQueueEntry;
+    received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>;
+    received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>;
+    teacher_grading_decision?: null | TeacherGradingDecision;
+    user_exercise_state?: null | UserExerciseState;
+};
+
+export type ExerciseSubmissions = {
+    data: Array<ExerciseSlideSubmission>;
+    total_pages: number;
 };
 
 export type ExerciseTaskGrading = {
@@ -429,6 +945,87 @@ export type ExerciseTaskSubmission = {
     updated_at: string;
 };
 
+export type ExerciseUserCounts = {
+    chapter_number: number;
+    exercise_id: string;
+    exercise_name: string;
+    exercise_order_number: number;
+    n_users_attempted?: number | null;
+    n_users_with_max_points?: number | null;
+    n_users_with_some_points?: number | null;
+    page_order_number: number;
+};
+
+export type Feedback = {
+    blocks: Array<FeedbackBlock>;
+    course_id: string;
+    created_at: string;
+    feedback_given: string;
+    id: string;
+    marked_as_read: boolean;
+    page_id?: string | null;
+    page_title: string;
+    page_url_path: string;
+    selected_text?: string | null;
+    user_id?: string | null;
+};
+
+export type FeedbackBlock = {
+    id: string;
+    order_number?: number | null;
+    text?: string | null;
+};
+
+export type FeedbackCount = {
+    read: number;
+    unread: number;
+};
+
+export type FlaggedAnswer = {
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    flagged_by: string;
+    flagged_user: string;
+    id: string;
+    reason: ReportReason;
+    submission_id: string;
+    updated_at: string;
+};
+
+export type GeneratedCertificate = {
+    certificate_configuration_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    name_on_certificate: string;
+    updated_at: string;
+    user_id: string;
+    verification_id: string;
+};
+
+export type GlobalCourseModuleStatEntry = {
+    course_id: string;
+    course_module_ects_credits?: number | null;
+    course_module_id: string;
+    course_module_name?: string | null;
+    course_name: string;
+    organization_id: string;
+    organization_name: string;
+    value: number;
+    year: string;
+};
+
+export type GlobalStatEntry = {
+    course_id: string;
+    course_name: string;
+    month?: number | null;
+    organization_id: string;
+    organization_name: string;
+    value: number;
+    year: number;
+};
+
 /**
  *
  *
@@ -438,10 +1035,72 @@ export type ExerciseTaskSubmission = {
  */
 export type GradingProgress = 'Failed' | 'NotReady' | 'PendingManual' | 'Pending' | 'FullyGraded';
 
+export type HealthStatus = 'healthy' | 'warning' | 'error';
+
 export type HistoryChangeReason = 'PageSaved' | 'HistoryRestored' | 'PageDeleted';
 
 export type HistoryRestoreData = {
     history_id: string;
+};
+
+export type IngressInfo = {
+    class_name?: string | null;
+    hosts: Array<string>;
+    name: string;
+    paths: Array<string>;
+};
+
+export type JobInfo = {
+    active?: number | null;
+    failed?: number | null;
+    name: string;
+    succeeded?: number | null;
+};
+
+export type ManualCompletionPreview = {
+    already_completed_users: Array<ManualCompletionPreviewUser>;
+    first_time_completing_users: Array<ManualCompletionPreviewUser>;
+    non_enrolled_users: Array<ManualCompletionPreviewUser>;
+};
+
+export type ManualCompletionPreviewUser = {
+    first_name?: string | null;
+    grade?: number | null;
+    last_name?: string | null;
+    passed: boolean;
+    previous_best_grade?: number | null;
+    user_id: string;
+};
+
+export type MaterialReference = {
+    citation_key: string;
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    reference: string;
+    updated_at: string;
+};
+
+export type ModifiedModule = {
+    completion_policy: CompletionPolicy;
+    completion_registration_link_override?: string | null;
+    ects_credits?: number | null;
+    enable_registering_completion_to_uh_open_university: boolean;
+    id: string;
+    name?: string | null;
+    order_number: number;
+    uh_course_code?: string | null;
+};
+
+export type ModuleUpdates = {
+    deleted_modules: Array<string>;
+    modified_modules: Array<ModifiedModule>;
+    moved_chapters: Array<[
+        string,
+        string
+    ]>;
+    new_modules: Array<NewModule>;
 };
 
 export type NewChapter = {
@@ -459,11 +1118,71 @@ export type NewChapter = {
     opens_at?: string | null;
 };
 
+export type NewChatbotConf = {
+    chatbot_name: string;
+    chatbotconf_id?: string | null;
+    course_id: string;
+    daily_tokens_per_user: number;
+    default_chatbot: boolean;
+    enabled_to_students: boolean;
+    frequency_penalty: number;
+    hide_citations: boolean;
+    initial_message: string;
+    initial_suggested_messages?: Array<string> | null;
+    maintain_azure_search_index: boolean;
+    max_completion_tokens: number;
+    model_id: string;
+    presence_penalty: number;
+    prompt: string;
+    reasoning_effort: ReasoningEffortLevel;
+    response_max_tokens: number;
+    suggest_next_messages: boolean;
+    temperature: number;
+    thinking_model: boolean;
+    top_p: number;
+    use_azure_search: boolean;
+    use_semantic_reranking: boolean;
+    use_tools: boolean;
+    verbosity: VerbosityLevel;
+    weekly_tokens_per_user: number;
+};
+
 export type NewCodeGiveaway = {
     course_id: string;
     course_module_id?: string | null;
     name: string;
     require_course_specific_consent_form_question_id?: string | null;
+};
+
+/**
+ * Represents the subset of page fields that are required to create a new course.
+ */
+export type NewCourse = {
+    ask_marketing_consent: boolean;
+    can_add_chatbot: boolean;
+    /**
+     * If true, copies all user permissions from the original course to the new one.
+     */
+    copy_user_permissions: boolean;
+    description: string;
+    flagged_answers_threshold?: number | null;
+    is_draft: boolean;
+    is_joinable_by_code_only: boolean;
+    is_test_mode: boolean;
+    is_unlisted: boolean;
+    join_code?: string | null;
+    language_code: string;
+    name: string;
+    organization_id: string;
+    slug: string;
+    /**
+     * Email of the teacher who is responsible for the course. Must be a valid email.
+     */
+    teacher_in_charge_email: string;
+    /**
+     * Name of the teacher who is responsible for the course. Must be a valid name.
+     */
+    teacher_in_charge_name: string;
 };
 
 export type NewExam = {
@@ -484,6 +1203,30 @@ export type NewExerciseRepository = {
     public_key?: string | null;
 };
 
+export type NewMaterialReference = {
+    citation_key: string;
+    reference: string;
+};
+
+export type NewModule = {
+    chapters: Array<string>;
+    completion_policy: CompletionPolicy;
+    completion_registration_link_override?: string | null;
+    ects_credits?: number | null;
+    enable_registering_completion_to_uh_open_university: boolean;
+    name: string;
+    order_number: number;
+    uh_course_code?: string | null;
+};
+
+export type NewRegrading = {
+    id_type: NewRegradingIdType;
+    ids: Array<string>;
+    user_points_update_strategy: UserPointsUpdateStrategy;
+};
+
+export type NewRegradingIdType = 'ExerciseTaskSubmissionId' | 'ExerciseId';
+
 export type NewTeacherGradingDecision = {
     action: TeacherDecisionType;
     exercise_id: string;
@@ -491,6 +1234,29 @@ export type NewTeacherGradingDecision = {
     justification?: string | null;
     manual_points?: number | null;
     user_exercise_state_id: string;
+};
+
+export type OrgExam = {
+    ends_at?: string | null;
+    id: string;
+    instructions: unknown;
+    minimum_points_treshold: number;
+    name: string;
+    organization_id: string;
+    starts_at?: string | null;
+    time_minutes: number;
+};
+
+export type Organization = {
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    hidden: boolean;
+    id: string;
+    name: string;
+    organization_image_url?: string | null;
+    slug: string;
+    updated_at: string;
 };
 
 export type OrganizationCreatePayload = {
@@ -570,6 +1336,215 @@ export type PageProposal = {
     user_id?: string | null;
 };
 
+export type PageVisitDatumSummaryByCourse = {
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    referrer?: string | null;
+    updated_at: string;
+    utm_campaign?: string | null;
+    utm_content?: string | null;
+    utm_medium?: string | null;
+    utm_source?: string | null;
+    utm_term?: string | null;
+    visit_date: string;
+};
+
+export type PageVisitDatumSummaryByCourseDeviceTypes = {
+    browser?: string | null;
+    browser_version?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    device_type?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    operating_system?: string | null;
+    updated_at: string;
+    visit_date: string;
+};
+
+export type PageVisitDatumSummaryByCoursesCountries = {
+    country?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    updated_at: string;
+    visit_date: string;
+};
+
+export type PageVisitDatumSummaryByPages = {
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    page_id: string;
+    updated_at: string;
+    visit_date: string;
+};
+
+export type PaperSize = 'horizontal-a4' | 'vertical-a4';
+
+export type PeerOrSelfReviewAnswer = {
+    type: 'no-answer';
+} | {
+    type: 'essay';
+    value: string;
+} | {
+    type: 'scale';
+    value: number;
+};
+
+export type PeerOrSelfReviewQuestion = {
+    answer_required: boolean;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    order_number: number;
+    peer_or_self_review_config_id: string;
+    question: string;
+    question_type: PeerOrSelfReviewQuestionType;
+    updated_at: string;
+    weight: number;
+};
+
+export type PeerOrSelfReviewQuestionAndAnswer = {
+    answer: PeerOrSelfReviewAnswer;
+    answer_required: boolean;
+    order_number: number;
+    peer_or_self_review_config_id: string;
+    peer_or_self_review_question_id: string;
+    peer_or_self_review_submission_id: string;
+    peer_review_question_submission_id: string;
+    question: string;
+};
+
+export type PeerOrSelfReviewQuestionSubmission = {
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    number_data?: number | null;
+    peer_or_self_review_question_id: string;
+    peer_or_self_review_submission_id: string;
+    text_data?: string | null;
+    updated_at: string;
+};
+
+export type PeerOrSelfReviewQuestionType = 'Essay' | 'Scale';
+
+export type PeerOrSelfReviewSubmission = {
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_id: string;
+    exercise_slide_submission_id: string;
+    id: string;
+    peer_or_self_review_config_id: string;
+    updated_at: string;
+    user_id: string;
+};
+
+/**
+ * Same as PeerOrSelfReviewSubmission with optional submission owner (user who received the review). Used for "given" reviews.
+ */
+export type PeerOrSelfReviewSubmissionWithSubmissionOwner = PeerOrSelfReviewSubmission & {
+    submission_owner_user_id?: string | null;
+};
+
+export type PeerReviewQueueEntry = {
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_id: string;
+    id: string;
+    peer_review_priority: number;
+    received_enough_peer_reviews: boolean;
+    receiving_peer_reviews_exercise_slide_submission_id: string;
+    removed_from_queue_for_unusual_reason: boolean;
+    updated_at: string;
+    user_id: string;
+};
+
+export type PeerReviewWithQuestionsAndAnswers = {
+    peer_or_self_review_submission_id: string;
+    peer_review_giver_user_id: string;
+    questions_and_answers: Array<PeerOrSelfReviewQuestionAndAnswer>;
+};
+
+export type PendingRole = {
+    expires_at: string;
+    id: string;
+    role: UserRole;
+    user_email: string;
+};
+
+export type PlaygroundExample = {
+    created_at: string;
+    data: unknown;
+    deleted_at?: string | null;
+    id: string;
+    name: string;
+    updated_at: string;
+    url: string;
+    width: number;
+};
+
+export type PlaygroundExampleData = {
+    data: unknown;
+    name: string;
+    url: string;
+    width: number;
+};
+
+export type PodDisruptionBudgetInfo = {
+    current_healthy: number;
+    desired_healthy: number;
+    disruptions_allowed: number;
+    expected_pods: number;
+    name: string;
+    selector_labels: {
+        [key: string]: string;
+    };
+};
+
+export type PodInfo = {
+    labels: {
+        [key: string]: string;
+    };
+    name: string;
+    phase: string;
+    ready?: boolean | null;
+};
+
+export type PointMap = {
+    [key: string]: number;
+};
+
+export type Points = {
+    chapter_points: Array<ChapterScore>;
+    user_chapter_points: {
+        [key: string]: PointMap;
+    };
+    users: Array<UserDetail>;
+};
+
+export type ProgressOverview = {
+    chapter_availability: Array<ChapterAvailability>;
+    chapters: Array<DatabaseChapter>;
+    user_chapter_progress: Array<UserChapterProgress>;
+    user_details: Array<UserDetail>;
+    user_exercise_states: Array<UserExerciseState>;
+};
+
 export type ProposalCount = {
     handled: number;
     pending: number;
@@ -577,11 +1552,117 @@ export type ProposalCount = {
 
 export type ProposalStatus = 'Pending' | 'Accepted' | 'Rejected';
 
+export type ReasoningEffortLevel = 'minimal' | 'low' | 'medium' | 'high';
+
+export type Regrading = {
+    created_at: string;
+    id: string;
+    regrading_completed_at?: string | null;
+    regrading_started_at?: string | null;
+    total_grading_progress: GradingProgress;
+    updated_at: string;
+    user_id?: string | null;
+    user_points_update_strategy: UserPointsUpdateStrategy;
+};
+
+export type RegradingInfo = {
+    regrading: Regrading;
+    submission_infos: Array<RegradingSubmissionInfo>;
+};
+
+export type RegradingSubmissionInfo = {
+    exercise_task_submission_id: string;
+    grading_after_regrading?: null | ExerciseTaskGrading;
+    grading_before_regrading: ExerciseTaskGrading;
+};
+
+export type ReportReason = 'Spam' | 'HarmfulContent' | 'AiGenerated';
+
+export type ResearchFormQuestionAnswer = {
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    research_consent: boolean;
+    research_form_question_id: string;
+    updated_at: string;
+    user_id: string;
+};
+
 /**
  *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
 export type ReviewingStage = 'NotStarted' | 'PeerReview' | 'SelfReview' | 'WaitingForPeerReviews' | 'WaitingForManualGrading' | 'ReviewedAndLocked' | 'Locked';
+
+export type RoleDomain = {
+    tag: 'Global';
+} | {
+    id: string;
+    tag: 'Organization';
+} | {
+    id: string;
+    tag: 'Course';
+} | {
+    id: string;
+    tag: 'CourseInstance';
+} | {
+    id: string;
+    tag: 'Exam';
+};
+
+export type RoleInfo = {
+    domain: RoleDomain;
+    email: string;
+    role: UserRole;
+};
+
+export type RoleUser = {
+    email: string;
+    first_name?: string | null;
+    last_name?: string | null;
+    role: UserRole;
+    user_id: string;
+};
+
+export type SearchRequest = {
+    query: string;
+};
+
+export type ServiceInfo = {
+    cluster_ip?: string | null;
+    name: string;
+    ports: Array<ServicePortInfo>;
+};
+
+export type ServicePortInfo = {
+    name?: string | null;
+    port: number;
+    protocol?: string | null;
+    target_port?: string | null;
+};
+
+export type StudentsByCountryTotalsResult = {
+    count: number;
+    country?: string | null;
+};
+
+export type SuspectedCheaters = {
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    is_archived?: boolean | null;
+    total_duration_seconds?: number | null;
+    total_points: number;
+    updated_at?: string | null;
+    user_id: string;
+};
+
+export type SystemHealthStatus = {
+    issues: Array<string>;
+    status: HealthStatus;
+};
 
 export type TeacherDecisionType = 'FullPoints' | 'ZeroPoints' | 'CustomPoints' | 'SuspectedPlagiarism' | 'RejectAndReset';
 
@@ -595,6 +1676,19 @@ export type TeacherGradingDecision = {
     teacher_decision: TeacherDecisionType;
     updated_at: string;
     user_exercise_state_id: string;
+};
+
+export type TeacherManualCompletion = {
+    completion_date?: string | null;
+    grade?: number | null;
+    passed: boolean;
+    user_id: string;
+};
+
+export type TeacherManualCompletionRequest = {
+    course_module_id: string;
+    new_completions: Array<TeacherManualCompletion>;
+    skip_duplicate_completions: boolean;
 };
 
 export type Term = {
@@ -612,6 +1706,17 @@ export type ThresholdData = {
     duration_seconds: number;
 };
 
+export type TimeGranularity = 'Year' | 'Month' | 'Day';
+
+export type UserChapterProgress = {
+    chapter_id: string;
+    chapter_name: string;
+    chapter_number: number;
+    exercises_attempted: number;
+    points_obtained: number;
+    user_id: string;
+};
+
 export type UserCompletionInformation = {
     course_module_completion_id: string;
     course_name: string;
@@ -619,6 +1724,45 @@ export type UserCompletionInformation = {
     email: string;
     enable_registering_completion_to_uh_open_university: boolean;
     uh_course_code: string;
+};
+
+export type UserCourseProgress = {
+    attempted_exercises?: number | null;
+    attempted_exercises_required?: number | null;
+    course_module_id: string;
+    course_module_name: string;
+    course_module_order_number: number;
+    score_given: number;
+    score_maximum?: number | null;
+    score_required?: number | null;
+    total_exercises?: number | null;
+};
+
+export type UserCourseSettings = {
+    course_language_group_id: string;
+    created_at: string;
+    current_course_id: string;
+    current_course_instance_id: string;
+    deleted_at?: string | null;
+    updated_at: string;
+    user_id: string;
+};
+
+export type UserDetail = {
+    country?: string | null;
+    created_at: string;
+    email: string;
+    email_communication_consent?: boolean | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    search_helper?: string | null;
+    updated_at: string;
+    user_id: string;
+};
+
+export type UserDetailsRequest = {
+    course_ids: Array<string>;
+    user_id: string;
 };
 
 export type UserExerciseState = {
@@ -637,7 +1781,36 @@ export type UserExerciseState = {
     user_id: string;
 };
 
+export type UserInfoPayload = {
+    country: string;
+    email: string;
+    email_communication_consent: boolean;
+    first_name: string;
+    last_name: string;
+};
+
 export type UserPointsUpdateStrategy = 'CanAddPointsButCannotRemovePoints' | 'CanAddPointsAndCanRemovePoints';
+
+export type UserResearchConsent = {
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    research_consent: boolean;
+    updated_at: string;
+    user_id: string;
+};
+
+export type UserRole = 'Reviewer' | 'Assistant' | 'Teacher' | 'Admin' | 'CourseOrExamCreator' | 'MaterialViewer' | 'TeachingAndLearningServices' | 'StatsViewer';
+
+export type UserWithModuleCompletions = {
+    completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>;
+    email: string;
+    first_name?: string | null;
+    last_name?: string | null;
+    user_id: string;
+};
+
+export type VerbosityLevel = 'low' | 'medium' | 'high';
 
 export type UpdateCertificateConfigurationData = {
     body: {
@@ -696,7 +1869,7 @@ export type GenerateCertificateResponses = {
 export type GenerateCertificateResponse = GenerateCertificateResponses[keyof GenerateCertificateResponses];
 
 export type UpdateGeneratedCertificateData = {
-    body: unknown;
+    body: CertificateUpdateRequest;
     path: {
         /**
          * Generated certificate id
@@ -711,8 +1884,10 @@ export type UpdateGeneratedCertificateResponses = {
     /**
      * Generated certificate updated
      */
-    200: unknown;
+    200: GeneratedCertificate;
 };
+
+export type UpdateGeneratedCertificateResponse = UpdateGeneratedCertificateResponses[keyof UpdateGeneratedCertificateResponses];
 
 export type GetCertificateByConfigurationIdData = {
     body?: never;
@@ -730,8 +1905,10 @@ export type GetCertificateByConfigurationIdResponses = {
     /**
      * Generated certificate
      */
-    200: unknown;
+    200: null | GeneratedCertificate;
 };
+
+export type GetCertificateByConfigurationIdResponse = GetCertificateByConfigurationIdResponses[keyof GetCertificateByConfigurationIdResponses];
 
 export type GetCertificateByVerificationIdData = {
     body?: never;
@@ -898,8 +2075,10 @@ export type GetChatbotModelsResponses = {
     /**
      * Chatbot models
      */
-    200: unknown;
+    200: Array<ChatbotConfigurationModel>;
 };
+
+export type GetChatbotModelsResponse = GetChatbotModelsResponses[keyof GetChatbotModelsResponses];
 
 export type GetChatbotModelData = {
     body: string;
@@ -917,8 +2096,10 @@ export type GetChatbotModelResponses = {
     /**
      * Chatbot model
      */
-    200: unknown;
+    200: ChatbotConfigurationModel;
 };
+
+export type GetChatbotModelResponse = GetChatbotModelResponses[keyof GetChatbotModelResponses];
 
 export type DeleteChatbotConfigurationData = {
     body?: never;
@@ -955,11 +2136,13 @@ export type GetChatbotConfigurationResponses = {
     /**
      * Chatbot configuration
      */
-    200: unknown;
+    200: ChatbotConfiguration;
 };
 
+export type GetChatbotConfigurationResponse = GetChatbotConfigurationResponses[keyof GetChatbotConfigurationResponses];
+
 export type ConfigureChatbotData = {
-    body: unknown;
+    body: NewChatbotConf;
     path: {
         /**
          * Chatbot configuration id
@@ -974,8 +2157,10 @@ export type ConfigureChatbotResponses = {
     /**
      * Updated chatbot configuration
      */
-    200: unknown;
+    200: ChatbotConfiguration;
 };
+
+export type ConfigureChatbotResponse = ConfigureChatbotResponses[keyof ConfigureChatbotResponses];
 
 export type CreateCodeGiveawayData = {
     body: NewCodeGiveaway;
@@ -1137,8 +2322,10 @@ export type GetCourseInstanceResponses = {
     /**
      * Course instance
      */
-    200: unknown;
+    200: CourseInstance;
 };
+
+export type GetCourseInstanceResponse = GetCourseInstanceResponses[keyof GetCourseInstanceResponses];
 
 export type GetCourseInstanceCompletionsData = {
     body?: never;
@@ -1156,11 +2343,13 @@ export type GetCourseInstanceCompletionsResponses = {
     /**
      * Course instance completion summary
      */
-    200: unknown;
+    200: CourseInstanceCompletionSummary;
 };
 
+export type GetCourseInstanceCompletionsResponse = GetCourseInstanceCompletionsResponses[keyof GetCourseInstanceCompletionsResponses];
+
 export type CreateCourseInstanceCompletionsData = {
-    body: unknown;
+    body: TeacherManualCompletionRequest;
     path: {
         /**
          * Course instance id
@@ -1179,7 +2368,7 @@ export type CreateCourseInstanceCompletionsResponses = {
 };
 
 export type PreviewCourseInstanceCompletionsData = {
-    body: unknown;
+    body: TeacherManualCompletionRequest;
     path: {
         /**
          * Course instance id
@@ -1194,8 +2383,10 @@ export type PreviewCourseInstanceCompletionsResponses = {
     /**
      * Manual completion preview
      */
-    200: unknown;
+    200: ManualCompletionPreview;
 };
+
+export type PreviewCourseInstanceCompletionsResponse = PreviewCourseInstanceCompletionsResponses[keyof PreviewCourseInstanceCompletionsResponses];
 
 export type GetCourseInstanceCourseModuleCompletionsForUserData = {
     body?: never;
@@ -1236,8 +2427,10 @@ export type GetCourseInstanceDefaultCertificateConfigurationsResponses = {
     /**
      * Default certificate configurations
      */
-    200: unknown;
+    200: Array<CertificateConfigurationAndRequirements>;
 };
+
+export type GetCourseInstanceDefaultCertificateConfigurationsResponse = GetCourseInstanceDefaultCertificateConfigurationsResponses[keyof GetCourseInstanceDefaultCertificateConfigurationsResponses];
 
 export type DeleteCourseInstanceData = {
     body?: never;
@@ -1259,7 +2452,7 @@ export type DeleteCourseInstanceResponses = {
 };
 
 export type EditCourseInstanceData = {
-    body: unknown;
+    body: CourseInstanceForm;
     path: {
         /**
          * Course instance id
@@ -1293,11 +2486,13 @@ export type GetCourseInstanceEmailTemplatesResponses = {
     /**
      * Course instance email templates
      */
-    200: unknown;
+    200: Array<EmailTemplate>;
 };
 
+export type GetCourseInstanceEmailTemplatesResponse = GetCourseInstanceEmailTemplatesResponses[keyof GetCourseInstanceEmailTemplatesResponses];
+
 export type CreateCourseInstanceEmailTemplateData = {
-    body: unknown;
+    body: EmailTemplateNew;
     path: {
         /**
          * Course instance id
@@ -1312,8 +2507,10 @@ export type CreateCourseInstanceEmailTemplateResponses = {
     /**
      * Created email template
      */
-    200: unknown;
+    200: EmailTemplate;
 };
+
+export type CreateCourseInstanceEmailTemplateResponse = CreateCourseInstanceEmailTemplateResponses[keyof CreateCourseInstanceEmailTemplateResponses];
 
 export type ExportCourseInstanceCompletionsCsvData = {
     body?: never;
@@ -1382,8 +2579,10 @@ export type GetCourseInstancePointsResponses = {
     /**
      * Course instance points
      */
-    200: unknown;
+    200: Points;
 };
+
+export type GetCourseInstancePointsResponse = GetCourseInstancePointsResponses[keyof GetCourseInstancePointsResponses];
 
 export type GetCourseInstanceUserProgressData = {
     body?: never;
@@ -1579,7 +2778,7 @@ export type GetCourseModuleUserCompletionResponses = {
 export type GetCourseModuleUserCompletionResponse = GetCourseModuleUserCompletionResponses[keyof GetCourseModuleUserCompletionResponses];
 
 export type CreateCourseData = {
-    body: unknown;
+    body: NewCourse;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/courses';
@@ -1589,8 +2788,10 @@ export type CreateCourseResponses = {
     /**
      * Created course
      */
-    200: unknown;
+    200: Course;
 };
+
+export type CreateCourseResponse = CreateCourseResponses[keyof CreateCourseResponses];
 
 export type GetCourseByJoinCodeData = {
     body?: never;
@@ -1608,8 +2809,10 @@ export type GetCourseByJoinCodeResponses = {
     /**
      * Course for join code
      */
-    200: unknown;
+    200: Course;
 };
+
+export type GetCourseByJoinCodeResponse = GetCourseByJoinCodeResponses[keyof GetCourseByJoinCodeResponses];
 
 export type DeleteCourseData = {
     body?: never;
@@ -1646,11 +2849,13 @@ export type GetCourseResponses = {
     /**
      * Course
      */
-    200: unknown;
+    200: Course;
 };
 
+export type GetCourseResponse = GetCourseResponses[keyof GetCourseResponses];
+
 export type UpdateCourseData = {
-    body: unknown;
+    body: CourseUpdate;
     path: {
         /**
          * Course id
@@ -1665,8 +2870,10 @@ export type UpdateCourseResponses = {
     /**
      * Updated course
      */
-    200: unknown;
+    200: Course;
 };
+
+export type UpdateCourseResponse = UpdateCourseResponses[keyof UpdateCourseResponses];
 
 export type GetCourseBreadcrumbInfoData = {
     body?: never;
@@ -1684,8 +2891,10 @@ export type GetCourseBreadcrumbInfoResponses = {
     /**
      * Course breadcrumb information
      */
-    200: unknown;
+    200: CourseBreadcrumbInfo;
 };
+
+export type GetCourseBreadcrumbInfoResponse = GetCourseBreadcrumbInfoResponses[keyof GetCourseBreadcrumbInfoResponses];
 
 export type GetCourseChatbotsData = {
     body?: never;
@@ -1703,11 +2912,13 @@ export type GetCourseChatbotsResponses = {
     /**
      * Course chatbots
      */
-    200: unknown;
+    200: Array<ChatbotConfiguration>;
 };
 
+export type GetCourseChatbotsResponse = GetCourseChatbotsResponses[keyof GetCourseChatbotsResponses];
+
 export type CreateCourseChatbotData = {
-    body: unknown;
+    body: string;
     path: {
         /**
          * Course id
@@ -1722,8 +2933,10 @@ export type CreateCourseChatbotResponses = {
     /**
      * Created course chatbot
      */
-    200: unknown;
+    200: ChatbotConfiguration;
 };
+
+export type CreateCourseChatbotResponse = CreateCourseChatbotResponses[keyof CreateCourseChatbotResponses];
 
 export type SetCourseChatbotAsDefaultData = {
     body?: never;
@@ -1745,8 +2958,10 @@ export type SetCourseChatbotAsDefaultResponses = {
     /**
      * Updated course chatbot
      */
-    200: unknown;
+    200: ChatbotConfiguration;
 };
+
+export type SetCourseChatbotAsDefaultResponse = SetCourseChatbotAsDefaultResponses[keyof SetCourseChatbotAsDefaultResponses];
 
 export type SetCourseChatbotAsNonDefaultData = {
     body?: never;
@@ -1768,8 +2983,10 @@ export type SetCourseChatbotAsNonDefaultResponses = {
     /**
      * Updated course chatbot
      */
-    200: unknown;
+    200: ChatbotConfiguration;
 };
+
+export type SetCourseChatbotAsNonDefaultResponse = SetCourseChatbotAsNonDefaultResponses[keyof SetCourseChatbotAsNonDefaultResponses];
 
 export type GetCourseInstancesData = {
     body?: never;
@@ -1787,8 +3004,10 @@ export type GetCourseInstancesResponses = {
     /**
      * Course instances
      */
-    200: unknown;
+    200: Array<CourseInstance>;
 };
+
+export type GetCourseInstancesResponse = GetCourseInstancesResponses[keyof GetCourseInstancesResponses];
 
 export type GetCourseModuleCompletionsForUserData = {
     body?: never;
@@ -1810,11 +3029,13 @@ export type GetCourseModuleCompletionsForUserResponses = {
     /**
      * Course module completions for course user
      */
-    200: unknown;
+    200: Array<CourseModuleCompletion>;
 };
 
+export type GetCourseModuleCompletionsForUserResponse = GetCourseModuleCompletionsForUserResponses[keyof GetCourseModuleCompletionsForUserResponses];
+
 export type UpdateCourseModulesData = {
-    body: unknown;
+    body: ModuleUpdates;
     path: {
         /**
          * Course id
@@ -1848,11 +3069,13 @@ export type GetCourseUsersCountsByExerciseResponses = {
     /**
      * Course users counts by exercise
      */
-    200: unknown;
+    200: Array<ExerciseUserCounts>;
 };
 
+export type GetCourseUsersCountsByExerciseResponse = GetCourseUsersCountsByExerciseResponses[keyof GetCourseUsersCountsByExerciseResponses];
+
 export type CreateCourseCopyData = {
-    body: unknown;
+    body: CopyCourseRequest;
     path: {
         /**
          * Course id
@@ -1867,8 +3090,10 @@ export type CreateCourseCopyResponses = {
     /**
      * Created course copy
      */
-    200: unknown;
+    200: Course;
 };
+
+export type CreateCourseCopyResponse = CreateCourseCopyResponses[keyof CreateCourseCopyResponses];
 
 export type GetCourseDailySubmissionCountsData = {
     body?: never;
@@ -1886,8 +3111,10 @@ export type GetCourseDailySubmissionCountsResponses = {
     /**
      * Course daily submission counts
      */
-    200: unknown;
+    200: Array<ExerciseSlideSubmissionCount>;
 };
+
+export type GetCourseDailySubmissionCountsResponse = GetCourseDailySubmissionCountsResponses[keyof GetCourseDailySubmissionCountsResponses];
 
 export type GetCourseDailyUsersWhoSubmittedSomethingData = {
     body?: never;
@@ -1905,8 +3132,10 @@ export type GetCourseDailyUsersWhoSubmittedSomethingResponses = {
     /**
      * Course daily user submission counts
      */
-    200: unknown;
+    200: Array<ExerciseSlideSubmissionCount>;
 };
+
+export type GetCourseDailyUsersWhoSubmittedSomethingResponse = GetCourseDailyUsersWhoSubmittedSomethingResponses[keyof GetCourseDailyUsersWhoSubmittedSomethingResponses];
 
 export type GetCourseDefaultPeerReviewData = {
     body?: never;
@@ -1943,8 +3172,10 @@ export type GetCourseExercisesResponses = {
     /**
      * Exercises for course
      */
-    200: unknown;
+    200: Array<Exercise>;
 };
+
+export type GetCourseExercisesResponse = GetCourseExercisesResponses[keyof GetCourseExercisesResponses];
 
 export type GetCourseExercisesAndAnswersRequiringAttentionCountsData = {
     body?: never;
@@ -1962,8 +3193,10 @@ export type GetCourseExercisesAndAnswersRequiringAttentionCountsResponses = {
     /**
      * Exercises and answer attention counts
      */
-    200: unknown;
+    200: Array<ExerciseAnswersInCourseRequiringAttentionCount>;
 };
+
+export type GetCourseExercisesAndAnswersRequiringAttentionCountsResponse = GetCourseExercisesAndAnswersRequiringAttentionCountsResponses[keyof GetCourseExercisesAndAnswersRequiringAttentionCountsResponses];
 
 export type ExportCourseInstancesCsvData = {
     body?: never;
@@ -2120,8 +3353,10 @@ export type GetCourseFeedbackResponses = {
     /**
      * Feedback for the course
      */
-    200: unknown;
+    200: Array<Feedback>;
 };
+
+export type GetCourseFeedbackResponse = GetCourseFeedbackResponses[keyof GetCourseFeedbackResponses];
 
 export type GetCourseFeedbackCountData = {
     body?: never;
@@ -2139,8 +3374,10 @@ export type GetCourseFeedbackCountResponses = {
     /**
      * Feedback counts for the course
      */
-    200: unknown;
+    200: FeedbackCount;
 };
+
+export type GetCourseFeedbackCountResponse = GetCourseFeedbackCountResponses[keyof GetCourseFeedbackCountResponses];
 
 export type GetCourseGlossaryData = {
     body?: never;
@@ -2243,8 +3480,10 @@ export type GetCourseLanguageVersionsResponses = {
     /**
      * Course language versions
      */
-    200: unknown;
+    200: Array<Course>;
 };
+
+export type GetCourseLanguageVersionsResponse = GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses];
 
 export type UpdateCourseChapterOrderingData = {
     body: unknown;
@@ -2266,7 +3505,7 @@ export type UpdateCourseChapterOrderingResponses = {
 };
 
 export type CreateCourseInstanceData = {
-    body: unknown;
+    body: CourseInstanceForm;
     path: {
         /**
          * Course id
@@ -2321,8 +3560,10 @@ export type GetCoursePageVisitDatumSummaryResponses = {
     /**
      * Course page visit summary
      */
-    200: unknown;
+    200: Array<PageVisitDatumSummaryByCourse>;
 };
+
+export type GetCoursePageVisitDatumSummaryResponse = GetCoursePageVisitDatumSummaryResponses[keyof GetCoursePageVisitDatumSummaryResponses];
 
 export type GetCoursePageVisitDatumSummaryByCountriesData = {
     body?: never;
@@ -2340,8 +3581,10 @@ export type GetCoursePageVisitDatumSummaryByCountriesResponses = {
     /**
      * Course page visit summary by countries
      */
-    200: unknown;
+    200: Array<PageVisitDatumSummaryByCoursesCountries>;
 };
+
+export type GetCoursePageVisitDatumSummaryByCountriesResponse = GetCoursePageVisitDatumSummaryByCountriesResponses[keyof GetCoursePageVisitDatumSummaryByCountriesResponses];
 
 export type GetCoursePageVisitDatumSummaryByDeviceTypesData = {
     body?: never;
@@ -2359,8 +3602,10 @@ export type GetCoursePageVisitDatumSummaryByDeviceTypesResponses = {
     /**
      * Course page visit summary by device types
      */
-    200: unknown;
+    200: Array<PageVisitDatumSummaryByCourseDeviceTypes>;
 };
+
+export type GetCoursePageVisitDatumSummaryByDeviceTypesResponse = GetCoursePageVisitDatumSummaryByDeviceTypesResponses[keyof GetCoursePageVisitDatumSummaryByDeviceTypesResponses];
 
 export type GetCoursePageVisitDatumSummaryByPagesData = {
     body?: never;
@@ -2378,8 +3623,10 @@ export type GetCoursePageVisitDatumSummaryByPagesResponses = {
     /**
      * Course page visit summary by pages
      */
-    200: unknown;
+    200: Array<PageVisitDatumSummaryByPages>;
 };
+
+export type GetCoursePageVisitDatumSummaryByPagesResponse = GetCoursePageVisitDatumSummaryByPagesResponses[keyof GetCoursePageVisitDatumSummaryByPagesResponses];
 
 export type DeleteCoursePartnersBlockData = {
     body?: never;
@@ -2458,8 +3705,10 @@ export type GetCourseProgressForUserResponses = {
     /**
      * User progress for course
      */
-    200: unknown;
+    200: Array<UserCourseProgress>;
 };
+
+export type GetCourseProgressForUserResponse = GetCourseProgressForUserResponses[keyof GetCourseProgressForUserResponses];
 
 export type GetCourseReferencesData = {
     body?: never;
@@ -2477,11 +3726,13 @@ export type GetCourseReferencesResponses = {
     /**
      * Course references
      */
-    200: unknown;
+    200: Array<MaterialReference>;
 };
 
+export type GetCourseReferencesResponse = GetCourseReferencesResponses[keyof GetCourseReferencesResponses];
+
 export type CreateCourseReferencesData = {
-    body: unknown;
+    body: Array<NewMaterialReference>;
     path: {
         /**
          * Course id
@@ -2523,7 +3774,7 @@ export type DeleteCourseReferenceResponses = {
 };
 
 export type UpdateCourseReferenceData = {
-    body: unknown;
+    body: NewMaterialReference;
     path: {
         /**
          * Course id
@@ -2595,7 +3846,7 @@ export type GetCourseCompletionsHistoryAllLanguageVersionsData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2609,8 +3860,10 @@ export type GetCourseCompletionsHistoryAllLanguageVersionsResponses = {
     /**
      * Course completions history across all language versions
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetCourseCompletionsHistoryAllLanguageVersionsResponse = GetCourseCompletionsHistoryAllLanguageVersionsResponses[keyof GetCourseCompletionsHistoryAllLanguageVersionsResponses];
 
 export type GetTotalUsersStartedAllLanguageVersionsData = {
     body?: never;
@@ -2628,8 +3881,10 @@ export type GetTotalUsersStartedAllLanguageVersionsResponses = {
     /**
      * Total users started across all language versions
      */
-    200: unknown;
+    200: CountResult;
 };
+
+export type GetTotalUsersStartedAllLanguageVersionsResponse = GetTotalUsersStartedAllLanguageVersionsResponses[keyof GetTotalUsersStartedAllLanguageVersionsResponses];
 
 export type GetUniqueUsersStartingHistoryAllLanguageVersionsData = {
     body?: never;
@@ -2641,7 +3896,7 @@ export type GetUniqueUsersStartingHistoryAllLanguageVersionsData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2655,8 +3910,10 @@ export type GetUniqueUsersStartingHistoryAllLanguageVersionsResponses = {
     /**
      * Unique users starting history across all language versions
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetUniqueUsersStartingHistoryAllLanguageVersionsResponse = GetUniqueUsersStartingHistoryAllLanguageVersionsResponses[keyof GetUniqueUsersStartingHistoryAllLanguageVersionsResponses];
 
 export type GetAvgTimeToFirstSubmissionHistoryData = {
     body?: never;
@@ -2668,7 +3925,7 @@ export type GetAvgTimeToFirstSubmissionHistoryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2682,8 +3939,10 @@ export type GetAvgTimeToFirstSubmissionHistoryResponses = {
     /**
      * Average time to first submission history
      */
-    200: unknown;
+    200: Array<AverageMetric>;
 };
+
+export type GetAvgTimeToFirstSubmissionHistoryResponse = GetAvgTimeToFirstSubmissionHistoryResponses[keyof GetAvgTimeToFirstSubmissionHistoryResponses];
 
 export type GetCourseCompletionsHistoryByInstanceData = {
     body?: never;
@@ -2695,7 +3954,7 @@ export type GetCourseCompletionsHistoryByInstanceData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2709,8 +3968,12 @@ export type GetCourseCompletionsHistoryByInstanceResponses = {
     /**
      * Course completions history by instance
      */
-    200: unknown;
+    200: {
+        [key: string]: Array<CountResult>;
+    };
 };
+
+export type GetCourseCompletionsHistoryByInstanceResponse = GetCourseCompletionsHistoryByInstanceResponses[keyof GetCourseCompletionsHistoryByInstanceResponses];
 
 export type GetFirstExerciseSubmissionsHistoryByInstanceData = {
     body?: never;
@@ -2722,7 +3985,7 @@ export type GetFirstExerciseSubmissionsHistoryByInstanceData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2736,8 +3999,12 @@ export type GetFirstExerciseSubmissionsHistoryByInstanceResponses = {
     /**
      * First exercise submissions history by instance
      */
-    200: unknown;
+    200: {
+        [key: string]: Array<CountResult>;
+    };
 };
+
+export type GetFirstExerciseSubmissionsHistoryByInstanceResponse = GetFirstExerciseSubmissionsHistoryByInstanceResponses[keyof GetFirstExerciseSubmissionsHistoryByInstanceResponses];
 
 export type GetTotalUsersCompletedCourseByInstanceData = {
     body?: never;
@@ -2755,8 +4022,12 @@ export type GetTotalUsersCompletedCourseByInstanceResponses = {
     /**
      * Total users completed course by instance
      */
-    200: unknown;
+    200: {
+        [key: string]: CountResult;
+    };
 };
+
+export type GetTotalUsersCompletedCourseByInstanceResponse = GetTotalUsersCompletedCourseByInstanceResponses[keyof GetTotalUsersCompletedCourseByInstanceResponses];
 
 export type GetTotalUsersReturnedExercisesByInstanceData = {
     body?: never;
@@ -2774,8 +4045,12 @@ export type GetTotalUsersReturnedExercisesByInstanceResponses = {
     /**
      * Total users returned exercises by instance
      */
-    200: unknown;
+    200: {
+        [key: string]: CountResult;
+    };
 };
+
+export type GetTotalUsersReturnedExercisesByInstanceResponse = GetTotalUsersReturnedExercisesByInstanceResponses[keyof GetTotalUsersReturnedExercisesByInstanceResponses];
 
 export type GetTotalUsersStartedCourseByInstanceData = {
     body?: never;
@@ -2793,8 +4068,12 @@ export type GetTotalUsersStartedCourseByInstanceResponses = {
     /**
      * Total users started course by instance
      */
-    200: unknown;
+    200: {
+        [key: string]: CountResult;
+    };
 };
+
+export type GetTotalUsersStartedCourseByInstanceResponse = GetTotalUsersStartedCourseByInstanceResponses[keyof GetTotalUsersStartedCourseByInstanceResponses];
 
 export type GetUsersReturningExercisesHistoryByInstanceData = {
     body?: never;
@@ -2806,7 +4085,7 @@ export type GetUsersReturningExercisesHistoryByInstanceData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2820,8 +4099,12 @@ export type GetUsersReturningExercisesHistoryByInstanceResponses = {
     /**
      * Users returning exercises history by instance
      */
-    200: unknown;
+    200: {
+        [key: string]: Array<CountResult>;
+    };
 };
+
+export type GetUsersReturningExercisesHistoryByInstanceResponse = GetUsersReturningExercisesHistoryByInstanceResponses[keyof GetUsersReturningExercisesHistoryByInstanceResponses];
 
 export type GetUniqueUsersStartingHistoryByInstanceData = {
     body?: never;
@@ -2833,7 +4116,7 @@ export type GetUniqueUsersStartingHistoryByInstanceData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2847,8 +4130,12 @@ export type GetUniqueUsersStartingHistoryByInstanceResponses = {
     /**
      * Unique users starting history by instance
      */
-    200: unknown;
+    200: {
+        [key: string]: Array<CountResult>;
+    };
 };
+
+export type GetUniqueUsersStartingHistoryByInstanceResponse = GetUniqueUsersStartingHistoryByInstanceResponses[keyof GetUniqueUsersStartingHistoryByInstanceResponses];
 
 export type GetFirstExerciseSubmissionsByModuleData = {
     body?: never;
@@ -2860,7 +4147,7 @@ export type GetFirstExerciseSubmissionsByModuleData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2874,8 +4161,12 @@ export type GetFirstExerciseSubmissionsByModuleResponses = {
     /**
      * First exercise submissions by module
      */
-    200: unknown;
+    200: {
+        [key: string]: Array<CountResult>;
+    };
 };
+
+export type GetFirstExerciseSubmissionsByModuleResponse = GetFirstExerciseSubmissionsByModuleResponses[keyof GetFirstExerciseSubmissionsByModuleResponses];
 
 export type GetCohortActivityHistoryData = {
     body?: never;
@@ -2887,7 +4178,7 @@ export type GetCohortActivityHistoryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * History window
          */
@@ -2905,8 +4196,10 @@ export type GetCohortActivityHistoryResponses = {
     /**
      * Cohort activity history
      */
-    200: unknown;
+    200: Array<CohortActivity>;
 };
+
+export type GetCohortActivityHistoryResponse = GetCohortActivityHistoryResponses[keyof GetCohortActivityHistoryResponses];
 
 export type GetCourseCompletionsHistoryCustomTimePeriodData = {
     body?: never;
@@ -2932,8 +4225,10 @@ export type GetCourseCompletionsHistoryCustomTimePeriodResponses = {
     /**
      * Course completions history for custom time period
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetCourseCompletionsHistoryCustomTimePeriodResponse = GetCourseCompletionsHistoryCustomTimePeriodResponses[keyof GetCourseCompletionsHistoryCustomTimePeriodResponses];
 
 export type GetCourseCompletionsHistoryData = {
     body?: never;
@@ -2945,7 +4240,7 @@ export type GetCourseCompletionsHistoryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2959,8 +4254,10 @@ export type GetCourseCompletionsHistoryResponses = {
     /**
      * Course completions history
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetCourseCompletionsHistoryResponse = GetCourseCompletionsHistoryResponses[keyof GetCourseCompletionsHistoryResponses];
 
 export type GetFirstExerciseSubmissionsHistoryData = {
     body?: never;
@@ -2972,7 +4269,7 @@ export type GetFirstExerciseSubmissionsHistoryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -2986,8 +4283,10 @@ export type GetFirstExerciseSubmissionsHistoryResponses = {
     /**
      * First exercise submissions history
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetFirstExerciseSubmissionsHistoryResponse = GetFirstExerciseSubmissionsHistoryResponses[keyof GetFirstExerciseSubmissionsHistoryResponses];
 
 export type GetStudentCompletionsByCountryData = {
     body?: never;
@@ -2999,7 +4298,7 @@ export type GetStudentCompletionsByCountryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -3017,8 +4316,10 @@ export type GetStudentCompletionsByCountryResponses = {
     /**
      * Student completions by country
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetStudentCompletionsByCountryResponse = GetStudentCompletionsByCountryResponses[keyof GetStudentCompletionsByCountryResponses];
 
 export type GetStudentEnrollmentsByCountryData = {
     body?: never;
@@ -3030,7 +4331,7 @@ export type GetStudentEnrollmentsByCountryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -3048,8 +4349,10 @@ export type GetStudentEnrollmentsByCountryResponses = {
     /**
      * Student enrollments by country
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetStudentEnrollmentsByCountryResponse = GetStudentEnrollmentsByCountryResponses[keyof GetStudentEnrollmentsByCountryResponses];
 
 export type GetStudentsByCountryTotalsData = {
     body?: never;
@@ -3067,8 +4370,10 @@ export type GetStudentsByCountryTotalsResponses = {
     /**
      * Students by country totals
      */
-    200: unknown;
+    200: Array<StudentsByCountryTotalsResult>;
 };
+
+export type GetStudentsByCountryTotalsResponse = GetStudentsByCountryTotalsResponses[keyof GetStudentsByCountryTotalsResponses];
 
 export type GetTotalUsersCompletedCourseData = {
     body?: never;
@@ -3086,8 +4391,10 @@ export type GetTotalUsersCompletedCourseResponses = {
     /**
      * Total users completed course
      */
-    200: unknown;
+    200: CountResult;
 };
+
+export type GetTotalUsersCompletedCourseResponse = GetTotalUsersCompletedCourseResponses[keyof GetTotalUsersCompletedCourseResponses];
 
 export type GetTotalUsersCompletedCourseCustomTimePeriodData = {
     body?: never;
@@ -3113,8 +4420,10 @@ export type GetTotalUsersCompletedCourseCustomTimePeriodResponses = {
     /**
      * Total users completed course for custom time period
      */
-    200: unknown;
+    200: CountResult;
 };
+
+export type GetTotalUsersCompletedCourseCustomTimePeriodResponse = GetTotalUsersCompletedCourseCustomTimePeriodResponses[keyof GetTotalUsersCompletedCourseCustomTimePeriodResponses];
 
 export type GetTotalUsersReturnedExercisesData = {
     body?: never;
@@ -3132,8 +4441,10 @@ export type GetTotalUsersReturnedExercisesResponses = {
     /**
      * Total users returned exercises
      */
-    200: unknown;
+    200: CountResult;
 };
+
+export type GetTotalUsersReturnedExercisesResponse = GetTotalUsersReturnedExercisesResponses[keyof GetTotalUsersReturnedExercisesResponses];
 
 export type GetTotalUsersReturnedExercisesCustomTimePeriodData = {
     body?: never;
@@ -3159,8 +4470,10 @@ export type GetTotalUsersReturnedExercisesCustomTimePeriodResponses = {
     /**
      * Total users returned exercises for custom time period
      */
-    200: unknown;
+    200: CountResult;
 };
+
+export type GetTotalUsersReturnedExercisesCustomTimePeriodResponse = GetTotalUsersReturnedExercisesCustomTimePeriodResponses[keyof GetTotalUsersReturnedExercisesCustomTimePeriodResponses];
 
 export type GetTotalUsersStartedCourseData = {
     body?: never;
@@ -3178,8 +4491,10 @@ export type GetTotalUsersStartedCourseResponses = {
     /**
      * Total users started course
      */
-    200: unknown;
+    200: CountResult;
 };
+
+export type GetTotalUsersStartedCourseResponse = GetTotalUsersStartedCourseResponses[keyof GetTotalUsersStartedCourseResponses];
 
 export type GetTotalUsersStartedCourseCustomTimePeriodData = {
     body?: never;
@@ -3205,8 +4520,10 @@ export type GetTotalUsersStartedCourseCustomTimePeriodResponses = {
     /**
      * Total users started course for custom time period
      */
-    200: unknown;
+    200: CountResult;
 };
+
+export type GetTotalUsersStartedCourseCustomTimePeriodResponse = GetTotalUsersStartedCourseCustomTimePeriodResponses[keyof GetTotalUsersStartedCourseCustomTimePeriodResponses];
 
 export type GetUsersReturningExercisesHistoryData = {
     body?: never;
@@ -3218,7 +4535,7 @@ export type GetUsersReturningExercisesHistoryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -3232,8 +4549,10 @@ export type GetUsersReturningExercisesHistoryResponses = {
     /**
      * Users returning exercises history
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetUsersReturningExercisesHistoryResponse = GetUsersReturningExercisesHistoryResponses[keyof GetUsersReturningExercisesHistoryResponses];
 
 export type GetUniqueUsersStartingHistoryCustomTimePeriodData = {
     body?: never;
@@ -3259,8 +4578,10 @@ export type GetUniqueUsersStartingHistoryCustomTimePeriodResponses = {
     /**
      * Unique users starting history for custom time period
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetUniqueUsersStartingHistoryCustomTimePeriodResponse = GetUniqueUsersStartingHistoryCustomTimePeriodResponses[keyof GetUniqueUsersStartingHistoryCustomTimePeriodResponses];
 
 export type GetUniqueUsersStartingHistoryData = {
     body?: never;
@@ -3272,7 +4593,7 @@ export type GetUniqueUsersStartingHistoryData = {
         /**
          * Time granularity
          */
-        granularity: string;
+        granularity: TimeGranularity;
         /**
          * Time window
          */
@@ -3286,8 +4607,10 @@ export type GetUniqueUsersStartingHistoryResponses = {
     /**
      * Unique users starting history
      */
-    200: unknown;
+    200: Array<CountResult>;
 };
+
+export type GetUniqueUsersStartingHistoryResponse = GetUniqueUsersStartingHistoryResponses[keyof GetUniqueUsersStartingHistoryResponses];
 
 export type GetCourseExerciseStatusesForUserData = {
     body?: never;
@@ -3309,8 +4632,10 @@ export type GetCourseExerciseStatusesForUserResponses = {
     /**
      * Exercise statuses for course user
      */
-    200: unknown;
+    200: Array<ExerciseStatusSummaryForUser>;
 };
+
+export type GetCourseExerciseStatusesForUserResponse = GetCourseExerciseStatusesForUserResponses[keyof GetCourseExerciseStatusesForUserResponses];
 
 export type GetCourseStructureData = {
     body?: never;
@@ -3328,8 +4653,10 @@ export type GetCourseStructureResponses = {
     /**
      * Course structure
      */
-    200: unknown;
+    200: CourseStructure;
 };
+
+export type GetCourseStructureResponse = GetCourseStructureResponses[keyof GetCourseStructureResponses];
 
 export type GetCourseStudentsCertificatesData = {
     body?: never;
@@ -3347,8 +4674,10 @@ export type GetCourseStudentsCertificatesResponses = {
     /**
      * Course certificates
      */
-    200: unknown;
+    200: Array<CertificateGridRow>;
 };
+
+export type GetCourseStudentsCertificatesResponse = GetCourseStudentsCertificatesResponses[keyof GetCourseStudentsCertificatesResponses];
 
 export type GetCourseStudentsCompletionsData = {
     body?: never;
@@ -3366,8 +4695,10 @@ export type GetCourseStudentsCompletionsResponses = {
     /**
      * Course completions
      */
-    200: unknown;
+    200: Array<CompletionGridRow>;
 };
+
+export type GetCourseStudentsCompletionsResponse = GetCourseStudentsCompletionsResponses[keyof GetCourseStudentsCompletionsResponses];
 
 export type GetCourseStudentsProgressData = {
     body?: never;
@@ -3385,8 +4716,10 @@ export type GetCourseStudentsProgressResponses = {
     /**
      * Course student progress overview
      */
-    200: unknown;
+    200: ProgressOverview;
 };
+
+export type GetCourseStudentsProgressResponse = GetCourseStudentsProgressResponses[keyof GetCourseStudentsProgressResponses];
 
 export type GetCourseStudentsUsersData = {
     body?: never;
@@ -3404,8 +4737,10 @@ export type GetCourseStudentsUsersResponses = {
     /**
      * Course users
      */
-    200: unknown;
+    200: Array<CourseUserInfo>;
 };
+
+export type GetCourseStudentsUsersResponse = GetCourseStudentsUsersResponses[keyof GetCourseStudentsUsersResponses];
 
 export type GetCourseSubmissionCountsByExerciseData = {
     body?: never;
@@ -3423,8 +4758,10 @@ export type GetCourseSubmissionCountsByExerciseResponses = {
     /**
      * Course submission counts by exercise
      */
-    200: unknown;
+    200: Array<ExerciseSlideSubmissionCountByExercise>;
 };
+
+export type GetCourseSubmissionCountsByExerciseResponse = GetCourseSubmissionCountsByExerciseResponses[keyof GetCourseSubmissionCountsByExerciseResponses];
 
 export type GetCourseSuspectedCheatersData = {
     body?: never;
@@ -3447,8 +4784,10 @@ export type GetCourseSuspectedCheatersResponses = {
     /**
      * Suspected cheaters for course
      */
-    200: unknown;
+    200: Array<SuspectedCheaters>;
 };
+
+export type GetCourseSuspectedCheatersResponse = GetCourseSuspectedCheatersResponses[keyof GetCourseSuspectedCheatersResponses];
 
 export type ApproveCourseSuspectedCheaterData = {
     body?: never;
@@ -3617,8 +4956,10 @@ export type GetCourseUserSettingsForUserResponses = {
     /**
      * User course settings
      */
-    200: unknown;
+    200: null | UserCourseSettings;
 };
+
+export type GetCourseUserSettingsForUserResponse = GetCourseUserSettingsForUserResponses[keyof GetCourseUserSettingsForUserResponses];
 
 export type GetCourseWeekdayHourSubmissionCountsData = {
     body?: never;
@@ -3636,8 +4977,10 @@ export type GetCourseWeekdayHourSubmissionCountsResponses = {
     /**
      * Course weekday and hour submission counts
      */
-    200: unknown;
+    200: Array<ExerciseSlideSubmissionCountByWeekAndHour>;
 };
+
+export type GetCourseWeekdayHourSubmissionCountsResponse = GetCourseWeekdayHourSubmissionCountsResponses[keyof GetCourseWeekdayHourSubmissionCountsResponses];
 
 export type GetEmailTemplatesData = {
     body?: never;
@@ -4195,8 +5538,10 @@ export type GetExercisesByCourseIdResponses = {
     /**
      * Exercises by course id
      */
-    200: unknown;
+    200: Array<Exercise>;
 };
+
+export type GetExercisesByCourseIdResponse = GetExercisesByCourseIdResponses[keyof GetExercisesByCourseIdResponses];
 
 export type ResetExercisesForSelectedUsersData = {
     body: unknown;
@@ -4265,8 +5610,10 @@ export type GetExerciseAnswersRequiringAttentionResponses = {
     /**
      * Answers requiring attention
      */
-    200: unknown;
+    200: AnswersRequiringAttention;
 };
+
+export type GetExerciseAnswersRequiringAttentionResponse = GetExerciseAnswersRequiringAttentionResponses[keyof GetExerciseAnswersRequiringAttentionResponses];
 
 export type GetExerciseCsvExportTaskOptionsData = {
     body?: never;
@@ -4284,8 +5631,10 @@ export type GetExerciseCsvExportTaskOptionsResponses = {
     /**
      * Exercise CSV export task options
      */
-    200: unknown;
+    200: Array<ExerciseCsvExportTaskOption>;
 };
+
+export type GetExerciseCsvExportTaskOptionsResponse = GetExerciseCsvExportTaskOptionsResponses[keyof GetExerciseCsvExportTaskOptionsResponses];
 
 export type ExportExerciseAnswersCsvData = {
     body?: never;
@@ -4372,8 +5721,10 @@ export type GetExerciseSubmissionsResponses = {
     /**
      * Exercise submissions
      */
-    200: unknown;
+    200: ExerciseSubmissions;
 };
+
+export type GetExerciseSubmissionsResponse = GetExerciseSubmissionsResponses[keyof GetExerciseSubmissionsResponses];
 
 export type GetExerciseSubmissionsForUserData = {
     body?: never;
@@ -4395,8 +5746,10 @@ export type GetExerciseSubmissionsForUserResponses = {
     /**
      * Exercise submissions for user
      */
-    200: unknown;
+    200: Array<ExerciseSlideSubmission>;
 };
+
+export type GetExerciseSubmissionsForUserResponse = GetExerciseSubmissionsForUserResponses[keyof GetExerciseSubmissionsForUserResponses];
 
 export type MarkFeedbackAsReadData = {
     body: unknown;
@@ -4433,8 +5786,10 @@ export type GetCompletionStatsByEmailDomainResponses = {
     /**
      * Completion stats by email domain
      */
-    200: unknown;
+    200: Array<DomainCompletionStats>;
 };
+
+export type GetCompletionStatsByEmailDomainResponse = GetCompletionStatsByEmailDomainResponses[keyof GetCompletionStatsByEmailDomainResponses];
 
 export type GetCourseCompletionStatsForEmailDomainData = {
     body?: never;
@@ -4456,8 +5811,10 @@ export type GetCourseCompletionStatsForEmailDomainResponses = {
     /**
      * Course completion stats for email domain
      */
-    200: unknown;
+    200: Array<CourseCompletionStats>;
 };
+
+export type GetCourseCompletionStatsForEmailDomainResponse = GetCourseCompletionStatsForEmailDomainResponses[keyof GetCourseCompletionStatsForEmailDomainResponses];
 
 export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData = {
     body?: never;
@@ -4466,7 +5823,7 @@ export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData = {
         /**
          * Time granularity
          */
-        granularity?: string;
+        granularity?: TimeGranularity;
     };
     url: '/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry';
 };
@@ -4475,8 +5832,10 @@ export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses 
     /**
      * Course module completion stats
      */
-    200: unknown;
+    200: Array<GlobalCourseModuleStatEntry>;
 };
+
+export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse = GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses[keyof GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses];
 
 export type GetNumberOfPeopleCompletedACourseData = {
     body?: never;
@@ -4485,7 +5844,7 @@ export type GetNumberOfPeopleCompletedACourseData = {
         /**
          * Time granularity
          */
-        granularity?: string;
+        granularity?: TimeGranularity;
     };
     url: '/api/v0/main-frontend/global-stats/number-of-people-completed-a-course';
 };
@@ -4494,8 +5853,10 @@ export type GetNumberOfPeopleCompletedACourseResponses = {
     /**
      * Global completion stats
      */
-    200: unknown;
+    200: Array<GlobalStatEntry>;
 };
+
+export type GetNumberOfPeopleCompletedACourseResponse = GetNumberOfPeopleCompletedACourseResponses[keyof GetNumberOfPeopleCompletedACourseResponses];
 
 export type GetNumberOfPeopleDoneAtLeastOneExerciseData = {
     body?: never;
@@ -4504,7 +5865,7 @@ export type GetNumberOfPeopleDoneAtLeastOneExerciseData = {
         /**
          * Time granularity
          */
-        granularity?: string;
+        granularity?: TimeGranularity;
     };
     url: '/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise';
 };
@@ -4513,8 +5874,10 @@ export type GetNumberOfPeopleDoneAtLeastOneExerciseResponses = {
     /**
      * Exercise participation stats
      */
-    200: unknown;
+    200: Array<GlobalStatEntry>;
 };
+
+export type GetNumberOfPeopleDoneAtLeastOneExerciseResponse = GetNumberOfPeopleDoneAtLeastOneExerciseResponses[keyof GetNumberOfPeopleDoneAtLeastOneExerciseResponses];
 
 export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryData = {
     body?: never;
@@ -4523,7 +5886,7 @@ export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryData = {
         /**
          * Time granularity
          */
-        granularity?: string;
+        granularity?: TimeGranularity;
     };
     url: '/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry';
 };
@@ -4532,8 +5895,10 @@ export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses = {
     /**
      * Study registry completion stats
      */
-    200: unknown;
+    200: Array<GlobalStatEntry>;
 };
+
+export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse = GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses[keyof GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses];
 
 export type GetNumberOfPeopleStartedCourseData = {
     body?: never;
@@ -4542,7 +5907,7 @@ export type GetNumberOfPeopleStartedCourseData = {
         /**
          * Time granularity
          */
-        granularity?: string;
+        granularity?: TimeGranularity;
     };
     url: '/api/v0/main-frontend/global-stats/number-of-people-started-course';
 };
@@ -4551,8 +5916,10 @@ export type GetNumberOfPeopleStartedCourseResponses = {
     /**
      * Course start stats
      */
-    200: unknown;
+    200: Array<GlobalStatEntry>;
 };
+
+export type GetNumberOfPeopleStartedCourseResponse = GetNumberOfPeopleStartedCourseResponses[keyof GetNumberOfPeopleStartedCourseResponses];
 
 export type DeleteGlossaryTermData = {
     body?: never;
@@ -4694,8 +6061,10 @@ export type GetOauthAuthorizedClientsResponses = {
     /**
      * Authorized OAuth clients
      */
-    200: unknown;
+    200: Array<AuthorizedClientInfo>;
 };
+
+export type GetOauthAuthorizedClientsResponse = GetOauthAuthorizedClientsResponses[keyof GetOauthAuthorizedClientsResponses];
 
 export type DeleteOauthAuthorizedClientData = {
     body?: never;
@@ -4719,7 +6088,7 @@ export type DeleteOauthAuthorizedClientResponses = {
 export type DeleteOauthAuthorizedClientResponse = DeleteOauthAuthorizedClientResponses[keyof DeleteOauthAuthorizedClientResponses];
 
 export type ApproveOauthConsentData = {
-    body: unknown;
+    body: ConsentQuery;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/oauth/consent';
@@ -4729,15 +6098,26 @@ export type ApproveOauthConsentResponses = {
     /**
      * Consent approval response
      */
-    200: unknown;
+    200: ConsentResponse;
 };
 
+export type ApproveOauthConsentResponse = ApproveOauthConsentResponses[keyof ApproveOauthConsentResponses];
+
 export type DenyOauthConsentData = {
-    body: unknown;
+    body: ConsentDenyQuery;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/oauth/consent/deny';
 };
+
+export type DenyOauthConsentResponses = {
+    /**
+     * Consent denial response
+     */
+    200: ConsentResponse;
+};
+
+export type DenyOauthConsentResponse = DenyOauthConsentResponses[keyof DenyOauthConsentResponses];
 
 export type IntrospectOauthTokenData = {
     body: unknown;
@@ -4860,8 +6240,10 @@ export type GetOrganizationBySlugResponses = {
     /**
      * Organization
      */
-    200: unknown;
+    200: Organization;
 };
+
+export type GetOrganizationBySlugResponse = GetOrganizationBySlugResponses[keyof GetOrganizationBySlugResponses];
 
 export type GetOrganizationsData = {
     body?: never;
@@ -4874,8 +6256,10 @@ export type GetOrganizationsResponses = {
     /**
      * Organizations
      */
-    200: unknown;
+    200: Array<Organization>;
 };
+
+export type GetOrganizationsResponse = GetOrganizationsResponses[keyof GetOrganizationsResponses];
 
 export type CreateOrganizationData = {
     body: OrganizationCreatePayload;
@@ -4907,8 +6291,10 @@ export type GetOrganizationExamByExamIdResponses = {
     /**
      * Organization exam
      */
-    200: unknown;
+    200: OrgExam;
 };
+
+export type GetOrganizationExamByExamIdResponse = GetOrganizationExamByExamIdResponses[keyof GetOrganizationExamByExamIdResponses];
 
 export type GetOrganizationData = {
     body?: never;
@@ -4926,8 +6312,10 @@ export type GetOrganizationResponses = {
     /**
      * Organization
      */
-    200: unknown;
+    200: Organization;
 };
+
+export type GetOrganizationResponse = GetOrganizationResponses[keyof GetOrganizationResponses];
 
 export type SoftDeleteOrganizationData = {
     body?: never;
@@ -4983,8 +6371,10 @@ export type GetOrganizationCourseExamsResponses = {
     /**
      * Organization course exams
      */
-    200: unknown;
+    200: Array<CourseExam>;
 };
+
+export type GetOrganizationCourseExamsResponse = GetOrganizationCourseExamsResponses[keyof GetOrganizationCourseExamsResponses];
 
 export type GetOrganizationCoursesData = {
     body?: never;
@@ -5011,8 +6401,10 @@ export type GetOrganizationCoursesResponses = {
     /**
      * Organization courses
      */
-    200: unknown;
+    200: Array<Course>;
 };
+
+export type GetOrganizationCoursesResponse = GetOrganizationCoursesResponses[keyof GetOrganizationCoursesResponses];
 
 export type GetOrganizationActiveCoursesData = {
     body?: never;
@@ -5039,8 +6431,10 @@ export type GetOrganizationActiveCoursesResponses = {
     /**
      * Active organization courses
      */
-    200: unknown;
+    200: Array<Course>;
 };
+
+export type GetOrganizationActiveCoursesResponse = GetOrganizationActiveCoursesResponses[keyof GetOrganizationActiveCoursesResponses];
 
 export type GetOrganizationActiveCourseCountData = {
     body?: never;
@@ -5058,8 +6452,10 @@ export type GetOrganizationActiveCourseCountResponses = {
     /**
      * Active organization course count
      */
-    200: unknown;
+    200: CourseCount;
 };
+
+export type GetOrganizationActiveCourseCountResponse = GetOrganizationActiveCourseCountResponses[keyof GetOrganizationActiveCourseCountResponses];
 
 export type GetOrganizationCourseCountData = {
     body?: never;
@@ -5077,8 +6473,10 @@ export type GetOrganizationCourseCountResponses = {
     /**
      * Organization course count
      */
-    200: unknown;
+    200: CourseCount;
 };
+
+export type GetOrganizationCourseCountResponse = GetOrganizationCourseCountResponses[keyof GetOrganizationCourseCountResponses];
 
 export type GetOrganizationDuplicatableCoursesData = {
     body?: never;
@@ -5096,8 +6494,10 @@ export type GetOrganizationDuplicatableCoursesResponses = {
     /**
      * Duplicatable organization courses
      */
-    200: unknown;
+    200: Array<Course>;
 };
+
+export type GetOrganizationDuplicatableCoursesResponse = GetOrganizationDuplicatableCoursesResponses[keyof GetOrganizationDuplicatableCoursesResponses];
 
 export type CreateOrganizationExamData = {
     body: unknown;
@@ -5174,8 +6574,10 @@ export type GetOrganizationExamsResponses = {
     /**
      * Organization exams
      */
-    200: unknown;
+    200: Array<OrgExam>;
 };
+
+export type GetOrganizationExamsResponse = GetOrganizationExamsResponses[keyof GetOrganizationExamsResponses];
 
 export type DeletePageAudioFileData = {
     body?: never;
@@ -5449,11 +6851,13 @@ export type GetPlaygroundExamplesResponses = {
     /**
      * Playground examples
      */
-    200: unknown;
+    200: Array<PlaygroundExample>;
 };
 
+export type GetPlaygroundExamplesResponse = GetPlaygroundExamplesResponses[keyof GetPlaygroundExamplesResponses];
+
 export type CreatePlaygroundExampleData = {
-    body: unknown;
+    body: PlaygroundExampleData;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/playground_examples';
@@ -5463,11 +6867,13 @@ export type CreatePlaygroundExampleResponses = {
     /**
      * Created playground example
      */
-    200: unknown;
+    200: PlaygroundExample;
 };
 
+export type CreatePlaygroundExampleResponse = CreatePlaygroundExampleResponses[keyof CreatePlaygroundExampleResponses];
+
 export type UpdatePlaygroundExampleData = {
-    body: unknown;
+    body: PlaygroundExample;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/playground_examples';
@@ -5477,8 +6883,10 @@ export type UpdatePlaygroundExampleResponses = {
     /**
      * Updated playground example
      */
-    200: unknown;
+    200: PlaygroundExample;
 };
+
+export type UpdatePlaygroundExampleResponse = UpdatePlaygroundExampleResponses[keyof UpdatePlaygroundExampleResponses];
 
 export type DeletePlaygroundExampleData = {
     body?: never;
@@ -5496,8 +6904,10 @@ export type DeletePlaygroundExampleResponses = {
     /**
      * Deleted playground example
      */
-    200: unknown;
+    200: PlaygroundExample;
 };
+
+export type DeletePlaygroundExampleResponse = DeletePlaygroundExampleResponses[keyof DeletePlaygroundExampleResponses];
 
 export type GetEditProposalsData = {
     body?: never;
@@ -5588,11 +6998,13 @@ export type GetRegradingsResponses = {
     /**
      * Regradings
      */
-    200: unknown;
+    200: Array<Regrading>;
 };
 
+export type GetRegradingsResponse = GetRegradingsResponses[keyof GetRegradingsResponses];
+
 export type CreateRegradingData = {
-    body: unknown;
+    body: NewRegrading;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/regradings';
@@ -5639,8 +7051,10 @@ export type GetRegradingInfoResponses = {
     /**
      * Regrading info
      */
-    200: unknown;
+    200: RegradingInfo;
 };
+
+export type GetRegradingInfoResponse = GetRegradingInfoResponses[keyof GetRegradingInfoResponses];
 
 export type GetRolesData = {
     body?: never;
@@ -5674,11 +7088,13 @@ export type GetRolesResponses = {
     /**
      * Roles
      */
-    200: unknown;
+    200: Array<RoleUser>;
 };
 
+export type GetRolesResponse = GetRolesResponses[keyof GetRolesResponses];
+
 export type AddRoleData = {
-    body: unknown;
+    body: RoleInfo;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/roles/add';
@@ -5723,11 +7139,13 @@ export type GetPendingRolesResponses = {
     /**
      * Pending roles
      */
-    200: unknown;
+    200: Array<PendingRole>;
 };
 
+export type GetPendingRolesResponse = GetPendingRolesResponses[keyof GetPendingRolesResponses];
+
 export type RemoveRoleData = {
-    body: unknown;
+    body: RoleInfo;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/roles/remove';
@@ -5751,8 +7169,10 @@ export type GetStatusCronjobsResponses = {
     /**
      * Cronjobs
      */
-    200: unknown;
+    200: Array<CronJobInfo>;
 };
+
+export type GetStatusCronjobsResponse = GetStatusCronjobsResponses[keyof GetStatusCronjobsResponses];
 
 export type GetStatusDeploymentsData = {
     body?: never;
@@ -5765,8 +7185,10 @@ export type GetStatusDeploymentsResponses = {
     /**
      * Deployments
      */
-    200: unknown;
+    200: Array<DeploymentInfo>;
 };
+
+export type GetStatusDeploymentsResponse = GetStatusDeploymentsResponses[keyof GetStatusDeploymentsResponses];
 
 export type GetStatusEventsData = {
     body?: never;
@@ -5779,8 +7201,10 @@ export type GetStatusEventsResponses = {
     /**
      * Events
      */
-    200: unknown;
+    200: Array<EventInfo>;
 };
+
+export type GetStatusEventsResponse = GetStatusEventsResponses[keyof GetStatusEventsResponses];
 
 export type GetStatusHealthData = {
     body?: never;
@@ -5793,8 +7217,10 @@ export type GetStatusHealthResponses = {
     /**
      * Detailed system health
      */
-    200: unknown;
+    200: SystemHealthStatus;
 };
+
+export type GetStatusHealthResponse = GetStatusHealthResponses[keyof GetStatusHealthResponses];
 
 export type GetStatusIngressesData = {
     body?: never;
@@ -5807,8 +7233,10 @@ export type GetStatusIngressesResponses = {
     /**
      * Ingresses
      */
-    200: unknown;
+    200: Array<IngressInfo>;
 };
+
+export type GetStatusIngressesResponse = GetStatusIngressesResponses[keyof GetStatusIngressesResponses];
 
 export type GetStatusJobsData = {
     body?: never;
@@ -5821,8 +7249,10 @@ export type GetStatusJobsResponses = {
     /**
      * Jobs
      */
-    200: unknown;
+    200: Array<JobInfo>;
 };
+
+export type GetStatusJobsResponse = GetStatusJobsResponses[keyof GetStatusJobsResponses];
 
 export type GetStatusPodDisruptionBudgetsData = {
     body?: never;
@@ -5835,8 +7265,10 @@ export type GetStatusPodDisruptionBudgetsResponses = {
     /**
      * Pod disruption budgets
      */
-    200: unknown;
+    200: Array<PodDisruptionBudgetInfo>;
 };
+
+export type GetStatusPodDisruptionBudgetsResponse = GetStatusPodDisruptionBudgetsResponses[keyof GetStatusPodDisruptionBudgetsResponses];
 
 export type GetStatusPodsData = {
     body?: never;
@@ -5849,8 +7281,10 @@ export type GetStatusPodsResponses = {
     /**
      * Pods
      */
-    200: unknown;
+    200: Array<PodInfo>;
 };
+
+export type GetStatusPodsResponse = GetStatusPodsResponses[keyof GetStatusPodsResponses];
 
 export type GetStatusPodLogsData = {
     body?: never;
@@ -5893,8 +7327,10 @@ export type GetStatusServicesResponses = {
     /**
      * Services
      */
-    200: unknown;
+    200: Array<ServiceInfo>;
 };
+
+export type GetStatusServicesResponse = GetStatusServicesResponses[keyof GetStatusServicesResponses];
 
 export type GetStatusSystemHealthData = {
     body?: never;
@@ -5945,7 +7381,7 @@ export type GetCurrentTimeResponses = {
 export type GetCurrentTimeResponse = GetCurrentTimeResponses[keyof GetCurrentTimeResponses];
 
 export type GetBulkUserDetailsData = {
-    body: unknown;
+    body: BulkUserDetailsRequest;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/user-details/bulk-user-details';
@@ -5955,11 +7391,13 @@ export type GetBulkUserDetailsResponses = {
     /**
      * Bulk user details
      */
-    200: unknown;
+    200: Array<UserDetail>;
 };
 
+export type GetBulkUserDetailsResponse = GetBulkUserDetailsResponses[keyof GetBulkUserDetailsResponses];
+
 export type SearchUserDetailsByEmailData = {
-    body: unknown;
+    body: SearchRequest;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/user-details/search-by-email';
@@ -5969,11 +7407,13 @@ export type SearchUserDetailsByEmailResponses = {
     /**
      * User details search results
      */
-    200: unknown;
+    200: Array<UserDetail>;
 };
 
+export type SearchUserDetailsByEmailResponse = SearchUserDetailsByEmailResponses[keyof SearchUserDetailsByEmailResponses];
+
 export type SearchUserDetailsByOtherDetailsData = {
-    body: unknown;
+    body: SearchRequest;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/user-details/search-by-other-details';
@@ -5983,11 +7423,13 @@ export type SearchUserDetailsByOtherDetailsResponses = {
     /**
      * User details search results
      */
-    200: unknown;
+    200: Array<UserDetail>;
 };
 
+export type SearchUserDetailsByOtherDetailsResponse = SearchUserDetailsByOtherDetailsResponses[keyof SearchUserDetailsByOtherDetailsResponses];
+
 export type SearchUserDetailsFuzzyMatchData = {
-    body: unknown;
+    body: SearchRequest;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/user-details/search-fuzzy-match';
@@ -5997,11 +7439,13 @@ export type SearchUserDetailsFuzzyMatchResponses = {
     /**
      * User details fuzzy search results
      */
-    200: unknown;
+    200: Array<UserDetail>;
 };
 
+export type SearchUserDetailsFuzzyMatchResponse = SearchUserDetailsFuzzyMatchResponses[keyof SearchUserDetailsFuzzyMatchResponses];
+
 export type UpdateUserInfoData = {
-    body: unknown;
+    body: UserInfoPayload;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/user-details/update-user-info';
@@ -6011,11 +7455,13 @@ export type UpdateUserInfoResponses = {
     /**
      * Updated user details
      */
-    200: unknown;
+    200: UserDetail;
 };
 
+export type UpdateUserInfoResponse = UpdateUserInfoResponses[keyof UpdateUserInfoResponses];
+
 export type GetUserDetailsByCoursesData = {
-    body: unknown;
+    body: UserDetailsRequest;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/user-details/user-by-courses';
@@ -6025,8 +7471,10 @@ export type GetUserDetailsByCoursesResponses = {
     /**
      * User details
      */
-    200: unknown;
+    200: UserDetail;
 };
+
+export type GetUserDetailsByCoursesResponse = GetUserDetailsByCoursesResponses[keyof GetUserDetailsByCoursesResponses];
 
 export type GetUserDetailsForAuthenticatedUserData = {
     body?: never;
@@ -6039,8 +7487,10 @@ export type GetUserDetailsForAuthenticatedUserResponses = {
     /**
      * Authenticated user details
      */
-    200: unknown;
+    200: UserDetail;
 };
+
+export type GetUserDetailsForAuthenticatedUserResponse = GetUserDetailsForAuthenticatedUserResponses[keyof GetUserDetailsForAuthenticatedUserResponses];
 
 export type GetUsersIpCountryData = {
     body?: never;
@@ -6074,8 +7524,10 @@ export type GetUsersByCourseIdForUserDetailsResponses = {
     /**
      * Users by course id
      */
-    200: unknown;
+    200: Array<UserDetail>;
 };
+
+export type GetUsersByCourseIdForUserDetailsResponse = GetUsersByCourseIdForUserDetailsResponses[keyof GetUsersByCourseIdForUserDetailsResponses];
 
 export type GetUserDetailsByCourseAndUserIdData = {
     body?: never;
@@ -6097,8 +7549,10 @@ export type GetUserDetailsByCourseAndUserIdResponses = {
     /**
      * User details
      */
-    200: unknown;
+    200: UserDetail;
 };
+
+export type GetUserDetailsByCourseAndUserIdResponse = GetUserDetailsByCourseAndUserIdResponses[keyof GetUserDetailsByCourseAndUserIdResponses];
 
 export type ChangeUserPasswordData = {
     body: unknown;
@@ -6127,8 +7581,10 @@ export type GetUserResearchConsentResponses = {
     /**
      * User research consent
      */
-    200: unknown;
+    200: UserResearchConsent;
 };
+
+export type GetUserResearchConsentResponse = GetUserResearchConsentResponses[keyof GetUserResearchConsentResponses];
 
 export type GetMyCoursesData = {
     body?: never;
@@ -6141,8 +7597,10 @@ export type GetMyCoursesResponses = {
     /**
      * Courses for authenticated user
      */
-    200: unknown;
+    200: Array<Course>;
 };
+
+export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses];
 
 export type ResetUserPasswordData = {
     body: unknown;
@@ -6193,7 +7651,7 @@ export type SendResetPasswordEmailResponses = {
 export type SendResetPasswordEmailResponse = SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses];
 
 export type CreateUserResearchConsentData = {
-    body: unknown;
+    body: ConsentData;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/users/user-research-consents';
@@ -6203,8 +7661,10 @@ export type CreateUserResearchConsentResponses = {
     /**
      * User research consent
      */
-    200: unknown;
+    200: UserResearchConsent;
 };
+
+export type CreateUserResearchConsentResponse = CreateUserResearchConsentResponses[keyof CreateUserResearchConsentResponses];
 
 export type GetUserResearchFormQuestionAnswersData = {
     body?: never;
@@ -6217,8 +7677,10 @@ export type GetUserResearchFormQuestionAnswersResponses = {
     /**
      * Research form answers for user
      */
-    200: unknown;
+    200: Array<ResearchFormQuestionAnswer>;
 };
+
+export type GetUserResearchFormQuestionAnswersResponse = GetUserResearchFormQuestionAnswersResponses[keyof GetUserResearchFormQuestionAnswersResponses];
 
 export type GetUserData = {
     body?: never;
@@ -6255,8 +7717,10 @@ export type GetUserCourseEnrollmentsResponses = {
     /**
      * User course enrollments
      */
-    200: unknown;
+    200: CourseEnrollmentsInfo;
 };
+
+export type GetUserCourseEnrollmentsResponse = GetUserCourseEnrollmentsResponses[keyof GetUserCourseEnrollmentsResponses];
 
 export type GetUserResetExerciseLogsData = {
     body?: never;
@@ -6274,5 +7738,7 @@ export type GetUserResetExerciseLogsResponses = {
     /**
      * User reset exercise logs
      */
-    200: unknown;
+    200: Array<ExerciseResetLog>;
 };
+
+export type GetUserResetExerciseLogsResponse = GetUserResetExerciseLogsResponses[keyof GetUserResetExerciseLogsResponses];

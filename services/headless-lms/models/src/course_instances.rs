@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use utoipa::ToSchema;
 
 use crate::{
     chapters,
@@ -9,7 +10,7 @@ use crate::{
     users::{self, User},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstance {
     pub id: Uuid,
@@ -32,7 +33,7 @@ impl CourseInstance {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceForm {
     pub name: Option<String>,
@@ -346,7 +347,7 @@ WHERE course_id = $1
     Ok(res)
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChapterScore {
     #[serde(flatten)]
@@ -355,11 +356,11 @@ pub struct ChapterScore {
     pub score_total: i32,
 }
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PointMap(pub HashMap<Uuid, f32>);
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Points {
     pub chapter_points: Vec<ChapterScore>,

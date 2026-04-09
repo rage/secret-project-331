@@ -17,3 +17,21 @@ use utoipa::OpenApi;
     )
 )]
 pub struct MainFrontendApiDoc;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest(
+        (
+            path = "/api/v0/course-material",
+            api = crate::controllers::course_material::CourseMaterialRoutesApiDoc
+        )
+    ),
+    components(schemas(
+        headless_lms_models::teacher_grading_decisions::TeacherDecisionType
+    )),
+    info(
+        title = "Course Material API",
+        version = "0.1.0"
+    )
+)]
+pub struct CourseMaterialApiDoc;

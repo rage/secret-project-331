@@ -1,23 +1,54 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
+import {} from "@/generated/api/@tanstack/react-query.generated"
 import {
-  addUserToCourseWithJoinCode,
-  fetchCourseWithJoinCode,
-  getCourseBreadCrumbInfo,
-} from "@/services/backend/courses"
+  getCourseBreadcrumbInfo as getCourseBreadCrumbInfoFromApi,
+  getCourseByJoinCode as getCourseByJoinCodeFromApi,
+  joinCourseWithJoinCode,
+} from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+
+const GET_COURSE_BY_JOIN_CODE_QUERY_KEY = "getCourseByJoinCode"
+const GET_COURSE_BREADCRUMB_INFO_QUERY_KEY = "getCourseBreadcrumbInfo"
+
+const getCourseByJoinCodeQueryOptions = (joinCode: string | null) =>
+  queryOptions({
+    queryKey: [{ _id: GET_COURSE_BY_JOIN_CODE_QUERY_KEY, path: { join_code: joinCode } }] as const,
+    queryFn: () =>
+      getCourseByJoinCodeFromApi({
+        path: {
+          join_code: assertNotNullOrUndefined(joinCode),
+        },
+        throwOnError: true,
+      }),
+  })
+
+const getCourseBreadcrumbInfoQueryOptions = (courseId: string | null | undefined) =>
+  queryOptions({
+    queryKey: [
+      { _id: GET_COURSE_BREADCRUMB_INFO_QUERY_KEY, path: { course_id: courseId } },
+    ] as const,
+    queryFn: () =>
+      getCourseBreadCrumbInfoFromApi({
+        path: {
+          course_id: assertNotNullOrUndefined(courseId),
+        },
+        throwOnError: true,
+      }),
+  })
 
 const JoinCoursePage: React.FC = () => {
   const { t } = useTranslation()
@@ -26,15 +57,14 @@ const JoinCoursePage: React.FC = () => {
   const joinCode = searchParams.get("code")
 
   const course = useQuery({
-    queryKey: [`/courses/join/${joinCode}/`, joinCode],
-    queryFn: () => fetchCourseWithJoinCode(joinCode ?? ""),
+    ...getCourseByJoinCodeQueryOptions(joinCode),
+    enabled: !!joinCode,
   })
 
   const courseId = course.data?.id
 
   const courseBreadcrumbs = useQuery({
-    queryKey: [`/courses/${courseId}/breadcrumb-info`, courseId],
-    queryFn: () => getCourseBreadCrumbInfo(courseId ?? ""),
+    ...getCourseBreadcrumbInfoQueryOptions(courseId),
     enabled: false,
   })
 
@@ -60,7 +90,12 @@ const JoinCoursePage: React.FC = () => {
 
   const handleRedirectMutation = useToastMutation(
     async (courseId: string) => {
-      await addUserToCourseWithJoinCode(courseId)
+      await joinCourseWithJoinCode({
+        path: {
+          course_id: courseId,
+        },
+        throwOnError: true,
+      })
     },
     {
       notify: true,
@@ -69,7 +104,6 @@ const JoinCoursePage: React.FC = () => {
     {
       onSuccess: async () => {
         await courseBreadcrumbs.refetch()
-        console.log(courseBreadcrumbs.isSuccess)
       },
     },
   )

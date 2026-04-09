@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { createCodeGiveawayMutationOptions } from "@/services/backend/codeGiveaways"
+import { createCodeGiveawayMutation as createCodeGiveawayMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"

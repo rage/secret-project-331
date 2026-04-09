@@ -9,9 +9,13 @@ import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
-import { getCertificateImageUrl } from "@/services/backend/certificates"
-import { getCertificatesOptions, updateCertificate } from "@/services/backend/courses/students"
-import { CertificateGridRow, CertificateUpdateRequest } from "@/shared-module/common/bindings"
+import { getCourseStudentsCertificatesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { updateGeneratedCertificate } from "@/generated/api/sdk.generated"
+import type {
+  CertificateGridRow,
+  CertificateUpdateRequest,
+  GetCertificateByVerificationIdData,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
@@ -20,6 +24,10 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
+import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
+
+const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
+  "/api/v0/main-frontend/certificates/{certificate_verification_id}"
 
 const iconBtnStyle = css`
   display: inline-flex;
@@ -57,6 +65,17 @@ export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: 
   courseId,
   searchQuery,
 }) => {
+  if (!courseId) {
+    return <ErrorBanner error={new Error("Missing courseId")} />
+  }
+
+  return <CertificatesTabContentWithCourseId courseId={courseId} searchQuery={searchQuery} />
+}
+
+const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQuery: string }> = ({
+  courseId,
+  searchQuery,
+}) => {
   const { t } = useTranslation()
   const [editData, setEditData] = useState<{
     id: string
@@ -65,11 +84,14 @@ export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: 
   } | null>(null)
 
   const query = useQuery({
-    ...getCertificatesOptions(courseId ?? ""),
-    enabled: !!courseId,
+    ...getCourseStudentsCertificatesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
-  const allRows = useMemo(() => (query.data ?? []) as CertificateGridRow[], [query.data])
+  const allRows = useMemo(() => query.data ?? [], [query.data])
 
   const rows = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -150,7 +172,11 @@ export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: 
 
         const handleView = () => {
           if (certificate === "Course Certificate" && verification_id) {
-            setPopupUrl(getCertificateImageUrl(verification_id))
+            setPopupUrl(
+              buildGeneratedApiUrl(CERTIFICATE_BY_VERIFICATION_PATH, {
+                certificate_verification_id: verification_id,
+              }),
+            )
             setVerificationId(verification_id)
           }
         }
@@ -160,7 +186,7 @@ export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: 
             setEditData({
               id: row.original.certificate_id,
               name_on_certificate: row.original.name_on_certificate ?? "",
-              date: row.original.date_issued,
+              date: row.original.date_issued ?? null,
             })
           }
         }
@@ -364,7 +390,13 @@ export const CertificatesTabContent: React.FC<{ courseId?: string; searchQuery: 
                       : editData.name_on_certificate,
                 }
 
-                await updateCertificate(editData.id, payload)
+                await updateGeneratedCertificate({
+                  body: payload,
+                  path: {
+                    certificate_id: editData.id,
+                  },
+                  throwOnError: true,
+                })
                 setEditData(null)
                 await query.refetch()
               }}

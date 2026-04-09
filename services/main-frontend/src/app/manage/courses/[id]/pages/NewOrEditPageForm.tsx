@@ -9,7 +9,7 @@ import {
   createPageMutation as createPageMutationOptions,
   updatePageDetailsMutation as updatePageDetailsMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { NewPage, Page } from "@/shared-module/common/bindings"
+import type { CreatePageData, Page } from "@/generated/api/types.generated"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -36,6 +36,8 @@ interface NewOrEditPageFormProps {
   open: boolean
   onClose: () => void
 }
+
+type NewPage = CreatePageData["body"]
 
 const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps>> = ({
   courseId,

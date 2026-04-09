@@ -2,7 +2,7 @@ import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmissionResult,
   UserCourseExerciseServiceVariable,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
 import {
   ExerciseIframeState,
   UserVariablesMap,

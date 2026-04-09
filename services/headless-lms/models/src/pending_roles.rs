@@ -2,8 +2,9 @@ use crate::{
     prelude::*,
     roles::{RoleDomain, RoleInfo, UserRole},
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PendingRole {
     pub id: Uuid,

@@ -6,9 +6,9 @@ import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { markFeedbackAsReadMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import { markAsReadMutationOptions } from "@/services/backend/feedback"
-import { Feedback } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
@@ -40,10 +40,10 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
 }) => {
   const { t } = useTranslation()
 
-  const pageInfo = usePageInfo(feedback.page_id)
+  const pageInfo = usePageInfo(feedback.page_id ?? null)
 
   const markAsReadMutation = useToastMutationOptions(
-    markAsReadMutationOptions(),
+    markFeedbackAsReadMutation(),
     {
       notify: true,
       method: "POST",

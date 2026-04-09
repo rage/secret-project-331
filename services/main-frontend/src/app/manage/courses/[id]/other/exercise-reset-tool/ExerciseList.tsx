@@ -5,10 +5,12 @@ import { useQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import {
+  getCourseChaptersOptions,
+  getCoursePagesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { DatabaseChapter, Exercise, Page } from "@/generated/api/types.generated"
 import { useExercises } from "@/hooks/useExercises"
-import { getAllChaptersByCourseIdOptions } from "@/services/backend/chapters"
-import { getAllPagesByCourseIdOptions } from "@/services/backend/pages"
-import { DatabaseChapter, Exercise, Page } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -39,8 +41,11 @@ const ExerciseList: React.FC<Props> = ({
     isLoading: chaptersLoading,
     error: chaptersError,
   } = useQuery({
-    ...getAllChaptersByCourseIdOptions(courseId),
-    enabled: !!courseId,
+    ...getCourseChaptersOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const {
@@ -48,8 +53,11 @@ const ExerciseList: React.FC<Props> = ({
     isLoading: pagesLoading,
     error: pagesError,
   } = useQuery({
-    ...getAllPagesByCourseIdOptions(courseId),
-    enabled: !!courseId,
+    ...getCoursePagesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const toggleExercise = (exerciseId: string) => {

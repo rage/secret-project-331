@@ -7,7 +7,7 @@ import { useParams } from "next/navigation"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchTopLevelPages } from "@/services/course-material/backend"
+import { getCourseMaterialTopLevelPages } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import TopLevelPage from "@/shared-module/common/components/TopLevelPage"
@@ -29,7 +29,12 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
   const getTopLevelPages = useQuery({
     queryKey: [`courses-${courseId}-top-level-pages`],
     queryFn: () =>
-      fetchTopLevelPages(courseId).then((pages) =>
+      getCourseMaterialTopLevelPages({
+        path: {
+          course_id: courseId,
+        },
+        throwOnError: true,
+      }).then((pages) =>
         pages.filter((x) => x.url_path !== "/").sort((a, b) => a.order_number - b.order_number),
       ),
   })

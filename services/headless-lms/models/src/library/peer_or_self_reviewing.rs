@@ -4,6 +4,7 @@ use chrono::Duration;
 use futures::future::BoxFuture;
 use rand::{rng, seq::SliceRandom};
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -62,7 +63,7 @@ pub async fn start_peer_or_self_review_for_user(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerOrSelfReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
@@ -71,7 +72,7 @@ pub struct CourseMaterialPeerOrSelfReviewSubmission {
     pub token: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerOrSelfReviewQuestionAnswer {
     pub peer_or_self_review_question_id: Uuid,
@@ -431,7 +432,7 @@ async fn update_peer_review_receiver_exercise_status(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerOrSelfReviewData {
     /// If none, no answer was available for review.
@@ -442,7 +443,7 @@ pub struct CourseMaterialPeerOrSelfReviewData {
     pub num_peer_reviews_given: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerOrSelfReviewDataAnswerToReview {
     pub exercise_slide_submission_id: Uuid,

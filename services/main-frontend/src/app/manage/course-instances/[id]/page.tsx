@@ -8,12 +8,9 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import NewCourseInstanceForm from "@/app/manage/courses/[id]/course-instances/NewCourseInstanceForm"
-import {
-  deleteCourseInstance,
-  editCourseInstance,
-  getCourseInstanceOptions,
-} from "@/services/backend/course-instances"
-import { CourseInstanceForm } from "@/shared-module/common/bindings"
+import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
+import type { CourseInstanceForm } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -27,11 +24,23 @@ const ManageCourseInstances: React.FC = () => {
   const { id: courseInstanceId } = useParams<{ id: string }>()
   const router = useRouter()
 
-  const getCourseInstances = useQuery(getCourseInstanceOptions(courseInstanceId))
+  const getCourseInstances = useQuery({
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+  })
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {
-      await editCourseInstance(courseInstanceId, update)
+      await editCourseInstance({
+        body: update,
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+        throwOnError: true,
+      })
     },
     {
       notify: true,
@@ -45,7 +54,12 @@ const ManageCourseInstances: React.FC = () => {
   )
   const deleteMutation = useToastMutation(
     async (_courseId: string) => {
-      await deleteCourseInstance(courseInstanceId)
+      await deleteCourseInstance({
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+        throwOnError: true,
+      })
     },
     {
       notify: true,

@@ -4,13 +4,13 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import EditReferenceForm from "@/components/forms/EditReferenceForm"
-import { deleteReference, postReferenceUpdate } from "@/services/backend/courses"
-import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
+import { deleteCourseReference, updateCourseReference } from "@/generated/api/sdk.generated"
+import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 interface EditReferenceDialogProps {
-  getCourseReferences: UseQueryResult<MaterialReference[], unknown>
+  getCourseReferences: UseQueryResult<MaterialReference[], Error>
   courseId: string
   reference: MaterialReference
   onClose: () => void
@@ -34,7 +34,15 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
       courseId: string
       id: string
       reference: NewMaterialReference
-    }) => postReferenceUpdate(courseId, id, reference),
+    }) =>
+      updateCourseReference({
+        body: reference,
+        path: {
+          course_id: courseId,
+          reference_id: id,
+        },
+        throwOnError: true,
+      }),
     {
       notify: true,
       successMessage: t("reference-updated-successfully"),
@@ -49,7 +57,14 @@ const EditReferenceDialog: React.FC<React.PropsWithChildren<EditReferenceDialogP
   )
 
   const deleteReferenceMutation = useToastMutation(
-    ({ courseId, id }: { courseId: string; id: string }) => deleteReference(courseId, id),
+    ({ courseId, id }: { courseId: string; id: string }) =>
+      deleteCourseReference({
+        path: {
+          course_id: courseId,
+          reference_id: id,
+        },
+        throwOnError: true,
+      }),
     {
       notify: true,
       successMessage: t("reference-deleted-successfully"),

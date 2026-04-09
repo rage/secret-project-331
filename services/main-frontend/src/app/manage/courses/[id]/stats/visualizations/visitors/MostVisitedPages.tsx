@@ -9,8 +9,8 @@ import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
+import { getCoursePageVisitDatumSummaryByPagesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import { fetchCoursePageVisitDatumSummaryByPages } from "@/services/backend/courses"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -36,8 +36,11 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
 }) => {
   const { t } = useTranslation()
   const query = useQuery({
-    queryKey: [`course-page-visit-datum-summary-by-pages-${courseId}`],
-    queryFn: () => fetchCoursePageVisitDatumSummaryByPages(courseId),
+    ...getCoursePageVisitDatumSummaryByPagesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const courseStructure = useCourseStructure(courseId)

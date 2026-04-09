@@ -1,6 +1,7 @@
 use crate::{course_background_questions::CourseBackgroundQuestion, prelude::*};
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBackgroundQuestionAnswer {
     pub id: Uuid,
@@ -12,7 +13,7 @@ pub struct CourseBackgroundQuestionAnswer {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewCourseBackgroundQuestionAnswer {
     pub answer_value: Option<String>,

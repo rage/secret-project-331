@@ -1,3 +1,5 @@
+import { queryOptions } from "@tanstack/react-query"
+
 import { cmsClient } from "./cmsClient"
 
 import {
@@ -21,3 +23,9 @@ export const getAllExerciseServices = async (): Promise<ExerciseServiceIframeRen
   const response = await cmsClient.get(`/exercise-services`)
   return validateResponse(response, isArray(isExerciseServiceIframeRenderingInfo))
 }
+
+export const getAllExerciseServicesOptions = () =>
+  queryOptions({
+    queryKey: ["exercise-services"],
+    queryFn: getAllExerciseServices,
+  })

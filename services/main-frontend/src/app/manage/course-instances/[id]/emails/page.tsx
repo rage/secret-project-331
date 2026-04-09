@@ -9,10 +9,8 @@ import { useTranslation } from "react-i18next"
 import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
 import { deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import {
-  getCourseInstanceEmailTemplatesOptions,
-  postNewEmailTemplateForCourseInstance,
-} from "@/services/backend/course-instances"
+import { getCourseInstanceEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { createCourseInstanceEmailTemplate } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -23,19 +21,29 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()
   const { id: courseInstanceId } = useParams<{ id: string }>()
-  const getCourseInstanceEmailTemplates = useQuery(
-    getCourseInstanceEmailTemplatesOptions(courseInstanceId),
-  )
+  const getCourseInstanceEmailTemplates = useQuery({
+    ...getCourseInstanceEmailTemplatesOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+  })
   const deleteEmailTemplateMutation = useMutation(deleteEmailTemplateMutationOptions())
   const [showForm, setShowForm] = useState(false)
 
   const handleCreateEmailTemplate = async (emailTitle: string) => {
-    const result = await postNewEmailTemplateForCourseInstance(courseInstanceId, {
-      // eslint-disable-next-line i18next/no-literal-string
-      template_type: "generic",
-      language: null,
-      content: undefined,
-      subject: emailTitle || null,
+    const result = await createCourseInstanceEmailTemplate({
+      body: {
+        // eslint-disable-next-line i18next/no-literal-string
+        template_type: "generic",
+        language: null,
+        content: undefined,
+        subject: emailTitle || null,
+      },
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+      throwOnError: true,
     })
     setShowForm(!showForm)
     window.location.assign(`/cms/email-templates/${result.id}/edit`)

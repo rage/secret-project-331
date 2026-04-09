@@ -6,8 +6,9 @@ use crate::prelude::*;
 use crate::user_details::UserDetail;
 use crate::user_exercise_states::UserExerciseState;
 use chrono::{DateTime, Utc};
+use utoipa::ToSchema;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ProgressOverview {
     pub user_details: Vec<UserDetail>,
@@ -45,7 +46,7 @@ pub async fn get_course_users(
     Ok(rows)
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CompletionGridRow {
     pub student: String,
@@ -150,7 +151,7 @@ LEFT JOIN latest_cmc r
     Ok(rows)
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateGridRow {
     pub student: String,

@@ -5,9 +5,9 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import ContentRenderer from "@/components/course-material/ContentRenderer"
-import { Block } from "@/services/course-material/backend"
-import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
+import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { Block } from "@/types/courseMaterialBlock"
 
 export interface ExerciseAssignmentPreviewProps {
   tasks: CourseMaterialExerciseTask[]

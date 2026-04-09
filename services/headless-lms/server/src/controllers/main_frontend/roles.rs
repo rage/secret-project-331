@@ -4,7 +4,7 @@ use models::{
     roles::{self, RoleDomain, RoleInfo, RoleUser},
     users,
 };
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::authorization::skip_authorize;
 
@@ -43,7 +43,7 @@ async fn authorize_role_management(
     path = "/add",
     operation_id = "addRole",
     tag = "roles",
-    request_body = serde_json::Value,
+    request_body = RoleInfo,
     responses(
         (status = 200, description = "Role added")
     )
@@ -85,7 +85,7 @@ pub async fn set(
     path = "/remove",
     operation_id = "removeRole",
     tag = "roles",
-    request_body = serde_json::Value,
+    request_body = RoleInfo,
     responses(
         (status = 200, description = "Role removed")
     )
@@ -111,7 +111,7 @@ pub async fn unset(
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RoleQuery {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -176,7 +176,7 @@ impl TryFrom<RoleQuery> for RoleDomain {
         ("exam_id" = Option<Uuid>, Query, description = "Exam id")
     ),
     responses(
-        (status = 200, description = "Roles", body = serde_json::Value)
+        (status = 200, description = "Roles", body = [RoleUser])
     )
 )]
 pub async fn fetch(
@@ -211,7 +211,7 @@ pub async fn fetch(
         ("exam_id" = Option<Uuid>, Query, description = "Exam id")
     ),
     responses(
-        (status = 200, description = "Pending roles", body = serde_json::Value)
+        (status = 200, description = "Pending roles", body = [PendingRole])
     )
 )]
 pub async fn fetch_pending(

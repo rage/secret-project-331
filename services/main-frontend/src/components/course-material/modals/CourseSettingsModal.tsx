@@ -11,13 +11,13 @@ import SelectCourseInstanceForm from "../forms/SelectCourseInstanceForm"
 
 import { getLanguageName } from "./ChooseCourseLanguage"
 
+import { saveCourseMaterialCourseSettings } from "@/generated/course-material-api/sdk.generated"
+import type { NewCourseBackgroundQuestionAnswer } from "@/generated/course-material-api/types.generated"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useCourse from "@/hooks/course-material/useCourse"
 import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
-import { postSaveCourseSettings } from "@/services/course-material/backend"
-import { NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -127,8 +127,14 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       const newLanguage = newLangcode ?? ""
 
       try {
-        await postSaveCourseSettings(variables.instanceId, {
-          background_question_answers: variables.backgroundQuestionAnswers,
+        await saveCourseMaterialCourseSettings({
+          body: {
+            background_question_answers: variables.backgroundQuestionAnswers,
+          },
+          path: {
+            course_instance_id: variables.instanceId,
+          },
+          throwOnError: true,
         })
 
         if (newLanguage) {

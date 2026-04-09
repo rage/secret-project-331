@@ -4,8 +4,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import EditExamForm from "@/components/forms/EditExamForm"
-import { editExamMutationOptions } from "@/services/backend/exams"
-import { Exam, NewExam } from "@/shared-module/common/bindings"
+import { editExamMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { Exam, NewExam } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -27,7 +27,7 @@ const EditExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
 }) => {
   const { t } = useTranslation()
   const createExamMutation = useToastMutationOptions(
-    editExamMutationOptions(),
+    editExamMutation(),
     {
       notify: true,
       successMessage: t("exam-edited-successfully"),

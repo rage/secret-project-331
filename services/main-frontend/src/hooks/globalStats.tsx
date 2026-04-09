@@ -10,41 +10,69 @@ import {
   getNumberOfPeopleDoneAtLeastOneExerciseOptions,
   getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions,
   getNumberOfPeopleStartedCourseOptions,
-} from "../services/backend/global-stats"
-
-import { TimeGranularity } from "@/shared-module/common/bindings"
+} from "@/generated/api/@tanstack/react-query.generated"
+import { TimeGranularity } from "@/generated/api/types.generated"
 
 export const useNumberOfPeopleCompletedACourseQuery = (granularity: TimeGranularity) => {
-  return useQuery(getNumberOfPeopleCompletedACourseOptions(granularity))
+  return useQuery({
+    ...getNumberOfPeopleCompletedACourseOptions({
+      query: { granularity },
+    }),
+  })
 }
 
 export const useNumberOfPeopleRegisteredCompletionToStudyRegistryQuery = (
   granularity: TimeGranularity,
 ) => {
-  return useQuery(getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions(granularity))
+  return useQuery({
+    ...getNumberOfPeopleRegisteredCompletionToStudyRegistryOptions({
+      query: { granularity },
+    }),
+  })
 }
 
 export const useNumberOfPeopleDoneAtLeastOneExerciseQuery = (granularity: TimeGranularity) => {
-  return useQuery(getNumberOfPeopleDoneAtLeastOneExerciseOptions(granularity))
+  return useQuery({
+    ...getNumberOfPeopleDoneAtLeastOneExerciseOptions({
+      query: { granularity },
+    }),
+  })
 }
 
 export const useNumberOfPeopleStartedCourseQuery = (granularity: TimeGranularity) => {
-  return useQuery(getNumberOfPeopleStartedCourseOptions(granularity))
+  return useQuery({
+    ...getNumberOfPeopleStartedCourseOptions({
+      query: { granularity },
+    }),
+  })
 }
 
 export const useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery = (
   granularity: TimeGranularity,
 ) => {
-  return useQuery(getCourseModuleStatsByCompletionsRegisteredToStudyRegistryOptions(granularity))
+  return useQuery({
+    ...getCourseModuleStatsByCompletionsRegisteredToStudyRegistryOptions({
+      query: { granularity },
+    }),
+  })
 }
 
 export const useCompletionStatsByEmailDomainQuery = (year: number | undefined) => {
-  return useQuery(getCompletionStatsByEmailDomainOptions(year))
+  return useQuery({
+    ...getCompletionStatsByEmailDomainOptions(year === undefined ? undefined : { query: { year } }),
+  })
 }
 
 export const useCourseCompletionStatsForEmailDomainQuery = (
   emailDomain: string,
   year: number | undefined,
 ) => {
-  return useQuery(getCourseCompletionStatsForEmailDomainOptions(emailDomain, year))
+  return useQuery({
+    ...getCourseCompletionStatsForEmailDomainOptions({
+      query: {
+        email_domain: emailDomain,
+        year,
+      },
+    }),
+  })
 }

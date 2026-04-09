@@ -6,8 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
-import { getCourseUsersOptions } from "@/services/backend/courses/students"
-import { CourseUserInfo } from "@/shared-module/common/bindings"
+import { getCourseStudentsUsersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -17,9 +16,15 @@ export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }>
 }) => {
   const { t } = useTranslation()
 
-  const query = useQuery(getCourseUsersOptions(courseId))
+  const query = useQuery({
+    ...getCourseStudentsUsersOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
 
-  const allRows = useMemo(() => (query.data ?? []) as CourseUserInfo[], [query.data])
+  const allRows = useMemo(() => query.data ?? [], [query.data])
 
   const rows = useMemo(() => {
     if (!searchQuery.trim()) {

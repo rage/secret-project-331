@@ -11,8 +11,8 @@ import CourseEnrollmentsList from "./CourseEnrollmentsList"
 import ExerciseResetLogList from "./ExerciseResetLogList"
 
 import DeletedUserNotice from "@/components/DeletedUserNotice"
+import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
-import { getCourseEnrollmentsInfoOptions } from "@/services/backend/users"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -29,7 +29,13 @@ const UserPage: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
 
-  const courseEnrollmentsQuery = useQuery(getCourseEnrollmentsInfoOptions(id))
+  const courseEnrollmentsQuery = useQuery({
+    ...getUserCourseEnrollmentsOptions({
+      path: {
+        user_id: id,
+      },
+    }),
+  })
 
   const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? []
 

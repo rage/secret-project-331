@@ -5,11 +5,13 @@ import { useParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
 import ResetPasswordForm from "@/components/forms/ResetUserPasswordForm"
-import { fetchResetPasswordTokenStatus } from "@/services/backend/users"
+import { getResetPasswordTokenStatus } from "@/generated/api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 const ResetPassword: React.FC = () => {
   const { id: token } = useParams<{ id: string }>()
@@ -17,7 +19,16 @@ const ResetPassword: React.FC = () => {
 
   const isValid = useQuery({
     queryKey: ["reset-password-token-status", token],
-    queryFn: () => fetchResetPasswordTokenStatus(token),
+    queryFn: async () =>
+      validateGeneratedData(
+        await getResetPasswordTokenStatus({
+          body: {
+            token,
+          },
+          throwOnError: true,
+        }),
+        isBoolean,
+      ),
   })
 
   return (

@@ -28,7 +28,7 @@ pub struct EmailTemplate {
     pub language: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct EmailTemplateNew {
     pub template_type: EmailTemplateType,

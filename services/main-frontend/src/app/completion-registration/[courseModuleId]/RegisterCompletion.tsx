@@ -5,7 +5,7 @@ import Link from "next/link"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"
 
-import { UserCompletionInformation } from "@/shared-module/common/bindings"
+import type { UserCompletionInformation } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import { baseTheme, typography } from "@/shared-module/common/styles"

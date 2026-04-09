@@ -140,7 +140,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/CertificateUpdateRequest"
+              }
             }
           },
           "required": true
@@ -150,7 +152,9 @@
             "description": "Generated certificate updated",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/GeneratedCertificate"
+                }
               }
             }
           }
@@ -179,7 +183,16 @@
             "description": "Generated certificate",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/GeneratedCertificate"
+                    }
+                  ]
+                }
               }
             }
           }
@@ -463,7 +476,12 @@
             "description": "Chatbot models",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotConfigurationModel"
+                  }
+                }
               }
             }
           }
@@ -502,7 +520,9 @@
             "description": "Chatbot model",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfigurationModel"
+                }
               }
             }
           }
@@ -531,7 +551,9 @@
             "description": "Chatbot configuration",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
+                }
               }
             }
           }
@@ -556,7 +578,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/NewChatbotConf"
+              }
             }
           },
           "required": true
@@ -566,7 +590,9 @@
             "description": "Updated chatbot configuration",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
+                }
               }
             }
           }
@@ -855,7 +881,9 @@
             "description": "Course instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CourseInstance"
+                }
               }
             }
           }
@@ -884,7 +912,9 @@
             "description": "Course instance completion summary",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CourseInstanceCompletionSummary"
+                }
               }
             }
           }
@@ -909,7 +939,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/TeacherManualCompletionRequest"
+              }
             }
           },
           "required": true
@@ -940,7 +972,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/TeacherManualCompletionRequest"
+              }
             }
           },
           "required": true
@@ -950,7 +984,9 @@
             "description": "Manual completion preview",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ManualCompletionPreview"
+                }
               }
             }
           }
@@ -1018,7 +1054,12 @@
             "description": "Default certificate configurations",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CertificateConfigurationAndRequirements"
+                  }
+                }
               }
             }
           }
@@ -1069,7 +1110,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/CourseInstanceForm"
+              }
             }
           },
           "required": true
@@ -1102,7 +1145,12 @@
             "description": "Course instance email templates",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmailTemplate"
+                  }
+                }
               }
             }
           }
@@ -1126,7 +1174,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/EmailTemplateNew"
+              }
             }
           },
           "required": true
@@ -1136,7 +1186,9 @@
             "description": "Created email template",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/EmailTemplate"
+                }
               }
             }
           }
@@ -1246,7 +1298,9 @@
             "description": "Course instance points",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Points"
+                }
               }
             }
           }
@@ -1565,7 +1619,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/NewCourse"
+              }
             }
           },
           "required": true
@@ -1575,7 +1631,9 @@
             "description": "Created course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
               }
             }
           }
@@ -1603,7 +1661,9 @@
             "description": "Course for join code",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
               }
             }
           }
@@ -1632,7 +1692,9 @@
             "description": "Course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
               }
             }
           }
@@ -1657,7 +1719,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/CourseUpdate"
+              }
             }
           },
           "required": true
@@ -1667,7 +1731,9 @@
             "description": "Updated course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
               }
             }
           }
@@ -1723,7 +1789,9 @@
             "description": "Course breadcrumb information",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CourseBreadcrumbInfo"
+                }
               }
             }
           }
@@ -1751,7 +1819,12 @@
             "description": "Course chatbots",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotConfiguration"
+                  }
+                }
               }
             }
           }
@@ -1774,8 +1847,10 @@
         ],
         "requestBody": {
           "content": {
-            "application/json": {
-              "schema": {}
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
             }
           },
           "required": true
@@ -1785,7 +1860,9 @@
             "description": "Created course chatbot",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
+                }
               }
             }
           }
@@ -1822,7 +1899,9 @@
             "description": "Updated course chatbot",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
+                }
               }
             }
           }
@@ -1859,7 +1938,9 @@
             "description": "Updated course chatbot",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConfiguration"
+                }
               }
             }
           }
@@ -1888,7 +1969,12 @@
             "description": "Course instances",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseInstance"
+                  }
+                }
               }
             }
           }
@@ -1927,7 +2013,12 @@
             "description": "Course module completions for course user",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleCompletion"
+                  }
+                }
               }
             }
           }
@@ -1953,7 +2044,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/ModuleUpdates"
+              }
             }
           },
           "required": true
@@ -1987,7 +2080,12 @@
             "description": "Course users counts by exercise",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseUserCounts"
+                  }
+                }
               }
             }
           }
@@ -2014,7 +2112,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/CopyCourseRequest"
+              }
             }
           },
           "required": true
@@ -2024,7 +2124,9 @@
             "description": "Created course copy",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Course"
+                }
               }
             }
           }
@@ -2053,7 +2155,12 @@
             "description": "Course daily submission counts",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlideSubmissionCount"
+                  }
+                }
               }
             }
           }
@@ -2082,7 +2189,12 @@
             "description": "Course daily user submission counts",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlideSubmissionCount"
+                  }
+                }
               }
             }
           }
@@ -2139,7 +2251,12 @@
             "description": "Exercises for course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exercise"
+                  }
+                }
               }
             }
           }
@@ -2168,7 +2285,12 @@
             "description": "Exercises and answer attention counts",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseAnswersInCourseRequiringAttentionCount"
+                  }
+                }
               }
             }
           }
@@ -2411,7 +2533,12 @@
             "description": "Feedback for the course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Feedback"
+                  }
+                }
               }
             }
           }
@@ -2430,7 +2557,8 @@
             "description": "Course id",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "string",
+              "format": "uuid"
             }
           }
         ],
@@ -2439,7 +2567,9 @@
             "description": "Feedback counts for the course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/FeedbackCount"
+                }
               }
             }
           }
@@ -2584,7 +2714,12 @@
             "description": "Course language versions",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
               }
             }
           }
@@ -2643,7 +2778,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/CourseInstanceForm"
+              }
             }
           },
           "required": true
@@ -2717,7 +2854,12 @@
             "description": "Course page visit summary",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageVisitDatumSummaryByCourse"
+                  }
+                }
               }
             }
           }
@@ -2746,7 +2888,12 @@
             "description": "Course page visit summary by countries",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageVisitDatumSummaryByCoursesCountries"
+                  }
+                }
               }
             }
           }
@@ -2775,7 +2922,12 @@
             "description": "Course page visit summary by device types",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageVisitDatumSummaryByCourseDeviceTypes"
+                  }
+                }
               }
             }
           }
@@ -2804,7 +2956,12 @@
             "description": "Course page visit summary by pages",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageVisitDatumSummaryByPages"
+                  }
+                }
               }
             }
           }
@@ -2934,7 +3091,12 @@
             "description": "User progress for course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserCourseProgress"
+                  }
+                }
               }
             }
           }
@@ -2962,7 +3124,12 @@
             "description": "Course references",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MaterialReference"
+                  }
+                }
               }
             }
           }
@@ -2986,7 +3153,12 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NewMaterialReference"
+                }
+              }
             }
           },
           "required": true
@@ -3027,7 +3199,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/NewMaterialReference"
+              }
             }
           },
           "required": true
@@ -3148,7 +3322,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3168,7 +3342,12 @@
             "description": "Course completions history across all language versions",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -3197,7 +3376,9 @@
             "description": "Total users started across all language versions",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
               }
             }
           }
@@ -3227,7 +3408,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3247,7 +3428,12 @@
             "description": "Unique users starting history across all language versions",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -3277,7 +3463,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3297,7 +3483,12 @@
             "description": "Average time to first submission history",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AverageMetric"
+                  }
+                }
               }
             }
           }
@@ -3327,7 +3518,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3347,7 +3538,19 @@
             "description": "Course completions history by instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CountResult"
+                    }
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3377,7 +3580,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3397,7 +3600,19 @@
             "description": "First exercise submissions history by instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CountResult"
+                    }
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3426,7 +3641,16 @@
             "description": "Total users completed course by instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/CountResult"
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3455,7 +3679,16 @@
             "description": "Total users returned exercises by instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/CountResult"
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3484,7 +3717,16 @@
             "description": "Total users started course by instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "$ref": "#/components/schemas/CountResult"
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3514,7 +3756,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3534,7 +3776,19 @@
             "description": "Users returning exercises history by instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CountResult"
+                    }
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3564,7 +3818,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3584,7 +3838,19 @@
             "description": "Unique users starting history by instance",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CountResult"
+                    }
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3614,7 +3880,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3634,7 +3900,19 @@
             "description": "First exercise submissions by module",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/CountResult"
+                    }
+                  },
+                  "propertyNames": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
               }
             }
           }
@@ -3663,7 +3941,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3694,7 +3972,12 @@
             "description": "Cohort activity history",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CohortActivity"
+                  }
+                }
               }
             }
           }
@@ -3742,7 +4025,12 @@
             "description": "Course completions history for custom time period",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -3772,7 +4060,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3792,7 +4080,12 @@
             "description": "Course completions history",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -3822,7 +4115,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3842,7 +4135,12 @@
             "description": "First exercise submissions history",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -3872,7 +4170,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3901,7 +4199,12 @@
             "description": "Student completions by country",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -3931,7 +4234,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -3960,7 +4263,12 @@
             "description": "Student enrollments by country",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -3990,7 +4298,12 @@
             "description": "Students by country totals",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StudentsByCountryTotalsResult"
+                  }
+                }
               }
             }
           }
@@ -4019,7 +4332,9 @@
             "description": "Total users completed course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
               }
             }
           }
@@ -4066,7 +4381,9 @@
             "description": "Total users completed course for custom time period",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
               }
             }
           }
@@ -4095,7 +4412,9 @@
             "description": "Total users returned exercises",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
               }
             }
           }
@@ -4142,7 +4461,9 @@
             "description": "Total users returned exercises for custom time period",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
               }
             }
           }
@@ -4171,7 +4492,9 @@
             "description": "Total users started course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
               }
             }
           }
@@ -4218,7 +4541,9 @@
             "description": "Total users started course for custom time period",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CountResult"
+                }
               }
             }
           }
@@ -4248,7 +4573,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -4268,7 +4593,12 @@
             "description": "Users returning exercises history",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -4316,7 +4646,12 @@
             "description": "Unique users starting history for custom time period",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -4346,7 +4681,7 @@
             "description": "Time granularity",
             "required": true,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           },
           {
@@ -4366,7 +4701,12 @@
             "description": "Unique users starting history",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CountResult"
+                  }
+                }
               }
             }
           }
@@ -4405,7 +4745,12 @@
             "description": "Exercise statuses for course user",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseStatusSummaryForUser"
+                  }
+                }
               }
             }
           }
@@ -4434,7 +4779,9 @@
             "description": "Course structure",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CourseStructure"
+                }
               }
             }
           }
@@ -4463,7 +4810,12 @@
             "description": "Course certificates",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CertificateGridRow"
+                  }
+                }
               }
             }
           }
@@ -4492,7 +4844,12 @@
             "description": "Course completions",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CompletionGridRow"
+                  }
+                }
               }
             }
           }
@@ -4521,7 +4878,9 @@
             "description": "Course student progress overview",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ProgressOverview"
+                }
               }
             }
           }
@@ -4550,7 +4909,12 @@
             "description": "Course users",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseUserInfo"
+                  }
+                }
               }
             }
           }
@@ -4579,7 +4943,12 @@
             "description": "Course submission counts by exercise",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlideSubmissionCountByExercise"
+                  }
+                }
               }
             }
           }
@@ -4617,7 +4986,12 @@
             "description": "Suspected cheaters for course",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SuspectedCheaters"
+                  }
+                }
               }
             }
           }
@@ -4885,7 +5259,16 @@
             "description": "User course settings",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UserCourseSettings"
+                    }
+                  ]
+                }
               }
             }
           }
@@ -4914,7 +5297,12 @@
             "description": "Course weekday and hour submission counts",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlideSubmissionCountByWeekAndHour"
+                  }
+                }
               }
             }
           }
@@ -5842,7 +6230,12 @@
             "description": "Exercises by course id",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Exercise"
+                  }
+                }
               }
             }
           }
@@ -5962,7 +6355,9 @@
             "description": "Answers requiring attention",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/AnswersRequiringAttention"
+                }
               }
             }
           }
@@ -5991,7 +6386,12 @@
             "description": "Exercise CSV export task options",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseCsvExportTaskOption"
+                  }
+                }
               }
             }
           }
@@ -6140,7 +6540,9 @@
             "description": "Exercise submissions",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ExerciseSubmissions"
+                }
               }
             }
           }
@@ -6179,7 +6581,12 @@
             "description": "Exercise submissions for user",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseSlideSubmission"
+                  }
+                }
               }
             }
           }
@@ -6239,7 +6646,12 @@
             "description": "Completion stats by email domain",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DomainCompletionStats"
+                  }
+                }
               }
             }
           }
@@ -6277,7 +6689,12 @@
             "description": "Course completion stats for email domain",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseCompletionStats"
+                  }
+                }
               }
             }
           }
@@ -6296,7 +6713,7 @@
             "description": "Time granularity",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           }
         ],
@@ -6305,7 +6722,12 @@
             "description": "Course module completion stats",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalCourseModuleStatEntry"
+                  }
+                }
               }
             }
           }
@@ -6324,7 +6746,7 @@
             "description": "Time granularity",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           }
         ],
@@ -6333,7 +6755,12 @@
             "description": "Global completion stats",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalStatEntry"
+                  }
+                }
               }
             }
           }
@@ -6352,7 +6779,7 @@
             "description": "Time granularity",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           }
         ],
@@ -6361,7 +6788,12 @@
             "description": "Exercise participation stats",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalStatEntry"
+                  }
+                }
               }
             }
           }
@@ -6380,7 +6812,7 @@
             "description": "Time granularity",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           }
         ],
@@ -6389,7 +6821,12 @@
             "description": "Study registry completion stats",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalStatEntry"
+                  }
+                }
               }
             }
           }
@@ -6408,7 +6845,7 @@
             "description": "Time granularity",
             "required": false,
             "schema": {
-              "type": "string"
+              "$ref": "#/components/schemas/TimeGranularity"
             }
           }
         ],
@@ -6417,7 +6854,12 @@
             "description": "Course start stats",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GlobalStatEntry"
+                  }
+                }
               }
             }
           }
@@ -6637,7 +7079,12 @@
             "description": "Authorized OAuth clients",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuthorizedClientInfo"
+                  }
+                }
               }
             }
           }
@@ -6676,7 +7123,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/ConsentQuery"
+              }
             }
           },
           "required": true
@@ -6686,7 +7135,9 @@
             "description": "Consent approval response",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentResponse"
+                }
               }
             }
           }
@@ -6702,14 +7153,23 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/ConsentDenyQuery"
+              }
             }
           },
           "required": true
         },
         "responses": {
-          "302": {
-            "description": "Redirect with access_denied error"
+          "200": {
+            "description": "Consent denial response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -6865,7 +7325,9 @@
             "description": "Organization",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
               }
             }
           }
@@ -6882,7 +7344,12 @@
             "description": "Organizations",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Organization"
+                  }
+                }
               }
             }
           }
@@ -6937,7 +7404,9 @@
             "description": "Organization exam",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/OrgExam"
+                }
               }
             }
           }
@@ -6966,7 +7435,9 @@
             "description": "Organization",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
               }
             }
           }
@@ -7048,7 +7519,12 @@
             "description": "Organization course exams",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseExam"
+                  }
+                }
               }
             }
           }
@@ -7097,7 +7573,12 @@
             "description": "Organization courses",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
               }
             }
           }
@@ -7145,7 +7626,12 @@
             "description": "Active organization courses",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
               }
             }
           }
@@ -7173,7 +7659,9 @@
             "description": "Active organization course count",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CourseCount"
+                }
               }
             }
           }
@@ -7201,7 +7689,9 @@
             "description": "Organization course count",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CourseCount"
+                }
               }
             }
           }
@@ -7230,7 +7720,12 @@
             "description": "Duplicatable organization courses",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
               }
             }
           }
@@ -7364,7 +7859,12 @@
             "description": "Organization exams",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrgExam"
+                  }
+                }
               }
             }
           }
@@ -7828,7 +8328,12 @@
             "description": "Playground examples",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlaygroundExample"
+                  }
+                }
               }
             }
           }
@@ -7841,7 +8346,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/PlaygroundExample"
+              }
             }
           },
           "required": true
@@ -7851,7 +8358,9 @@
             "description": "Updated playground example",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PlaygroundExample"
+                }
               }
             }
           }
@@ -7864,7 +8373,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/PlaygroundExampleData"
+              }
             }
           },
           "required": true
@@ -7874,7 +8385,9 @@
             "description": "Created playground example",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PlaygroundExample"
+                }
               }
             }
           }
@@ -7903,7 +8416,9 @@
             "description": "Deleted playground example",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/PlaygroundExample"
+                }
               }
             }
           }
@@ -8058,7 +8573,12 @@
             "description": "Regradings",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Regrading"
+                  }
+                }
               }
             }
           }
@@ -8071,7 +8591,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/NewRegrading"
+              }
             }
           },
           "required": true
@@ -8132,7 +8654,9 @@
             "description": "Regrading info",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/RegradingInfo"
+                }
               }
             }
           }
@@ -8200,7 +8724,12 @@
             "description": "Roles",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RoleUser"
+                  }
+                }
               }
             }
           }
@@ -8215,7 +8744,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/RoleInfo"
+              }
             }
           },
           "required": true
@@ -8288,7 +8819,12 @@
             "description": "Pending roles",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PendingRole"
+                  }
+                }
               }
             }
           }
@@ -8303,7 +8839,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/RoleInfo"
+              }
             }
           },
           "required": true
@@ -8325,7 +8863,12 @@
             "description": "Cronjobs",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CronJobInfo"
+                  }
+                }
               }
             }
           }
@@ -8342,7 +8885,12 @@
             "description": "Deployments",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DeploymentInfo"
+                  }
+                }
               }
             }
           }
@@ -8359,7 +8907,12 @@
             "description": "Events",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventInfo"
+                  }
+                }
               }
             }
           }
@@ -8376,7 +8929,9 @@
             "description": "Detailed system health",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/SystemHealthStatus"
+                }
               }
             }
           }
@@ -8393,7 +8948,12 @@
             "description": "Ingresses",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IngressInfo"
+                  }
+                }
               }
             }
           }
@@ -8410,7 +8970,12 @@
             "description": "Jobs",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/JobInfo"
+                  }
+                }
               }
             }
           }
@@ -8427,7 +8992,12 @@
             "description": "Pod disruption budgets",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PodDisruptionBudgetInfo"
+                  }
+                }
               }
             }
           }
@@ -8444,7 +9014,12 @@
             "description": "Pods",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PodInfo"
+                  }
+                }
               }
             }
           }
@@ -8511,7 +9086,12 @@
             "description": "Services",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ServiceInfo"
+                  }
+                }
               }
             }
           }
@@ -8600,7 +9180,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/BulkUserDetailsRequest"
+              }
             }
           },
           "required": true
@@ -8610,7 +9192,12 @@
             "description": "Bulk user details",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDetail"
+                  }
+                }
               }
             }
           }
@@ -8625,7 +9212,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
             }
           },
           "required": true
@@ -8635,7 +9224,12 @@
             "description": "User details search results",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDetail"
+                  }
+                }
               }
             }
           }
@@ -8650,7 +9244,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
             }
           },
           "required": true
@@ -8660,7 +9256,12 @@
             "description": "User details search results",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDetail"
+                  }
+                }
               }
             }
           }
@@ -8675,7 +9276,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
             }
           },
           "required": true
@@ -8685,7 +9288,12 @@
             "description": "User details fuzzy search results",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDetail"
+                  }
+                }
               }
             }
           }
@@ -8700,7 +9308,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/UserInfoPayload"
+              }
             }
           },
           "required": true
@@ -8710,7 +9320,9 @@
             "description": "Updated user details",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
               }
             }
           }
@@ -8725,7 +9337,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/UserDetailsRequest"
+              }
             }
           },
           "required": true
@@ -8735,7 +9349,9 @@
             "description": "User details",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
               }
             }
           }
@@ -8752,7 +9368,9 @@
             "description": "Authenticated user details",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
               }
             }
           }
@@ -8799,7 +9417,12 @@
             "description": "Users by course id",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserDetail"
+                  }
+                }
               }
             }
           }
@@ -8838,7 +9461,9 @@
             "description": "User details",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
               }
             }
           }
@@ -8881,7 +9506,9 @@
             "description": "User research consent",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserResearchConsent"
+                }
               }
             }
           }
@@ -8898,7 +9525,12 @@
             "description": "Courses for authenticated user",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Course"
+                  }
+                }
               }
             }
           }
@@ -8991,7 +9623,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/ConsentData"
+              }
             }
           },
           "required": true
@@ -9001,7 +9635,9 @@
             "description": "User research consent",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UserResearchConsent"
+                }
               }
             }
           }
@@ -9018,7 +9654,12 @@
             "description": "Research form answers for user",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResearchFormQuestionAnswer"
+                  }
+                }
               }
             }
           }
@@ -9076,7 +9717,9 @@
             "description": "User course enrollments",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/CourseEnrollmentsInfo"
+                }
               }
             }
           }
@@ -9105,7 +9748,12 @@
             "description": "User reset exercise logs",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ExerciseResetLog"
+                  }
+                }
               }
             }
           }
@@ -9119,6 +9767,124 @@
         "type": "string",
         "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
         "enum": ["Initialized", "Started", "InProgress", "Submitted", "Completed"]
+      },
+      "AnswerRequiringAttentionWithTasks": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "created_at",
+          "updated_at",
+          "grading_progress",
+          "submission_id",
+          "exercise_id",
+          "tasks",
+          "given_peer_reviews",
+          "received_peer_or_self_reviews",
+          "received_peer_review_flagging_reports"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data_json": {},
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "given_peer_reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerReviewWithQuestionsAndAnswers"
+            }
+          },
+          "grading_progress": {
+            "$ref": "#/components/schemas/GradingProgress"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "received_peer_or_self_reviews": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerReviewWithQuestionsAndAnswers"
+            }
+          },
+          "received_peer_review_flagging_reports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FlaggedAnswer"
+            }
+          },
+          "score_given": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseMaterialExerciseTask"
+            }
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "AnswersRequiringAttention": {
+        "type": "object",
+        "required": ["exercise_max_points", "data", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnswerRequiringAttentionWithTasks"
+            }
+          },
+          "exercise_max_points": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "AuthorizedClientInfo": {
+        "type": "object",
+        "required": ["client_id", "client_name", "scopes"],
+        "properties": {
+          "client_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "client_name": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       },
       "AutomaticCompletionRequirements": {
         "type": "object",
@@ -9139,6 +9905,22 @@
           },
           "requires_exam": {
             "type": "boolean"
+          }
+        }
+      },
+      "AverageMetric": {
+        "type": "object",
+        "description": "A generic result representing an average metric over a time period.\nThe average value (e.g. average time in seconds) may be absent if no data is available.",
+        "properties": {
+          "average": {
+            "type": ["number", "null"],
+            "format": "double",
+            "description": "The average value. For example, the average time (in seconds) from course start to first submission."
+          },
+          "period": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The start of the time period (e.g., day, week, month) associated with this metric."
           }
         }
       },
@@ -9220,6 +10002,188 @@
           }
         }
       },
+      "BulkUserDetailsRequest": {
+        "type": "object",
+        "required": ["user_ids", "course_id"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "CertificateAllRequirements": {
+        "type": "object",
+        "required": ["certificate_configuration_id", "course_module_ids"],
+        "properties": {
+          "certificate_configuration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        }
+      },
+      "CertificateConfiguration": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "certificate_owner_name_y_pos",
+          "certificate_owner_name_x_pos",
+          "certificate_owner_name_font_size",
+          "certificate_owner_name_text_color",
+          "certificate_owner_name_text_anchor",
+          "certificate_validate_url_y_pos",
+          "certificate_validate_url_x_pos",
+          "certificate_validate_url_font_size",
+          "certificate_validate_url_text_color",
+          "certificate_validate_url_text_anchor",
+          "certificate_date_y_pos",
+          "certificate_date_x_pos",
+          "certificate_date_font_size",
+          "certificate_date_text_color",
+          "certificate_date_text_anchor",
+          "certificate_locale",
+          "paper_size",
+          "background_svg_path",
+          "background_svg_file_upload_id",
+          "render_certificate_grade"
+        ],
+        "properties": {
+          "background_svg_file_upload_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "background_svg_path": {
+            "type": "string"
+          },
+          "certificate_date_font_size": {
+            "type": "string"
+          },
+          "certificate_date_text_anchor": {
+            "$ref": "#/components/schemas/CertificateTextAnchor"
+          },
+          "certificate_date_text_color": {
+            "type": "string"
+          },
+          "certificate_date_x_pos": {
+            "type": "string"
+          },
+          "certificate_date_y_pos": {
+            "type": "string"
+          },
+          "certificate_grade_font_size": {
+            "type": ["string", "null"]
+          },
+          "certificate_grade_text_anchor": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CertificateTextAnchor"
+              }
+            ]
+          },
+          "certificate_grade_text_color": {
+            "type": ["string", "null"]
+          },
+          "certificate_grade_x_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_grade_y_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_locale": {
+            "type": "string"
+          },
+          "certificate_owner_name_font_size": {
+            "type": "string"
+          },
+          "certificate_owner_name_text_anchor": {
+            "$ref": "#/components/schemas/CertificateTextAnchor"
+          },
+          "certificate_owner_name_text_color": {
+            "type": "string"
+          },
+          "certificate_owner_name_x_pos": {
+            "type": "string"
+          },
+          "certificate_owner_name_y_pos": {
+            "type": "string"
+          },
+          "certificate_validate_url_font_size": {
+            "type": "string"
+          },
+          "certificate_validate_url_text_anchor": {
+            "$ref": "#/components/schemas/CertificateTextAnchor"
+          },
+          "certificate_validate_url_text_color": {
+            "type": "string"
+          },
+          "certificate_validate_url_x_pos": {
+            "type": "string"
+          },
+          "certificate_validate_url_y_pos": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "overlay_svg_file_upload_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "overlay_svg_path": {
+            "type": ["string", "null"]
+          },
+          "paper_size": {
+            "$ref": "#/components/schemas/PaperSize"
+          },
+          "render_certificate_grade": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CertificateConfigurationAndRequirements": {
+        "type": "object",
+        "required": ["certificate_configuration", "requirements"],
+        "properties": {
+          "certificate_configuration": {
+            "$ref": "#/components/schemas/CertificateConfiguration"
+          },
+          "requirements": {
+            "$ref": "#/components/schemas/CertificateAllRequirements"
+          }
+        }
+      },
       "CertificateGenerationRequest": {
         "type": "object",
         "required": ["certificate_configuration_id", "name_on_certificate"],
@@ -9233,6 +10197,50 @@
           },
           "name_on_certificate": {
             "type": "string"
+          }
+        }
+      },
+      "CertificateGridRow": {
+        "type": "object",
+        "required": ["student", "certificate"],
+        "properties": {
+          "certificate": {
+            "type": "string"
+          },
+          "certificate_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "date_issued": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "name_on_certificate": {
+            "type": ["string", "null"]
+          },
+          "student": {
+            "type": "string"
+          },
+          "verification_id": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CertificateTextAnchor": {
+        "type": "string",
+        "description": "How text should be positioned relative to the given coordinates. See <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.",
+        "enum": ["start", "middle", "end"]
+      },
+      "CertificateUpdateRequest": {
+        "type": "object",
+        "required": ["date_issued"],
+        "properties": {
+          "date_issued": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "name_on_certificate": {
+            "type": ["string", "null"]
           }
         }
       },
@@ -9303,6 +10311,58 @@
           }
         }
       },
+      "ChapterAvailability": {
+        "type": "object",
+        "required": [
+          "chapter_id",
+          "chapter_number",
+          "chapter_name",
+          "exercises_available",
+          "points_available"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chapter_name": {
+            "type": "string"
+          },
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exercises_available": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "points_available": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ChapterScore": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseChapter"
+          },
+          {
+            "type": "object",
+            "required": ["score_given", "score_total"],
+            "properties": {
+              "score_given": {
+                "type": "number",
+                "format": "float"
+              },
+              "score_total": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        ]
+      },
       "ChapterUpdate": {
         "type": "object",
         "required": ["name"],
@@ -9328,6 +10388,191 @@
           },
           "opens_at": {
             "type": ["string", "null"],
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConfiguration": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "enabled_to_students",
+          "chatbot_name",
+          "model_id",
+          "thinking_model",
+          "prompt",
+          "initial_message",
+          "weekly_tokens_per_user",
+          "daily_tokens_per_user",
+          "response_max_tokens",
+          "temperature",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "max_completion_tokens",
+          "verbosity",
+          "reasoning_effort",
+          "use_azure_search",
+          "maintain_azure_search_index",
+          "hide_citations",
+          "use_semantic_reranking",
+          "use_tools",
+          "default_chatbot",
+          "suggest_next_messages"
+        ],
+        "properties": {
+          "chatbot_name": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "daily_tokens_per_user": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "default_chatbot": {
+            "type": "boolean"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "enabled_to_students": {
+            "type": "boolean"
+          },
+          "frequency_penalty": {
+            "type": "number",
+            "format": "float"
+          },
+          "hide_citations": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "initial_message": {
+            "type": "string"
+          },
+          "initial_suggested_messages": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "maintain_azure_search_index": {
+            "type": "boolean"
+          },
+          "max_completion_tokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "model_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "presence_penalty": {
+            "type": "number",
+            "format": "float"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "reasoning_effort": {
+            "$ref": "#/components/schemas/ReasoningEffortLevel"
+          },
+          "response_max_tokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suggest_next_messages": {
+            "type": "boolean"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "float"
+          },
+          "thinking_model": {
+            "type": "boolean"
+          },
+          "top_p": {
+            "type": "number",
+            "format": "float"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "use_azure_search": {
+            "type": "boolean"
+          },
+          "use_semantic_reranking": {
+            "type": "boolean"
+          },
+          "use_tools": {
+            "type": "boolean"
+          },
+          "verbosity": {
+            "$ref": "#/components/schemas/VerbosityLevel"
+          },
+          "weekly_tokens_per_user": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ChatbotConfigurationModel": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "model",
+          "thinking",
+          "default_model",
+          "deployment_name",
+          "context_size"
+        ],
+        "properties": {
+          "context_size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "default_model": {
+            "type": "boolean"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "deployment_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "model": {
+            "type": "string"
+          },
+          "thinking": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
             "format": "date-time"
           }
         }
@@ -9416,6 +10661,51 @@
           }
         }
       },
+      "CohortActivity": {
+        "type": "object",
+        "description": "Represents cohort activity metrics for both weekly and daily cohorts.\nFor daily cohorts, `offset` will be populated (and `activity_period` may be computed from it);\nfor weekly cohorts, `offset` will be `None` and `activity_period` indicates the week start.",
+        "required": ["active_users"],
+        "properties": {
+          "active_users": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The number of active users in this cohort for the given period."
+          },
+          "activity_period": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The activity period (for example, the start of the week or the computed activity day)."
+          },
+          "cohort_start": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The start date of the cohort (either day or week)."
+          },
+          "offset": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The day offset from the cohort start (only applicable for daily cohorts)."
+          }
+        }
+      },
+      "CompletionGridRow": {
+        "type": "object",
+        "required": ["student", "grade", "status"],
+        "properties": {
+          "grade": {
+            "type": "string"
+          },
+          "module": {
+            "type": ["string", "null"]
+          },
+          "status": {
+            "type": "string"
+          },
+          "student": {
+            "type": "string"
+          }
+        }
+      },
       "CompletionPolicy": {
         "oneOf": [
           {
@@ -9453,6 +10743,154 @@
         "properties": {
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "ConsentData": {
+        "type": "object",
+        "required": ["consent"],
+        "properties": {
+          "consent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ConsentDenyQuery": {
+        "type": "object",
+        "required": ["client_id", "redirect_uri", "state"],
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "ConsentQuery": {
+        "type": "object",
+        "required": ["client_id", "redirect_uri", "response_type", "scope", "state", "nonce"],
+        "properties": {
+          "client_id": {
+            "type": "string"
+          },
+          "code_challenge": {
+            "type": ["string", "null"]
+          },
+          "code_challenge_method": {
+            "type": ["string", "null"]
+          },
+          "nonce": {
+            "type": "string"
+          },
+          "redirect_uri": {
+            "type": "string"
+          },
+          "response_type": {
+            "type": "string"
+          },
+          "scope": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          }
+        }
+      },
+      "ConsentResponse": {
+        "type": "object",
+        "required": ["redirect_uri"],
+        "properties": {
+          "redirect_uri": {
+            "type": "string"
+          }
+        }
+      },
+      "CopyCourseMode": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "Create a completely separate copy with a new course language group",
+            "required": ["mode"],
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["duplicate"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Create a new language version within the same language group as the source",
+            "required": ["mode"],
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["same_language_group"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Create a new language version in a specified language group",
+            "required": ["target_course_id", "mode"],
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["existing_language_group"]
+              },
+              "target_course_id": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Create a new language version in a new language group",
+            "required": ["mode"],
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["new_language_group"]
+              }
+            }
+          }
+        ]
+      },
+      "CopyCourseRequest": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/NewCourse"
+          },
+          {
+            "type": "object",
+            "required": ["mode"],
+            "properties": {
+              "mode": {
+                "$ref": "#/components/schemas/CopyCourseMode"
+              }
+            }
+          }
+        ]
+      },
+      "CountResult": {
+        "type": "object",
+        "description": "A generic result representing a count metric over a time period.\nWhen the time period is not applicable (for overall totals), `period` will be `None`.",
+        "required": ["count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The count (for example, the number of users)."
+          },
+          "period": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "The start of the time period (e.g., day, week, month) associated with this count.\nFor overall totals, this will be `None`."
           }
         }
       },
@@ -9566,6 +11004,289 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "CourseBreadcrumbInfo": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "course_slug",
+          "organization_slug",
+          "organization_name"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "course_slug": {
+            "type": "string"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "organization_slug": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseCompletionStats": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course_name",
+          "total_completions",
+          "unique_users",
+          "registered_completions",
+          "not_registered_completions",
+          "users_with_some_registered_completions",
+          "users_with_some_unregistered_completions",
+          "registered_ects_credits",
+          "not_registered_ects_credits"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "not_registered_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "not_registered_ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "registered_completion_percentage": {
+            "type": ["number", "null"],
+            "format": "double"
+          },
+          "registered_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "registered_ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "total_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unique_users": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "users_with_some_registered_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "users_with_some_unregistered_completions": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "CourseCount": {
+        "type": "object",
+        "required": ["count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "CourseEnrollmentInfo": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "course",
+          "course_instances",
+          "course_module_completions",
+          "first_enrolled_at",
+          "is_current"
+        ],
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/Course"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_instances": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseInstance"
+            }
+          },
+          "course_module_completions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleCompletion"
+            }
+          },
+          "first_enrolled_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "is_current": {
+            "type": "boolean"
+          },
+          "user_course_settings": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/UserCourseSettings"
+              }
+            ]
+          }
+        }
+      },
+      "CourseEnrollmentsInfo": {
+        "type": "object",
+        "required": ["course_enrollments"],
+        "properties": {
+          "course_enrollments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseEnrollmentInfo"
+            }
+          }
+        }
+      },
+      "CourseExam": {
+        "type": "object",
+        "required": ["id", "course_id", "course_name", "name"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseInstance": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "teacher_in_charge_name",
+          "teacher_in_charge_email"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "support_email": {
+            "type": ["string", "null"]
+          },
+          "teacher_in_charge_email": {
+            "type": "string"
+          },
+          "teacher_in_charge_name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseInstanceCompletionSummary": {
+        "type": "object",
+        "required": ["course_modules", "users_with_course_module_completions"],
+        "properties": {
+          "course_modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModule"
+            }
+          },
+          "users_with_course_module_completions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserWithModuleCompletions"
+            }
+          }
+        }
+      },
+      "CourseInstanceForm": {
+        "type": "object",
+        "required": ["teacher_in_charge_name", "teacher_in_charge_email"],
+        "properties": {
+          "closing_time": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "opening_time": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "support_email": {
+            "type": ["string", "null"]
+          },
+          "teacher_in_charge_email": {
+            "type": "string"
+          },
+          "teacher_in_charge_name": {
+            "type": "string"
           }
         }
       },
@@ -9782,6 +11503,187 @@
           }
         }
       },
+      "CourseModuleCompletionWithRegistrationInfo": {
+        "type": "object",
+        "required": [
+          "course_module_id",
+          "created_at",
+          "passed",
+          "prerequisite_modules_completed",
+          "registered",
+          "user_id",
+          "completion_date"
+        ],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completion_registration_attempt_date": {
+            "type": ["string", "null"],
+            "format": "date-time",
+            "description": "When the student has attempted to register the completion."
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the course module."
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the record was created"
+          },
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "Grade that the student received for the completion."
+          },
+          "passed": {
+            "type": "boolean",
+            "description": "Whether or not the student is eligible for credit for the completion."
+          },
+          "prerequisite_modules_completed": {
+            "type": "boolean",
+            "description": "Whether or not the student is qualified for credit based on other modules in the course."
+          },
+          "registered": {
+            "type": "boolean",
+            "description": "Whether or not the completion has been registered to a study registry."
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the user for the completion."
+          }
+        }
+      },
+      "CourseStructure": {
+        "type": "object",
+        "required": ["course", "pages", "chapters", "modules"],
+        "properties": {
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Chapter"
+            }
+          },
+          "course": {
+            "$ref": "#/components/schemas/Course"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModule"
+            }
+          },
+          "pages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Page"
+            }
+          }
+        }
+      },
+      "CourseUpdate": {
+        "type": "object",
+        "required": [
+          "name",
+          "is_draft",
+          "is_test_mode",
+          "can_add_chatbot",
+          "is_unlisted",
+          "is_joinable_by_code_only",
+          "ask_marketing_consent",
+          "flagged_answers_threshold",
+          "flagged_answers_skip_manual_review_and_allow_retry",
+          "chapter_locking_enabled"
+        ],
+        "properties": {
+          "ask_marketing_consent": {
+            "type": "boolean"
+          },
+          "can_add_chatbot": {
+            "type": "boolean"
+          },
+          "chapter_locking_enabled": {
+            "type": "boolean"
+          },
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "flagged_answers_skip_manual_review_and_allow_retry": {
+            "type": "boolean"
+          },
+          "flagged_answers_threshold": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseUserInfo": {
+        "type": "object",
+        "required": ["user_id"],
+        "properties": {
+          "course_instance": {
+            "type": ["string", "null"]
+          },
+          "email": {
+            "type": ["string", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CronJobInfo": {
+        "type": "object",
+        "required": ["name", "schedule"],
+        "properties": {
+          "last_schedule_time": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": "string"
+          },
+          "schedule": {
+            "type": "string"
+          }
+        }
+      },
       "DatabaseChapter": {
         "type": "object",
         "required": [
@@ -9846,6 +11748,87 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "DeploymentInfo": {
+        "type": "object",
+        "required": ["name", "replicas", "ready_replicas", "selector_labels"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "ready_replicas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "replicas": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "selector_labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DomainCompletionStats": {
+        "type": "object",
+        "required": [
+          "email_domain",
+          "total_completions",
+          "unique_users",
+          "registered_completions",
+          "not_registered_completions",
+          "users_with_some_registered_completions",
+          "users_with_some_unregistered_completions",
+          "registered_ects_credits",
+          "not_registered_ects_credits"
+        ],
+        "properties": {
+          "email_domain": {
+            "type": "string"
+          },
+          "not_registered_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "not_registered_ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "registered_completion_percentage": {
+            "type": ["number", "null"],
+            "format": "double"
+          },
+          "registered_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "registered_ects_credits": {
+            "type": "number",
+            "format": "float"
+          },
+          "total_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unique_users": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "users_with_some_registered_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "users_with_some_unregistered_completions": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },
@@ -9965,9 +11948,59 @@
           }
         }
       },
+      "EmailTemplateNew": {
+        "type": "object",
+        "required": ["template_type"],
+        "properties": {
+          "content": {},
+          "language": {
+            "type": ["string", "null"]
+          },
+          "subject": {
+            "type": ["string", "null"]
+          },
+          "template_type": {
+            "$ref": "#/components/schemas/EmailTemplateType"
+          }
+        }
+      },
       "EmailTemplateType": {
         "type": "string",
         "enum": ["reset_password_email", "delete_user_email", "confirm_email_code", "generic"]
+      },
+      "EventInfo": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "first_timestamp": {
+            "type": ["string", "null"]
+          },
+          "involved_object_kind": {
+            "type": ["string", "null"]
+          },
+          "involved_object_name": {
+            "type": ["string", "null"]
+          },
+          "last_timestamp": {
+            "type": ["string", "null"]
+          },
+          "message": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": ["string", "null"]
+          },
+          "type_": {
+            "type": ["string", "null"]
+          }
+        }
       },
       "Exam": {
         "type": "object",
@@ -10156,6 +12189,64 @@
           }
         }
       },
+      "ExerciseAnswersInCourseRequiringAttentionCount": {
+        "type": "object",
+        "required": ["id", "name", "page_id", "order_number"],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExerciseCsvExportTaskOption": {
+        "type": "object",
+        "required": [
+          "exercise_task_id",
+          "exercise_type",
+          "order_number",
+          "supports_csv_export_definitions",
+          "supports_csv_export_answers"
+        ],
+        "properties": {
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_type": {
+            "type": "string"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "supports_csv_export_answers": {
+            "type": "boolean"
+          },
+          "supports_csv_export_definitions": {
+            "type": "boolean"
+          }
+        }
+      },
       "ExerciseRepository": {
         "type": "object",
         "required": ["id", "url", "status"],
@@ -10193,6 +12284,69 @@
         "properties": {
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "ExerciseResetLog": {
+        "type": "object",
+        "required": [
+          "id",
+          "reset_for",
+          "exercise_id",
+          "exercise_name",
+          "course_id",
+          "reset_at",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_name": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "type": ["string", "null"]
+          },
+          "reset_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reset_by": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "reset_by_first_name": {
+            "type": ["string", "null"]
+          },
+          "reset_by_last_name": {
+            "type": ["string", "null"]
+          },
+          "reset_for": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -10384,6 +12538,53 @@
           }
         }
       },
+      "ExerciseSlideSubmissionCount": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "date": {
+            "type": ["string", "null"],
+            "format": "date"
+          }
+        }
+      },
+      "ExerciseSlideSubmissionCountByExercise": {
+        "type": "object",
+        "required": ["exercise_id", "exercise_name"],
+        "properties": {
+          "count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_name": {
+            "type": "string"
+          }
+        }
+      },
+      "ExerciseSlideSubmissionCountByWeekAndHour": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "hour": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "isodow": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
       "ExerciseSlideSubmissionInfo": {
         "type": "object",
         "required": ["tasks", "exercise", "exercise_slide_submission"],
@@ -10409,6 +12610,106 @@
                 "$ref": "#/components/schemas/UserExerciseState"
               }
             ]
+          }
+        }
+      },
+      "ExerciseStatusSummaryForUser": {
+        "type": "object",
+        "required": [
+          "exercise",
+          "exercise_slide_submissions",
+          "given_peer_or_self_review_submissions",
+          "given_peer_or_self_review_question_submissions",
+          "received_peer_or_self_review_submissions",
+          "received_peer_or_self_review_question_submissions",
+          "peer_or_self_review_questions"
+        ],
+        "properties": {
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "exercise_slide_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseSlideSubmission"
+            }
+          },
+          "given_peer_or_self_review_question_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewQuestionSubmission"
+            }
+          },
+          "given_peer_or_self_review_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewSubmissionWithSubmissionOwner"
+            }
+          },
+          "peer_or_self_review_questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewQuestion"
+            }
+          },
+          "peer_review_queue_entry": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PeerReviewQueueEntry"
+              }
+            ]
+          },
+          "received_peer_or_self_review_question_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewQuestionSubmission"
+            }
+          },
+          "received_peer_or_self_review_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewSubmissionWithSubmissionOwner"
+            }
+          },
+          "teacher_grading_decision": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TeacherGradingDecision"
+              }
+            ]
+          },
+          "user_exercise_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/UserExerciseState"
+              }
+            ]
+          }
+        }
+      },
+      "ExerciseSubmissions": {
+        "type": "object",
+        "required": ["data", "total_pages"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExerciseSlideSubmission"
+            }
+          },
+          "total_pages": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
@@ -10541,10 +12842,323 @@
           }
         }
       },
+      "ExerciseUserCounts": {
+        "type": "object",
+        "required": [
+          "exercise_name",
+          "exercise_order_number",
+          "page_order_number",
+          "chapter_number",
+          "exercise_id"
+        ],
+        "properties": {
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_name": {
+            "type": "string"
+          },
+          "exercise_order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "n_users_attempted": {
+            "type": ["integer", "null"],
+            "format": "int64"
+          },
+          "n_users_with_max_points": {
+            "type": ["integer", "null"],
+            "format": "int64"
+          },
+          "n_users_with_some_points": {
+            "type": ["integer", "null"],
+            "format": "int64"
+          },
+          "page_order_number": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Feedback": {
+        "type": "object",
+        "required": [
+          "id",
+          "course_id",
+          "feedback_given",
+          "marked_as_read",
+          "created_at",
+          "blocks",
+          "page_title",
+          "page_url_path"
+        ],
+        "properties": {
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackBlock"
+            }
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "feedback_given": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "marked_as_read": {
+            "type": "boolean"
+          },
+          "page_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "page_title": {
+            "type": "string"
+          },
+          "page_url_path": {
+            "type": "string"
+          },
+          "selected_text": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          }
+        }
+      },
+      "FeedbackBlock": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "text": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "FeedbackCount": {
+        "type": "object",
+        "required": ["read", "unread"],
+        "properties": {
+          "read": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          },
+          "unread": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "FlaggedAnswer": {
+        "type": "object",
+        "required": [
+          "id",
+          "submission_id",
+          "flagged_user",
+          "flagged_by",
+          "reason",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "flagged_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "flagged_user": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/ReportReason"
+          },
+          "submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GeneratedCertificate": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "name_on_certificate",
+          "verification_id",
+          "certificate_configuration_id"
+        ],
+        "properties": {
+          "certificate_configuration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name_on_certificate": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verification_id": {
+            "type": "string"
+          }
+        }
+      },
+      "GlobalCourseModuleStatEntry": {
+        "type": "object",
+        "required": [
+          "course_name",
+          "course_id",
+          "course_module_id",
+          "organization_id",
+          "organization_name",
+          "year",
+          "value"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": ["string", "null"]
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "year": {
+            "type": "string"
+          }
+        }
+      },
+      "GlobalStatEntry": {
+        "type": "object",
+        "required": [
+          "course_name",
+          "course_id",
+          "organization_id",
+          "organization_name",
+          "year",
+          "value"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "month": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "organization_name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "GradingProgress": {
         "type": "string",
         "description": "\n\nTells what's the status of the grading progress for a user and exercise.\n\nAs close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>",
         "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
+      },
+      "HealthStatus": {
+        "type": "string",
+        "enum": ["healthy", "warning", "error"]
       },
       "HistoryChangeReason": {
         "type": "string",
@@ -10557,6 +13171,218 @@
           "history_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "IngressInfo": {
+        "type": "object",
+        "required": ["name", "hosts", "paths"],
+        "properties": {
+          "class_name": {
+            "type": ["string", "null"]
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "JobInfo": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "active": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "failed": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "succeeded": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
+      "ManualCompletionPreview": {
+        "type": "object",
+        "required": [
+          "already_completed_users",
+          "first_time_completing_users",
+          "non_enrolled_users"
+        ],
+        "properties": {
+          "already_completed_users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManualCompletionPreviewUser"
+            }
+          },
+          "first_time_completing_users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManualCompletionPreviewUser"
+            }
+          },
+          "non_enrolled_users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManualCompletionPreviewUser"
+            }
+          }
+        }
+      },
+      "ManualCompletionPreviewUser": {
+        "type": "object",
+        "required": ["user_id", "passed"],
+        "properties": {
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "previous_best_grade": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "MaterialReference": {
+        "type": "object",
+        "required": ["id", "course_id", "citation_key", "reference", "created_at", "updated_at"],
+        "properties": {
+          "citation_key": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ModifiedModule": {
+        "type": "object",
+        "required": [
+          "id",
+          "order_number",
+          "completion_policy",
+          "enable_registering_completion_to_uh_open_university"
+        ],
+        "properties": {
+          "completion_policy": {
+            "$ref": "#/components/schemas/CompletionPolicy"
+          },
+          "completion_registration_link_override": {
+            "type": ["string", "null"]
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "enable_registering_completion_to_uh_open_university": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ModuleUpdates": {
+        "type": "object",
+        "required": ["new_modules", "deleted_modules", "modified_modules", "moved_chapters"],
+        "properties": {
+          "deleted_modules": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "modified_modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ModifiedModule"
+            }
+          },
+          "moved_chapters": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": false,
+              "prefixItems": [
+                {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              ]
+            }
+          },
+          "new_modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewModule"
+            }
           }
         }
       },
@@ -10597,6 +13423,129 @@
           }
         }
       },
+      "NewChatbotConf": {
+        "type": "object",
+        "required": [
+          "course_id",
+          "enabled_to_students",
+          "chatbot_name",
+          "model_id",
+          "thinking_model",
+          "prompt",
+          "initial_message",
+          "weekly_tokens_per_user",
+          "daily_tokens_per_user",
+          "response_max_tokens",
+          "temperature",
+          "top_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "max_completion_tokens",
+          "verbosity",
+          "reasoning_effort",
+          "use_azure_search",
+          "maintain_azure_search_index",
+          "hide_citations",
+          "use_semantic_reranking",
+          "use_tools",
+          "default_chatbot",
+          "suggest_next_messages"
+        ],
+        "properties": {
+          "chatbot_name": {
+            "type": "string"
+          },
+          "chatbotconf_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "daily_tokens_per_user": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "default_chatbot": {
+            "type": "boolean"
+          },
+          "enabled_to_students": {
+            "type": "boolean"
+          },
+          "frequency_penalty": {
+            "type": "number",
+            "format": "float"
+          },
+          "hide_citations": {
+            "type": "boolean"
+          },
+          "initial_message": {
+            "type": "string"
+          },
+          "initial_suggested_messages": {
+            "type": ["array", "null"],
+            "items": {
+              "type": "string"
+            }
+          },
+          "maintain_azure_search_index": {
+            "type": "boolean"
+          },
+          "max_completion_tokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "model_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "presence_penalty": {
+            "type": "number",
+            "format": "float"
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "reasoning_effort": {
+            "$ref": "#/components/schemas/ReasoningEffortLevel"
+          },
+          "response_max_tokens": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "suggest_next_messages": {
+            "type": "boolean"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "float"
+          },
+          "thinking_model": {
+            "type": "boolean"
+          },
+          "top_p": {
+            "type": "number",
+            "format": "float"
+          },
+          "use_azure_search": {
+            "type": "boolean"
+          },
+          "use_semantic_reranking": {
+            "type": "boolean"
+          },
+          "use_tools": {
+            "type": "boolean"
+          },
+          "verbosity": {
+            "$ref": "#/components/schemas/VerbosityLevel"
+          },
+          "weekly_tokens_per_user": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "NewCodeGiveaway": {
         "type": "object",
         "required": ["course_id", "name"],
@@ -10615,6 +13564,81 @@
           "require_course_specific_consent_form_question_id": {
             "type": ["string", "null"],
             "format": "uuid"
+          }
+        }
+      },
+      "NewCourse": {
+        "type": "object",
+        "description": "Represents the subset of page fields that are required to create a new course.",
+        "required": [
+          "name",
+          "slug",
+          "organization_id",
+          "language_code",
+          "teacher_in_charge_name",
+          "teacher_in_charge_email",
+          "description",
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "copy_user_permissions",
+          "is_joinable_by_code_only",
+          "ask_marketing_consent",
+          "can_add_chatbot"
+        ],
+        "properties": {
+          "ask_marketing_consent": {
+            "type": "boolean"
+          },
+          "can_add_chatbot": {
+            "type": "boolean"
+          },
+          "copy_user_permissions": {
+            "type": "boolean",
+            "description": "If true, copies all user permissions from the original course to the new one."
+          },
+          "description": {
+            "type": "string"
+          },
+          "flagged_answers_threshold": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
+          },
+          "join_code": {
+            "type": ["string", "null"]
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "teacher_in_charge_email": {
+            "type": "string",
+            "description": "Email of the teacher who is responsible for the course. Must be a valid email."
+          },
+          "teacher_in_charge_name": {
+            "type": "string",
+            "description": "Name of the teacher who is responsible for the course. Must be a valid name."
           }
         }
       },
@@ -10679,6 +13703,83 @@
           }
         }
       },
+      "NewMaterialReference": {
+        "type": "object",
+        "required": ["citation_key", "reference"],
+        "properties": {
+          "citation_key": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        }
+      },
+      "NewModule": {
+        "type": "object",
+        "required": [
+          "name",
+          "order_number",
+          "chapters",
+          "completion_policy",
+          "enable_registering_completion_to_uh_open_university"
+        ],
+        "properties": {
+          "chapters": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "completion_policy": {
+            "$ref": "#/components/schemas/CompletionPolicy"
+          },
+          "completion_registration_link_override": {
+            "type": ["string", "null"]
+          },
+          "ects_credits": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "enable_registering_completion_to_uh_open_university": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": "string"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "NewRegrading": {
+        "type": "object",
+        "required": ["user_points_update_strategy", "ids", "id_type"],
+        "properties": {
+          "id_type": {
+            "$ref": "#/components/schemas/NewRegradingIdType"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "user_points_update_strategy": {
+            "$ref": "#/components/schemas/UserPointsUpdateStrategy"
+          }
+        }
+      },
+      "NewRegradingIdType": {
+        "type": "string",
+        "enum": ["ExerciseTaskSubmissionId", "ExerciseId"]
+      },
       "NewTeacherGradingDecision": {
         "type": "object",
         "required": ["user_exercise_state_id", "exercise_id", "action", "hidden"],
@@ -10703,6 +13804,84 @@
           "user_exercise_state_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "OrgExam": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "instructions",
+          "time_minutes",
+          "organization_id",
+          "minimum_points_treshold"
+        ],
+        "properties": {
+          "ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "instructions": {},
+          "minimum_points_treshold": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "time_minutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Organization": {
+        "type": "object",
+        "required": ["id", "slug", "created_at", "updated_at", "name", "hidden"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_image_url": {
+            "type": ["string", "null"]
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -10954,6 +14133,751 @@
           }
         }
       },
+      "PageVisitDatumSummaryByCourse": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "num_visitors", "visit_date"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "num_visitors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "referrer": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "utm_campaign": {
+            "type": ["string", "null"]
+          },
+          "utm_content": {
+            "type": ["string", "null"]
+          },
+          "utm_medium": {
+            "type": ["string", "null"]
+          },
+          "utm_source": {
+            "type": ["string", "null"]
+          },
+          "utm_term": {
+            "type": ["string", "null"]
+          },
+          "visit_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PageVisitDatumSummaryByCourseDeviceTypes": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "num_visitors", "visit_date"],
+        "properties": {
+          "browser": {
+            "type": ["string", "null"]
+          },
+          "browser_version": {
+            "type": ["string", "null"]
+          },
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "device_type": {
+            "type": ["string", "null"]
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "num_visitors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "operating_system": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "visit_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PageVisitDatumSummaryByCoursesCountries": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "num_visitors", "visit_date"],
+        "properties": {
+          "country": {
+            "type": ["string", "null"]
+          },
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "num_visitors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "visit_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PageVisitDatumSummaryByPages": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "page_id", "num_visitors", "visit_date"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "num_visitors": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "visit_date": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "PaperSize": {
+        "type": "string",
+        "enum": ["horizontal-a4", "vertical-a4"]
+      },
+      "PeerOrSelfReviewAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["no-answer"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["essay"]
+              },
+              "value": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["value", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["scale"]
+              },
+              "value": {
+                "type": "number",
+                "format": "float"
+              }
+            }
+          }
+        ]
+      },
+      "PeerOrSelfReviewQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "peer_or_self_review_config_id",
+          "order_number",
+          "question",
+          "question_type",
+          "answer_required",
+          "weight"
+        ],
+        "properties": {
+          "answer_required": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "peer_or_self_review_config_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question": {
+            "type": "string"
+          },
+          "question_type": {
+            "$ref": "#/components/schemas/PeerOrSelfReviewQuestionType"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "weight": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "PeerOrSelfReviewQuestionAndAnswer": {
+        "type": "object",
+        "required": [
+          "peer_or_self_review_config_id",
+          "peer_or_self_review_question_id",
+          "peer_or_self_review_submission_id",
+          "peer_review_question_submission_id",
+          "order_number",
+          "question",
+          "answer",
+          "answer_required"
+        ],
+        "properties": {
+          "answer": {
+            "$ref": "#/components/schemas/PeerOrSelfReviewAnswer"
+          },
+          "answer_required": {
+            "type": "boolean"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "peer_or_self_review_config_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_or_self_review_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_or_self_review_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_review_question_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question": {
+            "type": "string"
+          }
+        }
+      },
+      "PeerOrSelfReviewQuestionSubmission": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "peer_or_self_review_question_id",
+          "peer_or_self_review_submission_id"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number_data": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "peer_or_self_review_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_or_self_review_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text_data": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PeerOrSelfReviewQuestionType": {
+        "type": "string",
+        "enum": ["Essay", "Scale"]
+      },
+      "PeerOrSelfReviewSubmission": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "exercise_id",
+          "course_id",
+          "peer_or_self_review_config_id",
+          "exercise_slide_submission_id"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_or_self_review_config_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PeerOrSelfReviewSubmissionWithSubmissionOwner": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PeerOrSelfReviewSubmission"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "submission_owner_user_id": {
+                "type": ["string", "null"],
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "description": "Same as PeerOrSelfReviewSubmission with optional submission owner (user who received the review). Used for \"given\" reviews."
+      },
+      "PeerReviewQueueEntry": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "exercise_id",
+          "course_id",
+          "receiving_peer_reviews_exercise_slide_submission_id",
+          "received_enough_peer_reviews",
+          "peer_review_priority",
+          "removed_from_queue_for_unusual_reason"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_review_priority": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "received_enough_peer_reviews": {
+            "type": "boolean"
+          },
+          "receiving_peer_reviews_exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "removed_from_queue_for_unusual_reason": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PeerReviewWithQuestionsAndAnswers": {
+        "type": "object",
+        "required": [
+          "peer_or_self_review_submission_id",
+          "peer_review_giver_user_id",
+          "questions_and_answers"
+        ],
+        "properties": {
+          "peer_or_self_review_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_review_giver_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "questions_and_answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewQuestionAndAnswer"
+            }
+          }
+        }
+      },
+      "PendingRole": {
+        "type": "object",
+        "required": ["id", "user_email", "role", "expires_at"],
+        "properties": {
+          "expires_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "user_email": {
+            "type": "string"
+          }
+        }
+      },
+      "PlaygroundExample": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "name", "url", "width", "data"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data": {},
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PlaygroundExampleData": {
+        "type": "object",
+        "required": ["name", "url", "width", "data"],
+        "properties": {
+          "data": {},
+          "name": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "PodDisruptionBudgetInfo": {
+        "type": "object",
+        "required": [
+          "name",
+          "current_healthy",
+          "desired_healthy",
+          "disruptions_allowed",
+          "expected_pods",
+          "selector_labels"
+        ],
+        "properties": {
+          "current_healthy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "desired_healthy": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "disruptions_allowed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "expected_pods": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "selector_labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "PodInfo": {
+        "type": "object",
+        "required": ["name", "phase", "labels"],
+        "properties": {
+          "labels": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "ready": {
+            "type": ["boolean", "null"]
+          }
+        }
+      },
+      "PointMap": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "number",
+          "format": "float"
+        },
+        "propertyNames": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "Points": {
+        "type": "object",
+        "required": ["chapter_points", "users", "user_chapter_points"],
+        "properties": {
+          "chapter_points": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterScore"
+            }
+          },
+          "user_chapter_points": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PointMap"
+            },
+            "propertyNames": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "users": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetail"
+            }
+          }
+        }
+      },
+      "ProgressOverview": {
+        "type": "object",
+        "required": [
+          "user_details",
+          "chapters",
+          "user_exercise_states",
+          "chapter_availability",
+          "user_chapter_progress"
+        ],
+        "properties": {
+          "chapter_availability": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterAvailability"
+            }
+          },
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DatabaseChapter"
+            }
+          },
+          "user_chapter_progress": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserChapterProgress"
+            }
+          },
+          "user_details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserDetail"
+            }
+          },
+          "user_exercise_states": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserExerciseState"
+            }
+          }
+        }
+      },
       "ProposalCount": {
         "type": "object",
         "required": ["pending", "handled"],
@@ -10974,6 +14898,139 @@
         "type": "string",
         "enum": ["Pending", "Accepted", "Rejected"]
       },
+      "ReasoningEffortLevel": {
+        "type": "string",
+        "enum": ["minimal", "low", "medium", "high"]
+      },
+      "Regrading": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "total_grading_progress",
+          "user_points_update_strategy"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "regrading_completed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "regrading_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "total_grading_progress": {
+            "$ref": "#/components/schemas/GradingProgress"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "user_points_update_strategy": {
+            "$ref": "#/components/schemas/UserPointsUpdateStrategy"
+          }
+        }
+      },
+      "RegradingInfo": {
+        "type": "object",
+        "required": ["regrading", "submission_infos"],
+        "properties": {
+          "regrading": {
+            "$ref": "#/components/schemas/Regrading"
+          },
+          "submission_infos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RegradingSubmissionInfo"
+            }
+          }
+        }
+      },
+      "RegradingSubmissionInfo": {
+        "type": "object",
+        "required": ["exercise_task_submission_id", "grading_before_regrading"],
+        "properties": {
+          "exercise_task_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grading_after_regrading": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseTaskGrading"
+              }
+            ]
+          },
+          "grading_before_regrading": {
+            "$ref": "#/components/schemas/ExerciseTaskGrading"
+          }
+        }
+      },
+      "ReportReason": {
+        "type": "string",
+        "enum": ["Spam", "HarmfulContent", "AiGenerated"]
+      },
+      "ResearchFormQuestionAnswer": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "course_id",
+          "research_form_question_id",
+          "research_consent",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "research_consent": {
+            "type": "boolean"
+          },
+          "research_form_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "ReviewingStage": {
         "type": "string",
         "description": "\nTells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.",
@@ -10986,6 +15043,228 @@
           "ReviewedAndLocked",
           "Locked"
         ]
+      },
+      "RoleDomain": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["tag"],
+            "properties": {
+              "tag": {
+                "type": "string",
+                "enum": ["Global"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "tag"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["Organization"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "tag"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["Course"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "tag"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["CourseInstance"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "tag"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["Exam"]
+              }
+            }
+          }
+        ]
+      },
+      "RoleInfo": {
+        "type": "object",
+        "required": ["email", "role", "domain"],
+        "properties": {
+          "domain": {
+            "$ref": "#/components/schemas/RoleDomain"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          }
+        }
+      },
+      "RoleUser": {
+        "type": "object",
+        "required": ["user_id", "email", "role"],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        }
+      },
+      "ServiceInfo": {
+        "type": "object",
+        "required": ["name", "ports"],
+        "properties": {
+          "cluster_ip": {
+            "type": ["string", "null"]
+          },
+          "name": {
+            "type": "string"
+          },
+          "ports": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ServicePortInfo"
+            }
+          }
+        }
+      },
+      "ServicePortInfo": {
+        "type": "object",
+        "required": ["port"],
+        "properties": {
+          "name": {
+            "type": ["string", "null"]
+          },
+          "port": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "protocol": {
+            "type": ["string", "null"]
+          },
+          "target_port": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "StudentsByCountryTotalsResult": {
+        "type": "object",
+        "required": ["count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "country": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "SuspectedCheaters": {
+        "type": "object",
+        "required": ["id", "user_id", "course_id", "created_at", "total_points"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_archived": {
+            "type": ["boolean", "null"]
+          },
+          "total_duration_seconds": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "total_points": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "SystemHealthStatus": {
+        "type": "object",
+        "required": ["status", "issues"],
+        "properties": {
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "$ref": "#/components/schemas/HealthStatus"
+          }
+        }
       },
       "TeacherDecisionType": {
         "type": "string",
@@ -11043,6 +15322,46 @@
           }
         }
       },
+      "TeacherManualCompletion": {
+        "type": "object",
+        "required": ["user_id", "passed"],
+        "properties": {
+          "completion_date": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TeacherManualCompletionRequest": {
+        "type": "object",
+        "required": ["course_module_id", "new_completions", "skip_duplicate_completions"],
+        "properties": {
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "new_completions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TeacherManualCompletion"
+            }
+          },
+          "skip_duplicate_completions": {
+            "type": "boolean"
+          }
+        }
+      },
       "Term": {
         "type": "object",
         "required": ["id", "term", "definition"],
@@ -11081,6 +15400,46 @@
           }
         }
       },
+      "TimeGranularity": {
+        "type": "string",
+        "enum": ["Year", "Month", "Day"]
+      },
+      "UserChapterProgress": {
+        "type": "object",
+        "required": [
+          "user_id",
+          "chapter_id",
+          "chapter_number",
+          "chapter_name",
+          "points_obtained",
+          "exercises_attempted"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chapter_name": {
+            "type": "string"
+          },
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "exercises_attempted": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "points_obtained": {
+            "type": "number",
+            "format": "double"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "UserCompletionInformation": {
         "type": "object",
         "required": [
@@ -11110,6 +15469,148 @@
           },
           "uh_course_code": {
             "type": "string"
+          }
+        }
+      },
+      "UserCourseProgress": {
+        "type": "object",
+        "required": [
+          "course_module_id",
+          "course_module_name",
+          "course_module_order_number",
+          "score_given"
+        ],
+        "properties": {
+          "attempted_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "attempted_exercises_required": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": "string"
+          },
+          "course_module_order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          },
+          "score_maximum": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          },
+          "score_required": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "total_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "UserCourseSettings": {
+        "type": "object",
+        "required": [
+          "user_id",
+          "course_language_group_id",
+          "created_at",
+          "updated_at",
+          "current_course_id",
+          "current_course_instance_id"
+        ],
+        "properties": {
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current_course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "current_course_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserDetail": {
+        "type": "object",
+        "required": ["user_id", "created_at", "updated_at", "email"],
+        "properties": {
+          "country": {
+            "type": ["string", "null"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string"
+          },
+          "email_communication_consent": {
+            "type": ["boolean", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "search_helper": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserDetailsRequest": {
+        "type": "object",
+        "required": ["user_id", "course_ids"],
+        "properties": {
+          "course_ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },
@@ -11177,9 +15678,101 @@
           }
         }
       },
+      "UserInfoPayload": {
+        "type": "object",
+        "required": ["email", "first_name", "last_name", "country", "email_communication_consent"],
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "email_communication_consent": {
+            "type": "boolean"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        }
+      },
       "UserPointsUpdateStrategy": {
         "type": "string",
         "enum": ["CanAddPointsButCannotRemovePoints", "CanAddPointsAndCanRemovePoints"]
+      },
+      "UserResearchConsent": {
+        "type": "object",
+        "required": ["id", "user_id", "research_consent", "created_at", "updated_at"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "research_consent": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "Reviewer",
+          "Assistant",
+          "Teacher",
+          "Admin",
+          "CourseOrExamCreator",
+          "MaterialViewer",
+          "TeachingAndLearningServices",
+          "StatsViewer"
+        ]
+      },
+      "UserWithModuleCompletions": {
+        "type": "object",
+        "required": ["completed_modules", "email", "user_id"],
+        "properties": {
+          "completed_modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleCompletionWithRegistrationInfo"
+            }
+          },
+          "email": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "VerbosityLevel": {
+        "type": "string",
+        "enum": ["low", "medium", "high"]
       }
     }
   },

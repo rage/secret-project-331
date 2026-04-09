@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next"
 import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
 
 import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
-import { createTeacherGradingDecisionMutationOptions } from "@/services/backend/teacher-grading-decisions"
-import { ExerciseStatusSummaryForUser } from "@/shared-module/common/bindings"
+import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -31,7 +31,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
   const [isExpanded, setIsExpanded] = useState(false)
 
   const submitMutation = useToastMutationOptions(
-    createTeacherGradingDecisionMutationOptions(),
+    createTeacherGradingDecisionMutation(),
     {
       notify: true,
       method: "POST",

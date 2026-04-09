@@ -13,8 +13,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PodInfo {
     pub name: String,
@@ -23,7 +24,7 @@ pub struct PodInfo {
     pub labels: HashMap<String, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct DeploymentInfo {
     pub name: String,
@@ -32,7 +33,7 @@ pub struct DeploymentInfo {
     pub selector_labels: HashMap<String, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CronJobInfo {
     pub name: String,
@@ -40,7 +41,7 @@ pub struct CronJobInfo {
     pub last_schedule_time: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct JobInfo {
     pub name: String,
@@ -49,7 +50,7 @@ pub struct JobInfo {
     pub active: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ServiceInfo {
     pub name: String,
@@ -57,7 +58,7 @@ pub struct ServiceInfo {
     pub ports: Vec<ServicePortInfo>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ServicePortInfo {
     pub name: Option<String>,
@@ -66,7 +67,7 @@ pub struct ServicePortInfo {
     pub protocol: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct EventInfo {
     pub name: String,
@@ -80,7 +81,7 @@ pub struct EventInfo {
     pub involved_object_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct IngressInfo {
     pub name: String,
@@ -89,7 +90,7 @@ pub struct IngressInfo {
     pub class_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PodDisruptionBudgetInfo {
     pub name: String,
@@ -100,7 +101,7 @@ pub struct PodDisruptionBudgetInfo {
     pub selector_labels: HashMap<String, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "lowercase")]
 pub enum HealthStatus {
@@ -109,7 +110,7 @@ pub enum HealthStatus {
     Error,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct SystemHealthStatus {
     pub status: HealthStatus,

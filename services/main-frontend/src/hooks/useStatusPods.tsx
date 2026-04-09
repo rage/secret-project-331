@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getStatusPodsOptions } from "../services/backend/status"
+import { getStatusPodsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusPods = () => {
   return useQuery({

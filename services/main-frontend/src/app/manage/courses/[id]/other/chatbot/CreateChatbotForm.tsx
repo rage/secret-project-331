@@ -5,9 +5,8 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { createChatbotMutationOptions } from "@/services/backend/courses/chatbots"
-import { ChatbotConfiguration } from "@/shared-module/common/bindings"
-import { isChatbotConfiguration } from "@/shared-module/common/bindings.guard"
+import { createCourseChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
@@ -35,7 +34,7 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
   } = useForm<CreateChatbotFields>()
 
   const createChatbotMutation = useToastMutationOptions(
-    createChatbotMutationOptions(),
+    createCourseChatbotMutation(),
     {
       notify: true,
       method: "POST",
@@ -43,9 +42,6 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     {
       onSuccess: async (data) => {
         getChatbotsList.refetch()
-        if (!isChatbotConfiguration(data)) {
-          throw new Error("Invalid data from API")
-        }
         closeEdit(data.id)
       },
     },

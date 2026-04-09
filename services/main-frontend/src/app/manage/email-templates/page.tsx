@@ -6,9 +6,9 @@ import Link from "next/link"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourse } from "@/services/backend/courses"
-import { getAllEmailTemplatesOptions } from "@/services/backend/email-templates"
-import { Course, EmailTemplate, EmailTemplateType } from "@/shared-module/common/bindings"
+import { getEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
+import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -29,7 +29,7 @@ const EmailTemplatesList: React.FC = () => {
   const { t } = useTranslation()
 
   const templatesQuery = useQuery({
-    ...getAllEmailTemplatesOptions(),
+    ...getEmailTemplatesOptions(),
   })
 
   const uniqueCourseIds = useMemo(() => {
@@ -49,7 +49,15 @@ const EmailTemplatesList: React.FC = () => {
     queryKey: ["courses", uniqueCourseIds],
     queryFn: async () => {
       const coursePromises = uniqueCourseIds.map((courseId) =>
-        getCourse(courseId).then((course) => ({ courseId, course })),
+        getCourseFromApi({
+          path: {
+            course_id: courseId,
+          },
+          throwOnError: true,
+        }).then((course) => ({
+          courseId,
+          course,
+        })),
       )
       const results = await Promise.allSettled(coursePromises)
       const fulfilled = results

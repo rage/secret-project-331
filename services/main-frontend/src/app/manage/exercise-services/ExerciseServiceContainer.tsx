@@ -5,7 +5,7 @@ import React from "react"
 
 import ExerciseServiceCard from "./ExerciseServiceCard"
 
-import { ExerciseService } from "@/shared-module/common/bindings"
+import type { ExerciseService } from "@/generated/api/types.generated"
 
 interface ExerciseServiceEditorProps {
   exerciseServices: ExerciseService[]

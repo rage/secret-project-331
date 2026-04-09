@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getStatusPodDisruptionBudgetsOptions } from "../services/backend/status"
+import { getStatusPodDisruptionBudgetsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusPodDisruptionBudgets = () => {
   return useQuery({

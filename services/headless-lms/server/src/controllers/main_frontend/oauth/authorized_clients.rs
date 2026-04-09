@@ -16,7 +16,7 @@ pub(crate) struct MainFrontendOauthAuthorizedClientsApiDoc;
     operation_id = "getOauthAuthorizedClients",
     tag = "oauth",
     responses(
-        (status = 200, description = "Authorized OAuth clients", body = serde_json::Value)
+        (status = 200, description = "Authorized OAuth clients", body = [AuthorizedClientInfo])
     )
 )]
 pub async fn get_authorized_clients(

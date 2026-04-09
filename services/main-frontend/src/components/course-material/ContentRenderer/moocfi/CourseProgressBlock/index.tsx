@@ -9,7 +9,8 @@ import { BlockRendererProps } from "../.."
 
 import CourseProgress from "./CourseProgress"
 
-import { fetchUserCourseProgress } from "@/services/course-material/backend"
+import { getCourseMaterialUserCourseProgress } from "@/generated/course-material-api/sdk.generated"
+import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -25,7 +26,13 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   const loginStateContext = useContext(LoginStateContext)
   const getUserCourseProgress = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-progress`],
-    queryFn: () => fetchUserCourseProgress(assertNotNullOrUndefined(courseInstanceId)),
+    queryFn: (): Promise<Array<UserCourseProgress>> =>
+      getCourseMaterialUserCourseProgress({
+        path: {
+          course_instance_id: assertNotNullOrUndefined(courseInstanceId),
+        },
+        throwOnError: true,
+      }),
     enabled: !!courseInstanceId && loginStateContext.signedIn === true,
   })
 

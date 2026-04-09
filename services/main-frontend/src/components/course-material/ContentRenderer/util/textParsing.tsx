@@ -4,7 +4,7 @@ import KaTex from "katex"
 import "katex/dist/katex.min.css"
 
 import { StringWithHTML } from "@/../types"
-import { Term } from "@/shared-module/common/bindings"
+import type { Term } from "@/generated/course-material-api/types.generated"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 const LATEX_REGEX = /\[latex\](.*?)\[\/latex\]/g

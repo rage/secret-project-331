@@ -6,8 +6,7 @@ import React from "react"
 
 import FeedbackView from "./FeedbackView"
 
-import { getFeedbackOptions } from "@/services/backend/feedback"
-import { Feedback } from "@/shared-module/common/bindings"
+import { getCourseFeedbackOptions } from "@/generated/api/@tanstack/react-query.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -29,7 +28,18 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
   onChange,
 }) => {
   const limit = paginationInfo.limit
-  const getFeedbackList = useQuery(getFeedbackOptions(courseId, read, page, limit))
+  const getFeedbackList = useQuery({
+    ...getCourseFeedbackOptions({
+      path: {
+        course_id: courseId,
+      },
+      query: {
+        read,
+        page,
+        limit,
+      },
+    }),
+  })
 
   if (getFeedbackList.isError) {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />

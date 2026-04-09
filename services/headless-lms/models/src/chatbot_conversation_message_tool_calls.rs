@@ -1,8 +1,9 @@
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConversationMessageToolCall {
     pub id: Uuid,

@@ -9,9 +9,9 @@ import { useTranslation } from "react-i18next"
 import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import { getExerciseAnswersRequiringAttentionOptions } from "@/services/backend/answers-requiring-attention"
 import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -73,9 +73,17 @@ const SubmissionsPage: React.FC = () => {
     }
   }, [courseStructure.data, exerciseQuery.data])
 
-  const answersQuery = useQuery(
-    getExerciseAnswersRequiringAttentionOptions(id, paginationInfo.page, paginationInfo.limit),
-  )
+  const answersQuery = useQuery({
+    ...getExerciseAnswersRequiringAttentionOptions({
+      path: {
+        exercise_id: id,
+      },
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
+  })
 
   if (courseStructure.isLoading) {
     return <Spinner variant="medium" />

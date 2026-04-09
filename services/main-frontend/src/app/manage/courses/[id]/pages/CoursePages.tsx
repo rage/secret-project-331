@@ -1,19 +1,18 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
 import ManageCourseStructure from "./ManageCourseStructure"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
-import { getCourseStructureOptions } from "@/services/backend/courses"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
 const CoursePages: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
 }) => {
-  const getCourseStructure = useQuery(getCourseStructureOptions(courseId))
+  const getCourseStructure = useCourseStructure(courseId)
 
   return (
     <>

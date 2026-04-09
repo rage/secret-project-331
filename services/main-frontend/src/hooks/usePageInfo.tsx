@@ -2,11 +2,19 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getPageInfoOptions } from "@/services/backend/pages"
+import { getPageInfo } from "@/generated/api/sdk.generated"
+import type { PageInfo } from "@/generated/api/types.generated"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
-export const usePageInfo = (pageId: string | null) => {
-  return useQuery({
-    ...getPageInfoOptions(pageId ?? ""),
-    enabled: !!pageId,
+export const usePageInfo = (pageId: string | null) =>
+  useQuery({
+    queryKey: ["getPageInfo", pageId],
+    queryFn: async (): Promise<PageInfo> =>
+      getPageInfo({
+        path: {
+          page_id: assertNotNullOrUndefined(pageId),
+        },
+        throwOnError: true,
+      }),
+    enabled: pageId !== null,
   })
-}

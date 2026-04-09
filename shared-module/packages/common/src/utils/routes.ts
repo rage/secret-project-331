@@ -1,7 +1,12 @@
-import { PageInfo } from "../bindings"
+import { assertNotNullOrUndefined } from "./nullability"
 
-export function pageRoute(pageInfo: PageInfo, urlPath: string): string {
-  return `/org/${pageInfo.organization_slug}/courses/${pageInfo.course_slug}${urlPath}`
+type PageRouteInfo = {
+  organization_slug?: string | null
+  course_slug?: string | null
+}
+
+export function pageRoute(pageInfo: PageRouteInfo, urlPath: string): string {
+  return `/org/${assertNotNullOrUndefined(pageInfo.organization_slug)}/courses/${assertNotNullOrUndefined(pageInfo.course_slug)}${urlPath}`
 }
 
 export function manageCourseRoute(courseId: string) {

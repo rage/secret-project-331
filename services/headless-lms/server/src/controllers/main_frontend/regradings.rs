@@ -23,7 +23,7 @@ GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the reg
         ("limit" = Option<i64>, Query, description = "Page size")
     ),
     responses(
-        (status = 200, description = "Regradings", body = serde_json::Value)
+        (status = 200, description = "Regradings", body = [Regrading])
     )
 )]
 #[instrument(skip(pool, user))]
@@ -71,7 +71,7 @@ POST `/api/v0/main-frontend/regradings` - Creates a new regrading for the suppli
     path = "",
     operation_id = "createRegrading",
     tag = "regradings",
-    request_body = serde_json::Value,
+    request_body = NewRegrading,
     responses(
         (status = 200, description = "Created regrading id", body = String)
     )
@@ -102,7 +102,7 @@ GET `/api/v0/main-frontend/regradings/{id}` - Returns relevant information about
         ("regrading_id" = Uuid, Path, description = "Regrading id")
     ),
     responses(
-        (status = 200, description = "Regrading info", body = serde_json::Value)
+        (status = 200, description = "Regrading info", body = RegradingInfo)
     )
 )]
 #[instrument(skip(pool, user))]

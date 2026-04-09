@@ -10,9 +10,9 @@ import {
   getExamExercisesOptions,
   getExamOptions,
   getExamSubmissionsWithExamIdOptions,
-  releaseExamGradesMutationOptions,
-} from "@/services/backend/exams"
-import { ExerciseSlideSubmissionAndUserExerciseState } from "@/shared-module/common/bindings"
+  releaseExamGradesMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -33,9 +33,21 @@ const GradingPage: React.FC = () => {
   const router = useRouter()
   const { confirm } = useDialog()
 
-  const getExam = useQuery(getExamOptions(id))
+  const getExam = useQuery({
+    ...getExamOptions({
+      path: {
+        id,
+      },
+    }),
+  })
 
-  const getExercises = useQuery(getExamExercisesOptions(id))
+  const getExercises = useQuery({
+    ...getExamExercisesOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
+  })
 
   const sorted = useMemo(
     () =>
@@ -46,7 +58,11 @@ const GradingPage: React.FC = () => {
   )
 
   const getAllSubmissions = useQuery({
-    ...getExamSubmissionsWithExamIdOptions(id),
+    ...getExamSubmissionsWithExamIdOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
     staleTime: 1,
   })
 
@@ -59,7 +75,7 @@ const GradingPage: React.FC = () => {
   )
 
   const publishMutation = useToastMutationOptions(
-    releaseExamGradesMutationOptions(),
+    releaseExamGradesMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: async () => {

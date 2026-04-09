@@ -10,13 +10,15 @@ import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
-  downloadExerciseAnswersCsv,
-  downloadExerciseDefinitionsCsv,
-  ExerciseCsvExportTaskOption,
-  getExerciseCsvExportTaskOptions,
+  getExerciseCsvExportTaskOptionsOptions,
   getExerciseOptions,
   getExerciseSubmissionsOptions,
-} from "@/services/backend/exercises"
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  exportExerciseAnswersCsv,
+  exportExerciseDefinitionsCsv,
+} from "@/generated/api/sdk.generated"
+import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -30,8 +32,14 @@ import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { downloadTextFile } from "@/utils/downloadTextFile"
 
 type ExportMode = "definitions" | "answers"
+
+const EXERCISE_DEFINITIONS_CSV_PREFIX = "exercise-"
+const EXERCISE_DEFINITIONS_CSV_MIDDLE = "-definitions-"
+const EXERCISE_ANSWERS_CSV_MIDDLE = "-answers-"
+const CSV_FILE_SUFFIX = ".csv"
 
 const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -50,13 +58,33 @@ const SubmissionsPage: React.FC = () => {
     crumbs,
   })
 
-  const exerciseQuery = useQuery(getExerciseOptions(id))
+  const exerciseQuery = useQuery({
+    ...getExerciseOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
+  })
 
-  const exerciseSubmissionsQuery = useQuery(
-    getExerciseSubmissionsOptions(id, paginationInfo.page, paginationInfo.limit),
-  )
+  const exerciseSubmissionsQuery = useQuery({
+    ...getExerciseSubmissionsOptions({
+      path: {
+        exercise_id: id,
+      },
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
+  })
 
-  const csvExportTaskOptionsQuery = useQuery(getExerciseCsvExportTaskOptions(id))
+  const csvExportTaskOptionsQuery = useQuery({
+    ...getExerciseCsvExportTaskOptionsOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
+  })
 
   const definitionTaskOptions = useMemo(
     () =>
@@ -91,9 +119,39 @@ const SubmissionsPage: React.FC = () => {
       taskId: string
       onlyLatestPerUser?: boolean
     }) => {
-      return mode === "definitions"
-        ? await downloadExerciseDefinitionsCsv(id, taskId)
-        : await downloadExerciseAnswersCsv(id, taskId, onlyLatest ?? false)
+      if (mode === "definitions") {
+        const csv = await exportExerciseDefinitionsCsv({
+          path: {
+            exercise_id: id,
+          },
+          query: {
+            exercise_task_id: taskId,
+          },
+          throwOnError: true,
+        })
+
+        downloadTextFile(
+          csv,
+          `${EXERCISE_DEFINITIONS_CSV_PREFIX}${id}${EXERCISE_DEFINITIONS_CSV_MIDDLE}${taskId}${CSV_FILE_SUFFIX}`,
+        )
+        return
+      }
+
+      const csv = await exportExerciseAnswersCsv({
+        path: {
+          exercise_id: id,
+        },
+        query: {
+          exercise_task_id: taskId,
+          only_latest_per_user: onlyLatest ?? undefined,
+        },
+        throwOnError: true,
+      })
+
+      downloadTextFile(
+        csv,
+        `${EXERCISE_DEFINITIONS_CSV_PREFIX}${id}${EXERCISE_ANSWERS_CSV_MIDDLE}${taskId}${CSV_FILE_SUFFIX}`,
+      )
     },
     { notify: true, method: "POST" },
     {

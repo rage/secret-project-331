@@ -4,10 +4,12 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postPasswordReset } from "@/services/backend/users"
+import { resetUserPassword } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 type ResetPasswordFormFields = {
   token: string
@@ -40,8 +42,16 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
   const postPasswordChangeMutation = useToastMutation<boolean, unknown, ResetPasswordFormFields>(
     async (data) => {
       const { token, new_password } = data
-      const result = await postPasswordReset(token, new_password)
-      return result
+      return validateGeneratedData(
+        await resetUserPassword({
+          body: {
+            token,
+            new_password,
+          },
+          throwOnError: true,
+        }),
+        isBoolean,
+      )
     },
     {
       method: "POST",

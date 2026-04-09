@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,19 +10,16 @@ import CertificateForm, { CertificateFields } from "./CertificateForm"
 import CertificateView from "./CertificateView"
 
 import {
-  deleteCertificateConfiguration,
-  updateCertificateConfiguration,
-} from "@/services/backend/certificates"
-import {
   getCourseInstanceDefaultCertificateConfigurationsOptions,
   getCourseInstanceOptions,
-} from "@/services/backend/course-instances"
+  setCourseModuleCertificateGenerationMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
-  setCertificationGeneration,
-  setCourseModuleCertificateGenerationMutationOptions,
-} from "@/services/backend/course-modules"
-import { getCourseStructureOptions } from "@/services/backend/courses"
-import { CertificateConfigurationUpdate } from "@/shared-module/common/bindings"
+  deleteCertificateConfiguration,
+  getCourseStructure as getCourseStructureFromApi,
+  setCourseModuleCertificateGeneration,
+  updateCertificateConfiguration,
+} from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -32,6 +29,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface UpdateMutationArgs {
@@ -40,26 +38,50 @@ interface UpdateMutationArgs {
   fields: CertificateFields
 }
 
+const GET_COURSE_STRUCTURE_QUERY_KEY = "getCourseStructure"
+
+const getCourseStructureQueryOptions = (courseId: string | null | undefined) =>
+  queryOptions({
+    queryKey: [{ _id: GET_COURSE_STRUCTURE_QUERY_KEY, path: { course_id: courseId } }] as const,
+    queryFn: async () =>
+      getCourseStructureFromApi({
+        path: {
+          course_id: assertNotNullOrUndefined(courseId),
+        },
+        throwOnError: true,
+      }),
+  })
+
 const CertificationsPage: React.FC = () => {
   const { t } = useTranslation()
   const { confirm } = useDialog()
   const { id: courseInstanceId } = useParams<{ id: string }>()
 
   const [editingConfiguration, setEditingConfiguration] = useState<string | null>(null)
-  const getCourseInstance = useQuery(getCourseInstanceOptions(courseInstanceId))
+  const getCourseInstance = useQuery({
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+  })
   const courseId = getCourseInstance.data?.course_id
   const getCourse = useQuery({
-    ...getCourseStructureOptions(courseId ?? ""),
+    ...getCourseStructureQueryOptions(courseId),
     enabled: !!courseId,
   })
-  const defaultCertificateConfigurationsQuery = useQuery(
-    getCourseInstanceDefaultCertificateConfigurationsOptions(courseInstanceId),
-  )
+  const defaultCertificateConfigurationsQuery = useQuery({
+    ...getCourseInstanceDefaultCertificateConfigurationsOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+  })
   const updateConfigurationMutation = useToastMutation(
     ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
       const overlaySvg = fields.overlaySvg.item(0)
-      const update: CertificateConfigurationUpdate = {
+      const update = {
         course_module_id: courseModuleId,
         course_instance_id: courseInstanceId,
         certificate_owner_name_y_pos: fields.ownerNamePosY,
@@ -90,7 +112,15 @@ const CertificationsPage: React.FC = () => {
         certificate_grade_text_anchor: fields.gradeTextAnchor,
       }
 
-      return updateCertificateConfiguration(update, backgroundSvg, overlaySvg)
+      const files = [overlaySvg, backgroundSvg].filter((file): file is File => file !== null)
+
+      return updateCertificateConfiguration({
+        body: {
+          metadata: JSON.stringify(update),
+          file: files as unknown as number[][],
+        },
+        throwOnError: true,
+      })
     },
     { method: "POST", notify: true },
     {
@@ -102,8 +132,19 @@ const CertificationsPage: React.FC = () => {
   )
   const deleteConfigurationMutation = useToastMutation(
     ({ moduleId, configurationId }: { moduleId: string; configurationId: string }) => {
-      return setCertificationGeneration(moduleId, false).then(() =>
-        deleteCertificateConfiguration(configurationId),
+      return setCourseModuleCertificateGeneration({
+        path: {
+          course_module_id: moduleId,
+          enabled: false,
+        },
+        throwOnError: true,
+      }).then(() =>
+        deleteCertificateConfiguration({
+          path: {
+            certificate_configuration_id: configurationId,
+          },
+          throwOnError: true,
+        }),
       )
     },
     {
@@ -119,7 +160,7 @@ const CertificationsPage: React.FC = () => {
     },
   )
   const toggleCertificateGenerationEnabledMutation = useToastMutationOptions(
-    setCourseModuleCertificateGenerationMutationOptions(),
+    setCourseModuleCertificateGenerationMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -202,8 +243,10 @@ const CertificationsPage: React.FC = () => {
                             onClick={async () => {
                               if (await confirm(t("confirm-disable-generating-certificates"))) {
                                 toggleCertificateGenerationEnabledMutation.mutate({
-                                  id: module.id,
-                                  enabled: false,
+                                  path: {
+                                    course_module_id: module.id,
+                                    enabled: false,
+                                  },
                                 })
                               }
                             }}
@@ -217,8 +260,10 @@ const CertificationsPage: React.FC = () => {
                             onClick={async () => {
                               if (await confirm(t("confirm-enable-generating-certificates"))) {
                                 toggleCertificateGenerationEnabledMutation.mutate({
-                                  id: module.id,
-                                  enabled: true,
+                                  path: {
+                                    course_module_id: module.id,
+                                    enabled: true,
+                                  },
                                 })
                               }
                             }}

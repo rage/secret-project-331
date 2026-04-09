@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { uploadFilesFromIframe } from "@/services/backend/playground-examples"
+import { filesClient } from "@/services/filesClient"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
@@ -13,7 +13,9 @@ import {
   UserInformation,
 } from "@/shared-module/common/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface PlaygroundExerciseIframeProps {
   url: string
@@ -29,6 +31,21 @@ interface PlaygroundExerciseIframeProps {
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
+
+const uploadFilesFromIframe = async (
+  files: Map<string, string | Blob>,
+): Promise<Map<string, string>> => {
+  const form = new FormData()
+
+  files.forEach((value, key) => {
+    form.append(key, value)
+  })
+
+  const response = await filesClient.post("/playground", form)
+  const validated = validateGeneratedData(response.data, isObjectMap(isString))
+
+  return new Map(Object.entries(validated))
+}
 
 const PlaygroundExerciseIframe: React.FC<
   React.PropsWithChildren<PlaygroundExerciseIframeProps>

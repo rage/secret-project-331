@@ -60,7 +60,7 @@ GET /course-instances/:id
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
     responses(
-        (status = 200, description = "Course instance", body = serde_json::Value)
+        (status = 200, description = "Course instance", body = CourseInstance)
     )
 )]
 async fn get_course_instance(
@@ -90,9 +90,9 @@ async fn get_course_instance(
     params(
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
-    request_body = serde_json::Value,
+    request_body = EmailTemplateNew,
     responses(
-        (status = 200, description = "Created email template", body = serde_json::Value)
+        (status = 200, description = "Created email template", body = EmailTemplate)
     )
 )]
 async fn post_new_email_template(
@@ -132,7 +132,7 @@ async fn post_new_email_template(
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
     responses(
-        (status = 200, description = "Course instance email templates", body = serde_json::Value)
+        (status = 200, description = "Course instance email templates", body = [EmailTemplate])
     )
 )]
 async fn get_email_templates_by_course_instance_id(
@@ -218,7 +218,7 @@ pub async fn point_export(
         ("limit" = Option<i64>, Query, description = "Page size")
     ),
     responses(
-        (status = 200, description = "Course instance points", body = serde_json::Value)
+        (status = 200, description = "Course instance points", body = Points)
     )
 )]
 async fn points(
@@ -252,7 +252,7 @@ GET `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
     responses(
-        (status = 200, description = "Course instance completion summary", body = serde_json::Value)
+        (status = 200, description = "Course instance completion summary", body = CourseInstanceCompletionSummary)
     )
 )]
 async fn completions(
@@ -288,7 +288,7 @@ POST `/api/v0/main-frontend/course-instances/{course_instance_id}/completions`
     params(
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
-    request_body = serde_json::Value,
+    request_body = TeacherManualCompletionRequest,
     responses(
         (status = 200, description = "Manual completions added")
     )
@@ -324,9 +324,9 @@ async fn post_completions(
     params(
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
-    request_body = serde_json::Value,
+    request_body = TeacherManualCompletionRequest,
     responses(
-        (status = 200, description = "Manual completion preview", body = serde_json::Value)
+        (status = 200, description = "Manual completion preview", body = ManualCompletionPreview)
     )
 )]
 async fn preview_post_completions(
@@ -363,7 +363,7 @@ POST /course-instances/:id/edit
     params(
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
-    request_body = serde_json::Value,
+    request_body = CourseInstanceForm,
     responses(
         (status = 200, description = "Course instance updated")
     )
@@ -481,7 +481,7 @@ GET /course-instances/:id/default-certificate-configurations - gets default cert
         ("course_instance_id" = Uuid, Path, description = "Course instance id")
     ),
     responses(
-        (status = 200, description = "Default certificate configurations", body = serde_json::Value)
+        (status = 200, description = "Default certificate configurations", body = [CertificateConfigurationAndRequirements])
     )
 )]
 pub async fn certificate_configurations(

@@ -4,8 +4,8 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import NewReferenceForm from "@/components/forms/NewReferenceForm"
-import { postNewReferences } from "@/services/backend/courses"
-import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
+import { createCourseReferences } from "@/generated/api/sdk.generated"
+import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
@@ -13,7 +13,7 @@ interface NewReferenceModalProps {
   onClose: () => void
   open: boolean
   courseId: string
-  fetchCourseReferences: UseQueryResult<MaterialReference[], unknown>
+  fetchCourseReferences: UseQueryResult<MaterialReference[], Error>
 }
 
 const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProps>> = ({
@@ -24,7 +24,14 @@ const NewReferenceDialog: React.FC<React.PropsWithChildren<NewReferenceModalProp
 }) => {
   const { t } = useTranslation()
   const createReferenceMutation = useToastMutation(
-    (references: NewMaterialReference[]) => postNewReferences(courseId, references),
+    (references: NewMaterialReference[]) =>
+      createCourseReferences({
+        body: references,
+        path: {
+          course_id: courseId,
+        },
+        throwOnError: true,
+      }),
     {
       notify: true,
       successMessage: t("reference-added-successfully"),

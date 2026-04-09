@@ -2,10 +2,10 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getAllExerciseServices } from "../services/backend/exercise-services"
+import { getAllExerciseServicesOptions } from "../services/backend/exercise-services"
 
 const useAllExerciseServices = () => {
-  return useQuery({ queryKey: ["exercise-services"], queryFn: () => getAllExerciseServices() })
+  return useQuery(getAllExerciseServicesOptions())
 }
 
 export default useAllExerciseServices

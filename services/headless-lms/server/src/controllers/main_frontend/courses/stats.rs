@@ -12,36 +12,45 @@ use utoipa::OpenApi;
 use uuid::Uuid;
 
 #[derive(OpenApi)]
-#[openapi(paths(
-    get_total_users_started_course,
-    get_total_users_completed_course,
-    get_total_users_returned_at_least_one_exercise,
-    get_avg_time_to_first_submission_history,
-    get_cohort_activity_history,
-    get_total_users_started_all_language_versions,
-    get_unique_users_starting_history_all_language_versions,
-    get_course_completions_history_all_language_versions,
-    get_course_completions_history,
-    get_users_returning_exercises_history,
-    get_first_exercise_submissions_history,
-    get_unique_users_starting_history,
-    get_total_users_started_course_by_instance,
-    get_total_users_completed_course_by_instance,
-    get_total_users_returned_at_least_one_exercise_by_instance,
-    get_course_completions_history_by_instance,
-    get_unique_users_starting_history_by_instance,
-    get_first_exercise_submissions_history_by_instance,
-    get_users_returning_exercises_history_by_instance,
-    get_student_enrollments_by_country,
-    get_student_completions_by_country,
-    get_students_by_country_totals,
-    get_first_exercise_submissions_by_module,
-    get_course_completions_history_by_custom_time_period,
-    get_unique_users_starting_history_custom_time_period,
-    get_total_users_started_course_custom_time_period,
-    get_total_users_completed_course_custom_time_period,
-    get_total_users_returned_exercises_custom_time_period
-))]
+#[openapi(
+    paths(
+        get_total_users_started_course,
+        get_total_users_completed_course,
+        get_total_users_returned_at_least_one_exercise,
+        get_avg_time_to_first_submission_history,
+        get_cohort_activity_history,
+        get_total_users_started_all_language_versions,
+        get_unique_users_starting_history_all_language_versions,
+        get_course_completions_history_all_language_versions,
+        get_course_completions_history,
+        get_users_returning_exercises_history,
+        get_first_exercise_submissions_history,
+        get_unique_users_starting_history,
+        get_total_users_started_course_by_instance,
+        get_total_users_completed_course_by_instance,
+        get_total_users_returned_at_least_one_exercise_by_instance,
+        get_course_completions_history_by_instance,
+        get_unique_users_starting_history_by_instance,
+        get_first_exercise_submissions_history_by_instance,
+        get_users_returning_exercises_history_by_instance,
+        get_student_enrollments_by_country,
+        get_student_completions_by_country,
+        get_students_by_country_totals,
+        get_first_exercise_submissions_by_module,
+        get_course_completions_history_by_custom_time_period,
+        get_unique_users_starting_history_custom_time_period,
+        get_total_users_started_course_custom_time_period,
+        get_total_users_completed_course_custom_time_period,
+        get_total_users_returned_exercises_custom_time_period
+    ),
+    components(schemas(
+        TimeGranularity,
+        CountResult,
+        AverageMetric,
+        CohortActivity,
+        StudentsByCountryTotalsResult
+    ))
+)]
 pub(crate) struct MainFrontendCourseStatsApiDoc;
 
 const CACHE_DURATION: Duration = Duration::from_secs(3600);
@@ -90,7 +99,7 @@ where
     operation_id = "getTotalUsersStartedCourse",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Total users started course", body = serde_json::Value))
+    responses((status = 200, description = "Total users started course", body = CountResult))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_started_course(
@@ -131,7 +140,7 @@ async fn get_total_users_started_course(
     operation_id = "getTotalUsersCompletedCourse",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Total users completed course", body = serde_json::Value))
+    responses((status = 200, description = "Total users completed course", body = CountResult))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_completed_course(
@@ -172,7 +181,7 @@ async fn get_total_users_completed_course(
     operation_id = "getTotalUsersReturnedExercises",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Total users returned exercises", body = serde_json::Value))
+    responses((status = 200, description = "Total users returned exercises", body = CountResult))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_returned_at_least_one_exercise(
@@ -220,10 +229,10 @@ async fn get_total_users_returned_at_least_one_exercise(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Average time to first submission history", body = serde_json::Value))
+    responses((status = 200, description = "Average time to first submission history", body = [AverageMetric]))
 )]
 #[instrument(skip(pool))]
 async fn get_avg_time_to_first_submission_history(
@@ -275,11 +284,11 @@ async fn get_avg_time_to_first_submission_history(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("history_window" = u16, Path, description = "History window"),
         ("tracking_window" = u16, Path, description = "Tracking window")
     ),
-    responses((status = 200, description = "Cohort activity history", body = serde_json::Value))
+    responses((status = 200, description = "Cohort activity history", body = [CohortActivity]))
 )]
 #[instrument(skip(pool))]
 async fn get_cohort_activity_history(
@@ -330,7 +339,7 @@ async fn get_cohort_activity_history(
     operation_id = "getTotalUsersStartedAllLanguageVersions",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Total users started across all language versions", body = serde_json::Value))
+    responses((status = 200, description = "Total users started across all language versions", body = CountResult))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_started_all_language_versions(
@@ -383,10 +392,10 @@ async fn get_total_users_started_all_language_versions(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Unique users starting history across all language versions", body = serde_json::Value))
+    responses((status = 200, description = "Unique users starting history across all language versions", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history_all_language_versions(
@@ -446,10 +455,10 @@ async fn get_unique_users_starting_history_all_language_versions(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Course completions history across all language versions", body = serde_json::Value))
+    responses((status = 200, description = "Course completions history across all language versions", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_course_completions_history_all_language_versions(
@@ -509,10 +518,10 @@ async fn get_course_completions_history_all_language_versions(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Course completions history", body = serde_json::Value))
+    responses((status = 200, description = "Course completions history", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_course_completions_history(
@@ -566,10 +575,10 @@ async fn get_course_completions_history(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Users returning exercises history", body = serde_json::Value))
+    responses((status = 200, description = "Users returning exercises history", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_users_returning_exercises_history(
@@ -622,10 +631,10 @@ async fn get_users_returning_exercises_history(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "First exercise submissions history", body = serde_json::Value))
+    responses((status = 200, description = "First exercise submissions history", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_first_exercise_submissions_history(
@@ -678,10 +687,10 @@ async fn get_first_exercise_submissions_history(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Unique users starting history", body = serde_json::Value))
+    responses((status = 200, description = "Unique users starting history", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history(
@@ -729,7 +738,7 @@ async fn get_unique_users_starting_history(
     operation_id = "getTotalUsersStartedCourseByInstance",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Total users started course by instance", body = serde_json::Value))
+    responses((status = 200, description = "Total users started course by instance", body = HashMap<Uuid, CountResult>))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_started_course_by_instance(
@@ -772,7 +781,7 @@ async fn get_total_users_started_course_by_instance(
     operation_id = "getTotalUsersCompletedCourseByInstance",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Total users completed course by instance", body = serde_json::Value))
+    responses((status = 200, description = "Total users completed course by instance", body = HashMap<Uuid, CountResult>))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_completed_course_by_instance(
@@ -815,7 +824,7 @@ async fn get_total_users_completed_course_by_instance(
     operation_id = "getTotalUsersReturnedExercisesByInstance",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Total users returned exercises by instance", body = serde_json::Value))
+    responses((status = 200, description = "Total users returned exercises by instance", body = HashMap<Uuid, CountResult>))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_returned_at_least_one_exercise_by_instance(
@@ -863,10 +872,10 @@ async fn get_total_users_returned_at_least_one_exercise_by_instance(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Course completions history by instance", body = serde_json::Value))
+    responses((status = 200, description = "Course completions history by instance", body = HashMap<Uuid, Vec<CountResult>>))
 )]
 #[instrument(skip(pool))]
 async fn get_course_completions_history_by_instance(
@@ -919,10 +928,10 @@ async fn get_course_completions_history_by_instance(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Unique users starting history by instance", body = serde_json::Value))
+    responses((status = 200, description = "Unique users starting history by instance", body = HashMap<Uuid, Vec<CountResult>>))
 )]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history_by_instance(
@@ -975,10 +984,10 @@ async fn get_unique_users_starting_history_by_instance(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "First exercise submissions history by instance", body = serde_json::Value))
+    responses((status = 200, description = "First exercise submissions history by instance", body = HashMap<Uuid, Vec<CountResult>>))
 )]
 #[instrument(skip(pool))]
 async fn get_first_exercise_submissions_history_by_instance(
@@ -1034,10 +1043,10 @@ async fn get_first_exercise_submissions_history_by_instance(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "Users returning exercises history by instance", body = serde_json::Value))
+    responses((status = 200, description = "Users returning exercises history by instance", body = HashMap<Uuid, Vec<CountResult>>))
 )]
 #[instrument(skip(pool))]
 async fn get_users_returning_exercises_history_by_instance(
@@ -1093,11 +1102,11 @@ async fn get_users_returning_exercises_history_by_instance(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window"),
         ("country" = String, Path, description = "Country")
     ),
-    responses((status = 200, description = "Student enrollments by country", body = serde_json::Value))
+    responses((status = 200, description = "Student enrollments by country", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_student_enrollments_by_country(
@@ -1156,11 +1165,11 @@ async fn get_student_enrollments_by_country(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window"),
         ("country" = String, Path, description = "Country")
     ),
-    responses((status = 200, description = "Student completions by country", body = serde_json::Value))
+    responses((status = 200, description = "Student completions by country", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_student_completions_by_country(
@@ -1216,7 +1225,7 @@ async fn get_student_completions_by_country(
     operation_id = "getStudentsByCountryTotals",
     tag = "course-stats",
     params(("course_id" = Uuid, Path, description = "Course id")),
-    responses((status = 200, description = "Students by country totals", body = serde_json::Value))
+    responses((status = 200, description = "Students by country totals", body = [StudentsByCountryTotalsResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_students_by_country_totals(
@@ -1266,10 +1275,10 @@ async fn get_students_by_country_totals(
     tag = "course-stats",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("granularity" = String, Path, description = "Time granularity"),
+        ("granularity" = TimeGranularity, Path, description = "Time granularity"),
         ("time_window" = u16, Path, description = "Time window")
     ),
-    responses((status = 200, description = "First exercise submissions by module", body = serde_json::Value))
+    responses((status = 200, description = "First exercise submissions by module", body = HashMap<Uuid, Vec<CountResult>>))
 )]
 #[instrument(skip(pool))]
 async fn get_first_exercise_submissions_by_module(
@@ -1331,7 +1340,7 @@ async fn get_first_exercise_submissions_by_module(
         ("start_date" = String, Path, description = "Start date"),
         ("end_date" = String, Path, description = "End date")
     ),
-    responses((status = 200, description = "Course completions history for custom time period", body = serde_json::Value))
+    responses((status = 200, description = "Course completions history for custom time period", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_course_completions_history_by_custom_time_period(
@@ -1387,7 +1396,7 @@ async fn get_course_completions_history_by_custom_time_period(
         ("start_date" = String, Path, description = "Start date"),
         ("end_date" = String, Path, description = "End date")
     ),
-    responses((status = 200, description = "Unique users starting history for custom time period", body = serde_json::Value))
+    responses((status = 200, description = "Unique users starting history for custom time period", body = [CountResult]))
 )]
 #[instrument(skip(pool))]
 async fn get_unique_users_starting_history_custom_time_period(
@@ -1439,7 +1448,7 @@ async fn get_unique_users_starting_history_custom_time_period(
         ("start_date" = String, Path, description = "Start date"),
         ("end_date" = String, Path, description = "End date")
     ),
-    responses((status = 200, description = "Total users started course for custom time period", body = serde_json::Value))
+    responses((status = 200, description = "Total users started course for custom time period", body = CountResult))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_started_course_custom_time_period(
@@ -1491,7 +1500,7 @@ async fn get_total_users_started_course_custom_time_period(
         ("start_date" = String, Path, description = "Start date"),
         ("end_date" = String, Path, description = "End date")
     ),
-    responses((status = 200, description = "Total users completed course for custom time period", body = serde_json::Value))
+    responses((status = 200, description = "Total users completed course for custom time period", body = CountResult))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_completed_course_custom_time_period(
@@ -1543,7 +1552,7 @@ async fn get_total_users_completed_course_custom_time_period(
         ("start_date" = String, Path, description = "Start date"),
         ("end_date" = String, Path, description = "End date")
     ),
-    responses((status = 200, description = "Total users returned exercises for custom time period", body = serde_json::Value))
+    responses((status = 200, description = "Total users returned exercises for custom time period", body = CountResult))
 )]
 #[instrument(skip(pool))]
 async fn get_total_users_returned_exercises_custom_time_period(

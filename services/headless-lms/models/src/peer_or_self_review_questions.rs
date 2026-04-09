@@ -1,10 +1,11 @@
 use std::collections::HashMap;
 
 use sqlx::{Postgres, QueryBuilder, Row};
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "peer_review_question_type", rename_all = "snake_case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum PeerOrSelfReviewQuestionType {
@@ -12,7 +13,7 @@ pub enum PeerOrSelfReviewQuestionType {
     Scale,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CmsPeerOrSelfReviewQuestion {
     pub id: Uuid,
@@ -38,7 +39,7 @@ impl From<PeerOrSelfReviewQuestion> for CmsPeerOrSelfReviewQuestion {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerOrSelfReviewQuestion {
     pub id: Uuid,

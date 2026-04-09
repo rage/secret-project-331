@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -14,7 +15,7 @@ use crate::{
     user_exercise_states::{self, ReviewingStage},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerOrSelfReviewConfig {
     pub id: Uuid,
@@ -34,7 +35,7 @@ pub struct PeerOrSelfReviewConfig {
 }
 
 /// Like `PeerOrSelfReviewConfig` but only the fields it's fine to show to all users.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseMaterialPeerOrSelfReviewConfig {
     pub id: Uuid,
@@ -71,7 +72,7 @@ Determines how we will treat the answer being peer reviewed once it has received
 
 Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(
     type_name = "peer_review_processing_strategy",

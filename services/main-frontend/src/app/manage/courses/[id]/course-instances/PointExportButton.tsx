@@ -2,8 +2,11 @@
 
 import { useTranslation } from "react-i18next"
 
-import { downloadCourseInstancePointsCsv } from "@/services/backend/course-instances"
+import { exportCourseInstancePointsCsv } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
+import { downloadTextFile } from "@/utils/downloadTextFile"
+
+const POINTS_CSV_FILE_SUFFIX = "-points.csv"
 
 const PointExportButton: React.FC<
   React.PropsWithChildren<{ courseInstanceId: string; courseInstanceName: string }>
@@ -13,7 +16,14 @@ const PointExportButton: React.FC<
     <Button
       variant="secondary"
       size="medium"
-      onClick={() => void downloadCourseInstancePointsCsv(courseInstanceId, courseInstanceName)}
+      onClick={() =>
+        void exportCourseInstancePointsCsv({
+          path: {
+            course_instance_id: courseInstanceId,
+          },
+          throwOnError: true,
+        }).then((csv) => downloadTextFile(csv, `${courseInstanceName}${POINTS_CSV_FILE_SUFFIX}`))
+      }
       aria-label={`${t("link-export-points")} (${courseInstanceName})`}
     >
       {t("link-export-points")}

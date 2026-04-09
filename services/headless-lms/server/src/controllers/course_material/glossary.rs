@@ -1,7 +1,25 @@
 use models::glossary::TermUpdate;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
 
+#[derive(OpenApi)]
+#[openapi(paths(update, delete))]
+pub(crate) struct CourseMaterialGlossaryApiDoc;
+
+#[utoipa::path(
+    put,
+    path = "/{id}/update",
+    operation_id = "updateCourseMaterialGlossaryTerm",
+    tag = "course-material-glossary",
+    params(
+        ("id" = Uuid, Path, description = "Glossary term id")
+    ),
+    request_body = TermUpdate,
+    responses(
+        (status = 200, description = "Glossary term updated")
+    )
+)]
 #[instrument(skip(pool))]
 async fn update(
     pool: web::Data<PgPool>,
@@ -15,6 +33,18 @@ async fn update(
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
+#[utoipa::path(
+    delete,
+    path = "/{id}/delete",
+    operation_id = "deleteCourseMaterialGlossaryTerm",
+    tag = "course-material-glossary",
+    params(
+        ("id" = Uuid, Path, description = "Glossary term id")
+    ),
+    responses(
+        (status = 200, description = "Glossary term deleted")
+    )
+)]
 #[instrument(skip(pool))]
 async fn delete(
     pool: web::Data<PgPool>,

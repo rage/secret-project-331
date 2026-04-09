@@ -6,7 +6,10 @@ import React, { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { fetchCountryFromIP, updateUserInfo } from "@/services/course-material/backend"
+import {
+  getCourseMaterialCountryFromIp,
+  updateCourseMaterialUserInfo,
+} from "@/generated/course-material-api/sdk.generated"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -66,7 +69,10 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
 
   const preFillCountry = useQuery({
     queryKey: [`users-ip-country`],
-    queryFn: () => fetchCountryFromIP(),
+    queryFn: () =>
+      getCourseMaterialCountryFromIp({
+        throwOnError: true,
+      }),
   })
 
   useEffect(() => {
@@ -87,7 +93,16 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const postUserCountryMutation = useToastMutation<unknown, unknown, SelectUserInfoFormFields>(
     async (data) => {
       const { email, first_name, last_name, country, emailCommunicationConsent } = data
-      await updateUserInfo(email, first_name, last_name, country, emailCommunicationConsent)
+      await updateCourseMaterialUserInfo({
+        body: {
+          country,
+          email,
+          email_communication_consent: emailCommunicationConsent,
+          first_name,
+          last_name,
+        },
+        throwOnError: true,
+      })
     },
 
     {

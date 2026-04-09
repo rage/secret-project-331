@@ -2,10 +2,20 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getExamSubmissionsWithExerciseIdOptions } from "../services/backend/exams"
+import { getExamSubmissionsWithExerciseIdOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 const useExamSubmissionsInfo = (exercise_id: string, pageNumber: number, pageLimit: number) => {
-  return useQuery(getExamSubmissionsWithExerciseIdOptions(exercise_id, pageNumber, pageLimit))
+  return useQuery({
+    ...getExamSubmissionsWithExerciseIdOptions({
+      path: {
+        exercise_id,
+      },
+      query: {
+        page: pageNumber,
+        limit: pageLimit,
+      },
+    }),
+  })
 }
 
 export default useExamSubmissionsInfo

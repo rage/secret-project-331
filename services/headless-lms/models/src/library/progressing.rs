@@ -1,6 +1,7 @@
 use chrono::{DateTime, Utc};
 use itertools::Itertools;
 use std::collections::HashMap;
+use utoipa::ToSchema;
 
 use crate::{
     course_exams,
@@ -405,14 +406,14 @@ pub async fn process_all_course_completions(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseInstanceCompletionSummary {
     pub course_modules: Vec<CourseModule>,
     pub users_with_course_module_completions: Vec<UserWithModuleCompletions>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserWithModuleCompletions {
     pub completed_modules: Vec<CourseModuleCompletionWithRegistrationInfo>,
@@ -499,7 +500,7 @@ pub async fn get_course_instance_completion_summary(
     })
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TeacherManualCompletionRequest {
     pub course_module_id: Uuid,
@@ -507,7 +508,7 @@ pub struct TeacherManualCompletionRequest {
     pub skip_duplicate_completions: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct TeacherManualCompletion {
     pub user_id: Uuid,
@@ -613,7 +614,7 @@ pub async fn add_manual_completions(
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ManualCompletionPreview {
     pub already_completed_users: Vec<ManualCompletionPreviewUser>,
@@ -621,7 +622,7 @@ pub struct ManualCompletionPreview {
     pub non_enrolled_users: Vec<ManualCompletionPreviewUser>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ManualCompletionPreviewUser {
     pub user_id: Uuid,
@@ -736,7 +737,7 @@ pub async fn get_user_completion_information(
     })
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserModuleCompletionStatus {
     pub completed: bool,

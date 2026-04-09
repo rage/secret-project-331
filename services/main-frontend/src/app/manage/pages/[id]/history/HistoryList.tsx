@@ -5,9 +5,11 @@ import React, { useState } from "react"
 
 import HistoryPage from "./HistoryPage"
 
-import { restorePageHistoryMutation as restorePageHistoryMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { getPageHistoryCountOptions } from "@/services/backend/pages"
-import { PageHistory } from "@/shared-module/common/bindings"
+import {
+  getPageHistoryCountOptions,
+  restorePageHistoryMutation as restorePageHistoryMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { PageHistory } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -33,7 +35,11 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   )
 
   const getPageHistoryCount = useQuery({
-    ...getPageHistoryCountOptions(pageId),
+    ...getPageHistoryCountOptions({
+      path: {
+        page_id: pageId,
+      },
+    }),
   })
   const restorePageHistoryMutation = useMutation(restorePageHistoryMutationOptions())
 

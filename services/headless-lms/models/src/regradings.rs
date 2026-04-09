@@ -4,8 +4,9 @@ use crate::{
     exercises::GradingProgress,
     prelude::*,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct Regrading {
     pub id: Uuid,
@@ -18,7 +19,7 @@ pub struct Regrading {
     pub user_id: Option<Uuid>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct NewRegrading {
     user_points_update_strategy: UserPointsUpdateStrategy,
@@ -26,21 +27,21 @@ pub struct NewRegrading {
     id_type: NewRegradingIdType,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum NewRegradingIdType {
     ExerciseTaskSubmissionId,
     ExerciseId,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RegradingInfo {
     pub regrading: Regrading,
     pub submission_infos: Vec<RegradingSubmissionInfo>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct RegradingSubmissionInfo {
     pub exercise_task_submission_id: Uuid,

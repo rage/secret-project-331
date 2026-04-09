@@ -3,12 +3,16 @@
 import styled from "@emotion/styled"
 import { useTranslation } from "react-i18next"
 
-import { downloadCourseInstanceCompletionsCsv } from "@/services/backend/course-instances"
+import { exportCourseInstanceCompletionsCsv } from "@/generated/api/sdk.generated"
 import { baseTheme } from "@/shared-module/common/styles"
+import { downloadTextFile } from "@/utils/downloadTextFile"
 
 interface Props {
   courseInstanceId: string
 }
+
+const COMPLETIONS_CSV_FILE_PREFIX = "completions-"
+const CSV_FILE_SUFFIX = ".csv"
 
 // eslint-disable-next-line i18next/no-literal-string
 const StyledButton = styled.button`
@@ -35,7 +39,19 @@ const CompletionsExportButton: React.FC<React.PropsWithChildren<Props>> = ({
   return (
     <StyledButton
       type="button"
-      onClick={() => void downloadCourseInstanceCompletionsCsv(courseInstanceId)}
+      onClick={() =>
+        void exportCourseInstanceCompletionsCsv({
+          path: {
+            course_instance_id: courseInstanceId,
+          },
+          throwOnError: true,
+        }).then((csv) =>
+          downloadTextFile(
+            csv,
+            `${COMPLETIONS_CSV_FILE_PREFIX}${courseInstanceId}${CSV_FILE_SUFFIX}`,
+          ),
+        )
+      }
       aria-label={`${t("link-export-completions")})`}
     >
       {t("link-export-completions")}

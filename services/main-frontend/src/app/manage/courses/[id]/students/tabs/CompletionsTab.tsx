@@ -10,8 +10,8 @@ import { useTranslation } from "react-i18next"
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 
-import { getCompletionsOptions } from "@/services/backend/courses/students"
-import type { CompletionGridRow } from "@/shared-module/common/bindings"
+import { getCourseStudentsCompletionsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { CompletionGridRow } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -128,12 +128,15 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
 export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }) => {
   const { t } = useTranslation()
   const query = useQuery({
-    ...getCompletionsOptions(courseId),
-    enabled: !!courseId,
+    ...getCourseStudentsCompletionsOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const { modulesInOrder, data: allData } = useMemo(
-    () => pivotCompletions((query.data as CompletionGridRow[] | undefined) ?? [], t),
+    () => pivotCompletions(query.data ?? [], t),
     [query.data, t],
   )
 

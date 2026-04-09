@@ -1,4 +1,5 @@
 use futures::future::OptionFuture;
+use utoipa::ToSchema;
 
 use crate::{
     chatbot_conversation_messages::ChatbotConversationMessage,
@@ -6,7 +7,7 @@ use crate::{
     chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage, prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConversation {
     pub id: Uuid,
@@ -18,7 +19,7 @@ pub struct ChatbotConversation {
     pub chatbot_configuration_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 /** Should contain all information required to display the chatbot to the user. */
 pub struct ChatbotConversationInfo {

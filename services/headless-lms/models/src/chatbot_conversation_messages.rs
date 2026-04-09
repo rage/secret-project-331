@@ -1,4 +1,5 @@
 use std::fmt;
+use utoipa::ToSchema;
 
 use crate::{
     chatbot_conversation_message_tool_calls::{self, ChatbotConversationMessageToolCall},
@@ -6,7 +7,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "message_role", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
@@ -38,7 +39,7 @@ pub struct ChatbotConversationMessageRow {
     pub tool_output_id: Option<Uuid>,
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ChatbotConversationMessage {
     pub id: Uuid,

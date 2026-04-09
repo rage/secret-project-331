@@ -136,7 +136,7 @@ GET `/api/v0/main-frontend/courses/:course_id` - Get course.
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course", body = serde_json::Value)
+        (status = 200, description = "Course", body = Course)
     )
 )]
 #[instrument(skip(pool))]
@@ -163,7 +163,7 @@ GET `/api/v0/main-frontend/courses/:course_id/breadcrumb-info` - Get information
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course breadcrumb information", body = serde_json::Value)
+        (status = 200, description = "Course breadcrumb information", body = CourseBreadcrumbInfo)
     )
 )]
 #[instrument(skip(pool))]
@@ -192,7 +192,7 @@ GET `/api/v0/main-frontend/courses/:course_id/status-for-all-exercises/:user_id`
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "Exercise statuses for course user", body = serde_json::Value)
+        (status = 200, description = "Exercise statuses for course user", body = [ExerciseStatusSummaryForUser])
     )
 )]
 #[instrument(skip(pool))]
@@ -230,7 +230,7 @@ GET `/api/v0/main-frontend/courses/:course_id/course-module-completions/:user_id
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "Course module completions for course user", body = serde_json::Value)
+        (status = 200, description = "Course module completions for course user", body = [CourseModuleCompletion])
     )
 )]
 #[instrument(skip(pool))]
@@ -268,7 +268,7 @@ GET `/api/v0/main-frontend/courses/:course_id/progress/:user_id` - Returns user 
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "User progress for course", body = serde_json::Value)
+        (status = 200, description = "User progress for course", body = [UserCourseProgress])
     )
 )]
 #[instrument(skip(pool))]
@@ -309,7 +309,7 @@ GET `/api/v0/main-frontend/courses/:course_id/user-settings/:user_id` - Get curr
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "User course settings", body = serde_json::Value)
+        (status = 200, description = "User course settings", body = Option<UserCourseSettings>)
     )
 )]
 #[instrument(skip(pool))]
@@ -380,9 +380,9 @@ Content-Type: application/json
     path = "",
     operation_id = "createCourse",
     tag = "courses",
-    request_body = serde_json::Value,
+    request_body = NewCourse,
     responses(
-        (status = 200, description = "Created course", body = serde_json::Value)
+        (status = 200, description = "Created course", body = Course)
     )
 )]
 #[instrument(skip(pool, app_conf))]
@@ -460,9 +460,9 @@ Content-Type: application/json
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = CourseUpdate,
     responses(
-        (status = 200, description = "Updated course", body = serde_json::Value)
+        (status = 200, description = "Updated course", body = Course)
     )
 )]
 #[instrument(skip(pool))]
@@ -595,7 +595,7 @@ GET `/api/v0/main-frontend/courses/:course_id/structure` - Returns the structure
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course structure", body = serde_json::Value)
+        (status = 200, description = "Course structure", body = CourseStructure)
     )
 )]
 #[instrument(skip(pool, file_store, app_conf))]
@@ -694,7 +694,7 @@ GET `/api/v0/main-frontend/courses/:id/exercises` - Returns all exercises for th
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Exercises for course", body = serde_json::Value)
+        (status = 200, description = "Exercises for course", body = [Exercise])
     )
 )]
 #[instrument(skip(pool))]
@@ -722,7 +722,11 @@ GET `/api/v0/main-frontend/courses/:id/exercises-and-count-of-answers-requiring-
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Exercises and answer attention counts", body = serde_json::Value)
+        (
+            status = 200,
+            description = "Exercises and answer attention counts",
+            body = [ExerciseAnswersInCourseRequiringAttentionCount]
+        )
     )
 )]
 #[instrument(skip(pool))]
@@ -758,7 +762,7 @@ Content-Type: application/json
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course language versions", body = serde_json::Value)
+        (status = 200, description = "Course language versions", body = [Course])
     )
 )]
 #[instrument(skip(pool))]
@@ -776,7 +780,7 @@ async fn get_all_course_language_versions(
     token.authorized_ok(web::Json(language_versions))
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, utoipa::ToSchema)]
 #[serde(tag = "mode", rename_all = "snake_case")]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CopyCourseMode {
@@ -790,7 +794,7 @@ pub enum CopyCourseMode {
     NewLanguageGroup,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, utoipa::ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CopyCourseRequest {
     #[serde(flatten)]
@@ -849,9 +853,9 @@ Content-Type: application/json
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = CopyCourseRequest,
     responses(
-        (status = 200, description = "Created course copy", body = serde_json::Value)
+        (status = 200, description = "Created course copy", body = Course)
     )
 )]
 #[instrument(skip(pool))]
@@ -945,7 +949,7 @@ GET `/api/v0/main-frontend/courses/:id/daily-submission-counts` - Returns submis
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course daily submission counts", body = serde_json::Value)
+        (status = 200, description = "Course daily submission counts", body = [ExerciseSlideSubmissionCount])
     )
 )]
 #[instrument(skip(pool))]
@@ -982,7 +986,7 @@ GET `/api/v0/main-frontend/courses/:id/daily-users-who-have-submitted-something`
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course daily user submission counts", body = serde_json::Value)
+        (status = 200, description = "Course daily user submission counts", body = [ExerciseSlideSubmissionCount])
     )
 )]
 #[instrument(skip(pool))]
@@ -1020,7 +1024,7 @@ GET `/api/v0/main-frontend/courses/:id/weekday-hour-submission-counts` - Returns
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course weekday and hour submission counts", body = serde_json::Value)
+        (status = 200, description = "Course weekday and hour submission counts", body = [ExerciseSlideSubmissionCountByWeekAndHour])
     )
 )]
 #[instrument(skip(pool))]
@@ -1058,7 +1062,7 @@ GET `/api/v0/main-frontend/courses/:id/submission-counts-by-exercise` - Returns 
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course submission counts by exercise", body = serde_json::Value)
+        (status = 200, description = "Course submission counts by exercise", body = [ExerciseSlideSubmissionCountByExercise])
     )
 )]
 #[instrument(skip(pool))]
@@ -1096,7 +1100,7 @@ GET `/api/v0/main-frontend/courses/:id/course-instances` - Returns all course in
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course instances", body = serde_json::Value)
+        (status = 200, description = "Course instances", body = [CourseInstance])
     )
 )]
 #[instrument(skip(pool))]
@@ -1142,7 +1146,7 @@ GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback fo
         ("limit" = Option<i64>, Query, description = "Page size")
     ),
     responses(
-        (status = 200, description = "Feedback for the course", body = serde_json::Value)
+        (status = 200, description = "Feedback for the course", body = [Feedback])
     )
 )]
 #[instrument(skip(pool))]
@@ -1176,10 +1180,10 @@ GET `/api/v0/main-frontend/courses/:id/feedback-count` - Returns the amount of f
     operation_id = "getCourseFeedbackCount",
     tag = "courses",
     params(
-        ("course_id" = String, Path, description = "Course id")
+        ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Feedback counts for the course", body = serde_json::Value)
+        (status = 200, description = "Feedback counts for the course", body = FeedbackCount)
     )
 )]
 #[instrument(skip(pool))]
@@ -1213,7 +1217,7 @@ POST `/api/v0/main-frontend/courses/:id/new-course-instance`
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = CourseInstanceForm,
     responses(
         (status = 200, description = "Created course instance id", body = Uuid)
     )
@@ -1327,7 +1331,7 @@ GET `/api/v0/main-frontend/courses/:id/course-users-counts-by-exercise` - Return
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course users counts by exercise", body = serde_json::Value)
+        (status = 200, description = "Course users counts by exercise", body = [ExerciseUserCounts])
     )
 )]
 #[instrument(skip(pool))]
@@ -1432,7 +1436,7 @@ pub async fn post_new_chapter_ordering(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course references", body = serde_json::Value)
+        (status = 200, description = "Course references", body = [MaterialReference])
     )
 )]
 #[instrument(skip(pool))]
@@ -1457,7 +1461,7 @@ async fn get_material_references_by_course_id(
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = [NewMaterialReference],
     responses(
         (status = 200, description = "Course references created")
     )
@@ -1486,7 +1490,7 @@ async fn insert_material_references(
         ("course_id" = Uuid, Path, description = "Course id"),
         ("reference_id" = Uuid, Path, description = "Reference id")
     ),
-    request_body = serde_json::Value,
+    request_body = NewMaterialReference,
     responses(
         (status = 200, description = "Course reference updated")
     )
@@ -1546,7 +1550,7 @@ async fn delete_material_reference_by_id(
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = ModuleUpdates,
     responses(
         (status = 200, description = "Course modules updated")
     )
@@ -1948,7 +1952,7 @@ GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary` - Gets
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course page visit summary", body = serde_json::Value)
+        (status = 200, description = "Course page visit summary", body = [PageVisitDatumSummaryByCourse])
     )
 )]
 pub async fn get_page_visit_datum_summary(
@@ -1984,7 +1988,7 @@ GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-page
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course page visit summary by pages", body = serde_json::Value)
+        (status = 200, description = "Course page visit summary by pages", body = [PageVisitDatumSummaryByPages])
     )
 )]
 pub async fn get_page_visit_datum_summary_by_pages(
@@ -2020,7 +2024,7 @@ GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-devi
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course page visit summary by device types", body = serde_json::Value)
+        (status = 200, description = "Course page visit summary by device types", body = [PageVisitDatumSummaryByCourseDeviceTypes])
     )
 )]
 pub async fn get_page_visit_datum_summary_by_device_types(
@@ -2058,7 +2062,7 @@ GET `/api/v0/main-frontend/courses/${course.id}/page-visit-datum-summary-by-coun
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course page visit summary by countries", body = serde_json::Value)
+        (status = 200, description = "Course page visit summary by countries", body = [PageVisitDatumSummaryByCoursesCountries])
     )
 )]
 pub async fn get_page_visit_datum_summary_by_countries(
@@ -2225,7 +2229,7 @@ pub struct GetSuspectedCheatersQuery {
         ("archive" = bool, Query, description = "Whether to fetch archived suspected cheaters")
     ),
     responses(
-        (status = 200, description = "Suspected cheaters for course", body = serde_json::Value)
+        (status = 200, description = "Suspected cheaters for course", body = [SuspectedCheaters])
     )
 )]
 #[instrument(skip(pool))]
@@ -2435,7 +2439,7 @@ GET /courses/join/:join_code - Gets the course related to join code
         ("join_code" = String, Path, description = "Course join code")
     ),
     responses(
-        (status = 200, description = "Course for join code", body = serde_json::Value)
+        (status = 200, description = "Course for join code", body = Course)
     )
 )]
 #[instrument(skip(pool))]

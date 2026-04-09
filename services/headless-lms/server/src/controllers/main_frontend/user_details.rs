@@ -1,5 +1,5 @@
 use models::{pages::SearchRequest, user_details::UserDetail};
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{controllers, prelude::*};
 use headless_lms_utils::{ip_to_country::IpToCountryMapper, tmc::TmcClient};
@@ -20,14 +20,14 @@ use std::net::IpAddr;
 ))]
 pub(crate) struct MainFrontendUserDetailsApiDoc;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct BulkUserDetailsRequest {
     pub user_ids: Vec<Uuid>,
     pub course_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserDetailsRequest {
     pub user_id: Uuid,
@@ -49,7 +49,7 @@ Only returns user details if the user is enrolled in the specified course
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "User details", body = serde_json::Value)
+        (status = 200, description = "User details", body = UserDetail)
     )
 )]
 pub async fn get_user_details(
@@ -83,9 +83,9 @@ Returns user details if the user has permission to view user details through any
     path = "/user-by-courses",
     operation_id = "getUserDetailsByCourses",
     tag = "user-details",
-    request_body = serde_json::Value,
+    request_body = UserDetailsRequest,
     responses(
-        (status = 200, description = "User details", body = serde_json::Value)
+        (status = 200, description = "User details", body = UserDetail)
     )
 )]
 pub async fn get_user_details_by_courses(
@@ -147,9 +147,9 @@ GET `/api/v0/main-frontend/user-details/search-by-email` - Allows to search user
     path = "/search-by-email",
     operation_id = "searchUserDetailsByEmail",
     tag = "user-details",
-    request_body = serde_json::Value,
+    request_body = SearchRequest,
     responses(
-        (status = 200, description = "User details search results", body = serde_json::Value)
+        (status = 200, description = "User details search results", body = [UserDetail])
     )
 )]
 pub async fn search_users_by_email(
@@ -180,9 +180,9 @@ GET `/api/v0/main-frontend/user-details/search-by-other-details` - Allows to sea
     path = "/search-by-other-details",
     operation_id = "searchUserDetailsByOtherDetails",
     tag = "user-details",
-    request_body = serde_json::Value,
+    request_body = SearchRequest,
     responses(
-        (status = 200, description = "User details search results", body = serde_json::Value)
+        (status = 200, description = "User details search results", body = [UserDetail])
     )
 )]
 pub async fn search_users_by_other_details(
@@ -214,9 +214,9 @@ GET `/api/v0/main-frontend/user-details/search-fuzzy-match` - Allows to find the
     path = "/search-fuzzy-match",
     operation_id = "searchUserDetailsFuzzyMatch",
     tag = "user-details",
-    request_body = serde_json::Value,
+    request_body = SearchRequest,
     responses(
-        (status = 200, description = "User details fuzzy search results", body = serde_json::Value)
+        (status = 200, description = "User details fuzzy search results", body = [UserDetail])
     )
 )]
 pub async fn search_users_fuzzy_match(
@@ -250,7 +250,7 @@ GET `/api/v0/main-frontend/user-details/get-users-by-course-id` - Get user detai
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Users by course id", body = serde_json::Value)
+        (status = 200, description = "Users by course id", body = [UserDetail])
     )
 )]
 pub async fn get_users_by_course_id(
@@ -281,9 +281,9 @@ Only returns user details for users who are actually enrolled in the specified c
     path = "/bulk-user-details",
     operation_id = "getBulkUserDetails",
     tag = "user-details",
-    request_body = serde_json::Value,
+    request_body = BulkUserDetailsRequest,
     responses(
-        (status = 200, description = "Bulk user details", body = serde_json::Value)
+        (status = 200, description = "Bulk user details", body = [UserDetail])
     )
 )]
 pub async fn get_bulk_user_details(
@@ -319,7 +319,7 @@ GET `/api/v0/main-frontend/user-details/user-details-for-user` - Get authenticat
     operation_id = "getUserDetailsForAuthenticatedUser",
     tag = "user-details",
     responses(
-        (status = 200, description = "Authenticated user details", body = serde_json::Value)
+        (status = 200, description = "Authenticated user details", body = UserDetail)
     )
 )]
 pub async fn get_user_details_for_user(
@@ -362,7 +362,7 @@ pub async fn get_user_country_by_ip(
     token.authorized_ok(country)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct UserInfoPayload {
     pub email: String,
@@ -381,9 +381,9 @@ POST `/api/v0/main-frontend/user-details/update-user-info` - Updates the users i
     path = "/update-user-info",
     operation_id = "updateUserInfo",
     tag = "user-details",
-    request_body = serde_json::Value,
+    request_body = UserInfoPayload,
     responses(
-        (status = 200, description = "Updated user details", body = serde_json::Value)
+        (status = 200, description = "Updated user details", body = UserDetail)
     )
 )]
 pub async fn update_user_info(

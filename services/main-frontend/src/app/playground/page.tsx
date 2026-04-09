@@ -6,12 +6,12 @@ import React, { ChangeEvent, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  deletePlaygroundExampleMutationOptions,
+  deletePlaygroundExampleMutation as deletePlaygroundExampleMutationOptions,
   getPlaygroundExamplesOptions,
-  savePlaygroundExampleMutationOptions,
-  updatePlaygroundExampleMutationOptions,
-} from "@/services/backend/playground-examples"
-import { PlaygroundExample } from "@/shared-module/common/bindings"
+  createPlaygroundExampleMutation as savePlaygroundExampleMutationOptions,
+  updatePlaygroundExampleMutation as updatePlaygroundExampleMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { PlaygroundExample } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"

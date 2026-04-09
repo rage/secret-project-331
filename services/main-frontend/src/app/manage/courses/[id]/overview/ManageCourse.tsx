@@ -9,32 +9,110 @@ import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 import ModuleCompletionReprocessButton from "@/app/manage/courses/[id]/course-instances/ModuleCompletionReprocessButton"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import {
-  deleteCourse,
-  downloadCourseExerciseTasksCsv,
-  downloadCourseInstancesCsv,
-  downloadCourseSubmissionsCsv,
-  downloadCourseUserConsentsCsv,
-  downloadCourseUserDetailsCsv,
-  downloadCourseUserExerciseStatesCsv,
-  setJoinCourseLinkForCourse,
-  teacherResetCourseProgressForEveryone,
-  teacherResetCourseProgressForThemselves,
-} from "@/services/backend/courses"
-import { Course } from "@/shared-module/common/bindings"
+  deleteCourse as deleteCourseFromApi,
+  exportCourseExerciseTasksCsv,
+  exportCourseInstancesCsv,
+  exportCourseSubmissionsCsv,
+  exportCourseUserConsentsCsv,
+  exportCourseUserDetailsCsv,
+  exportCourseUserExerciseStatesCsv,
+  resetCourseProgressForEveryone,
+  resetCourseProgressForTeacherThemselves,
+  setCourseJoinCode,
+} from "@/generated/api/sdk.generated"
+import type { Course } from "@/generated/api/types.generated"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { courseMaterialFrontPageHref } from "@/shared-module/common/utils/cross-routing"
+import { downloadTextFile } from "@/utils/downloadTextFile"
+
+const COURSE_CSV_FILE_PREFIX = "course-"
+const COURSE_SUBMISSIONS_CSV_SUFFIX = "-submissions.csv"
+const COURSE_USER_DETAILS_CSV_SUFFIX = "-user-details.csv"
+const COURSE_EXERCISE_TASKS_CSV_SUFFIX = "-exercise-tasks.csv"
+const COURSE_INSTANCES_CSV_SUFFIX = "-instances.csv"
+const COURSE_USER_CONSENTS_CSV_SUFFIX = "-user-consents.csv"
+const COURSE_USER_EXERCISE_STATES_CSV_SUFFIX = "-user-exercise-states.csv"
+
+const downloadCourseSubmissionsCsv = async (courseId: string): Promise<void> => {
+  const csv = await exportCourseSubmissionsCsv({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_SUBMISSIONS_CSV_SUFFIX}`)
+}
+
+const downloadCourseUserDetailsCsv = async (courseId: string): Promise<void> => {
+  const csv = await exportCourseUserDetailsCsv({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_USER_DETAILS_CSV_SUFFIX}`)
+}
+
+const downloadCourseExerciseTasksCsv = async (courseId: string): Promise<void> => {
+  const csv = await exportCourseExerciseTasksCsv({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_EXERCISE_TASKS_CSV_SUFFIX}`)
+}
+
+const downloadCourseInstancesCsv = async (courseId: string): Promise<void> => {
+  const csv = await exportCourseInstancesCsv({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_INSTANCES_CSV_SUFFIX}`)
+}
+
+const downloadCourseUserConsentsCsv = async (courseId: string): Promise<void> => {
+  const csv = await exportCourseUserConsentsCsv({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  downloadTextFile(csv, `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_USER_CONSENTS_CSV_SUFFIX}`)
+}
+
+const downloadCourseUserExerciseStatesCsv = async (courseId: string): Promise<void> => {
+  const csv = await exportCourseUserExerciseStatesCsv({
+    path: {
+      course_id: courseId,
+    },
+    throwOnError: true,
+  })
+
+  downloadTextFile(
+    csv,
+    `${COURSE_CSV_FILE_PREFIX}${courseId}${COURSE_USER_EXERCISE_STATES_CSV_SUFFIX}`,
+  )
+}
 
 interface Props {
   course: Course
   refetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
-  ) => Promise<QueryObserverResult<Course, unknown>>
+  ) => Promise<QueryObserverResult<Course, Error>>
 }
 
 const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
@@ -46,7 +124,12 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
   const organizationSlug = courseBreadcrumbInfoQuery.data?.organization_slug
   const deleteCourseMutation = useToastMutation(
     async () => {
-      await deleteCourse(course.id)
+      await deleteCourseFromApi({
+        path: {
+          course_id: course.id,
+        },
+        throwOnError: true,
+      })
       await refetch()
     },
     {
@@ -63,7 +146,12 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
 
   const teacherResetCourseProgressForThemselvesMutation = useToastMutation(
     async () => {
-      await teacherResetCourseProgressForThemselves(course.id)
+      await resetCourseProgressForTeacherThemselves({
+        path: {
+          course_id: course.id,
+        },
+        throwOnError: true,
+      })
     },
     {
       notify: true,
@@ -74,7 +162,12 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
 
   const teacherResetCourseProgressForEveryoneMutation = useToastMutation(
     async () => {
-      await teacherResetCourseProgressForEveryone(course.id)
+      await resetCourseProgressForEveryone({
+        path: {
+          course_id: course.id,
+        },
+        throwOnError: true,
+      })
     },
     {
       notify: true,
@@ -89,7 +182,12 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
 
   const setJoinCourseLinkMutation = useToastMutation(
     async (courseId: string) => {
-      await setJoinCourseLinkForCourse(courseId)
+      await setCourseJoinCode({
+        path: {
+          course_id: courseId,
+        },
+        throwOnError: true,
+      })
     },
     {
       notify: true,

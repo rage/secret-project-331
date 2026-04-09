@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import UploadImageForm from "@/components/forms/UploadImageForm"
 import { deleteOrganizationImage, updateOrganizationImage } from "@/generated/api/sdk.generated"
-import { Organization } from "@/shared-module/common/bindings"
+import type { Organization } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { validateFile } from "@/shared-module/common/utils/files"

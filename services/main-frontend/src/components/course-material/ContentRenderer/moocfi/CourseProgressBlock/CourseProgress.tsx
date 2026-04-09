@@ -9,7 +9,7 @@ import ColorsIdentifier from "./ColorsIdentifier"
 import CompletionRequirementsTabulation from "./CompletionRequirementsTabulation"
 import TempAccordionItem from "./TempAccordionItem"
 
-import { UserCourseProgress } from "@/shared-module/common/bindings"
+import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
 import Progress from "@/shared-module/common/components/CourseProgress"
 
 export interface CourseProgressProps {
@@ -76,16 +76,16 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                 {/* TODO: Verify how it looks when score_given is a floating number */}
                 <Progress
                   variant={"circle"}
-                  max={courseModuleProgress.score_maximum}
+                  max={courseModuleProgress.score_maximum ?? null}
                   required={courseModuleProgress.score_required ?? undefined}
-                  given={courseModuleProgress.score_given}
+                  given={courseModuleProgress.score_given ?? null}
                   label={t("total-points")}
                 />
                 <Progress
                   variant={"bar"}
                   showAsPercentage={false}
-                  exercisesAttempted={courseModuleProgress.attempted_exercises}
-                  exercisesTotal={courseModuleProgress.total_exercises}
+                  exercisesAttempted={courseModuleProgress.attempted_exercises ?? null}
+                  exercisesTotal={courseModuleProgress.total_exercises ?? null}
                   required={courseModuleProgress.attempted_exercises_required ?? undefined}
                   label={t("exercises-attempted")}
                 />
@@ -95,9 +95,9 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
             <Wrapper>
               <CompletionRequirementsTabulation
                 attemptedExercisesRequiredForCompletion={
-                  courseModuleProgress.attempted_exercises_required
+                  courseModuleProgress.attempted_exercises_required ?? null
                 }
-                pointsRequiredForCompletion={courseModuleProgress.score_required}
+                pointsRequiredForCompletion={courseModuleProgress.score_required ?? null}
               />
             </Wrapper>
           </TempAccordionItem>

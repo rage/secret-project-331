@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import HistoryList from "./HistoryList"
 
-import { getPageHistoryOptions } from "@/services/backend/pages"
-import { PageHistory } from "@/shared-module/common/bindings"
+import { getPageHistoryOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { PageHistory } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import MonacoDiffEditor from "@/shared-module/common/components/monaco/MonacoDiffEditor"
@@ -26,7 +26,15 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
   const [selectedRevision, setSelectedRevision] = useState<string | null>(null)
 
   const getCurrentPageHistory = useQuery({
-    ...getPageHistoryOptions(pageId, 1, 1),
+    ...getPageHistoryOptions({
+      path: {
+        page_id: pageId,
+      },
+      query: {
+        page: 1,
+        limit: 1,
+      },
+    }),
   })
   const currentPageHistory = getCurrentPageHistory.data?.[0]
 

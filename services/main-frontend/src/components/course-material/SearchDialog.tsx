@@ -9,8 +9,11 @@ import { useTranslation } from "react-i18next"
 // useDebounce from "usehooks-ts" doesn't seem to work
 import { useDebounce } from "use-debounce"
 
-import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/course-material/backend"
-import { PageSearchResult } from "@/shared-module/common/bindings"
+import {
+  searchPagesWithPhrase,
+  searchPagesWithWords,
+} from "@/generated/course-material-api/sdk.generated"
+import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
@@ -249,16 +252,22 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
 
       try {
         const [pagesWithPhrase, pagesWithWords] = await Promise.all([
-          searchPagesWithPhrase(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
-          searchPagesWithWords(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
+          searchPagesWithPhrase({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+            throwOnError: true,
+          }),
+          searchPagesWithWords({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+            throwOnError: true,
+          }),
         ])
         setPhraseSearchResults(pagesWithPhrase)
         setWordSearchResults(pagesWithWords)

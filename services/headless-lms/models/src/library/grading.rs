@@ -3,6 +3,7 @@
 use futures::future::BoxFuture;
 use std::collections::HashMap;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -30,14 +31,14 @@ use crate::{
 use super::user_exercise_state_updater;
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseSlideSubmissionResult {
     pub exercise_status: Option<ExerciseStatus>,
@@ -65,14 +66,14 @@ impl StudentExerciseSlideSubmissionResult {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
     pub data_json: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct StudentExerciseTaskSubmissionResult {
     pub submission: ExerciseTaskSubmission,
@@ -542,7 +543,7 @@ pub async fn propagate_user_exercise_state_update_from_exercise_task_grading_res
     Ok(user_exercise_state)
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AnswersRequiringAttention {
     pub exercise_max_points: i32,
@@ -550,7 +551,7 @@ pub struct AnswersRequiringAttention {
     pub total_pages: u32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct AnswerRequiringAttentionWithTasks {
     pub id: Uuid,

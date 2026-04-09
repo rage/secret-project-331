@@ -8,10 +8,10 @@ import ExerciseServiceContainer from "./ExerciseServiceContainer"
 import ExerciseServiceCreationModal from "./ExerciseServiceCreationModal"
 
 import {
-  createExerciseServiceMutationOptions,
+  createExerciseServiceMutation as createExerciseServiceMutationOptions,
   getExerciseServicesOptions,
-} from "@/services/backend/exercise-services"
-import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"

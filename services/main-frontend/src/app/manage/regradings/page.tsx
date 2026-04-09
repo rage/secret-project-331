@@ -10,15 +10,11 @@ import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
-  createNewRegradingMutationOptions,
+  createRegradingMutation as createNewRegradingMutationOptions,
   getRegradingsCountOptions,
   getRegradingsOptions,
-} from "@/services/backend/regradings"
-import {
-  NewRegrading,
-  NewRegradingIdType,
-  UserPointsUpdateStrategy,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { NewRegradingIdType, UserPointsUpdateStrategy } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -46,7 +42,14 @@ const RegradingsPage: React.FC = () => {
   const { t } = useTranslation()
   const router = useRouter()
   const paginationInfo = usePaginationInfo()
-  const regradingsQuery = useQuery(getRegradingsOptions(paginationInfo))
+  const regradingsQuery = useQuery({
+    ...getRegradingsOptions({
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
+  })
   const regradingsCountQuery = useQuery(getRegradingsCountOptions())
   const [newRegradingDialogOpen, setNewRegradingDialogOpen] = useState(false)
   const {

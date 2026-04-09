@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerOrSelfReviewSubmission {
     pub id: Uuid,
@@ -17,7 +18,7 @@ pub struct PeerOrSelfReviewSubmission {
 }
 
 /// Same as PeerOrSelfReviewSubmission with optional submission owner (user who received the review). Used for "given" reviews.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct PeerOrSelfReviewSubmissionWithSubmissionOwner {
     #[serde(flatten)]

@@ -1,9 +1,9 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { fetchUserChapterInstanceChapterProgress } from "@/services/course-material/backend"
+import { getCourseMaterialChapterProgress } from "@/generated/course-material-api/sdk.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 
 /**
@@ -17,8 +17,17 @@ export const useChapterProgress = (courseInstanceId: string | undefined, chapter
   const loginStateContext = useContext(LoginStateContext)
 
   return useQuery({
-    queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
-    queryFn: () => fetchUserChapterInstanceChapterProgress(courseInstanceId!, chapterId),
+    queryKey: ["courseMaterialChapterProgress", courseInstanceId, chapterId] as const,
+    queryFn: courseInstanceId
+      ? () =>
+          getCourseMaterialChapterProgress({
+            path: {
+              chapter_id: chapterId,
+              course_instance_id: courseInstanceId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
     enabled: !!courseInstanceId && loginStateContext.signedIn === true,
   })
 }

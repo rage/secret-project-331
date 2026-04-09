@@ -4,16 +4,19 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import UploadImageForm from "@/components/forms/UploadImageForm"
-import { removeChapterImage, setChapterImage } from "@/services/backend/chapters"
-import { Chapter } from "@/shared-module/common/bindings"
+import { deleteChapterImage, updateChapterImage } from "@/generated/api/sdk.generated"
+import type { Chapter } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { validateFile } from "@/shared-module/common/utils/files"
 
 export interface ChapterImageControlsProps {
   chapter: Chapter
   onChapterUpdated?: () => void
 }
+
+const ACCEPTED_IMAGE_FILE_TYPES = ["image"]
 
 const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsProps>> = ({
   chapter,
@@ -24,7 +27,19 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
   const [chapterImageUrl, setChapterImageUrl] = useState(chapter.chapter_image_url)
 
   const uploadImageMutation = useToastMutation(
-    (imageFile: File) => setChapterImage(chapter.id, imageFile),
+    async (imageFile: File) => {
+      validateFile(imageFile, ACCEPTED_IMAGE_FILE_TYPES)
+
+      return updateChapterImage({
+        path: {
+          chapter_id: chapter.id,
+        },
+        body: {
+          file: imageFile as unknown as number[],
+        },
+        throwOnError: true,
+      })
+    },
     {
       notify: true,
       method: "POST",
@@ -36,13 +51,19 @@ const ChapterImageWidget: React.FC<React.PropsWithChildren<ChapterImageControlsP
         if (onChapterUpdated) {
           onChapterUpdated()
         }
-        setChapterImageUrl(res.chapter_image_url)
+        setChapterImageUrl(res.chapter_image_url ?? null)
       },
     },
   )
 
   const removeImageMutation = useToastMutation(
-    () => removeChapterImage(chapter.id),
+    () =>
+      deleteChapterImage({
+        path: {
+          chapter_id: chapter.id,
+        },
+        throwOnError: true,
+      }),
     {
       notify: true,
       method: "DELETE",

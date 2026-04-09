@@ -2,8 +2,9 @@ use crate::{
     course_background_question_answers::CourseBackgroundQuestionAnswer,
     course_instances::CourseInstance, prelude::*,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Type)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Type, ToSchema)]
 #[sqlx(
     type_name = "course_background_question_type",
     rename_all = "snake_case"
@@ -14,7 +15,7 @@ pub enum CourseBackgroundQuestionType {
     Text,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBackgroundQuestion {
     pub id: Uuid,
@@ -27,7 +28,7 @@ pub struct CourseBackgroundQuestion {
     pub question_type: CourseBackgroundQuestionType,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CourseBackgroundQuestionsAndAnswers {
     pub background_questions: Vec<CourseBackgroundQuestion>,

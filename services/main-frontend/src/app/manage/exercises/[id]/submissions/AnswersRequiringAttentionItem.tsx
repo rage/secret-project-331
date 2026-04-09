@@ -15,11 +15,11 @@ import {
   ExerciseCardPointsBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
-import { createTeacherGradingDecisionMutationOptions } from "@/services/backend/teacher-grading-decisions"
-import {
+import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -42,7 +42,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
   const [updatedPoints, setUpdatedPoints] = useState<number | null>(null)
 
   const submitMutation = useToastMutationOptions(
-    createTeacherGradingDecisionMutationOptions(),
+    createTeacherGradingDecisionMutation(),
     {
       notify: true,
       method: "POST",
@@ -109,7 +109,9 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
             rightContent={
               <ExerciseCardPointsBadge
                 score={
-                  updatedPoints === null ? answerRequiringAttention.score_given : updatedPoints
+                  updatedPoints === null
+                    ? (answerRequiringAttention.score_given ?? null)
+                    : updatedPoints
                 }
                 maxScore={exerciseMaxPoints}
               />

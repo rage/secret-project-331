@@ -5,9 +5,12 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { deletePageAudioFileMutation as deletePageAudioFileMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  deletePageAudioFileMutation as deletePageAudioFileMutationOptions,
+  getPageAudioFilesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { createPageAudioFile } from "@/generated/api/sdk.generated"
 import TrashIcon from "@/imgs/trash.svg"
-import { getPageAudioFilesOptions, postPageAudioFile } from "@/services/backend/page-audio-files"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -29,19 +32,19 @@ export interface AudioUploadAttributes {
   onClose: () => void
 }
 
-const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> = ({
-  id,
-  open,
-  onClose,
-}) => {
+interface PageAudioWidgetContentProps {
+  pageId: string
+}
+
+const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId }) => {
   const { t } = useTranslation()
-
-  const pageId = id
-
-  const getPageAudioFiles = useQuery({
-    ...getPageAudioFilesOptions(pageId ?? ""),
-    enabled: !!pageId,
-  })
+  const pageAudioFilesQuery = useQuery(
+    getPageAudioFilesOptions({
+      path: {
+        page_id: pageId,
+      },
+    }),
+  )
 
   const deletePageAudioFile = useToastMutationOptions(
     deletePageAudioFileMutationOptions(),
@@ -52,19 +55,22 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     },
     {
       onSuccess: () => {
-        getPageAudioFiles.refetch()
+        pageAudioFilesQuery.refetch()
       },
     },
   )
 
   const uploadAudioFileMutation = useToastMutation(
-    (file: File) => {
-      if (!pageId) {
-        throw new Error("Page ID undefined")
-      }
-
-      return postPageAudioFile(pageId, file)
-    },
+    (file: File) =>
+      createPageAudioFile({
+        path: {
+          page_id: pageId,
+        },
+        body: {
+          file: file as unknown as number[],
+        },
+        throwOnError: true,
+      }),
     {
       notify: true,
       successMessage: t("audio-added-successfully"),
@@ -72,7 +78,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
     },
     {
       onSuccess: () => {
-        getPageAudioFiles.refetch()
+        pageAudioFilesQuery.refetch()
       },
     },
   )
@@ -95,6 +101,166 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
   }
 
   return (
+    <div
+      className={css`
+        text-align: left;
+        font-family: ${primaryFont};
+      `}
+    >
+      {pageAudioFilesQuery.isLoading && (
+        <div
+          className={css`
+            margin-top: 40px;
+            ${respondToOrLarger.sm} {
+              margin-top: 80px;
+            }
+          `}
+        >
+          <Spinner variant="medium" />
+        </div>
+      )}
+      {pageAudioFilesQuery.isError && (
+        <div
+          className={css`
+            margin-top: 40px;
+            ${respondToOrLarger.sm} {
+              margin-top: 80px;
+            }
+          `}
+        >
+          <ErrorBanner variant="readOnly" error={pageAudioFilesQuery.error} />
+        </div>
+      )}
+      <div>
+        <div
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        >
+          <span
+            className={css`
+              color: #333;
+              font-weight: 500;
+              font-family: ${primaryFont};
+            `}
+          >
+            {t("audio-upload-description")}
+          </span>
+        </div>
+        {pageAudioFilesQuery.isSuccess && (
+          <div>
+            {pageAudioFilesQuery.data.map((item) => {
+              return (
+                <div
+                  key={item.id}
+                  className={css`
+                    height: 40px;
+                    display: flex;
+                    gap: 10px 0;
+                    align-items: center;
+                  `}
+                >
+                  <div
+                    className={css`
+                      background: #fff;
+                      font-weight: 500;
+                      display: inline-block;
+                      justify-content: center;
+                      align-items: center;
+                      padding: 6px;
+                    `}
+                  >
+                    {item.mime_type}
+                  </div>
+                  <div
+                    className={css`
+                      background: #fff;
+                      padding: 6px 8px;
+                      margin-left: 5px;
+                      overflow: hidden;
+                      justify-content: center;
+                      align-items: center;
+                    `}
+                  >
+                    <TrashIcon
+                      className={css`
+                        background: #fff;
+                      `}
+                      onClick={() => {
+                        deletePageAudioFile.mutate({
+                          path: {
+                            file_id: item.id,
+                          },
+                        })
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+        <form
+          onSubmit={handleUpload}
+          method="POST"
+          encType="multipart/form-data"
+          className={css`
+            margin-top: 20px;
+            border: 1px solid #555;
+            background: #fff;
+            display: flex;
+            width: 85%;
+
+            input[type="file"] {
+              width: 350px;
+              max-width: 100%;
+              color: #444;
+              background: #fff;
+              border-radius: 2px;
+            }
+
+            input[type="file"]::file-selector-button {
+              margin-right: 20px;
+              border: none;
+              border-right: 1px solid #555;
+              padding: 10px 20px;
+              color: #333;
+              background: #fff;
+              cursor: pointer;
+              transition: background 0.2s ease-in-out;
+            }
+
+            input[type="submit"] {
+              border: none;
+              background: #555;
+              padding: 3px 20px;
+              color: #fff;
+              cursor: pointer;
+              margin: 3px 3px 3px auto;
+              transition: background 0.2s ease-in-out;
+            }
+
+            input[type="file"]::file-selector-button:hover {
+              background: #e1e5ef;
+            }
+          `}
+        >
+          <input id="audioFile" name="audioFile" type="file"></input>
+          <input type="submit" value={t("upload")} />
+        </form>
+      </div>
+    </div>
+  )
+}
+
+const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> = ({
+  id,
+  open,
+  onClose,
+}) => {
+  const { t } = useTranslation()
+
+  return (
     <StandardDialog
       open={open}
       onClose={onClose}
@@ -102,155 +268,7 @@ const PageAudioWidget: React.FC<React.PropsWithChildren<AudioUploadAttributes>> 
       width="normal"
       backgroundColor="#ecf3f2"
     >
-      <div
-        className={css`
-          text-align: left;
-          font-family: ${primaryFont};
-        `}
-      >
-        {getPageAudioFiles.isLoading && (
-          <div
-            className={css`
-              margin-top: 40px;
-              ${respondToOrLarger.sm} {
-                margin-top: 80px;
-              }
-            `}
-          >
-            <Spinner variant="medium" />
-          </div>
-        )}
-        {getPageAudioFiles.isError && (
-          <div
-            className={css`
-              margin-top: 40px;
-              ${respondToOrLarger.sm} {
-                margin-top: 80px;
-              }
-            `}
-          >
-            <ErrorBanner variant="readOnly" error={getPageAudioFiles.error} />
-          </div>
-        )}
-        <div>
-          <div
-            className={css`
-              margin-bottom: 1rem;
-            `}
-          >
-            <span
-              className={css`
-                color: #333;
-                font-weight: 500;
-                font-family: ${primaryFont};
-              `}
-            >
-              {t("audio-upload-description")}
-            </span>
-          </div>
-          {getPageAudioFiles.isSuccess && (
-            <div>
-              {getPageAudioFiles.data.map((item) => {
-                return (
-                  <div
-                    key={item.id}
-                    className={css`
-                      height: 40px;
-                      display: flex;
-                      gap: 10px 0;
-                      align-items: center;
-                    `}
-                  >
-                    <div
-                      className={css`
-                        background: #fff;
-                        font-weight: 500;
-                        display: inline-block;
-                        justify-content: center;
-                        align-items: center;
-                        padding: 6px;
-                      `}
-                    >
-                      {item.mime_type}
-                    </div>
-                    <div
-                      className={css`
-                        background: #fff;
-                        padding: 6px 8px;
-                        margin-left: 5px;
-                        overflow: hidden;
-                        justify-content: center;
-                        align-items: center;
-                      `}
-                    >
-                      <TrashIcon
-                        className={css`
-                          background: #fff;
-                        `}
-                        onClick={() => {
-                          deletePageAudioFile.mutate({
-                            path: {
-                              file_id: item.id,
-                            },
-                          })
-                        }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-          <form
-            onSubmit={handleUpload}
-            method="POST"
-            encType="multipart/form-data"
-            className={css`
-              margin-top: 20px;
-              border: 1px solid #555;
-              background: #fff;
-              display: flex;
-              width: 85%;
-
-              input[type="file"] {
-                width: 350px;
-                max-width: 100%;
-                color: #444;
-                background: #fff;
-                border-radius: 2px;
-              }
-
-              input[type="file"]::file-selector-button {
-                margin-right: 20px;
-                border: none;
-                border-right: 1px solid #555;
-                padding: 10px 20px;
-                color: #333;
-                background: #fff;
-                cursor: pointer;
-                transition: background 0.2s ease-in-out;
-              }
-
-              input[type="submit"] {
-                border: none;
-                background: #555;
-                padding: 3px 20px;
-                color: #fff;
-                cursor: pointer;
-                margin: 3px 3px 3px auto;
-                transition: background 0.2s ease-in-out;
-              }
-
-              input[type="file"]::file-selector-button:hover {
-                background: #e1e5ef;
-              }
-            `}
-          >
-            <input id="audioFile" name="audioFile" type="file"></input>
-            <input type="submit" value={t("upload")} />
-          </form>
-        </div>
-      </div>
+      {id ? <PageAudioWidgetContent pageId={id} /> : null}
     </StandardDialog>
   )
 }

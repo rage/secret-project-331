@@ -24,7 +24,7 @@ pub struct NewCodeGiveaway {
     pub require_course_specific_consent_form_question_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag")]
 pub enum CodeGiveawayStatus {

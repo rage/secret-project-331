@@ -416,7 +416,11 @@ Fetches the user's certificate for the given course module and course instance.
         ("certificate_configuration_id" = Uuid, Path, description = "Certificate configuration id")
     ),
     responses(
-        (status = 200, description = "Generated certificate", body = serde_json::Value)
+        (
+            status = 200,
+            description = "Generated certificate",
+            body = Option<GeneratedCertificate>
+        )
     )
 )]
 #[instrument(skip(pool))]
@@ -586,9 +590,9 @@ pub async fn delete_certificate_configuration(
     params(
         ("certificate_id" = Uuid, Path, description = "Generated certificate id")
     ),
-    request_body = serde_json::Value,
+    request_body = CertificateUpdateRequest,
     responses(
-        (status = 200, description = "Generated certificate updated", body = serde_json::Value)
+        (status = 200, description = "Generated certificate updated", body = GeneratedCertificate)
     )
 )]
 #[instrument(skip(pool))]

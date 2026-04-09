@@ -7,21 +7,27 @@ import { v4 } from "uuid"
 
 import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
 
-import {
-  getPlaygroundViewsGradingCallbackUrl,
-  getPlaygroundViewsWebsocketUrl,
-} from "@/services/backend/playground-views"
+import type {
+  GetPlaygroundViewsWebsocketData,
+  ReceivePlaygroundGradingData,
+} from "@/generated/api/types.generated"
+import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
 import {
   ExerciseServiceInfoApi,
   ExerciseTaskGradingResult,
-  PlaygroundViewsMessage,
+  parseExerciseServiceInfoApi,
+  parseExerciseTaskGradingResult,
+  parsePlaygroundViewsMessage,
   SpecRequest,
-} from "@/shared-module/common/bindings"
-import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+} from "@/utils/playgroundSchemas"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
+const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =
+  "/api/v0/main-frontend/playground-views/ws"
+const PLAYGROUND_VIEWS_GRADING_PATH: ReceivePlaygroundGradingData["url"] =
+  "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
 
 interface UsePlaygroundQueriesArguments {
   url: string
@@ -43,11 +49,11 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
     queryKey: [`iframe-view-playground-service-info-${args.url}`],
     queryFn: async (): Promise<ExerciseServiceInfoApi> => {
       const res = await axios.get(args.url)
-      return res.data
+      return parseExerciseServiceInfoApi(res.data)
     },
   })
 
-  const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
+  const isValidServiceInfo = serviceInfoQuery.isSuccess
 
   useEffect(() => {
     if (isValidServiceInfo) {
@@ -148,7 +154,9 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         }
         const gradingRequest: GradingRequest = {
           // eslint-disable-next-line i18next/no-literal-string
-          grading_update_url: getPlaygroundViewsGradingCallbackUrl(String(websocketId)),
+          grading_update_url: buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
+            websocket_id: String(websocketId),
+          }),
           exercise_spec: args.parsedPrivateSpec.parsedPrivateSpec,
           submission_data: param.data,
         }
@@ -157,7 +165,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
           gradingRequest,
         )
-        return res.data
+        return parseExerciseTaskGradingResult(res.data)
       } else if (param.type === "fromWebsocket") {
         return param.data
       } else {
@@ -172,12 +180,12 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
-      setWebsocket(new WebSocket(getPlaygroundViewsWebsocketUrl()))
+      setWebsocket(new WebSocket(buildGeneratedWebSocketUrl(PLAYGROUND_VIEWS_WEBSOCKET_PATH)))
       return
     }
     const ws = websocket
     ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data) as PlaygroundViewsMessage
+      const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {

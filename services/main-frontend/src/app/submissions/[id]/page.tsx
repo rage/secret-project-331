@@ -12,10 +12,10 @@ import DeletedUserNotice from "@/components/DeletedUserNotice"
 import ExerciseGradingCard from "@/components/ExerciseGradingCard"
 import KeyValueCard from "@/components/KeyValueCard"
 import MainFrontedViewSubmission from "@/components/MainFrontedViewSubmission"
+import { getExerciseSlideSubmissionInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useExerciseSubmissionsForUser } from "@/hooks/useExerciseSubmissionsForUser"
 import { useUserCourseSettings } from "@/hooks/useUserCourseSettings"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
-import { getSubmissionInfoOptions } from "@/services/backend/submissions"
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -34,7 +34,13 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
-  const getSubmissionInfo = useQuery(getSubmissionInfoOptions(id))
+  const getSubmissionInfo = useQuery({
+    ...getExerciseSlideSubmissionInfoOptions({
+      path: {
+        submission_id: id,
+      },
+    }),
+  })
 
   const userDetails = useUserDetails(
     getSubmissionInfo.data?.exercise.course_id ? [getSubmissionInfo.data.exercise.course_id] : null,

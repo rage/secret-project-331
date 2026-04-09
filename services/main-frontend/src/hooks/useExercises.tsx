@@ -2,12 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { getExercisesByCourseIdOptions } from "@/services/backend/exercises"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getExercisesByCourseIdOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useExercises = (courseId: string) => {
   return useQuery({
-    ...getExercisesByCourseIdOptions(assertNotNullOrUndefined(courseId)),
+    ...getExercisesByCourseIdOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
     enabled: !!courseId,
   })
 }

@@ -1,7 +1,14 @@
 import { useQuery } from "@tanstack/react-query"
 
-import { getCourseExerciseStatusesForUserOptions } from "../services/backend/courses"
+import { getCourseExerciseStatusesForUserOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useExerciseStatusSummaries = (courseId: string, userId: string) => {
-  return useQuery(getCourseExerciseStatusesForUserOptions(courseId, userId))
+  return useQuery({
+    ...getCourseExerciseStatusesForUserOptions({
+      path: {
+        course_id: courseId,
+        user_id: userId,
+      },
+    }),
+  })
 }

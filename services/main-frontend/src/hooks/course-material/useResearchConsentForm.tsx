@@ -1,15 +1,16 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { fetchResearchFormWithCourseId } from "@/services/course-material/backend"
+import { getCourseMaterialResearchConsentForm } from "@/generated/course-material-api/sdk.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface UseResearchConsentFormOptions {
   enabled?: boolean
 }
+
+const COURSE_MATERIAL_RESEARCH_CONSENT_FORM_QUERY_KEY = "courseMaterialResearchConsentForm"
 
 const useResearchConsentForm = (
   courseId: string | null | undefined,
@@ -18,8 +19,16 @@ const useResearchConsentForm = (
   const { enabled = true } = options
   const loginState = useContext(LoginStateContext)
   const query = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form`],
-    queryFn: () => fetchResearchFormWithCourseId(assertNotNullOrUndefined(courseId)),
+    queryKey: [COURSE_MATERIAL_RESEARCH_CONSENT_FORM_QUERY_KEY, courseId] as const,
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialResearchConsentForm({
+            path: {
+              course_id: courseId,
+            },
+            throwOnError: true,
+          })
+      : skipToken,
     enabled: loginState.signedIn === true && Boolean(courseId) && enabled,
   })
   return query

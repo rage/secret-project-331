@@ -2,7 +2,7 @@ import { atom } from "jotai"
 import type { WritableAtom } from "jotai"
 import type { SetStateAction } from "react"
 
-import type { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import { courseMaterialBlockClass } from "@/utils/course-material/constants"
 
 /**

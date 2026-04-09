@@ -13,7 +13,7 @@ use models::{
     exercise_task_gradings::ExerciseTaskGrading, exercise_tasks::ExerciseTask,
     library::grading::AnswersRequiringAttention,
 };
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{domain::models_requests, prelude::*};
 
@@ -33,14 +33,14 @@ const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
 ))]
 pub(crate) struct MainFrontendExercisesApiDoc;
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct ExerciseCsvExportTaskOption {
     pub exercise_task_id: Uuid,
@@ -392,7 +392,7 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exer
         ("limit" = Option<i64>, Query, description = "Page size")
     ),
     responses(
-        (status = 200, description = "Exercise submissions", body = serde_json::Value)
+        (status = 200, description = "Exercise submissions", body = ExerciseSubmissions)
     )
 )]
 async fn get_exercise_submissions(
@@ -446,7 +446,7 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - R
         ("user_id" = Uuid, Path, description = "User id")
     ),
     responses(
-        (status = 200, description = "Exercise submissions for user", body = serde_json::Value)
+        (status = 200, description = "Exercise submissions for user", body = [ExerciseSlideSubmission])
     )
 )]
 async fn get_exercise_submissions_for_user(
@@ -494,7 +494,7 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Ret
         ("exercise_id" = Uuid, Path, description = "Exercise id")
     ),
     responses(
-        (status = 200, description = "Exercise CSV export task options", body = serde_json::Value)
+        (status = 200, description = "Exercise CSV export task options", body = [ExerciseCsvExportTaskOption])
     )
 )]
 async fn get_exercise_csv_export_task_options(
@@ -911,7 +911,7 @@ GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` -
         ("limit" = Option<i64>, Query, description = "Page size")
     ),
     responses(
-        (status = 200, description = "Answers requiring attention", body = serde_json::Value)
+        (status = 200, description = "Answers requiring attention", body = AnswersRequiringAttention)
     )
 )]
 async fn get_exercise_answers_requiring_attention(
@@ -952,7 +952,7 @@ GET `/api/v0/main-frontend/exercises/:course_id/exercises-by-course-id` - Return
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Exercises by course id", body = serde_json::Value)
+        (status = 200, description = "Exercises by course id", body = [Exercise])
     )
 )]
 pub async fn get_exercises_by_course_id(

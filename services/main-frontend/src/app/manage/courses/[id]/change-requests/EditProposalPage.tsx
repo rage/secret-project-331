@@ -8,9 +8,9 @@ import EditProposalView from "./EditProposalView"
 
 import {
   getEditProposalsOptions,
-  processProposalMutationOptions,
-} from "@/services/backend/proposedEdits"
-import { BlockProposalInfo } from "@/shared-module/common/bindings"
+  processEditProposalMutation as processProposalMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { BlockProposalInfo, PageProposal } from "@/generated/api/types.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -33,7 +33,18 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
   onChange,
 }) => {
   const { t } = useTranslation()
-  const getEditProposalList = useQuery(getEditProposalsOptions(courseId, pending, page, limit))
+  const getEditProposalList = useQuery({
+    ...getEditProposalsOptions({
+      path: {
+        course_id: courseId,
+      },
+      query: {
+        page,
+        limit,
+        pending,
+      },
+    }),
+  })
   const processProposalMutation = useToastMutationOptions(processProposalMutationOptions(), {
     notify: true,
     method: "POST",

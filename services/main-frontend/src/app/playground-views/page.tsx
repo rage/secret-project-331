@@ -15,17 +15,10 @@ import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
-import {
-  getPlaygroundViewsGradingCallbackUrl,
-  getPlaygroundViewsWebsocketUrl,
-} from "@/services/backend/playground-views"
-import {
-  ExerciseServiceInfoApi,
-  ExerciseTaskGradingResult,
-  PlaygroundViewsMessage,
-  SpecRequest,
-} from "@/shared-module/common/bindings"
-import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
+import type {
+  GetPlaygroundViewsWebsocketData,
+  ReceivePlaygroundGradingData,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -46,6 +39,15 @@ import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
+import {
+  ExerciseServiceInfoApi,
+  ExerciseTaskGradingResult,
+  parseExerciseServiceInfoApi,
+  parseExerciseTaskGradingResult,
+  parsePlaygroundViewsMessage,
+  SpecRequest,
+} from "@/utils/playgroundSchemas"
 
 interface PlaygroundFields {
   url: string
@@ -62,6 +64,10 @@ const Area = styled.div`
 
 const FULL_WIDTH = "100vw"
 const HALF_WIDTH = "50vw"
+const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =
+  "/api/v0/main-frontend/playground-views/ws"
+const PLAYGROUND_VIEWS_GRADING_PATH: ReceivePlaygroundGradingData["url"] =
+  "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
 
 const StyledPre = styled.pre<{ fullWidth: boolean }>`
   background-color: rgba(218, 230, 229, 0.4);
@@ -215,11 +221,11 @@ const IframeViewPlayground: React.FC = () => {
     queryKey: [`iframe-view-playground-service-info-${url}`],
     queryFn: async (): Promise<ExerciseServiceInfoApi> => {
       const res = await axios.get(url)
-      return res.data
+      return parseExerciseServiceInfoApi(res.data)
     },
   })
 
-  const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
+  const isValidServiceInfo = serviceInfoQuery.isSuccess
 
   useEffect(() => {
     if (isValidServiceInfo) {
@@ -278,7 +284,9 @@ const IframeViewPlayground: React.FC = () => {
         }
         const gradingRequest: GradingRequest = {
           // eslint-disable-next-line i18next/no-literal-string
-          grading_update_url: getPlaygroundViewsGradingCallbackUrl(String(websocketId)),
+          grading_update_url: buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
+            websocket_id: String(websocketId),
+          }),
           exercise_spec: privateSpecParsed,
           submission_data: param.data,
         }
@@ -287,7 +295,7 @@ const IframeViewPlayground: React.FC = () => {
           `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
           gradingRequest,
         )
-        return res.data
+        return parseExerciseTaskGradingResult(res.data)
       } else if (param.type === "fromWebsocket") {
         return param.data
       } else {
@@ -302,12 +310,12 @@ const IframeViewPlayground: React.FC = () => {
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
-      setWebsocket(new WebSocket(getPlaygroundViewsWebsocketUrl()))
+      setWebsocket(new WebSocket(buildGeneratedWebSocketUrl(PLAYGROUND_VIEWS_WEBSOCKET_PATH)))
       return
     }
     const ws = websocket
     ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data) as PlaygroundViewsMessage
+      const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {

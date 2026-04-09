@@ -38,13 +38,13 @@ pub struct PathInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialExerciseServiceInfo {
     pub exercise_iframe_url: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseServiceInfoApi {
     pub service_name: String,
     pub user_interface_iframe_path: String,

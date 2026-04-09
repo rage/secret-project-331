@@ -2,7 +2,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewFeedback {
     pub feedback_given: String,
     pub selected_text: Option<String>,
@@ -11,7 +11,7 @@ pub struct NewFeedback {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct FeedbackBlock {
     pub id: Uuid,
     pub text: Option<String>,
@@ -82,7 +82,7 @@ WHERE id = $2
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Feedback {
     pub id: Uuid,
     pub user_id: Option<Uuid>,
@@ -179,7 +179,7 @@ FROM (
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct FeedbackCount {
     pub read: u32,
     pub unread: u32,

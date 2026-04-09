@@ -17,8 +17,7 @@ use headless_lms_utils::error::{
 };
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+
 use uuid::Uuid;
 
 /**
@@ -225,7 +224,6 @@ impl BackendError for ControllerError {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub enum ErrorData {
     BlockId(Uuid),
@@ -233,7 +231,7 @@ pub enum ErrorData {
 
 /// The format all error messages from the API is in
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ErrorResponse {
     pub title: String,
     pub message: String,

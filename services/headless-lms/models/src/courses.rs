@@ -17,7 +17,7 @@ pub struct CourseInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseCount {
     pub count: u32,
 }
@@ -28,7 +28,7 @@ pub struct CourseContextData {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -60,7 +60,7 @@ pub struct Course {
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialCourse {
     pub id: Uuid,
     pub slug: String,
@@ -112,7 +112,7 @@ impl From<Course> for CourseMaterialCourse {
 
 /** All the necessary info that can be used to switch the user's browser to a different language version of the course. */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseLanguageVersionNavigationInfo {
     pub course_language_group_id: Uuid,
     pub course_id: Uuid,
@@ -144,7 +144,7 @@ impl CourseLanguageVersionNavigationInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseBreadcrumbInfo {
     pub course_id: Uuid,
     pub course_name: String,
@@ -155,7 +155,7 @@ pub struct CourseBreadcrumbInfo {
 
 /// Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCourse {
     pub name: String,
     pub slug: String,
@@ -235,7 +235,7 @@ RETURNING id
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
@@ -709,7 +709,7 @@ WHERE organization_id = $1
 }
 // Represents the subset of page fields that one is allowed to update in a course
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseUpdate {
     pub name: String,
     pub description: Option<String>,

@@ -17,7 +17,7 @@ pub mod students_view;
 pub mod user_exercise_state_updater;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub enum TimeGranularity {
     Year,
     Month,

@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserMarketingConsent {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -21,7 +21,7 @@ pub struct UserMarketingConsent {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserMarketingConsentWithDetails {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -45,7 +45,7 @@ pub struct UserMarketingConsentWithDetails {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserEmailSubscription {
     pub user_id: Uuid,
     pub email: String,
@@ -54,7 +54,7 @@ pub struct UserEmailSubscription {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct MarketingMailingListAccessToken {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -80,7 +80,7 @@ pub struct MailchimpCourseTag {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct MailchimpLanguageCodeMapping {
     pub id: Uuid,
     pub marketing_mailing_list_access_token_id: Uuid,

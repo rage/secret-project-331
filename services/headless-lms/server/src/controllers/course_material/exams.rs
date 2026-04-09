@@ -51,7 +51,7 @@ pub async fn enrollment(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct IsTeacherTesting {
     pub is_teacher_testing: bool,
 }
@@ -124,7 +124,7 @@ pub async fn enroll(
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExamData {
     pub id: Uuid,
     pub name: String,
@@ -138,7 +138,6 @@ pub struct ExamData {
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag")]
 pub enum ExamEnrollmentData {
     /// The student has enrolled to the exam and started it.
@@ -464,7 +463,7 @@ pub async fn fetch_exam_for_testing(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ShowExerciseAnswers {
     pub show_exercise_answers: bool,
 }

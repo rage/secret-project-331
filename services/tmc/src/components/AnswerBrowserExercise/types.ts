@@ -1,5 +1,5 @@
-import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import { ExerciseFile, ExerciseIframeState, PublicSpec } from "@/util/stateInterfaces"
 
 export interface AnswerBrowserExerciseProps {

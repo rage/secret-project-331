@@ -6,7 +6,7 @@ use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Exam {
     pub id: Uuid,
     pub name: String,
@@ -43,7 +43,7 @@ impl Exam {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct OrgExam {
     pub id: Uuid,
     pub name: String,
@@ -133,7 +133,7 @@ WHERE course_exams.exam_id = $1
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseExam {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -142,7 +142,7 @@ pub struct CourseExam {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewExam {
     pub name: String,
     pub starts_at: Option<DateTime<Utc>>,
@@ -153,15 +153,15 @@ pub struct NewExam {
     pub grade_manually: bool,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExamInstructions {
     pub id: Uuid,
     pub instructions: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ExamInstructionsUpdate {
     pub instructions: serde_json::Value,
 }
@@ -372,7 +372,7 @@ pub async fn verify_exam_submission_can_be_made(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExamEnrollment {
     pub user_id: Uuid,
     pub exam_id: Uuid,

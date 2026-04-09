@@ -66,7 +66,7 @@ and corresponding Rust enum
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -182,13 +182,18 @@ INSERT INTO exercises (id, name, course_id) VALUES (e1.id, e1.name, e1.course_id
 
 Most usable QueryBuilder is for bulk inserting or updating.
 
-## Generating type bindings for frontend
+## Generating frontend API types
 
-Some structures and enums are also used by frontend services, primarily those that represent a request or response data. When these types are either changed or new ones added, their type bindings need to be regenerated.
+Frontend services now consume OpenAPI exports with Hey API instead of `bindings.ts` / `bindings.guard.ts`.
 
-The configuration for which types should be generated is located in `/services/headless-lms/server/src/ts_binding_generator.rs`. Any new type added there should derive the `ts_rs::TS` type. The ts_rs crate is behind a feature flag for [compilation performance reasons](https://github.com/rage/secret-project-331/pull/685), so you need to do the derive like this: `#[cfg_attr(feature = "ts_rs", derive(TS))]`.
+When a request or response model changes:
 
-To generate bindings, run the `bin/generate-bindings` binary. This will generate bindings for all services and makes sure they are properly formated.
+1. Make sure the model derives the schema traits needed by the relevant OpenAPI document.
+2. Add or update the endpoint in the correct `utoipa` document in `services/headless-lms/server/src/openapi.rs`.
+3. Export the specs with `pnpm run export-openapi`.
+4. Regenerate frontend types with the relevant codegen command such as `pnpm run codegen:api` or `pnpm run codegen:cms-api`.
+
+If a frontend still needs a type for an internal iframe/protocol message that is not part of an OpenAPI contract, keep that as a small local TypeScript compatibility type in the consuming service.
 
 ## New endpoint
 

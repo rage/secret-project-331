@@ -18,7 +18,7 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseTaskSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -33,7 +33,7 @@ pub struct ExerciseTaskSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PeerOrSelfReviewsReceived {
     pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
     pub peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
@@ -41,7 +41,7 @@ pub struct PeerOrSelfReviewsReceived {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct SubmissionData {
     pub exercise_id: Uuid,
     pub course_id: Uuid,
@@ -55,7 +55,7 @@ pub struct SubmissionData {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExportedSubmission {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -67,7 +67,7 @@ pub struct ExportedSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExportedCourseSubmission {
     pub exercise_slide_submission_id: Uuid,
     pub id: Uuid,

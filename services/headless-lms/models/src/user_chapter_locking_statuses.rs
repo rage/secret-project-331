@@ -3,7 +3,6 @@ use std::convert::TryFrom;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 pub enum ChapterLockingStatus {
     /// Chapter is unlocked and exercises can be submitted.
@@ -30,7 +29,7 @@ impl ChapterLockingStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserChapterLockingStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

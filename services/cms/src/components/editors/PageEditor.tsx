@@ -30,7 +30,7 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
 
-import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
+import { CmsPageUpdate, ContentManagementPage, Page } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -106,18 +106,21 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const savedTitle = data.title
   const savedContent = modifyBlocks(
     data.content as BlockInstance[],
-    supportedBlocks(data.chapter_id, data.exam_id),
+    supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
   ) as BlockInstance[]
   const [content, contentDispatch] = useReducer(
     editorContentReducer,
-    modifyBlocks(savedContent, supportedBlocks(data.chapter_id, data.exam_id)) as BlockInstance[],
+    modifyBlocks(
+      savedContent,
+      supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
+    ) as BlockInstance[],
   )
   const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
   const handleOnSave = async () => {
     setCurrentlySaving(true)
     const dataToSave = normalizeDocument({
-      chapterId: data.chapter_id,
+      chapterId: data.chapter_id ?? null,
       content: removeUncommonSpacesFromBlocks(removeUnsupportedBlockType(content)),
       title,
       urlPath: data.url_path,
@@ -270,8 +273,8 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const memoizedCustomBlocks = useMemo(
     () =>
       customBlocks(
-        data.chapter_id,
-        data.exam_id,
+        data.chapter_id ?? null,
+        data.exam_id ?? null,
         data.url_path,
         courseCanAddChatbot,
         chapterLockingEnabled,

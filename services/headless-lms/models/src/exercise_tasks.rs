@@ -20,7 +20,7 @@ use crate::{
 
 /// Information necessary for the frontend to render an exercise task
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialExerciseTask {
     pub id: Uuid,
     pub exercise_service_slug: String,
@@ -67,7 +67,7 @@ pub struct ExerciseTaskSpec {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseTask {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

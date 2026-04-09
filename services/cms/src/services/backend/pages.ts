@@ -1,29 +1,30 @@
 import { queryOptions } from "@tanstack/react-query"
 
 import { cmsClient } from "./cmsClient"
+import { parseCmsResponse } from "./parseCmsResponse"
 
 import {
-  CmsPageUpdate,
-  ContentManagementPage,
-  PageInfo,
-  PageNavigationInformation,
-} from "@/shared-module/common/bindings"
+  type CmsPageUpdate,
+  type ContentManagementPage,
+  type PageInfo,
+  type PageNavigationInformation,
+} from "@/generated/api"
+import { z } from "@/generated/api/zod"
 import {
-  isContentManagementPage,
-  isPageInfo,
-  isPageNavigationInformation,
-} from "@/shared-module/common/bindings.guard"
-import { isNull, isUnion, validateResponse } from "@/shared-module/common/utils/fetching"
+  zContentManagementPage,
+  zPageInfo,
+  zPageNavigationInformation,
+} from "@/generated/api/zod.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const fetchPageWithId = async (pageId: string): Promise<ContentManagementPage> => {
   const response = await cmsClient.get(`/pages/${pageId}`, { responseType: "json" })
-  return validateResponse(response, isContentManagementPage)
+  return parseCmsResponse(response, zContentManagementPage)
 }
 
 export const fetchPageInfo = async (pageId: string): Promise<PageInfo> => {
   const response = await cmsClient.get(`/pages/${pageId}/info`, { responseType: "json" })
-  return validateResponse(response, isPageInfo)
+  return parseCmsResponse(response, zPageInfo)
 }
 
 export const getPageInfoOptions = (pageId: string | null | undefined) =>
@@ -36,7 +37,7 @@ export const fetchNextPageRoutingData = async (
   currentPageId: string,
 ): Promise<PageNavigationInformation | null> => {
   const response = await cmsClient.get(`/pages/${currentPageId}/page-navigation`)
-  return validateResponse(response, isUnion(isPageNavigationInformation, isNull))
+  return parseCmsResponse(response, z.nullable(zPageNavigationInformation))
 }
 
 export const updateExistingPage = async (
@@ -46,5 +47,5 @@ export const updateExistingPage = async (
   const response = await cmsClient.put(`/pages/${page_id}`, data, {
     headers: { "Content-Type": "application/json" },
   })
-  return validateResponse(response, isContentManagementPage)
+  return parseCmsResponse(response, zContentManagementPage)
 }

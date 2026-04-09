@@ -29,12 +29,10 @@ use actix_web::{
 };
 use headless_lms_utils::{ApplicationConfiguration, prelude::*};
 use serde::{Deserialize, Serialize};
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UploadResult {
     pub url: String,
 }

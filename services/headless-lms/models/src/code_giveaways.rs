@@ -2,7 +2,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CodeGiveaway {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -16,7 +16,7 @@ pub struct CodeGiveaway {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCodeGiveaway {
     pub course_id: Uuid,
     pub name: String,
@@ -25,7 +25,6 @@ pub struct NewCodeGiveaway {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag")]
 pub enum CodeGiveawayStatus {
     Disabled,

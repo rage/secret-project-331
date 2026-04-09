@@ -43,7 +43,7 @@ This macro can be used in two primary ways:
 - With a type and expression
 
 With a struct/enum literal, the doc! macro generates an Example implementation for the type using the example! macro
-and then uses it to write the JSON docs. (The TypeScript definition is generated with the `ts_rs::TS` trait)
+and then uses it to write the JSON docs.
 ```no_run
 # use headless_lms_server::doc;
 # use headless_lms_server::programs::doc_file_generator::example::Example;
@@ -148,8 +148,7 @@ use headless_lms_models::{
 use serde::Serialize;
 use serde_json::{Serializer, Value, json, ser::PrettyFormatter};
 use std::{collections::HashMap, fs};
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+
 use uuid::Uuid;
 
 use crate::controllers::course_material::exercises::CourseMaterialPeerOrSelfReviewDataWithToken;
@@ -242,16 +241,6 @@ macro_rules! doc {
             ".json"
         );
         $crate::programs::doc_file_generator::write_json(&json_path, expr);
-
-        #[cfg(feature = "ts_rs")]
-        {
-            let ts_path = $crate::doc_path!(
-                stringify!($t),
-                ".ts"
-            );
-
-            $crate::programs::doc_file_generator::write_ts::<$t>(&ts_path, stringify!($t));
-        }
     }};
     // shortcut for doc!(T, ...)
     ($($t:tt)*) => {
@@ -302,12 +291,6 @@ pub fn write_json<T: Serialize>(path: &str, value: T) {
     let mut serializer = Serializer::with_formatter(&mut file, formatter);
     serde::Serialize::serialize(&value, &mut serializer)
         .expect("Failed to serialize value to JSON");
-}
-
-#[cfg(feature = "ts_rs")]
-pub fn write_ts<T: TS>(path: &str, type_name: &str) {
-    let contents = format!("type {} = {}", type_name, T::inline());
-    std::fs::write(path, contents).expect("Failed to write TypeScript type definition file");
 }
 
 #[allow(non_local_definitions)]

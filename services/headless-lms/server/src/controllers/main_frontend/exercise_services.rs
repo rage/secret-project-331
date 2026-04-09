@@ -47,7 +47,7 @@ async fn delete_exercise_service(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseServiceWithError {
     exercise_service: ExerciseService,
     service_info_error: Option<String>,

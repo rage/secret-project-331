@@ -71,7 +71,7 @@ pub async fn get_exam(
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExamCourseInfo {
     course_id: Uuid,
 }

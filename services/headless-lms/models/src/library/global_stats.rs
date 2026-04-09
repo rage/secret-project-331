@@ -3,7 +3,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GlobalStatEntry {
     pub course_name: String,
     pub course_id: Uuid,
@@ -15,7 +15,7 @@ pub struct GlobalStatEntry {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GlobalCourseModuleStatEntry {
     pub course_name: String,
     pub course_id: Uuid,
@@ -29,7 +29,7 @@ pub struct GlobalCourseModuleStatEntry {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct DomainCompletionStats {
     pub email_domain: String,
     pub total_completions: i64,
@@ -44,7 +44,7 @@ pub struct DomainCompletionStats {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseCompletionStats {
     pub course_id: Uuid,
     pub course_name: String,

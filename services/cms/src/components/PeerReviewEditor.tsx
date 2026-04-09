@@ -17,10 +17,9 @@ import {
 import {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewQuestion,
-  PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionType,
   PeerReviewProcessingStrategy,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -352,7 +351,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         parsedPeerOrSelfReviewQuestionConfig
           .filter((x) => x.id !== peerOrSelfReviewQuestionId)
           .map((prq, idx) => {
-            return { ...prq, order_number: idx } as PeerOrSelfReviewQuestion
+            return { ...prq, order_number: idx } as CmsPeerOrSelfReviewQuestion
           }),
       ),
       peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),

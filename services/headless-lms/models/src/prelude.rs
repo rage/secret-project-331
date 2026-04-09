@@ -7,8 +7,7 @@ pub use headless_lms_utils::{
 };
 pub use serde::{Deserialize, Serialize};
 pub use sqlx::{Connection, FromRow, PgConnection, Type};
-#[cfg(feature = "ts_rs")]
-pub use ts_rs::TS;
+
 pub use uuid::Uuid;
 
 pub use crate::{

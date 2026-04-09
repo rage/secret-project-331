@@ -37,7 +37,7 @@ use utoipa::OpenApi;
 pub(crate) struct CourseMaterialExercisesApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, utoipa::ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialPeerOrSelfReviewDataWithToken {
     pub course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData,
     pub token: Option<String>,

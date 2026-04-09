@@ -5,8 +5,6 @@ import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
-import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
-import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap } from "@/shared-module/common/utils/fetching"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
@@ -17,6 +15,7 @@ import {
   prepareStub,
 } from "@/tmc/langs"
 import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
 import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"

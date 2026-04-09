@@ -10,7 +10,7 @@ use std::{
 /// Extractor for a request's id.
 /// The id is generated on extraction if it does not exist.
 #[derive(Debug, Clone, Copy, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct RequestId(pub Uuid);
 
 impl FromRequest for RequestId {

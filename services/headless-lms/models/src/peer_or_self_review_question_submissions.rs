@@ -5,7 +5,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PeerOrSelfReviewQuestionSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -128,7 +128,6 @@ WHERE peer_or_self_review_submission_id IN (
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum PeerOrSelfReviewAnswer {
     NoAnswer,
@@ -151,7 +150,7 @@ impl PeerOrSelfReviewAnswer {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PeerOrSelfReviewQuestionAndAnswer {
     pub peer_or_self_review_config_id: Uuid,
     pub peer_or_self_review_question_id: Uuid,
@@ -164,7 +163,7 @@ pub struct PeerOrSelfReviewQuestionAndAnswer {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PeerReviewWithQuestionsAndAnswers {
     pub peer_or_self_review_submission_id: Uuid,
     pub peer_review_giver_user_id: Uuid,

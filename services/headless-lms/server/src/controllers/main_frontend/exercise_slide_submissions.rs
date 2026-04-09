@@ -62,7 +62,7 @@ async fn get_submission_info(
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseStateIds {
     exercise_id: Uuid,
     user_id: Uuid,

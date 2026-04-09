@@ -5,7 +5,7 @@ use utoipa::ToSchema;
 use crate::{exercise_tasks::ExerciseTask, prelude::*, user_exercise_states::UserExerciseState};
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserCourseExerciseServiceVariable {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

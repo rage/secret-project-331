@@ -2,7 +2,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PlaygroundExample {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -15,7 +15,7 @@ pub struct PlaygroundExample {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PlaygroundExampleData {
     pub name: String,
     pub url: String,

@@ -64,7 +64,7 @@ pub async fn start_peer_or_self_review_for_user(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialPeerOrSelfReviewSubmission {
     pub exercise_slide_submission_id: Uuid,
     pub peer_or_self_review_config_id: Uuid,
@@ -73,7 +73,7 @@ pub struct CourseMaterialPeerOrSelfReviewSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialPeerOrSelfReviewQuestionAnswer {
     pub peer_or_self_review_question_id: Uuid,
     pub text_data: Option<String>,
@@ -433,18 +433,18 @@ async fn update_peer_review_receiver_exercise_status(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialPeerOrSelfReviewData {
     /// If none, no answer was available for review.
     pub answer_to_review: Option<CourseMaterialPeerOrSelfReviewDataAnswerToReview>,
     pub peer_or_self_review_config: PeerOrSelfReviewConfig,
     pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     pub num_peer_reviews_given: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialPeerOrSelfReviewDataAnswerToReview {
     pub exercise_slide_submission_id: Uuid,
     /// Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission.

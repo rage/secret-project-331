@@ -2,12 +2,12 @@ import { AI_ACTIONS, AI_TONE_SUBMENU, AI_TRANSLATE_SUBMENU } from "./menu"
 import { registerAbility } from "./registry"
 import type { AbilityDefinition } from "./types"
 
-import { requestParagraphSuggestions } from "@/services/backend/ai-suggestions"
 import type {
   ParagraphSuggestionAction,
   ParagraphSuggestionContext,
   ParagraphSuggestionRequest,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import { requestParagraphSuggestions } from "@/services/backend/ai-suggestions"
 
 export interface ParagraphAbilityInputMeta {
   tone?: string

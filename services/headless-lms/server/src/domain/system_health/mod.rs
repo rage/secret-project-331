@@ -11,12 +11,11 @@ pub use kubernetes::{
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PodInfo {
     pub name: String,
     pub phase: String,
@@ -25,7 +24,7 @@ pub struct PodInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct DeploymentInfo {
     pub name: String,
     pub replicas: i32,
@@ -34,7 +33,7 @@ pub struct DeploymentInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CronJobInfo {
     pub name: String,
     pub schedule: String,
@@ -42,7 +41,7 @@ pub struct CronJobInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct JobInfo {
     pub name: String,
     pub succeeded: Option<i32>,
@@ -51,7 +50,7 @@ pub struct JobInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ServiceInfo {
     pub name: String,
     pub cluster_ip: Option<String>,
@@ -59,7 +58,7 @@ pub struct ServiceInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ServicePortInfo {
     pub name: Option<String>,
     pub port: i32,
@@ -68,7 +67,7 @@ pub struct ServicePortInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct EventInfo {
     pub name: String,
     pub reason: Option<String>,
@@ -82,7 +81,7 @@ pub struct EventInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct IngressInfo {
     pub name: String,
     pub hosts: Vec<String>,
@@ -91,7 +90,7 @@ pub struct IngressInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PodDisruptionBudgetInfo {
     pub name: String,
     pub current_healthy: i32,
@@ -102,7 +101,6 @@ pub struct PodDisruptionBudgetInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "lowercase")]
 pub enum HealthStatus {
     Healthy,
@@ -111,7 +109,7 @@ pub enum HealthStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct SystemHealthStatus {
     pub status: HealthStatus,
     pub issues: Vec<String>,

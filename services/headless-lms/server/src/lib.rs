@@ -16,8 +16,6 @@ pub mod prelude;
 pub mod programs;
 #[cfg(test)]
 pub mod test_helper;
-#[cfg(all(test, feature = "ts_rs"))]
-pub mod ts_binding_generator;
 
 #[macro_use]
 extern crate tracing;

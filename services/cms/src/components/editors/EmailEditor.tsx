@@ -15,7 +15,7 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
-import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"

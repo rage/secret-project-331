@@ -13,7 +13,7 @@ use crate::{domain, prelude::*};
 pub(crate) struct MainFrontendExerciseRepositoriesApiDoc;
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewExerciseRepository {
     course_id: Option<Uuid>,
     exam_id: Option<Uuid>,

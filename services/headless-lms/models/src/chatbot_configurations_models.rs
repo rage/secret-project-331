@@ -2,7 +2,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChatbotConfigurationModel {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

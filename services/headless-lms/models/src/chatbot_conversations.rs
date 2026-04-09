@@ -8,7 +8,7 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChatbotConversation {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -20,7 +20,7 @@ pub struct ChatbotConversation {
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 /** Should contain all information required to display the chatbot to the user. */
 pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,

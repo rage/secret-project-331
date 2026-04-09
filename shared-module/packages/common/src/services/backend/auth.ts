@@ -1,7 +1,13 @@
 import axios from "axios"
 
-import { ActionOnResource, CreateAccountDetails, LoginResponse, UserInfo } from "../../bindings"
-import { isLoginResponse, isUserInfo } from "../../bindings.guard"
+import {
+  ActionOnResource,
+  CreateAccountDetails,
+  isLoginResponse,
+  isUserInfo,
+  LoginResponse,
+  UserInfo,
+} from "../../authApiTypes"
 import { isArray, isBoolean, isNull, isUnion, validateResponse } from "../../utils/fetching"
 
 export const loggedIn = async (): Promise<boolean> => {

@@ -19,14 +19,14 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewProposedPageEdits {
     pub page_id: Uuid,
     pub block_edits: Vec<NewProposedBlockEdit>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PageProposal {
     pub id: Uuid,
     pub page_id: Uuid,
@@ -39,7 +39,7 @@ pub struct PageProposal {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct EditProposalInfo {
     pub page_id: Uuid,
     pub page_proposal_id: Uuid,
@@ -47,7 +47,7 @@ pub struct EditProposalInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ProposalCount {
     pub pending: u32,
     pub handled: u32,

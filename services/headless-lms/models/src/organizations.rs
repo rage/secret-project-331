@@ -19,7 +19,7 @@ pub struct DatabaseOrganization {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Organization {
     pub id: Uuid,
     pub slug: String,

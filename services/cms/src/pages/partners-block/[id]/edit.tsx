@@ -4,8 +4,8 @@ import React from "react"
 
 import CourseContext from "../../../contexts/CourseContext"
 
+import { PartnersBlock } from "@/generated/api"
 import { fetchPartnersBlock, setPartnerBlockForCourse } from "@/services/backend/partners-block"
-import { PartnersBlock } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"

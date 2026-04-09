@@ -17,7 +17,7 @@ use headless_lms_utils::{
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct DatabaseChapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -45,7 +45,7 @@ impl DatabaseChapter {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Chapter {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -93,7 +93,6 @@ impl Chapter {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
 #[derive(Default)]
 pub enum ChapterStatus {
@@ -116,7 +115,7 @@ pub struct ChapterPagesWithExercises {
 
 // Represents the subset of page fields that are required to create a new course.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewChapter {
     pub name: String,
     pub color: Option<String>,
@@ -131,7 +130,7 @@ pub struct NewChapter {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChapterUpdate {
     pub name: String,
     pub color: Option<String>,
@@ -324,7 +323,7 @@ RETURNING *;",
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChapterWithStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -346,7 +345,7 @@ pub struct ChapterWithStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, Default)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChapterExerciseDeadlineOverrideSummary {
     pub earliest_exercise_deadline_override: Option<DateTime<Utc>>,
     pub exercise_deadline_override_count: i64,
@@ -396,7 +395,7 @@ impl ChapterWithStatus {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserCourseInstanceChapterProgress {
     pub score_given: f32,
     pub score_maximum: i32,
@@ -681,7 +680,7 @@ AND deleted_at IS NULL
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserChapterProgress {
     pub user_id: Uuid,
     pub chapter_id: Uuid,
@@ -692,7 +691,7 @@ pub struct UserChapterProgress {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChapterAvailability {
     pub chapter_id: Uuid,
     pub chapter_number: i32,
@@ -702,7 +701,7 @@ pub struct ChapterAvailability {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseUserInfo {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
@@ -833,14 +832,14 @@ pub async fn fetch_course_users(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UnreturnedExercise {
     pub id: Uuid,
     pub name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChapterLockPreview {
     pub has_unreturned_exercises: bool,
     pub unreturned_exercises_count: i32,

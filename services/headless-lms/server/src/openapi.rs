@@ -2,6 +2,16 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(
+    nest((path = "/api/v0/cms", api = crate::controllers::cms::CmsRoutesApiDoc)),
+    info(
+        title = "CMS API",
+        version = "0.1.0"
+    )
+)]
+pub struct CmsApiDoc;
+
+#[derive(OpenApi)]
+#[openapi(
     nest(
         (
             path = "/api/v0/main-frontend",

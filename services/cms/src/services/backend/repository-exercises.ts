@@ -1,12 +1,13 @@
 import { cmsClient } from "./cmsClient"
+import { parseCmsResponse } from "./parseCmsResponse"
 
-import { RepositoryExercise } from "@/shared-module/common/bindings"
-import { isRepositoryExercise } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { type RepositoryExercise } from "@/generated/api"
+import { z } from "@/generated/api/zod"
+import { zRepositoryExercise } from "@/generated/api/zod.generated"
 
 export const getRepositoryExercises = async (
   courseId: string,
 ): Promise<Array<RepositoryExercise>> => {
   const response = await cmsClient.get(`/repository-exercises/${courseId}`)
-  return validateResponse(response, isArray(isRepositoryExercise))
+  return parseCmsResponse(response, z.array(zRepositoryExercise))
 }

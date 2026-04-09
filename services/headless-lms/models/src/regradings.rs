@@ -7,7 +7,7 @@ use crate::{
 use utoipa::ToSchema;
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Regrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -20,7 +20,7 @@ pub struct Regrading {
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewRegrading {
     user_points_update_strategy: UserPointsUpdateStrategy,
     ids: Vec<Uuid>,
@@ -28,21 +28,21 @@ pub struct NewRegrading {
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub enum NewRegradingIdType {
     ExerciseTaskSubmissionId,
     ExerciseId,
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct RegradingInfo {
     pub regrading: Regrading,
     pub submission_infos: Vec<RegradingSubmissionInfo>,
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct RegradingSubmissionInfo {
     pub exercise_task_submission_id: Uuid,
     pub grading_before_regrading: ExerciseTaskGrading,

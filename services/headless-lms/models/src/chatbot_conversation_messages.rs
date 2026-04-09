@@ -8,7 +8,6 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "message_role", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum MessageRole {
@@ -40,7 +39,7 @@ pub struct ChatbotConversationMessageRow {
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChatbotConversationMessage {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

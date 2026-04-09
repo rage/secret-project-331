@@ -782,7 +782,7 @@ async fn get_all_course_language_versions(
 
 #[derive(Deserialize, Debug, utoipa::ToSchema)]
 #[serde(tag = "mode", rename_all = "snake_case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub enum CopyCourseMode {
     /// Create a completely separate copy with a new course language group
     Duplicate,
@@ -795,7 +795,7 @@ pub enum CopyCourseMode {
 }
 
 #[derive(Deserialize, Debug, utoipa::ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CopyCourseRequest {
     #[serde(flatten)]
     pub new_course: NewCourse,
@@ -1124,7 +1124,7 @@ async fn get_course_instances(
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GetFeedbackQuery {
     read: bool,
     #[serde(flatten)]
@@ -2211,7 +2211,7 @@ pub async fn teacher_reset_course_progress_for_everyone(
 }
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GetSuspectedCheatersQuery {
     archive: bool,
 }

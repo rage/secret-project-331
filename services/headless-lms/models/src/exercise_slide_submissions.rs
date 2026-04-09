@@ -20,7 +20,7 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct AnswerRequiringAttention {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -34,7 +34,7 @@ pub struct AnswerRequiringAttention {
     pub exercise_id: Uuid,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
@@ -45,7 +45,7 @@ pub struct NewExerciseSlideSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlideSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -73,7 +73,7 @@ impl ExerciseSlideSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseAnswersInCourseRequiringAttentionCount {
     pub id: Uuid,
     pub name: String,
@@ -84,14 +84,14 @@ pub struct ExerciseAnswersInCourseRequiringAttentionCount {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlideSubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlideSubmissionCountByExercise {
     pub exercise_id: Uuid,
     pub count: Option<i32>,
@@ -99,7 +99,7 @@ pub struct ExerciseSlideSubmissionCountByExercise {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlideSubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
@@ -107,7 +107,7 @@ pub struct ExerciseSlideSubmissionCountByWeekAndHour {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
@@ -116,7 +116,7 @@ pub struct ExerciseSlideSubmissionInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlideSubmissionAndUserExerciseState {
     pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
@@ -126,7 +126,7 @@ pub struct ExerciseSlideSubmissionAndUserExerciseState {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlideSubmissionAndUserExerciseStateList {
     pub data: Vec<ExerciseSlideSubmissionAndUserExerciseState>,
     pub total_pages: u32,

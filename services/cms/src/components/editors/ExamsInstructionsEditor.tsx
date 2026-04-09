@@ -10,7 +10,7 @@ import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 
-import { ExamInstructions, ExamInstructionsUpdate } from "@/shared-module/common/bindings"
+import { ExamInstructions, ExamInstructionsUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"

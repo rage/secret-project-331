@@ -34,14 +34,14 @@ const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
 pub(crate) struct MainFrontendExercisesApiDoc;
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseCsvExportTaskOption {
     pub exercise_task_id: Uuid,
     pub exercise_type: String,

@@ -5,7 +5,7 @@ use crate::{
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseInstanceEnrollment {
     pub user_id: Uuid,
     pub course_id: Uuid,
@@ -16,7 +16,7 @@ pub struct CourseInstanceEnrollment {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseInstanceEnrollmentsInfo {
     pub course_instance_enrollments: Vec<CourseInstanceEnrollment>,
     pub course_instances: Vec<CourseInstance>,
@@ -26,7 +26,7 @@ pub struct CourseInstanceEnrollmentsInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseEnrollmentInfo {
     pub course_id: Uuid,
     pub course: Course,
@@ -38,7 +38,7 @@ pub struct CourseEnrollmentInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseEnrollmentsInfo {
     pub course_enrollments: Vec<CourseEnrollmentInfo>,
 }

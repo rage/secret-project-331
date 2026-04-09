@@ -9,7 +9,7 @@ use models::chatbot_configurations_models::ChatbotConfigurationModel;
 pub(crate) struct MainFrontendChatbotModelsApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseInfo {
     course_id: Uuid,
 }

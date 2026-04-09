@@ -11,7 +11,7 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseInstance {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -34,7 +34,7 @@ impl CourseInstance {
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseInstanceForm {
     pub name: Option<String>,
     pub description: Option<String>,
@@ -348,7 +348,7 @@ WHERE course_id = $1
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChapterScore {
     #[serde(flatten)]
     pub chapter: DatabaseChapter,
@@ -357,11 +357,11 @@ pub struct ChapterScore {
 }
 
 #[derive(Debug, Default, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PointMap(pub HashMap<Uuid, f32>);
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Points {
     pub chapter_points: Vec<ChapterScore>,
     pub users: Vec<UserDetail>,

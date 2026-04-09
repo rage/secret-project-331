@@ -22,6 +22,7 @@
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
     "lint:css": "stylelint '**/*.tsx'",
     "codegen:api": "cd services/main-frontend && pnpm run codegen:api",
+    "codegen:cms-api": "cd services/main-frontend && pnpm exec openapi-ts -f ../cms/openapi-ts.config.ts",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },

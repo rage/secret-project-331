@@ -67,7 +67,9 @@ bin/extract-gutenberg-types
 Then, assuming you still have the `bin/dev` or `bin/dev-only-db` open in another terminal, run:
 
 ```bash
-bin/generate-bindings
+pnpm run export-openapi
+pnpm run codegen:api
+pnpm run codegen:cms-api
 bin/generate-doc-files
 ```
 

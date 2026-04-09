@@ -1,14 +1,14 @@
 import { cmsClient } from "./cmsClient"
+import { parseCmsResponse } from "./parseCmsResponse"
 
-import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
-import { isEmailTemplate } from "@/shared-module/common/bindings.guard"
-import { validateResponse } from "@/shared-module/common/utils/fetching"
+import { type EmailTemplate, type EmailTemplateUpdate } from "@/generated/api"
+import { zEmailTemplate } from "@/generated/api/zod.generated"
 
 export const fetchEmailTemplateWithId = async (emailTemplateId: string): Promise<EmailTemplate> => {
   const response = await cmsClient.get(`/email-templates/${emailTemplateId}`, {
     responseType: "json",
   })
-  return validateResponse(response, isEmailTemplate)
+  return parseCmsResponse(response, zEmailTemplate)
 }
 
 export const updateExistingEmailTemplate = async (
@@ -22,10 +22,10 @@ export const updateExistingEmailTemplate = async (
       headers: { "Content-Type": "application/json" },
     },
   )
-  return validateResponse(response, isEmailTemplate)
+  return parseCmsResponse(response, zEmailTemplate)
 }
 
 export const deleteEmailTemplate = async (id: string): Promise<EmailTemplate> => {
   const response = await cmsClient.delete(`/email-templates/${id}`)
-  return validateResponse(response, isEmailTemplate)
+  return parseCmsResponse(response, zEmailTemplate)
 }

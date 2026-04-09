@@ -9,7 +9,7 @@ use chrono::{DateTime, Utc};
 use utoipa::ToSchema;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ProgressOverview {
     pub user_details: Vec<UserDetail>,
     pub chapters: Vec<DatabaseChapter>,
@@ -47,7 +47,7 @@ pub async fn get_course_users(
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CompletionGridRow {
     pub student: String,
     pub module: Option<String>, // empty/default row can be None
@@ -152,7 +152,7 @@ LEFT JOIN latest_cmc r
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, sqlx::FromRow, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CertificateGridRow {
     pub student: String,
     pub certificate: String,

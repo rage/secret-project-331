@@ -482,14 +482,14 @@ async fn get_public_course_pages(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
     pub modules: Vec<CourseMaterialCourseModule>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialCourseModule {
     pub chapters: Vec<ChapterWithStatus>,
     pub id: Uuid,
@@ -1260,7 +1260,7 @@ async fn get_research_form_answers_with_user_id(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserMarketingConsentPayload {
     pub course_language_groups_id: Uuid,
     pub email_subscription: bool,

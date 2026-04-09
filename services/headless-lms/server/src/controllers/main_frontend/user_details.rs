@@ -21,14 +21,14 @@ use std::net::IpAddr;
 pub(crate) struct MainFrontendUserDetailsApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct BulkUserDetailsRequest {
     pub user_ids: Vec<Uuid>,
     pub course_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserDetailsRequest {
     pub user_id: Uuid,
     pub course_ids: Vec<Uuid>,
@@ -363,7 +363,7 @@ pub async fn get_user_country_by_ip(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserInfoPayload {
     pub email: String,
     pub first_name: String,

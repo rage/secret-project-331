@@ -5,7 +5,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserExerciseTaskState {
     pub exercise_task_id: Uuid,
     pub user_exercise_slide_state_id: Uuid,

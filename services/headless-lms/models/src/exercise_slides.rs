@@ -14,7 +14,7 @@ pub struct NewExerciseSlide {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlide {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -25,7 +25,7 @@ pub struct ExerciseSlide {
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialExerciseSlide {
     pub id: Uuid,
     pub exercise_tasks: Vec<CourseMaterialExerciseTask>,

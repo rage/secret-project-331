@@ -1,7 +1,6 @@
 import { AxiosError } from "axios"
 
-import { ErrorResponse } from "../../bindings"
-import { isErrorData, isErrorResponse } from "../../bindings.guard"
+import { ErrorResponse, isErrorData, isErrorResponse } from "../../errorApiTypes"
 
 export interface ParsedError {
   title: string

@@ -16,7 +16,7 @@ use crate::{
 pub(crate) struct MainFrontendProposedEditsApiDoc;
 
 #[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GetEditProposalsQuery {
     pending: bool,
     #[serde(flatten)]

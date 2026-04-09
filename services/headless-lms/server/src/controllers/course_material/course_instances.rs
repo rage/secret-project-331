@@ -190,7 +190,7 @@ async fn get_module_completions_for_course_instance(
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct SaveCourseSettingsPayload {
     pub background_question_answers: Vec<NewCourseBackgroundQuestionAnswer>,
 }

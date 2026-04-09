@@ -3,7 +3,7 @@ use utoipa::ToSchema;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CertificateConfigurationToRequirement {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -14,7 +14,7 @@ pub struct CertificateConfigurationToRequirement {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CertificateAllRequirements {
     pub certificate_configuration_id: Uuid,
     pub course_module_ids: Vec<Uuid>,

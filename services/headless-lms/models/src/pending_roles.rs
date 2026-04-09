@@ -5,7 +5,7 @@ use crate::{
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PendingRole {
     pub id: Uuid,
     pub user_email: String,

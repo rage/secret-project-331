@@ -5,12 +5,11 @@ import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
-import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
-import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap } from "@/shared-module/common/utils/fetching"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
 import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { createScopedLogger } from "@/util/logger"
 import { ModelSolutionSpec, PrivateSpec } from "@/util/stateInterfaces"
 

@@ -89,7 +89,7 @@ pub async fn get_course_enrollments_for_user(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ConsentData {
     pub consent: bool,
 }
@@ -254,7 +254,7 @@ pub async fn get_user_reset_exercise_logs(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct EmailData {
     pub email: String,
     pub language: String,
@@ -367,7 +367,7 @@ pub async fn reset_password_token_status(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ResetPasswordData {
     pub token: String,
     pub new_password: String,
@@ -410,7 +410,7 @@ pub async fn reset_user_password(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChangePasswordData {
     pub old_password: String,
     pub new_password: String,

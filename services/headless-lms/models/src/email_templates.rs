@@ -2,7 +2,6 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, sqlx::Type, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "email_template_type", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum EmailTemplateType {
@@ -13,7 +12,7 @@ pub enum EmailTemplateType {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct EmailTemplate {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -29,7 +28,7 @@ pub struct EmailTemplate {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct EmailTemplateNew {
     pub template_type: EmailTemplateType,
     pub language: Option<String>,
@@ -37,8 +36,8 @@ pub struct EmailTemplateNew {
     pub subject: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct EmailTemplateUpdate {
     pub template_type: EmailTemplateType,
     pub subject: String,

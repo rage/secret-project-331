@@ -89,9 +89,6 @@ tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 # HTTP mocking for Rust.
 mockito = "1.7.2"
 
-[features]
-ts_rs = ["ts-rs", "headless-lms-utils/ts_rs"]
-
 [lints.clippy]
 unwrap_used = "deny"
 expect_used = "allow"

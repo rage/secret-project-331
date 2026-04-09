@@ -1,14 +1,14 @@
 import { cmsClient } from "./cmsClient"
+import { parseCmsResponse } from "./parseCmsResponse"
 
-import { ExamInstructions, ExamInstructionsUpdate } from "@/shared-module/common/bindings"
-import { isExamInstructions } from "@/shared-module/common/bindings.guard"
-import { validateResponse } from "@/shared-module/common/utils/fetching"
+import { type ExamInstructions, type ExamInstructionsUpdate } from "@/generated/api"
+import { zExamInstructions } from "@/generated/api/zod.generated"
 
 export const fetchExamsInstructions = async (examId: string): Promise<ExamInstructions> => {
   const response = await cmsClient.get(`/exams/${examId}/edit`, {
     responseType: "json",
   })
-  return validateResponse(response, isExamInstructions)
+  return parseCmsResponse(response, zExamInstructions)
 }
 
 export const updateExamsInstructions = async (
@@ -22,5 +22,5 @@ export const updateExamsInstructions = async (
       headers: { "Content-Type": "application/json" },
     },
   )
-  return validateResponse(response, isExamInstructions)
+  return parseCmsResponse(response, zExamInstructions)
 }

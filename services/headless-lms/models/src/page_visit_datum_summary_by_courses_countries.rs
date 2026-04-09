@@ -4,7 +4,7 @@ use utoipa::ToSchema;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PageVisitDatumSummaryByCoursesCountries {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

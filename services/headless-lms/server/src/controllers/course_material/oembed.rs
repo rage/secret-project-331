@@ -10,7 +10,7 @@ use utoipa::{OpenApi, ToSchema};
 pub(crate) struct CourseMaterialOembedApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseMaterialOEmbedResponse {
     pub author_name: String,
     pub author_url: String,

@@ -32,14 +32,14 @@ use super::user_exercise_state_updater;
 
 /// Contains data sent by the student when they make a submission for an exercise slide.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudentExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub exercise_task_submissions: Vec<StudentExerciseTaskSubmission>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudentExerciseSlideSubmissionResult {
     pub exercise_status: Option<ExerciseStatus>,
     pub exercise_task_submission_results: Vec<StudentExerciseTaskSubmissionResult>,
@@ -67,14 +67,14 @@ impl StudentExerciseSlideSubmissionResult {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudentExerciseTaskSubmission {
     pub exercise_task_id: Uuid,
     pub data_json: serde_json::Value,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudentExerciseTaskSubmissionResult {
     pub submission: ExerciseTaskSubmission,
     pub grading: Option<ExerciseTaskGrading>,
@@ -544,7 +544,7 @@ pub async fn propagate_user_exercise_state_update_from_exercise_task_grading_res
 }
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct AnswersRequiringAttention {
     pub exercise_max_points: i32,
     pub data: Vec<AnswerRequiringAttentionWithTasks>,
@@ -552,7 +552,7 @@ pub struct AnswersRequiringAttention {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct AnswerRequiringAttentionWithTasks {
     pub id: Uuid,
     pub user_id: Uuid,

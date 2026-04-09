@@ -1,4 +1,4 @@
-import { ExerciseTaskGradingResult } from "../bindings"
+import { ExerciseTaskGradingResult } from "../exerciseServiceTypes"
 
 type ExerciseTaskGradingLike = {
   grading_progress: ExerciseTaskGradingResult["grading_progress"]

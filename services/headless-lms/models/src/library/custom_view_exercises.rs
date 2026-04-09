@@ -5,7 +5,7 @@ use crate::{
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CustomViewExerciseTaskGrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -16,7 +16,7 @@ pub struct CustomViewExerciseTaskGrading {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CustomViewExerciseTaskSpec {
     pub id: Uuid,
     pub public_spec: Option<serde_json::Value>,
@@ -24,7 +24,7 @@ pub struct CustomViewExerciseTaskSpec {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CustomViewExerciseTaskSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -36,7 +36,7 @@ pub struct CustomViewExerciseTaskSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CustomViewExerciseSubmissions {
     pub exercise_tasks: CustomViewExerciseTasks,
     pub exercises: Vec<Exercise>,
@@ -44,7 +44,7 @@ pub struct CustomViewExerciseSubmissions {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CustomViewExerciseTasks {
     pub exercise_tasks: Vec<CustomViewExerciseTaskSpec>,
     pub task_submissions: Vec<CustomViewExerciseTaskSubmission>,

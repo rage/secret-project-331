@@ -8,9 +8,9 @@ import { submissionFeedback } from "../../../grading/feedback"
 import { gradeAnswers } from "../../../grading/grading"
 import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../../grading/utils"
 
-import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
 type QuizzesGradingRequest = GradingRequest<PrivateSpecQuiz, UserAnswer>
 

@@ -156,7 +156,6 @@ impl Handler<PlaygroundSubmissionMessage> for ClientConnection {
 /// The message type for all messages sent from the server to the client from the playgrounds-views websocket connection.
 #[derive(Debug, Serialize, Message)]
 #[rtype(result = "()")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag", content = "data")]
 pub enum PlaygroundViewsMessage {
     /// Server did not receive a pong for a certain period so the connection timed out.

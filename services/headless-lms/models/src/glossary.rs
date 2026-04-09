@@ -2,7 +2,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Term {
     pub id: Uuid,
     pub term: String,
@@ -10,7 +10,7 @@ pub struct Term {
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct TermUpdate {
     pub term: String,
     pub definition: String,

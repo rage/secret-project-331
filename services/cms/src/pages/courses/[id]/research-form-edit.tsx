@@ -13,11 +13,7 @@ import {
   upsertResearchFormQuestions,
 } from "../../../services/backend/courses"
 
-import {
-  NewResearchForm,
-  NewResearchFormQuestion,
-  ResearchForm,
-} from "@/shared-module/common/bindings"
+import { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"

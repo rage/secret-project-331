@@ -36,7 +36,7 @@ pub async fn get_user_details(
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserInfoPayload {
     pub email: String,
     pub first_name: String,

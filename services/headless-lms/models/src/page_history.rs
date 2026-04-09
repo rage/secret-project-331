@@ -11,7 +11,6 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]
 pub enum HistoryChangeReason {
     PageSaved,
@@ -20,7 +19,7 @@ pub enum HistoryChangeReason {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PageHistory {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -33,7 +32,7 @@ pub struct PageHistory {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PageHistoryContent {
     pub content: serde_json::Value,
     pub exercises: Vec<CmsPageExercise>,

@@ -1,19 +1,20 @@
 import { cmsClient } from "./cmsClient"
+import { parseCmsResponse } from "./parseCmsResponse"
 
-import { CourseInstance } from "@/shared-module/common/bindings"
-import { isCourseInstance } from "@/shared-module/common/bindings.guard"
-import { isArray, validateResponse } from "@/shared-module/common/utils/fetching"
+import { type CourseInstance } from "@/generated/api"
+import { z } from "@/generated/api/zod"
+import { zCourseInstance } from "@/generated/api/zod.generated"
 
 export const fetchCourseInstance = async (courseInstanceId: string): Promise<CourseInstance> => {
   const response = await cmsClient.get(`/course-instances/${courseInstanceId}`, {
     headers: { "Content-Type": "application/json" },
   })
-  return validateResponse(response, isCourseInstance)
+  return parseCmsResponse(response, zCourseInstance)
 }
 
 export const fetchCourseInstances = async (courseId: string): Promise<Array<CourseInstance>> => {
   const response = await cmsClient.get(`/courses/${courseId}/course-instances`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isCourseInstance))
+  return parseCmsResponse(response, z.array(zCourseInstance))
 }

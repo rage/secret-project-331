@@ -6,7 +6,7 @@ use crate::{
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct FlaggedAnswer {
     pub id: Uuid,
     pub submission_id: Uuid,
@@ -20,7 +20,6 @@ pub struct FlaggedAnswer {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "report_reason")]
 pub enum ReportReason {
     #[sqlx(rename = "flagging-reason-spam")]
@@ -32,7 +31,7 @@ pub enum ReportReason {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewFlaggedAnswer {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,
@@ -42,7 +41,7 @@ pub struct NewFlaggedAnswer {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewFlaggedAnswerWithToken {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,

@@ -28,14 +28,13 @@ use secrecy::SecretString;
 use tracing_log::log;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Login {
     email: String,
     password: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum LoginResponse {
     Success,
@@ -72,7 +71,7 @@ pub async fn authorize_action_on_resource(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CreateAccountDetails {
     pub email: String,
     pub first_name: String,
@@ -555,7 +554,7 @@ pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<b
 ///
 ///  Could include the user name etc in the future.
 #[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserInfo {
     pub user_id: Uuid,
     pub first_name: Option<String>,
@@ -588,7 +587,7 @@ pub async fn user_info(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct SendEmailCodeData {
     pub email: String,
     pub password: String,
@@ -676,7 +675,7 @@ pub async fn send_delete_user_email_code(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct EmailCode {
     pub code: String,
 }
@@ -839,7 +838,7 @@ async fn handle_email_verification(
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct VerifyEmailRequest {
     pub email_verification_token: String,
     pub code: String,

@@ -6,7 +6,7 @@ use utoipa::ToSchema;
 use crate::{prelude::*, users::User};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct UserDetail {
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,

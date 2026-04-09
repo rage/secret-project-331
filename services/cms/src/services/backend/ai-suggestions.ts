@@ -1,11 +1,8 @@
 import { cmsClient } from "./cmsClient"
+import { parseCmsResponse } from "./parseCmsResponse"
 
-import type {
-  ParagraphSuggestionRequest,
-  ParagraphSuggestionResponse,
-} from "@/shared-module/common/bindings"
-import { isParagraphSuggestionResponse } from "@/shared-module/common/bindings.guard"
-import { validateResponse } from "@/shared-module/common/utils/fetching"
+import type { ParagraphSuggestionRequest, ParagraphSuggestionResponse } from "@/generated/api"
+import { zParagraphSuggestionResponse } from "@/generated/api/zod.generated"
 
 /**
  * Sends a ParagraphSuggestionRequest to `/ai-suggestions/paragraph` and returns a validated ParagraphSuggestionResponse.
@@ -15,5 +12,5 @@ export async function requestParagraphSuggestions(
   payload: ParagraphSuggestionRequest,
 ): Promise<ParagraphSuggestionResponse> {
   const response = await cmsClient.post("/ai-suggestions/paragraph", payload)
-  return validateResponse(response, isParagraphSuggestionResponse)
+  return parseCmsResponse(response, zParagraphSuggestionResponse)
 }

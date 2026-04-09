@@ -7,14 +7,14 @@ use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "peer_review_question_type", rename_all = "snake_case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub enum PeerOrSelfReviewQuestionType {
     Essay,
     Scale,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CmsPeerOrSelfReviewQuestion {
     pub id: Uuid,
     pub peer_or_self_review_config_id: Uuid,
@@ -40,7 +40,7 @@ impl From<PeerOrSelfReviewQuestion> for CmsPeerOrSelfReviewQuestion {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PeerOrSelfReviewQuestion {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

@@ -6,7 +6,7 @@ use utoipa::ToSchema;
 /// A generic result representing a count metric over a time period.
 /// When the time period is not applicable (for overall totals), `period` will be `None`.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CountResult {
     /// The start of the time period (e.g., day, week, month) associated with this count.
     /// For overall totals, this will be `None`.
@@ -18,7 +18,7 @@ pub struct CountResult {
 /// A generic result representing an average metric over a time period.
 /// The average value (e.g. average time in seconds) may be absent if no data is available.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct AverageMetric {
     /// The start of the time period (e.g., day, week, month) associated with this metric.
     pub period: Option<DateTime<Utc>>,
@@ -30,7 +30,7 @@ pub struct AverageMetric {
 /// For daily cohorts, `offset` will be populated (and `activity_period` may be computed from it);
 /// for weekly cohorts, `offset` will be `None` and `activity_period` indicates the week start.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CohortActivity {
     /// The start date of the cohort (either day or week).
     pub cohort_start: Option<DateTime<Utc>>,
@@ -1056,7 +1056,7 @@ ORDER BY "period"
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudentsByCountryTotalsResult {
     pub country: Option<String>,
     pub count: i64,

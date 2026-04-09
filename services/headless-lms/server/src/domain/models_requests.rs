@@ -231,7 +231,7 @@ impl FromRequest for GradingUpdateClaim {
 
 /// Accepted by the public-spec and model-solution endpoints of exercise services.
 #[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct SpecRequest<'a> {
     request_id: Uuid,
     private_spec: Option<&'a serde_json::Value>,

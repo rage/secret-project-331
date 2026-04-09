@@ -28,7 +28,7 @@ struct CourseModulesSchema {
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
  */
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseModule {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -149,7 +149,7 @@ impl From<CourseModulesSchema> for CourseModule {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCourseModule {
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
@@ -481,7 +481,7 @@ WHERE uh_course_code IS NOT NULL
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct AutomaticCompletionRequirements {
     /// Course module associated with these requirements.
     pub course_module_id: Uuid,
@@ -521,7 +521,7 @@ impl AutomaticCompletionRequirements {
 
 #[derive(Debug, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "policy", rename_all = "kebab-case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub enum CompletionPolicy {
     Automatic(AutomaticCompletionRequirements),
     Manual,
@@ -624,7 +624,7 @@ RETURNING *
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewModule {
     name: String,
     order_number: i32,
@@ -637,7 +637,7 @@ pub struct NewModule {
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ModifiedModule {
     id: Uuid,
     name: Option<String>,
@@ -650,7 +650,7 @@ pub struct ModifiedModule {
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ModuleUpdates {
     new_modules: Vec<NewModule>,
     deleted_modules: Vec<Uuid>,

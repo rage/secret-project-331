@@ -2551,6 +2551,7 @@ dependencies = [
  "tracing-subscriber",
  "ts-rs",
  "url",
+ "utoipa",
  "uuid",
  "walkdir",
 ]

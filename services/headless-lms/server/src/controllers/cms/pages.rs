@@ -15,6 +15,11 @@ use crate::{
     },
     prelude::*,
 };
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_page, get_page_info, update_page, get_page_navigation))]
+pub(crate) struct CmsPagesApiDoc;
 
 /**
 GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks by id.
@@ -22,6 +27,18 @@ GET `/api/v0/cms/pages/:page_id` - Get a page with exercises and exercise tasks 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02`
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{page_id}",
+    operation_id = "getCmsPage",
+    tag = "cms_pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "CMS page with exercises and peer review data", body = ContentManagementPage)
+    )
+)]
 async fn get_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -39,6 +56,18 @@ GET `/api/v0/cms/pages/:page_id/info` - Get a pages's course id, course name, or
 
 Request: `GET /api/v0/cms/pages/40ca9bcf-8eaa-41ba-940e-0fd5dd0c3c02/info`
 */
+#[utoipa::path(
+    get,
+    path = "/{page_id}/info",
+    operation_id = "getCmsPageInfo",
+    tag = "cms_pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Page info", body = PageInfo)
+    )
+)]
 async fn get_page_info(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -76,6 +105,19 @@ Content-Type: application/json
 */
 
 #[instrument(skip(pool, app_conf))]
+#[utoipa::path(
+    put,
+    path = "/{page_id}",
+    operation_id = "updateCmsPage",
+    tag = "cms_pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    request_body = CmsPageUpdate,
+    responses(
+        (status = 200, description = "Updated CMS page", body = ContentManagementPage)
+    )
+)]
 async fn update_page(
     request_id: RequestId,
     payload: web::Json<CmsPageUpdate>,
@@ -116,6 +158,18 @@ async fn update_page(
 GET /api/v0/cms/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{page_id}/page-navigation",
+    operation_id = "getCmsPageNavigation",
+    tag = "cms_pages",
+    params(
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Page navigation", body = PageNavigationInformation)
+    )
+)]
 async fn get_page_navigation(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

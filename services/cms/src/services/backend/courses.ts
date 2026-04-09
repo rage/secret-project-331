@@ -1,32 +1,33 @@
 import { cmsClient } from "./cmsClient"
+import { parseCmsResponse } from "./parseCmsResponse"
 
 import {
-  ChatbotConfiguration,
-  CmsPeerOrSelfReviewConfiguration,
-  Course,
-  CourseModule,
-  NewResearchForm,
-  NewResearchFormQuestion,
-  Page,
-  ResearchForm,
-  ResearchFormQuestion,
-} from "@/shared-module/common/bindings"
+  type ChatbotConfiguration,
+  type CmsPeerOrSelfReviewConfiguration,
+  type Course,
+  type CourseModule,
+  type NewResearchForm,
+  type NewResearchFormQuestion,
+  type Page,
+  type ResearchForm,
+  type ResearchFormQuestion,
+} from "@/generated/api"
+import { z } from "@/generated/api/zod"
 import {
-  isChatbotConfiguration,
-  isCmsPeerOrSelfReviewConfiguration,
-  isCourse,
-  isCourseModule,
-  isPage,
-  isResearchForm,
-  isResearchFormQuestion,
-} from "@/shared-module/common/bindings.guard"
-import { isArray, isNull, isUnion, validateResponse } from "@/shared-module/common/utils/fetching"
+  zChatbotConfiguration,
+  zCmsPeerOrSelfReviewConfiguration,
+  zCourse,
+  zCourseModule,
+  zPage,
+  zResearchForm,
+  zResearchFormQuestion,
+} from "@/generated/api/zod.generated"
 
 export const getCoursesDefaultCmsPeerOrSelfReviewConfiguration = async (
   courseId: string,
 ): Promise<CmsPeerOrSelfReviewConfiguration> => {
   const response = await cmsClient.get(`/courses/${courseId}/default-peer-review`)
-  return validateResponse(response, isCmsPeerOrSelfReviewConfiguration)
+  return parseCmsResponse(response, zCmsPeerOrSelfReviewConfiguration)
 }
 
 export const putCoursesDefaultCmsPeerOrSelfReviewConfiguration = async (
@@ -34,12 +35,12 @@ export const putCoursesDefaultCmsPeerOrSelfReviewConfiguration = async (
   data: CmsPeerOrSelfReviewConfiguration,
 ): Promise<CmsPeerOrSelfReviewConfiguration> => {
   const response = await cmsClient.put(`/courses/${courseId}/default-peer-review`, data)
-  return validateResponse(response, isCmsPeerOrSelfReviewConfiguration)
+  return parseCmsResponse(response, zCmsPeerOrSelfReviewConfiguration)
 }
 
 export const getAllPagesForACourse = async (courseId: string): Promise<Page[]> => {
   const response = await cmsClient.get(`/courses/${courseId}/pages`)
-  return validateResponse(response, isArray(isPage))
+  return parseCmsResponse(response, z.array(zPage))
 }
 
 export const fetchResearchFormWithCourseId = async (
@@ -48,7 +49,7 @@ export const fetchResearchFormWithCourseId = async (
   const response = await cmsClient.get(`/courses/${courseId}/research-consent-form`, {
     responseType: "json",
   })
-  return validateResponse(response, isUnion(isResearchForm, isNull))
+  return parseCmsResponse(response, z.nullable(zResearchForm))
 }
 
 export const upsertResearchForm = async (
@@ -58,7 +59,7 @@ export const upsertResearchForm = async (
   const response = await cmsClient.put(`/courses/${courseId}/research-consent-form`, data, {
     responseType: "json",
   })
-  return validateResponse(response, isResearchForm)
+  return parseCmsResponse(response, zResearchForm)
 }
 
 export const upsertResearchFormQuestions = async (
@@ -72,7 +73,7 @@ export const upsertResearchFormQuestions = async (
       responseType: "json",
     },
   )
-  return validateResponse(response, isResearchFormQuestion)
+  return parseCmsResponse(response, zResearchFormQuestion)
 }
 
 export const fetchCourseModulesByCourseId = async (
@@ -81,14 +82,14 @@ export const fetchCourseModulesByCourseId = async (
   const response = await cmsClient.get(`/courses/${courseId}/modules`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isCourseModule))
+  return parseCmsResponse(response, z.array(zCourseModule))
 }
 
 export const fetchCourseById = async (courseId: string): Promise<Course> => {
   const response = await cmsClient.get(`/courses/${courseId}`, {
     responseType: "json",
   })
-  return validateResponse(response, isCourse)
+  return parseCmsResponse(response, zCourse)
 }
 
 export const fetchNondefaultChatbotConfigurationsForCourse = async (
@@ -97,5 +98,5 @@ export const fetchNondefaultChatbotConfigurationsForCourse = async (
   const response = await cmsClient.get(`/courses/${courseId}/nondefault-chatbot-configurations`, {
     responseType: "json",
   })
-  return validateResponse(response, isArray(isChatbotConfiguration))
+  return parseCmsResponse(response, z.array(zChatbotConfiguration))
 }

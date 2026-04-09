@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::PathBuf;
 
-use headless_lms_server::openapi::{CourseMaterialApiDoc, MainFrontendApiDoc};
+use headless_lms_server::openapi::{CmsApiDoc, CourseMaterialApiDoc, MainFrontendApiDoc};
 use utoipa::OpenApi;
 
 fn main() {
@@ -13,6 +13,7 @@ fn main() {
         &output_dir.join("main-frontend.openapi.json"),
         MainFrontendApiDoc::openapi(),
     );
+    write_spec(&output_dir.join("cms.openapi.json"), CmsApiDoc::openapi());
     write_spec(
         &output_dir.join("course-material.openapi.json"),
         CourseMaterialApiDoc::openapi(),

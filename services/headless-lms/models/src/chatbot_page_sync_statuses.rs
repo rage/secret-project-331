@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ChatbotPageSyncStatus {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

@@ -9,14 +9,14 @@ use utoipa::ToSchema;
     type_name = "course_background_question_type",
     rename_all = "snake_case"
 )]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub enum CourseBackgroundQuestionType {
     Checkbox,
     Text,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseBackgroundQuestion {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -29,7 +29,7 @@ pub struct CourseBackgroundQuestion {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseBackgroundQuestionsAndAnswers {
     pub background_questions: Vec<CourseBackgroundQuestion>,
     pub answers: Vec<CourseBackgroundQuestionAnswer>,

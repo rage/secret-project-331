@@ -3,7 +3,7 @@ use headless_lms_utils as utils;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct GeneratedCertificate {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -128,7 +128,7 @@ fn generate_verification_id() -> String {
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CertificateUpdateRequest {
     pub date_issued: DateTime<Utc>,
     pub name_on_certificate: Option<String>,

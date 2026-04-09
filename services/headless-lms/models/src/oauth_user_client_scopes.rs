@@ -12,7 +12,6 @@ pub struct OAuthUserClientScopes {
     pub granted_at: DateTime<Utc>,
 }
 
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[derive(Debug, Clone, PartialEq, FromRow, Serialize, Deserialize, ToSchema)]
 pub struct AuthorizedClientInfo {
     pub client_id: Uuid,     // oauth_clients.id

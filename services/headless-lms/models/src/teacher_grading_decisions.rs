@@ -4,7 +4,7 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct TeacherGradingDecision {
     pub id: Uuid,
     pub user_exercise_state_id: Uuid,
@@ -18,7 +18,6 @@ pub struct TeacherGradingDecision {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[sqlx(type_name = "teacher_decision_type", rename_all = "kebab-case")]
 pub enum TeacherDecisionType {
     FullPoints,
@@ -29,7 +28,7 @@ pub enum TeacherDecisionType {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewTeacherGradingDecision {
     pub user_exercise_state_id: Uuid,
     pub exercise_id: Uuid,

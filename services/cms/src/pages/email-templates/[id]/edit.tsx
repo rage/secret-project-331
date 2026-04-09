@@ -8,7 +8,7 @@ import {
   updateExistingEmailTemplate,
 } from "../../../services/backend/email-templates"
 
-import { EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import { EmailTemplateUpdate } from "@/generated/api"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

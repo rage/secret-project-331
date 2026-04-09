@@ -5,7 +5,7 @@ import React, { useState } from "react"
 
 import { fetchExamsInstructions, updateExamsInstructions } from "../../../services/backend/exams"
 
-import { ExamInstructionsUpdate } from "@/shared-module/common/bindings"
+import { ExamInstructionsUpdate } from "@/generated/api"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"

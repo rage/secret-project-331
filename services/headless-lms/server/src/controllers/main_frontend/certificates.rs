@@ -33,7 +33,7 @@ struct CertificateConfigurationUpdateMultipartPayload {
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CertificateConfigurationUpdate {
     pub course_module_id: Uuid,
     pub course_instance_id: Option<Uuid>,

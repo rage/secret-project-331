@@ -112,7 +112,7 @@ pub async fn unset(
 }
 
 #[derive(Debug, Deserialize, ToSchema)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct RoleQuery {
     #[serde(skip_serializing_if = "Option::is_none")]
     global: Option<bool>,

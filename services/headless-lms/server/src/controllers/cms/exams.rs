@@ -1,8 +1,13 @@
 //! Controllers for requests starting with `/api/v0/cms/organizations`.
 
 use models::exams::{ExamInstructions, ExamInstructionsUpdate};
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_exam_instructions, update_exam_instructions))]
+pub(crate) struct CmsExamsApiDoc;
 
 /**
 POST `/api/v0/cms/exams/:exam_id/upload` - Uploads a media (image, audio, file) for the course from Gutenberg page edit.
@@ -49,6 +54,18 @@ async fn add_media(
 GET `/api/v0/cms/exams/:exam_id/edit` - Get the exam instructions for Gutenberg Editor.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exam_id}/edit",
+    operation_id = "getCmsExamInstructions",
+    tag = "cms_exams",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam instructions", body = ExamInstructions)
+    )
+)]
 async fn get_exam_instructions(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
@@ -74,6 +91,19 @@ PUT /api/v0/cms/exams/d86cf910-4d26-40e9-8c9c-1cc35294fdbb/edit HTTP/1.1
 */
 
 #[instrument(skip(pool, payload))]
+#[utoipa::path(
+    put,
+    path = "/{exam_id}/edit",
+    operation_id = "updateCmsExamInstructions",
+    tag = "cms_exams",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = ExamInstructionsUpdate,
+    responses(
+        (status = 200, description = "Updated exam instructions", body = ExamInstructions)
+    )
+)]
 async fn update_exam_instructions(
     payload: web::Json<ExamInstructionsUpdate>,
     pool: web::Data<PgPool>,

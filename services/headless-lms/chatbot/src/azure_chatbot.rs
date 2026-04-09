@@ -35,6 +35,7 @@ use crate::llm_utils::{
     APIMessage, APIMessageKind, APIMessageText, APIMessageToolCall, APIMessageToolResponse,
     APITool, APIToolCall, estimate_tokens, make_streaming_llm_request,
 };
+use headless_lms_utils::strings::truncate_utf8_at_boundary;
 use headless_lms_utils::url_encoding::url_decode;
 
 use crate::prelude::*;
@@ -829,7 +830,7 @@ pub async fn parse_and_stream_to_user<'a>(
                     if let Some(context) = &delta.context {
                         let mut conn = pool.acquire().await?;
                         for (idx, cit) in context.citations.iter().enumerate() {
-                            let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
+                            let content = truncate_utf8_at_boundary(&cit.content, 255).to_string();
                             let split = content.split_once(CONTENT_FIELD_SEPARATOR);
                             if split.is_none() {
                                 error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");

@@ -82,6 +82,16 @@ reviews:
 
         No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.
 
+        When creating custom errors (ModelError, UtilError, ControllerError, ChatbotError), use the provided macros instead of calling `.new()` directly. The macros are shorter, more readable, and prevent boilerplate:
+        - Use `model_err!(ErrorVariant, "message".to_string())` instead of `ModelError::new(ModelErrorType::ErrorVariant, "message".to_string(), None)`
+        - Use `util_err!(ErrorVariant, "message".to_string())` instead of `UtilError::new(UtilErrorType::ErrorVariant, "message".to_string(), None)`
+        - Use `controller_err!(ErrorVariant, "message".to_string())` instead of `ControllerError::new(ControllerErrorType::ErrorVariant, "message".to_string(), None)`
+        - Use `chatbot_err!(ErrorVariant, "message".to_string())` instead of `ChatbotError::new(ChatbotErrorType::ErrorVariant, "message".to_string(), None)`
+        - For errors with a source, add it as a third argument: `model_err!(Generic, "wrapped".to_string(), source_err)`
+        - For `.map_err()` chains, use helper functions: `.map_err(as_model_error(ModelErrorType::Generic, "msg".to_string()))?`
+        - For `.ok_or_else()` chains, use helper functions: `.ok_or_else(missing_model_error(ModelErrorType::NotFound, "msg".to_string()))?`
+        These macros work with `format!()` for dynamic messages: `model_err!(Generic, format!("Failed: {}", detail))`
+
     - path: "services/headless-lms/migrations/**/*.sql"
       instructions: >
         Once you want to change something in the database, don't edit any migrations that were not created in your current pull request as previous migration have already been applied to production. Create new migrations with bin/sqlx-migrate-add.

@@ -39,8 +39,13 @@
                     "contentMediaType": "application/octet-stream"
                   },
                   "metadata": {
-                    "type": "string"
+                    "$ref": "#/components/schemas/CertificateConfigurationUpdate"
                   }
+                }
+              },
+              "encoding": {
+                "metadata": {
+                  "contentType": "application/json"
                 }
               }
             }
@@ -10181,6 +10186,133 @@
           },
           "requirements": {
             "$ref": "#/components/schemas/CertificateAllRequirements"
+          }
+        }
+      },
+      "CertificateConfigurationUpdate": {
+        "type": "object",
+        "required": ["course_module_id", "clear_overlay_svg_file", "render_certificate_grade"],
+        "properties": {
+          "background_svg_file_name": {
+            "type": ["string", "null"]
+          },
+          "certificate_date_font_size": {
+            "type": ["string", "null"]
+          },
+          "certificate_date_text_anchor": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CertificateTextAnchor"
+              }
+            ]
+          },
+          "certificate_date_text_color": {
+            "type": ["string", "null"]
+          },
+          "certificate_date_x_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_date_y_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_grade_font_size": {
+            "type": ["string", "null"]
+          },
+          "certificate_grade_text_anchor": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CertificateTextAnchor"
+              }
+            ]
+          },
+          "certificate_grade_text_color": {
+            "type": ["string", "null"]
+          },
+          "certificate_grade_x_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_grade_y_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_locale": {
+            "type": ["string", "null"]
+          },
+          "certificate_owner_name_font_size": {
+            "type": ["string", "null"]
+          },
+          "certificate_owner_name_text_anchor": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CertificateTextAnchor"
+              }
+            ]
+          },
+          "certificate_owner_name_text_color": {
+            "type": ["string", "null"]
+          },
+          "certificate_owner_name_x_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_owner_name_y_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_validate_url_font_size": {
+            "type": ["string", "null"]
+          },
+          "certificate_validate_url_text_anchor": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CertificateTextAnchor"
+              }
+            ]
+          },
+          "certificate_validate_url_text_color": {
+            "type": ["string", "null"]
+          },
+          "certificate_validate_url_x_pos": {
+            "type": ["string", "null"]
+          },
+          "certificate_validate_url_y_pos": {
+            "type": ["string", "null"]
+          },
+          "clear_overlay_svg_file": {
+            "type": "boolean"
+          },
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "overlay_svg_file_name": {
+            "type": ["string", "null"]
+          },
+          "paper_size": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PaperSize"
+              }
+            ]
+          },
+          "render_certificate_grade": {
+            "type": "boolean"
           }
         }
       },

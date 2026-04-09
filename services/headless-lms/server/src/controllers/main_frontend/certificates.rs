@@ -27,12 +27,12 @@ pub(crate) struct MainFrontendCertificatesApiDoc;
 #[allow(dead_code)]
 #[derive(Debug, ToSchema)]
 struct CertificateConfigurationUpdateMultipartPayload {
-    metadata: String,
+    metadata: CertificateConfigurationUpdate,
     #[schema(content_media_type = "application/octet-stream")]
     file: Vec<Vec<u8>>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 #[cfg_attr(feature = "ts_rs", derive(TS))]
 pub struct CertificateConfigurationUpdate {
     pub course_module_id: Uuid,
@@ -84,7 +84,8 @@ Updates the certificate configuration for a given module.
     tag = "certificates",
     request_body(
         content = inline(CertificateConfigurationUpdateMultipartPayload),
-        content_type = "multipart/form-data"
+        content_type = "multipart/form-data",
+        encoding(("metadata" = (content_type = "application/json")))
     ),
     responses(
         (status = 200, description = "Certificate configuration updated", body = bool)

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import CertificateForm, { CertificateFields } from "./CertificateForm"
 import CertificateView from "./CertificateView"
+import { createCertificateConfigurationFormData } from "./certificateConfigurationFormData"
 
 import {
   getCourseInstanceDefaultCertificateConfigurationsOptions,
@@ -20,6 +21,10 @@ import {
   setCourseModuleCertificateGeneration,
   updateCertificateConfiguration,
 } from "@/generated/api/sdk.generated"
+import type {
+  CertificateConfigurationUpdate as CertificateConfigurationUpdateRequest,
+  UpdateCertificateConfigurationData,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -80,7 +85,7 @@ const CertificationsPage: React.FC = () => {
     ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
       const overlaySvg = fields.overlaySvg.item(0)
-      const update = {
+      const update: CertificateConfigurationUpdateRequest = {
         course_module_id: courseModuleId,
         course_instance_id: courseInstanceId,
         certificate_owner_name_y_pos: fields.ownerNamePosY,
@@ -115,9 +120,10 @@ const CertificationsPage: React.FC = () => {
 
       return updateCertificateConfiguration({
         body: {
-          metadata: JSON.stringify(update),
-          file: files as unknown as number[][],
+          metadata: update,
+          file: files as unknown as UpdateCertificateConfigurationData["body"]["file"],
         },
+        bodySerializer: () => createCertificateConfigurationFormData(update, files),
       })
     },
     { method: "POST", notify: true },

@@ -2192,7 +2192,7 @@ export type GetCourseMaterialCoursePageByPathResponses = {
 export type GetCourseMaterialCoursePageByPathResponse = GetCourseMaterialCoursePageByPathResponses[keyof GetCourseMaterialCoursePageByPathResponses];
 
 export type PostCourseMaterialCourseEditProposalData = {
-    body: unknown;
+    body: NewProposedPageEdits;
     path: {
         /**
          * Course slug

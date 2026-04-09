@@ -50,7 +50,11 @@ async fn get_chatbots(
     params(
         ("course_id" = String, Path, description = "Course id")
     ),
-    request_body = String,
+    request_body(
+        content = String,
+        description = "JSON string literal chatbot name, e.g. \"Chatbot 1\".",
+        content_type = "application/json"
+    ),
     responses(
         (status = 200, description = "Created course chatbot", body = ChatbotConfiguration)
     )

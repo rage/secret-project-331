@@ -978,7 +978,7 @@ pub async fn get_exercises_by_course_id(
     token.authorized_ok(web::Json(exercises))
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct ResetExercisesPayload {
     pub user_ids: Vec<Uuid>,
     pub exercise_ids: Vec<Uuid>,
@@ -998,7 +998,7 @@ POST `/api/v0/main-frontend/exercises/:course_id/reset-exercises-for-selected-us
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = ResetExercisesPayload,
     responses(
         (status = 200, description = "Number of successful resets", body = i32)
     )

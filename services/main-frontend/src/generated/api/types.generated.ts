@@ -191,6 +191,11 @@ export type CertificateUpdateRequest = {
     name_on_certificate?: string | null;
 };
 
+export type ChangePasswordData = {
+    new_password: string;
+    old_password: string;
+};
+
 export type Chapter = {
     chapter_image_url?: string | null;
     chapter_number: number;
@@ -275,6 +280,60 @@ export type ChatbotConfigurationModel = {
     model: string;
     thinking: boolean;
     updated_at: string;
+};
+
+export type CmsPageExercise = {
+    deadline?: string | null;
+    id: string;
+    limit_number_of_tries: boolean;
+    max_tries_per_slide?: number | null;
+    name: string;
+    needs_peer_review: boolean;
+    needs_self_review: boolean;
+    order_number: number;
+    peer_or_self_review_config?: null | CmsPeerOrSelfReviewConfig;
+    peer_or_self_review_questions?: Array<CmsPeerOrSelfReviewQuestion> | null;
+    score_maximum: number;
+    teacher_reviews_answer_after_locking: boolean;
+    use_course_default_peer_or_self_review_config: boolean;
+};
+
+export type CmsPageExerciseSlide = {
+    exercise_id: string;
+    id: string;
+    order_number: number;
+};
+
+export type CmsPageExerciseTask = {
+    assignment: unknown;
+    exercise_slide_id: string;
+    exercise_type: string;
+    id: string;
+    order_number: number;
+    private_spec?: unknown;
+};
+
+export type CmsPeerOrSelfReviewConfig = {
+    accepting_threshold: number;
+    course_id: string;
+    exercise_id?: string | null;
+    id: string;
+    peer_reviews_to_give: number;
+    peer_reviews_to_receive: number;
+    points_are_all_or_nothing: boolean;
+    processing_strategy: PeerReviewProcessingStrategy;
+    reset_answer_if_zero_points_from_review: boolean;
+    review_instructions?: unknown;
+};
+
+export type CmsPeerOrSelfReviewQuestion = {
+    answer_required: boolean;
+    id: string;
+    order_number: number;
+    peer_or_self_review_config_id: string;
+    question: string;
+    question_type: PeerOrSelfReviewQuestionType;
+    weight: number;
 };
 
 export type CodeGiveaway = {
@@ -712,6 +771,11 @@ export type EditedBlockStillExistsData = {
     status: ProposalStatus;
 };
 
+export type EmailData = {
+    email: string;
+    language: string;
+};
+
 export type EmailTemplate = {
     content?: unknown;
     course_id?: string | null;
@@ -963,6 +1027,17 @@ export type ExerciseTaskGrading = {
     updated_at: string;
 };
 
+export type ExerciseTaskGradingResult = {
+    feedback_json?: unknown;
+    feedback_text?: string | null;
+    grading_progress: GradingProgress;
+    score_given: number;
+    score_maximum: number;
+    set_user_variables?: {
+        [key: string]: unknown;
+    } | null;
+};
+
 export type ExerciseTaskSubmission = {
     created_at: string;
     data_json?: unknown;
@@ -1066,6 +1141,16 @@ export type GlobalStatEntry = {
  */
 export type GradingProgress = 'Failed' | 'NotReady' | 'PendingManual' | 'Pending' | 'FullyGraded';
 
+export type GutenbergBlock = {
+    attributes: {
+        [key: string]: unknown;
+    };
+    clientId: string;
+    innerBlocks: Array<GutenbergBlock>;
+    isValid: boolean;
+    name: string;
+};
+
 export type HealthStatus = 'healthy' | 'warning' | 'error';
 
 export type HistoryChangeReason = 'PageSaved' | 'HistoryRestored' | 'PageDeleted';
@@ -1101,6 +1186,10 @@ export type ManualCompletionPreviewUser = {
     passed: boolean;
     previous_best_grade?: number | null;
     user_id: string;
+};
+
+export type MarkAsRead = {
+    read: boolean;
 };
 
 export type MaterialReference = {
@@ -1248,6 +1337,29 @@ export type NewModule = {
     name: string;
     order_number: number;
     uh_course_code?: string | null;
+};
+
+/**
+ * Represents the subset of page fields that are required to create a new page.
+ */
+export type NewPage = {
+    chapter_id?: string | null;
+    content: Array<GutenbergBlock>;
+    /**
+     * Read from the course's settings if None. If course_id is None as well, defaults to "simple"
+     */
+    content_search_language?: string | null;
+    course_id?: string | null;
+    exam_id?: string | null;
+    exercise_slides: Array<CmsPageExerciseSlide>;
+    exercise_tasks: Array<CmsPageExerciseTask>;
+    exercises: Array<CmsPageExercise>;
+    /**
+     * If set, set this page to be the front page of this course part.
+     */
+    front_page_of_chapter_id?: string | null;
+    title: string;
+    url_path: string;
 };
 
 export type NewRegrading = {
@@ -1491,6 +1603,14 @@ export type PeerOrSelfReviewSubmissionWithSubmissionOwner = PeerOrSelfReviewSubm
     submission_owner_user_id?: string | null;
 };
 
+/**
+ *
+ * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
+ *
+ * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
+ */
+export type PeerReviewProcessingStrategy = 'AutomaticallyGradeByAverage' | 'AutomaticallyGradeOrManualReviewByAverage' | 'ManualReviewEverything';
+
 export type PeerReviewQueueEntry = {
     course_id: string;
     created_at: string;
@@ -1618,6 +1738,23 @@ export type ResearchFormQuestionAnswer = {
     research_form_question_id: string;
     updated_at: string;
     user_id: string;
+};
+
+export type ResetExercisesPayload = {
+    exercise_ids: Array<string>;
+    reset_all_below_max_points: boolean;
+    reset_only_locked_peer_reviews: boolean;
+    threshold?: number | null;
+    user_ids: Array<string>;
+};
+
+export type ResetPasswordData = {
+    new_password: string;
+    token: string;
+};
+
+export type ResetPasswordTokenPayload = {
+    token: string;
 };
 
 /**
@@ -2949,6 +3086,9 @@ export type GetCourseChatbotsResponses = {
 export type GetCourseChatbotsResponse = GetCourseChatbotsResponses[keyof GetCourseChatbotsResponses];
 
 export type CreateCourseChatbotData = {
+    /**
+     * JSON string literal chatbot name, e.g. "Chatbot 1".
+     */
     body: string;
     path: {
         /**
@@ -3517,7 +3657,7 @@ export type GetCourseLanguageVersionsResponses = {
 export type GetCourseLanguageVersionsResponse = GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses];
 
 export type UpdateCourseChapterOrderingData = {
-    body: unknown;
+    body: Array<Chapter>;
     path: {
         /**
          * Course id
@@ -3557,7 +3697,7 @@ export type CreateCourseInstanceResponses = {
 export type CreateCourseInstanceResponse = CreateCourseInstanceResponses[keyof CreateCourseInstanceResponses];
 
 export type UpdateCoursePageOrderingData = {
-    body: unknown;
+    body: Array<Page>;
     path: {
         /**
          * Course id
@@ -3698,7 +3838,7 @@ export type GetCoursePartnersBlockResponses = {
 };
 
 export type UpsertCoursePartnersBlockData = {
-    body: unknown;
+    body?: unknown;
     path: {
         /**
          * Course id
@@ -5575,7 +5715,7 @@ export type GetExercisesByCourseIdResponses = {
 export type GetExercisesByCourseIdResponse = GetExercisesByCourseIdResponses[keyof GetExercisesByCourseIdResponses];
 
 export type ResetExercisesForSelectedUsersData = {
-    body: unknown;
+    body: ResetExercisesPayload;
     path: {
         /**
          * Course id
@@ -5783,7 +5923,7 @@ export type GetExerciseSubmissionsForUserResponses = {
 export type GetExerciseSubmissionsForUserResponse = GetExerciseSubmissionsForUserResponses[keyof GetExerciseSubmissionsForUserResponses];
 
 export type MarkFeedbackAsReadData = {
-    body: unknown;
+    body: MarkAsRead;
     path: {
         /**
          * Feedback id
@@ -6531,7 +6671,7 @@ export type GetOrganizationDuplicatableCoursesResponses = {
 export type GetOrganizationDuplicatableCoursesResponse = GetOrganizationDuplicatableCoursesResponses[keyof GetOrganizationDuplicatableCoursesResponses];
 
 export type CreateOrganizationExamData = {
-    body: unknown;
+    body: NewExam;
     path: {
         /**
          * Organization id
@@ -6674,7 +6814,7 @@ export type GetPageAudioFilesResponses = {
 export type GetPageAudioFilesResponse = GetPageAudioFilesResponses[keyof GetPageAudioFilesResponses];
 
 export type CreatePageData = {
-    body: unknown;
+    body: NewPage;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/pages';
@@ -6846,7 +6986,7 @@ export type RestorePageHistoryResponses = {
 export type RestorePageHistoryResponse = RestorePageHistoryResponses[keyof RestorePageHistoryResponses];
 
 export type ReceivePlaygroundGradingData = {
-    body: unknown;
+    body: ExerciseTaskGradingResult;
     path: {
         /**
          * Playground websocket id
@@ -7586,7 +7726,7 @@ export type GetUserDetailsByCourseAndUserIdResponses = {
 export type GetUserDetailsByCourseAndUserIdResponse = GetUserDetailsByCourseAndUserIdResponses[keyof GetUserDetailsByCourseAndUserIdResponses];
 
 export type ChangeUserPasswordData = {
-    body: unknown;
+    body: ChangePasswordData;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/users/change-password';
@@ -7634,7 +7774,7 @@ export type GetMyCoursesResponses = {
 export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses];
 
 export type ResetUserPasswordData = {
-    body: unknown;
+    body: ResetPasswordData;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/users/reset-password';
@@ -7650,7 +7790,7 @@ export type ResetUserPasswordResponses = {
 export type ResetUserPasswordResponse = ResetUserPasswordResponses[keyof ResetUserPasswordResponses];
 
 export type GetResetPasswordTokenStatusData = {
-    body: unknown;
+    body: ResetPasswordTokenPayload;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/users/reset-password-token-status';
@@ -7666,7 +7806,7 @@ export type GetResetPasswordTokenStatusResponses = {
 export type GetResetPasswordTokenStatusResponse = GetResetPasswordTokenStatusResponses[keyof GetResetPasswordTokenStatusResponses];
 
 export type SendResetPasswordEmailData = {
-    body: unknown;
+    body: EmailData;
     path?: never;
     query?: never;
     url: '/api/v0/main-frontend/users/send-reset-password-email';

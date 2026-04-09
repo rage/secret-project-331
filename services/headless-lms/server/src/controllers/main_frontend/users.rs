@@ -253,7 +253,7 @@ pub async fn get_user_reset_exercise_logs(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct EmailData {
     pub email: String,
@@ -266,7 +266,7 @@ pub struct EmailData {
     path = "/send-reset-password-email",
     operation_id = "sendResetPasswordEmail",
     tag = "users",
-    request_body = serde_json::Value,
+    request_body = EmailData,
     responses(
         (status = 200, description = "Reset password email accepted", body = bool)
     )
@@ -332,7 +332,7 @@ pub async fn send_reset_password_email(
     token.authorized_ok(web::Json(true))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ResetPasswordTokenPayload {
     pub token: String,
 }
@@ -343,7 +343,7 @@ pub struct ResetPasswordTokenPayload {
     path = "/reset-password-token-status",
     operation_id = "getResetPasswordTokenStatus",
     tag = "users",
-    request_body = serde_json::Value,
+    request_body = ResetPasswordTokenPayload,
     responses(
         (status = 200, description = "Reset password token validity", body = bool)
     )
@@ -366,7 +366,7 @@ pub async fn reset_password_token_status(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct ResetPasswordData {
     pub token: String,
@@ -379,7 +379,7 @@ pub struct ResetPasswordData {
     path = "/reset-password",
     operation_id = "resetUserPassword",
     tag = "users",
-    request_body = serde_json::Value,
+    request_body = ResetPasswordData,
     responses(
         (status = 200, description = "Password reset status", body = bool)
     )
@@ -409,7 +409,7 @@ pub async fn reset_user_password(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct ChangePasswordData {
     pub old_password: String,
@@ -422,7 +422,7 @@ pub struct ChangePasswordData {
     path = "/change-password",
     operation_id = "changeUserPassword",
     tag = "users",
-    request_body = serde_json::Value,
+    request_body = ChangePasswordData,
     responses(
         (status = 200, description = "Password change status", body = bool)
     )

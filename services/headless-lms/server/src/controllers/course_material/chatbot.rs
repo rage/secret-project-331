@@ -74,7 +74,10 @@ Sends a new chat message to the chatbot.
         ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
         ("conversation_id" = Uuid, Path, description = "Conversation id")
     ),
-    request_body = String,
+    request_body(
+        content = String,
+        content_type = "application/json"
+    ),
     responses(
         (status = 200, description = "Chatbot response stream", body = String)
     )

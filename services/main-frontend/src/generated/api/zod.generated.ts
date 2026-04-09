@@ -94,6 +94,11 @@ export const zCertificateUpdateRequest = z.object({
     name_on_certificate: z.string().nullish()
 });
 
+export const zChangePasswordData = z.object({
+    new_password: z.string(),
+    old_password: z.string()
+});
+
 export const zChapter = z.object({
     chapter_image_url: z.string().nullish(),
     chapter_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
@@ -138,6 +143,21 @@ export const zChatbotConfigurationModel = z.object({
     model: z.string(),
     thinking: z.boolean(),
     updated_at: z.iso.datetime()
+});
+
+export const zCmsPageExerciseSlide = z.object({
+    exercise_id: z.uuid(),
+    id: z.uuid(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' })
+});
+
+export const zCmsPageExerciseTask = z.object({
+    assignment: z.unknown(),
+    exercise_slide_id: z.uuid(),
+    exercise_type: z.string(),
+    id: z.uuid(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    private_spec: z.unknown().optional()
 });
 
 export const zCodeGiveaway = z.object({
@@ -464,6 +484,11 @@ export const zEditProposalInfo = z.object({
     page_proposal_id: z.uuid()
 });
 
+export const zEmailData = z.object({
+    email: z.string(),
+    language: z.string()
+});
+
 export const zEmailTemplateType = z.enum([
     'reset_password_email',
     'delete_user_email',
@@ -784,6 +809,23 @@ export const zCourseMaterialExerciseTask = z.object({
     public_spec: z.unknown().optional()
 });
 
+export const zExerciseTaskGradingResult = z.object({
+    feedback_json: z.unknown().optional(),
+    feedback_text: z.string().nullish(),
+    grading_progress: zGradingProgress,
+    score_given: z.number(),
+    score_maximum: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    set_user_variables: z.record(z.string(), z.unknown()).nullish()
+});
+
+export const zGutenbergBlock = z.object({
+    attributes: z.record(z.string(), z.unknown()),
+    clientId: z.uuid(),
+    innerBlocks: z.array(z.lazy((): any => zGutenbergBlock)),
+    isValid: z.boolean(),
+    name: z.string()
+});
+
 export const zHealthStatus = z.enum([
     'healthy',
     'warning',
@@ -827,6 +869,10 @@ export const zManualCompletionPreview = z.object({
     already_completed_users: z.array(zManualCompletionPreviewUser),
     first_time_completing_users: z.array(zManualCompletionPreviewUser),
     non_enrolled_users: z.array(zManualCompletionPreviewUser)
+});
+
+export const zMarkAsRead = z.object({
+    read: z.boolean()
 });
 
 export const zMaterialReference = z.object({
@@ -1199,6 +1245,16 @@ export const zPeerOrSelfReviewQuestionSubmission = z.object({
 
 export const zPeerOrSelfReviewQuestionType = z.enum(['Essay', 'Scale']);
 
+export const zCmsPeerOrSelfReviewQuestion = z.object({
+    answer_required: z.boolean(),
+    id: z.uuid(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    peer_or_self_review_config_id: z.uuid(),
+    question: z.string(),
+    question_type: zPeerOrSelfReviewQuestionType,
+    weight: z.number()
+});
+
 export const zPeerOrSelfReviewQuestion = z.object({
     answer_required: z.boolean(),
     created_at: z.iso.datetime(),
@@ -1230,6 +1286,64 @@ export const zPeerOrSelfReviewSubmission = z.object({
 export const zPeerOrSelfReviewSubmissionWithSubmissionOwner = zPeerOrSelfReviewSubmission.and(z.object({
     submission_owner_user_id: z.uuid().nullish()
 }));
+
+/**
+ *
+ * Determines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.
+ *
+ * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
+ */
+export const zPeerReviewProcessingStrategy = z.enum([
+    'AutomaticallyGradeByAverage',
+    'AutomaticallyGradeOrManualReviewByAverage',
+    'ManualReviewEverything'
+]);
+
+export const zCmsPeerOrSelfReviewConfig = z.object({
+    accepting_threshold: z.number(),
+    course_id: z.uuid(),
+    exercise_id: z.uuid().nullish(),
+    id: z.uuid(),
+    peer_reviews_to_give: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    peer_reviews_to_receive: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    points_are_all_or_nothing: z.boolean(),
+    processing_strategy: zPeerReviewProcessingStrategy,
+    reset_answer_if_zero_points_from_review: z.boolean(),
+    review_instructions: z.unknown().optional()
+});
+
+export const zCmsPageExercise = z.object({
+    deadline: z.iso.datetime().nullish(),
+    id: z.uuid(),
+    limit_number_of_tries: z.boolean(),
+    max_tries_per_slide: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }).nullish(),
+    name: z.string(),
+    needs_peer_review: z.boolean(),
+    needs_self_review: z.boolean(),
+    order_number: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    peer_or_self_review_config: zCmsPeerOrSelfReviewConfig.nullish(),
+    peer_or_self_review_questions: z.array(zCmsPeerOrSelfReviewQuestion).nullish(),
+    score_maximum: z.int().min(-2147483648, { error: 'Invalid value: Expected int32 to be >= -2147483648' }).max(2147483647, { error: 'Invalid value: Expected int32 to be <= 2147483647' }),
+    teacher_reviews_answer_after_locking: z.boolean(),
+    use_course_default_peer_or_self_review_config: z.boolean()
+});
+
+/**
+ * Represents the subset of page fields that are required to create a new page.
+ */
+export const zNewPage = z.object({
+    chapter_id: z.uuid().nullish(),
+    content: z.array(zGutenbergBlock),
+    content_search_language: z.string().nullish(),
+    course_id: z.uuid().nullish(),
+    exam_id: z.uuid().nullish(),
+    exercise_slides: z.array(zCmsPageExerciseSlide),
+    exercise_tasks: z.array(zCmsPageExerciseTask),
+    exercises: z.array(zCmsPageExercise),
+    front_page_of_chapter_id: z.uuid().nullish(),
+    title: z.string(),
+    url_path: z.string()
+});
 
 export const zPeerReviewQueueEntry = z.object({
     course_id: z.uuid(),
@@ -1399,6 +1513,23 @@ export const zResearchFormQuestionAnswer = z.object({
     research_form_question_id: z.uuid(),
     updated_at: z.iso.datetime(),
     user_id: z.uuid()
+});
+
+export const zResetExercisesPayload = z.object({
+    exercise_ids: z.array(z.uuid()),
+    reset_all_below_max_points: z.boolean(),
+    reset_only_locked_peer_reviews: z.boolean(),
+    threshold: z.number().nullish(),
+    user_ids: z.array(z.uuid())
+});
+
+export const zResetPasswordData = z.object({
+    new_password: z.string(),
+    token: z.string()
+});
+
+export const zResetPasswordTokenPayload = z.object({
+    token: z.string()
 });
 
 /**
@@ -1962,7 +2093,7 @@ export const zGetChatbotModelsQuery = z.object({
  */
 export const zGetChatbotModelsResponse = z.array(zChatbotConfigurationModel);
 
-export const zGetChatbotModelBody = z.string();
+export const zGetChatbotModelBody = z.uuid();
 
 export const zGetChatbotModelPath = z.object({
     chatbot_model_id: z.uuid()
@@ -2291,6 +2422,9 @@ export const zGetCourseChatbotsPath = z.object({
  */
 export const zGetCourseChatbotsResponse = z.array(zChatbotConfiguration);
 
+/**
+ * JSON string literal chatbot name, e.g. "Chatbot 1".
+ */
 export const zCreateCourseChatbotBody = z.string();
 
 export const zCreateCourseChatbotPath = z.object({
@@ -2523,7 +2657,7 @@ export const zGetCourseLanguageVersionsPath = z.object({
  */
 export const zGetCourseLanguageVersionsResponse = z.array(zCourse);
 
-export const zUpdateCourseChapterOrderingBody = z.unknown();
+export const zUpdateCourseChapterOrderingBody = z.array(zChapter);
 
 export const zUpdateCourseChapterOrderingPath = z.object({
     course_id: z.uuid()
@@ -2540,7 +2674,7 @@ export const zCreateCourseInstancePath = z.object({
  */
 export const zCreateCourseInstanceResponse = z.uuid();
 
-export const zUpdateCoursePageOrderingBody = z.unknown();
+export const zUpdateCoursePageOrderingBody = z.array(zPage);
 
 export const zUpdateCoursePageOrderingPath = z.object({
     course_id: z.uuid()
@@ -3322,7 +3456,7 @@ export const zGetExercisesByCourseIdPath = z.object({
  */
 export const zGetExercisesByCourseIdResponse = z.array(zExercise);
 
-export const zResetExercisesForSelectedUsersBody = z.unknown();
+export const zResetExercisesForSelectedUsersBody = zResetExercisesPayload;
 
 export const zResetExercisesForSelectedUsersPath = z.object({
     course_id: z.uuid()
@@ -3417,7 +3551,7 @@ export const zGetExerciseSubmissionsForUserPath = z.object({
  */
 export const zGetExerciseSubmissionsForUserResponse = z.array(zExerciseSlideSubmission);
 
-export const zMarkFeedbackAsReadBody = z.unknown();
+export const zMarkFeedbackAsReadBody = zMarkAsRead;
 
 export const zMarkFeedbackAsReadPath = z.object({
     feedback_id: z.string()
@@ -3654,7 +3788,7 @@ export const zGetOrganizationDuplicatableCoursesPath = z.object({
  */
 export const zGetOrganizationDuplicatableCoursesResponse = z.array(zCourse);
 
-export const zCreateOrganizationExamBody = z.unknown();
+export const zCreateOrganizationExamBody = zNewExam;
 
 export const zCreateOrganizationExamPath = z.object({
     organization_id: z.uuid()
@@ -3707,7 +3841,7 @@ export const zGetPageAudioFilesPath = z.object({
  */
 export const zGetPageAudioFilesResponse = z.array(zPageAudioFile);
 
-export const zCreatePageBody = z.unknown();
+export const zCreatePageBody = zNewPage;
 
 /**
  * Created page
@@ -3786,7 +3920,7 @@ export const zRestorePageHistoryPath = z.object({
  */
 export const zRestorePageHistoryResponse = z.uuid();
 
-export const zReceivePlaygroundGradingBody = z.unknown();
+export const zReceivePlaygroundGradingBody = zExerciseTaskGradingResult;
 
 export const zReceivePlaygroundGradingPath = z.object({
     websocket_id: z.uuid()
@@ -4054,7 +4188,7 @@ export const zGetUserDetailsByCourseAndUserIdPath = z.object({
  */
 export const zGetUserDetailsByCourseAndUserIdResponse = zUserDetail;
 
-export const zChangeUserPasswordBody = z.unknown();
+export const zChangeUserPasswordBody = zChangePasswordData;
 
 /**
  * Password change status
@@ -4071,21 +4205,21 @@ export const zGetUserResearchConsentResponse = zUserResearchConsent;
  */
 export const zGetMyCoursesResponse = z.array(zCourse);
 
-export const zResetUserPasswordBody = z.unknown();
+export const zResetUserPasswordBody = zResetPasswordData;
 
 /**
  * Password reset status
  */
 export const zResetUserPasswordResponse = z.boolean();
 
-export const zGetResetPasswordTokenStatusBody = z.unknown();
+export const zGetResetPasswordTokenStatusBody = zResetPasswordTokenPayload;
 
 /**
  * Reset password token validity
  */
 export const zGetResetPasswordTokenStatusResponse = z.boolean();
 
-export const zSendResetPasswordEmailBody = z.unknown();
+export const zSendResetPasswordEmailBody = zEmailData;
 
 /**
  * Reset password email accepted

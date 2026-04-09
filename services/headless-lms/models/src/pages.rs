@@ -104,7 +104,7 @@ pub struct PageWithExercises {
 }
 
 /// Represents the subset of page fields that are required to create a new page.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,

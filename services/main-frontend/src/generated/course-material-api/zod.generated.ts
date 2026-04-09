@@ -1582,7 +1582,7 @@ export const zGetCourseMaterialCoursePageByPathPath = z.object({
  */
 export const zGetCourseMaterialCoursePageByPathResponse = zCoursePageWithUserData;
 
-export const zPostCourseMaterialCourseEditProposalBody = z.unknown();
+export const zPostCourseMaterialCourseEditProposalBody = zNewProposedPageEdits;
 
 export const zPostCourseMaterialCourseEditProposalPath = z.object({
     course_slug: z.string()

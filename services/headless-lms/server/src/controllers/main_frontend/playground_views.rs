@@ -194,7 +194,7 @@ async fn websocket(
     params(
         ("websocket_id" = Uuid, Path, description = "Playground websocket id")
     ),
-    request_body = serde_json::Value,
+    request_body = ExerciseTaskGradingResult,
     responses(
         (status = 200, description = "Grading forwarded to websocket client")
     )

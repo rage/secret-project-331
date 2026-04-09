@@ -1371,7 +1371,7 @@ Creates redirects if url_path changes.
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = Vec<Page>,
     responses(
         (status = 200, description = "Course page ordering updated")
     )
@@ -1405,7 +1405,7 @@ Creates redirects if url_path changes.
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = Vec<Chapter>,
     responses(
         (status = 200, description = "Course chapter ordering updated")
     )
@@ -2466,7 +2466,7 @@ async fn get_course_with_join_code(
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
-    request_body = serde_json::Value,
+    request_body = Option<serde_json::Value>,
     responses(
         (status = 200, description = "Partners block", body = serde_json::Value)
     )

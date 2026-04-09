@@ -23,7 +23,10 @@ pub struct CourseInfo {
     params(
         ("chatbot_model_id" = Uuid, Path, description = "Chatbot model id")
     ),
-    request_body = String,
+    request_body(
+        content = Uuid,
+        content_type = "application/json"
+    ),
     responses(
         (status = 200, description = "Chatbot model", body = ChatbotConfigurationModel)
     )

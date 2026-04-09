@@ -82,6 +82,12 @@ reviews:
 
         No sql queries in code that is not within the models crate. If one needs to fetch data from the database, instead add a new function to the models crate and call that one.
 
+        If handler uses `web::Json<T>`, utoipa request_body content type must be `application/json`.
+
+        utoipa `request_body` schema type must match the handler payload type (`web::Json<NewPage>` => `request_body = NewPage`), avoid `serde_json::Value` unless endpoint is intentionally untyped.
+
+        Pitfall: `request_body = <some primitive value like String>` defaults to `text/plain` in utoipa. For `web::Json<String>`, use `request_body(content = String, content_type = "application/json")`.
+
     - path: "services/headless-lms/migrations/**/*.sql"
       instructions: >
         Once you want to change something in the database, don't edit any migrations that were not created in your current pull request as previous migration have already been applied to production. Create new migrations with bin/sqlx-migrate-add.

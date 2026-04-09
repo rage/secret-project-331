@@ -64,7 +64,7 @@ Content-Type: application/json
     path = "",
     operation_id = "createPage",
     tag = "pages",
-    request_body = serde_json::Value,
+    request_body = NewPage,
     responses(
         (status = 200, description = "Created page", body = Page)
     )

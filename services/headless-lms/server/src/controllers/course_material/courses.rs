@@ -795,7 +795,7 @@ POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit pr
     params(
         ("course_slug" = String, Path, description = "Course slug")
     ),
-    request_body = serde_json::Value,
+    request_body = NewProposedPageEdits,
     responses(
         (status = 200, description = "Created edit proposal id", body = Uuid)
     )

@@ -1,5 +1,5 @@
 use models::feedback;
-use utoipa::OpenApi;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
 
@@ -7,7 +7,7 @@ use crate::prelude::*;
 #[openapi(paths(mark_as_read))]
 pub(crate) struct MainFrontendFeedbackApiDoc;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 
 pub struct MarkAsRead {
     read: bool,
@@ -24,7 +24,7 @@ POST `/api/v0/main-frontend/feedback/:id` - Creates new feedback.
     params(
         ("feedback_id" = String, Path, description = "Feedback id")
     ),
-    request_body = serde_json::Value,
+    request_body = MarkAsRead,
     responses(
         (status = 200, description = "Feedback read state updated")
     )

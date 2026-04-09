@@ -245,13 +245,12 @@ export const getChatbotModels = <ThrowOnError extends boolean = true>(options: O
  * GET `/api/v0/main-frontend/chatbot-models/{chatbot_configuration_id}`
  */
 export const getChatbotModel = <ThrowOnError extends boolean = true>(options: Options<GetChatbotModelData, ThrowOnError>) => (options.client ?? client).get<GetChatbotModelResponses, unknown, ThrowOnError, 'data'>({
-    bodySerializer: null,
     responseValidator: async (data) => await zGetChatbotModelResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/chatbot-models/{chatbot_model_id}',
     ...options,
     headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         ...options.headers
     }
 });
@@ -725,13 +724,12 @@ export const getCourseChatbots = <ThrowOnError extends boolean = true>(options: 
  * POST `/api/v0/main-frontend/courses/{course_id}/chatbots`
  */
 export const createCourseChatbot = <ThrowOnError extends boolean = true>(options: Options<CreateCourseChatbotData, ThrowOnError>) => (options.client ?? client).post<CreateCourseChatbotResponses, unknown, ThrowOnError, 'data'>({
-    bodySerializer: null,
     responseValidator: async (data) => await zCreateCourseChatbotResponse.parseAsync(data),
     responseStyle: 'data',
     url: '/api/v0/main-frontend/courses/{course_id}/chatbots',
     ...options,
     headers: {
-        'Content-Type': 'text/plain',
+        'Content-Type': 'application/json',
         ...options.headers
     }
 });

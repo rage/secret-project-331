@@ -357,7 +357,7 @@
         ],
         "requestBody": {
           "content": {
-            "text/plain": {
+            "application/json": {
               "schema": {
                 "type": "string"
               }
@@ -1907,7 +1907,9 @@
         "requestBody": {
           "content": {
             "application/json": {
-              "schema": {}
+              "schema": {
+                "$ref": "#/components/schemas/NewProposedPageEdits"
+              }
             }
           },
           "required": true

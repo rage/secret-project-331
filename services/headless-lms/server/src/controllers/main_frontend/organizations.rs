@@ -712,7 +712,7 @@ POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new
     params(
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
-    request_body = serde_json::Value,
+    request_body = NewExam,
     responses(
         (status = 200, description = "Organization exam created")
     )

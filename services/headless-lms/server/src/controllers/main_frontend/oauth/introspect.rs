@@ -14,6 +14,7 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(introspect))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthIntrospectApiDoc;
 
 /// Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).

@@ -7,6 +7,7 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(jwks, well_known_openid))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthDiscoveryApiDoc;
 
 /// Handles `/jwks.json` for returning the JSON Web Key Set (JWKS).

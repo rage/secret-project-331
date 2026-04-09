@@ -16,6 +16,7 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(user_info_get_doc, user_info_post_doc))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthUserInfoApiDoc;
 
 /// Handles `/userinfo` for returning user claims according to granted scopes.
@@ -213,6 +214,7 @@ pub async fn user_info(
         (status = 401, description = "Invalid token")
     )
 )]
+#[allow(dead_code)]
 pub(crate) fn user_info_get_doc() {}
 
 #[utoipa::path(
@@ -225,6 +227,7 @@ pub(crate) fn user_info_get_doc() {}
         (status = 401, description = "Invalid token")
     )
 )]
+#[allow(dead_code)]
 pub(crate) fn user_info_post_doc() {}
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

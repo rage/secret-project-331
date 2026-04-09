@@ -22,6 +22,7 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(token))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthTokenApiDoc;
 
 /// Handles the `/token` endpoint for exchanging authorization codes or refresh tokens.

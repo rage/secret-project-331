@@ -13,6 +13,7 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(revoke))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthRevokeApiDoc;
 
 /// Handles the `/revoke` endpoint for OAuth 2.0 token revocation (RFC 7009).

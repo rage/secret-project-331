@@ -7,6 +7,7 @@ use uuid::Uuid;
 
 #[derive(OpenApi)]
 #[openapi(paths(get_authorized_clients, delete_authorized_client))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthAuthorizedClientsApiDoc;
 
 #[instrument(skip(pool, auth_user))]

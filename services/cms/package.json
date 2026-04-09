@@ -85,6 +85,7 @@
     "zod": "4.1.5"
   },
   "devDependencies": {
+    "@hey-api/openapi-ts": "0.95.0",
     "@svgr/webpack": "^8.1.0",
     "@types/jest": "^30.0.0",
     "@types/jsdom": "^28.0.0",

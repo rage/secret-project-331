@@ -14,6 +14,7 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(approve_consent, deny_consent))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthConsentApiDoc;
 
 /// Handles `/consent` approval after the user agrees to grant requested scopes.

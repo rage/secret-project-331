@@ -22,6 +22,7 @@ use utoipa::OpenApi;
 
 #[derive(OpenApi)]
 #[openapi(paths(authorize_get_doc, authorize_post_doc))]
+#[allow(dead_code)]
 pub(crate) struct MainFrontendOauthAuthorizeApiDoc;
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -252,6 +253,7 @@ pub async fn authorize(
         (status = 302, description = "Redirect to login, consent, or client redirect URI")
     )
 )]
+#[allow(dead_code)]
 pub(crate) fn authorize_get_doc() {}
 
 #[utoipa::path(
@@ -267,6 +269,7 @@ pub(crate) fn authorize_get_doc() {}
         (status = 302, description = "Redirect to login, consent, or client redirect URI")
     )
 )]
+#[allow(dead_code)]
 pub(crate) fn authorize_post_doc() {}
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

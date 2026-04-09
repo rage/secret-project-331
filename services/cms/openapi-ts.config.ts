@@ -5,7 +5,7 @@ const createConfig = (input: string, path: string) =>
     input,
     output: {
       clean: true,
-      entryFile: false,
+      entryFile: true,
       fileName: {
         suffix: ".generated",
       },

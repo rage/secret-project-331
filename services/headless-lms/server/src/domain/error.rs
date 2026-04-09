@@ -739,3 +739,125 @@ impl From<ChatbotError> for ControllerError {
         )
     }
 }
+
+// Generate error creation macros for ControllerError
+headless_lms_utils::define_err_macro!(
+    controller_err,
+    ControllerError,
+    ControllerErrorType,
+    "Create a ControllerError with less boilerplate."
+);
+
+/// Helper function for `.map_err()` chains to wrap any error as ControllerError.
+///
+/// This function creates a closure that converts any error into a `ControllerError`
+/// with the specified error type and message, including the original error as the source.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .map_err(|e| ControllerError::new(ControllerErrorType::BadRequest, e.to_string(), Some(e.into())))?
+///
+/// // You can write:
+/// .map_err(as_controller_error(ControllerErrorType::BadRequest, "Failed to process".to_string()))?
+/// ```
+pub fn as_controller_error<E>(
+    error_type: ControllerErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce(E) -> ControllerError
+where
+    E: Into<anyhow::Error>,
+{
+    let msg = message.into();
+    move |e| ControllerError::new(error_type, msg, Some(e.into()))
+}
+
+/// Helper function for `.ok_or_else()` to create ControllerError on None.
+///
+/// This function creates a closure that generates a `ControllerError` with the
+/// specified error type and message when called.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .ok_or_else(|| ControllerError::new(ControllerErrorType::NotFound, "Item not found".to_string(), None))
+///
+/// // You can write:
+/// .ok_or_else(missing_controller_error(ControllerErrorType::NotFound, "Item not found".to_string()))
+/// ```
+pub fn missing_controller_error(
+    error_type: ControllerErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce() -> ControllerError {
+    let msg = message.into();
+    move || ControllerError::new(error_type, msg, None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_controller_err_macro_without_source() {
+        let err = controller_err!(BadRequest, "Test error message".to_string());
+        assert_eq!(err.message(), "Test error message");
+        assert!(matches!(err.error_type(), ControllerErrorType::BadRequest));
+    }
+
+    #[test]
+    fn test_controller_err_macro_with_source() {
+        let source_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err = controller_err!(InternalServerError, "Wrapped error".to_string(), source_err);
+        assert_eq!(err.message(), "Wrapped error");
+    }
+
+    #[test]
+    fn test_as_controller_error_helper() {
+        let result: Result<(), std::io::Error> = Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "test error",
+        ));
+        let controller_result = result.map_err(as_controller_error(
+            ControllerErrorType::BadRequest,
+            "Invalid input".to_string(),
+        ));
+
+        assert!(controller_result.is_err());
+        let err = controller_result.unwrap_err();
+        assert_eq!(err.message(), "Invalid input");
+        assert!(matches!(err.error_type(), ControllerErrorType::BadRequest));
+    }
+
+    #[test]
+    fn test_missing_controller_error_helper() {
+        let option: Option<String> = None;
+        let result = option.ok_or_else(missing_controller_error(
+            ControllerErrorType::NotFound,
+            "Resource not found".to_string(),
+        ));
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.message(), "Resource not found");
+        assert!(matches!(err.error_type(), ControllerErrorType::NotFound));
+    }
+
+    #[test]
+    fn test_controller_err_with_format() {
+        let user_id = 42;
+        let err = controller_err!(Unauthorized, format!("User {} is not authorized", user_id));
+        assert_eq!(err.message(), "User 42 is not authorized");
+    }
+
+    #[test]
+    fn test_controller_err_all_variants() {
+        // Test that macros work with all standard error type variants
+        let _ = controller_err!(InternalServerError, "test".to_string());
+        let _ = controller_err!(BadRequest, "test".to_string());
+        let _ = controller_err!(NotFound, "test".to_string());
+        let _ = controller_err!(Unauthorized, "test".to_string());
+        let _ = controller_err!(Forbidden, "test".to_string());
+    }
+}

@@ -6,22 +6,25 @@ import { useTranslation } from "react-i18next"
 
 import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export default function ConsentPage() {
   const searchParams = useSearchParams()
   const { t } = useTranslation("main-frontend")
 
   const query = {
-    client_id: assertNotNullOrUndefined(searchParams.get("client_id")),
-    client_name: assertNotNullOrUndefined(searchParams.get("client_name")),
-    redirect_uri: assertNotNullOrUndefined(searchParams.get("redirect_uri")),
-    response_type: assertNotNullOrUndefined(searchParams.get("response_type")),
-    scope: assertNotNullOrUndefined(searchParams.get("scope")),
-    state: assertNotNullOrUndefined(searchParams.get("state")),
-    nonce: assertNotNullOrUndefined(searchParams.get("nonce")),
-    code_challenge: searchParams.get("code_challenge"),
-    code_challenge_method: searchParams.get("code_challenge_method"),
+    client_id: String(searchParams.get("client_id") ?? ""),
+    client_name: String(searchParams.get("client_name") ?? ""),
+    redirect_uri: String(searchParams.get("redirect_uri") ?? ""),
+    response_type: String(searchParams.get("response_type") ?? ""),
+    scope: String(searchParams.get("scope") ?? ""),
+    state: String(searchParams.get("state") ?? ""),
+    nonce: String(searchParams.get("nonce") ?? ""),
+    code_challenge: searchParams.get("code_challenge")
+      ? String(searchParams.get("code_challenge"))
+      : null,
+    code_challenge_method: searchParams.get("code_challenge_method")
+      ? String(searchParams.get("code_challenge_method"))
+      : null,
   }
 
   const scopes = query.scope.split(" ").filter(Boolean)

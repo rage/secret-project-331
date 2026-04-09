@@ -117,6 +117,18 @@ export type CmsPeerOrSelfReviewQuestion = {
     weight: number;
 };
 
+export type CodeGiveaway = {
+    course_id: string;
+    course_module_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    enabled: boolean;
+    id: string;
+    name: string;
+    require_course_specific_consent_form_question_id?: string | null;
+    updated_at: string;
+};
+
 export type CompletionPolicy = (AutomaticCompletionRequirements & {
     policy: 'automatic';
 }) | {
@@ -440,6 +452,27 @@ export type GetAllChaptersByCourseIdResponses = {
 };
 
 export type GetAllChaptersByCourseIdResponse = GetAllChaptersByCourseIdResponses[keyof GetAllChaptersByCourseIdResponses];
+
+export type GetCmsCodeGiveawaysByCourseData = {
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/cms/code-giveaways/by-course/{course_id}';
+};
+
+export type GetCmsCodeGiveawaysByCourseResponses = {
+    /**
+     * Code giveaways for course
+     */
+    200: Array<CodeGiveaway>;
+};
+
+export type GetCmsCodeGiveawaysByCourseResponse = GetCmsCodeGiveawaysByCourseResponses[keyof GetCmsCodeGiveawaysByCourseResponses];
 
 export type GetCmsCourseInstanceData = {
     body?: never;

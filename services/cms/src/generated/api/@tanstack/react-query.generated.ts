@@ -5,8 +5,8 @@
 import { type DefaultError, queryOptions, type UseMutationOptions } from '@tanstack/react-query';
 
 import { client } from '../client.generated';
-import { deleteCmsCoursePartnersBlock, deleteCmsEmailTemplate, getAllChaptersByCourseId, getCmsCourse, getCmsCourseDefaultPeerReview, getCmsCourseInstance, getCmsCourseInstanceOrganizationId, getCmsCourseInstances, getCmsCourseModules, getCmsCourseNondefaultChatbotConfigurations, getCmsCoursePages, getCmsCoursePartnersBlock, getCmsCourseResearchForm, getCmsEmailTemplate, getCmsExamInstructions, getCmsExerciseServices, getCmsPage, getCmsPageInfo, getCmsPageNavigation, getCmsRepositoryExercisesForCourse, type Options, requestParagraphSuggestions, updateCmsCourseDefaultPeerReview, updateCmsEmailTemplate, updateCmsExamInstructions, updateCmsPage, upsertCmsCoursePartnersBlock, upsertCmsCourseResearchForm, upsertCmsCourseResearchFormQuestions } from '../sdk.generated';
-import type { DeleteCmsCoursePartnersBlockData, DeleteCmsCoursePartnersBlockResponse, DeleteCmsEmailTemplateData, DeleteCmsEmailTemplateResponse, GetAllChaptersByCourseIdData, GetAllChaptersByCourseIdResponse, GetCmsCourseData, GetCmsCourseDefaultPeerReviewData, GetCmsCourseDefaultPeerReviewResponse, GetCmsCourseInstanceData, GetCmsCourseInstanceOrganizationIdData, GetCmsCourseInstanceOrganizationIdResponse, GetCmsCourseInstanceResponse, GetCmsCourseInstancesData, GetCmsCourseInstancesResponse, GetCmsCourseModulesData, GetCmsCourseModulesResponse, GetCmsCourseNondefaultChatbotConfigurationsData, GetCmsCourseNondefaultChatbotConfigurationsResponse, GetCmsCoursePagesData, GetCmsCoursePagesResponse, GetCmsCoursePartnersBlockData, GetCmsCoursePartnersBlockResponse, GetCmsCourseResearchFormData, GetCmsCourseResearchFormResponse, GetCmsCourseResponse, GetCmsEmailTemplateData, GetCmsEmailTemplateResponse, GetCmsExamInstructionsData, GetCmsExamInstructionsResponse, GetCmsExerciseServicesData, GetCmsExerciseServicesResponse, GetCmsPageData, GetCmsPageInfoData, GetCmsPageInfoResponse, GetCmsPageNavigationData, GetCmsPageNavigationResponse, GetCmsPageResponse, GetCmsRepositoryExercisesForCourseData, GetCmsRepositoryExercisesForCourseResponse, RequestParagraphSuggestionsData, RequestParagraphSuggestionsResponse, UpdateCmsCourseDefaultPeerReviewData, UpdateCmsCourseDefaultPeerReviewResponse, UpdateCmsEmailTemplateData, UpdateCmsEmailTemplateResponse, UpdateCmsExamInstructionsData, UpdateCmsExamInstructionsResponse, UpdateCmsPageData, UpdateCmsPageResponse, UpsertCmsCoursePartnersBlockData, UpsertCmsCourseResearchFormData, UpsertCmsCourseResearchFormQuestionsData, UpsertCmsCourseResearchFormQuestionsResponse, UpsertCmsCourseResearchFormResponse } from '../types.generated';
+import { deleteCmsCoursePartnersBlock, deleteCmsEmailTemplate, getAllChaptersByCourseId, getCmsCodeGiveawaysByCourse, getCmsCourse, getCmsCourseDefaultPeerReview, getCmsCourseInstance, getCmsCourseInstanceOrganizationId, getCmsCourseInstances, getCmsCourseModules, getCmsCourseNondefaultChatbotConfigurations, getCmsCoursePages, getCmsCoursePartnersBlock, getCmsCourseResearchForm, getCmsEmailTemplate, getCmsExamInstructions, getCmsExerciseServices, getCmsPage, getCmsPageInfo, getCmsPageNavigation, getCmsRepositoryExercisesForCourse, type Options, requestParagraphSuggestions, updateCmsCourseDefaultPeerReview, updateCmsEmailTemplate, updateCmsExamInstructions, updateCmsPage, upsertCmsCoursePartnersBlock, upsertCmsCourseResearchForm, upsertCmsCourseResearchFormQuestions } from '../sdk.generated';
+import type { DeleteCmsCoursePartnersBlockData, DeleteCmsCoursePartnersBlockResponse, DeleteCmsEmailTemplateData, DeleteCmsEmailTemplateResponse, GetAllChaptersByCourseIdData, GetAllChaptersByCourseIdResponse, GetCmsCodeGiveawaysByCourseData, GetCmsCodeGiveawaysByCourseResponse, GetCmsCourseData, GetCmsCourseDefaultPeerReviewData, GetCmsCourseDefaultPeerReviewResponse, GetCmsCourseInstanceData, GetCmsCourseInstanceOrganizationIdData, GetCmsCourseInstanceOrganizationIdResponse, GetCmsCourseInstanceResponse, GetCmsCourseInstancesData, GetCmsCourseInstancesResponse, GetCmsCourseModulesData, GetCmsCourseModulesResponse, GetCmsCourseNondefaultChatbotConfigurationsData, GetCmsCourseNondefaultChatbotConfigurationsResponse, GetCmsCoursePagesData, GetCmsCoursePagesResponse, GetCmsCoursePartnersBlockData, GetCmsCoursePartnersBlockResponse, GetCmsCourseResearchFormData, GetCmsCourseResearchFormResponse, GetCmsCourseResponse, GetCmsEmailTemplateData, GetCmsEmailTemplateResponse, GetCmsExamInstructionsData, GetCmsExamInstructionsResponse, GetCmsExerciseServicesData, GetCmsExerciseServicesResponse, GetCmsPageData, GetCmsPageInfoData, GetCmsPageInfoResponse, GetCmsPageNavigationData, GetCmsPageNavigationResponse, GetCmsPageResponse, GetCmsRepositoryExercisesForCourseData, GetCmsRepositoryExercisesForCourseResponse, RequestParagraphSuggestionsData, RequestParagraphSuggestionsResponse, UpdateCmsCourseDefaultPeerReviewData, UpdateCmsCourseDefaultPeerReviewResponse, UpdateCmsEmailTemplateData, UpdateCmsEmailTemplateResponse, UpdateCmsExamInstructionsData, UpdateCmsExamInstructionsResponse, UpdateCmsPageData, UpdateCmsPageResponse, UpsertCmsCoursePartnersBlockData, UpsertCmsCourseResearchFormData, UpsertCmsCourseResearchFormQuestionsData, UpsertCmsCourseResearchFormQuestionsResponse, UpsertCmsCourseResearchFormResponse } from '../types.generated';
 
 /**
  *
@@ -74,6 +74,22 @@ export const getAllChaptersByCourseIdOptions = (options: Options<GetAllChaptersB
         throwOnError: true
     }),
     queryKey: getAllChaptersByCourseIdQueryKey(options)
+});
+
+export const getCmsCodeGiveawaysByCourseQueryKey = (options: Options<GetCmsCodeGiveawaysByCourseData>) => createQueryKey('getCmsCodeGiveawaysByCourse', options);
+
+/**
+ *
+ * GET `/api/v0/cms/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.
+ */
+export const getCmsCodeGiveawaysByCourseOptions = (options: Options<GetCmsCodeGiveawaysByCourseData>) => queryOptions<GetCmsCodeGiveawaysByCourseResponse, DefaultError, GetCmsCodeGiveawaysByCourseResponse, ReturnType<typeof getCmsCodeGiveawaysByCourseQueryKey>>({
+    queryFn: async ({ queryKey, signal }) => await getCmsCodeGiveawaysByCourse({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+    }),
+    queryKey: getCmsCodeGiveawaysByCourseQueryKey(options)
 });
 
 export const getCmsCourseInstanceQueryKey = (options: Options<GetCmsCourseInstanceData>) => createQueryKey('getCmsCourseInstance', options);

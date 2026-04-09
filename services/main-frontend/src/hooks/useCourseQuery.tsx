@@ -1,23 +1,12 @@
 "use client"
 
-import { QueryClient, queryOptions, useQuery } from "@tanstack/react-query"
+import { QueryClient, useQuery } from "@tanstack/react-query"
 
-import { getCourseQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import { getCourse as getCourseFromApi } from "@/generated/api/sdk.generated"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-const GET_COURSE_QUERY_KEY = "getCourse"
-
-const getCourseQueryOptions = (courseId: string | null | undefined) =>
-  queryOptions({
-    queryKey: [{ _id: GET_COURSE_QUERY_KEY, path: { course_id: courseId } }] as const,
-    queryFn: () =>
-      getCourseFromApi({
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-        },
-      }),
-  })
+import {
+  getCourseOptions,
+  getCourseQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export const invalidateCourseQuery = (queryClient: QueryClient, courseId: string) => {
   queryClient.invalidateQueries({
@@ -30,10 +19,18 @@ export const invalidateCourseQuery = (queryClient: QueryClient, courseId: string
 }
 
 export const useCourseQuery = (courseId: string | null) => {
-  const query = useQuery({
-    ...getCourseQueryOptions(courseId),
-    enabled: !!courseId,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   return query
 }

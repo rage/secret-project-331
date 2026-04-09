@@ -77,6 +77,40 @@
         }
       }
     },
+    "/api/v0/cms/code-giveaways/by-course/{course_id}": {
+      "get": {
+        "tags": ["cms_code_giveaways"],
+        "summary": "\nGET `/api/v0/cms/code-giveaways/by-course/:course_id` - Returns code giveaways for a course.",
+        "operationId": "getCmsCodeGiveawaysByCourse",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Code giveaways for course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CodeGiveaway"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/cms/course-instances/{course_instance_id}": {
       "get": {
         "tags": ["cms_course_instances"],
@@ -1365,6 +1399,46 @@
           "weight": {
             "type": "number",
             "format": "float"
+          }
+        }
+      },
+      "CodeGiveaway": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "course_id", "enabled", "name"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "require_course_specific_consent_form_question_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

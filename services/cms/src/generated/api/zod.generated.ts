@@ -26,6 +26,18 @@ export const zCmsPageExerciseTask = z.object({
     private_spec: z.unknown().optional()
 });
 
+export const zCodeGiveaway = z.object({
+    course_id: z.uuid(),
+    course_module_id: z.uuid().nullish(),
+    created_at: z.iso.datetime(),
+    deleted_at: z.iso.datetime().nullish(),
+    enabled: z.boolean(),
+    id: z.uuid(),
+    name: z.string(),
+    require_course_specific_consent_form_question_id: z.uuid().nullish(),
+    updated_at: z.iso.datetime()
+});
+
 export const zCompletionPolicy = z.union([
     zAutomaticCompletionRequirements.and(z.object({
         policy: z.enum(['automatic'])
@@ -466,6 +478,15 @@ export const zGetAllChaptersByCourseIdPath = z.object({
  * Course chapters
  */
 export const zGetAllChaptersByCourseIdResponse = z.array(zDatabaseChapter);
+
+export const zGetCmsCodeGiveawaysByCoursePath = z.object({
+    course_id: z.uuid()
+});
+
+/**
+ * Code giveaways for course
+ */
+export const zGetCmsCodeGiveawaysByCourseResponse = z.array(zCodeGiveaway);
 
 export const zGetCmsCourseInstancePath = z.object({
     course_instance_id: z.uuid()

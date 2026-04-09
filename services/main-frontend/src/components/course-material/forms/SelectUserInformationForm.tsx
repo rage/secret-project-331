@@ -6,10 +6,8 @@ import React, { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  getCourseMaterialCountryFromIp,
-  updateCourseMaterialUserInfo,
-} from "@/generated/course-material-api/sdk.generated"
+import { getCourseMaterialCountryFromIpOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { updateCourseMaterialUserInfo } from "@/generated/course-material-api/sdk.generated"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -68,8 +66,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const selectedCountry = countriesOptions.find((opt) => opt.value === country)?.label
 
   const preFillCountry = useQuery({
-    queryKey: [`users-ip-country`],
-    queryFn: () => getCourseMaterialCountryFromIp({}),
+    ...getCourseMaterialCountryFromIpOptions({}),
   })
 
   useEffect(() => {

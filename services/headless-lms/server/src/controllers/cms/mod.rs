@@ -28,6 +28,7 @@ use utoipa::OpenApi;
         (path = "/chapters", api = chapters::CmsChaptersApiDoc),
         (path = "/course-instances", api = course_instances::CmsCourseInstancesApiDoc),
         (path = "/courses", api = courses::CmsCoursesApiDoc),
+        (path = "/code-giveaways", api = code_giveaways::CmsCodeGiveawaysApiDoc),
         (path = "/email-templates", api = email_templates::CmsEmailTemplatesApiDoc),
         (path = "/exams", api = exams::CmsExamsApiDoc),
         (path = "/exercise-services", api = exercise_services::CmsExerciseServicesApiDoc),

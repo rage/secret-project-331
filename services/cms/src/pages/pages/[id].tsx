@@ -35,10 +35,15 @@ const Pages = ({ query }: PagesProps) => {
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const queryClient = useQueryClient()
   const getPage = useQuery({
-    ...getCmsPageOptions({
-      path: {
-        page_id: id,
-      },
+    ...optionalGeneratedQueryOptions({
+      value: id,
+      isReady: (pageId): pageId is string => Boolean(pageId),
+      build: (pageId) =>
+        getCmsPageOptions({
+          path: {
+            page_id: pageId,
+          },
+        }),
     }),
     gcTime: 0,
     select: (data) => {

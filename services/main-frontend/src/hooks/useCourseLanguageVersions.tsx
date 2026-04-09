@@ -1,25 +1,12 @@
 "use client"
 
-import { QueryClient, queryOptions, useQuery } from "@tanstack/react-query"
+import { QueryClient, useQuery } from "@tanstack/react-query"
 
-import { getCourseLanguageVersionsQueryKey as getCourseLanguageVersionsGeneratedQueryKey } from "@/generated/api/@tanstack/react-query.generated"
-import { getCourseLanguageVersions as getCourseLanguageVersionsFromApi } from "@/generated/api/sdk.generated"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-const GET_COURSE_LANGUAGE_VERSIONS_QUERY_KEY = "getCourseLanguageVersions"
-
-const getCourseLanguageVersionsQueryOptions = (courseId: string | null | undefined) =>
-  queryOptions({
-    queryKey: [
-      { _id: GET_COURSE_LANGUAGE_VERSIONS_QUERY_KEY, path: { course_id: courseId } },
-    ] as const,
-    queryFn: () =>
-      getCourseLanguageVersionsFromApi({
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-        },
-      }),
-  })
+import {
+  getCourseLanguageVersionsQueryKey as getCourseLanguageVersionsGeneratedQueryKey,
+  getCourseLanguageVersionsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export const getCourseLanguageVersionsQueryKey = (courseId: string) =>
   getCourseLanguageVersionsGeneratedQueryKey({
@@ -33,10 +20,18 @@ export const invalidateCourseLanguageVersions = (queryClient: QueryClient, cours
 }
 
 const useCourseLanguageVersions = (courseId: string | null) => {
-  const query = useQuery({
-    ...getCourseLanguageVersionsQueryOptions(courseId),
-    enabled: !!courseId,
-  })
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCourseLanguageVersionsOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   return query
 }

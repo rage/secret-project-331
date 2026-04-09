@@ -99,7 +99,7 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
         body: form,
       })
       const questions: NewResearchFormQuestion[] = []
-      form.content.forEach((block) => {
+      form.content.forEach((block: BlockInstance) => {
         if (isMoocfiCheckbox(block)) {
           const newResearchQuestion: NewResearchFormQuestion = {
             question_id: block.clientId,

@@ -253,5 +253,36 @@ export const tokensGlobal = injectGlobal`
     /* switch-specific */
     --switch-thumb: var(--color-primary-100);
     --switch-focus-ring: rgba(31, 105, 100, 0.18);
+
+    /* query result */
+    --query-skeleton-surface-light:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.65)),
+      rgba(0, 0, 0, 0.03);
+    --query-skeleton-surface-border-light: rgba(0, 0, 0, 0.06);
+    --query-skeleton-block-light: rgba(0, 0, 0, 0.05);
+
+    --query-skeleton-surface-dark:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+      rgba(255, 255, 255, 0.03);
+    --query-skeleton-surface-border-dark: rgba(255, 255, 255, 0.07);
+    --query-skeleton-block-dark: rgba(255, 255, 255, 0.06);
+
+    --query-shimmer-mid: rgba(255, 255, 255, 0.18);
+    --query-shimmer-edge: rgba(255, 255, 255, 0.05);
+
+    --query-progress-track-light: rgba(0, 0, 0, 0.05);
+    --query-progress-beam-light: rgba(255, 255, 255, 0.6);
+    --query-progress-track-dark: rgba(255, 255, 255, 0.06);
+    --query-progress-beam-dark: rgba(255, 255, 255, 0.45);
+
+    --query-refresh-content-opacity: 0.6;
+    --query-refresh-blur: 6px;
+    --query-overlay-blur: 10px;
+    --query-refresh-content-scale: 0.992;
+    --query-content-transition: 180ms ease;
+    --query-border-width: 1px;
+    --query-shimmer-duration: 1.6s;
+    --query-progress-beam-duration: 1.1s;
+    --query-spinner-duration: 0.8s;
   }
 `

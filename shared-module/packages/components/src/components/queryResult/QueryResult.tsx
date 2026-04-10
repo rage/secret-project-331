@@ -19,7 +19,12 @@ export type QueryResultProps<T, E = unknown> = {
   renderStaleError?: AnimatedQueryFrameProps<E>["renderStaleError"]
 }
 
-/** Renders `children` with query data, or loading / error / empty states inside `AnimatedQueryFrame`. */
+/**
+ * Renders `children` with query data, or loading / error / empty states inside `AnimatedQueryFrame`.
+ * When `emptyFallback` is set, it replaces `children` if `isQueryResultEmpty(data, treatNullAsEmpty)`.
+ *
+ * **Retry:** error UI always refetches this single `query`. For multi-query selective retry, use `QueryResults`.
+ */
 export function QueryResult<T, E = unknown>({
   query,
   themeMode,

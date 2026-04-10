@@ -22,6 +22,7 @@ void i18next.use(initReactI18next).init({
         "otp.slotLabel": "Code character {{index}}",
         "queryResult.errorMessage": "{{message}}",
         "queryResult.loading": "Loading",
+        "queryResult.refreshing": "Refreshing",
         "queryResult.retry": "Retry",
       },
     },

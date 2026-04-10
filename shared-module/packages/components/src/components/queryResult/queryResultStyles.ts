@@ -154,13 +154,6 @@ export const topProgressCss = css`
   }
 `
 
-export const refreshOverlayCss = css`
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  backdrop-filter: blur(var(--query-overlay-blur));
-`
-
 export const bannerCss = css`
   margin-bottom: calc(var(--space-3) + var(--space-2));
 `

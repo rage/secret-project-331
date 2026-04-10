@@ -3,7 +3,6 @@
 import { cx } from "@emotion/css"
 import { motion } from "motion/react"
 import React, { useEffect, useState } from "react"
-import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "../Button"
@@ -50,7 +49,7 @@ const skeletonPresets = [
 
 const contentEntranceEase = [0.2, 0, 0, 1] as const
 
-/** Delays showing a loading affordance to avoid flashes on fast requests. */
+/** Delays showing an affordance (e.g. centered spinner) to avoid flashes on fast requests. */
 export function useDelayedFlag(active: boolean, delayMs: number): boolean {
   const [visible, setVisible] = useState(false)
 
@@ -131,7 +130,7 @@ export function AnimatedQueryFrame<E>({
   renderStaleError,
 }: AnimatedQueryFrameProps<E>) {
   const { t } = useTranslation()
-  const showSkeleton = useDelayedFlag(initialLoading, loadingDelayMs)
+  const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
   const skeletonToneCss = themeMode === "dark" ? skeletonBlockDarkCss : skeletonBlockLightCss
@@ -143,9 +142,16 @@ export function AnimatedQueryFrame<E>({
   }
 
   if (initialLoading) {
+    const loadingLabel = t("queryResult.loading")
     return (
-      <section className={wrapperCss} aria-busy="true" data-testid="query-initial-loading">
-        <VisuallyHidden>{t("queryResult.loading")}</VisuallyHidden>
+      <section
+        className={wrapperCss}
+        role="status"
+        aria-live="polite"
+        aria-busy="true"
+        aria-label={loadingLabel}
+        data-testid="query-initial-loading"
+      >
         <div
           className={cx(
             initialLoadingSurfaceCss,
@@ -153,29 +159,31 @@ export function AnimatedQueryFrame<E>({
             loadingSurfaceMinHeightCss(minHeight),
           )}
         >
-          {showSkeleton ? (
-            <>
-              <div className={skeletonBlocksCss}>
-                {skeletonPresets.map((preset, index) => (
-                  <div
-                    key={index}
-                    className={cx(
-                      skeletonBlockBaseCss,
-                      skeletonToneCss,
-                      skeletonBlockDimsCss(preset.width, preset.height),
-                    )}
-                  />
-                ))}
-              </div>
-              <motion.div
-                className={initialLoadingCenterCss}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                <div className={queryLoadingSpinnerCss} aria-hidden />
-              </motion.div>
-            </>
+          <div className={skeletonBlocksCss} data-testid="query-skeleton-blocks">
+            {skeletonPresets.map((preset, index) => (
+              <div
+                key={index}
+                className={cx(
+                  skeletonBlockBaseCss,
+                  skeletonToneCss,
+                  skeletonBlockDimsCss(preset.width, preset.height),
+                )}
+              />
+            ))}
+          </div>
+          {showDelayedSpinner ? (
+            <motion.div
+              className={initialLoadingCenterCss}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div
+                className={queryLoadingSpinnerCss}
+                data-testid="query-loading-spinner"
+                aria-hidden
+              />
+            </motion.div>
           ) : null}
         </div>
       </section>
@@ -186,6 +194,14 @@ export function AnimatedQueryFrame<E>({
 
   return (
     <section className={wrapperCss} aria-busy={refreshing ? "true" : undefined}>
+      {refreshing ? (
+        <div
+          role="status"
+          aria-live="polite"
+          aria-label={t("queryResult.refreshing")}
+          data-testid="query-refreshing-status"
+        />
+      ) : null}
       <div className={surfaceFrameCss}>
         {refreshing ? <div className={cx(topProgressCss, progressTrackCss)} aria-hidden /> : null}
         <motion.div

@@ -10,6 +10,8 @@ test("empty detection", () => {
   expect(isQueryResultEmpty([], false)).toBe(true)
   expect(isQueryResultEmpty([1], false)).toBe(false)
   expect(isQueryResultEmpty(undefined, false)).toBe(true)
+  expect(isQueryResultEmpty(null, false)).toBe(false)
+  expect(isQueryResultEmpty(null, true)).toBe(true)
 })
 
 test("tuple empty detection", () => {

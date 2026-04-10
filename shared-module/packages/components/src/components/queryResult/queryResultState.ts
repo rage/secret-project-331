@@ -48,7 +48,11 @@ export function isQueryResultEmpty(value: unknown, treatNullAsEmpty: boolean): b
   return false
 }
 
-/** True when any entry in a loaded multi-query tuple is empty. */
+/**
+ * True when **any** tuple entry is empty (`isQueryResultEmpty` per slot).
+ * Used by `QueryResults` so one empty array (or null with `treatNullAsEmpty`) selects `emptyFallback`
+ * for the **entire** combined render, not mixed partial content.
+ */
 export function isQueryDataTupleEmpty(
   tuple: readonly unknown[],
   treatNullAsEmpty: boolean,

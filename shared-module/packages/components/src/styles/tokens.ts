@@ -277,7 +277,6 @@ export const tokensGlobal = injectGlobal`
 
     --query-refresh-content-opacity: 0.6;
     --query-refresh-blur: 6px;
-    --query-overlay-blur: 10px;
     --query-refresh-content-scale: 0.992;
     --query-content-transition: 180ms ease;
     --query-border-width: 1px;

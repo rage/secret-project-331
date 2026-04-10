@@ -41,7 +41,7 @@ pub enum ControllerErrorType {
 
     /// HTTP status code 400.
     #[display("Bad request")]
-    BadRequestWithData(ErrorData),
+    BadRequestWithData(ErrorMetadata),
 
     /// HTTP status code 404.
     #[display("Not found")]
@@ -225,18 +225,31 @@ impl BackendError for ControllerError {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "snake_case")]
-pub enum ErrorData {
+pub enum ErrorMetadata {
     BlockId(Uuid),
 }
 
-/// The format all error messages from the API is in
 #[derive(Debug, Serialize, Deserialize)]
-
-pub struct ErrorResponse {
-    pub title: String,
+pub struct ApiErrorIssue {
+    pub path: Option<String>,
+    pub code: Option<String>,
     pub message: String,
-    pub source: Option<String>,
-    pub data: Option<ErrorData>,
+}
+
+/// Canonical API error envelope returned for controlled application errors.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ApiErrorResponse {
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message_key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub errors: Vec<ApiErrorIssue>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
 }
 
 impl error::ResponseError for ControllerError {
@@ -320,6 +333,8 @@ impl error::ResponseError for ControllerError {
             res.append_header(("Cache-Control", "no-store"))
                 .append_header(("Pragma", "no-cache"));
 
+            // OAuth token/introspection semantics are standardized around `error` and
+            // `error_description`; keep compatibility for protocol clients.
             return res.json(serde_json::json!({
                 "error": data.error,
                 "error_description": data.error_description
@@ -328,47 +343,61 @@ impl error::ResponseError for ControllerError {
 
         let status = self.status_code();
 
-        let error_data = match &self.error_type {
+        let metadata = match &self.error_type {
             ControllerErrorType::BadRequestWithData(data) => Some(data.clone()),
             _ => None,
         };
 
-        let source_message = self.source.as_ref().map(|anyhow_err| {
-            if let Some(controller_err) = anyhow_err.downcast_ref::<ControllerError>() {
-                controller_err.message.clone()
-            } else {
-                anyhow_err.to_string()
-            }
-        });
+        let metadata_json = match metadata {
+            Some(ErrorMetadata::BlockId(id)) => Some(serde_json::json!({ "block_id": id })),
+            None => None,
+        };
+        let (error_type, message_key) = self.error_type_and_message_key();
+        let message = match self.error_type {
+            ControllerErrorType::InternalServerError => None,
+            _ => Some(self.message.clone()),
+        };
 
-        let error_response = ErrorResponse {
-            title: status
-                .canonical_reason()
-                .map(str::to_string)
-                .unwrap_or_else(|| status.to_string()),
-            message: self.message.clone(),
-            source: source_message,
-            data: error_data,
+        let error_response = ApiErrorResponse {
+            error_type: Some(error_type.to_string()),
+            message_key: Some(message_key.to_string()),
+            message,
+            errors: Vec::new(),
+            metadata: metadata_json,
         };
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(
-                serde_json::to_string(&error_response).unwrap_or_else(|_| {
-                    r#"{"title":"Internal Server Error","message":"Error occurred while formatting error message."}"#.to_string()
-                }),
-            )
+            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| {
+                r#"{"type":"internal_error","message_key":"internal_error"}"#.to_string()
+            }))
     }
 
     fn status_code(&self) -> StatusCode {
         match self.error_type {
             ControllerErrorType::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            ControllerErrorType::BadRequest => StatusCode::BAD_REQUEST,
-            ControllerErrorType::BadRequestWithData(_) => StatusCode::BAD_REQUEST,
+            ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
+            ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
+        }
+    }
+}
+
+impl ControllerError {
+    fn error_type_and_message_key(&self) -> (&'static str, &'static str) {
+        match self.error_type {
+            ControllerErrorType::InternalServerError => ("internal_error", "internal_error"),
+            ControllerErrorType::BadRequest => ("validation_error", "validation_error"),
+            ControllerErrorType::BadRequestWithData(_) => {
+                ("validation_error", "validation_error_with_metadata")
+            }
+            ControllerErrorType::NotFound => ("not_found", "not_found"),
+            ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
+            ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
+            ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
         }
     }
 }
@@ -519,7 +548,7 @@ impl From<ModelError> for ControllerError {
             ),
             ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
                 Self::new_with_traces(
-                    ControllerErrorType::BadRequestWithData(ErrorData::BlockId(*id)),
+                    ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(*id)),
                     description.to_string(),
                     Some(err.into()),
                     backtrace,
@@ -798,6 +827,8 @@ pub fn missing_controller_error(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use actix_web::ResponseError;
+    use futures_util::FutureExt;
 
     #[test]
     fn test_controller_err_macro_without_source() {
@@ -859,5 +890,23 @@ mod tests {
         let _ = controller_err!(NotFound, "test".to_string());
         let _ = controller_err!(Unauthorized, "test".to_string());
         let _ = controller_err!(Forbidden, "test".to_string());
+    }
+
+    #[test]
+    fn test_canonical_error_envelope_shape() {
+        let err = controller_err!(BadRequest, "Validation failed".to_string());
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "validation_error");
+        assert_eq!(value["message"], "Validation failed");
+        assert!(value.get("status").is_none());
+        assert!(value.get("request_id").is_none());
     }
 }

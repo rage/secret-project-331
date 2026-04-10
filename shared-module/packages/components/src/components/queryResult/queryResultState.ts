@@ -28,6 +28,53 @@ export type MultiQueryState<E, TQueries extends QueryTuple<E>> = {
 
 /** Returns a human-readable message for unknown errors. */
 export function getErrorMessage(error: unknown): string {
+  if (typeof error === "object" && error !== null) {
+    const maybeError = error as {
+      userMessage?: unknown
+      detail?: unknown
+      message?: unknown
+      title?: unknown
+      status?: unknown
+      retryAfterSeconds?: unknown
+      issues?: unknown
+    }
+    const status =
+      typeof maybeError.status === "number" && Number.isFinite(maybeError.status)
+        ? maybeError.status
+        : null
+    const retryAfterSeconds =
+      typeof maybeError.retryAfterSeconds === "number" &&
+      Number.isFinite(maybeError.retryAfterSeconds)
+        ? maybeError.retryAfterSeconds
+        : null
+    const firstIssue =
+      Array.isArray(maybeError.issues) &&
+      maybeError.issues.length > 0 &&
+      typeof maybeError.issues[0] === "object" &&
+      maybeError.issues[0] !== null &&
+      "message" in (maybeError.issues[0] as Record<string, unknown>) &&
+      typeof (maybeError.issues[0] as Record<string, unknown>).message === "string"
+        ? ((maybeError.issues[0] as Record<string, unknown>).message as string)
+        : null
+    if (typeof maybeError.userMessage === "string" && maybeError.userMessage.trim() !== "") {
+      return status !== null ? `${maybeError.userMessage} (HTTP ${status})` : maybeError.userMessage
+    }
+    if (typeof maybeError.detail === "string" && maybeError.detail.trim() !== "") {
+      if (status === 429 && retryAfterSeconds !== null) {
+        return `${maybeError.detail} (retry in ${retryAfterSeconds}s)`
+      }
+      return status !== null ? `${maybeError.detail} (HTTP ${status})` : maybeError.detail
+    }
+    if (typeof maybeError.message === "string" && maybeError.message.trim() !== "") {
+      return status !== null ? `${maybeError.message} (HTTP ${status})` : maybeError.message
+    }
+    if (typeof maybeError.title === "string" && maybeError.title.trim() !== "") {
+      if (firstIssue) {
+        return `${maybeError.title}: ${firstIssue}`
+      }
+      return status !== null ? `${maybeError.title} (HTTP ${status})` : maybeError.title
+    }
+  }
   if (error instanceof Error) {
     return error.message
   }

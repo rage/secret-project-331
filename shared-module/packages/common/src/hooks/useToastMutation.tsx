@@ -14,6 +14,7 @@ import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
+import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
 
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
@@ -124,16 +125,16 @@ export default function useToastMutation<
         // Remove old toasts
         toast.remove()
         let errorMessage = notificationOptions.errorMessage
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (!errorMessage && (error as any)?.data?.message) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          errorMessage = (error as any).data.message
+        if (!errorMessage) {
+          const view = normalizeErrorForDisplay(error)
+          errorMessage = view.message ?? view.title
         }
         if (!errorMessage && (error as AxiosError).isAxiosError) {
           const axiosError = error as AxiosError
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           errorMessage = (axiosError.response?.data as any)?.message
-        } else if (!errorMessage || errorMessage === "") {
+        }
+        if (!errorMessage || errorMessage === "") {
           errorMessage = (error as Error).message
         }
         toast.custom(

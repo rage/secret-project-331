@@ -43,7 +43,7 @@ export interface ChatbotStateAndData {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newMessage: string
   setNewMessage: React.Dispatch<React.SetStateAction<string>>
-  error: Error | null
+  error: unknown | null
   messageState: MessageState
   dispatch: (action: MessageAction) => void
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
@@ -62,7 +62,7 @@ const useChatbotStateAndData = (
 ) => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
@@ -137,13 +137,8 @@ const useChatbotStateAndData = (
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {
-        if (error instanceof Error) {
-          setError(error)
-          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-        } else {
-          console.error(`Failed to send chat message: ${error}`)
-          setError(new Error("Unknown error occurred"))
-        }
+        setError(error)
+        dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
         await currentConversationInfo.refetch()
       },
     },

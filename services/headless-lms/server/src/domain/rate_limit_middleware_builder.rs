@@ -202,7 +202,7 @@ where
                 .insert_header((header::RETRY_AFTER, secs.to_string()))
                 .content_type("application/json")
                 .body(format!(
-                    r#"{{"error":"too_many_requests","retry_after_seconds":{secs}}}"#
+                    r#"{{"type":"rate_limit","message_key":"rate_limited","message":"Too many requests. Please try again later."}}"#
                 ));
             return Box::pin(async move { Ok(req.into_response(resp).map_into_right_body()) });
         }
@@ -402,13 +402,11 @@ mod tests {
 
         let bytes = test::read_body(blocked).await;
         let body = std::str::from_utf8(&bytes).unwrap();
-        assert!(
-            body.contains(r#""error":"too_many_requests""#),
-            "body={body}"
-        );
+        assert!(body.contains(r#""type":"rate_limit""#), "body={body}");
         let v: serde_json::Value = serde_json::from_str(body).unwrap();
-        assert_eq!(v["error"], "too_many_requests");
-        assert!(v["retry_after_seconds"].as_u64().is_some());
+        assert_eq!(v["type"], "rate_limit");
+        assert_eq!(v["message_key"], "rate_limited");
+        assert!(v.get("retry_after").is_none());
     }
 
     #[actix_web::test]

@@ -17,6 +17,7 @@ import type { PageSearchResult } from "@/generated/course-material-api/types.gen
 import Button from "@/shared-module/common/components/Button"
 import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -274,18 +275,8 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         if (e instanceof Error && e.name === "AbortError") {
           return
         }
-
-        if (!(e instanceof Error)) {
-          throw e
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((e as any)?.response?.data) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setError(JSON.stringify((e as any).response.data, undefined, 2))
-        } else {
-          setError(e.toString())
-        }
+        const parsed = normalizeErrorForDisplay(e)
+        setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
       }

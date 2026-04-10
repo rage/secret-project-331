@@ -6,87 +6,41 @@ import { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
 interface ErrorDisplayProps {
-  error: Error
+  error: unknown
 }
 
-// Helper function to format error messages nicely
+/** Formats chatbot errors using normalized display metadata. */
 const formatErrorMessage = (
-  error: Error,
+  error: unknown,
   t: TFunction,
 ): { boldPart: string; normalPart: string; details: string[]; originalMessage: string } => {
-  const originalMessage = error.message
-
-  // Try to extract JSON from the error message
-  const jsonMatch = originalMessage.match(/\{.*\}/)
-  if (!jsonMatch) {
-    return {
-      boldPart: t("failed-to-send-message"),
-      normalPart: `: ${originalMessage}`,
-      details: [],
-      originalMessage,
-    }
+  const normalized = normalizeErrorForDisplay(error)
+  const details: string[] = []
+  if (normalized.status !== null) {
+    details.push(t("error-status", { status: normalized.status }))
+  }
+  if (normalized.code) {
+    details.push(t("error-type", { type: normalized.code }))
+  }
+  if (normalized.requestId) {
+    details.push(t("error-request-id", { requestId: normalized.requestId }))
+  }
+  if (normalized.retryAfterSeconds !== null) {
+    details.push(t("error-retry-after", { seconds: normalized.retryAfterSeconds }))
+  }
+  for (const issue of normalized.issues) {
+    details.push(`${issue.path ? `${issue.path}: ` : ""}${issue.message}`)
   }
 
-  try {
-    const jsonStr = jsonMatch[0]
-    const errorData = JSON.parse(jsonStr)
-
-    const details: string[] = []
-    let mainMessage = ""
-
-    // Extract common error fields
-    if (errorData.title) {
-      details.push(t("error-type", { type: errorData.title }))
-    }
-
-    if (errorData.message) {
-      // Try to parse nested error messages
-      const nestedJsonMatch = errorData.message.match(/Error: (\{.*\})/)
-      if (nestedJsonMatch) {
-        try {
-          const nestedError = JSON.parse(nestedJsonMatch[1])
-          if (nestedError.error?.message) {
-            mainMessage = nestedError.error.message
-            details.push(t("error-issue", { issue: nestedError.error.message }))
-          }
-          if (nestedError.error?.requestid) {
-            details.push(t("error-request-id", { requestId: nestedError.error.requestid }))
-          }
-        } catch {
-          mainMessage = errorData.message
-          details.push(t("error-message", { message: errorData.message }))
-        }
-      } else {
-        mainMessage = errorData.message
-        details.push(t("error-message", { message: errorData.message }))
-      }
-    }
-
-    // Extract status from the original message if present and add to details only
-    const statusMatch = originalMessage.match(/status (\d+)/i)
-    if (statusMatch) {
-      details.unshift(t("error-status", { status: statusMatch[1] }))
-    }
-
-    const boldPart = t("failed-to-send-message")
-    const normalPart = mainMessage ? `: ${mainMessage}` : ""
-
-    return {
-      boldPart,
-      normalPart,
-      details: details.length > 0 ? details : [originalMessage],
-      originalMessage,
-    }
-  } catch {
-    return {
-      boldPart: t("failed-to-send-message"),
-      normalPart: `: ${originalMessage}`,
-      details: [],
-      originalMessage,
-    }
+  return {
+    boldPart: t("failed-to-send-message"),
+    normalPart: normalized.message ? `: ${normalized.message}` : `: ${normalized.title}`,
+    details,
+    originalMessage: typeof normalized.raw === "string" ? normalized.raw : normalized.title,
   }
 }
 

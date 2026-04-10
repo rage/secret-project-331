@@ -350,58 +350,64 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             `}
           >
             <li>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="medium"
                 onClick={() => void downloadCourseSubmissionsCsv(course.id)}
                 aria-label={t("link-export-submissions")}
               >
                 {t("link-export-submissions")}
-              </button>
+              </Button>
             </li>
             <li>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="medium"
                 onClick={() => void downloadCourseUserDetailsCsv(course.id)}
                 aria-label={t("link-export-user-details")}
               >
                 {t("link-export-user-details")}
-              </button>
+              </Button>
             </li>
             <li>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="medium"
                 onClick={() => void downloadCourseExerciseTasksCsv(course.id)}
                 aria-label={t("link-export-exercise-tasks")}
               >
                 {t("link-export-exercise-tasks")}
-              </button>
+              </Button>
             </li>
             <li>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="medium"
                 onClick={() => void downloadCourseInstancesCsv(course.id)}
                 aria-label={t("link-export-course-instances")}
               >
                 {t("link-export-course-instances")}
-              </button>
+              </Button>
             </li>
             <li>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="medium"
                 onClick={() => void downloadCourseUserConsentsCsv(course.id)}
                 aria-label={t("link-export-course-user-consents")}
               >
                 {t("link-export-course-user-consents")}
-              </button>
+              </Button>
             </li>
             <li>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="medium"
                 onClick={() => void downloadCourseUserExerciseStatesCsv(course.id)}
                 aria-label={t("link-export-user-exercise-states")}
               >
                 {t("link-export-user-exercise-states")}
-              </button>
+              </Button>
             </li>
           </ul>
         </>

@@ -60,6 +60,11 @@
   "email-templates": "Email templates",
   "error-cannot-render-dynamic-content-missing-url": "Cannot render dynamic content: missing url",
   "error-code": "Code: {{code}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Missing exercise type for exercise task."
+    }
+  },
   "error-message-key": {
     "forbidden": {
       "message": "You do not have permission for this action.",

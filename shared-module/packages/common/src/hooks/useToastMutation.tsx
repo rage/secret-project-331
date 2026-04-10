@@ -9,12 +9,14 @@ import {
 } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import toast, { Toast, ToastOptions } from "react-hot-toast"
+import { useTranslation } from "react-i18next"
 
 import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
 import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
+import { resolveErrorDisplayCopy } from "../errors/resolveErrorDisplayCopy"
 
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
@@ -46,6 +48,7 @@ export default function useToastMutation<
   notificationOptions: NotificationOptions,
   mutationOptions: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn"> = {},
 ): UseMutationResult<TData, TError, TVariables, TContext> {
+  const { t } = useTranslation()
   const showToastInfinitely = useSetShowStuffInfinitelyInSystemTestScreenshots()
   let toastId = ""
   const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
@@ -127,7 +130,8 @@ export default function useToastMutation<
         let errorMessage = notificationOptions.errorMessage
         if (!errorMessage) {
           const view = normalizeErrorForDisplay(error)
-          errorMessage = view.message ?? view.title
+          const localizedCopy = resolveErrorDisplayCopy(view, t)
+          errorMessage = localizedCopy.message ?? localizedCopy.title
         }
         if (!errorMessage && (error as AxiosError).isAxiosError) {
           const axiosError = error as AxiosError

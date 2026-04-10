@@ -3,6 +3,9 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { normalizeErrorForDisplay } from "../../errors/normalizeErrorForDisplay"
+import { resolveErrorDisplayCopy } from "../../errors/resolveErrorDisplayCopy"
+
 import SourceBlock from "./SourceBlock"
 import { parseError } from "./parseError"
 import { BannerWrapper, Content, DetailTag, Text } from "./styles"
@@ -20,13 +23,9 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
   const { variant: __variant = "text", error: unknownError, contextMessage } = props
   const compact = __variant === "frontendCrash"
   const isFrontendCrash = __variant === "frontendCrash"
+  const normalized = normalizeErrorForDisplay(unknownError)
+  const displayCopy = resolveErrorDisplayCopy(normalized, t)
   const parsed = parseError(unknownError, t("error-title"))
-  const translatedTitle = parsed.messageKey
-    ? t(`error-message-key.${parsed.messageKey}.title`, { defaultValue: parsed.title })
-    : parsed.title
-  const translatedMessage = parsed.messageKey
-    ? t(`error-message-key.${parsed.messageKey}.message`, { defaultValue: parsed.message ?? "" })
-    : parsed.message
   const statusLine =
     parsed.status !== null && parsed.status !== undefined
       ? t("error-status", "Status: {{status}}", { status: parsed.status })
@@ -41,9 +40,9 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
     <BannerWrapper compact={compact} isFrontendCrash={isFrontendCrash} role="alert">
       <Content compact={compact}>
         <Text compact={compact}>
-          <h2>{translatedTitle}</h2>
+          <h2>{displayCopy.title}</h2>
           {contextMessage && <p>{contextMessage}</p>}
-          {translatedMessage && <p>{translatedMessage}</p>}
+          {displayCopy.message && <p>{displayCopy.message}</p>}
           {!!parsed.issues?.length && (
             <ul>
               {parsed.issues.map((issue, index) => (

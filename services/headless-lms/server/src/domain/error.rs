@@ -20,6 +20,8 @@ use tracing_error::SpanTrace;
 
 use uuid::Uuid;
 
+const MISSING_EXERCISE_TYPE_DESCRIPTION: &str = "Missing exercise type for exercise task.";
+
 /**
 Used as the result types for all controllers.
 Only put information here that you want to be visible to users.
@@ -236,6 +238,22 @@ pub struct ApiErrorIssue {
     pub message: String,
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+pub enum ValidationIssueCode {
+    MissingExerciseType,
+}
+
+impl ValidationIssueCode {
+    /// Returns stable API-facing code value for validation issues.
+    fn as_api_code(self) -> String {
+        serde_json::to_value(self)
+            .ok()
+            .and_then(|v| v.as_str().map(|code| code.to_string()))
+            .unwrap_or_else(|| "unknown_validation_issue".to_string())
+    }
+}
+
 /// Canonical API error envelope returned for controlled application errors.
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ApiErrorResponse {
@@ -353,6 +371,7 @@ impl error::ResponseError for ControllerError {
             None => None,
         };
         let (error_type, message_key) = self.error_type_and_message_key();
+        let errors = self.validation_issues();
         let message = match self.error_type {
             ControllerErrorType::InternalServerError => None,
             _ => Some(self.message.clone()),
@@ -362,7 +381,7 @@ impl error::ResponseError for ControllerError {
             error_type: Some(error_type.to_string()),
             message_key: Some(message_key.to_string()),
             message,
-            errors: Vec::new(),
+            errors,
             metadata: metadata_json,
         };
 
@@ -398,6 +417,22 @@ impl ControllerError {
             ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
             ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
             ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
+        }
+    }
+
+    /// Derives issue-level validation details from known backend validation cases.
+    fn validation_issues(&self) -> Vec<ApiErrorIssue> {
+        match &self.error_type {
+            ControllerErrorType::BadRequestWithData(_)
+                if self.message == MISSING_EXERCISE_TYPE_DESCRIPTION =>
+            {
+                vec![ApiErrorIssue {
+                    path: Some("exercise_type".to_string()),
+                    code: Some(ValidationIssueCode::MissingExerciseType.as_api_code()),
+                    message: self.message.clone(),
+                }]
+            }
+            _ => Vec::new(),
         }
     }
 }
@@ -908,5 +943,25 @@ mod tests {
         assert_eq!(value["message"], "Validation failed");
         assert!(value.get("status").is_none());
         assert!(value.get("request_id").is_none());
+    }
+
+    #[test]
+    fn test_validation_issue_code_is_serialized_for_missing_exercise_type() {
+        let err = ControllerError::new(
+            ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(Uuid::nil())),
+            MISSING_EXERCISE_TYPE_DESCRIPTION.to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "validation_error_with_metadata");
+        assert_eq!(value["errors"][0]["code"], "missing_exercise_type");
+        assert_eq!(value["errors"][0]["path"], "exercise_type");
     }
 }

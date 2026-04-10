@@ -26,7 +26,6 @@ import {
 import type { Options } from "@/generated/api/sdk.generated"
 import type {
   Organization,
-  RoleDomain,
   RoleUser,
   SoftDeleteOrganizationData,
   UpdateOrganizationData,
@@ -76,7 +75,6 @@ const ManageOrganization: React.FC = () => {
 
   const addMutation = useToastMutation(
     (data: { email: string; role: string }) => {
-      // eslint-disable-next-line i18next/no-literal-string
       return addRoleFromApi({
         body: {
           email: data.email,
@@ -90,6 +88,35 @@ const ManageOrganization: React.FC = () => {
       onSuccess: () => {
         setShowAddUserPopup(false)
         roleQuery.refetch()
+      },
+    },
+  )
+
+  const editUserRoleMutation = useToastMutation(
+    async (data: { email: string; oldRole: UserRole; newRole: UserRole }) => {
+      await removeRoleFromApi({
+        body: {
+          email: data.email,
+          role: data.oldRole,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+        },
+      })
+      return addRoleFromApi({
+        body: {
+          email: data.email,
+          role: data.newRole,
+          domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
+        },
+      })
+    },
+    { notify: true, method: "PUT" },
+    {
+      onSuccess: () => {
+        roleQuery.refetch()
+        setShowEditPopup(false)
+      },
+      onError: (error) => {
+        console.error("Failed to update role", error)
       },
     },
   )
@@ -135,34 +162,11 @@ const ManageOrganization: React.FC = () => {
       setShowEditPopup(false)
       return
     }
-
-    // eslint-disable-next-line i18next/no-literal-string
-    void removeRoleFromApi({
-      body: {
-        email: editUser.email,
-        role: editUser.role,
-        domain: { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id },
-      },
+    editUserRoleMutation.mutate({
+      email: editUser.email,
+      oldRole: editUser.role,
+      newRole: editRole as UserRole,
     })
-      .then(() =>
-        addRoleFromApi({
-          body: {
-            email: editUser.email,
-            role: editRole as UserRole,
-            domain: {
-              tag: ORGANIZATION_ROLE_DOMAIN_TAG,
-              id,
-            },
-          },
-        }),
-      )
-      .then(() => {
-        roleQuery.refetch()
-        setShowEditPopup(false)
-      })
-      .catch((error) => {
-        console.error("Failed to update role", error)
-      })
   }
 
   const updateOrgMutation = useToastMutationOptions(
@@ -175,8 +179,6 @@ const ManageOrganization: React.FC = () => {
       },
     },
   )
-
-  const domain: RoleDomain = { tag: ORGANIZATION_ROLE_DOMAIN_TAG, id }
 
   const roleQuery = useQuery({
     ...getRolesOptions({

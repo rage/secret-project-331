@@ -15,17 +15,12 @@ import {
   setExamCourseMutation,
   unsetExamCourseMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
-import {
-  exportExamPointsCsv,
-  exportExamSubmissionsCsv,
-  getOrganization,
-} from "@/generated/api/sdk.generated"
+import { getOrganization } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -36,13 +31,8 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { downloadBlobAsFile } from "@/utils/downloadBlobAsFile"
 
 const GET_ORGANIZATION_QUERY_KEY = "getOrganization"
-const BLOB_PARSE_AS = "blob" as const
-const EXAM_POINTS_CSV_FILE_PREFIX = "exam-"
-const EXAM_POINTS_CSV_FILE_SUFFIX = "-points.csv"
-const EXAM_SUBMISSIONS_CSV_FILE_SUFFIX = "-submissions.csv"
 
 const detailRow = css`
   font-family: ${primaryFont};
@@ -114,52 +104,6 @@ const ManageExam: React.FC = () => {
       onSuccess: () => {
         getExam.refetch()
       },
-    },
-  )
-
-  const exportPointsMutation = useToastMutation(
-    async () => {
-      const data: unknown = await exportExamPointsCsv({
-        parseAs: BLOB_PARSE_AS,
-        path: {
-          id,
-        },
-      })
-
-      if (!(data instanceof Blob)) {
-        throw new Error("Invalid exam points CSV response")
-      }
-
-      return {
-        blob: data,
-        fileName: `${EXAM_POINTS_CSV_FILE_PREFIX}${id}${EXAM_POINTS_CSV_FILE_SUFFIX}`,
-      }
-    },
-    {
-      notify: false,
-    },
-  )
-
-  const exportSubmissionsMutation = useToastMutation(
-    async () => {
-      const data: unknown = await exportExamSubmissionsCsv({
-        parseAs: BLOB_PARSE_AS,
-        path: {
-          id,
-        },
-      })
-
-      if (!(data instanceof Blob)) {
-        throw new Error("Invalid exam submissions CSV response")
-      }
-
-      return {
-        blob: data,
-        fileName: `${EXAM_POINTS_CSV_FILE_PREFIX}${id}${EXAM_SUBMISSIONS_CSV_FILE_SUFFIX}`,
-      }
-    },
-    {
-      notify: false,
     },
   )
 
@@ -286,34 +230,21 @@ const ManageExam: React.FC = () => {
               <a href={`/cms/exams/${getExam.data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
             </li>
             <li className={detailRow}>
-              <Button
-                variant="tertiary"
-                size="medium"
-                onClick={() => {
-                  exportPointsMutation.mutate(undefined, {
-                    onSuccess: (download) => {
-                      downloadBlobAsFile(download.blob, download.fileName)
-                    },
-                  })
-                }}
-              >
-                {t("link-export-points")}
-              </Button>
+              <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`} download>
+                <Button variant="tertiary" size="medium" type="button">
+                  {t("link-export-points")}
+                </Button>
+              </a>
             </li>
             <li className={detailRow}>
-              <Button
-                variant="tertiary"
-                size="medium"
-                onClick={() => {
-                  exportSubmissionsMutation.mutate(undefined, {
-                    onSuccess: (download) => {
-                      downloadBlobAsFile(download.blob, download.fileName)
-                    },
-                  })
-                }}
+              <a
+                href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-submissions`}
+                download
               >
-                {t("link-export-submissions")}
-              </Button>
+                <Button variant="tertiary" size="medium" type="button">
+                  {t("link-export-submissions")}
+                </Button>
+              </a>
             </li>
             <li className={detailRow}>
               <Link href={manageExamQuestionsRoute(getExam.data.id)}>{t("grading")}</Link>
@@ -399,12 +330,6 @@ const ManageExam: React.FC = () => {
           )}
           {unsetCourseMutation.isError && (
             <ErrorBanner variant="readOnly" error={unsetCourseMutation.error} />
-          )}
-          {exportPointsMutation.isError && (
-            <ErrorBanner variant="readOnly" error={exportPointsMutation.error} />
-          )}
-          {exportSubmissionsMutation.isError && (
-            <ErrorBanner variant="readOnly" error={exportSubmissionsMutation.error} />
           )}
         </>
       )}

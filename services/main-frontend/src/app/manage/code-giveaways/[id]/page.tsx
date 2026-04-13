@@ -14,30 +14,10 @@ import {
   getCodeGiveawayByIdOptions,
   getCodeGiveawayCodesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import { downloadCodeGiveawayCodesCsv } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
-
-const BLOB_PARSE_AS = "blob" as const
-const CODE_GIVEAWAY_CODES_CSV_PREFIX = "code-giveaway-"
-const CODE_GIVEAWAY_CODES_CSV_SUFFIX = "-codes.csv"
-
-const downloadBlobAsFile = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.setAttribute("download", fileName)
-  try {
-    document.body.appendChild(link)
-    link.click()
-    link.parentNode?.removeChild(link)
-  } finally {
-    window.URL.revokeObjectURL(url)
-  }
-}
 
 const CodeGiveawayPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -59,34 +39,6 @@ const CodeGiveawayPage = () => {
         id,
       },
     }),
-  )
-  const downloadCodesCsvMutation = useToastMutation(
-    async () => {
-      const data: unknown = await downloadCodeGiveawayCodesCsv({
-        parseAs: BLOB_PARSE_AS,
-        path: {
-          id,
-        },
-      })
-
-      if (!(data instanceof Blob)) {
-        throw new Error("Invalid code giveaway CSV response")
-      }
-
-      return data
-    },
-    {
-      notify: true,
-      method: "POST",
-    },
-    {
-      onSuccess: (blob) => {
-        downloadBlobAsFile(
-          blob,
-          `${CODE_GIVEAWAY_CODES_CSV_PREFIX}${id}${CODE_GIVEAWAY_CODES_CSV_SUFFIX}`,
-        )
-      },
-    },
   )
 
   if (codeGiveawayQuery.isLoading || codeGiveawayCodesQuery.isLoading) {
@@ -123,18 +75,18 @@ const CodeGiveawayPage = () => {
         <Button size="medium" variant="primary" onClick={() => setRevealCodes(!revealCodes)}>
           {t(revealCodes ? "hide" : "reveal")}
         </Button>
-        <Button
-          size="medium"
-          variant="primary"
-          className={css`
-            margin-top: 1rem;
-          `}
-          onClick={() => {
-            downloadCodesCsvMutation.mutate()
-          }}
-        >
-          {t("link-export-given-codes-as-csv")}
-        </Button>
+        <a href={`/api/v0/main-frontend/code-giveaways/${id}/codes/csv`} download>
+          <Button
+            size="medium"
+            variant="primary"
+            type="button"
+            className={css`
+              margin-top: 1rem;
+            `}
+          >
+            {t("link-export-given-codes-as-csv")}
+          </Button>
+        </a>
       </div>
       <FullWidthTable>
         <thead>

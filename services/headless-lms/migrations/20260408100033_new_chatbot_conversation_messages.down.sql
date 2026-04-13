@@ -1,4 +1,6 @@
--- Add down migration script here
+ALTER TYPE message_role
+RENAME VALUE 'developer' TO 'tool';
+
 ALTER TABLE chatbot_conversation_messages
 ADD COLUMN message VARCHAR(131072),
   ADD COLUMN message_role message_role,
@@ -44,22 +46,14 @@ SET NOT NULL;
 DROP TABLE chatbot_conversation_message_messages;
 DROP TABLE chatbot_conversation_message_reasoning;
 
-ALTER TABLE chatbot_conversation_message_tool_calls DROP COLUMN kind,
+ALTER TABLE chatbot_conversation_message_tool_calls DROP COLUMN kind;
+ALTER TABLE chatbot_conversation_message_tool_calls
   RENAME COLUMN chatbot_conversation_message_id TO message_id;
 
-ALTER TABLE chatbot_conversation_message_tool_outputs DROP COLUMN kind,
-  RENAME COLUMN chatbot_conversation_message_id TO message_id,
-  RENAME COLUMN output TO tool_output,
-  ADD COLUMN tool_name varchar(255);
-
-COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.tool_name IS 'The chatbot tool that was called.';
-
-
-UPDATE chatbot_conversation_message_tool_outputs ccmto
-SET tool_name = ccmtc.tool_name
-FROM chatbot_conversation_message_tool_calls ccmtc
-WHERE ccmto.tool_call_id = ccmtc.id;
-
+ALTER TABLE chatbot_conversation_message_tool_outputs DROP COLUMN kind;
 ALTER TABLE chatbot_conversation_message_tool_outputs
-ALTER COLUMN tool_name
-SET NOT NULL;
+  RENAME COLUMN chatbot_conversation_message_id TO message_id;
+ALTER TABLE chatbot_conversation_message_tool_outputs
+  RENAME COLUMN output TO tool_output;
+
+DROP TYPE tool_kind;

@@ -37,7 +37,8 @@ test.describe("Uploading media as admin", () => {
     await page.getByText("Pages").click()
 
     await page
-      .locator(`button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`)
+      .getByRole("row", { name: /Welcome to Introduction to Everything/ })
+      .getByRole("button", { name: "Edit page" })
       .click()
 
     await page.locator(`[aria-label="Add default block"]`).click()

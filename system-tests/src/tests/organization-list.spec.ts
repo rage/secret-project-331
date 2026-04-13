@@ -75,9 +75,13 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("button", { name: "Delete organization" }).click()
     await page.getByTestId("dialog").getByRole("textbox").click()
     await page.getByTestId("dialog").getByRole("textbox").fill("delete")
-    await waitForSuccessNotification(page, async () => {
-      await page.getByRole("button", { name: "Confirm" }).click()
-    })
+    await waitForSuccessNotification(
+      page,
+      async () => {
+        await page.getByRole("button", { name: "Confirm" }).click()
+      },
+      /Successfully deleted|Operation successful!?/,
+    )
     await expect(page.getByRole("heading", { name: "New Test Edited" })).toHaveCount(0)
   })
 })

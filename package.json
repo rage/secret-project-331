@@ -21,9 +21,10 @@
     "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
     "lint:css": "stylelint '**/*.tsx'",
-    "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/filesClient.ts' --glob '!**/services/healthzClient.ts' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/app/playground-views/page.tsx' --glob '!**/app/playground-views/PlaygroundPreview.tsx' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
+    "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/app/playground-views/page.tsx' --glob '!**/app/playground-views/PlaygroundPreview.tsx' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
     "codegen:api": "cd services/main-frontend && pnpm run codegen:api",
     "codegen:cms-api": "cd services/main-frontend && pnpm exec openapi-ts -f ../cms/openapi-ts.config.ts",
+    "codegen:auth-api": "cd shared-module/packages/common && pnpm run codegen:auth-api",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },

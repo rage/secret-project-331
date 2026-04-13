@@ -1,7 +1,6 @@
 "use client"
 
 import { isServer, useQuery } from "@tanstack/react-query"
-import axios from "axios"
 import { useEffect, useState } from "react"
 import { v4 } from "uuid"
 
@@ -29,6 +28,18 @@ const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =
 const PLAYGROUND_VIEWS_GRADING_PATH: ReceivePlaygroundGradingData["url"] =
   "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
 
+async function readJsonResponse(res: Response): Promise<unknown> {
+  const text = await res.text()
+  if (!text) {
+    return null
+  }
+  try {
+    return JSON.parse(text) as unknown
+  } catch {
+    return text
+  }
+}
+
 interface UsePlaygroundQueriesArguments {
   url: string
   parsedPrivateSpec: UseParsedPrivateSpecResult
@@ -48,8 +59,12 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   const serviceInfoQuery = useQuery({
     queryKey: [`iframe-view-playground-service-info-${args.url}`],
     queryFn: async (): Promise<ExerciseServiceInfoApi> => {
-      const res = await axios.get(args.url)
-      return parseExerciseServiceInfoApi(res.data)
+      const res = await fetch(args.url)
+      if (!res.ok) {
+        throw new Error(`Failed to load service info (${res.status})`)
+      }
+      const data = await readJsonResponse(res)
+      return parseExerciseServiceInfoApi(data)
     },
   })
 
@@ -82,11 +97,18 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         private_spec: args.parsedPrivateSpec.parsedPrivateSpec,
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
-      const res = await axios.post(
+      const res = await fetch(
         `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
-        payload,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
       )
-      return res.data
+      if (!res.ok) {
+        throw new Error(`Failed to load public spec (${res.status})`)
+      }
+      return readJsonResponse(res)
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -117,11 +139,18 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
         private_spec: args.parsedPrivateSpec.parsedPrivateSpec,
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
-      const res = await axios.post(
+      const res = await fetch(
         `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
-        payload,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
       )
-      return res.data
+      if (!res.ok) {
+        throw new Error(`Failed to load model solution spec (${res.status})`)
+      }
+      return readJsonResponse(res)
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -161,11 +190,19 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           submission_data: param.data,
         }
         args.setUserAnswer(param.data)
-        const res = await axios.post(
+        const res = await fetch(
           `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
-          gradingRequest,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(gradingRequest),
+          },
         )
-        return parseExerciseTaskGradingResult(res.data)
+        if (!res.ok) {
+          throw new Error(`Grading request failed (${res.status})`)
+        }
+        const gradingJson = await readJsonResponse(res)
+        return parseExerciseTaskGradingResult(gradingJson)
       } else if (param.type === "fromWebsocket") {
         return param.data
       } else {

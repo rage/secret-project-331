@@ -5,7 +5,8 @@ source "$(dirname "$0")/.common"
 run_command pnpm run export-openapi
 run_command pnpm run codegen:api
 run_command pnpm run codegen:cms-api
-run_command pnpm exec prettier --write services/headless-lms/server/openapi/*.json services/main-frontend/src/generated services/cms/src/generated/api
+run_command pnpm run codegen:auth-api
+run_command pnpm exec prettier --write services/headless-lms/server/openapi/*.json services/main-frontend/src/generated services/cms/src/generated/api shared-module/packages/common/src/generated/auth-api
 
 echo ""
 echo -e "${GREEN}✅ OpenAPI specs and Hey API clients have been regenerated.${RESET_EVERYTHING}"

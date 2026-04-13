@@ -26,15 +26,16 @@ use headless_lms_utils::{
 };
 use secrecy::SecretString;
 use tracing_log::log;
+use utoipa::{OpenApi, ToSchema};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 
 pub struct Login {
-    email: String,
-    password: String,
+    pub email: String,
+    pub password: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum LoginResponse {
     Success,
@@ -46,6 +47,16 @@ pub enum LoginResponse {
 POST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.
 **/
 
+#[utoipa::path(
+    post,
+    path = "/authorize",
+    tag = "auth",
+    operation_id = "postAuthAuthorize",
+    request_body = ActionOnResource,
+    responses(
+        (status = 200, description = "Whether the action is allowed for the current user", body = bool)
+    )
+)]
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_action_on_resource(
     pool: web::Data<PgPool>,
@@ -70,7 +81,7 @@ pub async fn authorize_action_on_resource(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct CreateAccountDetails {
     pub email: String,
@@ -103,6 +114,17 @@ Content-Type: application/json
 }
 ```
 */
+#[utoipa::path(
+    post,
+    path = "/signup",
+    tag = "auth",
+    operation_id = "postAuthSignup",
+    request_body = CreateAccountDetails,
+    responses(
+        (status = 200, description = "Account created; session established"),
+        (status = 400, description = "Cannot sign up (e.g. already signed in or validation error)")
+    )
+)]
 #[instrument(skip(session, pool, payload, app_conf))]
 pub async fn signup(
     session: Session,
@@ -272,6 +294,16 @@ POST `/api/v0/auth/authorize-multiple` checks whether user can perform specified
 Returns booleans for the authorizations in the same order as the input.
 **/
 
+#[utoipa::path(
+    post,
+    path = "/authorize-multiple",
+    tag = "auth",
+    operation_id = "postAuthAuthorizeMultiple",
+    request_body = Vec<ActionOnResource>,
+    responses(
+        (status = 200, description = "Authorization result for each input action, in order", body = Vec<bool>)
+    )
+)]
 #[instrument(skip(pool, payload,))]
 pub async fn authorize_multiple_actions_on_resources(
     pool: web::Data<PgPool>,
@@ -315,6 +347,16 @@ pub async fn authorize_multiple_actions_on_resources(
 POST `/api/v0/auth/login` Logs in to the system.
 Returns LoginResponse indicating success, email verification required, or failure.
 **/
+#[utoipa::path(
+    post,
+    path = "/login",
+    tag = "auth",
+    operation_id = "postAuthLogin",
+    request_body = Login,
+    responses(
+        (status = 200, description = "Login outcome", body = LoginResponse)
+    )
+)]
 #[instrument(skip(session, pool, client, payload, app_conf, tmc_client))]
 pub async fn login(
     session: Session,
@@ -534,6 +576,13 @@ async fn handle_production_login(
 /**
 POST `/api/v0/auth/logout` Logs out.
 **/
+#[utoipa::path(
+    post,
+    path = "/logout",
+    tag = "auth",
+    operation_id = "postAuthLogout",
+    responses((status = 200, description = "Session cleared"))
+)]
 #[instrument(skip(session))]
 #[allow(clippy::async_yields_async)]
 pub async fn logout(session: Session) -> HttpResponse {
@@ -544,6 +593,15 @@ pub async fn logout(session: Session) -> HttpResponse {
 /**
 GET `/api/v0/auth/logged-in` Returns the current user's login status.
 **/
+#[utoipa::path(
+    get,
+    path = "/logged-in",
+    tag = "auth",
+    operation_id = "getAuthLoggedIn",
+    responses(
+        (status = 200, description = "True when an authenticated session exists", body = bool)
+    )
+)]
 #[instrument(skip(session))]
 pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<bool> {
     let logged_in = authorization::has_auth_user_session(&session, pool).await;
@@ -553,7 +611,7 @@ pub async fn logged_in(session: Session, pool: web::Data<PgPool>) -> web::Json<b
 /// Generic information about the logged in user.
 ///
 ///  Could include the user name etc in the future.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct UserInfo {
     pub user_id: Uuid,
@@ -565,6 +623,15 @@ pub struct UserInfo {
 GET `/api/v0/auth/user-info` Returns the current user's info.
 **/
 
+#[utoipa::path(
+    get,
+    path = "/user-info",
+    tag = "auth",
+    operation_id = "getAuthUserInfo",
+    responses(
+        (status = 200, description = "Profile when signed in; null when anonymous", body = Option<UserInfo>)
+    )
+)]
 #[instrument(skip(auth_user, pool))]
 pub async fn user_info(
     auth_user: Option<AuthUser>,
@@ -586,7 +653,7 @@ pub async fn user_info(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct SendEmailCodeData {
     pub email: String,
@@ -597,6 +664,16 @@ pub struct SendEmailCodeData {
 /**
 POST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion
 **/
+#[utoipa::path(
+    post,
+    path = "/send-email-code",
+    tag = "auth",
+    operation_id = "postAuthSendEmailCode",
+    request_body = SendEmailCodeData,
+    responses(
+        (status = 200, description = "Whether a deletion code email was queued", body = bool)
+    )
+)]
 #[instrument(skip(pool, payload, auth_user))]
 #[allow(clippy::async_yields_async)]
 pub async fn send_delete_user_email_code(
@@ -674,7 +751,7 @@ pub async fn send_delete_user_email_code(
     token.authorized_ok(web::Json(false))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct EmailCode {
     pub code: String,
@@ -683,6 +760,16 @@ pub struct EmailCode {
 /**
 POST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account
 **/
+#[utoipa::path(
+    post,
+    path = "/delete-user-account",
+    tag = "auth",
+    operation_id = "postAuthDeleteUserAccount",
+    request_body = EmailCode,
+    responses(
+        (status = 200, description = "Whether the account was deleted", body = bool)
+    )
+)]
 #[instrument(skip(pool, payload, auth_user, session))]
 #[allow(clippy::async_yields_async)]
 pub async fn delete_user_account(
@@ -837,7 +924,7 @@ async fn handle_email_verification(
     }))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct VerifyEmailRequest {
     pub email_verification_token: String,
@@ -847,6 +934,16 @@ pub struct VerifyEmailRequest {
 /**
 POST `/api/v0/auth/verify-email` Verifies email verification code and completes login.
 **/
+#[utoipa::path(
+    post,
+    path = "/verify-email",
+    tag = "auth",
+    operation_id = "postAuthVerifyEmail",
+    request_body = VerifyEmailRequest,
+    responses(
+        (status = 200, description = "Whether verification succeeded", body = bool)
+    )
+)]
 #[instrument(skip(session, pool, payload))]
 pub async fn verify_email(
     session: Session,
@@ -930,6 +1027,36 @@ pub async fn verify_email(
     let skip_token = skip_authorize();
     skip_token.authorized_ok(web::Json(true))
 }
+
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        signup,
+        login,
+        logout,
+        logged_in,
+        authorize_action_on_resource,
+        authorize_multiple_actions_on_resources,
+        user_info,
+        send_delete_user_email_code,
+        delete_user_account,
+        verify_email,
+    ),
+    components(schemas(
+        Login,
+        LoginResponse,
+        CreateAccountDetails,
+        UserInfo,
+        crate::domain::authorization::ActionOnResource,
+        crate::domain::authorization::Action,
+        crate::domain::authorization::Resource,
+        SendEmailCodeData,
+        EmailCode,
+        VerifyEmailRequest,
+        headless_lms_models::roles::UserRole,
+    ))
+)]
+pub struct AuthRoutesApiDoc;
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.service(

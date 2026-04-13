@@ -54,7 +54,6 @@
     "@wordpress/icons": "^11.7.0",
     "@wordpress/keyboard-shortcuts": "^5.40.0",
     "@wordpress/keycodes": "^4.40.0",
-    "axios": "^1.13.6",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "diff": "^8.0.3",

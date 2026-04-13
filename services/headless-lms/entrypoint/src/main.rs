@@ -1,5 +1,7 @@
 use anyhow::Result;
-use headless_lms_server::openapi::{CmsApiDoc, CourseMaterialApiDoc, MainFrontendApiDoc};
+use headless_lms_server::openapi::{
+    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, MainFrontendApiDoc,
+};
 use headless_lms_server::programs;
 use std::future::Future;
 use std::path::{Path, PathBuf};
@@ -158,6 +160,7 @@ fn export_openapi_specs() -> Result<()> {
         &output_dir.join("course-material.openapi.json"),
         CourseMaterialApiDoc::openapi(),
     )?;
+    write_spec(&output_dir.join("auth.openapi.json"), AuthApiDoc::openapi())?;
     Ok(())
 }
 

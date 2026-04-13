@@ -1,4 +1,3 @@
-import axios from "axios"
 import FormData from "form-data"
 import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
@@ -6,7 +5,7 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
-import { isObjectMap } from "@/shared-module/common/utils/fetching"
+import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
 import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
 import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
@@ -109,16 +108,24 @@ const uploadModelSolution = async (
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
   }
-  const res = await axios.post(uploadUrl, form, { headers })
+  const res = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { ...headers, ...form.getHeaders() },
+    body: form as unknown as RequestInit["body"],
+  })
+  if (!res.ok) {
+    throw new Error(`Upload failed: ${res.status} ${res.statusText}`)
+  }
+  const resData: unknown = await res.json()
   if (
-    isObjectMap<string>(res.data) &&
-    Object.prototype.hasOwnProperty.call(res.data, archiveName) &&
-    typeof res.data[archiveName] === "string"
+    isObjectMap(isString)(resData) &&
+    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
+    typeof resData[archiveName] === "string"
   ) {
-    const solutionDownloadUrl = res.data[archiveName]
+    const solutionDownloadUrl = resData[archiveName]
     return { spec: { solution_download_url: solutionDownloadUrl }, paths: [solutionArchive] }
   }
   throw new Error(
-    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(res.data)}`,
+    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
   )
 }

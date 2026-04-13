@@ -8,6 +8,7 @@ import { Trans, useTranslation } from "react-i18next"
 import { getCourseModuleCompletionRegistrationLinkOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const CompletionRedirectPage: React.FC = () => {
@@ -33,10 +34,10 @@ const CompletionRedirectPage: React.FC = () => {
       {userCompletionInformation.isError && (
         <ErrorBanner
           error={
-            // @ts-expect-error: Using property from axios
-            userCompletionInformation.error.request.status !== 404
-              ? userCompletionInformation.error
-              : t("completion-registration-link-not-found")
+            isAppApiError(userCompletionInformation.error) &&
+            userCompletionInformation.error.status === 404
+              ? t("completion-registration-link-not-found")
+              : userCompletionInformation.error
           }
           variant={"readOnly"}
         />

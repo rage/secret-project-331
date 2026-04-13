@@ -4,7 +4,6 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
-import { AxiosError } from "axios"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
@@ -18,6 +17,7 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import countries from "@/shared-module/common/locales/en/countries.json"
 import { createUser } from "@/shared-module/common/services/backend/auth"
@@ -213,9 +213,17 @@ const CreateAccountForm: React.FC = () => {
 
   useEffect(() => {
     if (createAccountMutation.isError && createAccountMutation.error) {
-      const error = createAccountMutation.error as AxiosError<CreateUserErrorResponse>
-      const status = error.response?.status
-      const errorMessage = error.response?.data?.message || ""
+      const err = createAccountMutation.error
+      const status = isAppApiError(err) ? err.status : null
+      const errorMessage =
+        isAppApiError(err) &&
+        typeof err.body === "object" &&
+        err.body !== null &&
+        "message" in err.body
+          ? String((err.body as CreateUserErrorResponse).message ?? "")
+          : isAppApiError(err)
+            ? (err.userMessage ?? "")
+            : ""
 
       if (
         status === 400 &&

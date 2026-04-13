@@ -46,3 +46,13 @@ pub struct MainFrontendApiDoc;
     )
 )]
 pub struct CourseMaterialApiDoc;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest((path = "/api/v0/auth", api = crate::controllers::auth::AuthRoutesApiDoc)),
+    info(
+        title = "Auth API",
+        version = "0.1.0"
+    )
+)]
+pub struct AuthApiDoc;

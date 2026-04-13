@@ -1,31 +1,34 @@
-import { AxiosResponse } from "axios"
-
 import { ErrorResponse } from "../errorApiTypes"
+import { AppApiError } from "../errors/AppApiError"
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-5][0-9a-f]{3}-[089ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-// usage: validateResponse(response, isOrganization)
-// checks the data in an axios response with the given guard and only returns the data if its type is correct
-// throws the response with an ErrorResponse if the data is invalid for useQuery to catch
+// usage: validateResponse(data, isOrganization, sourceUrl)
+// checks JSON data with the given guard and only returns the data if its type is correct
 export function validateResponse<T>(
-  response: AxiosResponse<unknown, unknown>,
+  data: unknown,
   isT: (x: unknown) => x is T,
+  sourceUrl?: string | null,
 ): T {
-  const data = response.data
   if (isT(data)) {
     return data
-  } else {
-    // alter the response data to contain an ErrorResponse
-    const error: ErrorResponse = {
-      title: "Invalid data from API",
-      message: `Data: ${JSON.stringify(data, undefined, 2)}`,
-      source: response.request?.responseURL,
-      data: null,
-    }
-    response.data = error
-    response.status = 422
-    throw response
   }
+
+  const legacy: ErrorResponse = {
+    title: "Invalid data from API",
+    message: `Data: ${JSON.stringify(data, undefined, 2)}`,
+    source: sourceUrl ?? null,
+    data: null,
+  }
+
+  throw new AppApiError({
+    kind: "client",
+    status: 422,
+    title: legacy.title,
+    userMessage: legacy.message,
+    body: legacy,
+    url: sourceUrl ?? null,
+  })
 }
 
 /** Usage: validateResponse(response, isArray(isOrganization)) */

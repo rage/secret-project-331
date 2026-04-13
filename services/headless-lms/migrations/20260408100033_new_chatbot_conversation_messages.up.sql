@@ -1,4 +1,7 @@
 -- modify message_role enum
+ALTER TYPE message_role
+RENAME VALUE 'tool' TO 'developer';
+
 -- to be compatible with the v1 api
 CREATE TABLE chatbot_conversation_message_messages (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -9,7 +12,7 @@ CREATE TABLE chatbot_conversation_message_messages (
   role message_role NOT NULL,
   text VARCHAR(131072),
   used_tokens INT NOT NULL DEFAULT 0,
-  citation_ids UUID [],
+  citation_ids UUID []
 );
 
 CREATE TRIGGER set_timestamp BEFORE
@@ -33,7 +36,7 @@ CREATE TABLE chatbot_conversation_message_reasoning (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   chatbot_conversation_message_id UUID NOT NULL REFERENCES chatbot_conversation_messages(id),
-  summary VARCHAR(131072),
+  summary VARCHAR(131072)
 );
 
 CREATE TRIGGER set_timestamp BEFORE
@@ -50,16 +53,18 @@ COMMENT ON COLUMN chatbot_conversation_message_reasoning.summary IS 'A summary o
 CREATE TYPE tool_kind AS ENUM ('function', 'azure-ai-search');
 
 ALTER TABLE chatbot_conversation_message_tool_calls
-ADD COLUMN kind tool_kind NOT NULL DEFAULT 'function'::tool_kind,
+ADD COLUMN kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
+ALTER TABLE chatbot_conversation_message_tool_calls
   RENAME COLUMN message_id TO chatbot_conversation_message_id;
 
 COMMENT ON COLUMN chatbot_conversation_message_tool_calls.kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
 
 ALTER TABLE chatbot_conversation_message_tool_outputs
-ADD COLUMN kind tool_kind NOT NULL DEFAULT 'function'::tool_kind,
-  RENAME COLUMN message_id TO chatbot_conversation_message_id,
-  RENAME COLUMN tool_output TO output,
-  DROP COLUMN tool_name;
+ADD COLUMN kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
+ALTER TABLE chatbot_conversation_message_tool_outputs
+  RENAME COLUMN message_id TO chatbot_conversation_message_id;
+ALTER TABLE chatbot_conversation_message_tool_outputs
+  RENAME COLUMN tool_output TO output;
 
 COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
 

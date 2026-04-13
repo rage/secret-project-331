@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages\nSET message = $2, message_is_complete = $3, used_tokens = $4\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    conversation_id,\n    message,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    order_number,\n    tool_output_id\n        ",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens\nFROM chatbot_conversation_message_messages\nWHERE chatbot_conversation_message_id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -25,12 +25,12 @@
       },
       {
         "ordinal": 4,
-        "name": "conversation_id",
+        "name": "chatbot_conversation_message_id",
         "type_info": "Uuid"
       },
       {
         "ordinal": 5,
-        "name": "message",
+        "name": "text",
         "type_info": "Varchar"
       },
       {
@@ -43,7 +43,7 @@
               "Enum": [
                 "user",
                 "assistant",
-                "tool"
+                "developer"
               ]
             }
           }
@@ -58,24 +58,11 @@
         "ordinal": 8,
         "name": "used_tokens",
         "type_info": "Int4"
-      },
-      {
-        "ordinal": 9,
-        "name": "order_number",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 10,
-        "name": "tool_output_id",
-        "type_info": "Uuid"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Varchar",
-        "Bool",
-        "Int4"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -87,10 +74,8 @@
       true,
       false,
       false,
-      false,
-      false,
-      true
+      false
     ]
   },
-  "hash": "9fa8adeff97d37c903a61d4f4c0b1e50b1bb30f82af385f720f9f4491cf3bdc8"
+  "hash": "a269f9f597cc8accbceb6dbe508a1502dd5467df12a50da5d25684f0b70d62ed"
 }

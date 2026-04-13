@@ -9,7 +9,8 @@ CREATE TABLE chatbot_conversation_message_messages (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   chatbot_conversation_message_id UUID NOT NULL REFERENCES chatbot_conversation_messages(id),
-  role message_role NOT NULL,
+  message_role message_role NOT NULL,
+  message_is_complete BOOLEAN NOT NULL DEFAULT FALSE,
   text VARCHAR(131072),
   used_tokens INT NOT NULL DEFAULT 0,
   citation_ids UUID []
@@ -24,7 +25,9 @@ COMMENT ON COLUMN chatbot_conversation_message_messages.created_at IS 'Timestamp
 COMMENT ON COLUMN chatbot_conversation_message_messages.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN chatbot_conversation_message_messages.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN chatbot_conversation_message_messages.chatbot_conversation_message_id IS 'The chatbot_conversation_message that this row belongs to.';
-COMMENT ON COLUMN chatbot_conversation_message_messages.role IS 'The role of the message: is it from the user or the chatbot.';
+COMMENT ON COLUMN chatbot_conversation_message_messages.message_role IS 'The role of the message: is it from the user or the chatbot.';
+COMMENT ON COLUMN chatbot_conversation_message_messages.message_is_complete IS 'Always true for messages from the user. The chatbot messages are streamed to the client, and this field is used to indicate whether that the stream is complete.';
+
 COMMENT ON COLUMN chatbot_conversation_message_messages.text IS 'The message content.';
 COMMENT ON COLUMN chatbot_conversation_message_messages.used_tokens IS 'The number of tokens used to send or receive this message. Is non-zero only for role user messages, which track all the tokens used for input, reasoning, and output.';
 COMMENT ON COLUMN chatbot_conversation_message_messages.citation_ids IS 'IDs of any citations (annotations) that are associated with this message. A role assistant message can cite course material.';
@@ -53,25 +56,25 @@ COMMENT ON COLUMN chatbot_conversation_message_reasoning.summary IS 'A summary o
 CREATE TYPE tool_kind AS ENUM ('function', 'azure-ai-search');
 
 ALTER TABLE chatbot_conversation_message_tool_calls
-ADD COLUMN kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
+ADD COLUMN tool_kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
 ALTER TABLE chatbot_conversation_message_tool_calls
   RENAME COLUMN message_id TO chatbot_conversation_message_id;
 
-COMMENT ON COLUMN chatbot_conversation_message_tool_calls.kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
+COMMENT ON COLUMN chatbot_conversation_message_tool_calls.tool_kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
 
 ALTER TABLE chatbot_conversation_message_tool_outputs
-ADD COLUMN kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
+ADD COLUMN tool_kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
 ALTER TABLE chatbot_conversation_message_tool_outputs
   RENAME COLUMN message_id TO chatbot_conversation_message_id;
 ALTER TABLE chatbot_conversation_message_tool_outputs
   RENAME COLUMN tool_output TO output;
 
-COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
+COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.tool_kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
 
 -- move data from ccm to new tables
 INSERT INTO chatbot_conversation_message_messages (
     chatbot_conversation_message_id,
-    role,
+    message_role,
     text,
     used_tokens,
     created_at,

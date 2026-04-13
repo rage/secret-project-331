@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_messages\nSET deleted_at = NOW()\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    conversation_id,\n    message,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    order_number,\n    tool_output_id\n        ",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens\nFROM chatbot_conversation_message_messages\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -25,12 +25,12 @@
       },
       {
         "ordinal": 4,
-        "name": "conversation_id",
+        "name": "chatbot_conversation_message_id",
         "type_info": "Uuid"
       },
       {
         "ordinal": 5,
-        "name": "message",
+        "name": "text",
         "type_info": "Varchar"
       },
       {
@@ -43,7 +43,7 @@
               "Enum": [
                 "user",
                 "assistant",
-                "tool"
+                "developer"
               ]
             }
           }
@@ -58,16 +58,6 @@
         "ordinal": 8,
         "name": "used_tokens",
         "type_info": "Int4"
-      },
-      {
-        "ordinal": 9,
-        "name": "order_number",
-        "type_info": "Int4"
-      },
-      {
-        "ordinal": 10,
-        "name": "tool_output_id",
-        "type_info": "Uuid"
       }
     ],
     "parameters": {
@@ -84,10 +74,8 @@
       true,
       false,
       false,
-      false,
-      false,
-      true
+      false
     ]
   },
-  "hash": "f7f642730960c3a7bf8ca58e833cd530111f15b24aeefbd18f57955815353805"
+  "hash": "cb36de8120f9d304ac7c70bb4483e827ae0a5eaba6fd452f5126198a8795dd38"
 }

@@ -1,0 +1,80 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_conversation_message_tool_calls\nSET deleted_at = NOW()\nWHERE chatbot_conversation_message_id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "chatbot_conversation_message_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "tool_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "tool_arguments",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "tool_call_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "tool_kind: ToolKind",
+        "type_info": {
+          "Custom": {
+            "name": "tool_kind",
+            "kind": {
+              "Enum": [
+                "function",
+                "azure-ai-search"
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "db451a49a24dec0ff8c36e9193a80f93f6ee39503ba6ee7bd6d166195e5b9e15"
+}

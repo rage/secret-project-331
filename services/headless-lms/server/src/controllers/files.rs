@@ -8,6 +8,11 @@ use crate::prelude::*;
 use actix_files::NamedFile;
 use std::{collections::HashMap, path::Path};
 use tokio::fs::read;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(upload_from_exercise_service))]
+pub(crate) struct FilesApiDoc;
 /**
 
 GET `/api/v0/files/\*` Redirects the request to a file storage service.
@@ -131,6 +136,22 @@ Used to upload data from exercise service iframes.
 The randomly generated paths to each uploaded file in a `file_name => file_path` hash map.
 */
 #[instrument(skip(payload, file_store, app_conf, upload_claim))]
+#[utoipa::path(
+    post,
+    path = "/{exercise_service_slug}",
+    operation_id = "uploadFilesFromExerciseService",
+    tag = "files",
+    params(
+        ("exercise_service_slug" = String, Path, description = "Exercise service slug")
+    ),
+    request_body(
+        content = String,
+        content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Uploaded files", body = HashMap<String, String>)
+    )
+)]
 
 async fn upload_from_exercise_service(
     pool: web::Data<PgPool>,

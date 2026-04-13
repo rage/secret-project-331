@@ -29,9 +29,10 @@ use actix_web::{
 };
 use headless_lms_utils::{ApplicationConfiguration, prelude::*};
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct UploadResult {
     pub url: String,

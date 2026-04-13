@@ -20,6 +20,7 @@ use models::research_forms::{
 
 #[derive(OpenApi)]
 #[openapi(paths(
+    add_media,
     get_course_by_id,
     get_course_default_peer_or_self_review_configuration,
     put_course_default_peer_or_self_review_configuration,
@@ -79,6 +80,22 @@ BINARY_DATA
 ```
 */
 
+#[utoipa::path(
+    post,
+    path = "/{course_id}/upload",
+    operation_id = "uploadCmsCourseMedia",
+    tag = "cms_courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body(
+        content = String,
+        content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Uploaded media result", body = UploadResult)
+    )
+)]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]
 async fn add_media(
     course_id: web::Path<Uuid>,

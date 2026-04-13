@@ -3,8 +3,8 @@
 /* eslint-disable */
 
 export type ClientOptions = {
-  baseUrl: `${string}://${string}` | (string & {})
-}
+    baseUrl: `${string}://${string}` | (string & {});
+};
 
 /**
  *
@@ -12,356 +12,352 @@ export type ClientOptions = {
  *
  * As close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.
  */
-export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submitted" | "Completed"
+export type ActivityProgress = 'Initialized' | 'Started' | 'InProgress' | 'Submitted' | 'Completed';
 
 export type AnswerRequiringAttentionWithTasks = {
-  created_at: string
-  data_json?: unknown
-  deleted_at?: string | null
-  exercise_id: string
-  given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>
-  grading_progress: GradingProgress
-  id: string
-  received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>
-  received_peer_review_flagging_reports: Array<FlaggedAnswer>
-  score_given?: number | null
-  submission_id: string
-  tasks: Array<CourseMaterialExerciseTask>
-  updated_at: string
-  user_id: string
-}
+    created_at: string;
+    data_json?: unknown;
+    deleted_at?: string | null;
+    exercise_id: string;
+    given_peer_reviews: Array<PeerReviewWithQuestionsAndAnswers>;
+    grading_progress: GradingProgress;
+    id: string;
+    received_peer_or_self_reviews: Array<PeerReviewWithQuestionsAndAnswers>;
+    received_peer_review_flagging_reports: Array<FlaggedAnswer>;
+    score_given?: number | null;
+    submission_id: string;
+    tasks: Array<CourseMaterialExerciseTask>;
+    updated_at: string;
+    user_id: string;
+};
 
 export type AnswersRequiringAttention = {
-  data: Array<AnswerRequiringAttentionWithTasks>
-  exercise_max_points: number
-  total_pages: number
-}
+    data: Array<AnswerRequiringAttentionWithTasks>;
+    exercise_max_points: number;
+    total_pages: number;
+};
 
 export type AuthorizedClientInfo = {
-  client_id: string
-  client_name: string
-  scopes: Array<string>
-}
+    client_id: string;
+    client_name: string;
+    scopes: Array<string>;
+};
 
 export type AutomaticCompletionRequirements = {
-  /**
-   * Course module associated with these requirements.
-   */
-  course_module_id: string
-  number_of_exercises_attempted_treshold?: number | null
-  number_of_points_treshold?: number | null
-  requires_exam: boolean
-}
+    /**
+     * Course module associated with these requirements.
+     */
+    course_module_id: string;
+    number_of_exercises_attempted_treshold?: number | null;
+    number_of_points_treshold?: number | null;
+    requires_exam: boolean;
+};
 
 /**
  * A generic result representing an average metric over a time period.
  * The average value (e.g. average time in seconds) may be absent if no data is available.
  */
 export type AverageMetric = {
-  /**
-   * The average value. For example, the average time (in seconds) from course start to first submission.
-   */
-  average?: number | null
-  /**
-   * The start of the time period (e.g., day, week, month) associated with this metric.
-   */
-  period?: string | null
-}
+    /**
+     * The average value. For example, the average time (in seconds) from course start to first submission.
+     */
+    average?: number | null;
+    /**
+     * The start of the time period (e.g., day, week, month) associated with this metric.
+     */
+    period?: string | null;
+};
 
-export type BlockProposal =
-  | (EditedBlockStillExistsData & {
-      type: "edited-block-still-exists"
-    })
-  | (EditedBlockNoLongerExistsData & {
-      type: "edited-block-no-longer-exists"
-    })
+export type BlockProposal = (EditedBlockStillExistsData & {
+    type: 'edited-block-still-exists';
+}) | (EditedBlockNoLongerExistsData & {
+    type: 'edited-block-no-longer-exists';
+});
 
-export type BlockProposalAction =
-  | {
-      data: string
-      tag: "Accept"
-    }
-  | {
-      tag: "Reject"
-    }
+export type BlockProposalAction = {
+    data: string;
+    tag: 'Accept';
+} | {
+    tag: 'Reject';
+};
 
 export type BlockProposalInfo = {
-  action: BlockProposalAction
-  id: string
-}
+    action: BlockProposalAction;
+    id: string;
+};
 
 export type BulkUserDetailsRequest = {
-  course_id: string
-  user_ids: Array<string>
-}
+    course_id: string;
+    user_ids: Array<string>;
+};
 
 export type CertificateAllRequirements = {
-  certificate_configuration_id: string
-  course_module_ids: Array<string>
-}
+    certificate_configuration_id: string;
+    course_module_ids: Array<string>;
+};
 
 export type CertificateConfiguration = {
-  background_svg_file_upload_id: string
-  background_svg_path: string
-  certificate_date_font_size: string
-  certificate_date_text_anchor: CertificateTextAnchor
-  certificate_date_text_color: string
-  certificate_date_x_pos: string
-  certificate_date_y_pos: string
-  certificate_grade_font_size?: string | null
-  certificate_grade_text_anchor?: null | CertificateTextAnchor
-  certificate_grade_text_color?: string | null
-  certificate_grade_x_pos?: string | null
-  certificate_grade_y_pos?: string | null
-  certificate_locale: string
-  certificate_owner_name_font_size: string
-  certificate_owner_name_text_anchor: CertificateTextAnchor
-  certificate_owner_name_text_color: string
-  certificate_owner_name_x_pos: string
-  certificate_owner_name_y_pos: string
-  certificate_validate_url_font_size: string
-  certificate_validate_url_text_anchor: CertificateTextAnchor
-  certificate_validate_url_text_color: string
-  certificate_validate_url_x_pos: string
-  certificate_validate_url_y_pos: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  overlay_svg_file_upload_id?: string | null
-  overlay_svg_path?: string | null
-  paper_size: PaperSize
-  render_certificate_grade: boolean
-  updated_at: string
-}
+    background_svg_file_upload_id: string;
+    background_svg_path: string;
+    certificate_date_font_size: string;
+    certificate_date_text_anchor: CertificateTextAnchor;
+    certificate_date_text_color: string;
+    certificate_date_x_pos: string;
+    certificate_date_y_pos: string;
+    certificate_grade_font_size?: string | null;
+    certificate_grade_text_anchor?: null | CertificateTextAnchor;
+    certificate_grade_text_color?: string | null;
+    certificate_grade_x_pos?: string | null;
+    certificate_grade_y_pos?: string | null;
+    certificate_locale: string;
+    certificate_owner_name_font_size: string;
+    certificate_owner_name_text_anchor: CertificateTextAnchor;
+    certificate_owner_name_text_color: string;
+    certificate_owner_name_x_pos: string;
+    certificate_owner_name_y_pos: string;
+    certificate_validate_url_font_size: string;
+    certificate_validate_url_text_anchor: CertificateTextAnchor;
+    certificate_validate_url_text_color: string;
+    certificate_validate_url_x_pos: string;
+    certificate_validate_url_y_pos: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    overlay_svg_file_upload_id?: string | null;
+    overlay_svg_path?: string | null;
+    paper_size: PaperSize;
+    render_certificate_grade: boolean;
+    updated_at: string;
+};
 
 export type CertificateConfigurationAndRequirements = {
-  certificate_configuration: CertificateConfiguration
-  requirements: CertificateAllRequirements
-}
+    certificate_configuration: CertificateConfiguration;
+    requirements: CertificateAllRequirements;
+};
 
 export type CertificateConfigurationUpdate = {
-  background_svg_file_name?: string | null
-  certificate_date_font_size?: string | null
-  certificate_date_text_anchor?: null | CertificateTextAnchor
-  certificate_date_text_color?: string | null
-  certificate_date_x_pos?: string | null
-  certificate_date_y_pos?: string | null
-  certificate_grade_font_size?: string | null
-  certificate_grade_text_anchor?: null | CertificateTextAnchor
-  certificate_grade_text_color?: string | null
-  certificate_grade_x_pos?: string | null
-  certificate_grade_y_pos?: string | null
-  certificate_locale?: string | null
-  certificate_owner_name_font_size?: string | null
-  certificate_owner_name_text_anchor?: null | CertificateTextAnchor
-  certificate_owner_name_text_color?: string | null
-  certificate_owner_name_x_pos?: string | null
-  certificate_owner_name_y_pos?: string | null
-  certificate_validate_url_font_size?: string | null
-  certificate_validate_url_text_anchor?: null | CertificateTextAnchor
-  certificate_validate_url_text_color?: string | null
-  certificate_validate_url_x_pos?: string | null
-  certificate_validate_url_y_pos?: string | null
-  clear_overlay_svg_file: boolean
-  course_instance_id?: string | null
-  course_module_id: string
-  overlay_svg_file_name?: string | null
-  paper_size?: null | PaperSize
-  render_certificate_grade: boolean
-}
+    background_svg_file_name?: string | null;
+    certificate_date_font_size?: string | null;
+    certificate_date_text_anchor?: null | CertificateTextAnchor;
+    certificate_date_text_color?: string | null;
+    certificate_date_x_pos?: string | null;
+    certificate_date_y_pos?: string | null;
+    certificate_grade_font_size?: string | null;
+    certificate_grade_text_anchor?: null | CertificateTextAnchor;
+    certificate_grade_text_color?: string | null;
+    certificate_grade_x_pos?: string | null;
+    certificate_grade_y_pos?: string | null;
+    certificate_locale?: string | null;
+    certificate_owner_name_font_size?: string | null;
+    certificate_owner_name_text_anchor?: null | CertificateTextAnchor;
+    certificate_owner_name_text_color?: string | null;
+    certificate_owner_name_x_pos?: string | null;
+    certificate_owner_name_y_pos?: string | null;
+    certificate_validate_url_font_size?: string | null;
+    certificate_validate_url_text_anchor?: null | CertificateTextAnchor;
+    certificate_validate_url_text_color?: string | null;
+    certificate_validate_url_x_pos?: string | null;
+    certificate_validate_url_y_pos?: string | null;
+    clear_overlay_svg_file: boolean;
+    course_instance_id?: string | null;
+    course_module_id: string;
+    overlay_svg_file_name?: string | null;
+    paper_size?: null | PaperSize;
+    render_certificate_grade: boolean;
+};
 
 export type CertificateGenerationRequest = {
-  certificate_configuration_id: string
-  grade?: string | null
-  name_on_certificate: string
-}
+    certificate_configuration_id: string;
+    grade?: string | null;
+    name_on_certificate: string;
+};
 
 export type CertificateGridRow = {
-  certificate: string
-  certificate_id?: string | null
-  date_issued?: string | null
-  name_on_certificate?: string | null
-  student: string
-  verification_id?: string | null
-}
+    certificate: string;
+    certificate_id?: string | null;
+    date_issued?: string | null;
+    name_on_certificate?: string | null;
+    student: string;
+    verification_id?: string | null;
+};
 
 /**
  * How text should be positioned relative to the given coordinates. See <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.
  */
-export type CertificateTextAnchor = "start" | "middle" | "end"
+export type CertificateTextAnchor = 'start' | 'middle' | 'end';
 
 export type CertificateUpdateRequest = {
-  date_issued: string
-  name_on_certificate?: string | null
-}
+    date_issued: string;
+    name_on_certificate?: string | null;
+};
 
 export type ChangePasswordData = {
-  new_password: string
-  old_password: string
-}
+    new_password: string;
+    old_password: string;
+};
 
 export type Chapter = {
-  chapter_image_url?: string | null
-  chapter_number: number
-  color?: string | null
-  copied_from?: string | null
-  course_id: string
-  course_module_id: string
-  created_at: string
-  deadline?: string | null
-  deleted_at?: string | null
-  front_page_id?: string | null
-  id: string
-  name: string
-  opens_at?: string | null
-  updated_at: string
-}
+    chapter_image_url?: string | null;
+    chapter_number: number;
+    color?: string | null;
+    copied_from?: string | null;
+    course_id: string;
+    course_module_id: string;
+    created_at: string;
+    deadline?: string | null;
+    deleted_at?: string | null;
+    front_page_id?: string | null;
+    id: string;
+    name: string;
+    opens_at?: string | null;
+    updated_at: string;
+};
 
 export type ChapterAvailability = {
-  chapter_id: string
-  chapter_name: string
-  chapter_number: number
-  exercises_available: number
-  points_available: number
-}
+    chapter_id: string;
+    chapter_name: string;
+    chapter_number: number;
+    exercises_available: number;
+    points_available: number;
+};
 
 export type ChapterScore = DatabaseChapter & {
-  score_given: number
-  score_total: number
-}
+    score_given: number;
+    score_total: number;
+};
 
 export type ChapterUpdate = {
-  color?: string | null
-  /**
-   * CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
-   */
-  course_module_id?: string | null
-  deadline?: string | null
-  front_page_id?: string | null
-  name: string
-  opens_at?: string | null
-}
+    color?: string | null;
+    /**
+     * CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+     */
+    course_module_id?: string | null;
+    deadline?: string | null;
+    front_page_id?: string | null;
+    name: string;
+    opens_at?: string | null;
+};
 
 export type ChatbotConfiguration = {
-  chatbot_name: string
-  course_id: string
-  created_at: string
-  daily_tokens_per_user: number
-  default_chatbot: boolean
-  deleted_at?: string | null
-  enabled_to_students: boolean
-  frequency_penalty: number
-  hide_citations: boolean
-  id: string
-  initial_message: string
-  initial_suggested_messages?: Array<string> | null
-  maintain_azure_search_index: boolean
-  max_completion_tokens: number
-  model_id: string
-  presence_penalty: number
-  prompt: string
-  reasoning_effort: ReasoningEffortLevel
-  response_max_tokens: number
-  suggest_next_messages: boolean
-  temperature: number
-  thinking_model: boolean
-  top_p: number
-  updated_at: string
-  use_azure_search: boolean
-  use_semantic_reranking: boolean
-  use_tools: boolean
-  verbosity: VerbosityLevel
-  weekly_tokens_per_user: number
-}
+    chatbot_name: string;
+    course_id: string;
+    created_at: string;
+    daily_tokens_per_user: number;
+    default_chatbot: boolean;
+    deleted_at?: string | null;
+    enabled_to_students: boolean;
+    frequency_penalty: number;
+    hide_citations: boolean;
+    id: string;
+    initial_message: string;
+    initial_suggested_messages?: Array<string> | null;
+    maintain_azure_search_index: boolean;
+    max_completion_tokens: number;
+    model_id: string;
+    presence_penalty: number;
+    prompt: string;
+    reasoning_effort: ReasoningEffortLevel;
+    response_max_tokens: number;
+    suggest_next_messages: boolean;
+    temperature: number;
+    thinking_model: boolean;
+    top_p: number;
+    updated_at: string;
+    use_azure_search: boolean;
+    use_semantic_reranking: boolean;
+    use_tools: boolean;
+    verbosity: VerbosityLevel;
+    weekly_tokens_per_user: number;
+};
 
 export type ChatbotConfigurationModel = {
-  context_size: number
-  created_at: string
-  default_model: boolean
-  deleted_at?: string | null
-  deployment_name: string
-  id: string
-  model: string
-  thinking: boolean
-  updated_at: string
-}
+    context_size: number;
+    created_at: string;
+    default_model: boolean;
+    deleted_at?: string | null;
+    deployment_name: string;
+    id: string;
+    model: string;
+    thinking: boolean;
+    updated_at: string;
+};
 
 export type CmsPageExercise = {
-  deadline?: string | null
-  id: string
-  limit_number_of_tries: boolean
-  max_tries_per_slide?: number | null
-  name: string
-  needs_peer_review: boolean
-  needs_self_review: boolean
-  order_number: number
-  peer_or_self_review_config?: null | CmsPeerOrSelfReviewConfig
-  peer_or_self_review_questions?: Array<CmsPeerOrSelfReviewQuestion> | null
-  score_maximum: number
-  teacher_reviews_answer_after_locking: boolean
-  use_course_default_peer_or_self_review_config: boolean
-}
+    deadline?: string | null;
+    id: string;
+    limit_number_of_tries: boolean;
+    max_tries_per_slide?: number | null;
+    name: string;
+    needs_peer_review: boolean;
+    needs_self_review: boolean;
+    order_number: number;
+    peer_or_self_review_config?: null | CmsPeerOrSelfReviewConfig;
+    peer_or_self_review_questions?: Array<CmsPeerOrSelfReviewQuestion> | null;
+    score_maximum: number;
+    teacher_reviews_answer_after_locking: boolean;
+    use_course_default_peer_or_self_review_config: boolean;
+};
 
 export type CmsPageExerciseSlide = {
-  exercise_id: string
-  id: string
-  order_number: number
-}
+    exercise_id: string;
+    id: string;
+    order_number: number;
+};
 
 export type CmsPageExerciseTask = {
-  assignment: unknown
-  exercise_slide_id: string
-  exercise_type: string
-  id: string
-  order_number: number
-  private_spec?: unknown
-}
+    assignment: unknown;
+    exercise_slide_id: string;
+    exercise_type: string;
+    id: string;
+    order_number: number;
+    private_spec?: unknown;
+};
 
 export type CmsPeerOrSelfReviewConfig = {
-  accepting_threshold: number
-  course_id: string
-  exercise_id?: string | null
-  id: string
-  peer_reviews_to_give: number
-  peer_reviews_to_receive: number
-  points_are_all_or_nothing: boolean
-  processing_strategy: PeerReviewProcessingStrategy
-  reset_answer_if_zero_points_from_review: boolean
-  review_instructions?: unknown
-}
+    accepting_threshold: number;
+    course_id: string;
+    exercise_id?: string | null;
+    id: string;
+    peer_reviews_to_give: number;
+    peer_reviews_to_receive: number;
+    points_are_all_or_nothing: boolean;
+    processing_strategy: PeerReviewProcessingStrategy;
+    reset_answer_if_zero_points_from_review: boolean;
+    review_instructions?: unknown;
+};
 
 export type CmsPeerOrSelfReviewQuestion = {
-  answer_required: boolean
-  id: string
-  order_number: number
-  peer_or_self_review_config_id: string
-  question: string
-  question_type: PeerOrSelfReviewQuestionType
-  weight: number
-}
+    answer_required: boolean;
+    id: string;
+    order_number: number;
+    peer_or_self_review_config_id: string;
+    question: string;
+    question_type: PeerOrSelfReviewQuestionType;
+    weight: number;
+};
 
 export type CodeGiveaway = {
-  course_id: string
-  course_module_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  enabled: boolean
-  id: string
-  name: string
-  require_course_specific_consent_form_question_id?: string | null
-  updated_at: string
-}
+    course_id: string;
+    course_module_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    enabled: boolean;
+    id: string;
+    name: string;
+    require_course_specific_consent_form_question_id?: string | null;
+    updated_at: string;
+};
 
 export type CodeGiveawayCode = {
-  added_by_user_id: string
-  code: string
-  code_giveaway_id: string
-  code_given_to_user_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  updated_at: string
-}
+    added_by_user_id: string;
+    code: string;
+    code_giveaway_id: string;
+    code_given_to_user_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    updated_at: string;
+};
 
 /**
  * Represents cohort activity metrics for both weekly and daily cohorts.
@@ -369,782 +365,772 @@ export type CodeGiveawayCode = {
  * for weekly cohorts, `offset` will be `None` and `activity_period` indicates the week start.
  */
 export type CohortActivity = {
-  /**
-   * The number of active users in this cohort for the given period.
-   */
-  active_users: number
-  /**
-   * The activity period (for example, the start of the week or the computed activity day).
-   */
-  activity_period?: string | null
-  /**
-   * The start date of the cohort (either day or week).
-   */
-  cohort_start?: string | null
-  /**
-   * The day offset from the cohort start (only applicable for daily cohorts).
-   */
-  offset?: number | null
-}
+    /**
+     * The number of active users in this cohort for the given period.
+     */
+    active_users: number;
+    /**
+     * The activity period (for example, the start of the week or the computed activity day).
+     */
+    activity_period?: string | null;
+    /**
+     * The start date of the cohort (either day or week).
+     */
+    cohort_start?: string | null;
+    /**
+     * The day offset from the cohort start (only applicable for daily cohorts).
+     */
+    offset?: number | null;
+};
 
 export type CompletionGridRow = {
-  grade: string
-  module?: string | null
-  status: string
-  student: string
-}
+    grade: string;
+    module?: string | null;
+    status: string;
+    student: string;
+};
 
-export type CompletionPolicy =
-  | (AutomaticCompletionRequirements & {
-      policy: "automatic"
-    })
-  | {
-      policy: "manual"
-    }
+export type CompletionPolicy = (AutomaticCompletionRequirements & {
+    policy: 'automatic';
+}) | {
+    policy: 'manual';
+};
 
 export type CompletionRegistrationLink = {
-  url: string
-}
+    url: string;
+};
 
 export type ConsentData = {
-  consent: boolean
-}
+    consent: boolean;
+};
 
 export type ConsentDenyQuery = {
-  client_id: string
-  redirect_uri: string
-  state: string
-}
+    client_id: string;
+    redirect_uri: string;
+    state: string;
+};
 
 export type ConsentQuery = {
-  client_id: string
-  code_challenge?: string | null
-  code_challenge_method?: string | null
-  nonce: string
-  redirect_uri: string
-  response_type: string
-  scope: string
-  state: string
-}
+    client_id: string;
+    code_challenge?: string | null;
+    code_challenge_method?: string | null;
+    nonce: string;
+    redirect_uri: string;
+    response_type: string;
+    scope: string;
+    state: string;
+};
 
 export type ConsentResponse = {
-  redirect_uri: string
-}
+    redirect_uri: string;
+};
 
-export type CopyCourseMode =
-  | {
-      mode: "duplicate"
-    }
-  | {
-      mode: "same_language_group"
-    }
-  | {
-      mode: "existing_language_group"
-      target_course_id: string
-    }
-  | {
-      mode: "new_language_group"
-    }
+export type CopyCourseMode = {
+    mode: 'duplicate';
+} | {
+    mode: 'same_language_group';
+} | {
+    mode: 'existing_language_group';
+    target_course_id: string;
+} | {
+    mode: 'new_language_group';
+};
 
 export type CopyCourseRequest = NewCourse & {
-  mode: CopyCourseMode
-}
+    mode: CopyCourseMode;
+};
 
 /**
  * A generic result representing a count metric over a time period.
  * When the time period is not applicable (for overall totals), `period` will be `None`.
  */
 export type CountResult = {
-  /**
-   * The count (for example, the number of users).
-   */
-  count: number
-  /**
-   * The start of the time period (e.g., day, week, month) associated with this count.
-   * For overall totals, this will be `None`.
-   */
-  period?: string | null
-}
+    /**
+     * The count (for example, the number of users).
+     */
+    count: number;
+    /**
+     * The start of the time period (e.g., day, week, month) associated with this count.
+     * For overall totals, this will be `None`.
+     */
+    period?: string | null;
+};
 
 export type Course = {
-  ask_marketing_consent: boolean
-  base_module_completion_requires_n_submodule_completions: number
-  can_add_chatbot: boolean
-  chapter_locking_enabled: boolean
-  closed_additional_message?: string | null
-  closed_at?: string | null
-  closed_course_successor_id?: string | null
-  content_search_language?: string | null
-  copied_from?: string | null
-  course_language_group_id: string
-  created_at: string
-  deleted_at?: string | null
-  description?: string | null
-  flagged_answers_skip_manual_review_and_allow_retry: boolean
-  flagged_answers_threshold?: number | null
-  id: string
-  is_draft: boolean
-  is_joinable_by_code_only: boolean
-  is_test_mode: boolean
-  is_unlisted: boolean
-  join_code?: string | null
-  language_code: string
-  name: string
-  organization_id: string
-  slug: string
-  updated_at: string
-}
+    ask_marketing_consent: boolean;
+    base_module_completion_requires_n_submodule_completions: number;
+    can_add_chatbot: boolean;
+    chapter_locking_enabled: boolean;
+    closed_additional_message?: string | null;
+    closed_at?: string | null;
+    closed_course_successor_id?: string | null;
+    content_search_language?: string | null;
+    copied_from?: string | null;
+    course_language_group_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    flagged_answers_skip_manual_review_and_allow_retry: boolean;
+    flagged_answers_threshold?: number | null;
+    id: string;
+    is_draft: boolean;
+    is_joinable_by_code_only: boolean;
+    is_test_mode: boolean;
+    is_unlisted: boolean;
+    join_code?: string | null;
+    language_code: string;
+    name: string;
+    organization_id: string;
+    slug: string;
+    updated_at: string;
+};
 
 export type CourseBreadcrumbInfo = {
-  course_id: string
-  course_name: string
-  course_slug: string
-  organization_name: string
-  organization_slug: string
-}
+    course_id: string;
+    course_name: string;
+    course_slug: string;
+    organization_name: string;
+    organization_slug: string;
+};
 
 export type CourseCompletionStats = {
-  course_id: string
-  course_name: string
-  not_registered_completions: number
-  not_registered_ects_credits: number
-  registered_completion_percentage?: number | null
-  registered_completions: number
-  registered_ects_credits: number
-  total_completions: number
-  unique_users: number
-  users_with_some_registered_completions: number
-  users_with_some_unregistered_completions: number
-}
+    course_id: string;
+    course_name: string;
+    not_registered_completions: number;
+    not_registered_ects_credits: number;
+    registered_completion_percentage?: number | null;
+    registered_completions: number;
+    registered_ects_credits: number;
+    total_completions: number;
+    unique_users: number;
+    users_with_some_registered_completions: number;
+    users_with_some_unregistered_completions: number;
+};
 
 export type CourseCount = {
-  count: number
-}
+    count: number;
+};
 
 export type CourseEnrollmentInfo = {
-  course: Course
-  course_id: string
-  course_instances: Array<CourseInstance>
-  course_module_completions: Array<CourseModuleCompletion>
-  first_enrolled_at: string
-  is_current: boolean
-  user_course_settings?: null | UserCourseSettings
-}
+    course: Course;
+    course_id: string;
+    course_instances: Array<CourseInstance>;
+    course_module_completions: Array<CourseModuleCompletion>;
+    first_enrolled_at: string;
+    is_current: boolean;
+    user_course_settings?: null | UserCourseSettings;
+};
 
 export type CourseEnrollmentsInfo = {
-  course_enrollments: Array<CourseEnrollmentInfo>
-}
+    course_enrollments: Array<CourseEnrollmentInfo>;
+};
 
 export type CourseExam = {
-  course_id: string
-  course_name: string
-  id: string
-  name: string
-}
+    course_id: string;
+    course_name: string;
+    id: string;
+    name: string;
+};
 
 export type CourseInstance = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  description?: string | null
-  ends_at?: string | null
-  id: string
-  name?: string | null
-  starts_at?: string | null
-  support_email?: string | null
-  teacher_in_charge_email: string
-  teacher_in_charge_name: string
-  updated_at: string
-}
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    ends_at?: string | null;
+    id: string;
+    name?: string | null;
+    starts_at?: string | null;
+    support_email?: string | null;
+    teacher_in_charge_email: string;
+    teacher_in_charge_name: string;
+    updated_at: string;
+};
 
 export type CourseInstanceCompletionSummary = {
-  course_modules: Array<CourseModule>
-  users_with_course_module_completions: Array<UserWithModuleCompletions>
-}
+    course_modules: Array<CourseModule>;
+    users_with_course_module_completions: Array<UserWithModuleCompletions>;
+};
 
 export type CourseInstanceForm = {
-  closing_time?: string | null
-  description?: string | null
-  name?: string | null
-  opening_time?: string | null
-  support_email?: string | null
-  teacher_in_charge_email: string
-  teacher_in_charge_name: string
-}
+    closing_time?: string | null;
+    description?: string | null;
+    name?: string | null;
+    opening_time?: string | null;
+    support_email?: string | null;
+    teacher_in_charge_email: string;
+    teacher_in_charge_name: string;
+};
 
 /**
  * Information necessary for the frontend to render an exercise task
  */
 export type CourseMaterialExerciseTask = {
-  assignment: unknown
-  deleted_at?: string | null
-  /**
-   *
-   * If none, the task is not completable at the moment because the service needs to
-   * be configured to the system.
-   */
-  exercise_iframe_url?: string | null
-  exercise_service_slug: string
-  exercise_slide_id: string
-  id: string
-  model_solution_spec?: unknown
-  order_number: number
-  previous_submission?: null | ExerciseTaskSubmission
-  previous_submission_grading?: null | ExerciseTaskGrading
-  /**
-   *
-   * Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
-   * be configured to the system.
-   */
-  pseudonumous_user_id?: string | null
-  public_spec?: unknown
-}
+    assignment: unknown;
+    deleted_at?: string | null;
+    /**
+     *
+     * If none, the task is not completable at the moment because the service needs to
+     * be configured to the system.
+     */
+    exercise_iframe_url?: string | null;
+    exercise_service_slug: string;
+    exercise_slide_id: string;
+    id: string;
+    model_solution_spec?: unknown;
+    order_number: number;
+    previous_submission?: null | ExerciseTaskSubmission;
+    previous_submission_grading?: null | ExerciseTaskGrading;
+    /**
+     *
+     * Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to
+     * be configured to the system.
+     */
+    pseudonumous_user_id?: string | null;
+    public_spec?: unknown;
+};
 
 /**
  *
  * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
  */
 export type CourseModule = {
-  certification_enabled: boolean
-  completion_policy: CompletionPolicy
-  /**
-   * If set, use this link rather than the default one when registering course completions.
-   */
-  completion_registration_link_override?: string | null
-  copied_from?: string | null
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  ects_credits?: number | null
-  enable_registering_completion_to_uh_open_university: boolean
-  id: string
-  name?: string | null
-  order_number: number
-  uh_course_code?: string | null
-  updated_at: string
-}
+    certification_enabled: boolean;
+    completion_policy: CompletionPolicy;
+    /**
+     * If set, use this link rather than the default one when registering course completions.
+     */
+    completion_registration_link_override?: string | null;
+    copied_from?: string | null;
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    ects_credits?: number | null;
+    enable_registering_completion_to_uh_open_university: boolean;
+    id: string;
+    name?: string | null;
+    order_number: number;
+    uh_course_code?: string | null;
+    updated_at: string;
+};
 
 export type CourseModuleCompletion = {
-  completion_date: string
-  completion_granter_user_id?: string | null
-  completion_language: string
-  completion_registration_attempt_date?: string | null
-  course_id: string
-  course_module_id: string
-  created_at: string
-  deleted_at?: string | null
-  eligible_for_ects: boolean
-  email: string
-  grade?: number | null
-  id: string
-  needs_to_be_reviewed: boolean
-  passed: boolean
-  prerequisite_modules_completed: boolean
-  updated_at: string
-  user_id: string
-}
+    completion_date: string;
+    completion_granter_user_id?: string | null;
+    completion_language: string;
+    completion_registration_attempt_date?: string | null;
+    course_id: string;
+    course_module_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    eligible_for_ects: boolean;
+    email: string;
+    grade?: number | null;
+    id: string;
+    needs_to_be_reviewed: boolean;
+    passed: boolean;
+    prerequisite_modules_completed: boolean;
+    updated_at: string;
+    user_id: string;
+};
 
 export type CourseModuleCompletionWithRegistrationInfo = {
-  completion_date: string
-  /**
-   * When the student has attempted to register the completion.
-   */
-  completion_registration_attempt_date?: string | null
-  /**
-   * ID of the course module.
-   */
-  course_module_id: string
-  /**
-   * When the record was created
-   */
-  created_at: string
-  /**
-   * Grade that the student received for the completion.
-   */
-  grade?: number | null
-  /**
-   * Whether or not the student is eligible for credit for the completion.
-   */
-  passed: boolean
-  /**
-   * Whether or not the student is qualified for credit based on other modules in the course.
-   */
-  prerequisite_modules_completed: boolean
-  /**
-   * Whether or not the completion has been registered to a study registry.
-   */
-  registered: boolean
-  /**
-   * ID of the user for the completion.
-   */
-  user_id: string
-}
+    completion_date: string;
+    /**
+     * When the student has attempted to register the completion.
+     */
+    completion_registration_attempt_date?: string | null;
+    /**
+     * ID of the course module.
+     */
+    course_module_id: string;
+    /**
+     * When the record was created
+     */
+    created_at: string;
+    /**
+     * Grade that the student received for the completion.
+     */
+    grade?: number | null;
+    /**
+     * Whether or not the student is eligible for credit for the completion.
+     */
+    passed: boolean;
+    /**
+     * Whether or not the student is qualified for credit based on other modules in the course.
+     */
+    prerequisite_modules_completed: boolean;
+    /**
+     * Whether or not the completion has been registered to a study registry.
+     */
+    registered: boolean;
+    /**
+     * ID of the user for the completion.
+     */
+    user_id: string;
+};
 
 export type CourseStructure = {
-  chapters: Array<Chapter>
-  course: Course
-  modules: Array<CourseModule>
-  pages: Array<Page>
-}
+    chapters: Array<Chapter>;
+    course: Course;
+    modules: Array<CourseModule>;
+    pages: Array<Page>;
+};
 
 export type CourseUpdate = {
-  ask_marketing_consent: boolean
-  can_add_chatbot: boolean
-  chapter_locking_enabled: boolean
-  closed_additional_message?: string | null
-  closed_at?: string | null
-  closed_course_successor_id?: string | null
-  description?: string | null
-  flagged_answers_skip_manual_review_and_allow_retry: boolean
-  flagged_answers_threshold: number
-  is_draft: boolean
-  is_joinable_by_code_only: boolean
-  is_test_mode: boolean
-  is_unlisted: boolean
-  name: string
-}
+    ask_marketing_consent: boolean;
+    can_add_chatbot: boolean;
+    chapter_locking_enabled: boolean;
+    closed_additional_message?: string | null;
+    closed_at?: string | null;
+    closed_course_successor_id?: string | null;
+    description?: string | null;
+    flagged_answers_skip_manual_review_and_allow_retry: boolean;
+    flagged_answers_threshold: number;
+    is_draft: boolean;
+    is_joinable_by_code_only: boolean;
+    is_test_mode: boolean;
+    is_unlisted: boolean;
+    name: string;
+};
 
 export type CourseUserInfo = {
-  course_instance?: string | null
-  email?: string | null
-  first_name?: string | null
-  last_name?: string | null
-  user_id: string
-}
+    course_instance?: string | null;
+    email?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    user_id: string;
+};
 
 export type CronJobInfo = {
-  last_schedule_time?: string | null
-  name: string
-  schedule: string
-}
+    last_schedule_time?: string | null;
+    name: string;
+    schedule: string;
+};
 
 export type DatabaseChapter = {
-  chapter_image_path?: string | null
-  chapter_number: number
-  color?: string | null
-  copied_from?: string | null
-  course_id: string
-  course_module_id: string
-  created_at: string
-  deadline?: string | null
-  deleted_at?: string | null
-  front_page_id?: string | null
-  id: string
-  name: string
-  opens_at?: string | null
-  updated_at: string
-}
+    chapter_image_path?: string | null;
+    chapter_number: number;
+    color?: string | null;
+    copied_from?: string | null;
+    course_id: string;
+    course_module_id: string;
+    created_at: string;
+    deadline?: string | null;
+    deleted_at?: string | null;
+    front_page_id?: string | null;
+    id: string;
+    name: string;
+    opens_at?: string | null;
+    updated_at: string;
+};
 
 export type DeploymentInfo = {
-  name: string
-  ready_replicas: number
-  replicas: number
-  selector_labels: {
-    [key: string]: string
-  }
-}
+    name: string;
+    ready_replicas: number;
+    replicas: number;
+    selector_labels: {
+        [key: string]: string;
+    };
+};
 
 export type DomainCompletionStats = {
-  email_domain: string
-  not_registered_completions: number
-  not_registered_ects_credits: number
-  registered_completion_percentage?: number | null
-  registered_completions: number
-  registered_ects_credits: number
-  total_completions: number
-  unique_users: number
-  users_with_some_registered_completions: number
-  users_with_some_unregistered_completions: number
-}
+    email_domain: string;
+    not_registered_completions: number;
+    not_registered_ects_credits: number;
+    registered_completion_percentage?: number | null;
+    registered_completions: number;
+    registered_ects_credits: number;
+    total_completions: number;
+    unique_users: number;
+    users_with_some_registered_completions: number;
+    users_with_some_unregistered_completions: number;
+};
 
 export type EditProposalInfo = {
-  block_proposals: Array<BlockProposalInfo>
-  page_id: string
-  page_proposal_id: string
-}
+    block_proposals: Array<BlockProposalInfo>;
+    page_id: string;
+    page_proposal_id: string;
+};
 
 export type EditedBlockNoLongerExistsData = {
-  block_id: string
-  changed_text: string
-  id: string
-  original_text: string
-  status: ProposalStatus
-}
+    block_id: string;
+    changed_text: string;
+    id: string;
+    original_text: string;
+    status: ProposalStatus;
+};
 
 export type EditedBlockStillExistsData = {
-  accept_preview?: string | null
-  block_id: string
-  changed_text: string
-  current_text: string
-  id: string
-  original_text: string
-  status: ProposalStatus
-}
+    accept_preview?: string | null;
+    block_id: string;
+    changed_text: string;
+    current_text: string;
+    id: string;
+    original_text: string;
+    status: ProposalStatus;
+};
 
 export type EmailData = {
-  email: string
-  language: string
-}
+    email: string;
+    language: string;
+};
 
 export type EmailTemplate = {
-  content?: unknown
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exercise_completions_threshold?: number | null
-  id: string
-  language?: string | null
-  points_threshold?: number | null
-  subject?: string | null
-  template_type: EmailTemplateType
-  updated_at: string
-}
+    content?: unknown;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_completions_threshold?: number | null;
+    id: string;
+    language?: string | null;
+    points_threshold?: number | null;
+    subject?: string | null;
+    template_type: EmailTemplateType;
+    updated_at: string;
+};
 
 export type EmailTemplateNew = {
-  content?: unknown
-  language?: string | null
-  subject?: string | null
-  template_type: EmailTemplateType
-}
+    content?: unknown;
+    language?: string | null;
+    subject?: string | null;
+    template_type: EmailTemplateType;
+};
 
-export type EmailTemplateType =
-  | "reset_password_email"
-  | "delete_user_email"
-  | "confirm_email_code"
-  | "generic"
+export type EmailTemplateType = 'reset_password_email' | 'delete_user_email' | 'confirm_email_code' | 'generic';
 
 export type EventInfo = {
-  count?: number | null
-  first_timestamp?: string | null
-  involved_object_kind?: string | null
-  involved_object_name?: string | null
-  last_timestamp?: string | null
-  message?: string | null
-  name: string
-  reason?: string | null
-  type_?: string | null
-}
+    count?: number | null;
+    first_timestamp?: string | null;
+    involved_object_kind?: string | null;
+    involved_object_name?: string | null;
+    last_timestamp?: string | null;
+    message?: string | null;
+    name: string;
+    reason?: string | null;
+    type_?: string | null;
+};
 
 export type Exam = {
-  courses: Array<Course>
-  ends_at?: string | null
-  grade_manually: boolean
-  id: string
-  instructions: unknown
-  language: string
-  minimum_points_treshold: number
-  name: string
-  page_id: string
-  starts_at?: string | null
-  time_minutes: number
-}
+    courses: Array<Course>;
+    ends_at?: string | null;
+    grade_manually: boolean;
+    id: string;
+    instructions: unknown;
+    language: string;
+    minimum_points_treshold: number;
+    name: string;
+    page_id: string;
+    starts_at?: string | null;
+    time_minutes: number;
+};
 
 export type ExamCourseInfo = {
-  course_id: string
-}
+    course_id: string;
+};
 
 export type ExamEnrollment = {
-  ended_at?: string | null
-  exam_id: string
-  is_teacher_testing: boolean
-  show_exercise_answers?: boolean | null
-  started_at: string
-  user_id: string
-}
+    ended_at?: string | null;
+    exam_id: string;
+    is_teacher_testing: boolean;
+    show_exercise_answers?: boolean | null;
+    started_at: string;
+    user_id: string;
+};
 
 export type Exercise = {
-  chapter_id?: string | null
-  copied_from?: string | null
-  course_id?: string | null
-  created_at: string
-  deadline?: string | null
-  deleted_at?: string | null
-  exam_id?: string | null
-  exercise_language_group_id?: string | null
-  id: string
-  limit_number_of_tries: boolean
-  max_tries_per_slide?: number | null
-  name: string
-  needs_peer_review: boolean
-  needs_self_review: boolean
-  order_number: number
-  page_id: string
-  score_maximum: number
-  teacher_reviews_answer_after_locking: boolean
-  updated_at: string
-  use_course_default_peer_or_self_review_config: boolean
-}
+    chapter_id?: string | null;
+    copied_from?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deadline?: string | null;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_language_group_id?: string | null;
+    id: string;
+    limit_number_of_tries: boolean;
+    max_tries_per_slide?: number | null;
+    name: string;
+    needs_peer_review: boolean;
+    needs_self_review: boolean;
+    order_number: number;
+    page_id: string;
+    score_maximum: number;
+    teacher_reviews_answer_after_locking: boolean;
+    updated_at: string;
+    use_course_default_peer_or_self_review_config: boolean;
+};
 
 export type ExerciseAnswersInCourseRequiringAttentionCount = {
-  chapter_id?: string | null
-  count?: number | null
-  id: string
-  name: string
-  order_number: number
-  page_id: string
-}
+    chapter_id?: string | null;
+    count?: number | null;
+    id: string;
+    name: string;
+    order_number: number;
+    page_id: string;
+};
 
 export type ExerciseCsvExportTaskOption = {
-  exercise_task_id: string
-  exercise_type: string
-  order_number: number
-  supports_csv_export_answers: boolean
-  supports_csv_export_definitions: boolean
-}
+    exercise_task_id: string;
+    exercise_type: string;
+    order_number: number;
+    supports_csv_export_answers: boolean;
+    supports_csv_export_definitions: boolean;
+};
 
 export type ExerciseRepository = {
-  course_id?: string | null
-  error_message?: string | null
-  exam_id?: string | null
-  id: string
-  status: ExerciseRepositoryStatus
-  url: string
-}
+    course_id?: string | null;
+    error_message?: string | null;
+    exam_id?: string | null;
+    id: string;
+    status: ExerciseRepositoryStatus;
+    url: string;
+};
 
-export type ExerciseRepositoryStatus = "Pending" | "Success" | "Failure"
+export type ExerciseRepositoryStatus = 'Pending' | 'Success' | 'Failure';
 
 export type ExerciseRepositoryUpdate = {
-  url: string
-}
+    url: string;
+};
 
 export type ExerciseResetLog = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  exercise_id: string
-  exercise_name: string
-  id: string
-  reason?: string | null
-  reset_at: string
-  reset_by?: string | null
-  reset_by_first_name?: string | null
-  reset_by_last_name?: string | null
-  reset_for: string
-  updated_at: string
-}
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_id: string;
+    exercise_name: string;
+    id: string;
+    reason?: string | null;
+    reset_at: string;
+    reset_by?: string | null;
+    reset_by_first_name?: string | null;
+    reset_by_last_name?: string | null;
+    reset_for: string;
+    updated_at: string;
+};
 
 export type ExerciseService = {
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  /**
-   * This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
-   */
-  internal_url?: string | null
-  max_reprocessing_submissions_at_once: number
-  name: string
-  public_url: string
-  slug: string
-  updated_at: string
-}
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    /**
+     * This is needed because connecting to services directly inside the cluster with a special url is much for efficient than connecting to the same service with a url that would get routed though the internet. If not defined, use we can reach the service with the public url.
+     */
+    internal_url?: string | null;
+    max_reprocessing_submissions_at_once: number;
+    name: string;
+    public_url: string;
+    slug: string;
+    updated_at: string;
+};
 
 export type ExerciseServiceNewOrUpdate = {
-  internal_url?: string | null
-  max_reprocessing_submissions_at_once: number
-  name: string
-  public_url: string
-  slug: string
-}
+    internal_url?: string | null;
+    max_reprocessing_submissions_at_once: number;
+    name: string;
+    public_url: string;
+    slug: string;
+};
 
 export type ExerciseServiceWithError = {
-  exercise_service: ExerciseService
-  service_info_error?: string | null
-}
+    exercise_service: ExerciseService;
+    service_info_error?: string | null;
+};
 
 export type ExerciseSlideSubmission = {
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exam_id?: string | null
-  exercise_id: string
-  exercise_slide_id: string
-  flag_count?: number | null
-  id: string
-  updated_at: string
-  user_id: string
-  user_points_update_strategy: UserPointsUpdateStrategy
-}
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_id: string;
+    exercise_slide_id: string;
+    flag_count?: number | null;
+    id: string;
+    updated_at: string;
+    user_id: string;
+    user_points_update_strategy: UserPointsUpdateStrategy;
+};
 
 export type ExerciseSlideSubmissionAndUserExerciseState = {
-  exercise: Exercise
-  exercise_slide_submission: ExerciseSlideSubmission
-  teacher_grading_decision?: null | TeacherGradingDecision
-  user_exam_enrollment: ExamEnrollment
-  user_exercise_state: UserExerciseState
-}
+    exercise: Exercise;
+    exercise_slide_submission: ExerciseSlideSubmission;
+    teacher_grading_decision?: null | TeacherGradingDecision;
+    user_exam_enrollment: ExamEnrollment;
+    user_exercise_state: UserExerciseState;
+};
 
 export type ExerciseSlideSubmissionAndUserExerciseStateList = {
-  data: Array<ExerciseSlideSubmissionAndUserExerciseState>
-  total_pages: number
-}
+    data: Array<ExerciseSlideSubmissionAndUserExerciseState>;
+    total_pages: number;
+};
 
 export type ExerciseSlideSubmissionCount = {
-  count?: number | null
-  date?: string | null
-}
+    count?: number | null;
+    date?: string | null;
+};
 
 export type ExerciseSlideSubmissionCountByExercise = {
-  count?: number | null
-  exercise_id: string
-  exercise_name: string
-}
+    count?: number | null;
+    exercise_id: string;
+    exercise_name: string;
+};
 
 export type ExerciseSlideSubmissionCountByWeekAndHour = {
-  count?: number | null
-  hour?: number | null
-  isodow?: number | null
-}
+    count?: number | null;
+    hour?: number | null;
+    isodow?: number | null;
+};
 
 export type ExerciseSlideSubmissionInfo = {
-  exercise: Exercise
-  exercise_slide_submission: ExerciseSlideSubmission
-  tasks: Array<CourseMaterialExerciseTask>
-  user_exercise_state?: null | UserExerciseState
-}
+    exercise: Exercise;
+    exercise_slide_submission: ExerciseSlideSubmission;
+    tasks: Array<CourseMaterialExerciseTask>;
+    user_exercise_state?: null | UserExerciseState;
+};
 
 export type ExerciseStatusSummaryForUser = {
-  exercise: Exercise
-  exercise_slide_submissions: Array<ExerciseSlideSubmission>
-  given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
-  given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
-  peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>
-  peer_review_queue_entry?: null | PeerReviewQueueEntry
-  received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>
-  received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>
-  teacher_grading_decision?: null | TeacherGradingDecision
-  user_exercise_state?: null | UserExerciseState
-}
+    exercise: Exercise;
+    exercise_slide_submissions: Array<ExerciseSlideSubmission>;
+    given_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>;
+    given_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>;
+    peer_or_self_review_questions: Array<PeerOrSelfReviewQuestion>;
+    peer_review_queue_entry?: null | PeerReviewQueueEntry;
+    received_peer_or_self_review_question_submissions: Array<PeerOrSelfReviewQuestionSubmission>;
+    received_peer_or_self_review_submissions: Array<PeerOrSelfReviewSubmissionWithSubmissionOwner>;
+    teacher_grading_decision?: null | TeacherGradingDecision;
+    user_exercise_state?: null | UserExerciseState;
+};
 
 export type ExerciseSubmissions = {
-  data: Array<ExerciseSlideSubmission>
-  total_pages: number
-}
+    data: Array<ExerciseSlideSubmission>;
+    total_pages: number;
+};
 
 export type ExerciseTaskGrading = {
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exam_id?: string | null
-  exercise_id: string
-  exercise_task_id: string
-  exercise_task_submission_id: string
-  feedback_json?: unknown
-  feedback_text?: string | null
-  grading_completed_at?: string | null
-  grading_priority: number
-  grading_progress: GradingProgress
-  grading_started_at?: string | null
-  id: string
-  score_given?: number | null
-  unscaled_score_given?: number | null
-  unscaled_score_maximum?: number | null
-  updated_at: string
-}
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_id: string;
+    exercise_task_id: string;
+    exercise_task_submission_id: string;
+    feedback_json?: unknown;
+    feedback_text?: string | null;
+    grading_completed_at?: string | null;
+    grading_priority: number;
+    grading_progress: GradingProgress;
+    grading_started_at?: string | null;
+    id: string;
+    score_given?: number | null;
+    unscaled_score_given?: number | null;
+    unscaled_score_maximum?: number | null;
+    updated_at: string;
+};
 
 export type ExerciseTaskGradingResult = {
-  feedback_json?: unknown
-  feedback_text?: string | null
-  grading_progress: GradingProgress
-  score_given: number
-  score_maximum: number
-  set_user_variables?: {
-    [key: string]: unknown
-  } | null
-}
+    feedback_json?: unknown;
+    feedback_text?: string | null;
+    grading_progress: GradingProgress;
+    score_given: number;
+    score_maximum: number;
+    set_user_variables?: {
+        [key: string]: unknown;
+    } | null;
+};
 
 export type ExerciseTaskSubmission = {
-  created_at: string
-  data_json?: unknown
-  deleted_at?: string | null
-  exercise_slide_id: string
-  exercise_slide_submission_id: string
-  exercise_task_grading_id?: string | null
-  exercise_task_id: string
-  id: string
-  metadata?: unknown
-  updated_at: string
-}
+    created_at: string;
+    data_json?: unknown;
+    deleted_at?: string | null;
+    exercise_slide_id: string;
+    exercise_slide_submission_id: string;
+    exercise_task_grading_id?: string | null;
+    exercise_task_id: string;
+    id: string;
+    metadata?: unknown;
+    updated_at: string;
+};
 
 export type ExerciseUserCounts = {
-  chapter_number: number
-  exercise_id: string
-  exercise_name: string
-  exercise_order_number: number
-  n_users_attempted?: number | null
-  n_users_with_max_points?: number | null
-  n_users_with_some_points?: number | null
-  page_order_number: number
-}
+    chapter_number: number;
+    exercise_id: string;
+    exercise_name: string;
+    exercise_order_number: number;
+    n_users_attempted?: number | null;
+    n_users_with_max_points?: number | null;
+    n_users_with_some_points?: number | null;
+    page_order_number: number;
+};
 
 export type Feedback = {
-  blocks: Array<FeedbackBlock>
-  course_id: string
-  created_at: string
-  feedback_given: string
-  id: string
-  marked_as_read: boolean
-  page_id?: string | null
-  page_title: string
-  page_url_path: string
-  selected_text?: string | null
-  user_id?: string | null
-}
+    blocks: Array<FeedbackBlock>;
+    course_id: string;
+    created_at: string;
+    feedback_given: string;
+    id: string;
+    marked_as_read: boolean;
+    page_id?: string | null;
+    page_title: string;
+    page_url_path: string;
+    selected_text?: string | null;
+    user_id?: string | null;
+};
 
 export type FeedbackBlock = {
-  id: string
-  order_number?: number | null
-  text?: string | null
-}
+    id: string;
+    order_number?: number | null;
+    text?: string | null;
+};
 
 export type FeedbackCount = {
-  read: number
-  unread: number
-}
+    read: number;
+    unread: number;
+};
 
 export type FlaggedAnswer = {
-  created_at: string
-  deleted_at?: string | null
-  description?: string | null
-  flagged_by: string
-  flagged_user: string
-  id: string
-  reason: ReportReason
-  submission_id: string
-  updated_at: string
-}
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    flagged_by: string;
+    flagged_user: string;
+    id: string;
+    reason: ReportReason;
+    submission_id: string;
+    updated_at: string;
+};
 
 export type GeneratedCertificate = {
-  certificate_configuration_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  name_on_certificate: string
-  updated_at: string
-  user_id: string
-  verification_id: string
-}
+    certificate_configuration_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    name_on_certificate: string;
+    updated_at: string;
+    user_id: string;
+    verification_id: string;
+};
 
 export type GlobalCourseModuleStatEntry = {
-  course_id: string
-  course_module_ects_credits?: number | null
-  course_module_id: string
-  course_module_name?: string | null
-  course_name: string
-  organization_id: string
-  organization_name: string
-  value: number
-  year: string
-}
+    course_id: string;
+    course_module_ects_credits?: number | null;
+    course_module_id: string;
+    course_module_name?: string | null;
+    course_name: string;
+    organization_id: string;
+    organization_name: string;
+    value: number;
+    year: string;
+};
 
 export type GlobalStatEntry = {
-  course_id: string
-  course_name: string
-  month?: number | null
-  organization_id: string
-  organization_name: string
-  value: number
-  year: number
-}
+    course_id: string;
+    course_name: string;
+    month?: number | null;
+    organization_id: string;
+    organization_name: string;
+    value: number;
+    year: number;
+};
 
 /**
  *
@@ -1153,469 +1139,469 @@ export type GlobalStatEntry = {
  *
  * As close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>
  */
-export type GradingProgress = "Failed" | "NotReady" | "PendingManual" | "Pending" | "FullyGraded"
+export type GradingProgress = 'Failed' | 'NotReady' | 'PendingManual' | 'Pending' | 'FullyGraded';
 
 export type GutenbergBlock = {
-  attributes: {
-    [key: string]: unknown
-  }
-  clientId: string
-  innerBlocks: Array<GutenbergBlock>
-  isValid: boolean
-  name: string
-}
+    attributes: {
+        [key: string]: unknown;
+    };
+    clientId: string;
+    innerBlocks: Array<GutenbergBlock>;
+    isValid: boolean;
+    name: string;
+};
 
-export type HealthStatus = "healthy" | "warning" | "error"
+export type HealthStatus = 'healthy' | 'warning' | 'error';
 
-export type HistoryChangeReason = "PageSaved" | "HistoryRestored" | "PageDeleted"
+export type HistoryChangeReason = 'PageSaved' | 'HistoryRestored' | 'PageDeleted';
 
 export type HistoryRestoreData = {
-  history_id: string
-}
+    history_id: string;
+};
 
 export type IngressInfo = {
-  class_name?: string | null
-  hosts: Array<string>
-  name: string
-  paths: Array<string>
-}
+    class_name?: string | null;
+    hosts: Array<string>;
+    name: string;
+    paths: Array<string>;
+};
 
 export type JobInfo = {
-  active?: number | null
-  failed?: number | null
-  name: string
-  succeeded?: number | null
-}
+    active?: number | null;
+    failed?: number | null;
+    name: string;
+    succeeded?: number | null;
+};
 
 export type ManualCompletionPreview = {
-  already_completed_users: Array<ManualCompletionPreviewUser>
-  first_time_completing_users: Array<ManualCompletionPreviewUser>
-  non_enrolled_users: Array<ManualCompletionPreviewUser>
-}
+    already_completed_users: Array<ManualCompletionPreviewUser>;
+    first_time_completing_users: Array<ManualCompletionPreviewUser>;
+    non_enrolled_users: Array<ManualCompletionPreviewUser>;
+};
 
 export type ManualCompletionPreviewUser = {
-  first_name?: string | null
-  grade?: number | null
-  last_name?: string | null
-  passed: boolean
-  previous_best_grade?: number | null
-  user_id: string
-}
+    first_name?: string | null;
+    grade?: number | null;
+    last_name?: string | null;
+    passed: boolean;
+    previous_best_grade?: number | null;
+    user_id: string;
+};
 
 export type MarkAsRead = {
-  read: boolean
-}
+    read: boolean;
+};
 
 export type MaterialReference = {
-  citation_key: string
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  reference: string
-  updated_at: string
-}
+    citation_key: string;
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    reference: string;
+    updated_at: string;
+};
 
 export type ModifiedModule = {
-  completion_policy: CompletionPolicy
-  completion_registration_link_override?: string | null
-  ects_credits?: number | null
-  enable_registering_completion_to_uh_open_university: boolean
-  id: string
-  name?: string | null
-  order_number: number
-  uh_course_code?: string | null
-}
+    completion_policy: CompletionPolicy;
+    completion_registration_link_override?: string | null;
+    ects_credits?: number | null;
+    enable_registering_completion_to_uh_open_university: boolean;
+    id: string;
+    name?: string | null;
+    order_number: number;
+    uh_course_code?: string | null;
+};
 
 export type ModuleUpdates = {
-  deleted_modules: Array<string>
-  modified_modules: Array<ModifiedModule>
-  moved_chapters: Array<[string, string]>
-  new_modules: Array<NewModule>
-}
+    deleted_modules: Array<string>;
+    modified_modules: Array<ModifiedModule>;
+    moved_chapters: Array<[
+        string,
+        string
+    ]>;
+    new_modules: Array<NewModule>;
+};
 
 export type NewChapter = {
-  chapter_number: number
-  color?: string | null
-  course_id: string
-  /**
-   * If undefined when creating a chapter, will use the course default one.
-   * CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
-   */
-  course_module_id?: string | null
-  deadline?: string | null
-  front_page_id?: string | null
-  name: string
-  opens_at?: string | null
-}
+    chapter_number: number;
+    color?: string | null;
+    course_id: string;
+    /**
+     * If undefined when creating a chapter, will use the course default one.
+     * CHANGE TO NON NULL WHEN FRONTEND MODULE EDITING IMPLEMENTED
+     */
+    course_module_id?: string | null;
+    deadline?: string | null;
+    front_page_id?: string | null;
+    name: string;
+    opens_at?: string | null;
+};
 
 export type NewChatbotConf = {
-  chatbot_name: string
-  chatbotconf_id?: string | null
-  course_id: string
-  daily_tokens_per_user: number
-  default_chatbot: boolean
-  enabled_to_students: boolean
-  frequency_penalty: number
-  hide_citations: boolean
-  initial_message: string
-  initial_suggested_messages?: Array<string> | null
-  maintain_azure_search_index: boolean
-  max_completion_tokens: number
-  model_id: string
-  presence_penalty: number
-  prompt: string
-  reasoning_effort: ReasoningEffortLevel
-  response_max_tokens: number
-  suggest_next_messages: boolean
-  temperature: number
-  thinking_model: boolean
-  top_p: number
-  use_azure_search: boolean
-  use_semantic_reranking: boolean
-  use_tools: boolean
-  verbosity: VerbosityLevel
-  weekly_tokens_per_user: number
-}
+    chatbot_name: string;
+    chatbotconf_id?: string | null;
+    course_id: string;
+    daily_tokens_per_user: number;
+    default_chatbot: boolean;
+    enabled_to_students: boolean;
+    frequency_penalty: number;
+    hide_citations: boolean;
+    initial_message: string;
+    initial_suggested_messages?: Array<string> | null;
+    maintain_azure_search_index: boolean;
+    max_completion_tokens: number;
+    model_id: string;
+    presence_penalty: number;
+    prompt: string;
+    reasoning_effort: ReasoningEffortLevel;
+    response_max_tokens: number;
+    suggest_next_messages: boolean;
+    temperature: number;
+    thinking_model: boolean;
+    top_p: number;
+    use_azure_search: boolean;
+    use_semantic_reranking: boolean;
+    use_tools: boolean;
+    verbosity: VerbosityLevel;
+    weekly_tokens_per_user: number;
+};
 
 export type NewCodeGiveaway = {
-  course_id: string
-  course_module_id?: string | null
-  name: string
-  require_course_specific_consent_form_question_id?: string | null
-}
+    course_id: string;
+    course_module_id?: string | null;
+    name: string;
+    require_course_specific_consent_form_question_id?: string | null;
+};
 
 /**
  * Represents the subset of page fields that are required to create a new course.
  */
 export type NewCourse = {
-  ask_marketing_consent: boolean
-  can_add_chatbot: boolean
-  /**
-   * If true, copies all user permissions from the original course to the new one.
-   */
-  copy_user_permissions: boolean
-  description: string
-  flagged_answers_threshold?: number | null
-  is_draft: boolean
-  is_joinable_by_code_only: boolean
-  is_test_mode: boolean
-  is_unlisted: boolean
-  join_code?: string | null
-  language_code: string
-  name: string
-  organization_id: string
-  slug: string
-  /**
-   * Email of the teacher who is responsible for the course. Must be a valid email.
-   */
-  teacher_in_charge_email: string
-  /**
-   * Name of the teacher who is responsible for the course. Must be a valid name.
-   */
-  teacher_in_charge_name: string
-}
+    ask_marketing_consent: boolean;
+    can_add_chatbot: boolean;
+    /**
+     * If true, copies all user permissions from the original course to the new one.
+     */
+    copy_user_permissions: boolean;
+    description: string;
+    flagged_answers_threshold?: number | null;
+    is_draft: boolean;
+    is_joinable_by_code_only: boolean;
+    is_test_mode: boolean;
+    is_unlisted: boolean;
+    join_code?: string | null;
+    language_code: string;
+    name: string;
+    organization_id: string;
+    slug: string;
+    /**
+     * Email of the teacher who is responsible for the course. Must be a valid email.
+     */
+    teacher_in_charge_email: string;
+    /**
+     * Name of the teacher who is responsible for the course. Must be a valid name.
+     */
+    teacher_in_charge_name: string;
+};
 
 export type NewExam = {
-  ends_at?: string | null
-  grade_manually: boolean
-  minimum_points_treshold: number
-  name: string
-  organization_id: string
-  starts_at?: string | null
-  time_minutes: number
-}
+    ends_at?: string | null;
+    grade_manually: boolean;
+    minimum_points_treshold: number;
+    name: string;
+    organization_id: string;
+    starts_at?: string | null;
+    time_minutes: number;
+};
 
 export type NewExerciseRepository = {
-  course_id?: string | null
-  deploy_key?: string | null
-  exam_id?: string | null
-  git_url: string
-  public_key?: string | null
-}
+    course_id?: string | null;
+    deploy_key?: string | null;
+    exam_id?: string | null;
+    git_url: string;
+    public_key?: string | null;
+};
 
 export type NewMaterialReference = {
-  citation_key: string
-  reference: string
-}
+    citation_key: string;
+    reference: string;
+};
 
 export type NewModule = {
-  chapters: Array<string>
-  completion_policy: CompletionPolicy
-  completion_registration_link_override?: string | null
-  ects_credits?: number | null
-  enable_registering_completion_to_uh_open_university: boolean
-  name: string
-  order_number: number
-  uh_course_code?: string | null
-}
+    chapters: Array<string>;
+    completion_policy: CompletionPolicy;
+    completion_registration_link_override?: string | null;
+    ects_credits?: number | null;
+    enable_registering_completion_to_uh_open_university: boolean;
+    name: string;
+    order_number: number;
+    uh_course_code?: string | null;
+};
 
 /**
  * Represents the subset of page fields that are required to create a new page.
  */
 export type NewPage = {
-  chapter_id?: string | null
-  content: Array<GutenbergBlock>
-  /**
-   * Read from the course's settings if None. If course_id is None as well, defaults to "simple"
-   */
-  content_search_language?: string | null
-  course_id?: string | null
-  exam_id?: string | null
-  exercise_slides: Array<CmsPageExerciseSlide>
-  exercise_tasks: Array<CmsPageExerciseTask>
-  exercises: Array<CmsPageExercise>
-  /**
-   * If set, set this page to be the front page of this course part.
-   */
-  front_page_of_chapter_id?: string | null
-  title: string
-  url_path: string
-}
+    chapter_id?: string | null;
+    content: Array<GutenbergBlock>;
+    /**
+     * Read from the course's settings if None. If course_id is None as well, defaults to "simple"
+     */
+    content_search_language?: string | null;
+    course_id?: string | null;
+    exam_id?: string | null;
+    exercise_slides: Array<CmsPageExerciseSlide>;
+    exercise_tasks: Array<CmsPageExerciseTask>;
+    exercises: Array<CmsPageExercise>;
+    /**
+     * If set, set this page to be the front page of this course part.
+     */
+    front_page_of_chapter_id?: string | null;
+    title: string;
+    url_path: string;
+};
 
 export type NewRegrading = {
-  id_type: NewRegradingIdType
-  ids: Array<string>
-  user_points_update_strategy: UserPointsUpdateStrategy
-}
+    id_type: NewRegradingIdType;
+    ids: Array<string>;
+    user_points_update_strategy: UserPointsUpdateStrategy;
+};
 
-export type NewRegradingIdType = "ExerciseTaskSubmissionId" | "ExerciseId"
+export type NewRegradingIdType = 'ExerciseTaskSubmissionId' | 'ExerciseId';
 
 export type NewTeacherGradingDecision = {
-  action: TeacherDecisionType
-  exercise_id: string
-  hidden: boolean
-  justification?: string | null
-  manual_points?: number | null
-  user_exercise_state_id: string
-}
+    action: TeacherDecisionType;
+    exercise_id: string;
+    hidden: boolean;
+    justification?: string | null;
+    manual_points?: number | null;
+    user_exercise_state_id: string;
+};
 
 export type OrgExam = {
-  ends_at?: string | null
-  id: string
-  instructions: unknown
-  minimum_points_treshold: number
-  name: string
-  organization_id: string
-  starts_at?: string | null
-  time_minutes: number
-}
+    ends_at?: string | null;
+    id: string;
+    instructions: unknown;
+    minimum_points_treshold: number;
+    name: string;
+    organization_id: string;
+    starts_at?: string | null;
+    time_minutes: number;
+};
 
 export type Organization = {
-  created_at: string
-  deleted_at?: string | null
-  description?: string | null
-  hidden: boolean
-  id: string
-  name: string
-  organization_image_url?: string | null
-  slug: string
-  updated_at: string
-}
+    created_at: string;
+    deleted_at?: string | null;
+    description?: string | null;
+    hidden: boolean;
+    id: string;
+    name: string;
+    organization_image_url?: string | null;
+    slug: string;
+    updated_at: string;
+};
 
 export type OrganizationCreatePayload = {
-  hidden: boolean
-  name: string
-  slug: string
-}
+    hidden: boolean;
+    name: string;
+    slug: string;
+};
 
 export type OrganizationUpdatePayload = {
-  hidden: boolean
-  name: string
-  slug: string
-}
+    hidden: boolean;
+    name: string;
+    slug: string;
+};
 
 export type Page = {
-  chapter_id?: string | null
-  content: unknown
-  copied_from?: string | null
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exam_id?: string | null
-  hidden: boolean
-  id: string
-  order_number: number
-  page_language_group_id?: string | null
-  title: string
-  updated_at: string
-  url_path: string
-}
+    chapter_id?: string | null;
+    content: unknown;
+    copied_from?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    hidden: boolean;
+    id: string;
+    order_number: number;
+    page_language_group_id?: string | null;
+    title: string;
+    updated_at: string;
+    url_path: string;
+};
 
 export type PageAudioFile = {
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  mime_type: string
-  page_id: string
-  path: string
-}
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    mime_type: string;
+    page_id: string;
+    path: string;
+};
 
 /**
  * Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
  */
 export type PageDetailsUpdate = {
-  title: string
-  url_path: string
-}
+    title: string;
+    url_path: string;
+};
 
 export type PageHistory = {
-  author_user_id: string
-  content: unknown
-  created_at: string
-  history_change_reason: HistoryChangeReason
-  id: string
-  page_id: string
-  restored_from_id?: string | null
-  title: string
-}
+    author_user_id: string;
+    content: unknown;
+    created_at: string;
+    history_change_reason: HistoryChangeReason;
+    id: string;
+    page_id: string;
+    restored_from_id?: string | null;
+    title: string;
+};
 
 export type PageInfo = {
-  course_id?: string | null
-  course_name?: string | null
-  course_slug?: string | null
-  organization_slug?: string | null
-  page_id: string
-  page_title: string
-}
+    course_id?: string | null;
+    course_name?: string | null;
+    course_slug?: string | null;
+    organization_slug?: string | null;
+    page_id: string;
+    page_title: string;
+};
 
 export type PageProposal = {
-  block_proposals: Array<BlockProposal>
-  created_at: string
-  id: string
-  page_id: string
-  page_title: string
-  page_url_path: string
-  pending: boolean
-  user_id?: string | null
-}
+    block_proposals: Array<BlockProposal>;
+    created_at: string;
+    id: string;
+    page_id: string;
+    page_title: string;
+    page_url_path: string;
+    pending: boolean;
+    user_id?: string | null;
+};
 
 export type PageVisitDatumSummaryByCourse = {
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exam_id?: string | null
-  id: string
-  num_visitors: number
-  referrer?: string | null
-  updated_at: string
-  utm_campaign?: string | null
-  utm_content?: string | null
-  utm_medium?: string | null
-  utm_source?: string | null
-  utm_term?: string | null
-  visit_date: string
-}
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    referrer?: string | null;
+    updated_at: string;
+    utm_campaign?: string | null;
+    utm_content?: string | null;
+    utm_medium?: string | null;
+    utm_source?: string | null;
+    utm_term?: string | null;
+    visit_date: string;
+};
 
 export type PageVisitDatumSummaryByCourseDeviceTypes = {
-  browser?: string | null
-  browser_version?: string | null
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  device_type?: string | null
-  exam_id?: string | null
-  id: string
-  num_visitors: number
-  operating_system?: string | null
-  updated_at: string
-  visit_date: string
-}
+    browser?: string | null;
+    browser_version?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    device_type?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    operating_system?: string | null;
+    updated_at: string;
+    visit_date: string;
+};
 
 export type PageVisitDatumSummaryByCoursesCountries = {
-  country?: string | null
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exam_id?: string | null
-  id: string
-  num_visitors: number
-  updated_at: string
-  visit_date: string
-}
+    country?: string | null;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    updated_at: string;
+    visit_date: string;
+};
 
 export type PageVisitDatumSummaryByPages = {
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exam_id?: string | null
-  id: string
-  num_visitors: number
-  page_id: string
-  updated_at: string
-  visit_date: string
-}
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    id: string;
+    num_visitors: number;
+    page_id: string;
+    updated_at: string;
+    visit_date: string;
+};
 
-export type PaperSize = "horizontal-a4" | "vertical-a4"
+export type PaperSize = 'horizontal-a4' | 'vertical-a4';
 
-export type PeerOrSelfReviewAnswer =
-  | {
-      type: "no-answer"
-    }
-  | {
-      type: "essay"
-      value: string
-    }
-  | {
-      type: "scale"
-      value: number
-    }
+export type PeerOrSelfReviewAnswer = {
+    type: 'no-answer';
+} | {
+    type: 'essay';
+    value: string;
+} | {
+    type: 'scale';
+    value: number;
+};
 
 export type PeerOrSelfReviewQuestion = {
-  answer_required: boolean
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  order_number: number
-  peer_or_self_review_config_id: string
-  question: string
-  question_type: PeerOrSelfReviewQuestionType
-  updated_at: string
-  weight: number
-}
+    answer_required: boolean;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    order_number: number;
+    peer_or_self_review_config_id: string;
+    question: string;
+    question_type: PeerOrSelfReviewQuestionType;
+    updated_at: string;
+    weight: number;
+};
 
 export type PeerOrSelfReviewQuestionAndAnswer = {
-  answer: PeerOrSelfReviewAnswer
-  answer_required: boolean
-  order_number: number
-  peer_or_self_review_config_id: string
-  peer_or_self_review_question_id: string
-  peer_or_self_review_submission_id: string
-  peer_review_question_submission_id: string
-  question: string
-}
+    answer: PeerOrSelfReviewAnswer;
+    answer_required: boolean;
+    order_number: number;
+    peer_or_self_review_config_id: string;
+    peer_or_self_review_question_id: string;
+    peer_or_self_review_submission_id: string;
+    peer_review_question_submission_id: string;
+    question: string;
+};
 
 export type PeerOrSelfReviewQuestionSubmission = {
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  number_data?: number | null
-  peer_or_self_review_question_id: string
-  peer_or_self_review_submission_id: string
-  text_data?: string | null
-  updated_at: string
-}
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    number_data?: number | null;
+    peer_or_self_review_question_id: string;
+    peer_or_self_review_submission_id: string;
+    text_data?: string | null;
+    updated_at: string;
+};
 
-export type PeerOrSelfReviewQuestionType = "Essay" | "Scale"
+export type PeerOrSelfReviewQuestionType = 'Essay' | 'Scale';
 
 export type PeerOrSelfReviewSubmission = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  exercise_id: string
-  exercise_slide_submission_id: string
-  id: string
-  peer_or_self_review_config_id: string
-  updated_at: string
-  user_id: string
-}
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_id: string;
+    exercise_slide_submission_id: string;
+    id: string;
+    peer_or_self_review_config_id: string;
+    updated_at: string;
+    user_id: string;
+};
 
 /**
  * Same as PeerOrSelfReviewSubmission with optional submission owner (user who received the review). Used for "given" reviews.
  */
 export type PeerOrSelfReviewSubmissionWithSubmissionOwner = PeerOrSelfReviewSubmission & {
-  submission_owner_user_id?: string | null
-}
+    submission_owner_user_id?: string | null;
+};
 
 /**
  *
@@ -1623,6508 +1609,6339 @@ export type PeerOrSelfReviewSubmissionWithSubmissionOwner = PeerOrSelfReviewSubm
  *
  * Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
  */
-export type PeerReviewProcessingStrategy =
-  | "AutomaticallyGradeByAverage"
-  | "AutomaticallyGradeOrManualReviewByAverage"
-  | "ManualReviewEverything"
+export type PeerReviewProcessingStrategy = 'AutomaticallyGradeByAverage' | 'AutomaticallyGradeOrManualReviewByAverage' | 'ManualReviewEverything';
 
 export type PeerReviewQueueEntry = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  exercise_id: string
-  id: string
-  peer_review_priority: number
-  received_enough_peer_reviews: boolean
-  receiving_peer_reviews_exercise_slide_submission_id: string
-  removed_from_queue_for_unusual_reason: boolean
-  updated_at: string
-  user_id: string
-}
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    exercise_id: string;
+    id: string;
+    peer_review_priority: number;
+    received_enough_peer_reviews: boolean;
+    receiving_peer_reviews_exercise_slide_submission_id: string;
+    removed_from_queue_for_unusual_reason: boolean;
+    updated_at: string;
+    user_id: string;
+};
 
 export type PeerReviewWithQuestionsAndAnswers = {
-  peer_or_self_review_submission_id: string
-  peer_review_giver_user_id: string
-  questions_and_answers: Array<PeerOrSelfReviewQuestionAndAnswer>
-}
+    peer_or_self_review_submission_id: string;
+    peer_review_giver_user_id: string;
+    questions_and_answers: Array<PeerOrSelfReviewQuestionAndAnswer>;
+};
 
 export type PendingRole = {
-  expires_at: string
-  id: string
-  role: UserRole
-  user_email: string
-}
+    expires_at: string;
+    id: string;
+    role: UserRole;
+    user_email: string;
+};
 
 export type PlaygroundExample = {
-  created_at: string
-  data: unknown
-  deleted_at?: string | null
-  id: string
-  name: string
-  updated_at: string
-  url: string
-  width: number
-}
+    created_at: string;
+    data: unknown;
+    deleted_at?: string | null;
+    id: string;
+    name: string;
+    updated_at: string;
+    url: string;
+    width: number;
+};
 
 export type PlaygroundExampleData = {
-  data: unknown
-  name: string
-  url: string
-  width: number
-}
+    data: unknown;
+    name: string;
+    url: string;
+    width: number;
+};
 
 export type PodDisruptionBudgetInfo = {
-  current_healthy: number
-  desired_healthy: number
-  disruptions_allowed: number
-  expected_pods: number
-  name: string
-  selector_labels: {
-    [key: string]: string
-  }
-}
+    current_healthy: number;
+    desired_healthy: number;
+    disruptions_allowed: number;
+    expected_pods: number;
+    name: string;
+    selector_labels: {
+        [key: string]: string;
+    };
+};
 
 export type PodInfo = {
-  labels: {
-    [key: string]: string
-  }
-  name: string
-  phase: string
-  ready?: boolean | null
-}
+    labels: {
+        [key: string]: string;
+    };
+    name: string;
+    phase: string;
+    ready?: boolean | null;
+};
 
 export type PointMap = {
-  [key: string]: number
-}
+    [key: string]: number;
+};
 
 export type Points = {
-  chapter_points: Array<ChapterScore>
-  user_chapter_points: {
-    [key: string]: PointMap
-  }
-  users: Array<UserDetail>
-}
+    chapter_points: Array<ChapterScore>;
+    user_chapter_points: {
+        [key: string]: PointMap;
+    };
+    users: Array<UserDetail>;
+};
 
 export type ProgressOverview = {
-  chapter_availability: Array<ChapterAvailability>
-  chapters: Array<DatabaseChapter>
-  user_chapter_progress: Array<UserChapterProgress>
-  user_details: Array<UserDetail>
-  user_exercise_states: Array<UserExerciseState>
-}
+    chapter_availability: Array<ChapterAvailability>;
+    chapters: Array<DatabaseChapter>;
+    user_chapter_progress: Array<UserChapterProgress>;
+    user_details: Array<UserDetail>;
+    user_exercise_states: Array<UserExerciseState>;
+};
 
 export type ProposalCount = {
-  handled: number
-  pending: number
-}
+    handled: number;
+    pending: number;
+};
 
-export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
+export type ProposalStatus = 'Pending' | 'Accepted' | 'Rejected';
 
-export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+export type ReasoningEffortLevel = 'minimal' | 'low' | 'medium' | 'high';
 
 export type Regrading = {
-  created_at: string
-  id: string
-  regrading_completed_at?: string | null
-  regrading_started_at?: string | null
-  total_grading_progress: GradingProgress
-  updated_at: string
-  user_id?: string | null
-  user_points_update_strategy: UserPointsUpdateStrategy
-}
+    created_at: string;
+    id: string;
+    regrading_completed_at?: string | null;
+    regrading_started_at?: string | null;
+    total_grading_progress: GradingProgress;
+    updated_at: string;
+    user_id?: string | null;
+    user_points_update_strategy: UserPointsUpdateStrategy;
+};
 
 export type RegradingInfo = {
-  regrading: Regrading
-  submission_infos: Array<RegradingSubmissionInfo>
-}
+    regrading: Regrading;
+    submission_infos: Array<RegradingSubmissionInfo>;
+};
 
 export type RegradingSubmissionInfo = {
-  exercise_task_submission_id: string
-  grading_after_regrading?: null | ExerciseTaskGrading
-  grading_before_regrading: ExerciseTaskGrading
-}
+    exercise_task_submission_id: string;
+    grading_after_regrading?: null | ExerciseTaskGrading;
+    grading_before_regrading: ExerciseTaskGrading;
+};
 
-export type ReportReason = "Spam" | "HarmfulContent" | "AiGenerated"
+export type ReportReason = 'Spam' | 'HarmfulContent' | 'AiGenerated';
 
 export type ResearchFormQuestionAnswer = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  research_consent: boolean
-  research_form_question_id: string
-  updated_at: string
-  user_id: string
-}
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    research_consent: boolean;
+    research_form_question_id: string;
+    updated_at: string;
+    user_id: string;
+};
 
 export type ResetExercisesPayload = {
-  exercise_ids: Array<string>
-  reset_all_below_max_points: boolean
-  reset_only_locked_peer_reviews: boolean
-  threshold?: number | null
-  user_ids: Array<string>
-}
+    exercise_ids: Array<string>;
+    reset_all_below_max_points: boolean;
+    reset_only_locked_peer_reviews: boolean;
+    threshold?: number | null;
+    user_ids: Array<string>;
+};
 
 export type ResetPasswordData = {
-  new_password: string
-  token: string
-}
+    new_password: string;
+    token: string;
+};
 
 export type ResetPasswordTokenPayload = {
-  token: string
-}
+    token: string;
+};
 
 /**
  *
  * Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
  */
-export type ReviewingStage =
-  | "NotStarted"
-  | "PeerReview"
-  | "SelfReview"
-  | "WaitingForPeerReviews"
-  | "WaitingForManualGrading"
-  | "ReviewedAndLocked"
-  | "Locked"
+export type ReviewingStage = 'NotStarted' | 'PeerReview' | 'SelfReview' | 'WaitingForPeerReviews' | 'WaitingForManualGrading' | 'ReviewedAndLocked' | 'Locked';
 
-export type RoleDomain =
-  | {
-      tag: "Global"
-    }
-  | {
-      id: string
-      tag: "Organization"
-    }
-  | {
-      id: string
-      tag: "Course"
-    }
-  | {
-      id: string
-      tag: "CourseInstance"
-    }
-  | {
-      id: string
-      tag: "Exam"
-    }
+export type RoleDomain = {
+    tag: 'Global';
+} | {
+    id: string;
+    tag: 'Organization';
+} | {
+    id: string;
+    tag: 'Course';
+} | {
+    id: string;
+    tag: 'CourseInstance';
+} | {
+    id: string;
+    tag: 'Exam';
+};
 
 export type RoleInfo = {
-  domain: RoleDomain
-  email: string
-  role: UserRole
-}
+    domain: RoleDomain;
+    email: string;
+    role: UserRole;
+};
 
 export type RoleUser = {
-  email: string
-  first_name?: string | null
-  last_name?: string | null
-  role: UserRole
-  user_id: string
-}
+    email: string;
+    first_name?: string | null;
+    last_name?: string | null;
+    role: UserRole;
+    user_id: string;
+};
 
 export type SearchRequest = {
-  query: string
-}
+    query: string;
+};
 
 export type ServiceInfo = {
-  cluster_ip?: string | null
-  name: string
-  ports: Array<ServicePortInfo>
-}
+    cluster_ip?: string | null;
+    name: string;
+    ports: Array<ServicePortInfo>;
+};
 
 export type ServicePortInfo = {
-  name?: string | null
-  port: number
-  protocol?: string | null
-  target_port?: string | null
-}
+    name?: string | null;
+    port: number;
+    protocol?: string | null;
+    target_port?: string | null;
+};
 
 export type StudentsByCountryTotalsResult = {
-  count: number
-  country?: string | null
-}
+    count: number;
+    country?: string | null;
+};
 
 export type SuspectedCheaters = {
-  course_id: string
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  is_archived?: boolean | null
-  total_duration_seconds?: number | null
-  total_points: number
-  updated_at?: string | null
-  user_id: string
-}
+    course_id: string;
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    is_archived?: boolean | null;
+    total_duration_seconds?: number | null;
+    total_points: number;
+    updated_at?: string | null;
+    user_id: string;
+};
 
 export type SystemHealthStatus = {
-  issues: Array<string>
-  status: HealthStatus
-}
+    issues: Array<string>;
+    status: HealthStatus;
+};
 
-export type TeacherDecisionType =
-  | "FullPoints"
-  | "ZeroPoints"
-  | "CustomPoints"
-  | "SuspectedPlagiarism"
-  | "RejectAndReset"
+export type TeacherDecisionType = 'FullPoints' | 'ZeroPoints' | 'CustomPoints' | 'SuspectedPlagiarism' | 'RejectAndReset';
 
 export type TeacherGradingDecision = {
-  created_at: string
-  deleted_at?: string | null
-  hidden?: boolean | null
-  id: string
-  justification?: string | null
-  score_given: number
-  teacher_decision: TeacherDecisionType
-  updated_at: string
-  user_exercise_state_id: string
-}
+    created_at: string;
+    deleted_at?: string | null;
+    hidden?: boolean | null;
+    id: string;
+    justification?: string | null;
+    score_given: number;
+    teacher_decision: TeacherDecisionType;
+    updated_at: string;
+    user_exercise_state_id: string;
+};
 
 export type TeacherManualCompletion = {
-  completion_date?: string | null
-  grade?: number | null
-  passed: boolean
-  user_id: string
-}
+    completion_date?: string | null;
+    grade?: number | null;
+    passed: boolean;
+    user_id: string;
+};
 
 export type TeacherManualCompletionRequest = {
-  course_module_id: string
-  new_completions: Array<TeacherManualCompletion>
-  skip_duplicate_completions: boolean
-}
+    course_module_id: string;
+    new_completions: Array<TeacherManualCompletion>;
+    skip_duplicate_completions: boolean;
+};
 
 export type Term = {
-  definition: string
-  id: string
-  term: string
-}
+    definition: string;
+    id: string;
+    term: string;
+};
 
 export type TermUpdate = {
-  definition: string
-  term: string
-}
+    definition: string;
+    term: string;
+};
 
 export type ThresholdData = {
-  duration_seconds: number
-}
+    duration_seconds: number;
+};
 
-export type TimeGranularity = "Year" | "Month" | "Day"
+export type TimeGranularity = 'Year' | 'Month' | 'Day';
+
+/**
+ * Result of a image upload. Tells where the uploaded image can be retrieved from.
+ */
+export type UploadResult = {
+    url: string;
+};
 
 export type UserChapterProgress = {
-  chapter_id: string
-  chapter_name: string
-  chapter_number: number
-  exercises_attempted: number
-  points_obtained: number
-  user_id: string
-}
+    chapter_id: string;
+    chapter_name: string;
+    chapter_number: number;
+    exercises_attempted: number;
+    points_obtained: number;
+    user_id: string;
+};
 
 export type UserCompletionInformation = {
-  course_module_completion_id: string
-  course_name: string
-  ects_credits?: number | null
-  email: string
-  enable_registering_completion_to_uh_open_university: boolean
-  uh_course_code: string
-}
+    course_module_completion_id: string;
+    course_name: string;
+    ects_credits?: number | null;
+    email: string;
+    enable_registering_completion_to_uh_open_university: boolean;
+    uh_course_code: string;
+};
 
 export type UserCourseProgress = {
-  attempted_exercises?: number | null
-  attempted_exercises_required?: number | null
-  course_module_id: string
-  course_module_name: string
-  course_module_order_number: number
-  score_given: number
-  score_maximum?: number | null
-  score_required?: number | null
-  total_exercises?: number | null
-}
+    attempted_exercises?: number | null;
+    attempted_exercises_required?: number | null;
+    course_module_id: string;
+    course_module_name: string;
+    course_module_order_number: number;
+    score_given: number;
+    score_maximum?: number | null;
+    score_required?: number | null;
+    total_exercises?: number | null;
+};
 
 export type UserCourseSettings = {
-  course_language_group_id: string
-  created_at: string
-  current_course_id: string
-  current_course_instance_id: string
-  deleted_at?: string | null
-  updated_at: string
-  user_id: string
-}
+    course_language_group_id: string;
+    created_at: string;
+    current_course_id: string;
+    current_course_instance_id: string;
+    deleted_at?: string | null;
+    updated_at: string;
+    user_id: string;
+};
 
 export type UserDetail = {
-  country?: string | null
-  created_at: string
-  email: string
-  email_communication_consent?: boolean | null
-  first_name?: string | null
-  last_name?: string | null
-  search_helper?: string | null
-  updated_at: string
-  user_id: string
-}
+    country?: string | null;
+    created_at: string;
+    email: string;
+    email_communication_consent?: boolean | null;
+    first_name?: string | null;
+    last_name?: string | null;
+    search_helper?: string | null;
+    updated_at: string;
+    user_id: string;
+};
 
 export type UserDetailsRequest = {
-  course_ids: Array<string>
-  user_id: string
-}
+    course_ids: Array<string>;
+    user_id: string;
+};
 
 export type UserExerciseState = {
-  activity_progress: ActivityProgress
-  course_id?: string | null
-  created_at: string
-  deleted_at?: string | null
-  exam_id?: string | null
-  exercise_id: string
-  grading_progress: GradingProgress
-  id: string
-  reviewing_stage: ReviewingStage
-  score_given?: number | null
-  selected_exercise_slide_id?: string | null
-  updated_at: string
-  user_id: string
-}
+    activity_progress: ActivityProgress;
+    course_id?: string | null;
+    created_at: string;
+    deleted_at?: string | null;
+    exam_id?: string | null;
+    exercise_id: string;
+    grading_progress: GradingProgress;
+    id: string;
+    reviewing_stage: ReviewingStage;
+    score_given?: number | null;
+    selected_exercise_slide_id?: string | null;
+    updated_at: string;
+    user_id: string;
+};
 
 export type UserInfoPayload = {
-  country: string
-  email: string
-  email_communication_consent: boolean
-  first_name: string
-  last_name: string
-}
+    country: string;
+    email: string;
+    email_communication_consent: boolean;
+    first_name: string;
+    last_name: string;
+};
 
-export type UserPointsUpdateStrategy =
-  | "CanAddPointsButCannotRemovePoints"
-  | "CanAddPointsAndCanRemovePoints"
+export type UserPointsUpdateStrategy = 'CanAddPointsButCannotRemovePoints' | 'CanAddPointsAndCanRemovePoints';
 
 export type UserResearchConsent = {
-  created_at: string
-  deleted_at?: string | null
-  id: string
-  research_consent: boolean
-  updated_at: string
-  user_id: string
-}
+    created_at: string;
+    deleted_at?: string | null;
+    id: string;
+    research_consent: boolean;
+    updated_at: string;
+    user_id: string;
+};
 
-export type UserRole =
-  | "Reviewer"
-  | "Assistant"
-  | "Teacher"
-  | "Admin"
-  | "CourseOrExamCreator"
-  | "MaterialViewer"
-  | "TeachingAndLearningServices"
-  | "StatsViewer"
+export type UserRole = 'Reviewer' | 'Assistant' | 'Teacher' | 'Admin' | 'CourseOrExamCreator' | 'MaterialViewer' | 'TeachingAndLearningServices' | 'StatsViewer';
 
 export type UserWithModuleCompletions = {
-  completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>
-  email: string
-  first_name?: string | null
-  last_name?: string | null
-  user_id: string
-}
+    completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>;
+    email: string;
+    first_name?: string | null;
+    last_name?: string | null;
+    user_id: string;
+};
 
-export type VerbosityLevel = "low" | "medium" | "high"
+export type VerbosityLevel = 'low' | 'medium' | 'high';
+
+export type UploadFilesFromExerciseServiceData = {
+    body: string;
+    path: {
+        /**
+         * Exercise service slug
+         */
+        exercise_service_slug: string;
+    };
+    query?: never;
+    url: '/api/v0/files/{exercise_service_slug}';
+};
+
+export type UploadFilesFromExerciseServiceResponses = {
+    /**
+     * Uploaded files
+     */
+    200: {
+        [key: string]: string;
+    };
+};
+
+export type UploadFilesFromExerciseServiceResponse = UploadFilesFromExerciseServiceResponses[keyof UploadFilesFromExerciseServiceResponses];
 
 export type UpdateCertificateConfigurationData = {
-  body: {
-    file: Array<Array<number>>
-    metadata: CertificateConfigurationUpdate
-  }
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/certificates"
-}
+    body: {
+        file: Array<Array<number>>;
+        metadata: CertificateConfigurationUpdate;
+    };
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/certificates';
+};
 
 export type UpdateCertificateConfigurationResponses = {
-  /**
-   * Certificate configuration updated
-   */
-  200: boolean
-}
+    /**
+     * Certificate configuration updated
+     */
+    200: boolean;
+};
 
-export type UpdateCertificateConfigurationResponse =
-  UpdateCertificateConfigurationResponses[keyof UpdateCertificateConfigurationResponses]
+export type UpdateCertificateConfigurationResponse = UpdateCertificateConfigurationResponses[keyof UpdateCertificateConfigurationResponses];
 
 export type DeleteCertificateConfigurationData = {
-  body?: never
-  path: {
-    /**
-     * Certificate configuration id
-     */
-    certificate_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/certificates/configuration/{certificate_configuration_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Certificate configuration id
+         */
+        certificate_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/configuration/{certificate_configuration_id}';
+};
 
 export type DeleteCertificateConfigurationResponses = {
-  /**
-   * Certificate configuration deleted
-   */
-  200: boolean
-}
+    /**
+     * Certificate configuration deleted
+     */
+    200: boolean;
+};
 
-export type DeleteCertificateConfigurationResponse =
-  DeleteCertificateConfigurationResponses[keyof DeleteCertificateConfigurationResponses]
+export type DeleteCertificateConfigurationResponse = DeleteCertificateConfigurationResponses[keyof DeleteCertificateConfigurationResponses];
 
 export type GenerateCertificateData = {
-  body: CertificateGenerationRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/certificates/generate"
-}
+    body: CertificateGenerationRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/generate';
+};
 
 export type GenerateCertificateResponses = {
-  /**
-   * Certificate generated
-   */
-  200: boolean
-}
+    /**
+     * Certificate generated
+     */
+    200: boolean;
+};
 
-export type GenerateCertificateResponse =
-  GenerateCertificateResponses[keyof GenerateCertificateResponses]
+export type GenerateCertificateResponse = GenerateCertificateResponses[keyof GenerateCertificateResponses];
 
 export type UpdateGeneratedCertificateData = {
-  body: CertificateUpdateRequest
-  path: {
-    /**
-     * Generated certificate id
-     */
-    certificate_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/certificates/generated/{certificate_id}"
-}
+    body: CertificateUpdateRequest;
+    path: {
+        /**
+         * Generated certificate id
+         */
+        certificate_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/generated/{certificate_id}';
+};
 
 export type UpdateGeneratedCertificateResponses = {
-  /**
-   * Generated certificate updated
-   */
-  200: GeneratedCertificate
-}
+    /**
+     * Generated certificate updated
+     */
+    200: GeneratedCertificate;
+};
 
-export type UpdateGeneratedCertificateResponse =
-  UpdateGeneratedCertificateResponses[keyof UpdateGeneratedCertificateResponses]
+export type UpdateGeneratedCertificateResponse = UpdateGeneratedCertificateResponses[keyof UpdateGeneratedCertificateResponses];
 
 export type GetCertificateByConfigurationIdData = {
-  body?: never
-  path: {
-    /**
-     * Certificate configuration id
-     */
-    certificate_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Certificate configuration id
+         */
+        certificate_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_configuration_id}';
+};
 
 export type GetCertificateByConfigurationIdResponses = {
-  /**
-   * Generated certificate
-   */
-  200: null | GeneratedCertificate
-}
+    /**
+     * Generated certificate
+     */
+    200: null | GeneratedCertificate;
+};
 
-export type GetCertificateByConfigurationIdResponse =
-  GetCertificateByConfigurationIdResponses[keyof GetCertificateByConfigurationIdResponses]
+export type GetCertificateByConfigurationIdResponse = GetCertificateByConfigurationIdResponses[keyof GetCertificateByConfigurationIdResponses];
 
 export type GetCertificateByVerificationIdData = {
-  body?: never
-  path: {
-    /**
-     * Certificate verification id
-     */
-    certificate_verification_id: string
-  }
-  query: {
-    /**
-     * Whether to render a debug certificate
-     */
-    debug: boolean
-    /**
-     * Certificate configuration id to use for preview rendering
-     */
-    test_certificate_configuration_id?: string
-  }
-  url: "/api/v0/main-frontend/certificates/{certificate_verification_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Certificate verification id
+         */
+        certificate_verification_id: string;
+    };
+    query: {
+        /**
+         * Whether to render a debug certificate
+         */
+        debug: boolean;
+        /**
+         * Certificate configuration id to use for preview rendering
+         */
+        test_certificate_configuration_id?: string;
+    };
+    url: '/api/v0/main-frontend/certificates/{certificate_verification_id}';
+};
 
 export type GetCertificateByVerificationIdResponses = {
-  /**
-   * Certificate image
-   */
-  200: unknown
-}
+    /**
+     * Certificate image
+     */
+    200: unknown;
+};
 
 export type CreateChapterData = {
-  body: NewChapter
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/chapters"
-}
+    body: NewChapter;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/chapters';
+};
 
 export type CreateChapterResponses = {
-  /**
-   * Created chapter
-   */
-  200: Chapter
-}
+    /**
+     * Created chapter
+     */
+    200: Chapter;
+};
 
-export type CreateChapterResponse = CreateChapterResponses[keyof CreateChapterResponses]
+export type CreateChapterResponse = CreateChapterResponses[keyof CreateChapterResponses];
 
 export type DeleteChapterData = {
-  body?: never
-  path: {
-    /**
-     * Chapter id
-     */
-    chapter_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chapters/{chapter_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}';
+};
 
 export type DeleteChapterResponses = {
-  /**
-   * Deleted chapter
-   */
-  200: Chapter
-}
+    /**
+     * Deleted chapter
+     */
+    200: Chapter;
+};
 
-export type DeleteChapterResponse = DeleteChapterResponses[keyof DeleteChapterResponses]
+export type DeleteChapterResponse = DeleteChapterResponses[keyof DeleteChapterResponses];
 
 export type UpdateChapterData = {
-  body: ChapterUpdate
-  path: {
-    /**
-     * Chapter id
-     */
-    chapter_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chapters/{chapter_id}"
-}
+    body: ChapterUpdate;
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}';
+};
 
 export type UpdateChapterResponses = {
-  /**
-   * Updated chapter
-   */
-  200: Chapter
-}
+    /**
+     * Updated chapter
+     */
+    200: Chapter;
+};
 
-export type UpdateChapterResponse = UpdateChapterResponses[keyof UpdateChapterResponses]
+export type UpdateChapterResponse = UpdateChapterResponses[keyof UpdateChapterResponses];
 
 export type DeleteChapterImageData = {
-  body?: never
-  path: {
-    /**
-     * Chapter id
-     */
-    chapter_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chapters/{chapter_id}/image"
-}
+    body?: never;
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}/image';
+};
 
 export type DeleteChapterImageResponses = {
-  /**
-   * Deleted chapter image
-   */
-  200: unknown
-}
+    /**
+     * Deleted chapter image
+     */
+    200: unknown;
+};
 
 export type UpdateChapterImageData = {
-  body: {
-    file: Array<number>
-  }
-  path: {
-    /**
-     * Chapter id
-     */
-    chapter_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chapters/{chapter_id}/image"
-}
+    body: {
+        file: Array<number>;
+    };
+    path: {
+        /**
+         * Chapter id
+         */
+        chapter_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{chapter_id}/image';
+};
 
 export type UpdateChapterImageResponses = {
-  /**
-   * Updated chapter image
-   */
-  200: Chapter
-}
+    /**
+     * Updated chapter image
+     */
+    200: Chapter;
+};
 
-export type UpdateChapterImageResponse =
-  UpdateChapterImageResponses[keyof UpdateChapterImageResponses]
+export type UpdateChapterImageResponse = UpdateChapterImageResponses[keyof UpdateChapterImageResponses];
 
 export type GetCourseChaptersData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chapters/{course_id}/all-chapters-for-course';
+};
 
 export type GetCourseChaptersResponses = {
-  /**
-   * Course chapters
-   */
-  200: Array<DatabaseChapter>
-}
+    /**
+     * Course chapters
+     */
+    200: Array<DatabaseChapter>;
+};
 
-export type GetCourseChaptersResponse = GetCourseChaptersResponses[keyof GetCourseChaptersResponses]
+export type GetCourseChaptersResponse = GetCourseChaptersResponses[keyof GetCourseChaptersResponses];
 
 export type GetChatbotModelsData = {
-  body?: never
-  path?: never
-  query: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  url: "/api/v0/main-frontend/chatbot-models/"
-}
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    url: '/api/v0/main-frontend/chatbot-models/';
+};
 
 export type GetChatbotModelsResponses = {
-  /**
-   * Chatbot models
-   */
-  200: Array<ChatbotConfigurationModel>
-}
+    /**
+     * Chatbot models
+     */
+    200: Array<ChatbotConfigurationModel>;
+};
 
-export type GetChatbotModelsResponse = GetChatbotModelsResponses[keyof GetChatbotModelsResponses]
+export type GetChatbotModelsResponse = GetChatbotModelsResponses[keyof GetChatbotModelsResponses];
 
 export type GetChatbotModelData = {
-  body: string
-  path: {
-    /**
-     * Chatbot model id
-     */
-    chatbot_model_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chatbot-models/{chatbot_model_id}"
-}
+    body: string;
+    path: {
+        /**
+         * Chatbot model id
+         */
+        chatbot_model_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbot-models/{chatbot_model_id}';
+};
 
 export type GetChatbotModelResponses = {
-  /**
-   * Chatbot model
-   */
-  200: ChatbotConfigurationModel
-}
+    /**
+     * Chatbot model
+     */
+    200: ChatbotConfigurationModel;
+};
 
-export type GetChatbotModelResponse = GetChatbotModelResponses[keyof GetChatbotModelResponses]
+export type GetChatbotModelResponse = GetChatbotModelResponses[keyof GetChatbotModelResponses];
 
 export type DeleteChatbotConfigurationData = {
-  body?: never
-  path: {
-    /**
-     * Chatbot configuration id
-     */
-    chatbot_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}';
+};
 
 export type DeleteChatbotConfigurationResponses = {
-  /**
-   * Deleted chatbot configuration
-   */
-  200: unknown
-}
+    /**
+     * Deleted chatbot configuration
+     */
+    200: unknown;
+};
 
 export type GetChatbotConfigurationData = {
-  body?: never
-  path: {
-    /**
-     * Chatbot configuration id
-     */
-    chatbot_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}';
+};
 
 export type GetChatbotConfigurationResponses = {
-  /**
-   * Chatbot configuration
-   */
-  200: ChatbotConfiguration
-}
+    /**
+     * Chatbot configuration
+     */
+    200: ChatbotConfiguration;
+};
 
-export type GetChatbotConfigurationResponse =
-  GetChatbotConfigurationResponses[keyof GetChatbotConfigurationResponses]
+export type GetChatbotConfigurationResponse = GetChatbotConfigurationResponses[keyof GetChatbotConfigurationResponses];
 
 export type ConfigureChatbotData = {
-  body: NewChatbotConf
-  path: {
-    /**
-     * Chatbot configuration id
-     */
-    chatbot_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}"
-}
+    body: NewChatbotConf;
+    path: {
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/chatbots/{chatbot_configuration_id}';
+};
 
 export type ConfigureChatbotResponses = {
-  /**
-   * Updated chatbot configuration
-   */
-  200: ChatbotConfiguration
-}
+    /**
+     * Updated chatbot configuration
+     */
+    200: ChatbotConfiguration;
+};
 
-export type ConfigureChatbotResponse = ConfigureChatbotResponses[keyof ConfigureChatbotResponses]
+export type ConfigureChatbotResponse = ConfigureChatbotResponses[keyof ConfigureChatbotResponses];
 
 export type CreateCodeGiveawayData = {
-  body: NewCodeGiveaway
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/code-giveaways"
-}
+    body: NewCodeGiveaway;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways';
+};
 
 export type CreateCodeGiveawayResponses = {
-  /**
-   * Created code giveaway
-   */
-  200: CodeGiveaway
-}
+    /**
+     * Created code giveaway
+     */
+    200: CodeGiveaway;
+};
 
-export type CreateCodeGiveawayResponse =
-  CreateCodeGiveawayResponses[keyof CreateCodeGiveawayResponses]
+export type CreateCodeGiveawayResponse = CreateCodeGiveawayResponses[keyof CreateCodeGiveawayResponses];
 
 export type GetCodeGiveawaysByCourseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/code-giveaways/by-course/{course_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/by-course/{course_id}';
+};
 
 export type GetCodeGiveawaysByCourseResponses = {
-  /**
-   * Code giveaways for course
-   */
-  200: Array<CodeGiveaway>
-}
+    /**
+     * Code giveaways for course
+     */
+    200: Array<CodeGiveaway>;
+};
 
-export type GetCodeGiveawaysByCourseResponse =
-  GetCodeGiveawaysByCourseResponses[keyof GetCodeGiveawaysByCourseResponses]
+export type GetCodeGiveawaysByCourseResponse = GetCodeGiveawaysByCourseResponses[keyof GetCodeGiveawaysByCourseResponses];
 
 export type GetCodeGiveawayByIdData = {
-  body?: never
-  path: {
-    /**
-     * Code giveaway id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/code-giveaways/{id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}';
+};
 
 export type GetCodeGiveawayByIdResponses = {
-  /**
-   * Code giveaway
-   */
-  200: CodeGiveaway
-}
+    /**
+     * Code giveaway
+     */
+    200: CodeGiveaway;
+};
 
-export type GetCodeGiveawayByIdResponse =
-  GetCodeGiveawayByIdResponses[keyof GetCodeGiveawayByIdResponses]
+export type GetCodeGiveawayByIdResponse = GetCodeGiveawayByIdResponses[keyof GetCodeGiveawayByIdResponses];
 
 export type GetCodeGiveawayCodesData = {
-  body?: never
-  path: {
-    /**
-     * Code giveaway id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/code-giveaways/{id}/codes"
-}
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes';
+};
 
 export type GetCodeGiveawayCodesResponses = {
-  /**
-   * Giveaway codes
-   */
-  200: Array<CodeGiveawayCode>
-}
+    /**
+     * Giveaway codes
+     */
+    200: Array<CodeGiveawayCode>;
+};
 
-export type GetCodeGiveawayCodesResponse =
-  GetCodeGiveawayCodesResponses[keyof GetCodeGiveawayCodesResponses]
+export type GetCodeGiveawayCodesResponse = GetCodeGiveawayCodesResponses[keyof GetCodeGiveawayCodesResponses];
 
 export type AddCodeGiveawayCodesData = {
-  body: Array<string>
-  path: {
-    /**
-     * Code giveaway id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/code-giveaways/{id}/codes"
-}
+    body: Array<string>;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes';
+};
 
 export type AddCodeGiveawayCodesResponses = {
-  /**
-   * Added giveaway codes
-   */
-  200: Array<CodeGiveawayCode>
-}
+    /**
+     * Added giveaway codes
+     */
+    200: Array<CodeGiveawayCode>;
+};
 
-export type AddCodeGiveawayCodesResponse =
-  AddCodeGiveawayCodesResponses[keyof AddCodeGiveawayCodesResponses]
+export type AddCodeGiveawayCodesResponse = AddCodeGiveawayCodesResponses[keyof AddCodeGiveawayCodesResponses];
 
 export type DownloadCodeGiveawayCodesCsvData = {
-  body?: never
-  path: {
-    /**
-     * Code giveaway id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/code-giveaways/{id}/codes/csv"
-}
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes/csv';
+};
 
 export type DownloadCodeGiveawayCodesCsvResponses = {
-  /**
-   * Giveaway codes CSV
-   */
-  200: string
-}
+    /**
+     * Giveaway codes CSV
+     */
+    200: string;
+};
 
-export type DownloadCodeGiveawayCodesCsvResponse =
-  DownloadCodeGiveawayCodesCsvResponses[keyof DownloadCodeGiveawayCodesCsvResponses]
+export type DownloadCodeGiveawayCodesCsvResponse = DownloadCodeGiveawayCodesCsvResponses[keyof DownloadCodeGiveawayCodesCsvResponses];
 
 export type DeleteCodeGiveawayCodeData = {
-  body?: never
-  path: {
-    /**
-     * Code giveaway id
-     */
-    id: string
-    /**
-     * Giveaway code id
-     */
-    code_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/code-giveaways/{id}/codes/{code_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Code giveaway id
+         */
+        id: string;
+        /**
+         * Giveaway code id
+         */
+        code_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/code-giveaways/{id}/codes/{code_id}';
+};
 
 export type DeleteCodeGiveawayCodeResponses = {
-  /**
-   * Deleted giveaway code
-   */
-  200: unknown
-}
+    /**
+     * Deleted giveaway code
+     */
+    200: unknown;
+};
 
 export type GetCourseInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}';
+};
 
 export type GetCourseInstanceResponses = {
-  /**
-   * Course instance
-   */
-  200: CourseInstance
-}
+    /**
+     * Course instance
+     */
+    200: CourseInstance;
+};
 
-export type GetCourseInstanceResponse = GetCourseInstanceResponses[keyof GetCourseInstanceResponses]
+export type GetCourseInstanceResponse = GetCourseInstanceResponses[keyof GetCourseInstanceResponses];
 
 export type GetCourseInstanceCompletionsData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/completions"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions';
+};
 
 export type GetCourseInstanceCompletionsResponses = {
-  /**
-   * Course instance completion summary
-   */
-  200: CourseInstanceCompletionSummary
-}
+    /**
+     * Course instance completion summary
+     */
+    200: CourseInstanceCompletionSummary;
+};
 
-export type GetCourseInstanceCompletionsResponse =
-  GetCourseInstanceCompletionsResponses[keyof GetCourseInstanceCompletionsResponses]
+export type GetCourseInstanceCompletionsResponse = GetCourseInstanceCompletionsResponses[keyof GetCourseInstanceCompletionsResponses];
 
 export type CreateCourseInstanceCompletionsData = {
-  body: TeacherManualCompletionRequest
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/completions"
-}
+    body: TeacherManualCompletionRequest;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions';
+};
 
 export type CreateCourseInstanceCompletionsResponses = {
-  /**
-   * Manual completions added
-   */
-  200: unknown
-}
+    /**
+     * Manual completions added
+     */
+    200: unknown;
+};
 
 export type PreviewCourseInstanceCompletionsData = {
-  body: TeacherManualCompletionRequest
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/completions/preview"
-}
+    body: TeacherManualCompletionRequest;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/completions/preview';
+};
 
 export type PreviewCourseInstanceCompletionsResponses = {
-  /**
-   * Manual completion preview
-   */
-  200: ManualCompletionPreview
-}
+    /**
+     * Manual completion preview
+     */
+    200: ManualCompletionPreview;
+};
 
-export type PreviewCourseInstanceCompletionsResponse =
-  PreviewCourseInstanceCompletionsResponses[keyof PreviewCourseInstanceCompletionsResponses]
+export type PreviewCourseInstanceCompletionsResponse = PreviewCourseInstanceCompletionsResponses[keyof PreviewCourseInstanceCompletionsResponses];
 
 export type GetCourseInstanceCourseModuleCompletionsForUserData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/course-module-completions/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/course-module-completions/{user_id}';
+};
 
 export type GetCourseInstanceCourseModuleCompletionsForUserResponses = {
-  /**
-   * Course module completions for user
-   */
-  200: unknown
-}
+    /**
+     * Course module completions for user
+     */
+    200: unknown;
+};
 
 export type GetCourseInstanceDefaultCertificateConfigurationsData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/default-certificate-configurations"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/default-certificate-configurations';
+};
 
 export type GetCourseInstanceDefaultCertificateConfigurationsResponses = {
-  /**
-   * Default certificate configurations
-   */
-  200: Array<CertificateConfigurationAndRequirements>
-}
+    /**
+     * Default certificate configurations
+     */
+    200: Array<CertificateConfigurationAndRequirements>;
+};
 
-export type GetCourseInstanceDefaultCertificateConfigurationsResponse =
-  GetCourseInstanceDefaultCertificateConfigurationsResponses[keyof GetCourseInstanceDefaultCertificateConfigurationsResponses]
+export type GetCourseInstanceDefaultCertificateConfigurationsResponse = GetCourseInstanceDefaultCertificateConfigurationsResponses[keyof GetCourseInstanceDefaultCertificateConfigurationsResponses];
 
 export type DeleteCourseInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/delete"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/delete';
+};
 
 export type DeleteCourseInstanceResponses = {
-  /**
-   * Course instance deleted
-   */
-  200: unknown
-}
+    /**
+     * Course instance deleted
+     */
+    200: unknown;
+};
 
 export type EditCourseInstanceData = {
-  body: CourseInstanceForm
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/edit"
-}
+    body: CourseInstanceForm;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/edit';
+};
 
 export type EditCourseInstanceResponses = {
-  /**
-   * Course instance updated
-   */
-  200: unknown
-}
+    /**
+     * Course instance updated
+     */
+    200: unknown;
+};
 
 export type GetCourseInstanceEmailTemplatesData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates';
+};
 
 export type GetCourseInstanceEmailTemplatesResponses = {
-  /**
-   * Course instance email templates
-   */
-  200: Array<EmailTemplate>
-}
+    /**
+     * Course instance email templates
+     */
+    200: Array<EmailTemplate>;
+};
 
-export type GetCourseInstanceEmailTemplatesResponse =
-  GetCourseInstanceEmailTemplatesResponses[keyof GetCourseInstanceEmailTemplatesResponses]
+export type GetCourseInstanceEmailTemplatesResponse = GetCourseInstanceEmailTemplatesResponses[keyof GetCourseInstanceEmailTemplatesResponses];
 
 export type CreateCourseInstanceEmailTemplateData = {
-  body: EmailTemplateNew
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates"
-}
+    body: EmailTemplateNew;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/email-templates';
+};
 
 export type CreateCourseInstanceEmailTemplateResponses = {
-  /**
-   * Created email template
-   */
-  200: EmailTemplate
-}
+    /**
+     * Created email template
+     */
+    200: EmailTemplate;
+};
 
-export type CreateCourseInstanceEmailTemplateResponse =
-  CreateCourseInstanceEmailTemplateResponses[keyof CreateCourseInstanceEmailTemplateResponses]
+export type CreateCourseInstanceEmailTemplateResponse = CreateCourseInstanceEmailTemplateResponses[keyof CreateCourseInstanceEmailTemplateResponses];
 
 export type ExportCourseInstanceCompletionsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/export-completions"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/export-completions';
+};
 
 export type ExportCourseInstanceCompletionsCsvResponses = {
-  /**
-   * Course instance completions CSV
-   */
-  200: string
-}
+    /**
+     * Course instance completions CSV
+     */
+    200: string;
+};
 
-export type ExportCourseInstanceCompletionsCsvResponse =
-  ExportCourseInstanceCompletionsCsvResponses[keyof ExportCourseInstanceCompletionsCsvResponses]
+export type ExportCourseInstanceCompletionsCsvResponse = ExportCourseInstanceCompletionsCsvResponses[keyof ExportCourseInstanceCompletionsCsvResponses];
 
 export type ExportCourseInstancePointsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/export-points"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/export-points';
+};
 
 export type ExportCourseInstancePointsCsvResponses = {
-  /**
-   * Course instance points CSV
-   */
-  200: string
-}
+    /**
+     * Course instance points CSV
+     */
+    200: string;
+};
 
-export type ExportCourseInstancePointsCsvResponse =
-  ExportCourseInstancePointsCsvResponses[keyof ExportCourseInstancePointsCsvResponses]
+export type ExportCourseInstancePointsCsvResponse = ExportCourseInstancePointsCsvResponses[keyof ExportCourseInstancePointsCsvResponses];
 
 export type GetCourseInstancePointsData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/points"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/points';
+};
 
 export type GetCourseInstancePointsResponses = {
-  /**
-   * Course instance points
-   */
-  200: Points
-}
+    /**
+     * Course instance points
+     */
+    200: Points;
+};
 
-export type GetCourseInstancePointsResponse =
-  GetCourseInstancePointsResponses[keyof GetCourseInstancePointsResponses]
+export type GetCourseInstancePointsResponse = GetCourseInstancePointsResponses[keyof GetCourseInstancePointsResponses];
 
 export type GetCourseInstanceUserProgressData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/progress/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/progress/{user_id}';
+};
 
 export type GetCourseInstanceUserProgressResponses = {
-  /**
-   * User progress for course instance
-   */
-  200: unknown
-}
+    /**
+     * User progress for course instance
+     */
+    200: unknown;
+};
 
 export type GetCourseInstanceExerciseStatusesForUserData = {
-  body?: never
-  path: {
-    /**
-     * Course instance id
-     */
-    course_instance_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-instances/{course_instance_id}/status-for-all-exercises/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course instance id
+         */
+        course_instance_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-instances/{course_instance_id}/status-for-all-exercises/{user_id}';
+};
 
 export type GetCourseInstanceExerciseStatusesForUserResponses = {
-  /**
-   * Exercise statuses for user
-   */
-  200: unknown
-}
+    /**
+     * Exercise statuses for user
+     */
+    200: unknown;
+};
 
 export type GetCourseModuleData = {
-  body?: never
-  path: {
-    /**
-     * Course module id
-     */
-    course_module_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-modules/{course_module_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}';
+};
 
 export type GetCourseModuleResponses = {
-  /**
-   * Course module
-   */
-  200: CourseModule
-}
+    /**
+     * Course module
+     */
+    200: CourseModule;
+};
 
-export type GetCourseModuleResponse = GetCourseModuleResponses[keyof GetCourseModuleResponses]
+export type GetCourseModuleResponse = GetCourseModuleResponses[keyof GetCourseModuleResponses];
 
 export type GetCourseModuleCompletionRegistrationLinkData = {
-  body?: never
-  path: {
-    /**
-     * Course module id
-     */
-    course_module_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-modules/{course_module_id}/completion-registration-link"
-}
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/completion-registration-link';
+};
 
 export type GetCourseModuleCompletionRegistrationLinkResponses = {
-  /**
-   * Completion registration link
-   */
-  200: CompletionRegistrationLink
-}
+    /**
+     * Completion registration link
+     */
+    200: CompletionRegistrationLink;
+};
 
-export type GetCourseModuleCompletionRegistrationLinkResponse =
-  GetCourseModuleCompletionRegistrationLinkResponses[keyof GetCourseModuleCompletionRegistrationLinkResponses]
+export type GetCourseModuleCompletionRegistrationLinkResponse = GetCourseModuleCompletionRegistrationLinkResponses[keyof GetCourseModuleCompletionRegistrationLinkResponses];
 
 export type GetCourseModuleCompletionData = {
-  body?: never
-  path: {
-    /**
-     * Course module id
-     */
-    course_module_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-modules/{course_module_id}/course-module-completion"
-}
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/course-module-completion';
+};
 
 export type GetCourseModuleCompletionResponses = {
-  /**
-   * Best course module completion for the current user
-   */
-  200: null | CourseModuleCompletion
-}
+    /**
+     * Best course module completion for the current user
+     */
+    200: null | CourseModuleCompletion;
+};
 
-export type GetCourseModuleCompletionResponse =
-  GetCourseModuleCompletionResponses[keyof GetCourseModuleCompletionResponses]
+export type GetCourseModuleCompletionResponse = GetCourseModuleCompletionResponses[keyof GetCourseModuleCompletionResponses];
 
 export type SetCourseModuleCertificateGenerationData = {
-  body?: never
-  path: {
-    /**
-     * Course module id
-     */
-    course_module_id: string
-    /**
-     * Whether certificate generation should be enabled
-     */
-    enabled: boolean
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-modules/{course_module_id}/set-certificate-generation/{enabled}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+        /**
+         * Whether certificate generation should be enabled
+         */
+        enabled: boolean;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/set-certificate-generation/{enabled}';
+};
 
 export type SetCourseModuleCertificateGenerationResponses = {
-  /**
-   * Certificate generation updated
-   */
-  200: boolean
-}
+    /**
+     * Certificate generation updated
+     */
+    200: boolean;
+};
 
-export type SetCourseModuleCertificateGenerationResponse =
-  SetCourseModuleCertificateGenerationResponses[keyof SetCourseModuleCertificateGenerationResponses]
+export type SetCourseModuleCertificateGenerationResponse = SetCourseModuleCertificateGenerationResponses[keyof SetCourseModuleCertificateGenerationResponses];
 
 export type DeleteCourseModuleThresholdData = {
-  body?: never
-  path: {
-    /**
-     * Course module id
-     */
-    course_module_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-modules/{course_module_id}/threshold"
-}
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/threshold';
+};
 
 export type DeleteCourseModuleThresholdResponses = {
-  /**
-   * Threshold deleted
-   */
-  200: unknown
-}
+    /**
+     * Threshold deleted
+     */
+    200: unknown;
+};
 
 export type CreateCourseModuleThresholdData = {
-  body: ThresholdData
-  path: {
-    /**
-     * Course module id
-     */
-    course_module_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-modules/{course_module_id}/threshold"
-}
+    body: ThresholdData;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/threshold';
+};
 
 export type CreateCourseModuleThresholdResponses = {
-  /**
-   * Threshold created
-   */
-  200: unknown
-}
+    /**
+     * Threshold created
+     */
+    200: unknown;
+};
 
 export type GetCourseModuleUserCompletionData = {
-  body?: never
-  path: {
-    /**
-     * Course module id
-     */
-    course_module_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-modules/{course_module_id}/user-completion"
-}
+    body?: never;
+    path: {
+        /**
+         * Course module id
+         */
+        course_module_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/course-modules/{course_module_id}/user-completion';
+};
 
 export type GetCourseModuleUserCompletionResponses = {
-  /**
-   * User completion information
-   */
-  200: UserCompletionInformation
-}
+    /**
+     * User completion information
+     */
+    200: UserCompletionInformation;
+};
 
-export type GetCourseModuleUserCompletionResponse =
-  GetCourseModuleUserCompletionResponses[keyof GetCourseModuleUserCompletionResponses]
+export type GetCourseModuleUserCompletionResponse = GetCourseModuleUserCompletionResponses[keyof GetCourseModuleUserCompletionResponses];
 
 export type CreateCourseData = {
-  body: NewCourse
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/courses"
-}
+    body: NewCourse;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/courses';
+};
 
 export type CreateCourseResponses = {
-  /**
-   * Created course
-   */
-  200: Course
-}
+    /**
+     * Created course
+     */
+    200: Course;
+};
 
-export type CreateCourseResponse = CreateCourseResponses[keyof CreateCourseResponses]
+export type CreateCourseResponse = CreateCourseResponses[keyof CreateCourseResponses];
 
 export type GetCourseByJoinCodeData = {
-  body?: never
-  path: {
-    /**
-     * Course join code
-     */
-    join_code: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/join/{join_code}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course join code
+         */
+        join_code: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/join/{join_code}';
+};
 
 export type GetCourseByJoinCodeResponses = {
-  /**
-   * Course for join code
-   */
-  200: Course
-}
+    /**
+     * Course for join code
+     */
+    200: Course;
+};
 
-export type GetCourseByJoinCodeResponse =
-  GetCourseByJoinCodeResponses[keyof GetCourseByJoinCodeResponses]
+export type GetCourseByJoinCodeResponse = GetCourseByJoinCodeResponses[keyof GetCourseByJoinCodeResponses];
 
 export type DeleteCourseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}';
+};
 
 export type DeleteCourseResponses = {
-  /**
-   * Deleted course
-   */
-  200: unknown
-}
+    /**
+     * Deleted course
+     */
+    200: unknown;
+};
 
 export type GetCourseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}';
+};
 
 export type GetCourseResponses = {
-  /**
-   * Course
-   */
-  200: Course
-}
+    /**
+     * Course
+     */
+    200: Course;
+};
 
-export type GetCourseResponse = GetCourseResponses[keyof GetCourseResponses]
+export type GetCourseResponse = GetCourseResponses[keyof GetCourseResponses];
 
 export type UpdateCourseData = {
-  body: CourseUpdate
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}"
-}
+    body: CourseUpdate;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}';
+};
 
 export type UpdateCourseResponses = {
-  /**
-   * Updated course
-   */
-  200: Course
-}
+    /**
+     * Updated course
+     */
+    200: Course;
+};
 
-export type UpdateCourseResponse = UpdateCourseResponses[keyof UpdateCourseResponses]
+export type UpdateCourseResponse = UpdateCourseResponses[keyof UpdateCourseResponses];
 
 export type GetCourseBreadcrumbInfoData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/breadcrumb-info"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/breadcrumb-info';
+};
 
 export type GetCourseBreadcrumbInfoResponses = {
-  /**
-   * Course breadcrumb information
-   */
-  200: CourseBreadcrumbInfo
-}
+    /**
+     * Course breadcrumb information
+     */
+    200: CourseBreadcrumbInfo;
+};
 
-export type GetCourseBreadcrumbInfoResponse =
-  GetCourseBreadcrumbInfoResponses[keyof GetCourseBreadcrumbInfoResponses]
+export type GetCourseBreadcrumbInfoResponse = GetCourseBreadcrumbInfoResponses[keyof GetCourseBreadcrumbInfoResponses];
 
 export type GetCourseChatbotsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/chatbots"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots';
+};
 
 export type GetCourseChatbotsResponses = {
-  /**
-   * Course chatbots
-   */
-  200: Array<ChatbotConfiguration>
-}
+    /**
+     * Course chatbots
+     */
+    200: Array<ChatbotConfiguration>;
+};
 
-export type GetCourseChatbotsResponse = GetCourseChatbotsResponses[keyof GetCourseChatbotsResponses]
+export type GetCourseChatbotsResponse = GetCourseChatbotsResponses[keyof GetCourseChatbotsResponses];
 
 export type CreateCourseChatbotData = {
-  /**
-   * JSON string literal chatbot name, e.g. "Chatbot 1".
-   */
-  body: string
-  path: {
     /**
-     * Course id
+     * JSON string literal chatbot name, e.g. "Chatbot 1".
      */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/chatbots"
-}
+    body: string;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots';
+};
 
 export type CreateCourseChatbotResponses = {
-  /**
-   * Created course chatbot
-   */
-  200: ChatbotConfiguration
-}
+    /**
+     * Created course chatbot
+     */
+    200: ChatbotConfiguration;
+};
 
-export type CreateCourseChatbotResponse =
-  CreateCourseChatbotResponses[keyof CreateCourseChatbotResponses]
+export type CreateCourseChatbotResponse = CreateCourseChatbotResponses[keyof CreateCourseChatbotResponses];
 
 export type SetCourseChatbotAsDefaultData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Chatbot configuration id
-     */
-    chatbot_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-default';
+};
 
 export type SetCourseChatbotAsDefaultResponses = {
-  /**
-   * Updated course chatbot
-   */
-  200: ChatbotConfiguration
-}
+    /**
+     * Updated course chatbot
+     */
+    200: ChatbotConfiguration;
+};
 
-export type SetCourseChatbotAsDefaultResponse =
-  SetCourseChatbotAsDefaultResponses[keyof SetCourseChatbotAsDefaultResponses]
+export type SetCourseChatbotAsDefaultResponse = SetCourseChatbotAsDefaultResponses[keyof SetCourseChatbotAsDefaultResponses];
 
 export type SetCourseChatbotAsNonDefaultData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Chatbot configuration id
-     */
-    chatbot_configuration_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Chatbot configuration id
+         */
+        chatbot_configuration_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/chatbots/{chatbot_configuration_id}/set-as-non-default';
+};
 
 export type SetCourseChatbotAsNonDefaultResponses = {
-  /**
-   * Updated course chatbot
-   */
-  200: ChatbotConfiguration
-}
+    /**
+     * Updated course chatbot
+     */
+    200: ChatbotConfiguration;
+};
 
-export type SetCourseChatbotAsNonDefaultResponse =
-  SetCourseChatbotAsNonDefaultResponses[keyof SetCourseChatbotAsNonDefaultResponses]
+export type SetCourseChatbotAsNonDefaultResponse = SetCourseChatbotAsNonDefaultResponses[keyof SetCourseChatbotAsNonDefaultResponses];
 
 export type GetCourseInstancesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/course-instances"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-instances';
+};
 
 export type GetCourseInstancesResponses = {
-  /**
-   * Course instances
-   */
-  200: Array<CourseInstance>
-}
+    /**
+     * Course instances
+     */
+    200: Array<CourseInstance>;
+};
 
-export type GetCourseInstancesResponse =
-  GetCourseInstancesResponses[keyof GetCourseInstancesResponses]
+export type GetCourseInstancesResponse = GetCourseInstancesResponses[keyof GetCourseInstancesResponses];
 
 export type GetCourseModuleCompletionsForUserData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/course-module-completions/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-module-completions/{user_id}';
+};
 
 export type GetCourseModuleCompletionsForUserResponses = {
-  /**
-   * Course module completions for course user
-   */
-  200: Array<CourseModuleCompletion>
-}
+    /**
+     * Course module completions for course user
+     */
+    200: Array<CourseModuleCompletion>;
+};
 
-export type GetCourseModuleCompletionsForUserResponse =
-  GetCourseModuleCompletionsForUserResponses[keyof GetCourseModuleCompletionsForUserResponses]
+export type GetCourseModuleCompletionsForUserResponse = GetCourseModuleCompletionsForUserResponses[keyof GetCourseModuleCompletionsForUserResponses];
 
 export type UpdateCourseModulesData = {
-  body: ModuleUpdates
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/course-modules"
-}
+    body: ModuleUpdates;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-modules';
+};
 
 export type UpdateCourseModulesResponses = {
-  /**
-   * Course modules updated
-   */
-  200: unknown
-}
+    /**
+     * Course modules updated
+     */
+    200: unknown;
+};
 
 export type GetCourseUsersCountsByExerciseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/course-users-counts-by-exercise"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/course-users-counts-by-exercise';
+};
 
 export type GetCourseUsersCountsByExerciseResponses = {
-  /**
-   * Course users counts by exercise
-   */
-  200: Array<ExerciseUserCounts>
-}
+    /**
+     * Course users counts by exercise
+     */
+    200: Array<ExerciseUserCounts>;
+};
 
-export type GetCourseUsersCountsByExerciseResponse =
-  GetCourseUsersCountsByExerciseResponses[keyof GetCourseUsersCountsByExerciseResponses]
+export type GetCourseUsersCountsByExerciseResponse = GetCourseUsersCountsByExerciseResponses[keyof GetCourseUsersCountsByExerciseResponses];
 
 export type CreateCourseCopyData = {
-  body: CopyCourseRequest
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/create-copy"
-}
+    body: CopyCourseRequest;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/create-copy';
+};
 
 export type CreateCourseCopyResponses = {
-  /**
-   * Created course copy
-   */
-  200: Course
-}
+    /**
+     * Created course copy
+     */
+    200: Course;
+};
 
-export type CreateCourseCopyResponse = CreateCourseCopyResponses[keyof CreateCourseCopyResponses]
+export type CreateCourseCopyResponse = CreateCourseCopyResponses[keyof CreateCourseCopyResponses];
 
 export type GetCourseDailySubmissionCountsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/daily-submission-counts"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/daily-submission-counts';
+};
 
 export type GetCourseDailySubmissionCountsResponses = {
-  /**
-   * Course daily submission counts
-   */
-  200: Array<ExerciseSlideSubmissionCount>
-}
+    /**
+     * Course daily submission counts
+     */
+    200: Array<ExerciseSlideSubmissionCount>;
+};
 
-export type GetCourseDailySubmissionCountsResponse =
-  GetCourseDailySubmissionCountsResponses[keyof GetCourseDailySubmissionCountsResponses]
+export type GetCourseDailySubmissionCountsResponse = GetCourseDailySubmissionCountsResponses[keyof GetCourseDailySubmissionCountsResponses];
 
 export type GetCourseDailyUsersWhoSubmittedSomethingData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/daily-users-who-have-submitted-something"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/daily-users-who-have-submitted-something';
+};
 
 export type GetCourseDailyUsersWhoSubmittedSomethingResponses = {
-  /**
-   * Course daily user submission counts
-   */
-  200: Array<ExerciseSlideSubmissionCount>
-}
+    /**
+     * Course daily user submission counts
+     */
+    200: Array<ExerciseSlideSubmissionCount>;
+};
 
-export type GetCourseDailyUsersWhoSubmittedSomethingResponse =
-  GetCourseDailyUsersWhoSubmittedSomethingResponses[keyof GetCourseDailyUsersWhoSubmittedSomethingResponses]
+export type GetCourseDailyUsersWhoSubmittedSomethingResponse = GetCourseDailyUsersWhoSubmittedSomethingResponses[keyof GetCourseDailyUsersWhoSubmittedSomethingResponses];
 
 export type GetCourseDefaultPeerReviewData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/default-peer-review"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/default-peer-review';
+};
 
 export type GetCourseDefaultPeerReviewResponses = {
-  /**
-   * Default peer review configuration
-   */
-  200: unknown
-}
+    /**
+     * Default peer review configuration
+     */
+    200: unknown;
+};
 
 export type GetCourseExercisesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/exercises"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/exercises';
+};
 
 export type GetCourseExercisesResponses = {
-  /**
-   * Exercises for course
-   */
-  200: Array<Exercise>
-}
+    /**
+     * Exercises for course
+     */
+    200: Array<Exercise>;
+};
 
-export type GetCourseExercisesResponse =
-  GetCourseExercisesResponses[keyof GetCourseExercisesResponses]
+export type GetCourseExercisesResponse = GetCourseExercisesResponses[keyof GetCourseExercisesResponses];
 
 export type GetCourseExercisesAndAnswersRequiringAttentionCountsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/exercises-and-count-of-answers-requiring-attention"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/exercises-and-count-of-answers-requiring-attention';
+};
 
 export type GetCourseExercisesAndAnswersRequiringAttentionCountsResponses = {
-  /**
-   * Exercises and answer attention counts
-   */
-  200: Array<ExerciseAnswersInCourseRequiringAttentionCount>
-}
+    /**
+     * Exercises and answer attention counts
+     */
+    200: Array<ExerciseAnswersInCourseRequiringAttentionCount>;
+};
 
-export type GetCourseExercisesAndAnswersRequiringAttentionCountsResponse =
-  GetCourseExercisesAndAnswersRequiringAttentionCountsResponses[keyof GetCourseExercisesAndAnswersRequiringAttentionCountsResponses]
+export type GetCourseExercisesAndAnswersRequiringAttentionCountsResponse = GetCourseExercisesAndAnswersRequiringAttentionCountsResponses[keyof GetCourseExercisesAndAnswersRequiringAttentionCountsResponses];
 
 export type ExportCourseInstancesCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/export-course-instances"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-course-instances';
+};
 
 export type ExportCourseInstancesCsvResponses = {
-  /**
-   * Course instances CSV
-   */
-  200: string
-}
+    /**
+     * Course instances CSV
+     */
+    200: string;
+};
 
-export type ExportCourseInstancesCsvResponse =
-  ExportCourseInstancesCsvResponses[keyof ExportCourseInstancesCsvResponses]
+export type ExportCourseInstancesCsvResponse = ExportCourseInstancesCsvResponses[keyof ExportCourseInstancesCsvResponses];
 
 export type ExportCourseUserConsentsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/export-course-user-consents"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-course-user-consents';
+};
 
 export type ExportCourseUserConsentsCsvResponses = {
-  /**
-   * Course user consents CSV
-   */
-  200: string
-}
+    /**
+     * Course user consents CSV
+     */
+    200: string;
+};
 
-export type ExportCourseUserConsentsCsvResponse =
-  ExportCourseUserConsentsCsvResponses[keyof ExportCourseUserConsentsCsvResponses]
+export type ExportCourseUserConsentsCsvResponse = ExportCourseUserConsentsCsvResponses[keyof ExportCourseUserConsentsCsvResponses];
 
 export type ExportCourseExerciseTasksCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/export-exercise-tasks"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-exercise-tasks';
+};
 
 export type ExportCourseExerciseTasksCsvResponses = {
-  /**
-   * Course exercise tasks CSV
-   */
-  200: string
-}
+    /**
+     * Course exercise tasks CSV
+     */
+    200: string;
+};
 
-export type ExportCourseExerciseTasksCsvResponse =
-  ExportCourseExerciseTasksCsvResponses[keyof ExportCourseExerciseTasksCsvResponses]
+export type ExportCourseExerciseTasksCsvResponse = ExportCourseExerciseTasksCsvResponses[keyof ExportCourseExerciseTasksCsvResponses];
 
 export type ExportCourseSubmissionsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/export-submissions"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-submissions';
+};
 
 export type ExportCourseSubmissionsCsvResponses = {
-  /**
-   * Course submissions CSV
-   */
-  200: string
-}
+    /**
+     * Course submissions CSV
+     */
+    200: string;
+};
 
-export type ExportCourseSubmissionsCsvResponse =
-  ExportCourseSubmissionsCsvResponses[keyof ExportCourseSubmissionsCsvResponses]
+export type ExportCourseSubmissionsCsvResponse = ExportCourseSubmissionsCsvResponses[keyof ExportCourseSubmissionsCsvResponses];
 
 export type ExportCourseUserDetailsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/export-user-details"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-user-details';
+};
 
 export type ExportCourseUserDetailsCsvResponses = {
-  /**
-   * Course user details CSV
-   */
-  200: string
-}
+    /**
+     * Course user details CSV
+     */
+    200: string;
+};
 
-export type ExportCourseUserDetailsCsvResponse =
-  ExportCourseUserDetailsCsvResponses[keyof ExportCourseUserDetailsCsvResponses]
+export type ExportCourseUserDetailsCsvResponse = ExportCourseUserDetailsCsvResponses[keyof ExportCourseUserDetailsCsvResponses];
 
 export type ExportCourseUserExerciseStatesCsvData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/export-user-exercise-states"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/export-user-exercise-states';
+};
 
 export type ExportCourseUserExerciseStatesCsvResponses = {
-  /**
-   * Course user exercise states CSV
-   */
-  200: string
-}
+    /**
+     * Course user exercise states CSV
+     */
+    200: string;
+};
 
-export type ExportCourseUserExerciseStatesCsvResponse =
-  ExportCourseUserExerciseStatesCsvResponses[keyof ExportCourseUserExerciseStatesCsvResponses]
+export type ExportCourseUserExerciseStatesCsvResponse = ExportCourseUserExerciseStatesCsvResponses[keyof ExportCourseUserExerciseStatesCsvResponses];
 
 export type GetCourseFeedbackData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query: {
-    /**
-     * Whether to fetch read feedback
-     */
-    read: boolean
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/courses/{course_id}/feedback"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query: {
+        /**
+         * Whether to fetch read feedback
+         */
+        read: boolean;
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/courses/{course_id}/feedback';
+};
 
 export type GetCourseFeedbackResponses = {
-  /**
-   * Feedback for the course
-   */
-  200: Array<Feedback>
-}
+    /**
+     * Feedback for the course
+     */
+    200: Array<Feedback>;
+};
 
-export type GetCourseFeedbackResponse = GetCourseFeedbackResponses[keyof GetCourseFeedbackResponses]
+export type GetCourseFeedbackResponse = GetCourseFeedbackResponses[keyof GetCourseFeedbackResponses];
 
 export type GetCourseFeedbackCountData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/feedback-count"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/feedback-count';
+};
 
 export type GetCourseFeedbackCountResponses = {
-  /**
-   * Feedback counts for the course
-   */
-  200: FeedbackCount
-}
+    /**
+     * Feedback counts for the course
+     */
+    200: FeedbackCount;
+};
 
-export type GetCourseFeedbackCountResponse =
-  GetCourseFeedbackCountResponses[keyof GetCourseFeedbackCountResponses]
+export type GetCourseFeedbackCountResponse = GetCourseFeedbackCountResponses[keyof GetCourseFeedbackCountResponses];
 
 export type GetCourseGlossaryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/glossary"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/glossary';
+};
 
 export type GetCourseGlossaryErrors = {
-  /**
-   * Authentication required
-   */
-  401: unknown
-  /**
-   * User is not allowed to manage the course glossary
-   */
-  403: unknown
-}
+    /**
+     * Authentication required
+     */
+    401: unknown;
+    /**
+     * User is not allowed to manage the course glossary
+     */
+    403: unknown;
+};
 
 export type GetCourseGlossaryResponses = {
-  /**
-   * Glossary terms for the course
-   */
-  200: Array<Term>
-}
+    /**
+     * Glossary terms for the course
+     */
+    200: Array<Term>;
+};
 
-export type GetCourseGlossaryResponse = GetCourseGlossaryResponses[keyof GetCourseGlossaryResponses]
+export type GetCourseGlossaryResponse = GetCourseGlossaryResponses[keyof GetCourseGlossaryResponses];
 
 export type CreateCourseGlossaryTermData = {
-  body: TermUpdate
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/glossary"
-}
+    body: TermUpdate;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/glossary';
+};
 
 export type CreateCourseGlossaryTermErrors = {
-  /**
-   * Authentication required
-   */
-  401: unknown
-  /**
-   * User is not allowed to manage the course glossary
-   */
-  403: unknown
-}
+    /**
+     * Authentication required
+     */
+    401: unknown;
+    /**
+     * User is not allowed to manage the course glossary
+     */
+    403: unknown;
+};
 
 export type CreateCourseGlossaryTermResponses = {
-  /**
-   * Created glossary term id
-   */
-  200: string
-}
+    /**
+     * Created glossary term id
+     */
+    200: string;
+};
 
-export type CreateCourseGlossaryTermResponse =
-  CreateCourseGlossaryTermResponses[keyof CreateCourseGlossaryTermResponses]
+export type CreateCourseGlossaryTermResponse = CreateCourseGlossaryTermResponses[keyof CreateCourseGlossaryTermResponses];
 
 export type JoinCourseWithJoinCodeData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/join-course-with-join-code"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/join-course-with-join-code';
+};
 
 export type JoinCourseWithJoinCodeResponses = {
-  /**
-   * Joined course id
-   */
-  200: string
-}
+    /**
+     * Joined course id
+     */
+    200: string;
+};
 
-export type JoinCourseWithJoinCodeResponse =
-  JoinCourseWithJoinCodeResponses[keyof JoinCourseWithJoinCodeResponses]
+export type JoinCourseWithJoinCodeResponse = JoinCourseWithJoinCodeResponses[keyof JoinCourseWithJoinCodeResponses];
 
 export type GetCourseLanguageVersionsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/language-versions"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/language-versions';
+};
 
 export type GetCourseLanguageVersionsResponses = {
-  /**
-   * Course language versions
-   */
-  200: Array<Course>
-}
+    /**
+     * Course language versions
+     */
+    200: Array<Course>;
+};
 
-export type GetCourseLanguageVersionsResponse =
-  GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses]
+export type GetCourseLanguageVersionsResponse = GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses];
 
 export type UpdateCourseChapterOrderingData = {
-  body: Array<Chapter>
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering"
-}
+    body: Array<Chapter>;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/new-chapter-ordering';
+};
 
 export type UpdateCourseChapterOrderingResponses = {
-  /**
-   * Course chapter ordering updated
-   */
-  200: unknown
-}
+    /**
+     * Course chapter ordering updated
+     */
+    200: unknown;
+};
 
 export type CreateCourseInstanceData = {
-  body: CourseInstanceForm
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/new-course-instance"
-}
+    body: CourseInstanceForm;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/new-course-instance';
+};
 
 export type CreateCourseInstanceResponses = {
-  /**
-   * Created course instance id
-   */
-  200: string
-}
+    /**
+     * Created course instance id
+     */
+    200: string;
+};
 
-export type CreateCourseInstanceResponse =
-  CreateCourseInstanceResponses[keyof CreateCourseInstanceResponses]
+export type CreateCourseInstanceResponse = CreateCourseInstanceResponses[keyof CreateCourseInstanceResponses];
 
 export type UpdateCoursePageOrderingData = {
-  body: Array<Page>
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/new-page-ordering"
-}
+    body: Array<Page>;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/new-page-ordering';
+};
 
 export type UpdateCoursePageOrderingResponses = {
-  /**
-   * Course page ordering updated
-   */
-  200: unknown
-}
+    /**
+     * Course page ordering updated
+     */
+    200: unknown;
+};
 
 export type GetCoursePageVisitDatumSummaryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary';
+};
 
 export type GetCoursePageVisitDatumSummaryResponses = {
-  /**
-   * Course page visit summary
-   */
-  200: Array<PageVisitDatumSummaryByCourse>
-}
+    /**
+     * Course page visit summary
+     */
+    200: Array<PageVisitDatumSummaryByCourse>;
+};
 
-export type GetCoursePageVisitDatumSummaryResponse =
-  GetCoursePageVisitDatumSummaryResponses[keyof GetCoursePageVisitDatumSummaryResponses]
+export type GetCoursePageVisitDatumSummaryResponse = GetCoursePageVisitDatumSummaryResponses[keyof GetCoursePageVisitDatumSummaryResponses];
 
 export type GetCoursePageVisitDatumSummaryByCountriesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-countries"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-countries';
+};
 
 export type GetCoursePageVisitDatumSummaryByCountriesResponses = {
-  /**
-   * Course page visit summary by countries
-   */
-  200: Array<PageVisitDatumSummaryByCoursesCountries>
-}
+    /**
+     * Course page visit summary by countries
+     */
+    200: Array<PageVisitDatumSummaryByCoursesCountries>;
+};
 
-export type GetCoursePageVisitDatumSummaryByCountriesResponse =
-  GetCoursePageVisitDatumSummaryByCountriesResponses[keyof GetCoursePageVisitDatumSummaryByCountriesResponses]
+export type GetCoursePageVisitDatumSummaryByCountriesResponse = GetCoursePageVisitDatumSummaryByCountriesResponses[keyof GetCoursePageVisitDatumSummaryByCountriesResponses];
 
 export type GetCoursePageVisitDatumSummaryByDeviceTypesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-device-types"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-device-types';
+};
 
 export type GetCoursePageVisitDatumSummaryByDeviceTypesResponses = {
-  /**
-   * Course page visit summary by device types
-   */
-  200: Array<PageVisitDatumSummaryByCourseDeviceTypes>
-}
+    /**
+     * Course page visit summary by device types
+     */
+    200: Array<PageVisitDatumSummaryByCourseDeviceTypes>;
+};
 
-export type GetCoursePageVisitDatumSummaryByDeviceTypesResponse =
-  GetCoursePageVisitDatumSummaryByDeviceTypesResponses[keyof GetCoursePageVisitDatumSummaryByDeviceTypesResponses]
+export type GetCoursePageVisitDatumSummaryByDeviceTypesResponse = GetCoursePageVisitDatumSummaryByDeviceTypesResponses[keyof GetCoursePageVisitDatumSummaryByDeviceTypesResponses];
 
 export type GetCoursePageVisitDatumSummaryByPagesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-pages"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/page-visit-datum-summary-by-pages';
+};
 
 export type GetCoursePageVisitDatumSummaryByPagesResponses = {
-  /**
-   * Course page visit summary by pages
-   */
-  200: Array<PageVisitDatumSummaryByPages>
-}
+    /**
+     * Course page visit summary by pages
+     */
+    200: Array<PageVisitDatumSummaryByPages>;
+};
 
-export type GetCoursePageVisitDatumSummaryByPagesResponse =
-  GetCoursePageVisitDatumSummaryByPagesResponses[keyof GetCoursePageVisitDatumSummaryByPagesResponses]
+export type GetCoursePageVisitDatumSummaryByPagesResponse = GetCoursePageVisitDatumSummaryByPagesResponses[keyof GetCoursePageVisitDatumSummaryByPagesResponses];
 
 export type DeleteCoursePartnersBlockData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/partners-block"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/partners-block';
+};
 
 export type DeleteCoursePartnersBlockResponses = {
-  /**
-   * Deleted partners block
-   */
-  200: unknown
-}
+    /**
+     * Deleted partners block
+     */
+    200: unknown;
+};
 
 export type GetCoursePartnersBlockData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/partners-block"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/partners-block';
+};
 
 export type GetCoursePartnersBlockResponses = {
-  /**
-   * Partners block
-   */
-  200: unknown
-}
+    /**
+     * Partners block
+     */
+    200: unknown;
+};
 
 export type UpsertCoursePartnersBlockData = {
-  body?: unknown
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/partners-block"
-}
+    body?: unknown;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/partners-block';
+};
 
 export type UpsertCoursePartnersBlockResponses = {
-  /**
-   * Partners block
-   */
-  200: unknown
-}
+    /**
+     * Partners block
+     */
+    200: unknown;
+};
 
 export type GetCourseProgressForUserData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/progress/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/progress/{user_id}';
+};
 
 export type GetCourseProgressForUserResponses = {
-  /**
-   * User progress for course
-   */
-  200: Array<UserCourseProgress>
-}
+    /**
+     * User progress for course
+     */
+    200: Array<UserCourseProgress>;
+};
 
-export type GetCourseProgressForUserResponse =
-  GetCourseProgressForUserResponses[keyof GetCourseProgressForUserResponses]
+export type GetCourseProgressForUserResponse = GetCourseProgressForUserResponses[keyof GetCourseProgressForUserResponses];
 
 export type GetCourseReferencesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/references"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references';
+};
 
 export type GetCourseReferencesResponses = {
-  /**
-   * Course references
-   */
-  200: Array<MaterialReference>
-}
+    /**
+     * Course references
+     */
+    200: Array<MaterialReference>;
+};
 
-export type GetCourseReferencesResponse =
-  GetCourseReferencesResponses[keyof GetCourseReferencesResponses]
+export type GetCourseReferencesResponse = GetCourseReferencesResponses[keyof GetCourseReferencesResponses];
 
 export type CreateCourseReferencesData = {
-  body: Array<NewMaterialReference>
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/references"
-}
+    body: Array<NewMaterialReference>;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references';
+};
 
 export type CreateCourseReferencesResponses = {
-  /**
-   * Course references created
-   */
-  200: unknown
-}
+    /**
+     * Course references created
+     */
+    200: unknown;
+};
 
 export type DeleteCourseReferenceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Reference id
-     */
-    reference_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/references/{reference_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Reference id
+         */
+        reference_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references/{reference_id}';
+};
 
 export type DeleteCourseReferenceResponses = {
-  /**
-   * Course reference deleted
-   */
-  200: unknown
-}
+    /**
+     * Course reference deleted
+     */
+    200: unknown;
+};
 
 export type UpdateCourseReferenceData = {
-  body: NewMaterialReference
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Reference id
-     */
-    reference_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/references/{reference_id}"
-}
+    body: NewMaterialReference;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Reference id
+         */
+        reference_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/references/{reference_id}';
+};
 
 export type UpdateCourseReferenceResponses = {
-  /**
-   * Course reference updated
-   */
-  200: unknown
-}
+    /**
+     * Course reference updated
+     */
+    200: unknown;
+};
 
 export type ReprocessCourseCompletionsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/reprocess-completions"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/reprocess-completions';
+};
 
 export type ReprocessCourseCompletionsResponses = {
-  /**
-   * Course completions reprocessed
-   */
-  200: boolean
-}
+    /**
+     * Course completions reprocessed
+     */
+    200: boolean;
+};
 
-export type ReprocessCourseCompletionsResponse =
-  ReprocessCourseCompletionsResponses[keyof ReprocessCourseCompletionsResponses]
+export type ReprocessCourseCompletionsResponse = ReprocessCourseCompletionsResponses[keyof ReprocessCourseCompletionsResponses];
 
 export type SetCourseJoinCodeData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/set-join-code"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/set-join-code';
+};
 
 export type SetCourseJoinCodeResponses = {
-  /**
-   * Course join code set
-   */
-  200: unknown
-}
+    /**
+     * Course join code set
+     */
+    200: unknown;
+};
 
 export type GetCourseCompletionsHistoryAllLanguageVersionsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/completions-history/{granularity}/{time_window}';
+};
 
 export type GetCourseCompletionsHistoryAllLanguageVersionsResponses = {
-  /**
-   * Course completions history across all language versions
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Course completions history across all language versions
+     */
+    200: Array<CountResult>;
+};
 
-export type GetCourseCompletionsHistoryAllLanguageVersionsResponse =
-  GetCourseCompletionsHistoryAllLanguageVersionsResponses[keyof GetCourseCompletionsHistoryAllLanguageVersionsResponses]
+export type GetCourseCompletionsHistoryAllLanguageVersionsResponse = GetCourseCompletionsHistoryAllLanguageVersionsResponses[keyof GetCourseCompletionsHistoryAllLanguageVersionsResponses];
 
 export type GetTotalUsersStartedAllLanguageVersionsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/total-users-started"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/total-users-started';
+};
 
 export type GetTotalUsersStartedAllLanguageVersionsResponses = {
-  /**
-   * Total users started across all language versions
-   */
-  200: CountResult
-}
+    /**
+     * Total users started across all language versions
+     */
+    200: CountResult;
+};
 
-export type GetTotalUsersStartedAllLanguageVersionsResponse =
-  GetTotalUsersStartedAllLanguageVersionsResponses[keyof GetTotalUsersStartedAllLanguageVersionsResponses]
+export type GetTotalUsersStartedAllLanguageVersionsResponse = GetTotalUsersStartedAllLanguageVersionsResponses[keyof GetTotalUsersStartedAllLanguageVersionsResponses];
 
 export type GetUniqueUsersStartingHistoryAllLanguageVersionsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/users-starting-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/all-language-versions/users-starting-history/{granularity}/{time_window}';
+};
 
 export type GetUniqueUsersStartingHistoryAllLanguageVersionsResponses = {
-  /**
-   * Unique users starting history across all language versions
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Unique users starting history across all language versions
+     */
+    200: Array<CountResult>;
+};
 
-export type GetUniqueUsersStartingHistoryAllLanguageVersionsResponse =
-  GetUniqueUsersStartingHistoryAllLanguageVersionsResponses[keyof GetUniqueUsersStartingHistoryAllLanguageVersionsResponses]
+export type GetUniqueUsersStartingHistoryAllLanguageVersionsResponse = GetUniqueUsersStartingHistoryAllLanguageVersionsResponses[keyof GetUniqueUsersStartingHistoryAllLanguageVersionsResponses];
 
 export type GetAvgTimeToFirstSubmissionHistoryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/avg-time-to-first-submission/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/avg-time-to-first-submission/{granularity}/{time_window}';
+};
 
 export type GetAvgTimeToFirstSubmissionHistoryResponses = {
-  /**
-   * Average time to first submission history
-   */
-  200: Array<AverageMetric>
-}
+    /**
+     * Average time to first submission history
+     */
+    200: Array<AverageMetric>;
+};
 
-export type GetAvgTimeToFirstSubmissionHistoryResponse =
-  GetAvgTimeToFirstSubmissionHistoryResponses[keyof GetAvgTimeToFirstSubmissionHistoryResponses]
+export type GetAvgTimeToFirstSubmissionHistoryResponse = GetAvgTimeToFirstSubmissionHistoryResponses[keyof GetAvgTimeToFirstSubmissionHistoryResponses];
 
 export type GetCourseCompletionsHistoryByInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-instance/completions-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/completions-history/{granularity}/{time_window}';
+};
 
 export type GetCourseCompletionsHistoryByInstanceResponses = {
-  /**
-   * Course completions history by instance
-   */
-  200: {
-    [key: string]: Array<CountResult>
-  }
-}
+    /**
+     * Course completions history by instance
+     */
+    200: {
+        [key: string]: Array<CountResult>;
+    };
+};
 
-export type GetCourseCompletionsHistoryByInstanceResponse =
-  GetCourseCompletionsHistoryByInstanceResponses[keyof GetCourseCompletionsHistoryByInstanceResponses]
+export type GetCourseCompletionsHistoryByInstanceResponse = GetCourseCompletionsHistoryByInstanceResponses[keyof GetCourseCompletionsHistoryByInstanceResponses];
 
 export type GetFirstExerciseSubmissionsHistoryByInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-instance/first-submissions-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/first-submissions-history/{granularity}/{time_window}';
+};
 
 export type GetFirstExerciseSubmissionsHistoryByInstanceResponses = {
-  /**
-   * First exercise submissions history by instance
-   */
-  200: {
-    [key: string]: Array<CountResult>
-  }
-}
+    /**
+     * First exercise submissions history by instance
+     */
+    200: {
+        [key: string]: Array<CountResult>;
+    };
+};
 
-export type GetFirstExerciseSubmissionsHistoryByInstanceResponse =
-  GetFirstExerciseSubmissionsHistoryByInstanceResponses[keyof GetFirstExerciseSubmissionsHistoryByInstanceResponses]
+export type GetFirstExerciseSubmissionsHistoryByInstanceResponse = GetFirstExerciseSubmissionsHistoryByInstanceResponses[keyof GetFirstExerciseSubmissionsHistoryByInstanceResponses];
 
 export type GetTotalUsersCompletedCourseByInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-completed"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-completed';
+};
 
 export type GetTotalUsersCompletedCourseByInstanceResponses = {
-  /**
-   * Total users completed course by instance
-   */
-  200: {
-    [key: string]: CountResult
-  }
-}
+    /**
+     * Total users completed course by instance
+     */
+    200: {
+        [key: string]: CountResult;
+    };
+};
 
-export type GetTotalUsersCompletedCourseByInstanceResponse =
-  GetTotalUsersCompletedCourseByInstanceResponses[keyof GetTotalUsersCompletedCourseByInstanceResponses]
+export type GetTotalUsersCompletedCourseByInstanceResponse = GetTotalUsersCompletedCourseByInstanceResponses[keyof GetTotalUsersCompletedCourseByInstanceResponses];
 
 export type GetTotalUsersReturnedExercisesByInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-returned-exercises"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-returned-exercises';
+};
 
 export type GetTotalUsersReturnedExercisesByInstanceResponses = {
-  /**
-   * Total users returned exercises by instance
-   */
-  200: {
-    [key: string]: CountResult
-  }
-}
+    /**
+     * Total users returned exercises by instance
+     */
+    200: {
+        [key: string]: CountResult;
+    };
+};
 
-export type GetTotalUsersReturnedExercisesByInstanceResponse =
-  GetTotalUsersReturnedExercisesByInstanceResponses[keyof GetTotalUsersReturnedExercisesByInstanceResponses]
+export type GetTotalUsersReturnedExercisesByInstanceResponse = GetTotalUsersReturnedExercisesByInstanceResponses[keyof GetTotalUsersReturnedExercisesByInstanceResponses];
 
 export type GetTotalUsersStartedCourseByInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-started-course"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/total-users-started-course';
+};
 
 export type GetTotalUsersStartedCourseByInstanceResponses = {
-  /**
-   * Total users started course by instance
-   */
-  200: {
-    [key: string]: CountResult
-  }
-}
+    /**
+     * Total users started course by instance
+     */
+    200: {
+        [key: string]: CountResult;
+    };
+};
 
-export type GetTotalUsersStartedCourseByInstanceResponse =
-  GetTotalUsersStartedCourseByInstanceResponses[keyof GetTotalUsersStartedCourseByInstanceResponses]
+export type GetTotalUsersStartedCourseByInstanceResponse = GetTotalUsersStartedCourseByInstanceResponses[keyof GetTotalUsersStartedCourseByInstanceResponses];
 
 export type GetUsersReturningExercisesHistoryByInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-returning-exercises-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-returning-exercises-history/{granularity}/{time_window}';
+};
 
 export type GetUsersReturningExercisesHistoryByInstanceResponses = {
-  /**
-   * Users returning exercises history by instance
-   */
-  200: {
-    [key: string]: Array<CountResult>
-  }
-}
+    /**
+     * Users returning exercises history by instance
+     */
+    200: {
+        [key: string]: Array<CountResult>;
+    };
+};
 
-export type GetUsersReturningExercisesHistoryByInstanceResponse =
-  GetUsersReturningExercisesHistoryByInstanceResponses[keyof GetUsersReturningExercisesHistoryByInstanceResponses]
+export type GetUsersReturningExercisesHistoryByInstanceResponse = GetUsersReturningExercisesHistoryByInstanceResponses[keyof GetUsersReturningExercisesHistoryByInstanceResponses];
 
 export type GetUniqueUsersStartingHistoryByInstanceData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-starting-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-instance/users-starting-history/{granularity}/{time_window}';
+};
 
 export type GetUniqueUsersStartingHistoryByInstanceResponses = {
-  /**
-   * Unique users starting history by instance
-   */
-  200: {
-    [key: string]: Array<CountResult>
-  }
-}
+    /**
+     * Unique users starting history by instance
+     */
+    200: {
+        [key: string]: Array<CountResult>;
+    };
+};
 
-export type GetUniqueUsersStartingHistoryByInstanceResponse =
-  GetUniqueUsersStartingHistoryByInstanceResponses[keyof GetUniqueUsersStartingHistoryByInstanceResponses]
+export type GetUniqueUsersStartingHistoryByInstanceResponse = GetUniqueUsersStartingHistoryByInstanceResponses[keyof GetUniqueUsersStartingHistoryByInstanceResponses];
 
 export type GetFirstExerciseSubmissionsByModuleData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/by-module/first-submissions/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/by-module/first-submissions/{granularity}/{time_window}';
+};
 
 export type GetFirstExerciseSubmissionsByModuleResponses = {
-  /**
-   * First exercise submissions by module
-   */
-  200: {
-    [key: string]: Array<CountResult>
-  }
-}
+    /**
+     * First exercise submissions by module
+     */
+    200: {
+        [key: string]: Array<CountResult>;
+    };
+};
 
-export type GetFirstExerciseSubmissionsByModuleResponse =
-  GetFirstExerciseSubmissionsByModuleResponses[keyof GetFirstExerciseSubmissionsByModuleResponses]
+export type GetFirstExerciseSubmissionsByModuleResponse = GetFirstExerciseSubmissionsByModuleResponses[keyof GetFirstExerciseSubmissionsByModuleResponses];
 
 export type GetCohortActivityHistoryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * History window
-     */
-    history_window: number
-    /**
-     * Tracking window
-     */
-    tracking_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * History window
+         */
+        history_window: number;
+        /**
+         * Tracking window
+         */
+        tracking_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/cohort-activity/{granularity}/{history_window}/{tracking_window}';
+};
 
 export type GetCohortActivityHistoryResponses = {
-  /**
-   * Cohort activity history
-   */
-  200: Array<CohortActivity>
-}
+    /**
+     * Cohort activity history
+     */
+    200: Array<CohortActivity>;
+};
 
-export type GetCohortActivityHistoryResponse =
-  GetCohortActivityHistoryResponses[keyof GetCohortActivityHistoryResponses]
+export type GetCohortActivityHistoryResponse = GetCohortActivityHistoryResponses[keyof GetCohortActivityHistoryResponses];
 
 export type GetCourseCompletionsHistoryCustomTimePeriodData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Start date
-     */
-    start_date: string
-    /**
-     * End date
-     */
-    end_date: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/completions-history/custom-time-period/{start_date}/{end_date}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/completions-history/custom-time-period/{start_date}/{end_date}';
+};
 
 export type GetCourseCompletionsHistoryCustomTimePeriodResponses = {
-  /**
-   * Course completions history for custom time period
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Course completions history for custom time period
+     */
+    200: Array<CountResult>;
+};
 
-export type GetCourseCompletionsHistoryCustomTimePeriodResponse =
-  GetCourseCompletionsHistoryCustomTimePeriodResponses[keyof GetCourseCompletionsHistoryCustomTimePeriodResponses]
+export type GetCourseCompletionsHistoryCustomTimePeriodResponse = GetCourseCompletionsHistoryCustomTimePeriodResponses[keyof GetCourseCompletionsHistoryCustomTimePeriodResponses];
 
 export type GetCourseCompletionsHistoryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/completions-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/completions-history/{granularity}/{time_window}';
+};
 
 export type GetCourseCompletionsHistoryResponses = {
-  /**
-   * Course completions history
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Course completions history
+     */
+    200: Array<CountResult>;
+};
 
-export type GetCourseCompletionsHistoryResponse =
-  GetCourseCompletionsHistoryResponses[keyof GetCourseCompletionsHistoryResponses]
+export type GetCourseCompletionsHistoryResponse = GetCourseCompletionsHistoryResponses[keyof GetCourseCompletionsHistoryResponses];
 
 export type GetFirstExerciseSubmissionsHistoryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/first-submissions-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/first-submissions-history/{granularity}/{time_window}';
+};
 
 export type GetFirstExerciseSubmissionsHistoryResponses = {
-  /**
-   * First exercise submissions history
-   */
-  200: Array<CountResult>
-}
+    /**
+     * First exercise submissions history
+     */
+    200: Array<CountResult>;
+};
 
-export type GetFirstExerciseSubmissionsHistoryResponse =
-  GetFirstExerciseSubmissionsHistoryResponses[keyof GetFirstExerciseSubmissionsHistoryResponses]
+export type GetFirstExerciseSubmissionsHistoryResponse = GetFirstExerciseSubmissionsHistoryResponses[keyof GetFirstExerciseSubmissionsHistoryResponses];
 
 export type GetStudentCompletionsByCountryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-    /**
-     * Country
-     */
-    country: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/student-completions-by-country/{granularity}/{time_window}/{country}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+        /**
+         * Country
+         */
+        country: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/student-completions-by-country/{granularity}/{time_window}/{country}';
+};
 
 export type GetStudentCompletionsByCountryResponses = {
-  /**
-   * Student completions by country
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Student completions by country
+     */
+    200: Array<CountResult>;
+};
 
-export type GetStudentCompletionsByCountryResponse =
-  GetStudentCompletionsByCountryResponses[keyof GetStudentCompletionsByCountryResponses]
+export type GetStudentCompletionsByCountryResponse = GetStudentCompletionsByCountryResponses[keyof GetStudentCompletionsByCountryResponses];
 
 export type GetStudentEnrollmentsByCountryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-    /**
-     * Country
-     */
-    country: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/student-enrollments-by-country/{granularity}/{time_window}/{country}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+        /**
+         * Country
+         */
+        country: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/student-enrollments-by-country/{granularity}/{time_window}/{country}';
+};
 
 export type GetStudentEnrollmentsByCountryResponses = {
-  /**
-   * Student enrollments by country
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Student enrollments by country
+     */
+    200: Array<CountResult>;
+};
 
-export type GetStudentEnrollmentsByCountryResponse =
-  GetStudentEnrollmentsByCountryResponses[keyof GetStudentEnrollmentsByCountryResponses]
+export type GetStudentEnrollmentsByCountryResponse = GetStudentEnrollmentsByCountryResponses[keyof GetStudentEnrollmentsByCountryResponses];
 
 export type GetStudentsByCountryTotalsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/students-by-country-totals"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/students-by-country-totals';
+};
 
 export type GetStudentsByCountryTotalsResponses = {
-  /**
-   * Students by country totals
-   */
-  200: Array<StudentsByCountryTotalsResult>
-}
+    /**
+     * Students by country totals
+     */
+    200: Array<StudentsByCountryTotalsResult>;
+};
 
-export type GetStudentsByCountryTotalsResponse =
-  GetStudentsByCountryTotalsResponses[keyof GetStudentsByCountryTotalsResponses]
+export type GetStudentsByCountryTotalsResponse = GetStudentsByCountryTotalsResponses[keyof GetStudentsByCountryTotalsResponses];
 
 export type GetTotalUsersCompletedCourseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed';
+};
 
 export type GetTotalUsersCompletedCourseResponses = {
-  /**
-   * Total users completed course
-   */
-  200: CountResult
-}
+    /**
+     * Total users completed course
+     */
+    200: CountResult;
+};
 
-export type GetTotalUsersCompletedCourseResponse =
-  GetTotalUsersCompletedCourseResponses[keyof GetTotalUsersCompletedCourseResponses]
+export type GetTotalUsersCompletedCourseResponse = GetTotalUsersCompletedCourseResponses[keyof GetTotalUsersCompletedCourseResponses];
 
 export type GetTotalUsersCompletedCourseCustomTimePeriodData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Start date
-     */
-    start_date: string
-    /**
-     * End date
-     */
-    end_date: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed/custom-time-period/{start_date}/{end_date}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-completed/custom-time-period/{start_date}/{end_date}';
+};
 
 export type GetTotalUsersCompletedCourseCustomTimePeriodResponses = {
-  /**
-   * Total users completed course for custom time period
-   */
-  200: CountResult
-}
+    /**
+     * Total users completed course for custom time period
+     */
+    200: CountResult;
+};
 
-export type GetTotalUsersCompletedCourseCustomTimePeriodResponse =
-  GetTotalUsersCompletedCourseCustomTimePeriodResponses[keyof GetTotalUsersCompletedCourseCustomTimePeriodResponses]
+export type GetTotalUsersCompletedCourseCustomTimePeriodResponse = GetTotalUsersCompletedCourseCustomTimePeriodResponses[keyof GetTotalUsersCompletedCourseCustomTimePeriodResponses];
 
 export type GetTotalUsersReturnedExercisesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises';
+};
 
 export type GetTotalUsersReturnedExercisesResponses = {
-  /**
-   * Total users returned exercises
-   */
-  200: CountResult
-}
+    /**
+     * Total users returned exercises
+     */
+    200: CountResult;
+};
 
-export type GetTotalUsersReturnedExercisesResponse =
-  GetTotalUsersReturnedExercisesResponses[keyof GetTotalUsersReturnedExercisesResponses]
+export type GetTotalUsersReturnedExercisesResponse = GetTotalUsersReturnedExercisesResponses[keyof GetTotalUsersReturnedExercisesResponses];
 
 export type GetTotalUsersReturnedExercisesCustomTimePeriodData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Start date
-     */
-    start_date: string
-    /**
-     * End date
-     */
-    end_date: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-returned-exercises/custom-time-period/{start_date}/{end_date}';
+};
 
 export type GetTotalUsersReturnedExercisesCustomTimePeriodResponses = {
-  /**
-   * Total users returned exercises for custom time period
-   */
-  200: CountResult
-}
+    /**
+     * Total users returned exercises for custom time period
+     */
+    200: CountResult;
+};
 
-export type GetTotalUsersReturnedExercisesCustomTimePeriodResponse =
-  GetTotalUsersReturnedExercisesCustomTimePeriodResponses[keyof GetTotalUsersReturnedExercisesCustomTimePeriodResponses]
+export type GetTotalUsersReturnedExercisesCustomTimePeriodResponse = GetTotalUsersReturnedExercisesCustomTimePeriodResponses[keyof GetTotalUsersReturnedExercisesCustomTimePeriodResponses];
 
 export type GetTotalUsersStartedCourseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course';
+};
 
 export type GetTotalUsersStartedCourseResponses = {
-  /**
-   * Total users started course
-   */
-  200: CountResult
-}
+    /**
+     * Total users started course
+     */
+    200: CountResult;
+};
 
-export type GetTotalUsersStartedCourseResponse =
-  GetTotalUsersStartedCourseResponses[keyof GetTotalUsersStartedCourseResponses]
+export type GetTotalUsersStartedCourseResponse = GetTotalUsersStartedCourseResponses[keyof GetTotalUsersStartedCourseResponses];
 
 export type GetTotalUsersStartedCourseCustomTimePeriodData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Start date
-     */
-    start_date: string
-    /**
-     * End date
-     */
-    end_date: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course/custom-time-period/{start_date}/{end_date}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/total-users-started-course/custom-time-period/{start_date}/{end_date}';
+};
 
 export type GetTotalUsersStartedCourseCustomTimePeriodResponses = {
-  /**
-   * Total users started course for custom time period
-   */
-  200: CountResult
-}
+    /**
+     * Total users started course for custom time period
+     */
+    200: CountResult;
+};
 
-export type GetTotalUsersStartedCourseCustomTimePeriodResponse =
-  GetTotalUsersStartedCourseCustomTimePeriodResponses[keyof GetTotalUsersStartedCourseCustomTimePeriodResponses]
+export type GetTotalUsersStartedCourseCustomTimePeriodResponse = GetTotalUsersStartedCourseCustomTimePeriodResponses[keyof GetTotalUsersStartedCourseCustomTimePeriodResponses];
 
 export type GetUsersReturningExercisesHistoryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/users-returning-exercises-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/users-returning-exercises-history/{granularity}/{time_window}';
+};
 
 export type GetUsersReturningExercisesHistoryResponses = {
-  /**
-   * Users returning exercises history
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Users returning exercises history
+     */
+    200: Array<CountResult>;
+};
 
-export type GetUsersReturningExercisesHistoryResponse =
-  GetUsersReturningExercisesHistoryResponses[keyof GetUsersReturningExercisesHistoryResponses]
+export type GetUsersReturningExercisesHistoryResponse = GetUsersReturningExercisesHistoryResponses[keyof GetUsersReturningExercisesHistoryResponses];
 
 export type GetUniqueUsersStartingHistoryCustomTimePeriodData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Start date
-     */
-    start_date: string
-    /**
-     * End date
-     */
-    end_date: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/custom-time-period/{start_date}/{end_date}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Start date
+         */
+        start_date: string;
+        /**
+         * End date
+         */
+        end_date: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/custom-time-period/{start_date}/{end_date}';
+};
 
 export type GetUniqueUsersStartingHistoryCustomTimePeriodResponses = {
-  /**
-   * Unique users starting history for custom time period
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Unique users starting history for custom time period
+     */
+    200: Array<CountResult>;
+};
 
-export type GetUniqueUsersStartingHistoryCustomTimePeriodResponse =
-  GetUniqueUsersStartingHistoryCustomTimePeriodResponses[keyof GetUniqueUsersStartingHistoryCustomTimePeriodResponses]
+export type GetUniqueUsersStartingHistoryCustomTimePeriodResponse = GetUniqueUsersStartingHistoryCustomTimePeriodResponses[keyof GetUniqueUsersStartingHistoryCustomTimePeriodResponses];
 
 export type GetUniqueUsersStartingHistoryData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Time granularity
-     */
-    granularity: TimeGranularity
-    /**
-     * Time window
-     */
-    time_window: number
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/{granularity}/{time_window}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Time granularity
+         */
+        granularity: TimeGranularity;
+        /**
+         * Time window
+         */
+        time_window: number;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/stats/users-starting-history/{granularity}/{time_window}';
+};
 
 export type GetUniqueUsersStartingHistoryResponses = {
-  /**
-   * Unique users starting history
-   */
-  200: Array<CountResult>
-}
+    /**
+     * Unique users starting history
+     */
+    200: Array<CountResult>;
+};
 
-export type GetUniqueUsersStartingHistoryResponse =
-  GetUniqueUsersStartingHistoryResponses[keyof GetUniqueUsersStartingHistoryResponses]
+export type GetUniqueUsersStartingHistoryResponse = GetUniqueUsersStartingHistoryResponses[keyof GetUniqueUsersStartingHistoryResponses];
 
 export type GetCourseExerciseStatusesForUserData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/status-for-all-exercises/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/status-for-all-exercises/{user_id}';
+};
 
 export type GetCourseExerciseStatusesForUserResponses = {
-  /**
-   * Exercise statuses for course user
-   */
-  200: Array<ExerciseStatusSummaryForUser>
-}
+    /**
+     * Exercise statuses for course user
+     */
+    200: Array<ExerciseStatusSummaryForUser>;
+};
 
-export type GetCourseExerciseStatusesForUserResponse =
-  GetCourseExerciseStatusesForUserResponses[keyof GetCourseExerciseStatusesForUserResponses]
+export type GetCourseExerciseStatusesForUserResponse = GetCourseExerciseStatusesForUserResponses[keyof GetCourseExerciseStatusesForUserResponses];
 
 export type GetCourseStructureData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/structure"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/structure';
+};
 
 export type GetCourseStructureResponses = {
-  /**
-   * Course structure
-   */
-  200: CourseStructure
-}
+    /**
+     * Course structure
+     */
+    200: CourseStructure;
+};
 
-export type GetCourseStructureResponse =
-  GetCourseStructureResponses[keyof GetCourseStructureResponses]
+export type GetCourseStructureResponse = GetCourseStructureResponses[keyof GetCourseStructureResponses];
 
 export type GetCourseStudentsCertificatesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/students/certificates"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/certificates';
+};
 
 export type GetCourseStudentsCertificatesResponses = {
-  /**
-   * Course certificates
-   */
-  200: Array<CertificateGridRow>
-}
+    /**
+     * Course certificates
+     */
+    200: Array<CertificateGridRow>;
+};
 
-export type GetCourseStudentsCertificatesResponse =
-  GetCourseStudentsCertificatesResponses[keyof GetCourseStudentsCertificatesResponses]
+export type GetCourseStudentsCertificatesResponse = GetCourseStudentsCertificatesResponses[keyof GetCourseStudentsCertificatesResponses];
 
 export type GetCourseStudentsCompletionsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/students/completions"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/completions';
+};
 
 export type GetCourseStudentsCompletionsResponses = {
-  /**
-   * Course completions
-   */
-  200: Array<CompletionGridRow>
-}
+    /**
+     * Course completions
+     */
+    200: Array<CompletionGridRow>;
+};
 
-export type GetCourseStudentsCompletionsResponse =
-  GetCourseStudentsCompletionsResponses[keyof GetCourseStudentsCompletionsResponses]
+export type GetCourseStudentsCompletionsResponse = GetCourseStudentsCompletionsResponses[keyof GetCourseStudentsCompletionsResponses];
 
 export type GetCourseStudentsProgressData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/students/progress"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/progress';
+};
 
 export type GetCourseStudentsProgressResponses = {
-  /**
-   * Course student progress overview
-   */
-  200: ProgressOverview
-}
+    /**
+     * Course student progress overview
+     */
+    200: ProgressOverview;
+};
 
-export type GetCourseStudentsProgressResponse =
-  GetCourseStudentsProgressResponses[keyof GetCourseStudentsProgressResponses]
+export type GetCourseStudentsProgressResponse = GetCourseStudentsProgressResponses[keyof GetCourseStudentsProgressResponses];
 
 export type GetCourseStudentsUsersData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/students/users"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/students/users';
+};
 
 export type GetCourseStudentsUsersResponses = {
-  /**
-   * Course users
-   */
-  200: Array<CourseUserInfo>
-}
+    /**
+     * Course users
+     */
+    200: Array<CourseUserInfo>;
+};
 
-export type GetCourseStudentsUsersResponse =
-  GetCourseStudentsUsersResponses[keyof GetCourseStudentsUsersResponses]
+export type GetCourseStudentsUsersResponse = GetCourseStudentsUsersResponses[keyof GetCourseStudentsUsersResponses];
 
 export type GetCourseSubmissionCountsByExerciseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/submission-counts-by-exercise"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/submission-counts-by-exercise';
+};
 
 export type GetCourseSubmissionCountsByExerciseResponses = {
-  /**
-   * Course submission counts by exercise
-   */
-  200: Array<ExerciseSlideSubmissionCountByExercise>
-}
+    /**
+     * Course submission counts by exercise
+     */
+    200: Array<ExerciseSlideSubmissionCountByExercise>;
+};
 
-export type GetCourseSubmissionCountsByExerciseResponse =
-  GetCourseSubmissionCountsByExerciseResponses[keyof GetCourseSubmissionCountsByExerciseResponses]
+export type GetCourseSubmissionCountsByExerciseResponse = GetCourseSubmissionCountsByExerciseResponses[keyof GetCourseSubmissionCountsByExerciseResponses];
 
 export type GetCourseSuspectedCheatersData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query: {
-    /**
-     * Whether to fetch archived suspected cheaters
-     */
-    archive: boolean
-  }
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query: {
+        /**
+         * Whether to fetch archived suspected cheaters
+         */
+        archive: boolean;
+    };
+    url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters';
+};
 
 export type GetCourseSuspectedCheatersResponses = {
-  /**
-   * Suspected cheaters for course
-   */
-  200: Array<SuspectedCheaters>
-}
+    /**
+     * Suspected cheaters for course
+     */
+    200: Array<SuspectedCheaters>;
+};
 
-export type GetCourseSuspectedCheatersResponse =
-  GetCourseSuspectedCheatersResponses[keyof GetCourseSuspectedCheatersResponses]
+export type GetCourseSuspectedCheatersResponse = GetCourseSuspectedCheatersResponses[keyof GetCourseSuspectedCheatersResponses];
 
 export type ApproveCourseSuspectedCheaterData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Suspected cheater user id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Suspected cheater user id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}';
+};
 
 export type ApproveCourseSuspectedCheaterResponses = {
-  /**
-   * Suspected cheater approved
-   */
-  200: unknown
-}
+    /**
+     * Suspected cheater approved
+     */
+    200: unknown;
+};
 
 export type ArchiveCourseSuspectedCheaterData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * Suspected cheater user id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * Suspected cheater user id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}';
+};
 
 export type ArchiveCourseSuspectedCheaterResponses = {
-  /**
-   * Suspected cheater archived
-   */
-  200: unknown
-}
+    /**
+     * Suspected cheater archived
+     */
+    200: unknown;
+};
 
 export type ResetCourseProgressForEveryoneData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-everyone"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-everyone';
+};
 
 export type ResetCourseProgressForEveryoneResponses = {
-  /**
-   * Course progress reset for everyone
-   */
-  200: boolean
-}
+    /**
+     * Course progress reset for everyone
+     */
+    200: boolean;
+};
 
-export type ResetCourseProgressForEveryoneResponse =
-  ResetCourseProgressForEveryoneResponses[keyof ResetCourseProgressForEveryoneResponses]
+export type ResetCourseProgressForEveryoneResponse = ResetCourseProgressForEveryoneResponses[keyof ResetCourseProgressForEveryoneResponses];
 
 export type ResetCourseProgressForTeacherThemselvesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-themselves"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/teacher-reset-course-progress-for-themselves';
+};
 
 export type ResetCourseProgressForTeacherThemselvesResponses = {
-  /**
-   * Teacher course progress reset
-   */
-  200: boolean
-}
+    /**
+     * Teacher course progress reset
+     */
+    200: boolean;
+};
 
-export type ResetCourseProgressForTeacherThemselvesResponse =
-  ResetCourseProgressForTeacherThemselvesResponses[keyof ResetCourseProgressForTeacherThemselvesResponses]
+export type ResetCourseProgressForTeacherThemselvesResponse = ResetCourseProgressForTeacherThemselvesResponses[keyof ResetCourseProgressForTeacherThemselvesResponses];
 
 export type GetCourseThresholdsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/thresholds"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/thresholds';
+};
 
 export type GetCourseThresholdsResponses = {
-  /**
-   * Course thresholds
-   */
-  200: unknown
-}
+    /**
+     * Course thresholds
+     */
+    200: unknown;
+};
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/update-peer-review-queue-reviews-received';
+};
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedResponses = {
-  /**
-   * Peer review queue updated
-   */
-  200: boolean
-}
+    /**
+     * Peer review queue updated
+     */
+    200: boolean;
+};
 
-export type UpdateCoursePeerReviewQueueReviewsReceivedResponse =
-  UpdateCoursePeerReviewQueueReviewsReceivedResponses[keyof UpdateCoursePeerReviewQueueReviewsReceivedResponses]
+export type UpdateCoursePeerReviewQueueReviewsReceivedResponse = UpdateCoursePeerReviewQueueReviewsReceivedResponses[keyof UpdateCoursePeerReviewQueueReviewsReceivedResponses];
 
 export type UploadCourseMediaData = {
-  body: string
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/upload"
-}
+    body: string;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/upload';
+};
 
 export type UploadCourseMediaResponses = {
-  /**
-   * Uploaded media result
-   */
-  200: unknown
-}
+    /**
+     * Uploaded media result
+     */
+    200: UploadResult;
+};
+
+export type UploadCourseMediaResponse = UploadCourseMediaResponses[keyof UploadCourseMediaResponses];
 
 export type GetCourseUserSettingsForUserData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/user-settings/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/user-settings/{user_id}';
+};
 
 export type GetCourseUserSettingsForUserResponses = {
-  /**
-   * User course settings
-   */
-  200: null | UserCourseSettings
-}
+    /**
+     * User course settings
+     */
+    200: null | UserCourseSettings;
+};
 
-export type GetCourseUserSettingsForUserResponse =
-  GetCourseUserSettingsForUserResponses[keyof GetCourseUserSettingsForUserResponses]
+export type GetCourseUserSettingsForUserResponse = GetCourseUserSettingsForUserResponses[keyof GetCourseUserSettingsForUserResponses];
 
 export type GetCourseWeekdayHourSubmissionCountsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/weekday-hour-submission-counts"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/courses/{course_id}/weekday-hour-submission-counts';
+};
 
 export type GetCourseWeekdayHourSubmissionCountsResponses = {
-  /**
-   * Course weekday and hour submission counts
-   */
-  200: Array<ExerciseSlideSubmissionCountByWeekAndHour>
-}
+    /**
+     * Course weekday and hour submission counts
+     */
+    200: Array<ExerciseSlideSubmissionCountByWeekAndHour>;
+};
 
-export type GetCourseWeekdayHourSubmissionCountsResponse =
-  GetCourseWeekdayHourSubmissionCountsResponses[keyof GetCourseWeekdayHourSubmissionCountsResponses]
+export type GetCourseWeekdayHourSubmissionCountsResponse = GetCourseWeekdayHourSubmissionCountsResponses[keyof GetCourseWeekdayHourSubmissionCountsResponses];
 
 export type GetEmailTemplatesData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/email-templates"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/email-templates';
+};
 
 export type GetEmailTemplatesResponses = {
-  /**
-   * Email templates
-   */
-  200: Array<EmailTemplate>
-}
+    /**
+     * Email templates
+     */
+    200: Array<EmailTemplate>;
+};
 
-export type GetEmailTemplatesResponse = GetEmailTemplatesResponses[keyof GetEmailTemplatesResponses]
+export type GetEmailTemplatesResponse = GetEmailTemplatesResponses[keyof GetEmailTemplatesResponses];
 
 export type DeleteEmailTemplateData = {
-  body?: never
-  path: {
-    /**
-     * Email template id
-     */
-    email_template_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/email-templates/{email_template_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Email template id
+         */
+        email_template_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/email-templates/{email_template_id}';
+};
 
 export type DeleteEmailTemplateResponses = {
-  /**
-   * Deleted email template
-   */
-  200: EmailTemplate
-}
+    /**
+     * Deleted email template
+     */
+    200: EmailTemplate;
+};
 
-export type DeleteEmailTemplateResponse =
-  DeleteEmailTemplateResponses[keyof DeleteEmailTemplateResponses]
+export type DeleteEmailTemplateResponse = DeleteEmailTemplateResponses[keyof DeleteEmailTemplateResponses];
 
 export type GetExamExercisesData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    exam_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{exam_id}/exam-exercises"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{exam_id}/exam-exercises';
+};
 
 export type GetExamExercisesResponses = {
-  /**
-   * Exam exercises
-   */
-  200: Array<Exercise>
-}
+    /**
+     * Exam exercises
+     */
+    200: Array<Exercise>;
+};
 
-export type GetExamExercisesResponse = GetExamExercisesResponses[keyof GetExamExercisesResponses]
+export type GetExamExercisesResponse = GetExamExercisesResponses[keyof GetExamExercisesResponses];
 
 export type ReleaseExamGradesData = {
-  body: Array<string>
-  path: {
-    /**
-     * Exam id
-     */
-    exam_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{exam_id}/release-grades"
-}
+    body: Array<string>;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{exam_id}/release-grades';
+};
 
 export type ReleaseExamGradesResponses = {
-  /**
-   * Exam grades released
-   */
-  200: unknown
-}
+    /**
+     * Exam grades released
+     */
+    200: unknown;
+};
 
 export type GetExamSubmissionsWithExamIdData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    exam_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/exams/{exam_id}/submissions-with-exam-id"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exams/{exam_id}/submissions-with-exam-id';
+};
 
 export type GetExamSubmissionsWithExamIdResponses = {
-  /**
-   * Exercise submissions with exam id
-   */
-  200: Array<Array<ExerciseSlideSubmissionAndUserExerciseState>>
-}
+    /**
+     * Exercise submissions with exam id
+     */
+    200: Array<Array<ExerciseSlideSubmissionAndUserExerciseState>>;
+};
 
-export type GetExamSubmissionsWithExamIdResponse =
-  GetExamSubmissionsWithExamIdResponses[keyof GetExamSubmissionsWithExamIdResponses]
+export type GetExamSubmissionsWithExamIdResponse = GetExamSubmissionsWithExamIdResponses[keyof GetExamSubmissionsWithExamIdResponses];
 
 export type GetExamSubmissionsWithExerciseIdData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/exams/{exercise_id}/submissions-with-exercise-id"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exams/{exercise_id}/submissions-with-exercise-id';
+};
 
 export type GetExamSubmissionsWithExerciseIdResponses = {
-  /**
-   * Exercise submissions with exercise id
-   */
-  200: ExerciseSlideSubmissionAndUserExerciseStateList
-}
+    /**
+     * Exercise submissions with exercise id
+     */
+    200: ExerciseSlideSubmissionAndUserExerciseStateList;
+};
 
-export type GetExamSubmissionsWithExerciseIdResponse =
-  GetExamSubmissionsWithExerciseIdResponses[keyof GetExamSubmissionsWithExerciseIdResponses]
+export type GetExamSubmissionsWithExerciseIdResponse = GetExamSubmissionsWithExerciseIdResponses[keyof GetExamSubmissionsWithExerciseIdResponses];
 
 export type GetExamData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}';
+};
 
 export type GetExamResponses = {
-  /**
-   * Exam
-   */
-  200: Exam
-}
+    /**
+     * Exam
+     */
+    200: Exam;
+};
 
-export type GetExamResponse = GetExamResponses[keyof GetExamResponses]
+export type GetExamResponse = GetExamResponses[keyof GetExamResponses];
 
 export type DuplicateExamData = {
-  body: NewExam
-  path: {
-    /**
-     * Exam id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{id}/duplicate"
-}
+    body: NewExam;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/duplicate';
+};
 
 export type DuplicateExamResponses = {
-  /**
-   * Exam duplicated
-   */
-  200: boolean
-}
+    /**
+     * Exam duplicated
+     */
+    200: boolean;
+};
 
-export type DuplicateExamResponse = DuplicateExamResponses[keyof DuplicateExamResponses]
+export type DuplicateExamResponse = DuplicateExamResponses[keyof DuplicateExamResponses];
 
 export type EditExamData = {
-  body: NewExam
-  path: {
-    /**
-     * Exam id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{id}/edit-exam"
-}
+    body: NewExam;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/edit-exam';
+};
 
 export type EditExamResponses = {
-  /**
-   * Exam edited
-   */
-  200: unknown
-}
+    /**
+     * Exam edited
+     */
+    200: unknown;
+};
 
 export type ExportExamPointsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{id}/export-points"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/export-points';
+};
 
 export type ExportExamPointsCsvResponses = {
-  /**
-   * Exam points CSV export
-   */
-  200: string
-}
+    /**
+     * Exam points CSV export
+     */
+    200: string;
+};
 
-export type ExportExamPointsCsvResponse =
-  ExportExamPointsCsvResponses[keyof ExportExamPointsCsvResponses]
+export type ExportExamPointsCsvResponse = ExportExamPointsCsvResponses[keyof ExportExamPointsCsvResponses];
 
 export type ExportExamSubmissionsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{id}/export-submissions"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/export-submissions';
+};
 
 export type ExportExamSubmissionsCsvResponses = {
-  /**
-   * Exam submissions CSV export
-   */
-  200: string
-}
+    /**
+     * Exam submissions CSV export
+     */
+    200: string;
+};
 
-export type ExportExamSubmissionsCsvResponse =
-  ExportExamSubmissionsCsvResponses[keyof ExportExamSubmissionsCsvResponses]
+export type ExportExamSubmissionsCsvResponse = ExportExamSubmissionsCsvResponses[keyof ExportExamSubmissionsCsvResponses];
 
 export type SetExamCourseData = {
-  body: ExamCourseInfo
-  path: {
-    /**
-     * Exam id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{id}/set"
-}
+    body: ExamCourseInfo;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/set';
+};
 
 export type SetExamCourseResponses = {
-  /**
-   * Course set for exam
-   */
-  200: unknown
-}
+    /**
+     * Course set for exam
+     */
+    200: unknown;
+};
 
 export type UnsetExamCourseData = {
-  body: ExamCourseInfo
-  path: {
-    /**
-     * Exam id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exams/{id}/unset"
-}
+    body: ExamCourseInfo;
+    path: {
+        /**
+         * Exam id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exams/{id}/unset';
+};
 
 export type UnsetExamCourseResponses = {
-  /**
-   * Course unset from exam
-   */
-  200: unknown
-}
+    /**
+     * Course unset from exam
+     */
+    200: unknown;
+};
 
 export type GetExerciseRepositoriesForCourseData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-repositories/course/{course_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/course/{course_id}';
+};
 
 export type GetExerciseRepositoriesForCourseResponses = {
-  /**
-   * Exercise repositories for course
-   */
-  200: Array<ExerciseRepository>
-}
+    /**
+     * Exercise repositories for course
+     */
+    200: Array<ExerciseRepository>;
+};
 
-export type GetExerciseRepositoriesForCourseResponse =
-  GetExerciseRepositoriesForCourseResponses[keyof GetExerciseRepositoriesForCourseResponses]
+export type GetExerciseRepositoriesForCourseResponse = GetExerciseRepositoriesForCourseResponses[keyof GetExerciseRepositoriesForCourseResponses];
 
 export type GetExerciseRepositoriesForExamData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    exam_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-repositories/exam/{exam_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/exam/{exam_id}';
+};
 
 export type GetExerciseRepositoriesForExamResponses = {
-  /**
-   * Exercise repositories for exam
-   */
-  200: Array<ExerciseRepository>
-}
+    /**
+     * Exercise repositories for exam
+     */
+    200: Array<ExerciseRepository>;
+};
 
-export type GetExerciseRepositoriesForExamResponse =
-  GetExerciseRepositoriesForExamResponses[keyof GetExerciseRepositoriesForExamResponses]
+export type GetExerciseRepositoriesForExamResponse = GetExerciseRepositoriesForExamResponses[keyof GetExerciseRepositoriesForExamResponses];
 
 export type CreateExerciseRepositoryData = {
-  body: NewExerciseRepository
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/exercise-repositories/new"
-}
+    body: NewExerciseRepository;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/new';
+};
 
 export type CreateExerciseRepositoryResponses = {
-  /**
-   * Created exercise repository id
-   */
-  200: string
-}
+    /**
+     * Created exercise repository id
+     */
+    200: string;
+};
 
-export type CreateExerciseRepositoryResponse =
-  CreateExerciseRepositoryResponses[keyof CreateExerciseRepositoryResponses]
+export type CreateExerciseRepositoryResponse = CreateExerciseRepositoryResponses[keyof CreateExerciseRepositoryResponses];
 
 export type DeleteExerciseRepositoryData = {
-  body?: never
-  path: {
-    /**
-     * Exercise repository id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-repositories/{id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/{id}';
+};
 
 export type DeleteExerciseRepositoryResponses = {
-  /**
-   * Deleted exercise repository
-   */
-  200: boolean
-}
+    /**
+     * Deleted exercise repository
+     */
+    200: boolean;
+};
 
-export type DeleteExerciseRepositoryResponse =
-  DeleteExerciseRepositoryResponses[keyof DeleteExerciseRepositoryResponses]
+export type DeleteExerciseRepositoryResponse = DeleteExerciseRepositoryResponses[keyof DeleteExerciseRepositoryResponses];
 
 export type UpdateExerciseRepositoryData = {
-  body: ExerciseRepositoryUpdate
-  path: {
-    /**
-     * Exercise repository id
-     */
-    id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-repositories/{id}"
-}
+    body: ExerciseRepositoryUpdate;
+    path: {
+        /**
+         * Exercise repository id
+         */
+        id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-repositories/{id}';
+};
 
 export type UpdateExerciseRepositoryResponses = {
-  /**
-   * Updated exercise repository
-   */
-  200: boolean
-}
+    /**
+     * Updated exercise repository
+     */
+    200: boolean;
+};
 
-export type UpdateExerciseRepositoryResponse =
-  UpdateExerciseRepositoryResponses[keyof UpdateExerciseRepositoryResponses]
+export type UpdateExerciseRepositoryResponse = UpdateExerciseRepositoryResponses[keyof UpdateExerciseRepositoryResponses];
 
 export type GetExerciseServicesData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/exercise-services/"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/';
+};
 
 export type GetExerciseServicesResponses = {
-  /**
-   * Exercise services
-   */
-  200: Array<ExerciseService>
-}
+    /**
+     * Exercise services
+     */
+    200: Array<ExerciseService>;
+};
 
-export type GetExerciseServicesResponse =
-  GetExerciseServicesResponses[keyof GetExerciseServicesResponses]
+export type GetExerciseServicesResponse = GetExerciseServicesResponses[keyof GetExerciseServicesResponses];
 
 export type CreateExerciseServiceData = {
-  body: ExerciseServiceNewOrUpdate
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/exercise-services/"
-}
+    body: ExerciseServiceNewOrUpdate;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/';
+};
 
 export type CreateExerciseServiceResponses = {
-  /**
-   * Created exercise service
-   */
-  200: ExerciseServiceWithError
-}
+    /**
+     * Created exercise service
+     */
+    200: ExerciseServiceWithError;
+};
 
-export type CreateExerciseServiceResponse =
-  CreateExerciseServiceResponses[keyof CreateExerciseServiceResponses]
+export type CreateExerciseServiceResponse = CreateExerciseServiceResponses[keyof CreateExerciseServiceResponses];
 
 export type DeleteExerciseServiceData = {
-  body?: never
-  path: {
-    /**
-     * Exercise service id
-     */
-    exercise_service_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-services/{exercise_service_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise service id
+         */
+        exercise_service_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}';
+};
 
 export type DeleteExerciseServiceResponses = {
-  /**
-   * Deleted exercise service
-   */
-  200: ExerciseService
-}
+    /**
+     * Deleted exercise service
+     */
+    200: ExerciseService;
+};
 
-export type DeleteExerciseServiceResponse =
-  DeleteExerciseServiceResponses[keyof DeleteExerciseServiceResponses]
+export type DeleteExerciseServiceResponse = DeleteExerciseServiceResponses[keyof DeleteExerciseServiceResponses];
 
 export type GetExerciseServiceByIdData = {
-  body?: never
-  path: {
-    /**
-     * Exercise service id
-     */
-    exercise_service_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-services/{exercise_service_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise service id
+         */
+        exercise_service_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}';
+};
 
 export type GetExerciseServiceByIdResponses = {
-  /**
-   * Exercise service
-   */
-  200: ExerciseService
-}
+    /**
+     * Exercise service
+     */
+    200: ExerciseService;
+};
 
-export type GetExerciseServiceByIdResponse =
-  GetExerciseServiceByIdResponses[keyof GetExerciseServiceByIdResponses]
+export type GetExerciseServiceByIdResponse = GetExerciseServiceByIdResponses[keyof GetExerciseServiceByIdResponses];
 
 export type UpdateExerciseServiceData = {
-  body: ExerciseServiceNewOrUpdate
-  path: {
-    /**
-     * Exercise service id
-     */
-    exercise_service_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-services/{exercise_service_id}"
-}
+    body: ExerciseServiceNewOrUpdate;
+    path: {
+        /**
+         * Exercise service id
+         */
+        exercise_service_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-services/{exercise_service_id}';
+};
 
 export type UpdateExerciseServiceResponses = {
-  /**
-   * Updated exercise service
-   */
-  200: ExerciseServiceWithError
-}
+    /**
+     * Updated exercise service
+     */
+    200: ExerciseServiceWithError;
+};
 
-export type UpdateExerciseServiceResponse =
-  UpdateExerciseServiceResponses[keyof UpdateExerciseServiceResponses]
+export type UpdateExerciseServiceResponse = UpdateExerciseServiceResponses[keyof UpdateExerciseServiceResponses];
 
 export type AddTeacherGradingForExamSubmissionData = {
-  body: NewTeacherGradingDecision
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/exercise-slide-submissions/add-teacher-grading-for-exam-submission"
-}
+    body: NewTeacherGradingDecision;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-slide-submissions/add-teacher-grading-for-exam-submission';
+};
 
 export type AddTeacherGradingForExamSubmissionResponses = {
-  /**
-   * Created teacher grading decision
-   */
-  200: TeacherGradingDecision
-}
+    /**
+     * Created teacher grading decision
+     */
+    200: TeacherGradingDecision;
+};
 
-export type AddTeacherGradingForExamSubmissionResponse =
-  AddTeacherGradingForExamSubmissionResponses[keyof AddTeacherGradingForExamSubmissionResponses]
+export type AddTeacherGradingForExamSubmissionResponse = AddTeacherGradingForExamSubmissionResponses[keyof AddTeacherGradingForExamSubmissionResponses];
 
 export type GetExamUserExerciseStateInfoData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    exam_id: string
-  }
-  query: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  url: "/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/user-exercise-state-info"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    url: '/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/user-exercise-state-info';
+};
 
 export type GetExamUserExerciseStateInfoResponses = {
-  /**
-   * User exercise state for the exam submission
-   */
-  200: UserExerciseState
-}
+    /**
+     * User exercise state for the exam submission
+     */
+    200: UserExerciseState;
+};
 
-export type GetExamUserExerciseStateInfoResponse =
-  GetExamUserExerciseStateInfoResponses[keyof GetExamUserExerciseStateInfoResponses]
+export type GetExamUserExerciseStateInfoResponse = GetExamUserExerciseStateInfoResponses[keyof GetExamUserExerciseStateInfoResponses];
 
 export type GetExerciseSlideSubmissionInfoData = {
-  body?: never
-  path: {
-    /**
-     * Exercise slide submission id
-     */
-    submission_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise slide submission id
+         */
+        submission_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info';
+};
 
 export type GetExerciseSlideSubmissionInfoResponses = {
-  /**
-   * Exercise slide submission info
-   */
-  200: ExerciseSlideSubmissionInfo
-}
+    /**
+     * Exercise slide submission info
+     */
+    200: ExerciseSlideSubmissionInfo;
+};
 
-export type GetExerciseSlideSubmissionInfoResponse =
-  GetExerciseSlideSubmissionInfoResponses[keyof GetExerciseSlideSubmissionInfoResponses]
+export type GetExerciseSlideSubmissionInfoResponse = GetExerciseSlideSubmissionInfoResponses[keyof GetExerciseSlideSubmissionInfoResponses];
 
 export type GetExercisesByCourseIdData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercises/{course_id}/exercises-by-course-id"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{course_id}/exercises-by-course-id';
+};
 
 export type GetExercisesByCourseIdResponses = {
-  /**
-   * Exercises by course id
-   */
-  200: Array<Exercise>
-}
+    /**
+     * Exercises by course id
+     */
+    200: Array<Exercise>;
+};
 
-export type GetExercisesByCourseIdResponse =
-  GetExercisesByCourseIdResponses[keyof GetExercisesByCourseIdResponses]
+export type GetExercisesByCourseIdResponse = GetExercisesByCourseIdResponses[keyof GetExercisesByCourseIdResponses];
 
 export type ResetExercisesForSelectedUsersData = {
-  body: ResetExercisesPayload
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercises/{course_id}/reset-exercises-for-selected-users"
-}
+    body: ResetExercisesPayload;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{course_id}/reset-exercises-for-selected-users';
+};
 
 export type ResetExercisesForSelectedUsersResponses = {
-  /**
-   * Number of successful resets
-   */
-  200: number
-}
+    /**
+     * Number of successful resets
+     */
+    200: number;
+};
 
-export type ResetExercisesForSelectedUsersResponse =
-  ResetExercisesForSelectedUsersResponses[keyof ResetExercisesForSelectedUsersResponses]
+export type ResetExercisesForSelectedUsersResponse = ResetExercisesForSelectedUsersResponses[keyof ResetExercisesForSelectedUsersResponses];
 
 export type GetExerciseData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercises/{exercise_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{exercise_id}';
+};
 
 export type GetExerciseResponses = {
-  /**
-   * Exercise
-   */
-  200: Exercise
-}
+    /**
+     * Exercise
+     */
+    200: Exercise;
+};
 
-export type GetExerciseResponse = GetExerciseResponses[keyof GetExerciseResponses]
+export type GetExerciseResponse = GetExerciseResponses[keyof GetExerciseResponses];
 
 export type GetExerciseAnswersRequiringAttentionData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/exercises/{exercise_id}/answers-requiring-attention"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/answers-requiring-attention';
+};
 
 export type GetExerciseAnswersRequiringAttentionResponses = {
-  /**
-   * Answers requiring attention
-   */
-  200: AnswersRequiringAttention
-}
+    /**
+     * Answers requiring attention
+     */
+    200: AnswersRequiringAttention;
+};
 
-export type GetExerciseAnswersRequiringAttentionResponse =
-  GetExerciseAnswersRequiringAttentionResponses[keyof GetExerciseAnswersRequiringAttentionResponses]
+export type GetExerciseAnswersRequiringAttentionResponse = GetExerciseAnswersRequiringAttentionResponses[keyof GetExerciseAnswersRequiringAttentionResponses];
 
 export type GetExerciseCsvExportTaskOptionsData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/csv-export-task-options';
+};
 
 export type GetExerciseCsvExportTaskOptionsResponses = {
-  /**
-   * Exercise CSV export task options
-   */
-  200: Array<ExerciseCsvExportTaskOption>
-}
+    /**
+     * Exercise CSV export task options
+     */
+    200: Array<ExerciseCsvExportTaskOption>;
+};
 
-export type GetExerciseCsvExportTaskOptionsResponse =
-  GetExerciseCsvExportTaskOptionsResponses[keyof GetExerciseCsvExportTaskOptionsResponses]
+export type GetExerciseCsvExportTaskOptionsResponse = GetExerciseCsvExportTaskOptionsResponses[keyof GetExerciseCsvExportTaskOptionsResponses];
 
 export type ExportExerciseAnswersCsvData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-  }
-  query: {
-    /**
-     * Exercise task id
-     */
-    exercise_task_id: string
-    /**
-     * Only include latest submission per user
-     */
-    only_latest_per_user?: boolean
-  }
-  url: "/api/v0/main-frontend/exercises/{exercise_id}/export-answers-csv"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query: {
+        /**
+         * Exercise task id
+         */
+        exercise_task_id: string;
+        /**
+         * Only include latest submission per user
+         */
+        only_latest_per_user?: boolean;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/export-answers-csv';
+};
 
 export type ExportExerciseAnswersCsvResponses = {
-  /**
-   * Exercise answers CSV
-   */
-  200: string
-}
+    /**
+     * Exercise answers CSV
+     */
+    200: string;
+};
 
-export type ExportExerciseAnswersCsvResponse =
-  ExportExerciseAnswersCsvResponses[keyof ExportExerciseAnswersCsvResponses]
+export type ExportExerciseAnswersCsvResponse = ExportExerciseAnswersCsvResponses[keyof ExportExerciseAnswersCsvResponses];
 
 export type ExportExerciseDefinitionsCsvData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-  }
-  query: {
-    /**
-     * Exercise task id
-     */
-    exercise_task_id: string
-    /**
-     * Only include latest submission per user
-     */
-    only_latest_per_user?: boolean
-  }
-  url: "/api/v0/main-frontend/exercises/{exercise_id}/export-definitions-csv"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query: {
+        /**
+         * Exercise task id
+         */
+        exercise_task_id: string;
+        /**
+         * Only include latest submission per user
+         */
+        only_latest_per_user?: boolean;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/export-definitions-csv';
+};
 
 export type ExportExerciseDefinitionsCsvResponses = {
-  /**
-   * Exercise definitions CSV
-   */
-  200: string
-}
+    /**
+     * Exercise definitions CSV
+     */
+    200: string;
+};
 
-export type ExportExerciseDefinitionsCsvResponse =
-  ExportExerciseDefinitionsCsvResponses[keyof ExportExerciseDefinitionsCsvResponses]
+export type ExportExerciseDefinitionsCsvResponse = ExportExerciseDefinitionsCsvResponses[keyof ExportExerciseDefinitionsCsvResponses];
 
 export type GetExerciseSubmissionsData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/exercises/{exercise_id}/submissions"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/submissions';
+};
 
 export type GetExerciseSubmissionsResponses = {
-  /**
-   * Exercise submissions
-   */
-  200: ExerciseSubmissions
-}
+    /**
+     * Exercise submissions
+     */
+    200: ExerciseSubmissions;
+};
 
-export type GetExerciseSubmissionsResponse =
-  GetExerciseSubmissionsResponses[keyof GetExerciseSubmissionsResponses]
+export type GetExerciseSubmissionsResponse = GetExerciseSubmissionsResponses[keyof GetExerciseSubmissionsResponses];
 
 export type GetExerciseSubmissionsForUserData = {
-  body?: never
-  path: {
-    /**
-     * Exercise id
-     */
-    exercise_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/exercises/{exercise_id}/submissions/user/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Exercise id
+         */
+        exercise_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/exercises/{exercise_id}/submissions/user/{user_id}';
+};
 
 export type GetExerciseSubmissionsForUserResponses = {
-  /**
-   * Exercise submissions for user
-   */
-  200: Array<ExerciseSlideSubmission>
-}
+    /**
+     * Exercise submissions for user
+     */
+    200: Array<ExerciseSlideSubmission>;
+};
 
-export type GetExerciseSubmissionsForUserResponse =
-  GetExerciseSubmissionsForUserResponses[keyof GetExerciseSubmissionsForUserResponses]
+export type GetExerciseSubmissionsForUserResponse = GetExerciseSubmissionsForUserResponses[keyof GetExerciseSubmissionsForUserResponses];
 
 export type MarkFeedbackAsReadData = {
-  body: MarkAsRead
-  path: {
-    /**
-     * Feedback id
-     */
-    feedback_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/feedback/{feedback_id}"
-}
+    body: MarkAsRead;
+    path: {
+        /**
+         * Feedback id
+         */
+        feedback_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/feedback/{feedback_id}';
+};
 
 export type MarkFeedbackAsReadResponses = {
-  /**
-   * Feedback read state updated
-   */
-  200: unknown
-}
+    /**
+     * Feedback read state updated
+     */
+    200: unknown;
+};
 
 export type GetCompletionStatsByEmailDomainData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Optional year
-     */
-    year?: number
-  }
-  url: "/api/v0/main-frontend/global-stats/completion-stats-by-email-domain"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Optional year
+         */
+        year?: number;
+    };
+    url: '/api/v0/main-frontend/global-stats/completion-stats-by-email-domain';
+};
 
 export type GetCompletionStatsByEmailDomainResponses = {
-  /**
-   * Completion stats by email domain
-   */
-  200: Array<DomainCompletionStats>
-}
+    /**
+     * Completion stats by email domain
+     */
+    200: Array<DomainCompletionStats>;
+};
 
-export type GetCompletionStatsByEmailDomainResponse =
-  GetCompletionStatsByEmailDomainResponses[keyof GetCompletionStatsByEmailDomainResponses]
+export type GetCompletionStatsByEmailDomainResponse = GetCompletionStatsByEmailDomainResponses[keyof GetCompletionStatsByEmailDomainResponses];
 
 export type GetCourseCompletionStatsForEmailDomainData = {
-  body?: never
-  path?: never
-  query: {
-    /**
-     * Email domain
-     */
-    email_domain: string
-    /**
-     * Optional year
-     */
-    year?: number
-  }
-  url: "/api/v0/main-frontend/global-stats/course-completion-stats-for-email-domain"
-}
+    body?: never;
+    path?: never;
+    query: {
+        /**
+         * Email domain
+         */
+        email_domain: string;
+        /**
+         * Optional year
+         */
+        year?: number;
+    };
+    url: '/api/v0/main-frontend/global-stats/course-completion-stats-for-email-domain';
+};
 
 export type GetCourseCompletionStatsForEmailDomainResponses = {
-  /**
-   * Course completion stats for email domain
-   */
-  200: Array<CourseCompletionStats>
-}
+    /**
+     * Course completion stats for email domain
+     */
+    200: Array<CourseCompletionStats>;
+};
 
-export type GetCourseCompletionStatsForEmailDomainResponse =
-  GetCourseCompletionStatsForEmailDomainResponses[keyof GetCourseCompletionStatsForEmailDomainResponses]
+export type GetCourseCompletionStatsForEmailDomainResponse = GetCourseCompletionStatsForEmailDomainResponses[keyof GetCourseCompletionStatsForEmailDomainResponses];
 
 export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Time granularity
-     */
-    granularity?: TimeGranularity
-  }
-  url: "/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: TimeGranularity;
+    };
+    url: '/api/v0/main-frontend/global-stats/course-module-stats-by-completions-registered-to-study-registry';
+};
 
 export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses = {
-  /**
-   * Course module completion stats
-   */
-  200: Array<GlobalCourseModuleStatEntry>
-}
+    /**
+     * Course module completion stats
+     */
+    200: Array<GlobalCourseModuleStatEntry>;
+};
 
-export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse =
-  GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses[keyof GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses]
+export type GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponse = GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses[keyof GetCourseModuleStatsByCompletionsRegisteredToStudyRegistryResponses];
 
 export type GetNumberOfPeopleCompletedACourseData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Time granularity
-     */
-    granularity?: TimeGranularity
-  }
-  url: "/api/v0/main-frontend/global-stats/number-of-people-completed-a-course"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: TimeGranularity;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-completed-a-course';
+};
 
 export type GetNumberOfPeopleCompletedACourseResponses = {
-  /**
-   * Global completion stats
-   */
-  200: Array<GlobalStatEntry>
-}
+    /**
+     * Global completion stats
+     */
+    200: Array<GlobalStatEntry>;
+};
 
-export type GetNumberOfPeopleCompletedACourseResponse =
-  GetNumberOfPeopleCompletedACourseResponses[keyof GetNumberOfPeopleCompletedACourseResponses]
+export type GetNumberOfPeopleCompletedACourseResponse = GetNumberOfPeopleCompletedACourseResponses[keyof GetNumberOfPeopleCompletedACourseResponses];
 
 export type GetNumberOfPeopleDoneAtLeastOneExerciseData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Time granularity
-     */
-    granularity?: TimeGranularity
-  }
-  url: "/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: TimeGranularity;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-done-at-least-one-exercise';
+};
 
 export type GetNumberOfPeopleDoneAtLeastOneExerciseResponses = {
-  /**
-   * Exercise participation stats
-   */
-  200: Array<GlobalStatEntry>
-}
+    /**
+     * Exercise participation stats
+     */
+    200: Array<GlobalStatEntry>;
+};
 
-export type GetNumberOfPeopleDoneAtLeastOneExerciseResponse =
-  GetNumberOfPeopleDoneAtLeastOneExerciseResponses[keyof GetNumberOfPeopleDoneAtLeastOneExerciseResponses]
+export type GetNumberOfPeopleDoneAtLeastOneExerciseResponse = GetNumberOfPeopleDoneAtLeastOneExerciseResponses[keyof GetNumberOfPeopleDoneAtLeastOneExerciseResponses];
 
 export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Time granularity
-     */
-    granularity?: TimeGranularity
-  }
-  url: "/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: TimeGranularity;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-registered-completion-to-study-registry';
+};
 
 export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses = {
-  /**
-   * Study registry completion stats
-   */
-  200: Array<GlobalStatEntry>
-}
+    /**
+     * Study registry completion stats
+     */
+    200: Array<GlobalStatEntry>;
+};
 
-export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse =
-  GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses[keyof GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses]
+export type GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponse = GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses[keyof GetNumberOfPeopleRegisteredCompletionToStudyRegistryResponses];
 
 export type GetNumberOfPeopleStartedCourseData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Time granularity
-     */
-    granularity?: TimeGranularity
-  }
-  url: "/api/v0/main-frontend/global-stats/number-of-people-started-course"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Time granularity
+         */
+        granularity?: TimeGranularity;
+    };
+    url: '/api/v0/main-frontend/global-stats/number-of-people-started-course';
+};
 
 export type GetNumberOfPeopleStartedCourseResponses = {
-  /**
-   * Course start stats
-   */
-  200: Array<GlobalStatEntry>
-}
+    /**
+     * Course start stats
+     */
+    200: Array<GlobalStatEntry>;
+};
 
-export type GetNumberOfPeopleStartedCourseResponse =
-  GetNumberOfPeopleStartedCourseResponses[keyof GetNumberOfPeopleStartedCourseResponses]
+export type GetNumberOfPeopleStartedCourseResponse = GetNumberOfPeopleStartedCourseResponses[keyof GetNumberOfPeopleStartedCourseResponses];
 
 export type DeleteGlossaryTermData = {
-  body?: never
-  path: {
-    /**
-     * Glossary term id
-     */
-    term_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/glossary/{term_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Glossary term id
+         */
+        term_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/glossary/{term_id}';
+};
 
 export type DeleteGlossaryTermErrors = {
-  /**
-   * Authentication required
-   */
-  401: unknown
-  /**
-   * User is not allowed to manage glossary terms
-   */
-  403: unknown
-}
+    /**
+     * Authentication required
+     */
+    401: unknown;
+    /**
+     * User is not allowed to manage glossary terms
+     */
+    403: unknown;
+};
 
 export type DeleteGlossaryTermResponses = {
-  /**
-   * Glossary term deleted
-   */
-  200: unknown
-}
+    /**
+     * Glossary term deleted
+     */
+    200: unknown;
+};
 
 export type UpdateGlossaryTermData = {
-  body: TermUpdate
-  path: {
-    /**
-     * Glossary term id
-     */
-    term_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/glossary/{term_id}"
-}
+    body: TermUpdate;
+    path: {
+        /**
+         * Glossary term id
+         */
+        term_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/glossary/{term_id}';
+};
 
 export type UpdateGlossaryTermErrors = {
-  /**
-   * Authentication required
-   */
-  401: unknown
-  /**
-   * User is not allowed to manage glossary terms
-   */
-  403: unknown
-}
+    /**
+     * Authentication required
+     */
+    401: unknown;
+    /**
+     * User is not allowed to manage glossary terms
+     */
+    403: unknown;
+};
 
 export type UpdateGlossaryTermResponses = {
-  /**
-   * Glossary term updated
-   */
-  200: unknown
-}
+    /**
+     * Glossary term updated
+     */
+    200: unknown;
+};
 
 export type GetOauthOpenidConfigurationData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/.well-known/openid-configuration"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/.well-known/openid-configuration';
+};
 
 export type GetOauthOpenidConfigurationResponses = {
-  /**
-   * OAuth/OpenID Connect discovery document
-   */
-  200: unknown
-}
+    /**
+     * OAuth/OpenID Connect discovery document
+     */
+    200: unknown;
+};
 
 export type AuthorizeOauthGetData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * OAuth response type
-     */
-    response_type?: string
-    /**
-     * OAuth client id
-     */
-    client_id?: string
-    /**
-     * Redirect URI
-     */
-    redirect_uri?: string
-    /**
-     * Requested scopes
-     */
-    scope?: string
-    /**
-     * OAuth state
-     */
-    state?: string
-    /**
-     * OpenID Connect nonce
-     */
-    nonce?: string
-    /**
-     * PKCE code challenge
-     */
-    code_challenge?: string
-    /**
-     * PKCE code challenge method
-     */
-    code_challenge_method?: string
-    /**
-     * Prompt behavior
-     */
-    prompt?: string
-    /**
-     * Unsupported request object
-     */
-    request?: string
-  }
-  url: "/api/v0/main-frontend/oauth/authorize"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * OAuth response type
+         */
+        response_type?: string;
+        /**
+         * OAuth client id
+         */
+        client_id?: string;
+        /**
+         * Redirect URI
+         */
+        redirect_uri?: string;
+        /**
+         * Requested scopes
+         */
+        scope?: string;
+        /**
+         * OAuth state
+         */
+        state?: string;
+        /**
+         * OpenID Connect nonce
+         */
+        nonce?: string;
+        /**
+         * PKCE code challenge
+         */
+        code_challenge?: string;
+        /**
+         * PKCE code challenge method
+         */
+        code_challenge_method?: string;
+        /**
+         * Prompt behavior
+         */
+        prompt?: string;
+        /**
+         * Unsupported request object
+         */
+        request?: string;
+    };
+    url: '/api/v0/main-frontend/oauth/authorize';
+};
 
 export type AuthorizeOauthPostData = {
-  body: unknown
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/authorize"
-}
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/authorize';
+};
 
 export type GetOauthAuthorizedClientsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/authorized-clients"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/authorized-clients';
+};
 
 export type GetOauthAuthorizedClientsResponses = {
-  /**
-   * Authorized OAuth clients
-   */
-  200: Array<AuthorizedClientInfo>
-}
+    /**
+     * Authorized OAuth clients
+     */
+    200: Array<AuthorizedClientInfo>;
+};
 
-export type GetOauthAuthorizedClientsResponse =
-  GetOauthAuthorizedClientsResponses[keyof GetOauthAuthorizedClientsResponses]
+export type GetOauthAuthorizedClientsResponse = GetOauthAuthorizedClientsResponses[keyof GetOauthAuthorizedClientsResponses];
 
 export type DeleteOauthAuthorizedClientData = {
-  body?: never
-  path: {
-    /**
-     * OAuth client id
-     */
-    client_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/oauth/authorized-clients/{client_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * OAuth client id
+         */
+        client_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/authorized-clients/{client_id}';
+};
 
 export type DeleteOauthAuthorizedClientResponses = {
-  /**
-   * Authorized client revoked
-   */
-  204: void
-}
+    /**
+     * Authorized client revoked
+     */
+    204: void;
+};
 
-export type DeleteOauthAuthorizedClientResponse =
-  DeleteOauthAuthorizedClientResponses[keyof DeleteOauthAuthorizedClientResponses]
+export type DeleteOauthAuthorizedClientResponse = DeleteOauthAuthorizedClientResponses[keyof DeleteOauthAuthorizedClientResponses];
 
 export type ApproveOauthConsentData = {
-  body: ConsentQuery
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/consent"
-}
+    body: ConsentQuery;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/consent';
+};
 
 export type ApproveOauthConsentResponses = {
-  /**
-   * Consent approval response
-   */
-  200: ConsentResponse
-}
+    /**
+     * Consent approval response
+     */
+    200: ConsentResponse;
+};
 
-export type ApproveOauthConsentResponse =
-  ApproveOauthConsentResponses[keyof ApproveOauthConsentResponses]
+export type ApproveOauthConsentResponse = ApproveOauthConsentResponses[keyof ApproveOauthConsentResponses];
 
 export type DenyOauthConsentData = {
-  body: ConsentDenyQuery
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/consent/deny"
-}
+    body: ConsentDenyQuery;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/consent/deny';
+};
 
 export type DenyOauthConsentResponses = {
-  /**
-   * Consent denial response
-   */
-  200: ConsentResponse
-}
+    /**
+     * Consent denial response
+     */
+    200: ConsentResponse;
+};
 
-export type DenyOauthConsentResponse = DenyOauthConsentResponses[keyof DenyOauthConsentResponses]
+export type DenyOauthConsentResponse = DenyOauthConsentResponses[keyof DenyOauthConsentResponses];
 
 export type IntrospectOauthTokenData = {
-  body: unknown
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/introspect"
-}
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/introspect';
+};
 
 export type IntrospectOauthTokenResponses = {
-  /**
-   * OAuth token introspection response
-   */
-  200: unknown
-}
+    /**
+     * OAuth token introspection response
+     */
+    200: unknown;
+};
 
 export type GetOauthJwksData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/jwks.json"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/jwks.json';
+};
 
 export type GetOauthJwksResponses = {
-  /**
-   * OAuth JSON Web Key Set
-   */
-  200: unknown
-}
+    /**
+     * OAuth JSON Web Key Set
+     */
+    200: unknown;
+};
 
 export type RevokeOauthTokenData = {
-  body: unknown
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/revoke"
-}
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/revoke';
+};
 
 export type RevokeOauthTokenResponses = {
-  /**
-   * OAuth token revocation acknowledged
-   */
-  200: unknown
-}
+    /**
+     * OAuth token revocation acknowledged
+     */
+    200: unknown;
+};
 
 export type ExchangeOauthTokenData = {
-  body: unknown
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/token"
-}
+    body: unknown;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/token';
+};
 
 export type ExchangeOauthTokenErrors = {
-  /**
-   * OAuth token error
-   */
-  401: unknown
-}
+    /**
+     * OAuth token error
+     */
+    401: unknown;
+};
 
 export type ExchangeOauthTokenResponses = {
-  /**
-   * OAuth token response
-   */
-  200: unknown
-}
+    /**
+     * OAuth token response
+     */
+    200: unknown;
+};
 
 export type GetOauthUserInfoData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/userinfo"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/userinfo';
+};
 
 export type GetOauthUserInfoErrors = {
-  /**
-   * Invalid token
-   */
-  401: unknown
-}
+    /**
+     * Invalid token
+     */
+    401: unknown;
+};
 
 export type GetOauthUserInfoResponses = {
-  /**
-   * OAuth userinfo response
-   */
-  200: unknown
-}
+    /**
+     * OAuth userinfo response
+     */
+    200: unknown;
+};
 
 export type PostOauthUserInfoData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/oauth/userinfo"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/oauth/userinfo';
+};
 
 export type PostOauthUserInfoErrors = {
-  /**
-   * Invalid token
-   */
-  401: unknown
-}
+    /**
+     * Invalid token
+     */
+    401: unknown;
+};
 
 export type PostOauthUserInfoResponses = {
-  /**
-   * OAuth userinfo response
-   */
-  200: unknown
-}
+    /**
+     * OAuth userinfo response
+     */
+    200: unknown;
+};
 
 export type GetOrganizationBySlugData = {
-  body?: never
-  path: {
-    /**
-     * Organization slug
-     */
-    organization_slug: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/org/{organization_slug}"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization slug
+         */
+        organization_slug: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/org/{organization_slug}';
+};
 
 export type GetOrganizationBySlugResponses = {
-  /**
-   * Organization
-   */
-  200: Organization
-}
+    /**
+     * Organization
+     */
+    200: Organization;
+};
 
-export type GetOrganizationBySlugResponse =
-  GetOrganizationBySlugResponses[keyof GetOrganizationBySlugResponses]
+export type GetOrganizationBySlugResponse = GetOrganizationBySlugResponses[keyof GetOrganizationBySlugResponses];
 
 export type GetOrganizationsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/organizations"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/organizations';
+};
 
 export type GetOrganizationsResponses = {
-  /**
-   * Organizations
-   */
-  200: Array<Organization>
-}
+    /**
+     * Organizations
+     */
+    200: Array<Organization>;
+};
 
-export type GetOrganizationsResponse = GetOrganizationsResponses[keyof GetOrganizationsResponses]
+export type GetOrganizationsResponse = GetOrganizationsResponses[keyof GetOrganizationsResponses];
 
 export type CreateOrganizationData = {
-  body: OrganizationCreatePayload
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/organizations"
-}
+    body: OrganizationCreatePayload;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/organizations';
+};
 
 export type CreateOrganizationResponses = {
-  /**
-   * Created organization
-   */
-  200: unknown
-}
+    /**
+     * Created organization
+     */
+    200: unknown;
+};
 
 export type GetOrganizationExamByExamIdData = {
-  body?: never
-  path: {
-    /**
-     * Exam id
-     */
-    exam_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam"
-}
+    body?: never;
+    path: {
+        /**
+         * Exam id
+         */
+        exam_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam';
+};
 
 export type GetOrganizationExamByExamIdResponses = {
-  /**
-   * Organization exam
-   */
-  200: OrgExam
-}
+    /**
+     * Organization exam
+     */
+    200: OrgExam;
+};
 
-export type GetOrganizationExamByExamIdResponse =
-  GetOrganizationExamByExamIdResponses[keyof GetOrganizationExamByExamIdResponses]
+export type GetOrganizationExamByExamIdResponse = GetOrganizationExamByExamIdResponses[keyof GetOrganizationExamByExamIdResponses];
 
 export type GetOrganizationData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}';
+};
 
 export type GetOrganizationResponses = {
-  /**
-   * Organization
-   */
-  200: Organization
-}
+    /**
+     * Organization
+     */
+    200: Organization;
+};
 
-export type GetOrganizationResponse = GetOrganizationResponses[keyof GetOrganizationResponses]
+export type GetOrganizationResponse = GetOrganizationResponses[keyof GetOrganizationResponses];
 
 export type SoftDeleteOrganizationData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}';
+};
 
 export type SoftDeleteOrganizationResponses = {
-  /**
-   * Organization soft deleted
-   */
-  200: unknown
-}
+    /**
+     * Organization soft deleted
+     */
+    200: unknown;
+};
 
 export type UpdateOrganizationData = {
-  body: OrganizationUpdatePayload
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}"
-}
+    body: OrganizationUpdatePayload;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}';
+};
 
 export type UpdateOrganizationResponses = {
-  /**
-   * Organization updated
-   */
-  200: unknown
-}
+    /**
+     * Organization updated
+     */
+    200: unknown;
+};
 
 export type GetOrganizationCourseExamsData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/course_exams"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/course_exams';
+};
 
 export type GetOrganizationCourseExamsResponses = {
-  /**
-   * Organization course exams
-   */
-  200: Array<CourseExam>
-}
+    /**
+     * Organization course exams
+     */
+    200: Array<CourseExam>;
+};
 
-export type GetOrganizationCourseExamsResponse =
-  GetOrganizationCourseExamsResponses[keyof GetOrganizationCourseExamsResponses]
+export type GetOrganizationCourseExamsResponse = GetOrganizationCourseExamsResponses[keyof GetOrganizationCourseExamsResponses];
 
 export type GetOrganizationCoursesData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/organizations/{organization_id}/courses"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses';
+};
 
 export type GetOrganizationCoursesResponses = {
-  /**
-   * Organization courses
-   */
-  200: Array<Course>
-}
+    /**
+     * Organization courses
+     */
+    200: Array<Course>;
+};
 
-export type GetOrganizationCoursesResponse =
-  GetOrganizationCoursesResponses[keyof GetOrganizationCoursesResponses]
+export type GetOrganizationCoursesResponse = GetOrganizationCoursesResponses[keyof GetOrganizationCoursesResponses];
 
 export type GetOrganizationActiveCoursesData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/organizations/{organization_id}/courses/active"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/active';
+};
 
 export type GetOrganizationActiveCoursesResponses = {
-  /**
-   * Active organization courses
-   */
-  200: Array<Course>
-}
+    /**
+     * Active organization courses
+     */
+    200: Array<Course>;
+};
 
-export type GetOrganizationActiveCoursesResponse =
-  GetOrganizationActiveCoursesResponses[keyof GetOrganizationActiveCoursesResponses]
+export type GetOrganizationActiveCoursesResponse = GetOrganizationActiveCoursesResponses[keyof GetOrganizationActiveCoursesResponses];
 
 export type GetOrganizationActiveCourseCountData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/courses/active/count"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/active/count';
+};
 
 export type GetOrganizationActiveCourseCountResponses = {
-  /**
-   * Active organization course count
-   */
-  200: CourseCount
-}
+    /**
+     * Active organization course count
+     */
+    200: CourseCount;
+};
 
-export type GetOrganizationActiveCourseCountResponse =
-  GetOrganizationActiveCourseCountResponses[keyof GetOrganizationActiveCourseCountResponses]
+export type GetOrganizationActiveCourseCountResponse = GetOrganizationActiveCourseCountResponses[keyof GetOrganizationActiveCourseCountResponses];
 
 export type GetOrganizationCourseCountData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/courses/count"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/count';
+};
 
 export type GetOrganizationCourseCountResponses = {
-  /**
-   * Organization course count
-   */
-  200: CourseCount
-}
+    /**
+     * Organization course count
+     */
+    200: CourseCount;
+};
 
-export type GetOrganizationCourseCountResponse =
-  GetOrganizationCourseCountResponses[keyof GetOrganizationCourseCountResponses]
+export type GetOrganizationCourseCountResponse = GetOrganizationCourseCountResponses[keyof GetOrganizationCourseCountResponses];
 
 export type GetOrganizationDuplicatableCoursesData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable';
+};
 
 export type GetOrganizationDuplicatableCoursesResponses = {
-  /**
-   * Duplicatable organization courses
-   */
-  200: Array<Course>
-}
+    /**
+     * Duplicatable organization courses
+     */
+    200: Array<Course>;
+};
 
-export type GetOrganizationDuplicatableCoursesResponse =
-  GetOrganizationDuplicatableCoursesResponses[keyof GetOrganizationDuplicatableCoursesResponses]
+export type GetOrganizationDuplicatableCoursesResponse = GetOrganizationDuplicatableCoursesResponses[keyof GetOrganizationDuplicatableCoursesResponses];
 
 export type CreateOrganizationExamData = {
-  body: NewExam
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/exams"
-}
+    body: NewExam;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/exams';
+};
 
 export type CreateOrganizationExamResponses = {
-  /**
-   * Organization exam created
-   */
-  200: unknown
-}
+    /**
+     * Organization exam created
+     */
+    200: unknown;
+};
 
 export type DeleteOrganizationImageData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/image"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/image';
+};
 
 export type DeleteOrganizationImageResponses = {
-  /**
-   * Organization image removed
-   */
-  200: unknown
-}
+    /**
+     * Organization image removed
+     */
+    200: unknown;
+};
 
 export type UpdateOrganizationImageData = {
-  body: {
-    file: Array<number>
-  }
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/image"
-}
+    body: {
+        file: Array<number>;
+    };
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/image';
+};
 
 export type UpdateOrganizationImageResponses = {
-  /**
-   * Updated organization
-   */
-  200: unknown
-}
+    /**
+     * Updated organization
+     */
+    200: unknown;
+};
 
 export type GetOrganizationExamsData = {
-  body?: never
-  path: {
-    /**
-     * Organization id
-     */
-    organization_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/organizations/{organization_id}/org_exams"
-}
+    body?: never;
+    path: {
+        /**
+         * Organization id
+         */
+        organization_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/organizations/{organization_id}/org_exams';
+};
 
 export type GetOrganizationExamsResponses = {
-  /**
-   * Organization exams
-   */
-  200: Array<OrgExam>
-}
+    /**
+     * Organization exams
+     */
+    200: Array<OrgExam>;
+};
 
-export type GetOrganizationExamsResponse =
-  GetOrganizationExamsResponses[keyof GetOrganizationExamsResponses]
+export type GetOrganizationExamsResponse = GetOrganizationExamsResponses[keyof GetOrganizationExamsResponses];
 
 export type DeletePageAudioFileData = {
-  body?: never
-  path: {
-    /**
-     * Page audio file id
-     */
-    file_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/page_audio/{file_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Page audio file id
+         */
+        file_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/page_audio/{file_id}';
+};
 
 export type DeletePageAudioFileResponses = {
-  /**
-   * Page audio deleted
-   */
-  200: unknown
-}
+    /**
+     * Page audio deleted
+     */
+    200: unknown;
+};
 
 export type CreatePageAudioFileData = {
-  body: {
-    file: Array<number>
-  }
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/page_audio/{page_id}"
-}
+    body: {
+        file: Array<number>;
+    };
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/page_audio/{page_id}';
+};
 
 export type CreatePageAudioFileResponses = {
-  /**
-   * Page audio uploaded
-   */
-  200: boolean
-}
+    /**
+     * Page audio uploaded
+     */
+    200: boolean;
+};
 
-export type CreatePageAudioFileResponse =
-  CreatePageAudioFileResponses[keyof CreatePageAudioFileResponses]
+export type CreatePageAudioFileResponse = CreatePageAudioFileResponses[keyof CreatePageAudioFileResponses];
 
 export type GetPageAudioFilesData = {
-  body?: never
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/page_audio/{page_id}/files"
-}
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/page_audio/{page_id}/files';
+};
 
 export type GetPageAudioFilesResponses = {
-  /**
-   * Page audio files
-   */
-  200: Array<PageAudioFile>
-}
+    /**
+     * Page audio files
+     */
+    200: Array<PageAudioFile>;
+};
 
-export type GetPageAudioFilesResponse = GetPageAudioFilesResponses[keyof GetPageAudioFilesResponses]
+export type GetPageAudioFilesResponse = GetPageAudioFilesResponses[keyof GetPageAudioFilesResponses];
 
 export type CreatePageData = {
-  body: NewPage
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/pages"
-}
+    body: NewPage;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/pages';
+};
 
 export type CreatePageResponses = {
-  /**
-   * Created page
-   */
-  200: Page
-}
+    /**
+     * Created page
+     */
+    200: Page;
+};
 
-export type CreatePageResponse = CreatePageResponses[keyof CreatePageResponses]
+export type CreatePageResponse = CreatePageResponses[keyof CreatePageResponses];
 
 export type GetCoursePagesData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/pages/{course_id}/all-course-pages-for-course"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{course_id}/all-course-pages-for-course';
+};
 
 export type GetCoursePagesResponses = {
-  /**
-   * Course pages
-   */
-  200: Array<Page>
-}
+    /**
+     * Course pages
+     */
+    200: Array<Page>;
+};
 
-export type GetCoursePagesResponse = GetCoursePagesResponses[keyof GetCoursePagesResponses]
+export type GetCoursePagesResponse = GetCoursePagesResponses[keyof GetCoursePagesResponses];
 
 export type DeletePageData = {
-  body?: never
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/pages/{page_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}';
+};
 
 export type DeletePageResponses = {
-  /**
-   * Deleted page
-   */
-  200: Page
-}
+    /**
+     * Deleted page
+     */
+    200: Page;
+};
 
-export type DeletePageResponse = DeletePageResponses[keyof DeletePageResponses]
+export type DeletePageResponse = DeletePageResponses[keyof DeletePageResponses];
 
 export type GetPageHistoryData = {
-  body?: never
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/pages/{page_id}/history"
-}
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/pages/{page_id}/history';
+};
 
 export type GetPageHistoryResponses = {
-  /**
-   * Page history entries
-   */
-  200: Array<PageHistory>
-}
+    /**
+     * Page history entries
+     */
+    200: Array<PageHistory>;
+};
 
-export type GetPageHistoryResponse = GetPageHistoryResponses[keyof GetPageHistoryResponses]
+export type GetPageHistoryResponse = GetPageHistoryResponses[keyof GetPageHistoryResponses];
 
 export type GetPageHistoryCountData = {
-  body?: never
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/pages/{page_id}/history_count"
-}
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/history_count';
+};
 
 export type GetPageHistoryCountResponses = {
-  /**
-   * Page history count
-   */
-  200: number
-}
+    /**
+     * Page history count
+     */
+    200: number;
+};
 
-export type GetPageHistoryCountResponse =
-  GetPageHistoryCountResponses[keyof GetPageHistoryCountResponses]
+export type GetPageHistoryCountResponse = GetPageHistoryCountResponses[keyof GetPageHistoryCountResponses];
 
 export type GetPageInfoData = {
-  body?: never
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/pages/{page_id}/info"
-}
+    body?: never;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/info';
+};
 
 export type GetPageInfoResponses = {
-  /**
-   * Page info
-   */
-  200: PageInfo
-}
+    /**
+     * Page info
+     */
+    200: PageInfo;
+};
 
-export type GetPageInfoResponse = GetPageInfoResponses[keyof GetPageInfoResponses]
+export type GetPageInfoResponse = GetPageInfoResponses[keyof GetPageInfoResponses];
 
 export type UpdatePageDetailsData = {
-  body: PageDetailsUpdate
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/pages/{page_id}/page-details"
-}
+    body: PageDetailsUpdate;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/page-details';
+};
 
 export type UpdatePageDetailsResponses = {
-  /**
-   * Updated page details
-   */
-  200: boolean
-}
+    /**
+     * Updated page details
+     */
+    200: boolean;
+};
 
-export type UpdatePageDetailsResponse = UpdatePageDetailsResponses[keyof UpdatePageDetailsResponses]
+export type UpdatePageDetailsResponse = UpdatePageDetailsResponses[keyof UpdatePageDetailsResponses];
 
 export type RestorePageHistoryData = {
-  body: HistoryRestoreData
-  path: {
-    /**
-     * Page id
-     */
-    page_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/pages/{page_id}/restore"
-}
+    body: HistoryRestoreData;
+    path: {
+        /**
+         * Page id
+         */
+        page_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/pages/{page_id}/restore';
+};
 
 export type RestorePageHistoryResponses = {
-  /**
-   * Restored history id
-   */
-  200: string
-}
+    /**
+     * Restored history id
+     */
+    200: string;
+};
 
-export type RestorePageHistoryResponse =
-  RestorePageHistoryResponses[keyof RestorePageHistoryResponses]
+export type RestorePageHistoryResponse = RestorePageHistoryResponses[keyof RestorePageHistoryResponses];
 
 export type ReceivePlaygroundGradingData = {
-  body: ExerciseTaskGradingResult
-  path: {
-    /**
-     * Playground websocket id
-     */
-    websocket_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
-}
+    body: ExerciseTaskGradingResult;
+    path: {
+        /**
+         * Playground websocket id
+         */
+        websocket_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/playground-views/grading/{websocket_id}';
+};
 
 export type ReceivePlaygroundGradingResponses = {
-  /**
-   * Grading forwarded to websocket client
-   */
-  200: unknown
-}
+    /**
+     * Grading forwarded to websocket client
+     */
+    200: unknown;
+};
 
 export type GetPlaygroundViewsWebsocketData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/playground-views/ws"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground-views/ws';
+};
 
 export type GetPlaygroundExamplesData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/playground_examples"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples';
+};
 
 export type GetPlaygroundExamplesResponses = {
-  /**
-   * Playground examples
-   */
-  200: Array<PlaygroundExample>
-}
+    /**
+     * Playground examples
+     */
+    200: Array<PlaygroundExample>;
+};
 
-export type GetPlaygroundExamplesResponse =
-  GetPlaygroundExamplesResponses[keyof GetPlaygroundExamplesResponses]
+export type GetPlaygroundExamplesResponse = GetPlaygroundExamplesResponses[keyof GetPlaygroundExamplesResponses];
 
 export type CreatePlaygroundExampleData = {
-  body: PlaygroundExampleData
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/playground_examples"
-}
+    body: PlaygroundExampleData;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples';
+};
 
 export type CreatePlaygroundExampleResponses = {
-  /**
-   * Created playground example
-   */
-  200: PlaygroundExample
-}
+    /**
+     * Created playground example
+     */
+    200: PlaygroundExample;
+};
 
-export type CreatePlaygroundExampleResponse =
-  CreatePlaygroundExampleResponses[keyof CreatePlaygroundExampleResponses]
+export type CreatePlaygroundExampleResponse = CreatePlaygroundExampleResponses[keyof CreatePlaygroundExampleResponses];
 
 export type UpdatePlaygroundExampleData = {
-  body: PlaygroundExample
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/playground_examples"
-}
+    body: PlaygroundExample;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples';
+};
 
 export type UpdatePlaygroundExampleResponses = {
-  /**
-   * Updated playground example
-   */
-  200: PlaygroundExample
-}
+    /**
+     * Updated playground example
+     */
+    200: PlaygroundExample;
+};
 
-export type UpdatePlaygroundExampleResponse =
-  UpdatePlaygroundExampleResponses[keyof UpdatePlaygroundExampleResponses]
+export type UpdatePlaygroundExampleResponse = UpdatePlaygroundExampleResponses[keyof UpdatePlaygroundExampleResponses];
 
 export type DeletePlaygroundExampleData = {
-  body?: never
-  path: {
-    /**
-     * Playground example id
-     */
-    playground_example_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/playground_examples/{playground_example_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Playground example id
+         */
+        playground_example_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/playground_examples/{playground_example_id}';
+};
 
 export type DeletePlaygroundExampleResponses = {
-  /**
-   * Deleted playground example
-   */
-  200: PlaygroundExample
-}
+    /**
+     * Deleted playground example
+     */
+    200: PlaygroundExample;
+};
 
-export type DeletePlaygroundExampleResponse =
-  DeletePlaygroundExampleResponses[keyof DeletePlaygroundExampleResponses]
+export type DeletePlaygroundExampleResponse = DeletePlaygroundExampleResponses[keyof DeletePlaygroundExampleResponses];
 
 export type GetEditProposalsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query: {
-    /**
-     * Whether to fetch pending proposals
-     */
-    pending: boolean
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/proposed-edits/course/{course_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query: {
+        /**
+         * Whether to fetch pending proposals
+         */
+        pending: boolean;
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/proposed-edits/course/{course_id}';
+};
 
 export type GetEditProposalsResponses = {
-  /**
-   * Edit proposals
-   */
-  200: Array<PageProposal>
-}
+    /**
+     * Edit proposals
+     */
+    200: Array<PageProposal>;
+};
 
-export type GetEditProposalsResponse = GetEditProposalsResponses[keyof GetEditProposalsResponses]
+export type GetEditProposalsResponse = GetEditProposalsResponses[keyof GetEditProposalsResponses];
 
 export type GetEditProposalCountData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/proposed-edits/course/{course_id}/count"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/proposed-edits/course/{course_id}/count';
+};
 
 export type GetEditProposalCountResponses = {
-  /**
-   * Edit proposal counts
-   */
-  200: ProposalCount
-}
+    /**
+     * Edit proposal counts
+     */
+    200: ProposalCount;
+};
 
-export type GetEditProposalCountResponse =
-  GetEditProposalCountResponses[keyof GetEditProposalCountResponses]
+export type GetEditProposalCountResponse = GetEditProposalCountResponses[keyof GetEditProposalCountResponses];
 
 export type ProcessEditProposalData = {
-  body: EditProposalInfo
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/proposed-edits/process-edit-proposal"
-}
+    body: EditProposalInfo;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/proposed-edits/process-edit-proposal';
+};
 
 export type ProcessEditProposalResponses = {
-  /**
-   * Processed edit proposal
-   */
-  200: unknown
-}
+    /**
+     * Processed edit proposal
+     */
+    200: unknown;
+};
 
 export type GetRegradingsData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Page number
-     */
-    page?: number
-    /**
-     * Page size
-     */
-    limit?: number
-  }
-  url: "/api/v0/main-frontend/regradings"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Page number
+         */
+        page?: number;
+        /**
+         * Page size
+         */
+        limit?: number;
+    };
+    url: '/api/v0/main-frontend/regradings';
+};
 
 export type GetRegradingsResponses = {
-  /**
-   * Regradings
-   */
-  200: Array<Regrading>
-}
+    /**
+     * Regradings
+     */
+    200: Array<Regrading>;
+};
 
-export type GetRegradingsResponse = GetRegradingsResponses[keyof GetRegradingsResponses]
+export type GetRegradingsResponse = GetRegradingsResponses[keyof GetRegradingsResponses];
 
 export type CreateRegradingData = {
-  body: NewRegrading
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/regradings"
-}
+    body: NewRegrading;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/regradings';
+};
 
 export type CreateRegradingResponses = {
-  /**
-   * Created regrading id
-   */
-  200: string
-}
+    /**
+     * Created regrading id
+     */
+    200: string;
+};
 
-export type CreateRegradingResponse = CreateRegradingResponses[keyof CreateRegradingResponses]
+export type CreateRegradingResponse = CreateRegradingResponses[keyof CreateRegradingResponses];
 
 export type GetRegradingsCountData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/regradings/count"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/regradings/count';
+};
 
 export type GetRegradingsCountResponses = {
-  /**
-   * Regradings count
-   */
-  200: number
-}
+    /**
+     * Regradings count
+     */
+    200: number;
+};
 
-export type GetRegradingsCountResponse =
-  GetRegradingsCountResponses[keyof GetRegradingsCountResponses]
+export type GetRegradingsCountResponse = GetRegradingsCountResponses[keyof GetRegradingsCountResponses];
 
 export type GetRegradingInfoData = {
-  body?: never
-  path: {
-    /**
-     * Regrading id
-     */
-    regrading_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/regradings/{regrading_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Regrading id
+         */
+        regrading_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/regradings/{regrading_id}';
+};
 
 export type GetRegradingInfoResponses = {
-  /**
-   * Regrading info
-   */
-  200: RegradingInfo
-}
+    /**
+     * Regrading info
+     */
+    200: RegradingInfo;
+};
 
-export type GetRegradingInfoResponse = GetRegradingInfoResponses[keyof GetRegradingInfoResponses]
+export type GetRegradingInfoResponse = GetRegradingInfoResponses[keyof GetRegradingInfoResponses];
 
 export type GetRolesData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Global domain
-     */
-    global?: boolean
-    /**
-     * Organization id
-     */
-    organization_id?: string
-    /**
-     * Course id
-     */
-    course_id?: string
-    /**
-     * Course instance id
-     */
-    course_instance_id?: string
-    /**
-     * Exam id
-     */
-    exam_id?: string
-  }
-  url: "/api/v0/main-frontend/roles"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Global domain
+         */
+        global?: boolean;
+        /**
+         * Organization id
+         */
+        organization_id?: string;
+        /**
+         * Course id
+         */
+        course_id?: string;
+        /**
+         * Course instance id
+         */
+        course_instance_id?: string;
+        /**
+         * Exam id
+         */
+        exam_id?: string;
+    };
+    url: '/api/v0/main-frontend/roles';
+};
 
 export type GetRolesResponses = {
-  /**
-   * Roles
-   */
-  200: Array<RoleUser>
-}
+    /**
+     * Roles
+     */
+    200: Array<RoleUser>;
+};
 
-export type GetRolesResponse = GetRolesResponses[keyof GetRolesResponses]
+export type GetRolesResponse = GetRolesResponses[keyof GetRolesResponses];
 
 export type AddRoleData = {
-  body: RoleInfo
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/roles/add"
-}
+    body: RoleInfo;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/roles/add';
+};
 
 export type AddRoleResponses = {
-  /**
-   * Role added
-   */
-  200: unknown
-}
+    /**
+     * Role added
+     */
+    200: unknown;
+};
 
 export type GetPendingRolesData = {
-  body?: never
-  path?: never
-  query?: {
-    /**
-     * Global domain
-     */
-    global?: boolean
-    /**
-     * Organization id
-     */
-    organization_id?: string
-    /**
-     * Course id
-     */
-    course_id?: string
-    /**
-     * Course instance id
-     */
-    course_instance_id?: string
-    /**
-     * Exam id
-     */
-    exam_id?: string
-  }
-  url: "/api/v0/main-frontend/roles/pending"
-}
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Global domain
+         */
+        global?: boolean;
+        /**
+         * Organization id
+         */
+        organization_id?: string;
+        /**
+         * Course id
+         */
+        course_id?: string;
+        /**
+         * Course instance id
+         */
+        course_instance_id?: string;
+        /**
+         * Exam id
+         */
+        exam_id?: string;
+    };
+    url: '/api/v0/main-frontend/roles/pending';
+};
 
 export type GetPendingRolesResponses = {
-  /**
-   * Pending roles
-   */
-  200: Array<PendingRole>
-}
+    /**
+     * Pending roles
+     */
+    200: Array<PendingRole>;
+};
 
-export type GetPendingRolesResponse = GetPendingRolesResponses[keyof GetPendingRolesResponses]
+export type GetPendingRolesResponse = GetPendingRolesResponses[keyof GetPendingRolesResponses];
 
 export type RemoveRoleData = {
-  body: RoleInfo
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/roles/remove"
-}
+    body: RoleInfo;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/roles/remove';
+};
 
 export type RemoveRoleResponses = {
-  /**
-   * Role removed
-   */
-  200: unknown
-}
+    /**
+     * Role removed
+     */
+    200: unknown;
+};
 
 export type GetStatusCronjobsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/cronjobs"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/cronjobs';
+};
 
 export type GetStatusCronjobsResponses = {
-  /**
-   * Cronjobs
-   */
-  200: Array<CronJobInfo>
-}
+    /**
+     * Cronjobs
+     */
+    200: Array<CronJobInfo>;
+};
 
-export type GetStatusCronjobsResponse = GetStatusCronjobsResponses[keyof GetStatusCronjobsResponses]
+export type GetStatusCronjobsResponse = GetStatusCronjobsResponses[keyof GetStatusCronjobsResponses];
 
 export type GetStatusDeploymentsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/deployments"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/deployments';
+};
 
 export type GetStatusDeploymentsResponses = {
-  /**
-   * Deployments
-   */
-  200: Array<DeploymentInfo>
-}
+    /**
+     * Deployments
+     */
+    200: Array<DeploymentInfo>;
+};
 
-export type GetStatusDeploymentsResponse =
-  GetStatusDeploymentsResponses[keyof GetStatusDeploymentsResponses]
+export type GetStatusDeploymentsResponse = GetStatusDeploymentsResponses[keyof GetStatusDeploymentsResponses];
 
 export type GetStatusEventsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/events"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/events';
+};
 
 export type GetStatusEventsResponses = {
-  /**
-   * Events
-   */
-  200: Array<EventInfo>
-}
+    /**
+     * Events
+     */
+    200: Array<EventInfo>;
+};
 
-export type GetStatusEventsResponse = GetStatusEventsResponses[keyof GetStatusEventsResponses]
+export type GetStatusEventsResponse = GetStatusEventsResponses[keyof GetStatusEventsResponses];
 
 export type GetStatusHealthData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/health"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/health';
+};
 
 export type GetStatusHealthResponses = {
-  /**
-   * Detailed system health
-   */
-  200: SystemHealthStatus
-}
+    /**
+     * Detailed system health
+     */
+    200: SystemHealthStatus;
+};
 
-export type GetStatusHealthResponse = GetStatusHealthResponses[keyof GetStatusHealthResponses]
+export type GetStatusHealthResponse = GetStatusHealthResponses[keyof GetStatusHealthResponses];
 
 export type GetStatusIngressesData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/ingresses"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/ingresses';
+};
 
 export type GetStatusIngressesResponses = {
-  /**
-   * Ingresses
-   */
-  200: Array<IngressInfo>
-}
+    /**
+     * Ingresses
+     */
+    200: Array<IngressInfo>;
+};
 
-export type GetStatusIngressesResponse =
-  GetStatusIngressesResponses[keyof GetStatusIngressesResponses]
+export type GetStatusIngressesResponse = GetStatusIngressesResponses[keyof GetStatusIngressesResponses];
 
 export type GetStatusJobsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/jobs"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/jobs';
+};
 
 export type GetStatusJobsResponses = {
-  /**
-   * Jobs
-   */
-  200: Array<JobInfo>
-}
+    /**
+     * Jobs
+     */
+    200: Array<JobInfo>;
+};
 
-export type GetStatusJobsResponse = GetStatusJobsResponses[keyof GetStatusJobsResponses]
+export type GetStatusJobsResponse = GetStatusJobsResponses[keyof GetStatusJobsResponses];
 
 export type GetStatusPodDisruptionBudgetsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/pod-disruption-budgets"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/pod-disruption-budgets';
+};
 
 export type GetStatusPodDisruptionBudgetsResponses = {
-  /**
-   * Pod disruption budgets
-   */
-  200: Array<PodDisruptionBudgetInfo>
-}
+    /**
+     * Pod disruption budgets
+     */
+    200: Array<PodDisruptionBudgetInfo>;
+};
 
-export type GetStatusPodDisruptionBudgetsResponse =
-  GetStatusPodDisruptionBudgetsResponses[keyof GetStatusPodDisruptionBudgetsResponses]
+export type GetStatusPodDisruptionBudgetsResponse = GetStatusPodDisruptionBudgetsResponses[keyof GetStatusPodDisruptionBudgetsResponses];
 
 export type GetStatusPodsData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/pods"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/pods';
+};
 
 export type GetStatusPodsResponses = {
-  /**
-   * Pods
-   */
-  200: Array<PodInfo>
-}
+    /**
+     * Pods
+     */
+    200: Array<PodInfo>;
+};
 
-export type GetStatusPodsResponse = GetStatusPodsResponses[keyof GetStatusPodsResponses]
+export type GetStatusPodsResponse = GetStatusPodsResponses[keyof GetStatusPodsResponses];
 
 export type GetStatusPodLogsData = {
-  body?: never
-  path: {
-    /**
-     * Pod name
-     */
-    pod_name: string
-  }
-  query?: {
-    /**
-     * Container name
-     */
-    container?: string
-    /**
-     * Number of log lines
-     */
-    tail?: number
-  }
-  url: "/api/v0/main-frontend/status/pods/{pod_name}/logs"
-}
+    body?: never;
+    path: {
+        /**
+         * Pod name
+         */
+        pod_name: string;
+    };
+    query?: {
+        /**
+         * Container name
+         */
+        container?: string;
+        /**
+         * Number of log lines
+         */
+        tail?: number;
+    };
+    url: '/api/v0/main-frontend/status/pods/{pod_name}/logs';
+};
 
 export type GetStatusPodLogsResponses = {
-  /**
-   * Pod logs
-   */
-  200: string
-}
+    /**
+     * Pod logs
+     */
+    200: string;
+};
 
-export type GetStatusPodLogsResponse = GetStatusPodLogsResponses[keyof GetStatusPodLogsResponses]
+export type GetStatusPodLogsResponse = GetStatusPodLogsResponses[keyof GetStatusPodLogsResponses];
 
 export type GetStatusServicesData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/services"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/services';
+};
 
 export type GetStatusServicesResponses = {
-  /**
-   * Services
-   */
-  200: Array<ServiceInfo>
-}
+    /**
+     * Services
+     */
+    200: Array<ServiceInfo>;
+};
 
-export type GetStatusServicesResponse = GetStatusServicesResponses[keyof GetStatusServicesResponses]
+export type GetStatusServicesResponse = GetStatusServicesResponses[keyof GetStatusServicesResponses];
 
 export type GetStatusSystemHealthData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/status/system-health"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/status/system-health';
+};
 
 export type GetStatusSystemHealthResponses = {
-  /**
-   * System health
-   */
-  200: boolean
-}
+    /**
+     * System health
+     */
+    200: boolean;
+};
 
-export type GetStatusSystemHealthResponse =
-  GetStatusSystemHealthResponses[keyof GetStatusSystemHealthResponses]
+export type GetStatusSystemHealthResponse = GetStatusSystemHealthResponses[keyof GetStatusSystemHealthResponses];
 
 export type CreateTeacherGradingDecisionData = {
-  body: NewTeacherGradingDecision
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/teacher-grading-decisions"
-}
+    body: NewTeacherGradingDecision;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/teacher-grading-decisions';
+};
 
 export type CreateTeacherGradingDecisionResponses = {
-  /**
-   * Teacher grading decision created
-   */
-  200: null | UserExerciseState
-}
+    /**
+     * Teacher grading decision created
+     */
+    200: null | UserExerciseState;
+};
 
-export type CreateTeacherGradingDecisionResponse =
-  CreateTeacherGradingDecisionResponses[keyof CreateTeacherGradingDecisionResponses]
+export type CreateTeacherGradingDecisionResponse = CreateTeacherGradingDecisionResponses[keyof CreateTeacherGradingDecisionResponses];
 
 export type GetCurrentTimeData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/time"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/time';
+};
 
 export type GetCurrentTimeResponses = {
-  /**
-   * Current server time
-   */
-  200: string
-}
+    /**
+     * Current server time
+     */
+    200: string;
+};
 
-export type GetCurrentTimeResponse = GetCurrentTimeResponses[keyof GetCurrentTimeResponses]
+export type GetCurrentTimeResponse = GetCurrentTimeResponses[keyof GetCurrentTimeResponses];
 
 export type GetBulkUserDetailsData = {
-  body: BulkUserDetailsRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/bulk-user-details"
-}
+    body: BulkUserDetailsRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/bulk-user-details';
+};
 
 export type GetBulkUserDetailsResponses = {
-  /**
-   * Bulk user details
-   */
-  200: Array<UserDetail>
-}
+    /**
+     * Bulk user details
+     */
+    200: Array<UserDetail>;
+};
 
-export type GetBulkUserDetailsResponse =
-  GetBulkUserDetailsResponses[keyof GetBulkUserDetailsResponses]
+export type GetBulkUserDetailsResponse = GetBulkUserDetailsResponses[keyof GetBulkUserDetailsResponses];
 
 export type SearchUserDetailsByEmailData = {
-  body: SearchRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-email"
-}
+    body: SearchRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/search-by-email';
+};
 
 export type SearchUserDetailsByEmailResponses = {
-  /**
-   * User details search results
-   */
-  200: Array<UserDetail>
-}
+    /**
+     * User details search results
+     */
+    200: Array<UserDetail>;
+};
 
-export type SearchUserDetailsByEmailResponse =
-  SearchUserDetailsByEmailResponses[keyof SearchUserDetailsByEmailResponses]
+export type SearchUserDetailsByEmailResponse = SearchUserDetailsByEmailResponses[keyof SearchUserDetailsByEmailResponses];
 
 export type SearchUserDetailsByOtherDetailsData = {
-  body: SearchRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/search-by-other-details"
-}
+    body: SearchRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/search-by-other-details';
+};
 
 export type SearchUserDetailsByOtherDetailsResponses = {
-  /**
-   * User details search results
-   */
-  200: Array<UserDetail>
-}
+    /**
+     * User details search results
+     */
+    200: Array<UserDetail>;
+};
 
-export type SearchUserDetailsByOtherDetailsResponse =
-  SearchUserDetailsByOtherDetailsResponses[keyof SearchUserDetailsByOtherDetailsResponses]
+export type SearchUserDetailsByOtherDetailsResponse = SearchUserDetailsByOtherDetailsResponses[keyof SearchUserDetailsByOtherDetailsResponses];
 
 export type SearchUserDetailsFuzzyMatchData = {
-  body: SearchRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/search-fuzzy-match"
-}
+    body: SearchRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/search-fuzzy-match';
+};
 
 export type SearchUserDetailsFuzzyMatchResponses = {
-  /**
-   * User details fuzzy search results
-   */
-  200: Array<UserDetail>
-}
+    /**
+     * User details fuzzy search results
+     */
+    200: Array<UserDetail>;
+};
 
-export type SearchUserDetailsFuzzyMatchResponse =
-  SearchUserDetailsFuzzyMatchResponses[keyof SearchUserDetailsFuzzyMatchResponses]
+export type SearchUserDetailsFuzzyMatchResponse = SearchUserDetailsFuzzyMatchResponses[keyof SearchUserDetailsFuzzyMatchResponses];
 
 export type UpdateUserInfoData = {
-  body: UserInfoPayload
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/update-user-info"
-}
+    body: UserInfoPayload;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/update-user-info';
+};
 
 export type UpdateUserInfoResponses = {
-  /**
-   * Updated user details
-   */
-  200: UserDetail
-}
+    /**
+     * Updated user details
+     */
+    200: UserDetail;
+};
 
-export type UpdateUserInfoResponse = UpdateUserInfoResponses[keyof UpdateUserInfoResponses]
+export type UpdateUserInfoResponse = UpdateUserInfoResponses[keyof UpdateUserInfoResponses];
 
 export type GetUserDetailsByCoursesData = {
-  body: UserDetailsRequest
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/user-by-courses"
-}
+    body: UserDetailsRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/user-by-courses';
+};
 
 export type GetUserDetailsByCoursesResponses = {
-  /**
-   * User details
-   */
-  200: UserDetail
-}
+    /**
+     * User details
+     */
+    200: UserDetail;
+};
 
-export type GetUserDetailsByCoursesResponse =
-  GetUserDetailsByCoursesResponses[keyof GetUserDetailsByCoursesResponses]
+export type GetUserDetailsByCoursesResponse = GetUserDetailsByCoursesResponses[keyof GetUserDetailsByCoursesResponses];
 
 export type GetUserDetailsForAuthenticatedUserData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/user-details-for-user"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/user-details-for-user';
+};
 
 export type GetUserDetailsForAuthenticatedUserResponses = {
-  /**
-   * Authenticated user details
-   */
-  200: UserDetail
-}
+    /**
+     * Authenticated user details
+     */
+    200: UserDetail;
+};
 
-export type GetUserDetailsForAuthenticatedUserResponse =
-  GetUserDetailsForAuthenticatedUserResponses[keyof GetUserDetailsForAuthenticatedUserResponses]
+export type GetUserDetailsForAuthenticatedUserResponse = GetUserDetailsForAuthenticatedUserResponses[keyof GetUserDetailsForAuthenticatedUserResponses];
 
 export type GetUsersIpCountryData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/user-details/users-ip-country"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/users-ip-country';
+};
 
 export type GetUsersIpCountryResponses = {
-  /**
-   * Country inferred from request IP
-   */
-  200: string
-}
+    /**
+     * Country inferred from request IP
+     */
+    200: string;
+};
 
-export type GetUsersIpCountryResponse = GetUsersIpCountryResponses[keyof GetUsersIpCountryResponses]
+export type GetUsersIpCountryResponse = GetUsersIpCountryResponses[keyof GetUsersIpCountryResponses];
 
 export type GetUsersByCourseIdForUserDetailsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/user-details/{course_id}/get-users-by-course-id"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/{course_id}/get-users-by-course-id';
+};
 
 export type GetUsersByCourseIdForUserDetailsResponses = {
-  /**
-   * Users by course id
-   */
-  200: Array<UserDetail>
-}
+    /**
+     * Users by course id
+     */
+    200: Array<UserDetail>;
+};
 
-export type GetUsersByCourseIdForUserDetailsResponse =
-  GetUsersByCourseIdForUserDetailsResponses[keyof GetUsersByCourseIdForUserDetailsResponses]
+export type GetUsersByCourseIdForUserDetailsResponse = GetUsersByCourseIdForUserDetailsResponses[keyof GetUsersByCourseIdForUserDetailsResponses];
 
 export type GetUserDetailsByCourseAndUserIdData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/user-details/{course_id}/user/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * Course id
+         */
+        course_id: string;
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/user-details/{course_id}/user/{user_id}';
+};
 
 export type GetUserDetailsByCourseAndUserIdResponses = {
-  /**
-   * User details
-   */
-  200: UserDetail
-}
+    /**
+     * User details
+     */
+    200: UserDetail;
+};
 
-export type GetUserDetailsByCourseAndUserIdResponse =
-  GetUserDetailsByCourseAndUserIdResponses[keyof GetUserDetailsByCourseAndUserIdResponses]
+export type GetUserDetailsByCourseAndUserIdResponse = GetUserDetailsByCourseAndUserIdResponses[keyof GetUserDetailsByCourseAndUserIdResponses];
 
 export type ChangeUserPasswordData = {
-  body: ChangePasswordData
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/change-password"
-}
+    body: ChangePasswordData;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/change-password';
+};
 
 export type ChangeUserPasswordResponses = {
-  /**
-   * Password change status
-   */
-  200: boolean
-}
+    /**
+     * Password change status
+     */
+    200: boolean;
+};
 
-export type ChangeUserPasswordResponse =
-  ChangeUserPasswordResponses[keyof ChangeUserPasswordResponses]
+export type ChangeUserPasswordResponse = ChangeUserPasswordResponses[keyof ChangeUserPasswordResponses];
 
 export type GetUserResearchConsentData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/get-user-research-consent"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/get-user-research-consent';
+};
 
 export type GetUserResearchConsentResponses = {
-  /**
-   * User research consent
-   */
-  200: UserResearchConsent
-}
+    /**
+     * User research consent
+     */
+    200: UserResearchConsent;
+};
 
-export type GetUserResearchConsentResponse =
-  GetUserResearchConsentResponses[keyof GetUserResearchConsentResponses]
+export type GetUserResearchConsentResponse = GetUserResearchConsentResponses[keyof GetUserResearchConsentResponses];
 
 export type GetMyCoursesData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/my-courses"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/my-courses';
+};
 
 export type GetMyCoursesResponses = {
-  /**
-   * Courses for authenticated user
-   */
-  200: Array<Course>
-}
+    /**
+     * Courses for authenticated user
+     */
+    200: Array<Course>;
+};
 
-export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses]
+export type GetMyCoursesResponse = GetMyCoursesResponses[keyof GetMyCoursesResponses];
 
 export type ResetUserPasswordData = {
-  body: ResetPasswordData
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/reset-password"
-}
+    body: ResetPasswordData;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/reset-password';
+};
 
 export type ResetUserPasswordResponses = {
-  /**
-   * Password reset status
-   */
-  200: boolean
-}
+    /**
+     * Password reset status
+     */
+    200: boolean;
+};
 
-export type ResetUserPasswordResponse = ResetUserPasswordResponses[keyof ResetUserPasswordResponses]
+export type ResetUserPasswordResponse = ResetUserPasswordResponses[keyof ResetUserPasswordResponses];
 
 export type GetResetPasswordTokenStatusData = {
-  body: ResetPasswordTokenPayload
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/reset-password-token-status"
-}
+    body: ResetPasswordTokenPayload;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/reset-password-token-status';
+};
 
 export type GetResetPasswordTokenStatusResponses = {
-  /**
-   * Reset password token validity
-   */
-  200: boolean
-}
+    /**
+     * Reset password token validity
+     */
+    200: boolean;
+};
 
-export type GetResetPasswordTokenStatusResponse =
-  GetResetPasswordTokenStatusResponses[keyof GetResetPasswordTokenStatusResponses]
+export type GetResetPasswordTokenStatusResponse = GetResetPasswordTokenStatusResponses[keyof GetResetPasswordTokenStatusResponses];
 
 export type SendResetPasswordEmailData = {
-  body: EmailData
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/send-reset-password-email"
-}
+    body: EmailData;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/send-reset-password-email';
+};
 
 export type SendResetPasswordEmailResponses = {
-  /**
-   * Reset password email accepted
-   */
-  200: boolean
-}
+    /**
+     * Reset password email accepted
+     */
+    200: boolean;
+};
 
-export type SendResetPasswordEmailResponse =
-  SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses]
+export type SendResetPasswordEmailResponse = SendResetPasswordEmailResponses[keyof SendResetPasswordEmailResponses];
 
 export type CreateUserResearchConsentData = {
-  body: ConsentData
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/user-research-consents"
-}
+    body: ConsentData;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/user-research-consents';
+};
 
 export type CreateUserResearchConsentResponses = {
-  /**
-   * User research consent
-   */
-  200: UserResearchConsent
-}
+    /**
+     * User research consent
+     */
+    200: UserResearchConsent;
+};
 
-export type CreateUserResearchConsentResponse =
-  CreateUserResearchConsentResponses[keyof CreateUserResearchConsentResponses]
+export type CreateUserResearchConsentResponse = CreateUserResearchConsentResponses[keyof CreateUserResearchConsentResponses];
 
 export type GetUserResearchFormQuestionAnswersData = {
-  body?: never
-  path?: never
-  query?: never
-  url: "/api/v0/main-frontend/users/user-research-form-question-answers"
-}
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v0/main-frontend/users/user-research-form-question-answers';
+};
 
 export type GetUserResearchFormQuestionAnswersResponses = {
-  /**
-   * Research form answers for user
-   */
-  200: Array<ResearchFormQuestionAnswer>
-}
+    /**
+     * Research form answers for user
+     */
+    200: Array<ResearchFormQuestionAnswer>;
+};
 
-export type GetUserResearchFormQuestionAnswersResponse =
-  GetUserResearchFormQuestionAnswersResponses[keyof GetUserResearchFormQuestionAnswersResponses]
+export type GetUserResearchFormQuestionAnswersResponse = GetUserResearchFormQuestionAnswersResponses[keyof GetUserResearchFormQuestionAnswersResponses];
 
 export type GetUserData = {
-  body?: never
-  path: {
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/users/{user_id}"
-}
+    body?: never;
+    path: {
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/users/{user_id}';
+};
 
 export type GetUserResponses = {
-  /**
-   * User
-   */
-  200: unknown
-}
+    /**
+     * User
+     */
+    200: unknown;
+};
 
 export type GetUserCourseEnrollmentsData = {
-  body?: never
-  path: {
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/users/{user_id}/course-enrollments"
-}
+    body?: never;
+    path: {
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/users/{user_id}/course-enrollments';
+};
 
 export type GetUserCourseEnrollmentsResponses = {
-  /**
-   * User course enrollments
-   */
-  200: CourseEnrollmentsInfo
-}
+    /**
+     * User course enrollments
+     */
+    200: CourseEnrollmentsInfo;
+};
 
-export type GetUserCourseEnrollmentsResponse =
-  GetUserCourseEnrollmentsResponses[keyof GetUserCourseEnrollmentsResponses]
+export type GetUserCourseEnrollmentsResponse = GetUserCourseEnrollmentsResponses[keyof GetUserCourseEnrollmentsResponses];
 
 export type GetUserResetExerciseLogsData = {
-  body?: never
-  path: {
-    /**
-     * User id
-     */
-    user_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/users/{user_id}/user-reset-exercise-logs"
-}
+    body?: never;
+    path: {
+        /**
+         * User id
+         */
+        user_id: string;
+    };
+    query?: never;
+    url: '/api/v0/main-frontend/users/{user_id}/user-reset-exercise-logs';
+};
 
 export type GetUserResetExerciseLogsResponses = {
-  /**
-   * User reset exercise logs
-   */
-  200: Array<ExerciseResetLog>
-}
+    /**
+     * User reset exercise logs
+     */
+    200: Array<ExerciseResetLog>;
+};
 
-export type GetUserResetExerciseLogsResponse =
-  GetUserResetExerciseLogsResponses[keyof GetUserResetExerciseLogsResponses]
+export type GetUserResetExerciseLogsResponse = GetUserResetExerciseLogsResponses[keyof GetUserResetExerciseLogsResponses];

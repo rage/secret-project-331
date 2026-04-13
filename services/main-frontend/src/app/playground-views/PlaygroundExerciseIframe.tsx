@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import { filesClient } from "@/services/filesClient"
+import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
@@ -41,8 +41,14 @@ const uploadFilesFromIframe = async (
     form.append(key, value)
   })
 
-  const response = await filesClient.post("/playground", form)
-  const validated = validateGeneratedData(response.data, isObjectMap(isString))
+  const response = await uploadFilesFromExerciseService({
+    body: form as unknown as string,
+    path: {
+      // eslint-disable-next-line i18next/no-literal-string
+      exercise_service_slug: "playground",
+    },
+  })
+  const validated = validateGeneratedData(response, isObjectMap(isString))
 
   return new Map(Object.entries(validated))
 }

@@ -16,7 +16,8 @@ pub struct CmsApiDoc;
         (
             path = "/api/v0/main-frontend",
             api = crate::controllers::main_frontend::MainFrontendRoutesApiDoc
-        )
+        ),
+        (path = "/api/v0/files", api = crate::controllers::files::FilesApiDoc)
     ),
     tags(
         (name = "glossary", description = "Glossary endpoints used by main-frontend")

@@ -6,7 +6,7 @@ use utoipa::OpenApi;
 use crate::prelude::*;
 
 #[derive(OpenApi)]
-#[openapi(paths(get_exam_instructions, update_exam_instructions))]
+#[openapi(paths(add_media, get_exam_instructions, update_exam_instructions))]
 pub(crate) struct CmsExamsApiDoc;
 
 /**
@@ -24,6 +24,22 @@ BINARY_DATA
 ```
 */
 
+#[utoipa::path(
+    post,
+    path = "/{exam_id}/upload",
+    operation_id = "uploadCmsExamMedia",
+    tag = "cms_exams",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body(
+        content = String,
+        content_type = "multipart/form-data"
+    ),
+    responses(
+        (status = 200, description = "Uploaded media result", body = UploadResult)
+    )
+)]
 #[instrument(skip(payload, request, file_store, app_conf))]
 async fn add_media(
     pool: web::Data<PgPool>,

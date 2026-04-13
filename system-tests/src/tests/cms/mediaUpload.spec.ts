@@ -36,30 +36,28 @@ test.describe("Uploading media as admin", () => {
 
     await page.getByText("Pages").click()
 
-    await page.click(
-      `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
-    )
+    await page
+      .locator(`button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`)
+      .click()
 
     await page.locator(`[aria-label="Add default block"]`).click()
     await page
       .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
       .type(`/image`)
 
-    await page.click('text="Image"')
+    await page.locator('text="Image"').click()
 
     // Upload file with fileChooser
     const [fileChooser] = await Promise.all([
       page.waitForEvent("filechooser"),
-      page.click('button:has-text("Upload")'),
+      page.locator('button:has-text("Upload")').click(),
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    await page.getByRole("button", { name: "Replace" }).click()
+    const uploadedImageLink = page.locator("a[href*='welcome_exercise_decorations.png']").first()
+    await uploadedImageLink.waitFor()
 
-    const [newPage] = await Promise.all([
-      page.waitForEvent("popup"),
-      page.locator("a[href$='.png']").nth(1).click(),
-    ])
+    const [newPage] = await Promise.all([page.waitForEvent("popup"), uploadedImageLink.click()])
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: [

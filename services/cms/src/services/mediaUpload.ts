@@ -26,25 +26,35 @@ const uploadFileFromPage = async (file: File, uploadType: MediaUploadType): Prom
   data.append("file", file, file.name || "unknown")
 
   const headers = {
-    "Content-Type": "multipart/form-data",
     "X-File-Type": file.type || "application/octet-stream",
   }
 
-  if ("courseId" in uploadType) {
-    const response = await fetch(`/api/v0/cms/courses/${uploadType.courseId}/upload`, {
-      method: "POST",
-      headers,
-      body: data,
-    })
-    return response.json()
-  }
+  const requestPath =
+    "courseId" in uploadType
+      ? `/api/v0/cms/courses/${uploadType.courseId}/upload`
+      : `/api/v0/cms/exams/${uploadType.examId}/upload`
 
-  const response = await fetch(`/api/v0/cms/exams/${uploadType.examId}/upload`, {
+  const response = await fetch(requestPath, {
     method: "POST",
     headers,
     body: data,
   })
-  return response.json()
+
+  if (!response.ok) {
+    throw new Error(`Upload failed with status ${response.status}`)
+  }
+
+  const uploadedMedia = (await response.json()) as Partial<MediaItem>
+  if (typeof uploadedMedia.url !== "string" || uploadedMedia.url.length === 0) {
+    throw new Error("Upload succeeded but response did not contain a media URL")
+  }
+
+  return {
+    url: uploadedMedia.url,
+    alt: uploadedMedia.alt,
+    caption: uploadedMedia.caption,
+    title: uploadedMedia.title,
+  }
 }
 
 /** Validates file and reports user-visible errors. */

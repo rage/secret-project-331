@@ -14,6 +14,52 @@
     "version": "0.1.0"
   },
   "paths": {
+    "/api/v0/files/{exercise_service_slug}": {
+      "post": {
+        "tags": ["files"],
+        "summary": "\nPOST `/api/v0/files/:exercise_service_slug`\nUsed to upload data from exercise service iframes.\n\n# Returns\nThe randomly generated paths to each uploaded file in a `file_name => file_path` hash map.",
+        "operationId": "uploadFilesFromExerciseService",
+        "parameters": [
+          {
+            "name": "exercise_service_slug",
+            "in": "path",
+            "description": "Exercise service slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Uploaded files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/certificates": {
       "post": {
         "tags": ["certificates"],
@@ -5236,7 +5282,9 @@
             "description": "Uploaded media result",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/UploadResult"
+                }
               }
             }
           }
@@ -15983,6 +16031,16 @@
       "TimeGranularity": {
         "type": "string",
         "enum": ["Year", "Month", "Day"]
+      },
+      "UploadResult": {
+        "type": "object",
+        "description": "Result of a image upload. Tells where the uploaded image can be retrieved from.",
+        "required": ["url"],
+        "properties": {
+          "url": {
+            "type": "string"
+          }
+        }
       },
       "UserChapterProgress": {
         "type": "object",

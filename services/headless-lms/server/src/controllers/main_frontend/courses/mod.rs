@@ -652,7 +652,7 @@ BINARY_DATA
         content_type = "multipart/form-data"
     ),
     responses(
-        (status = 200, description = "Uploaded media result", body = serde_json::Value)
+        (status = 200, description = "Uploaded media result", body = UploadResult)
     )
 )]
 #[instrument(skip(payload, request, pool, file_store, app_conf))]

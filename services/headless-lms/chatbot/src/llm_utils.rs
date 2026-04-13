@@ -102,7 +102,7 @@ impl APIMessage {
                 used_tokens: 0,
                 tool_output: Some(ChatbotConversationMessageToolOutput {
                     tool_call_id: call_id,
-                    tool_output: output,
+                    output,
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -180,7 +180,7 @@ impl From<ChatbotConversationMessageToolOutput> for APIMessage {
         APIMessage {
             message_type: OutputItem::FunctionCallOutput {
                 call_id: value.tool_call_id,
-                output: value.tool_output,
+                output: value.output,
             },
         }
     }
@@ -192,7 +192,7 @@ impl TryFrom<APIMessage> for ChatbotConversationMessageToolOutput {
         match value.message_type {
             OutputItem::FunctionCallOutput { call_id, output } => {
                 Ok(ChatbotConversationMessageToolOutput {
-                    tool_output: output,
+                    output,
                     tool_call_id: call_id,
                     ..Default::default()
                 })

@@ -16,8 +16,9 @@ COMMENT ON COLUMN chatbot_conversation_messages.used_tokens IS 'The number of to
 
 UPDATE chatbot_conversation_messages ccm
 SET message = ccmm.text,
-  message_role = ccmm.role,
-  used_tokens = ccmm.used_tokens
+  message_role = ccmm.message_role,
+  used_tokens = ccmm.used_tokens,
+  message_is_complete = ccmm.message_is_complete
 FROM chatbot_conversation_message_messages ccmm
 WHERE ccm.id = ccmm.chatbot_conversation_message_id;
 
@@ -32,10 +33,6 @@ SET message_role = 'assistant'::message_role
 FROM chatbot_conversation_message_tool_calls ccmtc
 WHERE ccm.id = ccmtc.chatbot_conversation_message_id;
 
-UPDATE chatbot_conversation_messages
-SET message_is_complete = TRUE
-WHERE TRUE;
-
 DELETE FROM chatbot_conversation_messages ccm USING chatbot_conversation_message_reasoning ccmr
 WHERE ccm.id = ccmr.chatbot_conversation_message_id;
 
@@ -46,11 +43,11 @@ SET NOT NULL;
 DROP TABLE chatbot_conversation_message_messages;
 DROP TABLE chatbot_conversation_message_reasoning;
 
-ALTER TABLE chatbot_conversation_message_tool_calls DROP COLUMN kind;
+ALTER TABLE chatbot_conversation_message_tool_calls DROP COLUMN tool_kind;
 ALTER TABLE chatbot_conversation_message_tool_calls
   RENAME COLUMN chatbot_conversation_message_id TO message_id;
 
-ALTER TABLE chatbot_conversation_message_tool_outputs DROP COLUMN kind;
+ALTER TABLE chatbot_conversation_message_tool_outputs DROP COLUMN tool_kind;
 ALTER TABLE chatbot_conversation_message_tool_outputs
   RENAME COLUMN chatbot_conversation_message_id TO message_id;
 ALTER TABLE chatbot_conversation_message_tool_outputs

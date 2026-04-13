@@ -1,0 +1,84 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_conversation_message_messages\nSET text = $2, message_is_complete = $3, used_tokens = $4\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "chatbot_conversation_message_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "text",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "message_role: MessageRole",
+        "type_info": {
+          "Custom": {
+            "name": "message_role",
+            "kind": {
+              "Enum": [
+                "user",
+                "assistant",
+                "developer"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "message_is_complete",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "used_tokens",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Bool",
+        "Int4"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2b5089d4ff3e20f2004179ba2c1366e005e6b405e19de853ce32357c2fbabc96"
+}

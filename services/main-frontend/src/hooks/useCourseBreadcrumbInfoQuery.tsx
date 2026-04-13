@@ -1,30 +1,23 @@
 "use client"
 
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { getCourseBreadcrumbInfo as getCourseBreadCrumbInfoFromApi } from "@/generated/api/sdk.generated"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-const GET_COURSE_BREADCRUMB_INFO_QUERY_KEY = "getCourseBreadcrumbInfo"
-
-const getCourseBreadCrumbInfoQueryOptions = (courseId: string | null | undefined) =>
-  queryOptions({
-    queryKey: [
-      { _id: GET_COURSE_BREADCRUMB_INFO_QUERY_KEY, path: { course_id: courseId } },
-    ] as const,
-    queryFn: () =>
-      getCourseBreadCrumbInfoFromApi({
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-        },
-      }),
-  })
+import { getCourseBreadcrumbInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const useCourseBreadcrumbInfoQuery = (courseId: string | null) => {
-  return useQuery({
-    ...getCourseBreadCrumbInfoQueryOptions(courseId),
-    enabled: !!courseId,
-  })
+  return useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseBreadcrumbInfoOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
+  )
 }
 
 export default useCourseBreadcrumbInfoQuery

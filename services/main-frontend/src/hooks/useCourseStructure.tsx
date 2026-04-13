@@ -1,27 +1,22 @@
 "use client"
 
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 
-import { getCourseStructure as getCourseStructureFromApi } from "@/generated/api/sdk.generated"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-const GET_COURSE_STRUCTURE_QUERY_KEY = "getCourseStructure"
-
-const getCourseStructureQueryOptions = (courseId: string | null | undefined) =>
-  queryOptions({
-    queryKey: [{ _id: GET_COURSE_STRUCTURE_QUERY_KEY, path: { course_id: courseId } }] as const,
-    queryFn: () =>
-      getCourseStructureFromApi({
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-        },
-      }),
-  })
+import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export const useCourseStructure = (courseId: string | null) => {
   const getCourseStructure = useQuery({
-    ...getCourseStructureQueryOptions(courseId),
-    enabled: !!courseId,
+    ...optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseStructureOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
   })
 
   return getCourseStructure

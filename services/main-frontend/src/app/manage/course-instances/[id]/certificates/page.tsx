@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { queryOptions, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useParams } from "next/navigation"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -13,11 +13,11 @@ import { createCertificateConfigurationFormData } from "./certificateConfigurati
 import {
   getCourseInstanceDefaultCertificateConfigurationsOptions,
   getCourseInstanceOptions,
+  getCourseStructureOptions,
   setCourseModuleCertificateGenerationMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import {
   deleteCertificateConfiguration,
-  getCourseStructure as getCourseStructureFromApi,
   setCourseModuleCertificateGeneration,
   updateCertificateConfiguration,
 } from "@/generated/api/sdk.generated"
@@ -34,27 +34,14 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UpdateMutationArgs {
   courseModuleId: string
   courseInstanceId: string
   fields: CertificateFields
 }
-
-const GET_COURSE_STRUCTURE_QUERY_KEY = "getCourseStructure"
-
-const getCourseStructureQueryOptions = (courseId: string | null | undefined) =>
-  queryOptions({
-    queryKey: [{ _id: GET_COURSE_STRUCTURE_QUERY_KEY, path: { course_id: courseId } }] as const,
-    queryFn: async () =>
-      getCourseStructureFromApi({
-        path: {
-          course_id: assertNotNullOrUndefined(courseId),
-        },
-      }),
-  })
 
 const CertificationsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -70,10 +57,18 @@ const CertificationsPage: React.FC = () => {
     }),
   })
   const courseId = getCourseInstance.data?.course_id
-  const getCourse = useQuery({
-    ...getCourseStructureQueryOptions(courseId),
-    enabled: !!courseId,
-  })
+  const getCourse = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseStructureOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
+  )
   const defaultCertificateConfigurationsQuery = useQuery({
     ...getCourseInstanceDefaultCertificateConfigurationsOptions({
       path: {

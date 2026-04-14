@@ -81,7 +81,7 @@ impl APIMessage {
                 conversation_id,
                 message: Message::ToolCall(ChatbotConversationMessageToolCall {
                     tool_name,
-                    tool_arguments: arguments,
+                    tool_arguments: serde_json::to_value(arguments)?,
                     tool_call_id: call_id,
                     tool_kind: ToolKind::Function,
                     ..Default::default()
@@ -101,7 +101,7 @@ impl APIMessage {
             OutputItem::AzureAiSearchCall { call_id, arguments } => ChatbotConversationMessage {
                 conversation_id,
                 message: Message::ToolCall(ChatbotConversationMessageToolCall {
-                    tool_arguments: arguments,
+                    tool_arguments: serde_json::to_value(arguments)?,
                     tool_call_id: call_id,
                     tool_kind: ToolKind::AzureAiSearch,
                     tool_name: "azure_ai_search".to_string(),
@@ -171,13 +171,13 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                     message_type: OutputItem::FunctionCall {
                         call_id: tool_call.tool_call_id,
                         tool_name: tool_call.tool_name,
-                        arguments: tool_call.tool_arguments,
+                        arguments: serde_json::to_string(&tool_call.tool_arguments)?,
                     },
                 },
                 ToolKind::AzureAiSearch => APIMessage {
                     message_type: OutputItem::AzureAiSearchCall {
                         call_id: tool_call.tool_call_id,
-                        arguments: tool_call.tool_arguments,
+                        arguments: serde_json::to_string(&tool_call.tool_arguments)?,
                     },
                 },
             },

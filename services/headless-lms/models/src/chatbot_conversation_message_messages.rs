@@ -53,6 +53,13 @@ pub async fn insert(
     input: ChatbotConversationMessageMessage,
     message_id: Uuid,
 ) -> ModelResult<ChatbotConversationMessageMessage> {
+    if input.message_role == MessageRole::System {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Cannot save chatbot conversation message with role system to the database.",
+            None,
+        ));
+    }
     let res = sqlx::query_as!(
         ChatbotConversationMessageMessage,
         r#"

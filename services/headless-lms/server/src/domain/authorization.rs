@@ -30,8 +30,8 @@ use sqlx::PgConnection;
 use std::env;
 use std::pin::Pin;
 use tracing_log::log;
-#[cfg(feature = "ts_rs")]
-pub use ts_rs::TS;
+use utoipa::ToSchema;
+
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
@@ -73,8 +73,7 @@ pub struct AuthUser {
     upstream_id: Option<i32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub struct ActionOnResource {
     pub action: Action,
@@ -197,8 +196,7 @@ pub fn forget(session: &Session) {
 }
 
 /// Describes an action that a user can take on some resource.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case", tag = "type", content = "variant")]
 pub enum Action {
     ViewMaterial,
@@ -221,8 +219,7 @@ pub enum Action {
 }
 
 /// The target of an action.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {
     GlobalPermissions,

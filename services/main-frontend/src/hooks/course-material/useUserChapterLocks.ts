@@ -3,9 +3,11 @@
 import type { QueryClient } from "@tanstack/react-query"
 import { useQuery } from "@tanstack/react-query"
 
-import { getUserChapterLocks } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { userChapterLocksQueryKey } from "@/state/course-material/queries"
+import {
+  getCourseMaterialUserChapterLocksOptions,
+  getCourseMaterialUserChapterLocksQueryKey,
+} from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 /**
  * Hook to fetch user chapter locking statuses for a course.
@@ -14,11 +16,18 @@ import { userChapterLocksQueryKey } from "@/state/course-material/queries"
  * @returns React Query result containing the user's chapter locking statuses.
  */
 export const useUserChapterLocks = (courseId: string | null | undefined) => {
-  return useQuery({
-    queryKey: userChapterLocksQueryKey(courseId),
-    queryFn: () => getUserChapterLocks(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  return useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCourseMaterialUserChapterLocksOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 }
 
 /**
@@ -36,6 +45,10 @@ export const refetchUserChapterLocks = async (
     return
   }
   await queryClient.refetchQueries({
-    queryKey: userChapterLocksQueryKey(courseId),
+    queryKey: getCourseMaterialUserChapterLocksQueryKey({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 }

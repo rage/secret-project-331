@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import UserSearch from "./UserSearch"
 
-import { UserDetail } from "@/shared-module/common/bindings"
+import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 

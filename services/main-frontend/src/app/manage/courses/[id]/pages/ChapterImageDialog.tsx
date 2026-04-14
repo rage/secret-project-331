@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import ChapterImageWidget from "./ChapterImageWidget"
 
-import { Chapter } from "@/shared-module/common/bindings"
+import type { Chapter } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
 export interface ChapterImageDialogProps {

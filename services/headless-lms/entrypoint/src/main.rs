@@ -1,6 +1,11 @@
 use anyhow::Result;
+use headless_lms_server::openapi::{
+    AuthApiDoc, CmsApiDoc, CourseMaterialApiDoc, MainFrontendApiDoc,
+};
 use headless_lms_server::programs;
 use std::future::Future;
+use std::path::{Path, PathBuf};
+use utoipa::OpenApi;
 
 #[cfg(not(target_env = "msvc"))]
 use tikv_jemallocator::Jemalloc;
@@ -85,6 +90,10 @@ fn main() -> Result<()> {
             name: "mailchimp-syncer",
             execute: Box::new(|| tokio_run(programs::mailchimp_syncer::main())),
         },
+        Program {
+            name: "export-openapi",
+            execute: Box::new(export_openapi_specs),
+        },
     ];
 
     let program_name = std::env::args().nth(1).unwrap_or_else(|| {
@@ -136,4 +145,29 @@ where
 {
     let rt = actix_web::rt::Runtime::new()?;
     rt.block_on(f)
+}
+
+/// Generates OpenAPI JSON files for all frontend consumers.
+fn export_openapi_specs() -> Result<()> {
+    let output_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../server/openapi");
+    std::fs::create_dir_all(&output_dir)?;
+    write_spec(
+        &output_dir.join("main-frontend.openapi.json"),
+        MainFrontendApiDoc::openapi(),
+    )?;
+    write_spec(&output_dir.join("cms.openapi.json"), CmsApiDoc::openapi())?;
+    write_spec(
+        &output_dir.join("course-material.openapi.json"),
+        CourseMaterialApiDoc::openapi(),
+    )?;
+    write_spec(&output_dir.join("auth.openapi.json"), AuthApiDoc::openapi())?;
+    Ok(())
+}
+
+/// Writes one OpenAPI document into a pretty-printed JSON file.
+fn write_spec(path: &Path, spec: utoipa::openapi::OpenApi) -> Result<()> {
+    let json = serde_json::to_string_pretty(&spec)?;
+    std::fs::write(path, json)?;
+    println!("Wrote {}", path.display());
+    Ok(())
 }

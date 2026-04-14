@@ -8,15 +8,17 @@ import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
-import { fetchCourseInstances } from "../../services/backend/course-instances"
-import { fetchCourseModulesByCourseId } from "../../services/backend/courses"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ConditionAttributes } from "."
 
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
+import {
+  getCmsCourseInstancesOptions,
+  getCmsCourseModulesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",
@@ -77,17 +79,31 @@ const ConditionalBlockEditor: React.FC<
 > = ({ attributes, clientId, setAttributes }) => {
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
-  const courseModules = useQuery({
-    queryKey: [`/courses/${courseId}/modules`],
-    queryFn: () => fetchCourseModulesByCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const courseModules = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseModulesOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
-  const courseInstances = useQuery({
-    queryKey: [`/courses/${courseId}/course-instances`],
-    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const courseInstances = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseInstancesOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
   const [requiredModules, setRequiredModules] = useState<string[]>(attributes.module_completion)
   const [requiredInstanceEnrollment, setRequiredInstanceEnrollment] = useState<string[]>(
     attributes.instance_enrollment,

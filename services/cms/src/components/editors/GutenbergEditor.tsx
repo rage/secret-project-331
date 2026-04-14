@@ -42,7 +42,7 @@ import { useTranslation } from "react-i18next"
 
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
-import { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import { MediaUploadProps } from "../../services/mediaUpload"
 import {
   ensureStandaloneGutenbergBootstrap,
   getDefaultAllowedBlockTypes,

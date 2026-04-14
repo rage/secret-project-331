@@ -3,7 +3,6 @@ import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
-import { ExerciseTaskGradingResult, GradingProgress } from "@/shared-module/common/bindings"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import {
@@ -13,6 +12,7 @@ import {
   prepareSubmission,
 } from "@/tmc/langs"
 import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
 import { PrivateSpec, UserAnswer } from "@/util/stateInterfaces"

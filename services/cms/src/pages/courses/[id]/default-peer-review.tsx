@@ -8,10 +8,6 @@ import { useTranslation } from "react-i18next"
 import { ExerciseAttributes } from "../../../blocks/Exercise"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
-import {
-  getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
-  putCoursesDefaultCmsPeerOrSelfReviewConfiguration,
-} from "../../../services/backend/courses"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../../utils/peerOrSelfReviewConfig"
 
@@ -19,7 +15,9 @@ import {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewConfiguration,
   CmsPeerOrSelfReviewQuestion,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import { getCmsCourseDefaultPeerReviewOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { updateCmsCourseDefaultPeerReview } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -27,6 +25,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -46,10 +45,18 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
   const { id } = query
 
-  const peerOrSelfReviewConfigurationQuery = useQuery({
-    queryKey: [`course-${id}-cms-peer-review-configuration`],
-    queryFn: () => getCoursesDefaultCmsPeerOrSelfReviewConfiguration(id),
-  })
+  const peerOrSelfReviewConfigurationQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: id,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseDefaultPeerReviewOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   useEffect(() => {
     if (!peerOrSelfReviewConfigurationQuery.data) {
@@ -82,7 +89,12 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
           peer_or_self_review_config: prc,
           peer_or_self_review_questions: prq,
         }
-        return putCoursesDefaultCmsPeerOrSelfReviewConfiguration(id, configuration)
+        return updateCmsCourseDefaultPeerReview({
+          path: {
+            course_id: id,
+          },
+          body: configuration,
+        })
       }
     },
     {

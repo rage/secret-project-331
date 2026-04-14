@@ -1,10 +1,8 @@
-import { useQuery } from "@tanstack/react-query"
-import type { AxiosError } from "axios"
+import { queryOptions, useQuery } from "@tanstack/react-query"
 
-import { getBulkUserDetails, getUserDetails } from "../services/backend/user-details"
-
-import type { ErrorResponse, UserDetail } from "@/shared-module/common/bindings"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getBulkUserDetails, getUserDetailsByCourses } from "@/generated/api/sdk.generated"
+import type { UserDetail } from "@/generated/api/types.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export interface UseUserDetailsOptions {
   staleTime?: number
@@ -37,41 +35,73 @@ export const isUserDetailsNotFound = (
   return result?.kind === "not-found"
 }
 
+const getUserDetailsQueryOptions = (courseIds: string[], userId: string) =>
+  queryOptions({
+    queryKey: ["user-details/user", courseIds, userId],
+    queryFn: async (): Promise<UseUserDetailsResult> => {
+      try {
+        const user = await getUserDetailsByCourses({
+          body: {
+            user_id: userId,
+            course_ids: courseIds,
+          },
+        })
+
+        return {
+          kind: "ok",
+          user,
+        }
+      } catch (error) {
+        const message =
+          typeof error === "string"
+            ? error
+            : typeof error === "object" &&
+                error !== null &&
+                "message" in error &&
+                typeof error.message === "string"
+              ? error.message
+              : JSON.stringify(error)
+
+        if (message.includes("RecordNotFound")) {
+          return {
+            kind: "not-found",
+            userId,
+          }
+        }
+
+        throw error
+      }
+    },
+  })
+
+const getBulkUserDetailsQueryOptions = (courseId: string, userIds: string[]) =>
+  queryOptions({
+    queryKey: ["user-details/bulk", courseId, userIds],
+    queryFn: () =>
+      getBulkUserDetails({
+        body: {
+          user_ids: userIds,
+          course_id: courseId,
+        },
+      }),
+  })
+
 export const useUserDetails = (
   courseIds: string[] | null | undefined,
   userId: string | null | undefined,
   options?: UseUserDetailsOptions,
 ) => {
-  return useQuery<UserDetailsResult>({
-    queryKey: ["user-details/user", courseIds, userId],
-    queryFn: async () => {
-      const safeCourseIds = assertNotNullOrUndefined(courseIds)
-      const safeUserId = assertNotNullOrUndefined(userId)
-
-      try {
-        const user = await getUserDetails(safeCourseIds, safeUserId)
-        return {
-          kind: "ok" as const,
-          user,
-        }
-      } catch (error) {
-        const axiosError = error as AxiosError<ErrorResponse>
-        const status = axiosError.response?.status
-        const message = axiosError.response?.data?.message ?? ""
-
-        // Treat 404 and RecordNotFound-style responses as \"user not found/deleted\"
-        if (status === 404 || message.includes("RecordNotFound")) {
-          return {
-            kind: "not-found" as const,
-            userId: safeUserId,
-          }
-        }
-
-        // For all other failures, surface a real error to the caller
-        throw error
-      }
-    },
-    enabled: !!courseIds && !!userId,
+  return useQuery({
+    ...optionalGeneratedQueryOptions({
+      value: courseIds && userId ? { courseIds, userId } : null,
+      isReady: (
+        value,
+      ): value is {
+        courseIds: string[]
+        userId: string
+      } => Boolean(value?.userId && value.courseIds.length > 0),
+      build: ({ courseIds, userId }) => getUserDetailsQueryOptions(courseIds, userId),
+    }),
     staleTime: options?.staleTime,
     gcTime: options?.gcTime,
     refetchOnWindowFocus: options?.refetchOnWindowFocus,
@@ -82,10 +112,18 @@ export const useBulkUserDetails = (
   courseId: string | null | undefined,
   userIds: string[] | null | undefined,
 ) => {
-  return useQuery<UserDetail[]>({
-    queryKey: ["user-details/bulk", courseId, userIds],
-    queryFn: () =>
-      getBulkUserDetails(assertNotNullOrUndefined(courseId), assertNotNullOrUndefined(userIds)),
-    enabled: !!courseId && !!userIds && userIds.length > 0,
-  })
+  return useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId && userIds ? { courseId, userIds } : null,
+      isReady: (
+        value,
+      ): value is {
+        courseId: string
+        userIds: string[]
+      } => Boolean(value?.courseId && value.userIds.length > 0),
+      build: ({ courseId, userIds }) => getBulkUserDetailsQueryOptions(courseId, userIds),
+    }),
+  )
 }
+
+type UseUserDetailsResult = UserDetailsResult

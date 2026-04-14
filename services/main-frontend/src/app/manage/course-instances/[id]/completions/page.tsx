@@ -16,18 +16,18 @@ import CompletionsExportButton from "./CompletionsExportButton"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import FullWidthTable from "@/components/tables/FullWidthTable"
-import CaretDownIcon from "@/imgs/caret-down.svg"
+import { getCourseInstanceCompletionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
-  getCompletions,
-  postCompletions,
-  postCompletionsPreview,
-} from "@/services/backend/course-instances"
-import {
+  createCourseInstanceCompletions,
+  previewCourseInstanceCompletions,
+} from "@/generated/api/sdk.generated"
+import type {
   CourseModuleCompletionWithRegistrationInfo,
   ManualCompletionPreview,
   TeacherManualCompletionRequest,
   UserWithModuleCompletions,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
+import CaretDownIcon from "@/imgs/caret-down.svg"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -58,9 +58,12 @@ const CompletionsPage: React.FC = () => {
     crumbs,
   })
   const getCompletionsList = useQuery({
-    queryKey: [`completions-list-${courseInstanceId}`],
-    queryFn: async () => {
-      const completions = await getCompletions(courseInstanceId)
+    ...getCourseInstanceCompletionsOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+    select: (completions) => {
       const sortedCourseModules = completions.course_modules.sort(
         (a, b) => a.order_number - b.order_number,
       )
@@ -77,7 +80,13 @@ const CompletionsPage: React.FC = () => {
     useState<TeacherManualCompletionRequest | null>(null)
   const [previewData, setPreviewData] = useState<ManualCompletionPreview | null>(null)
   const mutation = useToastMutation(
-    (data: TeacherManualCompletionRequest) => postCompletions(courseInstanceId, data),
+    async (data: TeacherManualCompletionRequest) =>
+      createCourseInstanceCompletions({
+        body: data,
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+      }),
     { notify: true, method: "POST", successMessage: t("completions-submitted-successfully") },
     {
       onSuccess: () => {
@@ -110,7 +119,12 @@ const CompletionsPage: React.FC = () => {
     data: TeacherManualCompletionRequest,
   ): Promise<void> => {
     setCompletionFormData(data)
-    const previewDataFromBackend = await postCompletionsPreview(courseInstanceId, data)
+    const previewDataFromBackend = await previewCourseInstanceCompletions({
+      body: data,
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    })
 
     const updatedAlreadyCompletedUsers = previewDataFromBackend.already_completed_users.map(
       (user) => {
@@ -119,12 +133,12 @@ const CompletionsPage: React.FC = () => {
           return { ...user, previous_best_grade: null }
         }
 
-        const completions = existingUser.moduleCompletions.get(data.course_module_id ?? "")
+        const completions = existingUser.moduleCompletions.get(data.course_module_id)
         const bestGrade = completions
           ? completions.reduce((max, curr) => {
               let gradeValue: number
 
-              if (curr.grade !== null) {
+              if (curr.grade != null) {
                 gradeValue = curr.grade
               } else if (curr.passed) {
                 gradeValue = 0.5 // "pass"
@@ -360,8 +374,8 @@ function prepareUser(user: UserWithModuleCompletions): UserCompletionRowUser {
   return {
     moduleCompletions,
     email: user.email,
-    firstName: user.first_name,
-    lastName: user.last_name,
+    firstName: user.first_name ?? null,
+    lastName: user.last_name ?? null,
     userId: user.user_id,
   }
 }

@@ -6,19 +6,16 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import type { OrgExam } from "@/generated/api/types.generated"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { examRoute, manageExamRoute } from "@/shared-module/common/utils/routes"
 import { dateToDateTimeLocalString } from "@/shared-module/common/utils/time"
 
-interface Exam {
-  id: string
-  name: string
-  starts_at: string | null
-  ends_at: string | null
-  time_minutes: number
-  minimum_points_treshold: number
-}
+type Exam = Pick<
+  OrgExam,
+  "id" | "name" | "starts_at" | "ends_at" | "time_minutes" | "minimum_points_treshold"
+>
 
 interface Props {
   exam: Exam

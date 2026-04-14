@@ -3,7 +3,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
-import { ActionOnResource } from "../bindings"
+import { ActionOnResource } from "../authApiTypes"
 import { authorizeMultiple } from "../services/backend/auth"
 
 /**

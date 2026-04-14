@@ -9,18 +9,34 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { assert, Equals } from "tsafe"
 
-import { fetchPendingRoles } from "../services/backend/pendingRoles"
-import { fetchRoles, giveRole, removeRole } from "../services/backend/roles"
 import CaretArrowDown from "../shared-module/common/img/caret-arrow-down.svg"
 
-import { RoleDomain, RoleQuery, RoleUser, UserRole } from "@/shared-module/common/bindings"
+import {
+  addRoleMutation as addRoleMutationOptions,
+  getPendingRolesOptions,
+  getRolesOptions,
+  removeRoleMutation as removeRoleMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  addRole as addRoleFromApi,
+  removeRole as removeRoleFromApi,
+} from "@/generated/api/sdk.generated"
+import type {
+  GetRolesData,
+  PendingRole,
+  RoleDomain,
+  RoleUser,
+  UserRole,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
 const SORT_KEY_ROLE = "role"
@@ -74,6 +90,8 @@ interface Props {
   domain: RoleDomain
 }
 
+type RoleQuery = NonNullable<GetRolesData["query"]>
+
 const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ domain }) => {
   const { t } = useTranslation()
   const router = useRouter()
@@ -121,17 +139,17 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)
   const roleQuery = useQuery({
-    queryKey: [`roles`, domain, query],
-    queryFn: () => fetchRoles(query),
+    ...getRolesOptions({
+      query,
+    }),
   })
   const pendingRolesQuery = useQuery({
-    queryKey: [`pending-roles`, domain, query],
-    queryFn: () => fetchPendingRoles(query),
+    ...getPendingRolesOptions({
+      query,
+    }),
   })
-  const addMutation = useToastMutation(
-    () => {
-      return giveRole(newEmail, newRole, domain)
-    },
+  const addMutation = useToastMutationOptions(
+    addRoleMutationOptions(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -143,17 +161,21 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   )
   const editMutation = useToastMutation(
     ({ email, oldRole, newRole }: { email: string; oldRole: UserRole; newRole: UserRole }) =>
-      removeRole(email, oldRole, domain).then(() => giveRole(email, newRole, domain)),
+      removeRoleFromApi({
+        body: { email, role: oldRole, domain },
+      }).then(() =>
+        addRoleFromApi({
+          body: { email, role: newRole, domain },
+        }),
+      ),
     { notify: true, method: "POST" },
     {
       onSuccess: () => roleQuery.refetch(),
       onError: setMutationError,
     },
   )
-  const removeMutation = useToastMutation(
-    ({ email, role }: { email: string; role: UserRole }) => {
-      return removeRole(email, role, domain)
-    },
+  const removeMutation = useToastMutationOptions(
+    removeRoleMutationOptions(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => roleQuery.refetch(),
@@ -360,7 +382,11 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
                           border: 0;
                           height: 100%;
                         `}
-                        onClick={() => removeMutation.mutate({ email: ur.email, role: ur.role })}
+                        onClick={() =>
+                          removeMutation.mutate({
+                            body: { email: ur.email, role: ur.role, domain },
+                          })
+                        }
                       >
                         <XmarkCircle size={20} color={"#1A2333"} />
                       </button>
@@ -493,7 +519,15 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
             width: 144px;
             padding: 0.7625rem 1.125rem !important;
           `}
-          onClick={() => addMutation.mutate()}
+          onClick={() =>
+            addMutation.mutate({
+              body: {
+                email: newEmail,
+                role: newRole,
+                domain,
+              },
+            })
+          }
           size="medium"
           variant="primary"
         >

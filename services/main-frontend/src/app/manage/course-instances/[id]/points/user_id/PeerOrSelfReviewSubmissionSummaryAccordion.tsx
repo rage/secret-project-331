@@ -5,11 +5,11 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import { UserDisplay } from "@/components/UserDisplay"
-import {
+import type {
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionSubmission,
   PeerOrSelfReviewSubmissionWithSubmissionOwner,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 

@@ -2,7 +2,7 @@
 
 import ExerciseServiceList from "./ExerciseServiceList"
 
-import { ExerciseServiceIframeRenderingInfo } from "@/shared-module/common/bindings"
+import { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
 
 interface Props {
   onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void

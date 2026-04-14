@@ -2,16 +2,18 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchFeedbackCount } from "@/services/backend/feedback"
+import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 const createUnreadFeedbackCountHook = (courseId: string) => {
   const useFeedbackUnreadCount = () => {
-    const getFeedbackCount = useQuery({
-      queryKey: [`feedback-count-${courseId}`],
-      queryFn: () => fetchFeedbackCount(courseId),
+    return useQuery({
+      ...getCourseFeedbackCountOptions({
+        path: {
+          course_id: courseId,
+        },
+      }),
       select: (data) => data.unread,
     })
-    return getFeedbackCount
   }
   return useFeedbackUnreadCount
 }

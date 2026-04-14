@@ -9,16 +9,11 @@ import CreateTermForm from "./CreateTermForm"
 import TermItem from "./TermItem"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
-import { fetchGlossary } from "@/services/backend/courses"
+import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-
-interface GlossaryTerm {
-  id: string
-  term: string
-  definition: string
-}
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -26,10 +21,13 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const { t } = useTranslation()
 
   const [editingTerm, setEditingTerm] = useState<string | null>(null)
-  const glossary = useQuery({
-    queryKey: [`glossary-${courseId}`],
-    queryFn: () => fetchGlossary(courseId),
-  })
+  const glossary = useQuery(
+    getCourseGlossaryOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  )
 
   return (
     <>
@@ -47,7 +45,7 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       {glossary.isLoading && <Spinner variant={"medium"} />}
       <CreateTermForm refetch={glossary.refetch} courseId={courseId} />
       {glossary.isSuccess &&
-        glossary.data
+        [...glossary.data]
           .sort((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
           .map((term: GlossaryTerm) => (
             <TermItem

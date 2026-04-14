@@ -2,10 +2,27 @@
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
 use models::code_giveaways::CodeGiveawayStatus;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_giveaway_status, claim_code_from_code_giveaway))]
+pub(crate) struct CourseMaterialCodeGiveawaysApiDoc;
 
 /**
  GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.
 */
+#[utoipa::path(
+    get,
+    path = "/{id}/status",
+    operation_id = "getCodeGiveawayStatus",
+    tag = "course-material-code-giveaways",
+    params(
+        ("id" = Uuid, Path, description = "Code giveaway id")
+    ),
+    responses(
+        (status = 200, description = "Code giveaway status", body = CodeGiveawayStatus)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_giveaway_status(
     user: AuthUser,
@@ -23,6 +40,18 @@ async fn get_giveaway_status(
 /**
  POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.
 */
+#[utoipa::path(
+    post,
+    path = "/{id}/claim",
+    operation_id = "claimCodeFromCodeGiveaway",
+    tag = "course-material-code-giveaways",
+    params(
+        ("id" = Uuid, Path, description = "Code giveaway id")
+    ),
+    responses(
+        (status = 200, description = "Claimed code", body = String)
+    )
+)]
 #[instrument(skip(pool))]
 async fn claim_code_from_code_giveaway(
     user: AuthUser,

@@ -5,18 +5,14 @@ use serde::{
     Deserialize, Deserializer,
     de::{self, MapAccess, Visitor},
 };
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
 
 /// Represents the URL query parameters `page` and `limit`, used for paginating database queries.
 #[derive(Debug, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Pagination {
     // the deserialize implementation contains a default value for page
-    #[cfg_attr(feature = "ts_rs", ts(type = "number | undefined"))]
     page: u32,
     // the deserialize implementation contains a default value for limit
-    #[cfg_attr(feature = "ts_rs", ts(type = "number | undefined"))]
     limit: u32,
 }
 

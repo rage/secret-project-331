@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 
-import { RepositoryExercise } from "@/shared-module/common/bindings"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import {
   CurrentStateMessage,
@@ -10,6 +9,7 @@ import {
 } from "@/shared-module/common/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { RepositoryExercise } from "@/utils/playgroundSchemas"
 
 interface PlaygroundExerciseEditorIframeProps {
   url: string

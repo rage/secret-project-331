@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use futures::Stream;
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::{
     course_modules::{self, CourseModule},
@@ -12,9 +13,8 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display, ToSchema)]
 #[sqlx(type_name = "reviewing_stage", rename_all = "snake_case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 /**
 Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
 */
@@ -51,8 +51,7 @@ pub enum ReviewingStage {
     Locked,
 }
 
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct UserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -100,8 +99,8 @@ pub struct UserExerciseStateUpdate {
     pub grading_progress: GradingProgress,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct UserCourseProgress {
     pub course_module_id: Uuid,
     pub course_module_name: String,
@@ -114,8 +113,8 @@ pub struct UserCourseProgress {
     pub attempted_exercises_required: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct UserCourseChapterExerciseProgress {
     pub exercise_id: Uuid,
     pub score_given: f32,
@@ -147,19 +146,19 @@ pub struct CourseExerciseMetrics {
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseUserCounts {
     exercise_name: String,
     exercise_order_number: i32,
     page_order_number: i32,
     chapter_number: i32,
     exercise_id: Uuid,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_attempted: Option<i64>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_with_some_points: Option<i64>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_with_max_points: Option<i64>,
 }
 
@@ -1271,7 +1270,7 @@ WHERE exercises.deleted_at IS NULL
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExportedUserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,

@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
 
-import { SpecRequest } from "@/shared-module/common/bindings"
-import { isSpecRequest } from "@/shared-module/common/bindings.guard"
+import { isSpecRequest, SpecRequest } from "@/util/exerciseServiceApi"
 import { Alternative, ClientErrorResponse, PublicAlternative } from "@/util/stateInterfaces"
 
 function notFound() {

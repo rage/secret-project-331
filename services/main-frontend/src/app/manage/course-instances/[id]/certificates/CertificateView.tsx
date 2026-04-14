@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
-import { CertificateConfigurationAndRequirements } from "@/shared-module/common/bindings"
+import type { CertificateConfigurationAndRequirements } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import MaskOverThisInSystemTests from "@/shared-module/common/components/system-tests/MaskOverThisInSystemTests"
 import SetHeightInSystemTests from "@/shared-module/common/components/system-tests/SetHeightInSystemTests"

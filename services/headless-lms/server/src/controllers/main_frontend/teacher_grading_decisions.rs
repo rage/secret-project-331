@@ -5,10 +5,25 @@ use headless_lms_models::{
     teacher_grading_decisions::{NewTeacherGradingDecision, TeacherDecisionType},
     user_exercise_states::UserExerciseState,
 };
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(create_teacher_grading_decision))]
+pub(crate) struct MainFrontendTeacherGradingDecisionsApiDoc;
 
 /**
 POST `/api/v0/main-frontend/teacher-grading-decisions` - Creates a new teacher grading decision, overriding the points a user has received from an exercise.
 */
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createTeacherGradingDecision",
+    tag = "teacher_grading_decisions",
+    request_body = NewTeacherGradingDecision,
+    responses(
+        (status = 200, description = "Teacher grading decision created", body = Option<UserExerciseState>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn create_teacher_grading_decision(
     payload: web::Json<NewTeacherGradingDecision>,

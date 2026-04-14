@@ -1,168 +1,98 @@
-import { ParsedError, parseError } from "../parseError"
-
-function makeFakeBlob(text: string): { text: () => Promise<string> } {
-  return { text: async () => text }
-}
+import { AppApiError } from "../../../errors/AppApiError"
+import { parseError } from "../parseError"
 
 describe("parseError", () => {
   const defaultTitle = "Translated Error"
 
-  test("parses string error", async () => {
-    const result = await parseError("something went wrong", defaultTitle)
-    expect(result).toEqual<ParsedError>({
-      title: defaultTitle,
-      message: "something went wrong",
+  test("parses app api errors", () => {
+    const input = new AppApiError({
+      kind: "api",
+      status: 422,
+      title: "Validation failed",
+      userMessage: "Please fix fields",
+      issues: [{ path: "body.email", message: "Invalid email", code: "invalid_format" }],
+      metadata: { block_id: "block-123" },
+      requestId: "req-1",
+      code: "VALIDATION_FAILED",
+      retryAfterSeconds: null,
+      detail: "detail",
     })
-  })
-
-  test("parses ErrorResponse in .data", async () => {
-    const errorResponse = {
-      title: "Backend Error",
-      message: "Detailed message",
-      data: { block_id: "abc" },
-      source: "stacktrace or source",
-    }
-    const input = { status: 500, data: errorResponse }
-    const result = await parseError(input, defaultTitle)
+    const result = parseError(input, defaultTitle)
     expect(result).toEqual({
-      title: "Backend Error",
-      message: "Detailed message",
-      sourceData: "stacktrace or source",
-      linkBlockId: "abc",
-      status: 500,
+      title: "Validation failed",
+      message: "Please fix fields",
+      sourceData: { detail: "detail", method: null, url: null },
+      linkBlockId: "block-123",
+      status: 422,
+      messageKey: null,
+      type: null,
+      requestId: "req-1",
+      code: "VALIDATION_FAILED",
+      issues: [{ path: "body.email", message: "Invalid email", code: "invalid_format" }],
+      retryAfterSeconds: null,
     })
   })
 
-  test("parses Axios-like error with backend ErrorResponse payload", async () => {
-    const backend = {
-      title: "Internal Server Error",
-      message: "Something broke",
-      data: { block_id: "block-123" },
-      source: "trace...",
-    }
+  test("parses simplified backend payload with message_key", () => {
+    const result = parseError(
+      {
+        type: "validation_error",
+        message_key: "validation_error",
+        message: "Input invalid",
+        errors: [{ path: "body.email", message: "Invalid email", code: "invalid_format" }],
+        metadata: { block_id: "block-42" },
+      },
+      defaultTitle,
+    )
+    expect(result.messageKey).toBe("validation_error")
+    expect(result.type).toBe("validation_error")
+    expect(result.code).toBeNull()
+    expect(result.linkBlockId).toBe("block-42")
+    expect(result.issues).toHaveLength(1)
+  })
+
+  test("parses legacy backend error", () => {
     const input = {
-      isAxiosError: true,
-      message: "Request failed with status code 500",
-      response: { status: 500, data: backend },
+      title: "Internal Server Error",
+      message: "Something broke",
+      source: "trace...",
+      data: { block_id: "block-123" },
+      status: 500,
     }
-    const result = await parseError(input, defaultTitle)
+    const result = parseError(input, defaultTitle)
     expect(result).toEqual({
       title: "Internal Server Error",
       message: "Something broke",
-      sourceData: "trace...",
+      sourceData: { detail: "trace..." },
       linkBlockId: "block-123",
       status: 500,
+      messageKey: null,
+      type: null,
+      requestId: null,
+      code: null,
+      issues: [],
+      retryAfterSeconds: null,
     })
   })
 
-  test("parses HTTP-like response with backend ErrorResponse payload", async () => {
-    const backend = {
-      title: "Bad Request",
-      message: "Invalid input",
-      data: { block_id: "block-xyz" },
-      source: "validation trace",
-    }
-    const input = {
-      status: 400,
-      statusText: "Bad Request",
-      request: { responseURL: "https://api.example.com/endpoint" },
-      data: backend,
-    }
-    const result = await parseError(input, defaultTitle)
-    expect(result).toEqual({
-      title: "Bad Request",
-      message: "Invalid input",
-      sourceData: "validation trace",
-      linkBlockId: "block-xyz",
-      status: 400,
-    })
-  })
-
-  test("parses blob backend ErrorResponse payload (non-axios)", async () => {
-    const backend = {
-      title: "Unauthorized",
-      message: "Missing token",
-      data: { block_id: "auth-block" },
-      source: "auth trace",
-    }
-    const blob = makeFakeBlob(JSON.stringify(backend))
-    const input = { status: 401, data: blob }
-    const result = await parseError(input, defaultTitle)
-    expect(result).toEqual({
-      title: "Unauthorized",
-      message: "Missing token",
-      sourceData: "auth trace",
-      linkBlockId: "auth-block",
-      status: 401,
-    })
-  })
-
-  test("parses Axios-like error", async () => {
-    const input = {
-      isAxiosError: true,
-      message: "Request failed",
-      response: { data: { message: "Bad request" } },
-    }
-    const result = await parseError(input, defaultTitle)
-    expect(result).toEqual({
-      title: "Request failed",
-      message: "Bad request",
-      sourceData: { message: "Bad request" },
-    })
-  })
-
-  test("parses HTTP-like response without ErrorResponse", async () => {
-    const input = {
-      status: 404,
-      statusText: "Not Found",
-      request: { responseURL: "https://example.com/foo" },
-      data: { cause: "missing" },
-    }
-    const result = await parseError(input, defaultTitle)
-    expect(result).toEqual({
-      title: "Not Found",
-      message: "https://example.com/foo",
-      sourceData: { cause: "missing" },
-      status: 404,
-    })
-  })
-
-  test("parses plain Error", async () => {
+  test("parses plain Error", () => {
     const err = new Error("Boom")
-    const result = await parseError(err, defaultTitle)
+    const result = parseError(err, defaultTitle)
     expect(result.title).toBe("Boom")
-    expect(typeof result.sourceData).toBe("string")
-    expect(result.sourceData).toContain("Boom")
+    expect(typeof result.sourceData).toBe("object")
+    expect((result.sourceData as { detail?: string }).detail).toContain("Boom")
   })
 
-  test("parses unknown object", async () => {
+  test("parses string", () => {
+    const result = parseError("something went wrong", defaultTitle)
+    expect(result.title).toBe("Unexpected error")
+    expect(result.message).toBe("something went wrong")
+  })
+
+  test("parses unknown object", () => {
     const input = { foo: "bar" }
-    const result = await parseError(input, defaultTitle)
-    expect(result).toEqual({
-      title: defaultTitle,
-      sourceData: input,
-    })
-  })
-
-  test("parses Blob in data and JSON content", async () => {
-    const blob = makeFakeBlob(JSON.stringify({ message: "from blob" }))
-    const input = { data: blob, isAxiosError: true, message: "Blob axios" }
-    const result = await parseError(input, defaultTitle)
-    expect(result).toEqual({
-      title: "Blob axios",
-      message: "from blob",
-      sourceData: { message: "from blob" },
-    })
-  })
-
-  test("parses Blob in data and non-JSON content", async () => {
-    const blob = makeFakeBlob("not json")
-    const input = { data: blob, isAxiosError: true, message: "Blob axios" }
-    const result = await parseError(input, defaultTitle)
-    expect(result).toEqual({
-      title: "Blob axios",
-      message: undefined,
-      sourceData: "not json",
-    })
+    const result = parseError(input, defaultTitle)
+    expect(result.title).toBe("Unexpected error")
+    expect(result.message).toContain("foo")
   })
 })

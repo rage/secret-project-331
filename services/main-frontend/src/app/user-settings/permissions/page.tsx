@@ -9,11 +9,11 @@ import { useTranslation } from "react-i18next"
 
 import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
+import { getUserDetailsForAuthenticatedUserOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getUserResearchFormQuestionAnswersOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { getCourseBreadcrumbInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useAuthorizedClientsQuery from "@/hooks/useAuthorizedClientsQuery"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
-import { getCourseBreadCrumbInfo } from "@/services/backend/courses"
-import { getUserDetailsForUser } from "@/services/backend/user-details"
-import { getAllResearchConsentAnswersByUserId } from "@/services/backend/users"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
@@ -28,13 +28,11 @@ const PermissionsSettingsPage: React.FC = () => {
   const { listQuery, revokeMutation } = useAuthorizedClientsQuery()
 
   const getUserDetails = useQuery({
-    queryKey: [`user-details`],
-    queryFn: () => getUserDetailsForUser(),
+    ...getUserDetailsForAuthenticatedUserOptions(),
   })
 
   const getAllResearchFormAnswers = useQuery({
-    queryKey: [`users-user-research-form-question-answers`],
-    queryFn: () => getAllResearchConsentAnswersByUserId(),
+    ...getUserResearchFormQuestionAnswersOptions(),
   })
 
   const handleGeneralResearchFormButton = async () => {
@@ -56,9 +54,11 @@ const PermissionsSettingsPage: React.FC = () => {
   const breadcrumbQueries = useMemo(
     () =>
       allCourseIds.map((courseId) => ({
-        // eslint-disable-next-line i18next/no-literal-string
-        queryKey: [`course-${courseId}-breadcrumb-info`, courseId],
-        queryFn: () => getCourseBreadCrumbInfo(courseId),
+        ...getCourseBreadcrumbInfoOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
       })),
     [allCourseIds],
   )

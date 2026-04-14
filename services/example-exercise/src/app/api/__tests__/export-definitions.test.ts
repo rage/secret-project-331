@@ -2,9 +2,7 @@ import assert from "node:assert/strict"
 import test from "node:test"
 
 test("export-definitions exports option metadata", async () => {
-  const importedRouteModule = await import("../export-definitions/route.ts")
-  const routeModule = importedRouteModule.default ?? importedRouteModule
-  const { POST } = routeModule
+  const { POST } = await import("../export-definitions/route")
   const response = await POST(
     new Request("http://localhost/api/export-definitions", {
       method: "POST",
@@ -41,9 +39,7 @@ test("export-definitions exports option metadata", async () => {
 })
 
 test("export-definitions fails with invalid payload", async () => {
-  const importedRouteModule = await import("../export-definitions/route.ts")
-  const routeModule = importedRouteModule.default ?? importedRouteModule
-  const { POST } = routeModule
+  const { POST } = await import("../export-definitions/route")
   const response = await POST(
     new Request("http://localhost/api/export-definitions", {
       method: "POST",

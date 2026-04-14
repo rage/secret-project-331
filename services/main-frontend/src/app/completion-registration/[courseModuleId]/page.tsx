@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import RegisterCompletion from "./RegisterCompletion"
 
-import { fetchUserCompletionInformation } from "@/services/backend/course-modules"
+import { getCourseModuleUserCompletionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -27,8 +27,11 @@ const CompletionPage: React.FC = () => {
   }, [])
 
   const userCompletionInformation = useQuery({
-    queryKey: [`course-module-${courseModuleId}-completion-information`],
-    queryFn: () => fetchUserCompletionInformation(courseModuleId),
+    ...getCourseModuleUserCompletionOptions({
+      path: {
+        course_module_id: courseModuleId,
+      },
+    }),
   })
 
   if (

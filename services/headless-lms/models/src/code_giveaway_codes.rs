@@ -1,10 +1,11 @@
 use futures::Stream;
 use sqlx::{QueryBuilder, Row};
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CodeGiveawayCode {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

@@ -5,7 +5,7 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchAllCoursePages } from "@/services/course-material/backend"
+import { getCourseMaterialCoursePages } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { coursePageRoute } from "@/utils/course-material/routing"
@@ -22,7 +22,12 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
   const { t } = useTranslation()
   const getAllCoursePages = useQuery({
     queryKey: [`course-${courseId}-all-pages`],
-    queryFn: () => fetchAllCoursePages(courseId),
+    queryFn: () =>
+      getCourseMaterialCoursePages({
+        path: {
+          course_id: courseId,
+        },
+      }),
   })
 
   return (

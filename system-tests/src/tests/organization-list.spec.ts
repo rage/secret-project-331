@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../utils/screenshot"
 
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { manageOrganization } from "@/utils/organizationUtils"
 
 test.use({
@@ -17,8 +18,10 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("textbox", { name: "Organization name" }).fill("New Test")
     await page.getByRole("textbox", { name: "Slug" }).click()
     await page.getByRole("textbox", { name: "Slug" }).fill("newslug")
-    await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
-    await page.getByText("Success", { exact: true }).click()
+
+    await waitForSuccessNotification(page, async () => {
+      await page.getByTestId("dialog").getByRole("button", { name: "Create" }).click()
+    })
   })
 
   await test.step("Can see the new organization in manage page", async () => {
@@ -33,10 +36,11 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("textbox", { name: "Name" }).fill("New Test Edited")
     await page.getByRole("textbox", { name: "Slug" }).click()
     await page.getByRole("textbox", { name: "Slug" }).fill("newslugedited")
-    await page.getByRole("button", { name: "Save" }).click()
-    await page.getByText("Success", { exact: true }).click()
-    await page.getByText("New Test Edited", { exact: true }).click()
-    await page.getByText("newslugedited").click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
+    await page.getByLabel("General").getByText("New Test Edited").waitFor()
+    await page.getByLabel("General").getByText("newslugedited").waitFor()
   })
 
   await test.step("Add user permissions", async () => {
@@ -45,15 +49,18 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("textbox", { name: "Email" }).click()
     await page.getByRole("textbox", { name: "Email" }).fill("teacher@example.com")
     await page.getByLabel("Role").selectOption("Teacher")
-    await page.getByRole("button", { name: "Save" }).click()
-    await page.getByText("Success", { exact: true }).click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await page.getByText("Teacher", { exact: true }).click()
   })
 
   await test.step("Edit user permissions", async () => {
     await page.getByRole("button", { name: "Edit user Teacher Example" }).click()
     await page.getByTestId("dialog").getByLabel("Role").selectOption("Reviewer")
-    await page.getByRole("button", { name: "Save" }).click()
+    await waitForSuccessNotification(page, async () => {
+      await page.getByRole("button", { name: "Save" }).click()
+    })
     await page.getByText("Reviewer").click()
     page.once("dialog", (dialog) => {
       console.log(`Dialog message: ${dialog.message()}`)
@@ -68,8 +75,13 @@ test("Organization workflow", async ({ page }) => {
     await page.getByRole("button", { name: "Delete organization" }).click()
     await page.getByTestId("dialog").getByRole("textbox").click()
     await page.getByTestId("dialog").getByRole("textbox").fill("delete")
-    await page.getByRole("button", { name: "Confirm" }).click()
-    await page.getByText("Success", { exact: true }).click()
+    await waitForSuccessNotification(
+      page,
+      async () => {
+        await page.getByRole("button", { name: "Confirm" }).click()
+      },
+      /Successfully deleted|Operation successful!?/,
+    )
     await expect(page.getByRole("heading", { name: "New Test Edited" })).toHaveCount(0)
   })
 })

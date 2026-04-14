@@ -11,7 +11,7 @@ import ExamTimer from "./ExamTimer"
 
 import Page from "@/components/course-material/Page"
 import ExamTimeOverModal from "@/components/course-material/modals/ExamTimeOverModal"
-import type { ExamData } from "@/shared-module/common/bindings"
+import type { ExamData } from "@/generated/course-material-api/types.generated"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 export interface ExamRunningSectionProps {

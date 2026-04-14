@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { Trans, useTranslation } from "react-i18next"
 
-import type { ExamData } from "@/shared-module/common/bindings"
+import type { ExamData } from "@/generated/course-material-api/types.generated"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"

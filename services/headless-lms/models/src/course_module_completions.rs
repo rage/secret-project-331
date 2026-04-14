@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use futures::Stream;
+use utoipa::ToSchema;
 
 use crate::{prelude::*, study_registry_registrars::StudyRegistryRegistrar};
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
+
 pub struct CourseModuleCompletion {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -27,7 +28,7 @@ pub struct CourseModuleCompletion {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseModuleAverage {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -42,7 +43,7 @@ pub struct CourseModuleAverage {
 
 // Define the CourseModulePointsAverage struct to match the result of the SQL query
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseModulePointsAverage {
     pub course_id: Uuid,
     pub average_points: Option<f32>,
@@ -66,7 +67,7 @@ impl CourseModuleCompletionGranter {
 }
 
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCourseModuleCompletion {
     pub course_id: Uuid,
     pub course_module_id: Uuid,
@@ -239,8 +240,8 @@ pub async fn get_by_ids_as_map(
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseModuleCompletionWithRegistrationInfo {
     /// When the student has attempted to register the completion.
     pub completion_registration_attempt_date: Option<DateTime<Utc>>,
@@ -631,7 +632,7 @@ pub async fn user_has_completed_course_module(
 
 /// Completion in the form that is recognized by authorized third party study registry registrars.
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudyRegistryCompletion {
     /// The date when the student completed the course. The value of this field is the date that will
     /// end up in the user's study registry as the completion date. If the completion is created
@@ -723,7 +724,7 @@ impl StudyRegistryCompletion {
 /// }
 /// ```
 #[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct StudyRegistryGrade {
     pub scale: String,
     pub grade: String,

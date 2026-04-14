@@ -14,7 +14,7 @@ import {
   safeParseReferences,
 } from "./NewReferenceForm"
 
-import { MaterialReference, NewMaterialReference } from "@/shared-module/common/bindings"
+import type { MaterialReference, NewMaterialReference } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

@@ -7,39 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
-import { getProgress } from "@/services/backend/courses/students"
+import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-
-type ProgressUser = {
-  user_id: string
-  first_name?: string | null
-  last_name?: string | null
-  email?: string | null
-}
-
-type ProgressChapter = {
-  id: string
-  name?: string | null
-  chapter_number?: number | null
-}
-
-type UserChapterProgress = {
-  user_id: string
-  chapter_id: string
-  chapter_number?: number | null
-  chapter_name?: string | null
-  exercises_attempted?: number | null
-  points_obtained?: number | null
-}
-
-type ChapterAvailability = {
-  chapter_id: string
-  chapter_number?: number | null
-  chapter_name?: string | null
-  points_available?: number | null
-  exercises_available?: number | null
-}
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -56,8 +26,11 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
   const { t } = useTranslation()
 
   const query = useQuery({
-    queryKey: ["progress-tab", courseId],
-    queryFn: () => getProgress(courseId),
+    ...getCourseStudentsProgressOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const { allRows, dynamicColumns } = useMemo(() => {
@@ -79,12 +52,7 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
 
     const round2 = (n: number) => Math.round(n * 100) / 100
 
-    const { user_details, chapters, user_chapter_progress, chapter_availability } = query.data as {
-      user_details: ProgressUser[]
-      chapters: ProgressChapter[]
-      user_chapter_progress: UserChapterProgress[]
-      chapter_availability: ChapterAvailability[]
-    }
+    const { user_details, chapters, user_chapter_progress, chapter_availability } = query.data
 
     // --- maxima lookups (per chapter, not per user)
     const maxPointsByChapter: Record<string, number | undefined> = {}

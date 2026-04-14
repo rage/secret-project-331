@@ -5,11 +5,11 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { createChatbot } from "@/services/backend/courses/chatbots"
-import { ChatbotConfiguration } from "@/shared-module/common/bindings"
+import { createCourseChatbotMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { ChatbotConfiguration } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface CreateChatbotProps {
   courseId: string
@@ -33,8 +33,8 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     formState: { errors },
   } = useForm<CreateChatbotFields>()
 
-  const createChatbotMutation = useToastMutation(
-    async (botName: string) => await createChatbot(courseId, botName),
+  const createChatbotMutation = useToastMutationOptions(
+    createCourseChatbotMutation(),
     {
       notify: true,
       method: "POST",
@@ -51,7 +51,12 @@ const CreateChatbotForm: React.FC<CreateChatbotProps> = ({
     <div>
       <form
         onSubmit={handleSubmit((data) => {
-          createChatbotMutation.mutate(data.name.trim())
+          createChatbotMutation.mutate({
+            body: data.name.trim(),
+            path: {
+              course_id: courseId,
+            },
+          })
         })}
       >
         <TextField

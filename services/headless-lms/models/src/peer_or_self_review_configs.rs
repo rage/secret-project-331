@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -14,8 +15,8 @@ use crate::{
     user_exercise_states::{self, ReviewingStage},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerOrSelfReviewConfig {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -34,8 +35,8 @@ pub struct PeerOrSelfReviewConfig {
 }
 
 /// Like `PeerOrSelfReviewConfig` but only the fields it's fine to show to all users.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialPeerOrSelfReviewConfig {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -44,8 +45,8 @@ pub struct CourseMaterialPeerOrSelfReviewConfig {
     pub peer_reviews_to_receive: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPeerOrSelfReviewConfig {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -59,8 +60,8 @@ pub struct CmsPeerOrSelfReviewConfig {
     pub review_instructions: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPeerOrSelfReviewConfiguration {
     pub peer_or_self_review_config: CmsPeerOrSelfReviewConfig,
     pub peer_or_self_review_questions: Vec<CmsPeerOrSelfReviewQuestion>,
@@ -71,8 +72,7 @@ Determines how we will treat the answer being peer reviewed once it has received
 
 Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(
     type_name = "peer_review_processing_strategy",
     rename_all = "snake_case"

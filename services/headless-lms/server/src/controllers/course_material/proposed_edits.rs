@@ -1,10 +1,28 @@
 use models::proposed_page_edits::NewProposedPageEdits;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(post_proposed_edits))]
+pub(crate) struct CourseMaterialProposedEditsApiDoc;
 
 /**
 POST `/api/v0/course-material/proposed-edits/:course-id`
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}",
+    operation_id = "postCourseMaterialProposedEdits",
+    tag = "course-material-proposed-edits",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = NewProposedPageEdits,
+    responses(
+        (status = 200, description = "Created proposed edit")
+    )
+)]
 #[instrument(skip(pool))]
 async fn post_proposed_edits(
     pool: web::Data<PgPool>,

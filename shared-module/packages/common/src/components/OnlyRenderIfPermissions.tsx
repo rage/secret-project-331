@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useContext } from "react"
 
-import { Action, Resource } from "../bindings"
+import { Action, Resource } from "../authApiTypes"
 import LoginStateContext from "../contexts/LoginStateContext"
 import { authorize } from "../services/backend/auth"
 

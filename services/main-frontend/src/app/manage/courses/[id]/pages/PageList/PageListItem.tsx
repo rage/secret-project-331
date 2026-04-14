@@ -9,10 +9,11 @@ import NewOrEditPageForm from "../NewOrEditPageForm"
 
 import PageAudioWidget from "./PageAudioWidget"
 
+import type { Chapter, Page } from "@/generated/api/types.generated"
 import { ManagePageOrderAction } from "@/reducers/managePageOrderReducer"
-import { Chapter, Page } from "@/shared-module/common/bindings"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { baseTheme } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const MOVING_ALLOWED: MovePolicy = "allowed"
 export const MOVING_NOT_ALLOWED: MovePolicy = "not-allowed"
@@ -67,7 +68,7 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
         <PageAudioWidget id={page.id} open={showDialog} onClose={() => setShowDialog(false)} />
       )}
       <NewOrEditPageForm
-        courseId={page.course_id ?? ""}
+        courseId={assertNotNullOrUndefined(page.course_id)}
         onSubmitForm={() => {
           setShowEditDetailsPageForm(false)
           reload()
@@ -141,7 +142,11 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                       onClick: () => {
                         pageOrderDispatch({
                           type: "move",
-                          payload: { pageId: page.id, chapterId: page.chapter_id, direction: "up" },
+                          payload: {
+                            pageId: page.id,
+                            chapterId: page.chapter_id ?? null,
+                            direction: "up",
+                          },
                         })
                       },
                     }
@@ -154,7 +159,7 @@ const PageListItem: React.FC<React.PropsWithChildren<PageListItemProps>> = ({
                           type: "move",
                           payload: {
                             pageId: page.id,
-                            chapterId: page.chapter_id,
+                            chapterId: page.chapter_id ?? null,
                             direction: "down",
                           },
                         })

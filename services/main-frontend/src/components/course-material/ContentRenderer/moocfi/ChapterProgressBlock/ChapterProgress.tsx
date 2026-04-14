@@ -7,7 +7,8 @@ import { useTranslation } from "react-i18next"
 
 import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
 
-import { fetchUserChapterInstanceChapterProgress } from "@/services/course-material/backend"
+import { getCourseMaterialChapterProgress } from "@/generated/course-material-api/sdk.generated"
+import type { UserCourseInstanceChapterProgress } from "@/generated/course-material-api/types.generated"
 import Progress from "@/shared-module/common/components/CourseProgress"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -25,7 +26,13 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
   const { t } = useTranslation()
   const getUserChapterProgress = useQuery({
     queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
-    queryFn: () => fetchUserChapterInstanceChapterProgress(courseInstanceId, chapterId),
+    queryFn: (): Promise<UserCourseInstanceChapterProgress> =>
+      getCourseMaterialChapterProgress({
+        path: {
+          chapter_id: chapterId,
+          course_instance_id: courseInstanceId,
+        },
+      }),
   })
 
   return (
@@ -62,8 +69,8 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
             <Progress
               variant={"bar"}
               showAsPercentage={false}
-              exercisesAttempted={getUserChapterProgress.data.attempted_exercises}
-              exercisesTotal={getUserChapterProgress.data.total_exercises}
+              exercisesAttempted={getUserChapterProgress.data.attempted_exercises ?? null}
+              exercisesTotal={getUserChapterProgress.data.total_exercises ?? null}
               label={t("exercises-attempted")}
             />
             <ColorsIdentifier />

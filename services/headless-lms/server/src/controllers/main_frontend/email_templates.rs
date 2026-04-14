@@ -1,13 +1,27 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/email-templates/`.
 
 use models::email_templates::EmailTemplate;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_all_email_templates, delete_email_template))]
+pub(crate) struct MainFrontendEmailTemplatesApiDoc;
 
 /**
 GET `/api/v0/main-frontend/email-templates`
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getEmailTemplates",
+    tag = "email_templates",
+    responses(
+        (status = 200, description = "Email templates", body = Vec<EmailTemplate>)
+    )
+)]
 async fn get_all_email_templates(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -28,6 +42,18 @@ async fn get_all_email_templates(
 DELETE `/api/v0/main-frontend/email-templates/:id`
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    delete,
+    path = "/{email_template_id}",
+    operation_id = "deleteEmailTemplate",
+    tag = "email_templates",
+    params(
+        ("email_template_id" = Uuid, Path, description = "Email template id")
+    ),
+    responses(
+        (status = 200, description = "Deleted email template", body = EmailTemplate)
+    )
+)]
 async fn delete_email_template(
     email_template_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

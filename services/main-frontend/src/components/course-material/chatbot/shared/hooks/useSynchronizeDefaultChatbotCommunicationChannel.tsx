@@ -9,7 +9,10 @@ import ChatbotDisclaimer from "../ChatbotDisclaimer"
 
 import { MessageAction } from "./useChatbotStateAndData"
 
-import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import type {
+  ChatbotConversation,
+  ChatbotConversationInfo,
+} from "@/generated/course-material-api/types.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { waitForNextTick } from "@/shared-module/common/utils/async"
 import { defaultChatbotCommunicationChannel } from "@/stores/course-material/chatbotDialogStore"

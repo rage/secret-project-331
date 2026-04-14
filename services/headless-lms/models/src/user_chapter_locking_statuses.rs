@@ -26,6 +26,14 @@ impl ChapterLockingStatus {
             )),
         }
     }
+
+    pub fn as_db_str(self) -> &'static str {
+        match self {
+            ChapterLockingStatus::Unlocked => "unlocked",
+            ChapterLockingStatus::CompletedAndLocked => "completed_and_locked",
+            ChapterLockingStatus::NotUnlockedYet => "not_unlocked_yet",
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -41,6 +49,7 @@ pub struct UserChapterLockingStatus {
     pub status: ChapterLockingStatus,
 }
 
+#[derive(sqlx::FromRow)]
 struct DatabaseRow {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -233,6 +242,56 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     })
 }
 
+pub async fn set_chapter_status(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chapter_id: Uuid,
+    course_id: Uuid,
+    status: ChapterLockingStatus,
+) -> ModelResult<UserChapterLockingStatus> {
+    let status_text = status.as_db_str();
+    let res = sqlx::query_as::<_, DatabaseRow>(
+        r#"
+INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
+VALUES (
+    $1,
+    $2,
+    $3,
+    CASE
+      WHEN $4::text = 'unlocked' THEN 'unlocked'::chapter_locking_status
+      WHEN $4::text = 'completed_and_locked' THEN 'completed_and_locked'::chapter_locking_status
+      WHEN $4::text = 'not_unlocked_yet' THEN 'not_unlocked_yet'::chapter_locking_status
+      ELSE 'not_unlocked_yet'::chapter_locking_status
+    END,
+    NULL
+)
+ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
+SET status = CASE
+      WHEN $4::text = 'unlocked' THEN 'unlocked'::chapter_locking_status
+      WHEN $4::text = 'completed_and_locked' THEN 'completed_and_locked'::chapter_locking_status
+      WHEN $4::text = 'not_unlocked_yet' THEN 'not_unlocked_yet'::chapter_locking_status
+      ELSE 'not_unlocked_yet'::chapter_locking_status
+    END,
+    deleted_at = NULL
+RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+        "#,
+    )
+    .bind(user_id)
+    .bind(chapter_id)
+    .bind(course_id)
+    .bind(status_text)
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    res.map(|s| s.try_into()).transpose()?.ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::NotFound,
+            "Failed to set chapter status",
+            None,
+        )
+    })
+}
+
 pub async fn get_or_init_all_for_course(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -304,6 +363,50 @@ WHERE user_id = $1
     }
 
     Ok(statuses)
+}
+
+pub async fn get_all_for_course(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    let rows = sqlx::query_as!(
+        DatabaseRow,
+        r#"
+SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+FROM user_chapter_locking_statuses
+WHERE course_id = $1
+  AND deleted_at IS NULL
+        "#,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    rows.into_iter().map(|row| row.try_into()).collect()
+}
+
+/// Returns all chapter locking statuses for a specific user in a course.
+pub async fn get_for_user_and_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    let rows = sqlx::query_as!(
+        DatabaseRow,
+        r#"
+SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+FROM user_chapter_locking_statuses
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        course_id
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+
+    rows.into_iter().map(|row| row.try_into()).collect()
 }
 
 /// Creates a status row with `not_unlocked_yet` status if one doesn't exist.
@@ -671,6 +774,39 @@ mod tests {
                 .iter()
                 .any(|s| s.chapter_id == chapter1 && s.status == ChapterLockingStatus::Unlocked)
         );
+    }
+
+    #[tokio::test]
+    async fn get_all_for_course_returns_existing_statuses_without_initializing_missing_rows() {
+        insert_data!(:tx, :user, user_2: user_2, :org, course: course, instance: _instance, :course_module);
+        let chapter = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(course_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        unlock_chapter(tx.as_mut(), user, chapter, course)
+            .await
+            .unwrap();
+
+        let statuses = get_all_for_course(tx.as_mut(), course).await.unwrap();
+
+        assert_eq!(statuses.len(), 1);
+        assert_eq!(statuses[0].user_id, user);
+        assert_eq!(statuses[0].chapter_id, chapter);
+        assert_eq!(statuses[0].status, ChapterLockingStatus::Unlocked);
+        assert!(statuses.iter().all(|status| status.user_id != user_2));
     }
 
     #[tokio::test]

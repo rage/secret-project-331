@@ -137,6 +137,7 @@ import {
   getCourseProgressForUser,
   getCourseReferences,
   getCourseStructure,
+  getCourseStudentChapterLockingStatuses,
   getCourseStudentsCertificates,
   getCourseStudentsCompletions,
   getCourseStudentsProgress,
@@ -270,6 +271,7 @@ import {
   setExamCourse,
   softDeleteOrganization,
   teacherLockStudentChapter,
+  teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
   unsetExamCourse,
   updateCertificateConfiguration,
@@ -515,6 +517,8 @@ import type {
   GetCourseResponse,
   GetCourseStructureData,
   GetCourseStructureResponse,
+  GetCourseStudentChapterLockingStatusesData,
+  GetCourseStudentChapterLockingStatusesResponse,
   GetCourseStudentsCertificatesData,
   GetCourseStudentsCertificatesResponse,
   GetCourseStudentsCompletionsData,
@@ -762,6 +766,8 @@ import type {
   SoftDeleteOrganizationData,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
+  TeacherSetStudentChapterStatusData,
+  TeacherSetStudentChapterStatusResponse,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponse,
   UnsetExamCourseData,
@@ -4408,6 +4414,32 @@ export const getCourseStudentsUsersOptions = (options: Options<GetCourseStudents
     queryKey: getCourseStudentsUsersQueryKey(options),
   })
 
+export const getCourseStudentChapterLockingStatusesQueryKey = (
+  options: Options<GetCourseStudentChapterLockingStatusesData>,
+) => createQueryKey("getCourseStudentChapterLockingStatuses", options)
+
+/**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapter-locking-statuses`
+ */
+export const getCourseStudentChapterLockingStatusesOptions = (
+  options: Options<GetCourseStudentChapterLockingStatusesData>,
+) =>
+  queryOptions<
+    GetCourseStudentChapterLockingStatusesResponse,
+    DefaultError,
+    GetCourseStudentChapterLockingStatusesResponse,
+    ReturnType<typeof getCourseStudentChapterLockingStatusesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseStudentChapterLockingStatuses({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseStudentChapterLockingStatusesQueryKey(options),
+  })
+
 /**
  * POST `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/lock`
  */
@@ -4425,6 +4457,31 @@ export const teacherLockStudentChapterMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await teacherLockStudentChapter({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+/**
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/status`
+ */
+export const teacherSetStudentChapterStatusMutation = (
+  options?: Partial<Options<TeacherSetStudentChapterStatusData>>,
+): UseMutationOptions<
+  TeacherSetStudentChapterStatusResponse,
+  DefaultError,
+  Options<TeacherSetStudentChapterStatusData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    TeacherSetStudentChapterStatusResponse,
+    DefaultError,
+    Options<TeacherSetStudentChapterStatusData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await teacherSetStudentChapterStatus({
         ...options,
         ...fnOptions,
         throwOnError: true,

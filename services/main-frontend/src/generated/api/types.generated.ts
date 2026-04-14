@@ -229,6 +229,11 @@ export type ChapterLockActionPayload = {
   reason?: string | null
 }
 
+export type ChapterLockStatusActionPayload = {
+  reason?: string | null
+  status: ChapterLockingStatus
+}
+
 export type ChapterLockingStatus = "unlocked" | "completed_and_locked" | "not_unlocked_yet"
 
 export type ChapterScore = DatabaseChapter & {
@@ -5096,6 +5101,32 @@ export type GetCourseStudentsUsersResponses = {
 export type GetCourseStudentsUsersResponse =
   GetCourseStudentsUsersResponses[keyof GetCourseStudentsUsersResponses]
 
+export type GetCourseStudentChapterLockingStatusesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+    /**
+     * Target student id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapter-locking-statuses"
+}
+
+export type GetCourseStudentChapterLockingStatusesResponses = {
+  /**
+   * Student chapter locking statuses
+   */
+  200: Array<UserChapterLockingStatus>
+}
+
+export type GetCourseStudentChapterLockingStatusesResponse =
+  GetCourseStudentChapterLockingStatusesResponses[keyof GetCourseStudentChapterLockingStatusesResponses]
+
 export type TeacherLockStudentChapterData = {
   body: ChapterLockActionPayload
   path: {
@@ -5125,6 +5156,36 @@ export type TeacherLockStudentChapterResponses = {
 
 export type TeacherLockStudentChapterResponse =
   TeacherLockStudentChapterResponses[keyof TeacherLockStudentChapterResponses]
+
+export type TeacherSetStudentChapterStatusData = {
+  body: ChapterLockStatusActionPayload
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+    /**
+     * Target student id
+     */
+    user_id: string
+    /**
+     * Chapter id
+     */
+    chapter_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/status"
+}
+
+export type TeacherSetStudentChapterStatusResponses = {
+  /**
+   * Updated chapter locking status
+   */
+  200: UserChapterLockingStatus
+}
+
+export type TeacherSetStudentChapterStatusResponse =
+  TeacherSetStudentChapterStatusResponses[keyof TeacherSetStudentChapterStatusResponses]
 
 export type TeacherUnlockStudentChapterData = {
   body: ChapterLockActionPayload

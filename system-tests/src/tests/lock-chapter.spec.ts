@@ -217,13 +217,19 @@ test.describe("Chapter locking feature", () => {
       )
       const chapterId = completedRowTestId.replace("teacher-chapter-lock-status-", "")
 
-      await teacherPage.getByTestId(`teacher-unlock-chapter-${chapterId}`).click()
+      await teacherPage.getByTestId(`teacher-edit-chapter-status-${chapterId}`).click()
+      await teacherPage.getByTestId("teacher-chapter-status-select").selectOption("unlocked")
+      await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
       await teacherPage
         .getByTestId(`teacher-chapter-lock-status-${chapterId}`)
         .filter({ hasText: "Unlocked" })
         .waitFor()
 
-      await teacherPage.getByTestId(`teacher-lock-chapter-${chapterId}`).click()
+      await teacherPage.getByTestId(`teacher-edit-chapter-status-${chapterId}`).click()
+      await teacherPage
+        .getByTestId("teacher-chapter-status-select")
+        .selectOption("completed_and_locked")
+      await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
       await teacherPage
         .getByTestId(`teacher-chapter-lock-status-${chapterId}`)
         .filter({ hasText: "Completed and locked" })

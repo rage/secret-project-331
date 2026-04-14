@@ -263,6 +263,8 @@ import type {
   GetCourseResponses,
   GetCourseStructureData,
   GetCourseStructureResponses,
+  GetCourseStudentChapterLockingStatusesData,
+  GetCourseStudentChapterLockingStatusesResponses,
   GetCourseStudentsCertificatesData,
   GetCourseStudentsCertificatesResponses,
   GetCourseStudentsCompletionsData,
@@ -528,6 +530,8 @@ import type {
   SoftDeleteOrganizationResponses,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponses,
+  TeacherSetStudentChapterStatusData,
+  TeacherSetStudentChapterStatusResponses,
   TeacherUnlockStudentChapterData,
   TeacherUnlockStudentChapterResponses,
   UnsetExamCourseData,
@@ -672,6 +676,7 @@ import {
   zGetCourseReferencesResponse,
   zGetCourseResponse,
   zGetCourseStructureResponse,
+  zGetCourseStudentChapterLockingStatusesResponse,
   zGetCourseStudentsCertificatesResponse,
   zGetCourseStudentsCompletionsResponse,
   zGetCourseStudentsProgressResponse,
@@ -787,6 +792,7 @@ import {
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
   zTeacherLockStudentChapterResponse,
+  zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
@@ -3357,6 +3363,25 @@ export const getCourseStudentsUsers = <ThrowOnError extends boolean = true>(
   })
 
 /**
+ * GET `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapter-locking-statuses`
+ */
+export const getCourseStudentChapterLockingStatuses = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseStudentChapterLockingStatusesData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    GetCourseStudentChapterLockingStatusesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseStudentChapterLockingStatusesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapter-locking-statuses",
+    ...options,
+  })
+
+/**
  * POST `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/lock`
  */
 export const teacherLockStudentChapter = <ThrowOnError extends boolean = true>(
@@ -3371,6 +3396,29 @@ export const teacherLockStudentChapter = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zTeacherLockStudentChapterResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/lock",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ * POST `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/status`
+ */
+export const teacherSetStudentChapterStatus = <ThrowOnError extends boolean = true>(
+  options: Options<TeacherSetStudentChapterStatusData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    TeacherSetStudentChapterStatusResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zTeacherSetStudentChapterStatusResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/status",
     ...options,
     headers: {
       "Content-Type": "application/json",

@@ -1,6 +1,12 @@
 import type { TFunction } from "i18next"
 
 export type TeacherChapterLockStatus = "unlocked" | "completed_and_locked" | "not_unlocked_yet"
+export const teacherChapterLockStatuses: TeacherChapterLockStatus[] = [
+  "unlocked",
+  "completed_and_locked",
+  "not_unlocked_yet",
+]
+export const defaultTeacherChapterLockStatus: TeacherChapterLockStatus = "not_unlocked_yet"
 
 /** Returns a translated teacher-facing lock status label. */
 export function getTeacherChapterLockLabel(

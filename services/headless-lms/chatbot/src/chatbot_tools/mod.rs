@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::PgConnection;
 
 use crate::{
@@ -142,7 +143,7 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
 pub async fn get_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
-    _fn_args: &str, // used in the future in other tool
+    _fn_args: &Value, // used in the future in other tool
     user_context: &ChatbotUserContext,
 ) -> ChatbotResult<impl ChatbotTool> {
     let tool = match fn_name {

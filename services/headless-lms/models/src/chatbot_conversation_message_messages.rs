@@ -8,7 +8,7 @@ use std::fmt;
 pub enum MessageRole {
     Assistant,
     User,
-    Tool,
+    Developer,
     System,
 }
 
@@ -26,7 +26,7 @@ pub struct ChatbotConversationMessageMessage {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub chatbot_conversation_message_id: Uuid,
-    pub text: Option<String>,
+    pub text: String,
     pub message_role: MessageRole,
     pub message_is_complete: bool,
     pub used_tokens: i32,
@@ -51,6 +51,7 @@ impl Default for ChatbotConversationMessageMessage {
 pub async fn insert(
     conn: &mut PgConnection,
     input: ChatbotConversationMessageMessage,
+    message_id: Uuid,
 ) -> ModelResult<ChatbotConversationMessageMessage> {
     let res = sqlx::query_as!(
         ChatbotConversationMessageMessage,
@@ -74,7 +75,7 @@ RETURNING
     message_is_complete,
     used_tokens
         "#,
-        input.chatbot_conversation_message_id,
+        message_id,
         input.text,
         input.message_role as MessageRole,
         input.message_is_complete,
@@ -87,7 +88,7 @@ RETURNING
 
 pub async fn update(
     conn: &mut PgConnection,
-    id: Uuid,
+    conversation_message_id: Uuid,
     text: &str,
     message_is_complete: bool,
     used_tokens: i32,
@@ -97,7 +98,7 @@ pub async fn update(
         r#"
 UPDATE chatbot_conversation_message_messages
 SET text = $2, message_is_complete = $3, used_tokens = $4
-WHERE id = $1
+WHERE chatbot_conversation_message_id = $1
 RETURNING
     id,
     created_at,
@@ -109,13 +110,14 @@ RETURNING
     message_is_complete,
     used_tokens
         "#,
-        id,
-        Some(text),
+        conversation_message_id,
+        text.to_string(),
         message_is_complete,
         used_tokens
     )
     .fetch_one(conn)
     .await?;
+
     Ok(res)
 }
 

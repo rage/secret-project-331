@@ -13,13 +13,17 @@ use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
 use futures::{Stream, StreamExt, TryStreamExt};
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
+use headless_lms_models::chatbot_conversation_message_messages::{
+    ChatbotConversationMessageMessage, MessageRole,
+};
 use headless_lms_models::chatbot_conversation_messages::{
-    self, ChatbotConversationMessage, MessageRole,
+    self, ChatbotConversationMessage, Message,
 };
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::PgPool;
 use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_stream::wrappers::LinesStream;
@@ -165,11 +169,11 @@ pub enum OutputItem {
         content: MessageContent,
     }, // we can get annotations and full text from here, but not yet.
     Reasoning {
-        summary: Vec<String>,
+        summary: Vec<ReasoningOutput>,
     },
     AzureAiSearchCall {
         call_id: String,
-        arguments: String, // json string
+        arguments: Value, // json string
     },
     AzureAiSearchCallOutput {
         call_id: String,
@@ -179,7 +183,7 @@ pub enum OutputItem {
         call_id: String,
         #[serde(rename = "name")]
         tool_name: String,
-        arguments: String,
+        arguments: Value,
     },
     FunctionCallOutput {
         call_id: String,
@@ -220,6 +224,14 @@ pub enum SummaryType {
     Concise,
     Detailed,
     Auto,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct ReasoningOutput {
+    // todo make neater
+    #[serde(rename = "type")]
+    pub output_type: String, //summary_text
+    pub text: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
@@ -335,17 +347,18 @@ impl LLMRequest {
             conn,
             ChatbotConversationMessage {
                 id: Uuid::new_v4(),
+                order_number: new_order_number,
                 created_at: Utc::now(),
                 updated_at: Utc::now(),
                 deleted_at: None,
                 conversation_id,
-                message: Some(message.to_string()),
-                message_role: MessageRole::User,
-                message_is_complete: true,
-                used_tokens: estimate_tokens(message),
-                order_number: new_order_number,
-                tool_call_fields: vec![],
-                tool_output: None,
+                message: Message::Text(ChatbotConversationMessageMessage {
+                    text: message.to_string(),
+                    message_role: MessageRole::User,
+                    message_is_complete: true,
+                    used_tokens: estimate_tokens(message),
+                    ..Default::default()
+                }),
             },
         )
         .await?;
@@ -546,7 +559,7 @@ impl Drop for RequestCancelledGuard {
             );
 
             // Update with request_estimated_tokens + estimated_cost
-            models::chatbot_conversation_messages::update(
+            models::chatbot_conversation_message_messages::update(
                 &mut conn,
                 response_message_id,
                 &full_response_as_string,
@@ -689,7 +702,7 @@ pub async fn parse_tool<'a>(
     mut lines: PeekableLinesStream<'a>,
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<Vec<APIMessage>> {
-    let mut function_name_id_args: Vec<(String, String, String)> = vec![];
+    let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
     let mut event_type = "".to_string();
     let mut response_received = false;
@@ -731,7 +744,7 @@ pub async fn parse_tool<'a>(
                     message_type: OutputItem::FunctionCall {
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
-                        arguments: serde_json::to_string(tool.get_arguments())?,
+                        arguments: serde_json::to_value(tool.get_arguments())?,
                     },
                 });
                 tool_msgs.push(APIMessage {
@@ -783,13 +796,14 @@ pub async fn parse_and_stream_to_user<'a>(
             updated_at: Utc::now(),
             deleted_at: None,
             conversation_id,
-            message: Some("".to_string()),
-            message_role: MessageRole::Assistant,
-            message_is_complete: false,
-            used_tokens: request_estimated_tokens,
             order_number: response_order_number,
-            tool_call_fields: vec![],
-            tool_output: None,
+            message: Message::Text(ChatbotConversationMessageMessage {
+                text: "".to_string(),
+                message_role: MessageRole::Assistant,
+                message_is_complete: false,
+                used_tokens: request_estimated_tokens,
+                ..Default::default()
+            }),
         },
     )
     .await?;
@@ -949,12 +963,6 @@ pub async fn send_chat_request_and_parse_stream(
         )
         .await?;
     print!("🐈🐈🐈🐈🐈🐈🐈{:?}", serde_json::to_string(&chat_request));
-
-    let model = models::chatbot_configurations_models::get_by_chatbot_configuration_id(
-        conn,
-        chatbot_configuration_id,
-    )
-    .await?;
 
     let mut next_message_order_number = new_message_order_number + 1;
     let mut max_iterations_left = 15;

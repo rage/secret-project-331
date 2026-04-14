@@ -38,7 +38,7 @@ pub struct ChatbotConversationMessage {
     pub message: Message,
 }
 
-/* impl Default for ChatbotConversationMessage {
+impl Default for ChatbotConversationMessage {
     fn default() -> Self {
         Self {
             id: Uuid::nil(),
@@ -47,10 +47,10 @@ pub struct ChatbotConversationMessage {
             deleted_at: None,
             conversation_id: Uuid::nil(),
             order_number: Default::default(),
-            message: Default::default(),
+            message: Message::Text(ChatbotConversationMessageMessage::default()),
         }
     }
-} */
+}
 
 impl ChatbotConversationMessage {
     pub fn from_row(r: ChatbotConversationMessageRow, m: Message) -> Self {
@@ -89,7 +89,8 @@ RETURNING *
 
     let inner = match input.message {
         Message::Text(message) => {
-            let res = chatbot_conversation_message_messages::insert(&mut *tx, message).await?;
+            let res =
+                chatbot_conversation_message_messages::insert(&mut *tx, message, msg.id).await?;
             Message::Text(res)
         }
         Message::ToolCall(tool_call) => {
@@ -148,46 +149,6 @@ AND deleted_at IS NULL
     tx.commit().await?;
     Ok(res)
 }
-/*
-pub async fn update(
-    conn: &mut PgConnection,
-    id: Uuid,
-    message: &str,
-    message_is_complete: bool,
-    used_tokens: i32,
-) -> ModelResult<ChatbotConversationMessage> {
-    let mut tx = conn.begin().await?;
-    let row = sqlx::query_as!(
-        ChatbotConversationMessageRow,
-        r#"
-UPDATE chatbot_conversation_messages
-SET message = $2, message_is_complete = $3, used_tokens = $4
-WHERE id = $1
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    conversation_id,
-    message,
-    message_role as "message_role: MessageRole",
-    message_is_complete,
-    used_tokens,
-    order_number,
-    tool_output_id
-        "#,
-        id,
-        Some(message),
-        message_is_complete,
-        used_tokens
-    )
-    .fetch_one(&mut *tx)
-    .await?;
-
-    let res = message_row_to_message(&mut tx, row).await?;
-    tx.commit().await?;
-    Ok(res)
-} */
 
 pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConversationMessage> {
     let mut tx = conn.begin().await?;
@@ -210,6 +171,44 @@ RETURNING *
 
     let res = ChatbotConversationMessage::from_row(row, child);
     tx.commit().await?;
+    Ok(res)
+}
+
+pub async fn update(
+    conn: &mut PgConnection,
+    id: Uuid,
+    text: &str,
+    message_is_complete: bool,
+    used_tokens: i32,
+) -> ModelResult<ChatbotConversationMessage> {
+    let mut tx = conn.begin().await?;
+
+    let row = sqlx::query_as!(
+        ChatbotConversationMessageRow,
+        r#"
+UPDATE chatbot_conversation_messages
+SET updated_at = NOW()
+WHERE id = $1
+RETURNING *
+        "#,
+        id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    // update the parent
+    let child = chatbot_conversation_message_messages::update(
+        &mut *tx,
+        row.id,
+        text,
+        message_is_complete,
+        used_tokens,
+    )
+    .await?;
+
+    let res = ChatbotConversationMessage::from_row(row, Message::Text(child));
+    tx.commit().await?;
+
     Ok(res)
 }
 

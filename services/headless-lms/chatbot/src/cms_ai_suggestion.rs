@@ -13,9 +13,11 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
-use headless_lms_models::application_task_default_language_models::TaskLMSpec;
-use headless_lms_models::chatbot_conversation_messages::MessageRole;
 use headless_lms_models::cms_ai::ParagraphSuggestionAction;
+use headless_lms_models::{
+    application_task_default_language_models::TaskLMSpec,
+    chatbot_conversation_message_messages::MessageRole,
+};
 use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 
 /// Structured LLM response for CMS paragraph suggestions.

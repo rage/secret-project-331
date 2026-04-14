@@ -369,16 +369,38 @@ export interface ChatbotConversationMessage {
   updated_at: string
   deleted_at: string | null
   conversation_id: string
-  message: string | null
+  order_number: number
+  message: Message
+}
+
+export type Message =
+  | ChatbotConversationMessageMessage
+  | ChatbotConversationMessageToolCall
+  | ChatbotConversationMessageToolOutput
+  | ChatbotConversationMessageReasoning
+
+export type MessageRole = "assistant" | "user" | "developer" | "system"
+
+export interface ChatbotConversationMessageMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  chatbot_conversation_message_id: string
+  text: string
   message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
-  order_number: number
-  tool_output: ChatbotConversationMessageToolOutput | null
-  tool_call_fields: Array<ChatbotConversationMessageToolCall>
 }
 
-export type MessageRole = "assistant" | "user" | "tool" | "system"
+export interface ChatbotConversationMessageReasoning {
+  id: string
+  chatbot_conversation_message_id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  summary: string | null
+}
 
 export interface ChatbotConversationMessageCitation {
   id: string
@@ -399,20 +421,24 @@ export interface ChatbotConversationMessageToolCall {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  message_id: string
+  chatbot_conversation_message_id: string
   tool_name: string
   tool_arguments: unknown
   tool_call_id: string
+  tool_kind: ToolKind
 }
+
+export type ToolKind = "function" | "azure_ai_search"
 
 export interface ChatbotConversationMessageToolOutput {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
-  message_id: string
-  tool_output: string
+  chatbot_conversation_message_id: string
+  output: string
   tool_call_id: string
+  tool_kind: ToolKind
 }
 
 export interface ChatbotConversationSuggestedMessage {

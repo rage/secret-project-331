@@ -6,7 +6,7 @@ use crate::llm_utils::{
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
-use headless_lms_models::chatbot_conversation_messages::MessageRole;
+use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
 use tracing::{debug, error, info, instrument, warn};

@@ -15,7 +15,8 @@ use crate::{
 };
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
-    chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
+    chatbot_conversation_message_messages::MessageRole,
+    chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
 use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 use rand::seq::IndexedRandom;
@@ -183,19 +184,23 @@ fn create_conversation_from_msgs(
         // we want to take messages starting from the newest (=last)
         .rev()
         .map_while(|(idx, el)| {
-            if el.message.is_some() {
+            match el.message.to_owned()  {
+                Message::Text(msg) => {
                 // add this message's tokens and extra 5 tokens for newline and
                 // tag to used_tokens
-                used_tokens += el.used_tokens + 5;
-            } else if let Some(output) = &el.tool_output {
+                used_tokens += msg.used_tokens + 5;}
+                Message::ToolOutput(o) => {
                 // add the tokens needed for the tool info to used_tokens
-                let s = format!("Output:\n{}\n\n", output.tool_output); // todo: which tool call was it
+                let s = format!("Output:\n{}\n\n", o.output); // todo: which tool call was it
                 used_tokens += estimate_tokens(&s);
-            } else {
-                // if there is no message or tool output, skip this element.
-                // putting in conv_len won't affect the truncation later as we take min.
-                return Some(conv_len);
+                }
+                _ => {
+                    // if there is no message or tool output, skip this element.
+                    // putting in conv_len won't affect the truncation later as we take min.
+                    return Some(conv_len);
+                }
             }
+
             if used_tokens > token_budget {
                 return None;
             }
@@ -229,77 +234,91 @@ fn create_conversation_from_msgs(
 }
 
 fn create_msg_string(m: &ChatbotConversationMessage) -> String {
-    match m.message_role {
-        MessageRole::User => {
-            if let Some(message) = &m.message {
-                format!("Student:\n{message}\n\n")
-            } else {
-                "".to_string()
+    match m.message.to_owned() {
+        Message::Text(text_message) => {
+            match text_message.message_role {
+                MessageRole::Assistant | MessageRole::User => {
+                    format!("{}:\n{}\n\n", text_message.message_role, text_message.text)
+                }
+                _ => "".to_string(), //todo error?
             }
         }
-        MessageRole::Assistant => {
-            if let Some(message) = &m.message {
-                format!("Assistant:\n{message}\n\n")
-            } else {
-                "".to_string()
-            }
+        Message::ToolCall(tool_call) => {
+            format!(
+                "Tool call: Name: {} Arguments: {}\n\n",
+                tool_call.tool_name, tool_call.tool_arguments
+            )
         }
-        MessageRole::Tool => {
-            if let Some(output) = &m.tool_output {
-                format!("Tool output: {}\n\n", output.tool_output) // todo: get the tool name
-            } else {
-                "".to_string()
-            }
+        Message::ToolOutput(tool_output) => {
+            format!("Tool output: {}\n\n", tool_output.output) // todo: get the tool name
         }
-        MessageRole::System => "".to_string(),
+        Message::Reasoning(reasoning) => "".to_string(), // todo: do we want to put it in
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use headless_lms_models::chatbot_conversation_message_messages::ChatbotConversationMessageMessage;
+
     use super::*;
 
     fn get_msgs() -> Vec<ChatbotConversationMessage> {
         vec![ChatbotConversationMessage {
             order_number: 0,
-            message_role: MessageRole::System,
-            message: Some("You are a helpful assistant.".to_string()),
-            used_tokens: 6,
+            message: Message::Text(ChatbotConversationMessageMessage {
+                message_role: MessageRole::System,
+                text: "You are a helpful assistant.".to_string(),
+                used_tokens: 6,
+                ..Default::default()
+            }),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 0,
+            message: Message::Text(ChatbotConversationMessageMessage {
             message_role: MessageRole::Assistant,
-            message: Some("Hello! What can I help you with?".to_string()),
+            text: "Hello! What can I help you with?".to_string(),
             used_tokens: 9,
+        ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 1,
+                        message: Message::Text(ChatbotConversationMessageMessage {
             message_role: MessageRole::User,
-            message: Some("Hi, I’m stuck on solving quadratic equations. I don’t really get when to factor and when to use the quadratic formula.".to_string()),
+
+            text: "Hi, I’m stuck on solving quadratic equations. I don’t really get when to factor and when to use the quadratic formula.".to_string(),
             used_tokens: 26,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 2,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::Assistant,
-            message: Some("No worries — that’s a super common question 😊
-Let’s start simple: do you remember the standard form of a quadratic equation?".to_string()),
+            text: "No worries — that’s a super common question 😊
+Let’s start simple: do you remember the standard form of a quadratic equation?".to_string(),
             used_tokens: 27,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 3,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::User,
-            message: Some("Is it something like ax² + bx + c = 0?".to_string()),
+            text: "Is it something like ax² + bx + c = 0?".to_string(),
             used_tokens: 14,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 4,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::Assistant,
-            message: Some("Exactly! Great start.
+            text: "Exactly! Great start.
 Now, factoring works best when the numbers are “nice” — meaning you can easily find two numbers that multiply to ac and add to b.
 
 The quadratic formula works every time, but it can be more work.
@@ -307,41 +326,53 @@ The quadratic formula works every time, but it can be more work.
 Let’s try this one:
 x² + 5x + 6 = 0
 
-Would you like to try factoring it?".to_string()),
+Would you like to try factoring it?".to_string(),
             used_tokens: 79,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 5,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::User,
-            message: Some("Okay… I need two numbers that multiply to 6 and add to 5. So 2 and 3?".to_string()),
+            text: "Okay… I need two numbers that multiply to 6 and add to 5. So 2 and 3?".to_string(),
             used_tokens: 24,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 6,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::Assistant,
-            message: Some("Perfect! 🎯
+            text: "Perfect! 🎯
 
 So we rewrite it as:
 (x + 2)(x + 3) = 0
 
-Now what do we do?".to_string()),
+Now what do we do?".to_string(),
             used_tokens: 56,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 7,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::User,
-            message: Some("Set each part equal to zero?
-x + 2 = 0 and x + 3 = 0?".to_string()),
+            text: "Set each part equal to zero?
+x + 2 = 0 and x + 3 = 0?".to_string(),
             used_tokens: 23,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 8,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::Assistant,
-            message: Some("Yes!
+            text: "Yes!
 
 So your solutions are:
 x = -2
@@ -352,21 +383,27 @@ See how clean that was? That’s when factoring is ideal.
 Now let’s try one that’s harder:
 2x² + 3x + 1 = 0
 
-Do you want to try factoring again, or use the quadratic formula?".to_string()),
+Do you want to try factoring again, or use the quadratic formula?".to_string(),
             used_tokens: 67,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 9,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::User,
-            message: Some("Factoring looks harder with the 2 in front… maybe quadratic formula?".to_string()),
+            text: "Factoring looks harder with the 2 in front… maybe quadratic formula?".to_string(),
             used_tokens: 15,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 10,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::Assistant,
-            message: Some("Good instinct. When a ≠ 1, the quadratic formula is often safer.
+            text: "Good instinct. When a ≠ 1, the quadratic formula is often safer.
 
 The formula is:
 
@@ -377,45 +414,58 @@ a = 2
 b = 3
 c = 1
 
-First step: calculate the discriminant (b² - 4ac). Want to try that?".to_string()),
+First step: calculate the discriminant (b² - 4ac). Want to try that?".to_string(),
             used_tokens: 80,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 11,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::User,
-            message: Some("Okay
+            text: "Okay
 3² - 4(2)(1)
 = 9 - 8
-= 1".to_string()),
+= 1".to_string(),
             used_tokens: 22,
+            ..Default::default()}),
             ..Default::default()
+
         },
         ChatbotConversationMessage {
             order_number: 12,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::Assistant,
-            message: Some("Excellent!
+            text: "Excellent!
 
 Now plug it into the formula:
 
 x = (-3 ± √1) / 4
 
-Since √1 = 1, what are the two answers?".to_string()),
+Since √1 = 1, what are the two answers?".to_string(),
             used_tokens: 34,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 13,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::User,
-            message: Some("(-3 + 1)/4 = -2/4 = -1/2
-(-3 - 1)/4 = -4/4 = -1".to_string()),
+            text: "(-3 + 1)/4 = -2/4 = -1/2
+(-3 - 1)/4 = -4/4 = -1".to_string(),
             used_tokens: 33,
+            ..Default::default()}),
             ..Default::default()
         },
                 ChatbotConversationMessage {
             order_number: 14,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::Assistant,
-            message: Some("YES 👏
+            text: "YES 👏
 
 So your solutions are:
 x = -1/2
@@ -424,24 +474,31 @@ x = -1
 You handled that really well.
 
 Quick check:
-When would you choose factoring over the quadratic formula?".to_string()),
+When would you choose factoring over the quadratic formula?".to_string(),
             used_tokens: 40,
+            ..Default::default()}),
             ..Default::default()
         },
         ChatbotConversationMessage {
             order_number: 15,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+
             message_role: MessageRole::User,
-            message: Some("If the numbers are simple and easy to factor. Otherwise use the formula since it always works.".to_string()),
+            text: "If the numbers are simple and easy to factor. Otherwise use the formula since it always works.".to_string(),
             used_tokens: 19,
+            ..Default::default()}),
             ..Default::default()
         },
                 ChatbotConversationMessage {
             order_number: 16,
-            message_role: MessageRole::Assistant,
-            message: Some("Exactly right. You’ve got it!
+                        message: Message::Text(ChatbotConversationMessageMessage {
 
-Want to try a challenge problem next time with completing the square?".to_string()),
+            message_role: MessageRole::Assistant,
+            text: "Exactly right. You’ve got it!
+
+Want to try a challenge problem next time with completing the square?".to_string(),
             used_tokens: 21,
+            ..Default::default()}),
             ..Default::default()
         },
         ]

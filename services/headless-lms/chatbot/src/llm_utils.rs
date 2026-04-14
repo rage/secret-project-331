@@ -1,13 +1,15 @@
 use crate::{
-    azure_chatbot::{ChatResponse, LLMRequest, OutputItem, ToolCallType},
+    azure_chatbot::{ChatResponse, LLMRequest, OutputItem, ReasoningOutput, ToolCallType},
     chatbot_error::ChatbotResult,
     prelude::*,
 };
 use core::default::Default;
 use headless_lms_models::{
-    chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
+    chatbot_conversation_message_messages::{ChatbotConversationMessageMessage, MessageRole},
+    chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning,
+    chatbot_conversation_message_tool_calls::{ChatbotConversationMessageToolCall, ToolKind},
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
-    chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
+    chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
 use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
@@ -57,16 +59,19 @@ impl APIMessage {
     ) -> ChatbotResult<ChatbotConversationMessage> {
         let res = match self.message_type.clone() {
             OutputItem::Message { role, content } => {
-                let message_text = content.get_content_text();
-                let used_tokens = estimate_tokens(&message_text);
+                let text = content.get_content_text();
+                let used_tokens = estimate_tokens(&text);
 
                 ChatbotConversationMessage {
-                    message_role: role,
                     conversation_id,
                     order_number,
-                    message_is_complete: true,
-                    used_tokens,
-                    message: Some(message_text),
+                    message: Message::Text(ChatbotConversationMessageMessage {
+                        text,
+                        message_role: role,
+                        message_is_complete: true,
+                        used_tokens,
+                        ..Default::default()
+                    }),
                     ..Default::default()
                 }
             }
@@ -74,45 +79,73 @@ impl APIMessage {
                 call_id,
                 tool_name,
                 arguments,
-            } => {
-                let tool_call_fields = vec![ChatbotConversationMessageToolCall {
-                    tool_arguments: serde_json::from_str(&arguments)?,
-                    tool_name,
-                    tool_call_id: call_id,
-                    ..Default::default()
-                }];
-                let estimated_tokens: i32 = estimate_tokens(&arguments);
-                ChatbotConversationMessage {
-                    message_role: MessageRole::Assistant,
-                    conversation_id,
-                    order_number,
-                    message_is_complete: true,
-                    message: None,
-                    tool_call_fields,
-                    used_tokens: estimated_tokens,
-                    ..Default::default()
-                }
-            }
-            OutputItem::FunctionCallOutput { call_id, output } => ChatbotConversationMessage {
-                message_role: MessageRole::Tool,
+            } => ChatbotConversationMessage {
                 conversation_id,
                 order_number,
-                message_is_complete: true,
-                message: None,
-                used_tokens: 0,
-                tool_output: Some(ChatbotConversationMessageToolOutput {
+                message: Message::ToolCall(ChatbotConversationMessageToolCall {
+                    tool_name,
+                    tool_arguments: arguments,
                     tool_call_id: call_id,
+                    tool_kind: ToolKind::Function,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            OutputItem::FunctionCallOutput { call_id, output } => ChatbotConversationMessage {
+                conversation_id,
+                order_number,
+                message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
+                    output,
+                    tool_call_id: call_id,
+                    tool_kind: ToolKind::Function,
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            OutputItem::AzureAiSearchCall { call_id, arguments } => ChatbotConversationMessage {
+                conversation_id,
+                order_number,
+                message: Message::ToolCall(ChatbotConversationMessageToolCall {
+                    tool_arguments: arguments,
+                    tool_call_id: call_id,
+                    tool_kind: ToolKind::AzureAiSearch,
+                    tool_name: "azure_ai_search".to_string(),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            OutputItem::AzureAiSearchCallOutput { call_id, output } => ChatbotConversationMessage {
+                conversation_id,
+                order_number,
+                message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
+                    tool_call_id: call_id,
+                    tool_kind: ToolKind::AzureAiSearch,
                     output,
                     ..Default::default()
                 }),
                 ..Default::default()
             },
-            _ => {
-                return Result::Err(ChatbotError::new(
-                    ChatbotErrorType::Other,
-                    "converting this APIMessage to ChatbotConversationMessage is not implemented yet!!",
-                    None,
-                ));
+            OutputItem::Reasoning { summary } => {
+                let text = if summary.len() > 0 {
+                    Some(
+                        summary
+                            .iter()
+                            .map(|i| i.text.to_owned())
+                            .collect::<Vec<String>>()
+                            .join(" "),
+                    )
+                } else {
+                    None
+                };
+                ChatbotConversationMessage {
+                    conversation_id,
+                    order_number,
+                    message: Message::Reasoning(ChatbotConversationMessageReasoning {
+                        summary: text,
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }
             }
         };
         Result::Ok(res)
@@ -122,54 +155,76 @@ impl APIMessage {
 impl TryFrom<ChatbotConversationMessage> for APIMessage {
     type Error = ChatbotError;
     fn try_from(message: ChatbotConversationMessage) -> ChatbotResult<Self> {
-        let res = match message.message_role {
-            MessageRole::Assistant => {
-                if !message.tool_call_fields.is_empty() {
-                    return Err(ChatbotError::new(ChatbotErrorType::Other, "lol", None)); // todo
-                } else if let Some(content) = message.message {
-                    APIMessage {
+        let res = match message.message {
+            Message::Text(text_message) => {
+                match text_message.message_role {
+                    MessageRole::User | MessageRole::Assistant => APIMessage {
                         message_type: OutputItem::Message {
-                            role: message.message_role,
-                            content: MessageContent::Text(content),
+                            role: text_message.message_role,
+                            content: MessageContent::Text(text_message.text),
                         },
-                    }
-                } else {
-                    return Err(ChatbotError::new(
-                        ChatbotErrorType::InvalidMessageShape,
-                        "A 'role: assistant' type ChatbotConversationMessage must have either tool_call_fields or a text message.",
-                        None,
-                    ));
+                    },
+                    _ => {
+                        return Err(ChatbotError::new(
+                            ChatbotErrorType::Other,
+                            "IDK what to do with system and developer role messages",
+                            None,
+                        ));
+                    } // todo
                 }
             }
-            MessageRole::Tool => {
-                if let Some(tool_output) = message.tool_output {
-                    APIMessage {
-                        message_type: OutputItem::FunctionCallOutput {
-                            call_id: tool_output.tool_call_id,
-                            output: tool_output.tool_output,
-                        },
-                    }
-                } else {
-                    return Err(ChatbotError::new(
-                        ChatbotErrorType::InvalidMessageShape,
-                        "A 'role: tool' type ChatbotConversationMessage must have field tool_output.",
-                        None,
-                    ));
-                }
-            }
-            MessageRole::User => APIMessage {
-                message_type: OutputItem::Message {
-                    role: message.message_role,
-                    content: MessageContent::Text(message.message.unwrap_or_default()),
+            Message::ToolCall(tool_call) => match tool_call.tool_kind {
+                ToolKind::Function => APIMessage {
+                    message_type: OutputItem::FunctionCall {
+                        call_id: tool_call.tool_call_id,
+                        tool_name: tool_call.tool_name,
+                        arguments: tool_call.tool_arguments,
+                    },
+                },
+                ToolKind::AzureAiSearch => APIMessage {
+                    message_type: OutputItem::AzureAiSearchCall {
+                        call_id: tool_call.tool_call_id,
+                        arguments: tool_call.tool_arguments,
+                    },
                 },
             },
-            MessageRole::System => {
-                return Err(ChatbotError::new(
-                    ChatbotErrorType::InvalidMessageShape,
-                    "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
-                    None,
-                ));
-            }
+            Message::ToolOutput(tool_output) => match tool_output.tool_kind {
+                ToolKind::Function => APIMessage {
+                    message_type: OutputItem::FunctionCallOutput {
+                        call_id: tool_output.tool_call_id,
+                        output: tool_output.output,
+                    },
+                },
+                ToolKind::AzureAiSearch => APIMessage {
+                    message_type: OutputItem::AzureAiSearchCallOutput {
+                        call_id: tool_output.tool_call_id,
+                        output: tool_output.output,
+                    },
+                },
+            },
+            Message::Reasoning(reasoning) => {
+                if let Some(text) = reasoning.summary {
+                    APIMessage {
+                        message_type: OutputItem::Reasoning {
+                            summary: vec![ReasoningOutput {
+                                output_type: "summary_text".to_string(),
+                                text,
+                            }],
+                        },
+                    }
+                } else {
+                    APIMessage {
+                        message_type: OutputItem::Reasoning { summary: vec![] },
+                    }
+                }
+            } //TODO TODO
+              /* {
+                  return Err(ChatbotError::new(
+                      ChatbotErrorType::InvalidMessageShape,
+                      "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
+                      None,
+                  ));
+              } */
         };
         Result::Ok(res)
     }

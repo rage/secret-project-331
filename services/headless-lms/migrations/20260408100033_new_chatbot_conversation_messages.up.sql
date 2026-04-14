@@ -11,7 +11,7 @@ CREATE TABLE chatbot_conversation_message_messages (
   chatbot_conversation_message_id UUID NOT NULL REFERENCES chatbot_conversation_messages(id),
   message_role message_role NOT NULL,
   message_is_complete BOOLEAN NOT NULL DEFAULT FALSE,
-  text VARCHAR(131072),
+  text VARCHAR(131072) NOT NULL,
   used_tokens INT NOT NULL DEFAULT 0,
   citation_ids UUID []
 );

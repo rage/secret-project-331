@@ -66,6 +66,14 @@
     }
   },
   "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Please sign in to view exam exercises.",
+      "title": "Sign in required"
+    },
+    "chapter_not_open_yet": {
+      "message": "This chapter is not open yet.",
+      "title": "Chapter is closed"
+    },
     "forbidden": {
       "message": "You do not have permission for this action.",
       "title": "Forbidden"

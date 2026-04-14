@@ -59,6 +59,16 @@
   "email": "E-post",
   "email-templates": "E-postmallar",
   "error-cannot-render-dynamic-content-missing-url": "Kan inte rendera dynamiskt innehåll: saknas URL",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Logga in för att se tentamensövningar.",
+      "title": "Inloggning krävs"
+    },
+    "chapter_not_open_yet": {
+      "message": "Det här kapitlet är inte öppet ännu.",
+      "title": "Kapitlet är stängt"
+    }
+  },
   "error-part-of-page-has-crashed-error": "Del av sidan har kraschat: {{error}}",
   "error-title": "Fel",
   "essay": "Uppsats",

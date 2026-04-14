@@ -168,7 +168,9 @@ async fn get_course_page_by_path(
     .await?
     {
         return Err(ControllerError::new(
-            ControllerErrorType::Unauthorized,
+            ControllerErrorType::UnauthorizedWithReason(
+                crate::domain::error::UnauthorizedReason::ChapterNotOpenYet,
+            ),
             "Chapter is not open yet.".to_string(),
             None,
         ));

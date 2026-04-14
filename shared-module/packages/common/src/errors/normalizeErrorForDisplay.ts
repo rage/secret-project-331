@@ -20,6 +20,8 @@ export type BackendMessageKey =
   | "validation_error_with_metadata"
   | "not_found"
   | "unauthorized"
+  | "chapter_not_open_yet"
+  | "authentication_required_for_exam_exercise"
   | "forbidden"
   | "rate_limited"
   | "oauth_error"
@@ -66,6 +68,8 @@ function isBackendMessageKey(value: unknown): value is BackendMessageKey {
     value === "validation_error_with_metadata" ||
     value === "not_found" ||
     value === "unauthorized" ||
+    value === "chapter_not_open_yet" ||
+    value === "authentication_required_for_exam_exercise" ||
     value === "forbidden" ||
     value === "rate_limited" ||
     value === "oauth_error"
@@ -172,7 +176,10 @@ function normalizePayload(payload: SimplifiedPayload): ErrorViewModel {
       ? "rate_limit"
       : messageKey === "validation_error" || messageKey === "validation_error_with_metadata"
         ? "validation"
-        : messageKey === "unauthorized" || messageKey === "forbidden"
+        : messageKey === "unauthorized" ||
+            messageKey === "chapter_not_open_yet" ||
+            messageKey === "authentication_required_for_exam_exercise" ||
+            messageKey === "forbidden"
           ? "auth"
           : messageKey === "not_found"
             ? "not_found"

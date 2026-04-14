@@ -23,12 +23,13 @@ test("Error notifications work", async ({ page, headless }, testInfo) => {
     window.scrollTo(0, 0)
   })
   await page.getByTestId("toast-notification").getByText("Missing exercise type for").waitFor()
+  const errorToastAlert = page.getByTestId("toast-notification").getByRole("alert")
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     headless,
     testInfo,
     snapshotName: "error-notification-test",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Error").first()],
+    waitForTheseToBeVisibleAndStable: [errorToastAlert],
     dontWaitForSpinnersToDisappear: true,
   })
   await showToastsNormally(page)

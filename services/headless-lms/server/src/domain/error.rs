@@ -53,6 +53,10 @@ pub enum ControllerErrorType {
     #[display("Unauthorized")]
     Unauthorized,
 
+    /// HTTP status code 401 with a specific domain reason.
+    #[display("Unauthorized")]
+    UnauthorizedWithReason(UnauthorizedReason),
+
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
@@ -60,6 +64,27 @@ pub enum ControllerErrorType {
     /// Varied response based on error
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
+}
+
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum UnauthorizedReason {
+    #[display("Chapter not open yet")]
+    ChapterNotOpenYet,
+    #[display("Authentication required for exam exercise")]
+    AuthenticationRequiredForExamExercise,
+}
+
+impl UnauthorizedReason {
+    /// Returns the stable message key for this unauthorized reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::ChapterNotOpenYet => "chapter_not_open_yet",
+            Self::AuthenticationRequiredForExamExercise => {
+                "authentication_required_for_exam_exercise"
+            }
+        }
+    }
 }
 
 /**
@@ -399,6 +424,7 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
         }
@@ -415,6 +441,9 @@ impl ControllerError {
             }
             ControllerErrorType::NotFound => ("not_found", "not_found"),
             ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
+            ControllerErrorType::UnauthorizedWithReason(reason) => {
+                ("unauthorized", reason.message_key())
+            }
             ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
             ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
         }
@@ -924,6 +953,10 @@ mod tests {
         let _ = controller_err!(BadRequest, "test".to_string());
         let _ = controller_err!(NotFound, "test".to_string());
         let _ = controller_err!(Unauthorized, "test".to_string());
+        let _ = controller_err!(
+            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "test".to_string()
+        );
         let _ = controller_err!(Forbidden, "test".to_string());
     }
 
@@ -963,5 +996,70 @@ mod tests {
         assert_eq!(value["message_key"], "validation_error_with_metadata");
         assert_eq!(value["errors"][0]["code"], "missing_exercise_type");
         assert_eq!(value["errors"][0]["path"], "exercise_type");
+    }
+
+    #[test]
+    fn test_chapter_not_open_uses_dedicated_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "Chapter is not open yet.".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "chapter_not_open_yet");
+        assert_eq!(value["message"], "Chapter is not open yet.");
+    }
+
+    #[test]
+    fn test_exam_exercise_auth_requirement_uses_dedicated_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(
+                UnauthorizedReason::AuthenticationRequiredForExamExercise,
+            ),
+            "User must be authenticated to view exam exercises".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(
+            value["message_key"],
+            "authentication_required_for_exam_exercise"
+        );
+        assert_eq!(
+            value["message"],
+            "User must be authenticated to view exam exercises"
+        );
+    }
+
+    #[test]
+    fn test_generic_unauthorized_uses_unauthorized_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Unauthorized".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "unauthorized");
+        assert_eq!(value["message"], "Unauthorized");
     }
 }

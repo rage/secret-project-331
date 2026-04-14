@@ -1,4 +1,5 @@
 import {
+  expect,
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
@@ -55,10 +56,16 @@ test.describe("Uploading media as admin", () => {
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    const uploadedImageLink = page.locator("a[href*='welcome_exercise_decorations.png']").first()
-    await uploadedImageLink.waitFor()
+    const uploadedImageLink = page.getByRole("link", { name: "Add alt" }).first()
+    await expect(uploadedImageLink).toBeVisible()
+    await expect(uploadedImageLink).toHaveAttribute("href", /\/images\/.+\.png$/)
+    const href = await uploadedImageLink.getAttribute("href")
+    expect(href).not.toBeNull()
 
-    const [newPage] = await Promise.all([page.waitForEvent("popup"), uploadedImageLink.click()])
+    const newPage = await page.context().newPage()
+    await newPage.goto(new URL(String(href), page.url()).toString(), {
+      waitUntil: "domcontentloaded",
+    })
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: [

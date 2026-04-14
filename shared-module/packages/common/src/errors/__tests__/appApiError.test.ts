@@ -70,6 +70,32 @@ describe("AppApiError", () => {
     expect(normalized.retryAfterSeconds).toBe(30)
   })
 
+  test("normalizes chapter_not_open_yet as auth category", () => {
+    const err = new AppApiError({
+      kind: "api",
+      status: 401,
+      type: "unauthorized",
+      messageKey: "chapter_not_open_yet",
+      title: "Chapter is not open yet.",
+    })
+    const normalized = normalizeErrorForDisplay(err)
+    expect(normalized.category).toBe("auth")
+    expect(normalized.messageKey).toBe("chapter_not_open_yet")
+  })
+
+  test("normalizes authentication_required_for_exam_exercise as auth category", () => {
+    const err = new AppApiError({
+      kind: "api",
+      status: 401,
+      type: "unauthorized",
+      messageKey: "authentication_required_for_exam_exercise",
+      title: "User must be authenticated to view exam exercises",
+    })
+    const normalized = normalizeErrorForDisplay(err)
+    expect(normalized.category).toBe("auth")
+    expect(normalized.messageKey).toBe("authentication_required_for_exam_exercise")
+  })
+
   test("keeps type and code semantics separate in display model", () => {
     const err = new AppApiError({
       kind: "api",

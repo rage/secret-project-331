@@ -83,7 +83,9 @@ async fn get_exercise(
     if let Some(exam_id) = course_material_exercise.exercise.exam_id {
         let user_id_for_exam = user_id.ok_or_else(|| {
             ControllerError::new(
-                ControllerErrorType::Unauthorized,
+                ControllerErrorType::UnauthorizedWithReason(
+                    crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
+                ),
                 "User must be authenticated to view exam exercises".to_string(),
                 None,
             )

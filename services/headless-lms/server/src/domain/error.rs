@@ -951,9 +951,10 @@ mod tests {
         let _ = controller_err!(BadRequest, "test".to_string());
         let _ = controller_err!(NotFound, "test".to_string());
         let _ = controller_err!(Unauthorized, "test".to_string());
-        let _ = controller_err!(
-            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
-            "test".to_string()
+        let _ = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "test".to_string(),
+            None,
         );
         let _ = controller_err!(Forbidden, "test".to_string());
     }

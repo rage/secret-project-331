@@ -101,7 +101,7 @@ async fn get_user_chapter_locking_statuses(
     )
     .await?;
 
-    let statuses = models::user_chapter_locking_statuses::get_for_user_and_course(
+    let statuses = models::user_chapter_locking_statuses::get_or_init_all_for_course(
         &mut conn,
         target_user_id,
         course_id,

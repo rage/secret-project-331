@@ -42,10 +42,9 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
     return null
   }
 
-  const courseInstance = courseInstancesQuery.data.find(
-    (instance) => instance.id === courseInstanceId,
-  )
-  const resolvedCourseInstance = courseInstance ?? courseInstancesQuery.data[0]
+  const resolvedCourseInstance = courseInstanceId
+    ? courseInstancesQuery.data.find((instance) => instance.id === courseInstanceId)
+    : undefined
 
   const items = [
     {

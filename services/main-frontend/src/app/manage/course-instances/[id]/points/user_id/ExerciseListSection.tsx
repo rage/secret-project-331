@@ -167,32 +167,32 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                   gap: 1rem;
                 `}
               >
-                {chapterLockingEnabled && (
-                  <div
+                <div
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 0.4rem;
+                    margin-bottom: 0.4rem;
+                    ${respondToOrLarger.md} {
+                      flex-direction: row;
+                      justify-content: space-between;
+                      align-items: center;
+                    }
+                  `}
+                >
+                  <h3
                     className={css`
-                      display: flex;
-                      flex-direction: column;
-                      align-items: flex-start;
-                      gap: 0.4rem;
-                      margin-bottom: 0.4rem;
-                      ${respondToOrLarger.md} {
-                        flex-direction: row;
-                        justify-content: space-between;
-                        align-items: center;
-                      }
+                      margin: 0;
+                      font-size: 1.1rem;
                     `}
                   >
-                    <h3
-                      className={css`
-                        margin: 0;
-                        font-size: 1.1rem;
-                      `}
-                    >
-                      {t("title-chapter", {
-                        "chapter-number": chapter?.chapter_number,
-                        "chapter-name": chapter?.name,
-                      })}
-                    </h3>
+                    {t("title-chapter", {
+                      "chapter-number": chapter?.chapter_number,
+                      "chapter-name": chapter?.name,
+                    })}
+                  </h3>
+                  {chapterLockingEnabled && (
                     <div
                       className={css`
                         width: 100%;
@@ -233,8 +233,8 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                         )}
                       </button>
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
                 {exerciseStatusList?.map((exerciseStatus) => (
                   <ExerciseAccordion
                     key={exerciseStatus.exercise.id}

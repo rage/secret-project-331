@@ -9,6 +9,7 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 const LOCK_CHAPTERS_COURSE_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+const STUDENT1_USER_ID = "02364d40-2aac-4763-8a06-2381fd298d79"
 
 test.describe("Chapter locking feature", () => {
   test("Chapter locking complete flow", async ({ browser }) => {
@@ -199,6 +200,22 @@ test.describe("Chapter locking feature", () => {
           "You will not receive points for this exercise until you lock the chapter and a teacher reviews your answer.",
         ),
       ).toBeVisible()
+    })
+
+    await test.step("Teacher can see per-chapter locking statuses for the student", async () => {
+      await teacherPage.goto(
+        `http://project-331.local/manage/courses/${LOCK_CHAPTERS_COURSE_ID}/user-status-summary/${STUDENT1_USER_ID}`,
+      )
+      await teacherPage
+        .locator('[data-testid^="teacher-chapter-lock-status-"]')
+        .filter({ hasText: "Completed and locked" })
+        .first()
+        .waitFor()
+      await teacherPage
+        .locator('[data-testid^="teacher-chapter-lock-status-"]')
+        .filter({ hasText: "Unlocked" })
+        .first()
+        .waitFor()
     })
 
     await test.step("Submit exercise in Chapter 2", async () => {

@@ -10,6 +10,7 @@ import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generat
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { getTeacherChapterLockLabel, TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 
 const Section = styled.section`
   margin: 3rem 0;
@@ -19,12 +20,14 @@ interface ExerciseListSectionProps {
   groupedByChapter: [string, ExerciseStatusSummaryForUser[]][]
   courseId: string
   onPointsUpdate: () => void
+  chapterLockStatusesByChapterId?: Record<string, TeacherChapterLockStatus | undefined>
 }
 
 const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
   groupedByChapter,
   courseId,
   onPointsUpdate,
+  chapterLockStatusesByChapterId,
 }) => {
   const { t } = useTranslation()
   const courseStructure = useCourseStructure(courseId)
@@ -96,6 +99,21 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                     "chapter-name": chapter?.name,
                   })}
                 </h3>
+                <p
+                  data-testid={`teacher-chapter-lock-status-${chapterId}`}
+                  className={css`
+                    margin-top: -0.4rem;
+                    margin-bottom: 0.4rem;
+                    opacity: 0.8;
+                  `}
+                >
+                  {t("teacher-chapter-lock-status-prefix", {
+                    status: getTeacherChapterLockLabel(
+                      t,
+                      chapterLockStatusesByChapterId?.[chapterId],
+                    ),
+                  })}
+                </p>
                 {exerciseStatusList?.map((exerciseStatus) => (
                   <ExerciseAccordion
                     key={exerciseStatus.exercise.id}

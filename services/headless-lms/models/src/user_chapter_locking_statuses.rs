@@ -358,6 +358,20 @@ WHERE user_id = $1
     })
 }
 
+/// Unlocks the provided chapters for a user within a course.
+pub async fn unlock_chapters_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    chapter_ids: &[Uuid],
+) -> ModelResult<()> {
+    for chapter_id in chapter_ids {
+        unlock_chapter(conn, user_id, *chapter_id, course_id).await?;
+    }
+
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -656,6 +670,76 @@ mod tests {
             statuses
                 .iter()
                 .any(|s| s.chapter_id == chapter1 && s.status == ChapterLockingStatus::Unlocked)
+        );
+    }
+
+    #[tokio::test]
+    async fn unlock_chapters_for_user_only_updates_selected_chapters() {
+        insert_data!(:tx, :user, :org, course: course);
+
+        let all_modules = crate::course_modules::get_by_course_id(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let base_module = all_modules
+            .into_iter()
+            .find(|m| m.order_number == 0)
+            .unwrap();
+
+        let chapter1 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 1".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 1,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+        let chapter2 = crate::chapters::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::chapters::NewChapter {
+                name: "Chapter 2".to_string(),
+                color: None,
+                course_id: course,
+                chapter_number: 2,
+                front_page_id: None,
+                opens_at: None,
+                deadline: None,
+                course_module_id: Some(base_module.id),
+            },
+        )
+        .await
+        .unwrap();
+
+        complete_and_lock_chapter(tx.as_mut(), user, chapter1, course)
+            .await
+            .unwrap();
+        complete_and_lock_chapter(tx.as_mut(), user, chapter2, course)
+            .await
+            .unwrap();
+
+        unlock_chapters_for_user(tx.as_mut(), user, course, &[chapter1])
+            .await
+            .unwrap();
+
+        let chapter1_status = get_or_init_status(tx.as_mut(), user, chapter1, Some(course), None)
+            .await
+            .unwrap();
+        let chapter2_status = get_or_init_status(tx.as_mut(), user, chapter2, Some(course), None)
+            .await
+            .unwrap();
+
+        assert_eq!(chapter1_status, Some(ChapterLockingStatus::Unlocked));
+        assert_eq!(
+            chapter2_status,
+            Some(ChapterLockingStatus::CompletedAndLocked)
         );
     }
 }

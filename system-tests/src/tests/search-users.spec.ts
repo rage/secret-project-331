@@ -38,4 +38,5 @@ test("User search works", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Course status summary" })
     .click()
   await page.getByText("5 submissions").first().waitFor()
+  await page.getByTestId("teacher-chapter-lock-status-empty").waitFor()
 })

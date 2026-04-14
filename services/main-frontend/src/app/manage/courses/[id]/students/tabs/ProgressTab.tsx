@@ -10,6 +10,7 @@ import { FloatingHeaderTable } from "../FloatingHeaderTable"
 import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { getTeacherChapterLockLabel, TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
 
@@ -17,7 +18,7 @@ type ProgressRow = {
   student: string
   total_points: number
   total_attempted: number
-} & Partial<Record<ChapterCellKey, number | undefined>>
+} & Partial<Record<ChapterCellKey, number | string | undefined>>
 
 export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: string }> = ({
   courseId,
@@ -52,7 +53,16 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
 
     const round2 = (n: number) => Math.round(n * 100) / 100
 
+    type UserChapterLockStatusRow = {
+      user_id: string
+      chapter_id: string
+      status: TeacherChapterLockStatus
+    }
+    const typedData = query.data as typeof query.data & {
+      user_chapter_locking_statuses?: UserChapterLockStatusRow[]
+    }
     const { user_details, chapters, user_chapter_progress, chapter_availability } = query.data
+    const chapterLockStatuses = typedData.user_chapter_locking_statuses ?? []
 
     // --- maxima lookups (per chapter, not per user)
     const maxPointsByChapter: Record<string, number | undefined> = {}
@@ -124,6 +134,13 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
         attempts: typeof p.exercises_attempted === "number" ? p.exercises_attempted : 0,
       }
     }
+    const lockStatusByUserChapter: Record<string, Record<string, TeacherChapterLockStatus>> = {}
+    for (const lockStatus of chapterLockStatuses) {
+      if (!lockStatusByUserChapter[lockStatus.user_id]) {
+        lockStatusByUserChapter[lockStatus.user_id] = {}
+      }
+      lockStatusByUserChapter[lockStatus.user_id][lockStatus.chapter_id] = lockStatus.status
+    }
 
     // --- totals from same source
     const totalsByUser: Record<string, { total_points: number; total_attempted: number }> = {}
@@ -153,7 +170,9 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
         const attemptsKey: ChapterCellKey = `ch_${ch.id}_attempts`
         const cell = byUserChapter[u.user_id]?.[ch.id]
         row[pointsKey] = cell ? cell.points : 0
-        row[attemptsKey] = cell ? cell.attempts : 0
+        const lockStatus = lockStatusByUserChapter[u.user_id]?.[ch.id]
+        const attempts = cell ? cell.attempts : 0
+        row[attemptsKey] = `${attempts} (${getTeacherChapterLockLabel(t, lockStatus)})`
       }
       return row
     })

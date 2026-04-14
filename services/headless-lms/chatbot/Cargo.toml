@@ -7,6 +7,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+headless-lms-base = { path = "../base" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
 

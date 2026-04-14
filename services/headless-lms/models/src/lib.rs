@@ -91,6 +91,7 @@ pub mod playground_examples;
 pub mod privacy_link;
 pub mod proposed_block_edits;
 pub mod proposed_page_edits;
+pub mod re_exports;
 pub mod regradings;
 pub mod rejected_exercise_slide_submissions;
 pub mod repository_exercises;

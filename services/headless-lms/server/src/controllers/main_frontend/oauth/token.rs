@@ -13,7 +13,7 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256, oauth_access_token::TokenType, oauth_client::OAuthClient,
 };

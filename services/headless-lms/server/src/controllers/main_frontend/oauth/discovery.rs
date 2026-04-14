@@ -2,7 +2,7 @@ use crate::domain::oauth::jwks::{Jwk, Jwks};
 use crate::domain::oauth::oidc::rsa_n_e_and_kid_from_pem;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 
 /// Handles `/jwks.json` for returning the JSON Web Key Set (JWKS).
 ///

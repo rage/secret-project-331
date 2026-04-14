@@ -24,15 +24,12 @@ extern crate tracing;
 #[macro_use]
 extern crate doc_macro;
 
-use anyhow::Result;
+pub use headless_lms_base::tracing::setup_tracing;
 use headless_lms_utils::file_store::{
     FileStore, google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore,
 };
 use oauth2::{EndpointNotSet, EndpointSet};
 use std::{env, sync::Arc};
-use tracing_error::ErrorLayer;
-use tracing_log::LogTracer;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt};
 
 pub type OAuthClient = oauth2::basic::BasicClient<
     EndpointSet,
@@ -41,30 +38,6 @@ pub type OAuthClient = oauth2::basic::BasicClient<
     EndpointNotSet,
     EndpointSet,
 >;
-
-/**
-Sets up tokio tracing. Also makes sure that log statements from libraries respect the log level
-settings that have been set with RUST_LOG, for example:
-
-```no_run
-use std::env;
-unsafe {
-    env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn");
-}
-```
-*/
-pub fn setup_tracing() -> Result<()> {
-    let subscriber = tracing_subscriber::Registry::default()
-        .with(
-            tracing_subscriber::fmt::layer()
-                .event_format(tracing_subscriber::fmt::format().compact()),
-        )
-        .with(ErrorLayer::default())
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
-    tracing::subscriber::set_global_default(subscriber)?;
-    LogTracer::init()?;
-    Ok(())
-}
 
 /**
 Setups file store so that it can be passed to actix web as data.

@@ -10,6 +10,7 @@ license.workspace = true
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
+headless-lms-base = { path = "../base" }
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
 tokio.workspace = true
 # Additional utilities for working with Tokio.
@@ -94,7 +95,6 @@ secrecy.workspace = true
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"
-tracing-subscriber = "0.3.22"
 
 [features]
 ts_rs = ["ts-rs"]

@@ -16,7 +16,7 @@ use headless_lms_models::{
     exercise_tasks::ExerciseTask,
 };
 
-use headless_lms_utils::error::backend_error::BackendError;
+use headless_lms_base::error::backend_error::BackendError;
 use hmac::{Hmac, Mac};
 use jwt::{SignWithKey, VerifyWithKey};
 use models::SpecFetcher;

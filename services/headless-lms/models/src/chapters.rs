@@ -10,9 +10,9 @@ use crate::{
     pages::{PageMetadata, PageWithExercises},
     prelude::*,
 };
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
-    ApplicationConfiguration, file_store::FileStore,
-    numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
+    file_store::FileStore, numbers::option_f32_to_f32_two_decimals_with_none_as_zero,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

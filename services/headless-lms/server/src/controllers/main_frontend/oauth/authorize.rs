@@ -88,7 +88,7 @@ pub async fn authorize(
     pool: web::Data<PgPool>,
     OAuthValidated(query): OAuthValidated<AuthorizeQuery>,
     user: Option<AuthUser>,
-    app_conf: web::Data<headless_lms_utils::ApplicationConfiguration>,
+    app_conf: web::Data<headless_lms_base::config::ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();

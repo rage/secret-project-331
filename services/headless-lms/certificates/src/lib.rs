@@ -4,16 +4,16 @@
 //!
 pub mod date_utils;
 pub mod font_loader;
+pub mod prelude;
 
+use crate::prelude::*;
 use chrono::NaiveDate;
 use date_utils::get_date_as_localized_string;
 use futures::future::OptionFuture;
 use headless_lms_models::certificate_configurations::{CertificateTextAnchor, PaperSize};
 use headless_lms_models::generated_certificates::GeneratedCertificate;
-use headless_lms_models::prelude::{BackendError, PgConnection};
 use headless_lms_utils::file_store::FileStore;
 use headless_lms_utils::icu4x::Icu4xBlob;
-use headless_lms_utils::prelude::{UtilError, UtilErrorType, UtilResult};
 
 use resvg::tiny_skia;
 use std::{io, path::Path};
@@ -22,8 +22,6 @@ use usvg::fontdb;
 
 use quick_xml::{Writer, events::BytesText};
 use std::io::Cursor;
-
-use tracing::log::info;
 
 use rust_i18n::{i18n, t};
 i18n!("locales");

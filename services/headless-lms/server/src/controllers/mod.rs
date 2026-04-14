@@ -27,7 +27,7 @@ use actix_web::{
     HttpRequest, HttpResponse, ResponseError,
     web::{self, ServiceConfig},
 };
-use headless_lms_utils::{ApplicationConfiguration, prelude::*};
+use headless_lms_utils::prelude::*;
 use serde::{Deserialize, Serialize};
 #[cfg(feature = "ts_rs")]
 use ts_rs::TS;

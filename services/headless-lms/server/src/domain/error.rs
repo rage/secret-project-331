@@ -10,11 +10,12 @@ use actix_web::{
 use backtrace::Backtrace;
 use derive_more::Display;
 use dpop_verifier::error::DpopError;
+use headless_lms_base::error::{
+    backend_error::BackendError, backtrace_formatter::format_backtrace,
+};
 use headless_lms_chatbot::prelude::ChatbotError;
 use headless_lms_models::{ModelError, ModelErrorType};
-use headless_lms_utils::error::{
-    backend_error::BackendError, backtrace_formatter::format_backtrace, util_error::UtilError,
-};
+use headless_lms_utils::error::util_error::UtilError;
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
 #[cfg(feature = "ts_rs")]
@@ -492,7 +493,7 @@ impl From<jsonwebtoken::errors::Error> for ControllerError {
 impl From<ModelError> for ControllerError {
     fn from(err: ModelError) -> Self {
         let backtrace: Backtrace =
-            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+            match headless_lms_base::error::backend_error::BackendError::backtrace(&err) {
                 Some(backtrace) => backtrace.clone(),
                 _ => Backtrace::new(),
             };
@@ -556,7 +557,7 @@ impl From<ModelError> for ControllerError {
 impl From<UtilError> for ControllerError {
     fn from(err: UtilError) -> Self {
         let backtrace: Backtrace =
-            match headless_lms_utils::error::backend_error::BackendError::backtrace(&err) {
+            match headless_lms_base::error::backend_error::BackendError::backtrace(&err) {
                 Some(backtrace) => backtrace.clone(),
                 _ => Backtrace::new(),
             };

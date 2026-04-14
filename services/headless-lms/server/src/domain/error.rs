@@ -18,9 +18,10 @@ use headless_lms_models::{ModelError, ModelErrorType};
 use headless_lms_utils::error::util_error::UtilError;
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+
 use uuid::Uuid;
+
+const MISSING_EXERCISE_TYPE_DESCRIPTION: &str = "Missing exercise type for exercise task.";
 
 /**
 Used as the result types for all controllers.
@@ -43,7 +44,7 @@ pub enum ControllerErrorType {
 
     /// HTTP status code 400.
     #[display("Bad request")]
-    BadRequestWithData(ErrorData),
+    BadRequestWithData(ErrorMetadata),
 
     /// HTTP status code 404.
     #[display("Not found")]
@@ -53,6 +54,10 @@ pub enum ControllerErrorType {
     #[display("Unauthorized")]
     Unauthorized,
 
+    /// HTTP status code 401 with a specific domain reason.
+    #[display("Unauthorized")]
+    UnauthorizedWithReason(UnauthorizedReason),
+
     /// HTTP status code 403. Is logged in but is not allowed to access the resource.
     #[display("Forbidden")]
     Forbidden,
@@ -60,6 +65,27 @@ pub enum ControllerErrorType {
     /// Varied response based on error
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
+}
+
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum UnauthorizedReason {
+    #[display("Chapter not open yet")]
+    ChapterNotOpenYet,
+    #[display("Authentication required for exam exercise")]
+    AuthenticationRequiredForExamExercise,
+}
+
+impl UnauthorizedReason {
+    /// Returns the stable message key for this unauthorized reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::ChapterNotOpenYet => "chapter_not_open_yet",
+            Self::AuthenticationRequiredForExamExercise => {
+                "authentication_required_for_exam_exercise"
+            }
+        }
+    }
 }
 
 /**
@@ -226,20 +252,48 @@ impl BackendError for ControllerError {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(rename_all = "snake_case")]
-pub enum ErrorData {
+pub enum ErrorMetadata {
     BlockId(Uuid),
 }
 
-/// The format all error messages from the API is in
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-pub struct ErrorResponse {
-    pub title: String,
+pub struct ApiErrorIssue {
+    pub path: Option<String>,
+    pub code: Option<String>,
     pub message: String,
-    pub source: Option<String>,
-    pub data: Option<ErrorData>,
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
+#[serde(rename_all = "snake_case")]
+pub enum ValidationIssueCode {
+    MissingExerciseType,
+}
+
+impl ValidationIssueCode {
+    /// Returns stable API-facing code value for validation issues.
+    fn as_api_code(self) -> String {
+        serde_json::to_value(self)
+            .ok()
+            .and_then(|v| v.as_str().map(|code| code.to_string()))
+            .unwrap_or_else(|| "unknown_validation_issue".to_string())
+    }
+}
+
+/// Canonical API error envelope returned for controlled application errors.
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ApiErrorResponse {
+    #[serde(rename = "type")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub error_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message_key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub message: Option<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub errors: Vec<ApiErrorIssue>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub metadata: Option<serde_json::Value>,
 }
 
 impl error::ResponseError for ControllerError {
@@ -323,6 +377,8 @@ impl error::ResponseError for ControllerError {
             res.append_header(("Cache-Control", "no-store"))
                 .append_header(("Pragma", "no-cache"));
 
+            // OAuth token/introspection semantics are standardized around `error` and
+            // `error_description`; keep compatibility for protocol clients.
             return res.json(serde_json::json!({
                 "error": data.error,
                 "error_description": data.error_description
@@ -331,47 +387,80 @@ impl error::ResponseError for ControllerError {
 
         let status = self.status_code();
 
-        let error_data = match &self.error_type {
+        let metadata = match &self.error_type {
             ControllerErrorType::BadRequestWithData(data) => Some(data.clone()),
             _ => None,
         };
 
-        let source_message = self.source.as_ref().map(|anyhow_err| {
-            if let Some(controller_err) = anyhow_err.downcast_ref::<ControllerError>() {
-                controller_err.message.clone()
-            } else {
-                anyhow_err.to_string()
-            }
-        });
+        let metadata_json =
+            metadata.map(|ErrorMetadata::BlockId(id)| serde_json::json!({ "block_id": id }));
+        let (error_type, message_key) = self.error_type_and_message_key();
+        let errors = self.validation_issues();
+        let message = match self.error_type {
+            ControllerErrorType::InternalServerError => None,
+            _ => Some(self.message.clone()),
+        };
 
-        let error_response = ErrorResponse {
-            title: status
-                .canonical_reason()
-                .map(str::to_string)
-                .unwrap_or_else(|| status.to_string()),
-            message: self.message.clone(),
-            source: source_message,
-            data: error_data,
+        let error_response = ApiErrorResponse {
+            error_type: Some(error_type.to_string()),
+            message_key: Some(message_key.to_string()),
+            message,
+            errors,
+            metadata: metadata_json,
         };
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(
-                serde_json::to_string(&error_response).unwrap_or_else(|_| {
-                    r#"{"title":"Internal Server Error","message":"Error occurred while formatting error message."}"#.to_string()
-                }),
-            )
+            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| {
+                r#"{"type":"internal_error","message_key":"internal_error"}"#.to_string()
+            }))
     }
 
     fn status_code(&self) -> StatusCode {
         match self.error_type {
             ControllerErrorType::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
-            ControllerErrorType::BadRequest => StatusCode::BAD_REQUEST,
-            ControllerErrorType::BadRequestWithData(_) => StatusCode::BAD_REQUEST,
+            ControllerErrorType::BadRequest => StatusCode::UNPROCESSABLE_ENTITY,
+            ControllerErrorType::BadRequestWithData(_) => StatusCode::UNPROCESSABLE_ENTITY,
             ControllerErrorType::NotFound => StatusCode::NOT_FOUND,
             ControllerErrorType::Unauthorized => StatusCode::UNAUTHORIZED,
+            ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
+        }
+    }
+}
+
+impl ControllerError {
+    fn error_type_and_message_key(&self) -> (&'static str, &'static str) {
+        match self.error_type {
+            ControllerErrorType::InternalServerError => ("internal_error", "internal_error"),
+            ControllerErrorType::BadRequest => ("validation_error", "validation_error"),
+            ControllerErrorType::BadRequestWithData(_) => {
+                ("validation_error", "validation_error_with_metadata")
+            }
+            ControllerErrorType::NotFound => ("not_found", "not_found"),
+            ControllerErrorType::Unauthorized => ("unauthorized", "unauthorized"),
+            ControllerErrorType::UnauthorizedWithReason(reason) => {
+                ("unauthorized", reason.message_key())
+            }
+            ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
+            ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
+        }
+    }
+
+    /// Derives issue-level validation details from known backend validation cases.
+    fn validation_issues(&self) -> Vec<ApiErrorIssue> {
+        match &self.error_type {
+            ControllerErrorType::BadRequestWithData(_)
+                if self.message == MISSING_EXERCISE_TYPE_DESCRIPTION =>
+            {
+                vec![ApiErrorIssue {
+                    path: Some("exercise_type".to_string()),
+                    code: Some(ValidationIssueCode::MissingExerciseType.as_api_code()),
+                    message: self.message.clone(),
+                }]
+            }
+            _ => Vec::new(),
         }
     }
 }
@@ -522,7 +611,7 @@ impl From<ModelError> for ControllerError {
             ),
             ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { description, id } => {
                 Self::new_with_traces(
-                    ControllerErrorType::BadRequestWithData(ErrorData::BlockId(*id)),
+                    ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(*id)),
                     description.to_string(),
                     Some(err.into()),
                     backtrace,
@@ -801,6 +890,8 @@ pub fn missing_controller_error(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use actix_web::ResponseError;
+    use futures_util::FutureExt;
 
     #[test]
     fn test_controller_err_macro_without_source() {
@@ -861,6 +952,114 @@ mod tests {
         let _ = controller_err!(BadRequest, "test".to_string());
         let _ = controller_err!(NotFound, "test".to_string());
         let _ = controller_err!(Unauthorized, "test".to_string());
+        let _ = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "test".to_string(),
+            None,
+        );
         let _ = controller_err!(Forbidden, "test".to_string());
+    }
+
+    #[test]
+    fn test_canonical_error_envelope_shape() {
+        let err = controller_err!(BadRequest, "Validation failed".to_string());
+        let response = err.error_response();
+        assert_eq!(response.status(), StatusCode::UNPROCESSABLE_ENTITY);
+
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "validation_error");
+        assert_eq!(value["message"], "Validation failed");
+        assert!(value.get("status").is_none());
+        assert!(value.get("request_id").is_none());
+    }
+
+    #[test]
+    fn test_validation_issue_code_is_serialized_for_missing_exercise_type() {
+        let err = ControllerError::new(
+            ControllerErrorType::BadRequestWithData(ErrorMetadata::BlockId(Uuid::nil())),
+            MISSING_EXERCISE_TYPE_DESCRIPTION.to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "validation_error");
+        assert_eq!(value["message_key"], "validation_error_with_metadata");
+        assert_eq!(value["errors"][0]["code"], "missing_exercise_type");
+        assert_eq!(value["errors"][0]["path"], "exercise_type");
+    }
+
+    #[test]
+    fn test_chapter_not_open_uses_dedicated_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "Chapter is not open yet.".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "chapter_not_open_yet");
+        assert_eq!(value["message"], "Chapter is not open yet.");
+    }
+
+    #[test]
+    fn test_exam_exercise_auth_requirement_uses_dedicated_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::UnauthorizedWithReason(
+                UnauthorizedReason::AuthenticationRequiredForExamExercise,
+            ),
+            "User must be authenticated to view exam exercises".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(
+            value["message_key"],
+            "authentication_required_for_exam_exercise"
+        );
+        assert_eq!(
+            value["message"],
+            "User must be authenticated to view exam exercises"
+        );
+    }
+
+    #[test]
+    fn test_generic_unauthorized_uses_unauthorized_message_key() {
+        let err = ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Unauthorized".to_string(),
+            None,
+        );
+        let response = err.error_response();
+        let bytes = actix_web::body::to_bytes(response.into_body())
+            .now_or_never()
+            .expect("response should resolve immediately")
+            .expect("body bytes");
+        let value: serde_json::Value = serde_json::from_slice(&bytes).expect("json");
+
+        assert_eq!(value["type"], "unauthorized");
+        assert_eq!(value["message_key"], "unauthorized");
+        assert_eq!(value["message"], "Unauthorized");
     }
 }

@@ -5,8 +5,25 @@ use headless_lms_models::chapters::CourseUserInfo;
 use headless_lms_models::library::students_view::{
     CertificateGridRow, CompletionGridRow, ProgressOverview,
 };
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_progress, get_course_users, get_completions, get_certificates))]
+pub(crate) struct MainFrontendCourseStudentsApiDoc;
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
+#[utoipa::path(
+    get,
+    path = "/progress",
+    operation_id = "getCourseStudentsProgress",
+    tag = "course-students",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course student progress overview", body = ProgressOverview)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_progress(
     course_id: web::Path<Uuid>,
@@ -28,6 +45,18 @@ async fn get_progress(
 }
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/students/users`
+#[utoipa::path(
+    get,
+    path = "/users",
+    operation_id = "getCourseStudentsUsers",
+    tag = "course-students",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course users", body = [CourseUserInfo])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_users(
     course_id: web::Path<Uuid>,
@@ -49,6 +78,18 @@ async fn get_course_users(
 }
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/students/completions`
+#[utoipa::path(
+    get,
+    path = "/completions",
+    operation_id = "getCourseStudentsCompletions",
+    tag = "course-students",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course completions", body = [CompletionGridRow])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_completions(
     course_id: web::Path<Uuid>,
@@ -72,6 +113,18 @@ async fn get_completions(
 }
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/students/certificates`
+#[utoipa::path(
+    get,
+    path = "/certificates",
+    operation_id = "getCourseStudentsCertificates",
+    tag = "course-students",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course certificates", body = [CertificateGridRow])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_certificates(
     course_id: web::Path<Uuid>,

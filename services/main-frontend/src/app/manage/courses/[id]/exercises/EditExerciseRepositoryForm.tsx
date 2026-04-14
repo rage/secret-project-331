@@ -4,11 +4,11 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { editExerciseRepository } from "@/services/backend/exercise-repositories"
-import { ExerciseRepository } from "@/shared-module/common/bindings"
+import { updateExerciseRepositoryMutation as updateExerciseRepositoryMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseRepository } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface Props {
   exerciseRepository: ExerciseRepository
@@ -39,11 +39,11 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
     mode: "onChange",
     defaultValues: { gitUrl: exerciseRepository.url },
   })
-  const mutation = useToastMutation(
-    (fields: Fields) => editExerciseRepository(exerciseRepository.id, fields.gitUrl),
+  const mutation = useToastMutationOptions(
+    updateExerciseRepositoryMutationOptions(),
     {
       notify: true,
-      method: "POST",
+      method: "PUT",
       successMessage: t("exercise-repositories-modified"),
     },
     {
@@ -54,14 +54,30 @@ const EditExerciseRepositoryForm: React.FC<Props> = ({
   )
 
   return (
-    <form onSubmit={handleSubmit((fields) => mutation.mutate(fields))}>
+    <form
+      onSubmit={handleSubmit((fields) =>
+        mutation.mutate({
+          path: {
+            id: exerciseRepository.id,
+          },
+          body: {
+            url: fields.gitUrl,
+          },
+        }),
+      )}
+    >
       <TextField
         label={t("exercise-repositories-git-url")}
         placeholder={t("exercise-repositories-git-url-placeholder")}
         {...register("gitUrl", { required: t("required-field") })}
         error={errors["gitUrl"]?.message}
       />
-      <Button type="submit" size="medium" variant="primary" disabled={!isValid || isSubmitting}>
+      <Button
+        type="submit"
+        size="medium"
+        variant="primary"
+        disabled={!isValid || isSubmitting || mutation.isPending}
+      >
         {t("button-text-save")}
       </Button>
       <Button

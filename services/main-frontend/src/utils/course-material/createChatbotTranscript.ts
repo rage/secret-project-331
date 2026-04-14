@@ -1,11 +1,12 @@
 import { REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
 
 import { renumberFilterCitations } from "@/components/course-material/chatbot/shared/MessageBubble"
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
-  let messages = info.current_conversation_messages
-  if (messages === null || messages.length === 0) {
+  const messages = info.current_conversation_messages
+  if (!messages || messages.length === 0) {
     throw new Error("Couldn't create a chatbot conversation transcript. The conversation is empty.")
   }
   const citations = info.current_conversation_message_citations ?? []
@@ -22,11 +23,12 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   let citationList = "________________________________________________________\n\nReferences\n\n"
 
   let transcript = messages
-    ?.map((m) => {
-      if (m.message === null) {
+    .map((m) => {
+      const originalMessage = m.message
+      if (originalMessage == null) {
         return ""
       }
-      let msg = m.message
+      let msg = originalMessage
 
       if (m.message_role !== "user" && m.message_role !== "assistant") {
         // don't put system or tool messages in the transcript
@@ -67,7 +69,9 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
             // the 1st cit in this message has number 1 in citationNumberingMap
             // add to it the last cit number from the prev message, so that
             // the numbers are unique across the whole transcript.
-            let newCitNumber = citationNumberingMap.get(cit.citation_number) + latestCitNumber
+            const newCitNumber =
+              assertNotNullOrUndefined(citationNumberingMap.get(cit.citation_number)) +
+              latestCitNumber
             msg = msg.replaceAll(`[doc${cit.citation_number}]`, `[doc${newCitNumber}]`)
             citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`
           })

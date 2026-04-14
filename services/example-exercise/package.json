@@ -68,7 +68,6 @@
     "@types/node": "^25.3.3",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "axios": "^1.13.6",
     "postcss-styled-syntax": "^0.7.1",
     "stylelint": "^17.4.0",
     "stylelint-config-recommended": "^18.0.0",

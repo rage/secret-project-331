@@ -8,11 +8,15 @@ import React, { useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDebounce } from "use-debounce"
 
-import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/course-material/backend"
-import { PageSearchResult } from "@/shared-module/common/bindings"
+import {
+  searchPagesWithPhrase,
+  searchPagesWithWords,
+} from "@/generated/course-material-api/sdk.generated"
+import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { coursePageRoute } from "@/shared-module/common/utils/routes"
@@ -243,16 +247,20 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
 
       try {
         const [pagesWithPhrase, pagesWithWords] = await Promise.all([
-          searchPagesWithPhrase(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
-          searchPagesWithWords(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
+          searchPagesWithPhrase({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+          }),
+          searchPagesWithWords({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+          }),
         ])
         setPhraseSearchResults(pagesWithPhrase)
         setWordSearchResults(pagesWithWords)
@@ -260,23 +268,8 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         if (e instanceof Error && e.name === "AbortError") {
           return
         }
-
-        if (!(e instanceof Error)) {
-          throw e
-        }
-
-        interface ErrorWithResponse {
-          response?: {
-            data?: unknown
-          }
-        }
-
-        const errorWithResponse = e as ErrorWithResponse
-        if (errorWithResponse?.response?.data) {
-          setError(JSON.stringify(errorWithResponse.response.data, undefined, 2))
-        } else {
-          setError(e.toString())
-        }
+        const parsed = normalizeErrorForDisplay(e)
+        setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
       }

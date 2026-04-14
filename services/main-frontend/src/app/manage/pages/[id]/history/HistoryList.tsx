@@ -1,12 +1,15 @@
 "use client"
 
-import { useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import React, { useState } from "react"
 
 import HistoryPage from "./HistoryPage"
 
-import { fetchHistoryCountForPage, restorePage } from "@/services/backend/pages"
-import { PageHistory } from "@/shared-module/common/bindings"
+import {
+  getPageHistoryCountOptions,
+  restorePageHistoryMutation as restorePageHistoryMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { PageHistory } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -32,9 +35,13 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   )
 
   const getPageHistoryCount = useQuery({
-    queryKey: [`page-history-count-${pageId}`],
-    queryFn: () => fetchHistoryCountForPage(pageId),
+    ...getPageHistoryCountOptions({
+      path: {
+        page_id: pageId,
+      },
+    }),
   })
+  const restorePageHistoryMutation = useMutation(restorePageHistoryMutationOptions())
 
   function compare(history: PageHistory) {
     setSelectedRevisionId(history.id)
@@ -42,7 +49,14 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   async function restore(history: PageHistory) {
-    const newHistoryId = await restorePage(pageId, history.id)
+    const newHistoryId = await restorePageHistoryMutation.mutateAsync({
+      path: {
+        page_id: pageId,
+      },
+      body: {
+        history_id: history.id,
+      },
+    })
     await onRestore(history)
     await getPageHistoryCount.refetch()
     changePage(1)

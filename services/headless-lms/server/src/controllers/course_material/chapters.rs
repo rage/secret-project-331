@@ -3,13 +3,36 @@
 use models::chapters::ChapterLockPreview;
 use models::pages::{Page, PageVisibility, PageWithExercises};
 use models::user_chapter_locking_statuses::{self, ChapterLockingStatus};
+use utoipa::OpenApi;
 
 use crate::domain::authorization::authorize_access_to_course_material;
 use crate::prelude::*;
 
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_public_chapter_pages,
+    get_chapters_exercises,
+    get_chapters_pages_without_main_frontpage,
+    get_chapter_lock_preview,
+    lock_chapter
+))]
+pub(crate) struct CourseMaterialChaptersApiDoc;
+
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.
 */
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/pages",
+    operation_id = "getCourseMaterialChapterPages",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Public chapter pages", body = Vec<Page>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_public_chapter_pages(
     chapter_id: web::Path<Uuid>,
@@ -36,6 +59,18 @@ async fn get_public_chapter_pages(
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.
 */
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/exercises",
+    operation_id = "getCourseMaterialChapterPagesWithExercises",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Chapter pages with exercises", body = Vec<PageWithExercises>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chapters_exercises(
     chapter_id: web::Path<Uuid>,
@@ -59,6 +94,18 @@ async fn get_chapters_exercises(
 /**
 GET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.
 */
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/pages-exclude-mainfrontpage",
+    operation_id = "getCourseMaterialChapterPagesExcludingFrontPage",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Visible chapter pages without main front page", body = Vec<Page>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chapters_pages_without_main_frontpage(
     chapter_id: web::Path<Uuid>,
@@ -86,6 +133,18 @@ GET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock c
 
 Returns information about unreturned exercises in the chapter before locking.
 **/
+#[utoipa::path(
+    get,
+    path = "/{chapter_id}/lock-preview",
+    operation_id = "getCourseMaterialChapterLockPreview",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Chapter lock preview", body = ChapterLockPreview)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_chapter_lock_preview(
     chapter_id: web::Path<Uuid>,
@@ -125,6 +184,18 @@ Validates that:
 - Moves all exercises to manual review
 - Unlocks next chapters for the user
 **/
+#[utoipa::path(
+    post,
+    path = "/{chapter_id}/lock",
+    operation_id = "lockCourseMaterialChapter",
+    tag = "course-material-chapters",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Updated chapter locking status", body = user_chapter_locking_statuses::UserChapterLockingStatus)
+    )
+)]
 #[instrument(skip(pool))]
 async fn lock_chapter(
     chapter_id: web::Path<Uuid>,

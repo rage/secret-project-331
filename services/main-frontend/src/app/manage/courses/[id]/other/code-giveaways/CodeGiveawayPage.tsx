@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import NewCodeGiveawayForm from "./NewCodeGiveawayForm"
 
-import { fetchCodeGiveawaysByCourse } from "@/services/backend/codeGiveaways"
+import { getCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -49,10 +49,13 @@ const CodeGiveawayPage: React.FC<CodeGiveawayPageProps> = ({ courseId }) => {
   const { t } = useTranslation()
   const [newDialogOpen, setNewDialogOpen] = useState(false)
 
-  const codeGiveawayQuery = useQuery({
-    queryKey: ["code-giveaways", courseId],
-    queryFn: () => fetchCodeGiveawaysByCourse(courseId),
-  })
+  const codeGiveawayQuery = useQuery(
+    getCodeGiveawaysByCourseOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  )
 
   if (codeGiveawayQuery.isLoading) {
     return <Spinner variant="medium" />

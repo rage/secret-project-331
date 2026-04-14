@@ -2,9 +2,24 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use models::oauth_user_client_scopes::{AuthorizedClientInfo, OAuthUserClientScopes};
 use sqlx::PgPool;
+use utoipa::OpenApi;
 use uuid::Uuid;
 
+#[derive(OpenApi)]
+#[openapi(paths(get_authorized_clients, delete_authorized_client))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthAuthorizedClientsApiDoc;
+
 #[instrument(skip(pool, auth_user))]
+#[utoipa::path(
+    get,
+    path = "/authorized-clients",
+    operation_id = "getOauthAuthorizedClients",
+    tag = "oauth",
+    responses(
+        (status = 200, description = "Authorized OAuth clients", body = [AuthorizedClientInfo])
+    )
+)]
 pub async fn get_authorized_clients(
     pool: web::Data<PgPool>,
     auth_user: AuthUser,
@@ -19,6 +34,18 @@ pub async fn get_authorized_clients(
 }
 
 #[instrument(skip(pool, auth_user))]
+#[utoipa::path(
+    delete,
+    path = "/authorized-clients/{client_id}",
+    operation_id = "deleteOauthAuthorizedClient",
+    tag = "oauth",
+    params(
+        ("client_id" = Uuid, Path, description = "OAuth client id")
+    ),
+    responses(
+        (status = 204, description = "Authorized client revoked")
+    )
+)]
 pub async fn delete_authorized_client(
     pool: web::Data<PgPool>,
     auth_user: AuthUser,

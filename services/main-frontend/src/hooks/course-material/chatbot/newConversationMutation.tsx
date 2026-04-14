@@ -2,8 +2,11 @@
 
 import { UseQueryResult } from "@tanstack/react-query"
 
-import { newChatbotConversation } from "@/services/course-material/backend"
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
+import type {
+  ChatbotConversation,
+  ChatbotConversationInfo,
+} from "@/generated/course-material-api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const useNewConversationMutation = (
@@ -13,7 +16,12 @@ const useNewConversationMutation = (
   setError: React.Dispatch<React.SetStateAction<Error | null>>,
 ) => {
   return useToastMutation(
-    () => newChatbotConversation(chatbotConfigurationId),
+    () =>
+      newChatbotConversation({
+        path: {
+          chatbot_configuration_id: chatbotConfigurationId,
+        },
+      }),
     { notify: false },
     {
       onSuccess: () => {

@@ -30,3 +30,4 @@ pub use rand::RngExt;
 pub use sqlx::{Connection, FromRow, PgConnection, PgPool, Pool, Postgres, Type};
 #[cfg(feature = "ts_rs")]
 pub use ts_rs::TS;
+pub use uuid::Uuid;

@@ -10,7 +10,7 @@ import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { fetchCourseDailySubmissionCounts } from "@/services/backend/courses"
+import { getCourseDailySubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -25,8 +25,11 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
 }) => {
   const { t } = useTranslation()
   const query = useQuery({
-    queryKey: [`course-daily-submission-counts-${courseId}`],
-    queryFn: () => fetchCourseDailySubmissionCounts(courseId),
+    ...getCourseDailySubmissionCountsOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const processedData = useMemo(() => {

@@ -3,11 +3,13 @@
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { postReprocessModuleCompletions } from "@/services/backend/course-instances"
+import { reprocessCourseCompletions } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface ModuleCompletionReprocessButtonProps {
   courseId: string
@@ -19,9 +21,15 @@ const ModuleCompletionReprocessButton: React.FC<
   const { confirm } = useDialog()
   const { t } = useTranslation()
   const postReprocessCompletionsMutation = useToastMutation(
-    async () => {
-      return postReprocessModuleCompletions(courseId)
-    },
+    async () =>
+      validateGeneratedData(
+        await reprocessCourseCompletions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+        isBoolean,
+      ),
     { notify: true, method: "POST" },
     // { onError: setMutationError },
   )

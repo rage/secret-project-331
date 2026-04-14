@@ -6,14 +6,14 @@ import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { markFeedbackAsReadMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { Feedback } from "@/generated/api/types.generated"
 import { usePageInfo } from "@/hooks/usePageInfo"
-import { markAsRead } from "@/services/backend/feedback"
-import { Feedback } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont, typography } from "@/shared-module/common/styles"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 
@@ -40,18 +40,19 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
 }) => {
   const { t } = useTranslation()
 
-  const pageInfo = usePageInfo(feedback.page_id)
+  const pageInfo = usePageInfo(feedback.page_id ?? null)
 
-  const markAsReadMutation = useToastMutation(
-    () => {
-      const toggled = !feedback.marked_as_read
-      return markAsRead(feedback.id, toggled).then(() => {
-        setRead(toggled)
-      })
-    },
+  const markAsReadMutation = useToastMutationOptions(
+    markFeedbackAsReadMutation(),
     {
       notify: true,
       method: "POST",
+    },
+    {
+      onSuccess: async () => {
+        const toggled = !feedback.marked_as_read
+        await setRead(toggled)
+      },
     },
   )
 
@@ -150,7 +151,14 @@ const FeedbackView: React.FC<React.PropsWithChildren<FeedbackViewProps>> = ({
       </div>
       <Button
         onClick={() => {
-          markAsReadMutation.mutate()
+          markAsReadMutation.mutate({
+            body: {
+              read: !feedback.marked_as_read,
+            },
+            path: {
+              feedback_id: feedback.id,
+            },
+          })
         }}
         variant={"secondary"}
         size={"medium"}

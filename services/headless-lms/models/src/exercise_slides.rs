@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -13,7 +14,7 @@ pub struct NewExerciseSlide {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseSlide {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -23,8 +24,8 @@ pub struct ExerciseSlide {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct CourseMaterialExerciseSlide {
     pub id: Uuid,
     pub exercise_tasks: Vec<CourseMaterialExerciseTask>,

@@ -9,16 +9,15 @@ const PointExportButton: React.FC<
 > = ({ courseInstanceId, courseInstanceName }) => {
   const { t } = useTranslation()
   return (
-    <Button
-      variant="secondary"
-      size="medium"
-      onClick={() =>
-        (window.location.href = `/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points`)
-      }
+    <a
+      href={`/api/v0/main-frontend/course-instances/${courseInstanceId}/export-points`}
       aria-label={`${t("link-export-points")} (${courseInstanceName})`}
+      download
     >
-      {t("link-export-points")}
-    </Button>
+      <Button variant="secondary" size="medium" type="button">
+        {t("link-export-points")}
+      </Button>
+    </a>
   )
 }
 

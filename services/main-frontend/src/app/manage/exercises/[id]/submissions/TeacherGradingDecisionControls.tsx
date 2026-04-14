@@ -7,7 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import CustomPointsPopup from "./CustomPointsPopup"
 
-import { NewTeacherGradingDecision, TeacherDecisionType } from "@/shared-module/common/bindings"
+import type {
+  NewTeacherGradingDecision,
+  TeacherDecisionType,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { primaryFont } from "@/shared-module/common/styles"
 

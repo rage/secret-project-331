@@ -11,8 +11,8 @@ import LineChart, {
   Period,
 } from "../../LineChart"
 
+import { TimeGranularity } from "@/generated/api/types.generated"
 import { useAvgTimeToFirstSubmissionHistoryQuery } from "@/hooks/stats"
-import { TimeGranularity } from "@/shared-module/common/bindings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface AverageTimeToSubmitProps {

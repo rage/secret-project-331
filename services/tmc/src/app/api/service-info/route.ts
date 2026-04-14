@@ -1,6 +1,6 @@
-import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
 import basePath from "@/shared-module/common/utils/base-path"
 import { jsonOk } from "@/util/apiResponse"
+import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 
 export function GET() {
   const prefix = basePath()

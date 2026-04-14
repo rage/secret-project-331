@@ -7,7 +7,7 @@ import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { Exam, NewExam } from "@/shared-module/common/bindings"
+import type { Exam, NewExam } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import DateTimeLocal from "@/shared-module/common/components/InputFields/DateTimeLocal"

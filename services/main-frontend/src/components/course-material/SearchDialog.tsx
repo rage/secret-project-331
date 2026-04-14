@@ -9,11 +9,15 @@ import { useTranslation } from "react-i18next"
 // useDebounce from "usehooks-ts" doesn't seem to work
 import { useDebounce } from "use-debounce"
 
-import { searchPagesWithPhrase, searchPagesWithWords } from "@/services/course-material/backend"
-import { PageSearchResult } from "@/shared-module/common/bindings"
+import {
+  searchPagesWithPhrase,
+  searchPagesWithWords,
+} from "@/generated/course-material-api/sdk.generated"
+import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -249,16 +253,20 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
 
       try {
         const [pagesWithPhrase, pagesWithWords] = await Promise.all([
-          searchPagesWithPhrase(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
-          searchPagesWithWords(
-            { query: debouncedQuery },
-            courseId,
-            abortControllerRef.current.signal,
-          ),
+          searchPagesWithPhrase({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+          }),
+          searchPagesWithWords({
+            body: { query: debouncedQuery },
+            path: {
+              course_id: courseId,
+            },
+            signal: abortControllerRef.current.signal,
+          }),
         ])
         setPhraseSearchResults(pagesWithPhrase)
         setWordSearchResults(pagesWithWords)
@@ -267,18 +275,8 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         if (e instanceof Error && e.name === "AbortError") {
           return
         }
-
-        if (!(e instanceof Error)) {
-          throw e
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((e as any)?.response?.data) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          setError(JSON.stringify((e as any).response.data, undefined, 2))
-        } else {
-          setError(e.toString())
-        }
+        const parsed = normalizeErrorForDisplay(e)
+        setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
       }

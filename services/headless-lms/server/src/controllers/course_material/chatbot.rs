@@ -10,14 +10,36 @@ use headless_lms_models::chatbot_conversations::{
 };
 use headless_lms_models::{chatbot_configurations, courses};
 use rand::seq::IndexedRandom;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_default_chatbot_configuration_for_course,
+    send_message,
+    new_conversation,
+    current_conversation_info
+))]
+pub(crate) struct CourseMaterialChatbotApiDoc;
 
 /**
 GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
 
 Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
 */
+#[utoipa::path(
+    get,
+    path = "/default-for-course/{course_id}",
+    operation_id = "getDefaultChatbotConfigurationForCourse",
+    tag = "course-material-chatbot",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Default chatbot configuration id", body = Option<Uuid>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_default_chatbot_configuration_for_course(
     pool: web::Data<PgPool>,
@@ -43,6 +65,23 @@ POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:c
 
 Sends a new chat message to the chatbot.
 */
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/conversations/{conversation_id}/send-message",
+    operation_id = "sendChatbotMessage",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
+        ("conversation_id" = Uuid, Path, description = "Conversation id")
+    ),
+    request_body(
+        content = String,
+        content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Chatbot response stream", body = String)
+    )
+)]
 #[instrument(skip(pool, app_conf))]
 async fn send_message(
     pool: web::Data<PgPool>,
@@ -93,6 +132,18 @@ POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/c
 
 Sends a new chat message to the chatbot.
 */
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/conversations/new",
+    operation_id = "newChatbotConversation",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Created chatbot conversation", body = ChatbotConversation)
+    )
+)]
 #[instrument(skip(pool))]
 async fn new_conversation(
     pool: web::Data<PgPool>,
@@ -149,6 +200,22 @@ POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/c
 
 Returns the current conversation for the user.
 */
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/current",
+    operation_id = "getChatbotCurrentConversationInfo",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Current chatbot conversation info",
+            body = ChatbotConversationInfo
+        )
+    )
+)]
 #[instrument(skip(pool, app_conf))]
 async fn current_conversation_info(
     pool: web::Data<PgPool>,

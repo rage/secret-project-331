@@ -158,7 +158,7 @@ describe("unsupported block helpers", () => {
         clientId: "paragraph",
         isValid: true,
       },
-    ] as BlockInstance[]
+    ] as unknown as BlockInstance[]
 
     expect(modifyBlocks(blocks, ["core/paragraph"])).toEqual(blocks)
     expect(removeUnsupportedBlockType(blocks)).toEqual(blocks)
@@ -170,7 +170,7 @@ describe("unsupported block helpers", () => {
       attributes: { value: "nested" },
       clientId: "nested-unsupported",
       isValid: true,
-    } as BlockInstance
+    } as unknown as BlockInstance
     const blocks = [
       {
         name: "core/group",

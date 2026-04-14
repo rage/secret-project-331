@@ -7,12 +7,13 @@ import { useTranslation } from "react-i18next"
 
 import PeerOrSelfReviewViewImpl from "./PeerOrSelfReviewViewImpl"
 
+import type { CourseMaterialExercise } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface PeerOrSelfReviewViewProps {
   exerciseNumber: number
   exerciseId: string
-  parentExerciseQuery: UseQueryResult<unknown, unknown>
+  parentExerciseQuery: UseQueryResult<CourseMaterialExercise, unknown>
   selfReview?: boolean
 }
 

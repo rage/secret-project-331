@@ -1,47 +1,38 @@
 "use client"
 
 import { css } from "@emotion/css"
-import axios from "axios"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import CreateOrganizationPopup from "./CreateOrganizationPopup"
 import OrganizationBanner from "./components/OrganizationBanner"
 
+import { createOrganizationMutation as createOrganizationMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()
   const [showCreatePopup, setShowCreatePopup] = React.useState(false)
-  const { refetch } = useAllOrganizationsQuery()
-
   const allOrganizationsQuery = useAllOrganizationsQuery()
 
-  const createOrganizationMutation = useToastMutation(
-    async (data: { name: string; slug: string; visibility: string }) => {
-      return await axios.post("/api/v0/main-frontend/organizations", {
-        name: data.name,
-        slug: data.slug,
-        description: "",
-        hidden: data.visibility === "private",
-      })
-    },
+  const createOrganizationMutation = useToastMutationOptions(
+    createOrganizationMutationOptions(),
     {
       notify: true,
       method: "POST",
     },
     {
-      onSuccess: () => {
+      onSuccess: async () => {
         setShowCreatePopup(false)
-        refetch()
+        await allOrganizationsQuery.refetch()
       },
     },
   )
@@ -143,9 +134,11 @@ const OrganizationsList: React.FC = () => {
         onClose={() => setShowCreatePopup(false)}
         onCreate={({ name, slug, visibility }) => {
           createOrganizationMutation.mutate({
-            name,
-            slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
-            visibility,
+            body: {
+              name,
+              slug: slug.trim().toLowerCase().replace(/\s+/g, "-"),
+              hidden: visibility === "private",
+            },
           })
         }}
       />

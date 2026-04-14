@@ -8,8 +8,8 @@ import LanguageVersionOptions from "./LanguageVersionOptions"
 
 import { FieldContainer, FormFields } from "."
 
+import type { Course } from "@/generated/api/types.generated"
 import { useOrganizationDuplicatableCourses } from "@/hooks/useOrganizationDuplicatableCourses"
-import { Course } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"

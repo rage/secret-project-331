@@ -53,6 +53,10 @@ serde = { version = "1.0.228", features = ["derive"] }
 chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.149"
+# Code-first OpenAPI generation from Rust types and handlers
+utoipa = { version = "5.4.0", features = ["chrono", "uuid"] }
+# Swagger UI integration for generated OpenAPI documents
+utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
 # Adds #[derive(x)] macros for more traits
 derive_more = { version = "2.1.1", features = ["full"] }
 # Types and traits for working with bytes
@@ -169,9 +173,6 @@ pretty_assertions = "1.4.1"
 mockito = "1.7.2"
 # Random number generators and other randomness functionality.
 rand = "0.10.0"
-
-[features]
-ts_rs = ["ts-rs", "headless-lms-models/ts_rs", "headless-lms-utils/ts_rs"]
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next"
 
 import ExerciseAccordion from "./ExerciseAccordion"
 
+import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import { ExerciseStatusSummaryForUser } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 

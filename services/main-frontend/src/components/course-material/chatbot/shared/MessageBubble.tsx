@@ -10,7 +10,7 @@ import RenderedMessage, { MessageRenderType } from "./RenderedMessage"
 import ThinkingIndicator from "./ThinkingIndicator"
 import { LIGHT_GREEN } from "./styles"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { MATCH_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 

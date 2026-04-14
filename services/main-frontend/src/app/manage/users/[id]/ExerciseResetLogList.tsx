@@ -7,7 +7,7 @@ import { groupBy } from "lodash"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import { getUserResetExerciseLogs } from "@/services/backend/users"
+import { getUserResetExerciseLogsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, fontWeights, secondaryFont } from "@/shared-module/common/styles"
@@ -20,8 +20,11 @@ export interface ExerciseResetLogListProps {
 const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) => {
   const { t } = useTranslation()
   const userResetExerciseLogs = useQuery({
-    queryKey: ["user-reset-exercise-logs", userId],
-    queryFn: () => getUserResetExerciseLogs(userId),
+    ...getUserResetExerciseLogsOptions({
+      path: {
+        user_id: userId,
+      },
+    }),
   })
 
   const groupedLogs = useMemo(() => {

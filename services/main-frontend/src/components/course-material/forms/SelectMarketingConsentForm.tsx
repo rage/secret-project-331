@@ -5,14 +5,13 @@ import { t } from "i18next"
 import React, { useContext, useEffect, useMemo, useState } from "react"
 
 import {
-  fetchCustomPrivacyPolicyCheckboxTexts,
-  fetchUserMarketingConsent,
-} from "@/services/course-material/backend"
+  getCourseMaterialCustomPrivacyPolicyCheckboxTexts,
+  getCourseMaterialUserMarketingConsent,
+} from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 interface SelectMarketingConsentFormProps {
@@ -32,13 +31,23 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
 
   const initialMarketingConsentQuery = useQuery({
     queryKey: ["marketing-consent", courseId],
-    queryFn: () => fetchUserMarketingConsent(assertNotNullOrUndefined(courseId)),
+    queryFn: () =>
+      getCourseMaterialUserMarketingConsent({
+        path: {
+          course_id: courseId,
+        },
+      }),
     enabled: courseId !== undefined && loginStateContext.signedIn === true,
   })
 
   const customPrivacyPolicyCheckboxTextsQuery = useQuery({
     queryKey: ["customPrivacyPolicyCheckboxTexts", courseId],
-    queryFn: () => fetchCustomPrivacyPolicyCheckboxTexts(courseId),
+    queryFn: () =>
+      getCourseMaterialCustomPrivacyPolicyCheckboxTexts({
+        path: {
+          course_id: courseId,
+        },
+      }),
     enabled: courseId !== undefined,
   })
 

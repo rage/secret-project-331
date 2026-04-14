@@ -25,7 +25,7 @@ describe("runMigrationsAndValidations", () => {
         clientId: "paragraph",
         isValid: true,
       },
-    ] as BlockInstance[]
+    ] as unknown as BlockInstance[]
     const runMigrationsAndValidations = await loadRunMigrationsAndValidations()
     const result = runMigrationsAndValidations(content)
 
@@ -40,7 +40,7 @@ describe("runMigrationsAndValidations", () => {
         clientId: "aside",
         isValid: true,
       },
-    ] as BlockInstance[]
+    ] as unknown as BlockInstance[]
     const runMigrationsAndValidations = await loadRunMigrationsAndValidations()
     const result = runMigrationsAndValidations(content)
 

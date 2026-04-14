@@ -30,6 +30,7 @@
     "build-storybook": "storybook build --docs"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -52,6 +53,7 @@
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
     "i18next": "^24.2.1",
+    "motion": "^12.38.0",
     "react-aria": "^3.46.0",
     "react-i18next": "^15.4.0",
     "uuid": "^11.1.0"

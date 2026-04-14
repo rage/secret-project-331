@@ -1,0 +1,851 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Auth API",
+    "description": "",
+    "contact": {
+      "name": "University of Helsinki",
+      "email": "mooc@cs.helsinki.fi"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v0/auth/authorize": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/authorize` checks whether user can perform specified action on specified resource.\n*",
+        "operationId": "postAuthAuthorize",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActionOnResource"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Whether the action is allowed for the current user",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/authorize-multiple": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/authorize-multiple` checks whether user can perform specified action on specified resource.\nReturns booleans for the authorizations in the same order as the input.\n*",
+        "operationId": "postAuthAuthorizeMultiple",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/ActionOnResource"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Authorization result for each input action, in order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/delete-user-account": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/delete-user-account` If users single-use code is correct then delete users account\n*",
+        "operationId": "postAuthDeleteUserAccount",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailCode"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Whether the account was deleted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/logged-in": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "\nGET `/api/v0/auth/logged-in` Returns the current user's login status.\n*",
+        "operationId": "getAuthLoggedIn",
+        "responses": {
+          "200": {
+            "description": "True when an authenticated session exists",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/login` Logs in to the system.\nReturns LoginResponse indicating success, email verification required, or failure.\n*",
+        "operationId": "postAuthLogin",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Login outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/logout": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/logout` Logs out.\n*",
+        "operationId": "postAuthLogout",
+        "responses": {
+          "200": {
+            "description": "Session cleared"
+          }
+        }
+      }
+    },
+    "/api/v0/auth/send-email-code": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/send-email-code` If users password is correct, sends a code to users email for account deletion\n*",
+        "operationId": "postAuthSendEmailCode",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendEmailCodeData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Whether a deletion code email was queued",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/signup": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/signup` Creates new mooc.fi account and signs in.\n\n# Example\n```http\nPOST /api/v0/auth/signup HTTP/1.1\nContent-Type: application/json\n\n{\n  \"email\": \"student@example.com\",\n  \"first_name\": \"John\",\n  \"last_name\": \"Doe\",\n  \"language\": \"en\",\n  \"password\": \"hunter42\",\n  \"password_confirmation\": \"hunter42\",\n  \"country\" : \"Finland\",\n  \"email_communication_consent\": true\n}\n```",
+        "operationId": "postAuthSignup",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAccountDetails"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Account created; session established"
+          },
+          "400": {
+            "description": "Cannot sign up (e.g. already signed in or validation error)"
+          }
+        }
+      }
+    },
+    "/api/v0/auth/user-info": {
+      "get": {
+        "tags": ["auth"],
+        "summary": "\nGET `/api/v0/auth/user-info` Returns the current user's info.\n*",
+        "operationId": "getAuthUserInfo",
+        "responses": {
+          "200": {
+            "description": "Profile when signed in; null when anonymous",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UserInfo"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/auth/verify-email": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "\nPOST `/api/v0/auth/verify-email` Verifies email verification code and completes login.\n*",
+        "operationId": "postAuthVerifyEmail",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyEmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Whether verification succeeded",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Action": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view_material"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["edit"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["grade"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["teach"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["download"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["duplicate"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["delete_answer"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["variant", "type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["edit_role"]
+              },
+              "variant": {
+                "$ref": "#/components/schemas/UserRole"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["create_courses_or_exams"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "Deletion that we usually don't want to allow.",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["usually_unacceptable_deletion"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["upload_file"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view_user_progress_or_details"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view_internal_course_structure"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["view_stats"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["administrate"]
+              }
+            }
+          }
+        ],
+        "description": "Describes an action that a user can take on some resource."
+      },
+      "ActionOnResource": {
+        "type": "object",
+        "required": ["action", "resource"],
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/Action"
+          },
+          "resource": {
+            "$ref": "#/components/schemas/Resource"
+          }
+        }
+      },
+      "CreateAccountDetails": {
+        "type": "object",
+        "required": [
+          "email",
+          "first_name",
+          "last_name",
+          "language",
+          "password",
+          "password_confirmation",
+          "country",
+          "email_communication_consent"
+        ],
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "email_communication_consent": {
+            "type": "boolean"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "password_confirmation": {
+            "type": "string"
+          }
+        }
+      },
+      "EmailCode": {
+        "type": "object",
+        "required": ["code"],
+        "properties": {
+          "code": {
+            "type": "string"
+          }
+        }
+      },
+      "Login": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["success"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["email_verification_token", "type"],
+            "properties": {
+              "email_verification_token": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["requires_email_verification"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["failed"]
+              }
+            }
+          }
+        ]
+      },
+      "Resource": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["global_permissions"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["chapter"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["course"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["course_instance"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["exam"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["exercise"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["exercise_slide_submission"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["exercise_task"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["exercise_task_grading"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["exercise_task_submission"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["organization"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["page"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["id", "type"],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": ["study_registry"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["any_course"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["role"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["user"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["playground_example"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["exercise_service"]
+              }
+            }
+          }
+        ],
+        "description": "The target of an action."
+      },
+      "SendEmailCodeData": {
+        "type": "object",
+        "required": ["email", "password", "language"],
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "language": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "UserInfo": {
+        "type": "object",
+        "description": "Generic information about the logged in user.\n\n Could include the user name etc in the future.",
+        "required": ["user_id"],
+        "properties": {
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "Reviewer",
+          "Assistant",
+          "Teacher",
+          "Admin",
+          "CourseOrExamCreator",
+          "MaterialViewer",
+          "TeachingAndLearningServices",
+          "StatsViewer"
+        ]
+      },
+      "VerifyEmailRequest": {
+        "type": "object",
+        "required": ["email_verification_token", "code"],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "email_verification_token": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

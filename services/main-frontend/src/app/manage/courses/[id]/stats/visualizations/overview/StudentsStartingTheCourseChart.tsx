@@ -12,11 +12,11 @@ import LineChart, {
   Period,
 } from "../../LineChart"
 
+import { TimeGranularity } from "@/generated/api/types.generated"
 import {
   useUniqueUsersStartingHistoryQuery,
   useUniqueUsersStartingHistoryQueryCustomTimePeriod,
 } from "@/hooks/stats"
-import { TimeGranularity } from "@/shared-module/common/bindings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 interface StudentsStartingTheCourseChartProps {

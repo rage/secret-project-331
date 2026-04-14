@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
-import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
 import basePath from "@/shared-module/common/utils/base-path"
+import { ExerciseServiceInfoApi } from "@/utils/exerciseServiceApi"
 
 export async function GET(): Promise<NextResponse> {
   const prefix = basePath()

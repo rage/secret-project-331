@@ -8,12 +8,9 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import NewCourseInstanceForm from "@/app/manage/courses/[id]/course-instances/NewCourseInstanceForm"
-import {
-  deleteCourseInstance,
-  editCourseInstance,
-  fetchCourseInstance,
-} from "@/services/backend/course-instances"
-import { CourseInstanceForm } from "@/shared-module/common/bindings"
+import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { deleteCourseInstance, editCourseInstance } from "@/generated/api/sdk.generated"
+import type { CourseInstanceForm } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -28,13 +25,21 @@ const ManageCourseInstances: React.FC = () => {
   const router = useRouter()
 
   const getCourseInstances = useQuery({
-    queryKey: [`course-instance-${courseInstanceId}`],
-    queryFn: () => fetchCourseInstance(courseInstanceId),
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
   })
   const [editing, setEditing] = useState(false)
   const mutation = useToastMutation(
     async (update: CourseInstanceForm) => {
-      await editCourseInstance(courseInstanceId, update)
+      await editCourseInstance({
+        body: update,
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+      })
     },
     {
       notify: true,
@@ -48,7 +53,11 @@ const ManageCourseInstances: React.FC = () => {
   )
   const deleteMutation = useToastMutation(
     async (_courseId: string) => {
-      await deleteCourseInstance(courseInstanceId)
+      await deleteCourseInstance({
+        path: {
+          course_instance_id: courseInstanceId,
+        },
+      })
     },
     {
       notify: true,

@@ -4,7 +4,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { CodeGiveawayCode as CodeGiveawayCodeType } from "@/shared-module/common/bindings"
+import type { CodeGiveawayCode as CodeGiveawayCodeType } from "@/generated/api/types.generated"
 
 interface CodeGiveawayCodeProps {
   code: CodeGiveawayCodeType

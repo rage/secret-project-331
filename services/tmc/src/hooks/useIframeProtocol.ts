@@ -7,11 +7,11 @@ import { useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
-import { ExerciseTaskSubmission } from "@/shared-module/common/bindings"
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
 import { isMessageToIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseTaskSubmission } from "@/util/exerciseServiceApi"
 import { publicSpecToIframeUserAnswer } from "@/util/publicSpecToUserAnswer"
 import {
   CurrentStateMessageData,

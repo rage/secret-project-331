@@ -9,7 +9,7 @@ import { SIDEBAR_WIDTH_PX } from "../../../components/Layout"
 import CourseContext from "../../../contexts/CourseContext"
 
 import PageContext from "@/contexts/PageContext"
-import { getRepositoryExercises } from "@/services/backend/repository-exercises"
+import { getCmsRepositoryExercisesForCourse } from "@/generated/api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -85,7 +85,11 @@ const ExerciseTaskIFrameEditor: React.FC<
           }
           if (messageContainer.message === "request-repository-exercises") {
             if (courseId) {
-              const repositoryExercises = await getRepositoryExercises(courseId)
+              const repositoryExercises = await getCmsRepositoryExercisesForCourse({
+                path: {
+                  course_id: courseId,
+                },
+              })
               const message: MessageToIframe = {
                 // eslint-disable-next-line i18next/no-literal-string
                 message: "repository-exercises",

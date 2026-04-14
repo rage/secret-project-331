@@ -28,7 +28,9 @@ test("Managing permissions works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "initial-permission-management-page",
-    waitForTheseToBeVisibleAndStable: [page.getByText("Roles for course")],
+    waitForTheseToBeVisibleAndStable: [
+      page.getByRole("heading", { name: "Roles for course Permission management" }),
+    ],
   })
 
   await page.click('[placeholder="Enter email"]')

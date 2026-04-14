@@ -1,13 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { PermissionPage } from "@/components/PermissionPage"
-import { getCourse } from "@/services/backend/courses"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -17,10 +16,7 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
   courseId,
 }) => {
   const { t } = useTranslation()
-  const course = useQuery({
-    queryKey: [`course-${courseId}-permissions`],
-    queryFn: () => getCourse(courseId),
-  })
+  const course = useCourseQuery(courseId)
 
   return (
     <div>

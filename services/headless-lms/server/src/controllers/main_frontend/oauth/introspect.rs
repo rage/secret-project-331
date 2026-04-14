@@ -10,6 +10,12 @@ use models::{
     oauth_client::OAuthClient,
 };
 use sqlx::PgPool;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(introspect))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthIntrospectApiDoc;
 
 /// Handles the `/introspect` endpoint for OAuth 2.0 token introspection (RFC 7662).
 ///
@@ -83,6 +89,19 @@ use sqlx::PgPool;
 /// }
 /// ```
 #[instrument(skip(pool, app_conf, form))]
+#[utoipa::path(
+    post,
+    path = "/introspect",
+    operation_id = "introspectOauthToken",
+    tag = "oauth",
+    request_body(
+        content = serde_json::Value,
+        content_type = "application/x-www-form-urlencoded"
+    ),
+    responses(
+        (status = 200, description = "OAuth token introspection response", body = serde_json::Value)
+    )
+)]
 pub async fn introspect(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<IntrospectQuery>,

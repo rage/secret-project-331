@@ -2,7 +2,7 @@
 
 import { useTranslation } from "react-i18next"
 
-import { endExamTime } from "@/services/course-material/backend"
+import { endExamTime } from "@/generated/course-material-api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -19,7 +19,12 @@ export default function EndExamButton({ examId, disabled, onEnded }: EndExamButt
   const { confirm } = useDialog()
 
   const endExamMutation = useToastMutation(
-    () => endExamTime(examId),
+    () =>
+      endExamTime({
+        path: {
+          id: examId,
+        },
+      }),
     { notify: true, method: "POST" },
     { onSuccess: onEnded },
   )

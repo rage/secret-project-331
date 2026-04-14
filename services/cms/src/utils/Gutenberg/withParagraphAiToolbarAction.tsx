@@ -81,7 +81,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
         pageContext && "page" in pageContext
           ? {
               page_id: pageContext.page.id,
-              course_id: pageContext.page.course_id,
+              course_id: pageContext.page.course_id ?? null,
               locale: null,
             }
           : null

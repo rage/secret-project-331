@@ -4,7 +4,7 @@ import { RefObject, SetStateAction } from "react"
 
 import CitationPopover from "./CitationPopover"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface CitationPopoversProps {

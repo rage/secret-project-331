@@ -7,8 +7,8 @@ import { useParams, useRouter } from "next/navigation"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { getExam as getExamFromApi } from "@/generated/api/sdk.generated"
 import useExamSubmissionsInfo from "@/hooks/useExamSubmissionsInfo"
-import { fetchExam } from "@/services/backend/exams"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -18,6 +18,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -31,8 +32,14 @@ const GradingPage: React.FC = () => {
 
   const examId = getSubmissions.data?.data[0].exercise.exam_id
   const getExam = useQuery({
-    queryKey: [`/exams/${examId}/`, examId],
-    queryFn: () => fetchExam(examId ?? ""),
+    queryKey: ["getExam", examId],
+    queryFn: async () =>
+      getExamFromApi({
+        path: {
+          id: assertNotNullOrUndefined(examId),
+        },
+      }),
+    enabled: !!examId,
   })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {

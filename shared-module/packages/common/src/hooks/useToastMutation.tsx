@@ -7,13 +7,16 @@ import {
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import toast, { Toast, ToastOptions } from "react-hot-toast"
+import { useTranslation } from "react-i18next"
 
 import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
+import { isAppApiError } from "../errors/AppApiError"
+import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
+import { resolveErrorDisplayCopy } from "../errors/resolveErrorDisplayCopy"
 
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
@@ -45,6 +48,7 @@ export default function useToastMutation<
   notificationOptions: NotificationOptions,
   mutationOptions: Omit<UseMutationOptions<TData, TError, TVariables, TContext>, "mutationFn"> = {},
 ): UseMutationResult<TData, TError, TVariables, TContext> {
+  const { t } = useTranslation()
   const showToastInfinitely = useSetShowStuffInfinitelyInSystemTestScreenshots()
   let toastId = ""
   const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
@@ -124,16 +128,15 @@ export default function useToastMutation<
         // Remove old toasts
         toast.remove()
         let errorMessage = notificationOptions.errorMessage
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if (!errorMessage && (error as any)?.data?.message) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          errorMessage = (error as any).data.message
+        if (!errorMessage) {
+          const view = normalizeErrorForDisplay(error)
+          const localizedCopy = resolveErrorDisplayCopy(view, t)
+          errorMessage = localizedCopy.message ?? localizedCopy.title
         }
-        if (!errorMessage && (error as AxiosError).isAxiosError) {
-          const axiosError = error as AxiosError
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          errorMessage = (axiosError.response?.data as any)?.message
-        } else if (!errorMessage || errorMessage === "") {
+        if (!errorMessage && isAppApiError(error)) {
+          errorMessage = error.userMessage ?? error.message
+        }
+        if (!errorMessage || errorMessage === "") {
           errorMessage = (error as Error).message
         }
         toast.custom(

@@ -3,7 +3,7 @@ import { ZSTDDecoder } from "zstddec"
 
 import { ExerciseFile } from "./stateInterfaces"
 
-import { RepositoryExercise } from "@/shared-module/common/bindings"
+import { RepositoryExercise } from "@/util/exerciseServiceApi"
 
 export const buildArchiveName = (exercise: RepositoryExercise, identifier?: string): string => {
   if (identifier) {

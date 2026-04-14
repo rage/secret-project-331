@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 
-import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
 import basePath from "@/shared-module/common/utils/base-path"
+import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 import type { ClientErrorResponse } from "@/util/stateInterfaces"
 
 const handleGet = () => {

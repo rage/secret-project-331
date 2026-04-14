@@ -1,6 +1,7 @@
 // ProgressTab.tsx
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -10,6 +11,7 @@ import { FloatingHeaderTable } from "../FloatingHeaderTable"
 import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { baseTheme } from "@/shared-module/common/styles"
 import { getTeacherChapterLockLabel, TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
@@ -18,7 +20,7 @@ type ProgressRow = {
   student: string
   total_points: number
   total_attempted: number
-} & Partial<Record<ChapterCellKey, number | string | undefined>>
+} & Partial<Record<ChapterCellKey, number | string | React.ReactNode | undefined>>
 
 export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: string }> = ({
   courseId,
@@ -33,9 +35,10 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
       },
     }),
   })
+  const queryData = query.data
 
   const { allRows, dynamicColumns } = useMemo(() => {
-    if (!query.data) {
+    if (!queryData) {
       return { allRows: [], dynamicColumns: [] }
     }
 
@@ -58,10 +61,11 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
       chapter_id: string
       status: TeacherChapterLockStatus
     }
-    const typedData = query.data as typeof query.data & {
+    const typedData = queryData as typeof queryData & {
+      chapter_locking_enabled?: boolean
       user_chapter_locking_statuses?: UserChapterLockStatusRow[]
     }
-    const { user_details, chapters, user_chapter_progress, chapter_availability } = query.data
+    const { user_details, chapters, user_chapter_progress, chapter_availability } = queryData
     const chapterLockStatuses = typedData.user_chapter_locking_statuses ?? []
 
     // --- maxima lookups (per chapter, not per user)
@@ -170,15 +174,39 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
         const attemptsKey: ChapterCellKey = `ch_${ch.id}_attempts`
         const cell = byUserChapter[u.user_id]?.[ch.id]
         row[pointsKey] = cell ? cell.points : 0
-        const lockStatus = lockStatusByUserChapter[u.user_id]?.[ch.id]
         const attempts = cell ? cell.attempts : 0
-        row[attemptsKey] = `${attempts} (${getTeacherChapterLockLabel(t, lockStatus)})`
+        if (typedData.chapter_locking_enabled !== true) {
+          row[attemptsKey] = attempts
+          continue
+        }
+        const lockStatus = lockStatusByUserChapter[u.user_id]?.[ch.id]
+        const lockColor =
+          lockStatus === "unlocked"
+            ? baseTheme.colors.green[700]
+            : lockStatus === "completed_and_locked"
+              ? baseTheme.colors.blue[700]
+              : lockStatus === "not_unlocked_yet"
+                ? baseTheme.colors.crimson[700]
+                : baseTheme.colors.gray[600]
+        row[attemptsKey] = (
+          <span>
+            {attempts} (
+            <span
+              className={css`
+                color: ${lockColor};
+              `}
+            >
+              {getTeacherChapterLockLabel(t, lockStatus)}
+            </span>
+            )
+          </span>
+        )
       }
       return row
     })
 
     return { allRows: rows, dynamicColumns: cols }
-  }, [query.data, t])
+  }, [queryData, t])
 
   const rows = useMemo(() => {
     if (!searchQuery.trim()) {

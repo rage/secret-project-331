@@ -206,15 +206,27 @@ test.describe("Chapter locking feature", () => {
       await teacherPage.goto(
         `http://project-331.local/manage/courses/${LOCK_CHAPTERS_COURSE_ID}/user-status-summary/${STUDENT1_USER_ID}`,
       )
-      await teacherPage
+      const completedRow = teacherPage
         .locator('[data-testid^="teacher-chapter-lock-status-"]')
         .filter({ hasText: "Completed and locked" })
         .first()
-        .waitFor()
+      await completedRow.waitFor()
+      await expect(completedRow).toHaveAttribute("data-testid", /teacher-chapter-lock-status-.+/)
+      const completedRowTestId = await completedRow.evaluate(
+        (el) => el.getAttribute("data-testid") ?? "",
+      )
+      const chapterId = completedRowTestId.replace("teacher-chapter-lock-status-", "")
+
+      await teacherPage.getByTestId(`teacher-unlock-chapter-${chapterId}`).click()
       await teacherPage
-        .locator('[data-testid^="teacher-chapter-lock-status-"]')
+        .getByTestId(`teacher-chapter-lock-status-${chapterId}`)
         .filter({ hasText: "Unlocked" })
-        .first()
+        .waitFor()
+
+      await teacherPage.getByTestId(`teacher-lock-chapter-${chapterId}`).click()
+      await teacherPage
+        .getByTestId(`teacher-chapter-lock-status-${chapterId}`)
+        .filter({ hasText: "Completed and locked" })
         .waitFor()
     })
 

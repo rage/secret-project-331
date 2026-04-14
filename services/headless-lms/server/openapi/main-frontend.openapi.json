@@ -4983,6 +4983,128 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/lock": {
+      "post": {
+        "tags": ["course-students"],
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/lock`",
+        "operationId": "teacherLockStudentChapter",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "Target student id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChapterLockActionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated chapter locking status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserChapterLockingStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/unlock": {
+      "post": {
+        "tags": ["course-students"],
+        "summary": "POST `/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/unlock`",
+        "operationId": "teacherUnlockStudentChapter",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "Target student id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChapterLockActionPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated chapter locking status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserChapterLockingStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/submission-counts-by-exercise": {
       "get": {
         "tags": ["courses"],
@@ -10563,6 +10685,18 @@
           }
         }
       },
+      "ChapterLockActionPayload": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "ChapterLockingStatus": {
+        "type": "string",
+        "enum": ["unlocked", "completed_and_locked", "not_unlocked_yet"]
+      },
       "ChapterScore": {
         "allOf": [
           {
@@ -15411,11 +15545,13 @@
       "ProgressOverview": {
         "type": "object",
         "required": [
+          "chapter_locking_enabled",
           "user_details",
           "chapters",
           "user_exercise_states",
           "chapter_availability",
-          "user_chapter_progress"
+          "user_chapter_progress",
+          "user_chapter_locking_statuses"
         ],
         "properties": {
           "chapter_availability": {
@@ -15424,10 +15560,19 @@
               "$ref": "#/components/schemas/ChapterAvailability"
             }
           },
+          "chapter_locking_enabled": {
+            "type": "boolean"
+          },
           "chapters": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/DatabaseChapter"
+            }
+          },
+          "user_chapter_locking_statuses": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserChapterLockingStatus"
             }
           },
           "user_chapter_progress": {
@@ -16039,6 +16184,51 @@
         "properties": {
           "url": {
             "type": "string"
+          }
+        }
+      },
+      "UserChapterLockingStatus": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "chapter_id",
+          "course_id",
+          "status"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChapterLockingStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },

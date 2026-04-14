@@ -12,6 +12,7 @@ use utoipa::ToSchema;
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 
 pub struct ProgressOverview {
+    pub chapter_locking_enabled: bool,
     pub user_details: Vec<UserDetail>,
     pub chapters: Vec<DatabaseChapter>,
     pub user_exercise_states: Vec<UserExerciseState>,
@@ -24,6 +25,7 @@ pub async fn get_progress(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<ProgressOverview> {
+    let course = crate::courses::get_course(conn, course_id).await?;
     let user_details = crate::user_details::get_users_by_course_id(conn, course_id).await?;
     let chapters = crate::chapters::course_chapters(conn, course_id).await?;
     let user_exercise_states =
@@ -43,6 +45,7 @@ pub async fn get_progress(
     }
 
     Ok(ProgressOverview {
+        chapter_locking_enabled: course.chapter_locking_enabled,
         user_details,
         chapters,
         user_exercise_states,

@@ -55,7 +55,6 @@ impl APIMessage {
     pub fn to_chatbot_conversation_message(
         &self,
         conversation_id: Uuid,
-        order_number: i32,
     ) -> ChatbotResult<ChatbotConversationMessage> {
         let res = match self.message_type.clone() {
             OutputItem::Message { role, content } => {
@@ -64,7 +63,6 @@ impl APIMessage {
 
                 ChatbotConversationMessage {
                     conversation_id,
-                    order_number,
                     message: Message::Text(ChatbotConversationMessageMessage {
                         text,
                         message_role: role,
@@ -81,7 +79,6 @@ impl APIMessage {
                 arguments,
             } => ChatbotConversationMessage {
                 conversation_id,
-                order_number,
                 message: Message::ToolCall(ChatbotConversationMessageToolCall {
                     tool_name,
                     tool_arguments: arguments,
@@ -93,7 +90,6 @@ impl APIMessage {
             },
             OutputItem::FunctionCallOutput { call_id, output } => ChatbotConversationMessage {
                 conversation_id,
-                order_number,
                 message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
                     output,
                     tool_call_id: call_id,
@@ -104,7 +100,6 @@ impl APIMessage {
             },
             OutputItem::AzureAiSearchCall { call_id, arguments } => ChatbotConversationMessage {
                 conversation_id,
-                order_number,
                 message: Message::ToolCall(ChatbotConversationMessageToolCall {
                     tool_arguments: arguments,
                     tool_call_id: call_id,
@@ -116,7 +111,6 @@ impl APIMessage {
             },
             OutputItem::AzureAiSearchCallOutput { call_id, output } => ChatbotConversationMessage {
                 conversation_id,
-                order_number,
                 message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
                     tool_call_id: call_id,
                     tool_kind: ToolKind::AzureAiSearch,
@@ -139,7 +133,6 @@ impl APIMessage {
                 };
                 ChatbotConversationMessage {
                     conversation_id,
-                    order_number,
                     message: Message::Reasoning(ChatbotConversationMessageReasoning {
                         summary: text,
                         ..Default::default()

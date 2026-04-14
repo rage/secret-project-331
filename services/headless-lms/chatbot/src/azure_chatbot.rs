@@ -322,7 +322,7 @@ impl LLMRequest {
         conversation_id: Uuid,
         message: &str,
         app_config: &ApplicationConfiguration,
-    ) -> anyhow::Result<(Self, i32, i32)> {
+    ) -> anyhow::Result<(Self, i32)> {
         let configuration =
             models::chatbot_configurations::get_by_id(conn, chatbot_configuration_id).await?;
 
@@ -458,7 +458,6 @@ impl LLMRequest {
                 }),
                 params,
             },
-            new_message.order_number,
             request_estimated_tokens,
         ))
     }
@@ -468,15 +467,13 @@ impl LLMRequest {
         conn: &mut PgConnection,
         new_msgs: Vec<APIMessage>,
         conversation_id: Uuid,
-        mut order_number: i32,
-    ) -> anyhow::Result<(Self, i32)> {
+    ) -> anyhow::Result<Self> {
         for m in new_msgs {
-            let converted_msg = m.to_chatbot_conversation_message(conversation_id, order_number)?;
+            let converted_msg = m.to_chatbot_conversation_message(conversation_id)?;
             chatbot_conversation_messages::insert(conn, converted_msg).await?;
             self.input.push(m);
-            order_number += 1;
         }
-        Ok((self, order_number))
+        Ok(self)
     }
 }
 
@@ -783,7 +780,7 @@ pub async fn parse_and_stream_to_user<'a>(
     conn: &mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
-    response_order_number: i32,
+    //response_order_number: i32,
     pool: PgPool,
     request_estimated_tokens: i32,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
@@ -791,12 +788,7 @@ pub async fn parse_and_stream_to_user<'a>(
     let response_message = models::chatbot_conversation_messages::insert(
         conn,
         ChatbotConversationMessage {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
             conversation_id,
-            order_number: response_order_number,
             message: Message::Text(ChatbotConversationMessageMessage {
                 text: "".to_string(),
                 message_role: MessageRole::Assistant,
@@ -804,6 +796,7 @@ pub async fn parse_and_stream_to_user<'a>(
                 used_tokens: request_estimated_tokens,
                 ..Default::default()
             }),
+            ..Default::default()
         },
     )
     .await?;
@@ -953,7 +946,7 @@ pub async fn send_chat_request_and_parse_stream(
     message: &str,
     user_context: ChatbotUserContext,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
-    let (mut chat_request, new_message_order_number, request_estimated_tokens) =
+    let (mut chat_request, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
             conn,
             chatbot_configuration_id,
@@ -964,7 +957,6 @@ pub async fn send_chat_request_and_parse_stream(
         .await?;
     print!("🐈🐈🐈🐈🐈🐈🐈{:?}", serde_json::to_string(&chat_request));
 
-    let mut next_message_order_number = new_message_order_number + 1;
     let mut max_iterations_left = 15;
 
     loop {
@@ -976,29 +968,27 @@ pub async fn send_chat_request_and_parse_stream(
             ));
         }
 
-        let response_type = make_request_and_stream(conn, chat_request.clone(), app_config).await?;
+        let response_type =
+            make_request_and_stream(conn, chat_request.clone(), conversation_id, app_config)
+                .await?;
 
         let new_tool_msgs = match response_type {
-            ResponseStreamType::Toolcall(stream) => parse_tool(conn, stream, &user_context).await?,
+            ResponseStreamType::Toolcall(stream) => {
+                parse_tool(conn, stream, conversation_id, &user_context).await?
+            }
             ResponseStreamType::TextResponse(stream) => {
                 return parse_and_stream_to_user(
                     conn,
                     stream,
                     conversation_id,
-                    next_message_order_number,
                     pool,
                     request_estimated_tokens,
                 )
                 .await;
             }
         };
-        (chat_request, next_message_order_number) = chat_request
-            .update_messages_to_db(
-                conn,
-                new_tool_msgs,
-                conversation_id,
-                next_message_order_number,
-            )
+        chat_request = chat_request
+            .update_messages_to_db(conn, new_tool_msgs, conversation_id)
             .await?;
     }
 }

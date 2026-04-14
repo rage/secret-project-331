@@ -31,6 +31,7 @@ pub enum ChatbotErrorType {
     Other,
     DeserializationError,
     AzureAISearchFilterError,
+    StreamingError,
 }
 
 /**

@@ -173,7 +173,7 @@ pub enum OutputItem {
     },
     AzureAiSearchCall {
         call_id: String,
-        arguments: Value, // json string
+        arguments: String, // json string
     },
     AzureAiSearchCallOutput {
         call_id: String,
@@ -183,7 +183,7 @@ pub enum OutputItem {
         call_id: String,
         #[serde(rename = "name")]
         tool_name: String,
-        arguments: Value,
+        arguments: String,
     },
     FunctionCallOutput {
         call_id: String,
@@ -572,6 +572,7 @@ impl Drop for RequestCancelledGuard {
 pub async fn make_request_and_stream<'a>(
     conn: &mut PgConnection,
     chat_request: LLMRequest,
+    conversation_id: Uuid,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<ResponseStreamType<'a>> {
     let response = make_streaming_llm_request(chat_request, app_config).await?;
@@ -628,7 +629,7 @@ pub async fn make_request_and_stream<'a>(
                         "Expected response ouput item",
                         None,
                     ))?;
-                    process_output_item(conn, item).await?;
+                    process_output_item(conn, item, conversation_id).await?;
                     output_item_incoming = false;
                     pinned_lines.next().await;
                     continue;
@@ -669,27 +670,50 @@ pub async fn make_request_and_stream<'a>(
     ))
 }
 
+/// For saving output items that are not text messages or function calls, i.e. that
+/// don't need further processing and are not streamed to the user.
+/// Saves reasoning and Azure AI items.
 pub async fn process_output_item(
     conn: &mut PgConnection,
     item: OutputItem,
-) -> anyhow::Result<String> {
-    if let OutputItem::FunctionCall {
-        call_id,
-        tool_name,
-        arguments,
-    } = item
-    {
-        // this chunk has tool call data
-        // it should already be saved!!
-    } else if let OutputItem::AzureAiSearchCallOutput { call_id, output } = item {
-        // if we want to save azure search output
-    } else if let OutputItem::Reasoning { summary } = item {
-        // save reasoning summary for some reason
-        // also we can yield some reasoning stuff for the ui
-        // but the reasoning starts in an ouput_item.added event
-    }
+    conversation_id: Uuid,
+) -> ChatbotResult<ChatbotConversationMessage> {
+    match item {
+        OutputItem::AzureAiSearchCall { .. }
+        | OutputItem::AzureAiSearchCallOutput { .. }
+        | OutputItem::Reasoning { .. } => {
+            let message = APIMessage { message_type: item }
+                .to_chatbot_conversation_message(conversation_id)?;
 
-    return Ok("lol".to_string());
+            ChatbotResult::Ok(chatbot_conversation_messages::insert(conn, message).await?)
+        }
+        OutputItem::Message { .. } => {
+            // this chunk has a text message and should be streamed!
+            Err(ChatbotError::new(
+                ChatbotErrorType::StreamingError,
+                "Unexpected message output item, it should have been streamed.".to_string(),
+                None,
+            ))
+        }
+        OutputItem::FunctionCall { .. } => {
+            // this chunk has tool call data andit should already be saved!!
+            Err(ChatbotError::new(
+                ChatbotErrorType::StreamingError,
+                "Unexpected function call output item, it should have been processed.".to_string(),
+                None,
+            ))
+        }
+        OutputItem::FunctionCallOutput { .. } => {
+            // this chunk has tool output data
+            // we shouldn't be receiving it from the LLM!
+            // tool output is created by us!
+            Err(ChatbotError::new(
+                ChatbotErrorType::StreamingError,
+                "Unexpected function call output item, this shouldn't happen.".to_string(),
+                None,
+            ))
+        }
+    }
 }
 
 /// Streams and parses a LLM response from Azure that contains function calls.
@@ -697,6 +721,7 @@ pub async fn process_output_item(
 pub async fn parse_tool<'a>(
     conn: &mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
+    conversation_id: Uuid,
     user_context: &ChatbotUserContext,
 ) -> anyhow::Result<Vec<APIMessage>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
@@ -741,7 +766,7 @@ pub async fn parse_tool<'a>(
                     message_type: OutputItem::FunctionCall {
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
-                        arguments: serde_json::to_value(tool.get_arguments())?,
+                        arguments: serde_json::to_string(tool.get_arguments())?,
                     },
                 });
                 tool_msgs.push(APIMessage {
@@ -764,11 +789,11 @@ pub async fn parse_tool<'a>(
             } = item
             {
                 // this chunk has tool call data
-                function_name_id_args.push((tool_name, call_id, arguments));
+                function_name_id_args.push((tool_name, call_id, serde_json::to_value(arguments)?));
             } else {
                 // this could be a reasoning chunk
                 // this could be an azure search chunk
-                process_output_item(conn, item).await?;
+                process_output_item(conn, item, conversation_id).await?;
             }
         }
     }

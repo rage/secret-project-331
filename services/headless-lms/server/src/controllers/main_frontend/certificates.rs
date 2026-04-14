@@ -4,6 +4,7 @@ use chrono::Utc;
 use headless_lms_certificates as certificates;
 use headless_lms_models::generated_certificates::CertificateUpdateRequest;
 use headless_lms_utils::{file_store::file_utils, icu4x::Icu4xBlob};
+use utoipa::{OpenApi, ToSchema};
 
 use models::{
     certificate_configurations::{
@@ -12,8 +13,27 @@ use models::{
     generated_certificates::GeneratedCertificate,
 };
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(
+    update_certificate_configuration,
+    generate_generated_certificate,
+    get_generated_certificate,
+    update_generated_certificate,
+    delete_certificate_configuration,
+    get_cerficate_by_verification_id
+))]
+pub(crate) struct MainFrontendCertificatesApiDoc;
+
+#[allow(dead_code)]
+#[derive(Debug, ToSchema)]
+struct CertificateConfigurationUpdateMultipartPayload {
+    metadata: CertificateConfigurationUpdate,
+    #[schema(content_media_type = "application/octet-stream")]
+    file: Vec<Vec<u8>>,
+}
+
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct CertificateConfigurationUpdate {
     pub course_module_id: Uuid,
     pub course_instance_id: Option<Uuid>,
@@ -57,7 +77,20 @@ POST `/api/v0/main-frontend/certificates/`
 
 Updates the certificate configuration for a given module.
 */
-
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "updateCertificateConfiguration",
+    tag = "certificates",
+    request_body(
+        content = inline(CertificateConfigurationUpdateMultipartPayload),
+        content_type = "multipart/form-data",
+        encoding(("metadata" = (content_type = "application/json")))
+    ),
+    responses(
+        (status = 200, description = "Certificate configuration updated", body = bool)
+    )
+)]
 #[instrument(skip(pool, payload, file_store))]
 pub async fn update_certificate_configuration(
     pool: web::Data<PgPool>,
@@ -310,7 +343,7 @@ async fn update_certificate_configuration_inner(
     Ok(files_to_delete)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct CertificateGenerationRequest {
     pub certificate_configuration_id: Uuid,
     pub name_on_certificate: String,
@@ -322,6 +355,16 @@ POST `/api/v0/main-frontend/certificates/generate`
 
 Generates a certificate for a given certificate configuration id.
 */
+#[utoipa::path(
+    post,
+    path = "/generate",
+    operation_id = "generateCertificate",
+    tag = "certificates",
+    request_body = CertificateGenerationRequest,
+    responses(
+        (status = 200, description = "Certificate generated", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn generate_generated_certificate(
     request: web::Json<CertificateGenerationRequest>,
@@ -365,6 +408,22 @@ GET `/api/v0/main-frontend/certificates/get-by-configuration-id/{certificate_con
 
 Fetches the user's certificate for the given course module and course instance.
 */
+#[utoipa::path(
+    get,
+    path = "/get-by-configuration-id/{certificate_configuration_id}",
+    operation_id = "getCertificateByConfigurationId",
+    tag = "certificates",
+    params(
+        ("certificate_configuration_id" = Uuid, Path, description = "Certificate configuration id")
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Generated certificate",
+            body = Option<GeneratedCertificate>
+        )
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn get_generated_certificate(
     certificate_configuration_id: web::Path<Uuid>,
@@ -404,6 +463,20 @@ Fetches the user's certificate using the verification id.
 
 Response: the certificate as a png.
 */
+#[utoipa::path(
+    get,
+    path = "/{certificate_verification_id}",
+    operation_id = "getCertificateByVerificationId",
+    tag = "certificates",
+    params(
+        ("certificate_verification_id" = String, Path, description = "Certificate verification id"),
+        ("debug" = bool, Query, description = "Whether to render a debug certificate"),
+        ("test_certificate_configuration_id" = Option<Uuid>, Query, description = "Certificate configuration id to use for preview rendering")
+    ),
+    responses(
+        (status = 200, description = "Certificate image", content_type = "image/png", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool, file_store))]
 pub async fn get_cerficate_by_verification_id(
     certificate_verification_id: web::Path<String>,
@@ -461,6 +534,18 @@ DELETE `/api/v0/main-frontend/certificates/configuration/{configuration_id}`
 
 Deletes the given configuration.
 */
+#[utoipa::path(
+    delete,
+    path = "/configuration/{certificate_configuration_id}",
+    operation_id = "deleteCertificateConfiguration",
+    tag = "certificates",
+    params(
+        ("certificate_configuration_id" = Uuid, Path, description = "Certificate configuration id")
+    ),
+    responses(
+        (status = 200, description = "Certificate configuration deleted", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn delete_certificate_configuration(
     configuration_id: web::Path<Uuid>,
@@ -498,6 +583,19 @@ pub async fn delete_certificate_configuration(
     token.authorized_ok(web::Json(true))
 }
 
+#[utoipa::path(
+    put,
+    path = "/generated/{certificate_id}",
+    operation_id = "updateGeneratedCertificate",
+    tag = "certificates",
+    params(
+        ("certificate_id" = Uuid, Path, description = "Generated certificate id")
+    ),
+    request_body = CertificateUpdateRequest,
+    responses(
+        (status = 200, description = "Generated certificate updated", body = GeneratedCertificate)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn update_generated_certificate(
     certificate_id: web::Path<Uuid>,

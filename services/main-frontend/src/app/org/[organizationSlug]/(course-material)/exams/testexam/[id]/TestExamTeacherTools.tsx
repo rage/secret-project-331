@@ -5,8 +5,11 @@ import { useQueryClient } from "@tanstack/react-query"
 import { useCallback, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { resetExamProgress, updateShowExerciseAnswers } from "@/services/course-material/backend"
-import type { ExamData } from "@/shared-module/common/bindings"
+import {
+  resetExamProgress,
+  updateShowExerciseAnswers,
+} from "@/generated/course-material-api/sdk.generated"
+import type { ExamData } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -31,13 +34,26 @@ export default function TestExamTeacherTools({ examId, examData }: TestExamTeach
   }, [examData])
 
   const showAnswersMutation = useToastMutation(
-    (showAnswers: boolean) => updateShowExerciseAnswers(examId, showAnswers),
+    (showAnswers: boolean) =>
+      updateShowExerciseAnswers({
+        body: {
+          show_exercise_answers: showAnswers,
+        },
+        path: {
+          id: examId,
+        },
+      }),
     { notify: false },
     { onSuccess: () => queryClient.refetchQueries() },
   )
 
   const resetExamMutation = useToastMutation(
-    () => resetExamProgress(examId),
+    () =>
+      resetExamProgress({
+        path: {
+          id: examId,
+        },
+      }),
     {
       notify: true,
       method: "POST",

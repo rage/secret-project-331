@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PlaygroundExample {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -13,8 +14,8 @@ pub struct PlaygroundExample {
     pub data: serde_json::Value,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PlaygroundExampleData {
     pub name: String,
     pub url: String,

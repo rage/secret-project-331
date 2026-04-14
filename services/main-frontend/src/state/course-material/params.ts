@@ -1,6 +1,6 @@
 import { atom } from "jotai"
 
-import type { Course, Organization } from "@/shared-module/common/bindings"
+import type { Course, Organization } from "@/generated/course-material-api/types.generated"
 
 export type ViewParams =
   | { type: "material"; courseSlug: string; path: string }

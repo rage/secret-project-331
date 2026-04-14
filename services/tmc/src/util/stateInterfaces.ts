@@ -1,12 +1,12 @@
 import {
-  ExerciseTaskGradingResult,
-  ExerciseTaskSubmission,
-  RepositoryExercise,
-} from "@/shared-module/common/bindings"
-import {
   CurrentStateMessage,
   MessageFromIframe,
 } from "@/shared-module/common/exercise-service-protocol-types"
+import {
+  ExerciseTaskGradingResult,
+  ExerciseTaskSubmission,
+  RepositoryExercise,
+} from "@/util/exerciseServiceApi"
 
 export type ExerciseIframeState = ExerciseEditorState | AnswerExerciseState | ViewSubmissionState
 

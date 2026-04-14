@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
 pub mod content_management;
 pub mod copying;
@@ -15,8 +16,8 @@ pub mod regrading;
 pub mod students_view;
 pub mod user_exercise_state_updater;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+
 pub enum TimeGranularity {
     Year,
     Month,

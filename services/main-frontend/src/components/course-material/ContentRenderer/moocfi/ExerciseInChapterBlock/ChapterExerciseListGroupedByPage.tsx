@@ -1,20 +1,19 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchUserCourseInstanceChapterExercisesProgress } from "@/services/course-material/backend"
-import { PageWithExercises } from "@/shared-module/common/bindings"
+import { getCourseMaterialChapterExerciseProgress } from "@/generated/course-material-api/sdk.generated"
+import type { PageWithExercises } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import ExerciseBox from "@/shared-module/common/components/ExerciseList/ExerciseBox"
 import PageBox from "@/shared-module/common/components/ExerciseList/PageBox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseMaterialAtom } from "@/state/course-material"
 import { coursePageSectionRoute } from "@/utils/course-material/routing"
 
@@ -26,6 +25,8 @@ export interface ChapterExerciseListGroupedByPageProps {
   page: PageWithExercises
 }
 
+const CHAPTER_EXERCISE_PROGRESS_QUERY_KEY = "courseMaterialChapterExerciseProgress"
+
 const ChapterExerciseListGroupedByPage: React.FC<
   React.PropsWithChildren<ChapterExerciseListGroupedByPageProps>
 > = ({ chapterId, courseInstanceId, courseSlug, organizationSlug, page }) => {
@@ -36,19 +37,20 @@ const ChapterExerciseListGroupedByPage: React.FC<
   const course = courseMaterialState.course
   const chapterLockingEnabled = course?.chapter_locking_enabled ?? false
   const getUserCourseInstanceChapterExercisesProgress = useQuery({
-    queryKey: [
-      `user-course-instance-${courseInstanceId}-chapter-${page.chapter_id}-exercises`,
-      chapterId,
-    ],
-    queryFn: () =>
-      fetchUserCourseInstanceChapterExercisesProgress(
-        assertNotNullOrUndefined(courseInstanceId),
-        chapterId,
-      ),
+    queryKey: [CHAPTER_EXERCISE_PROGRESS_QUERY_KEY, courseInstanceId, chapterId] as const,
+    queryFn: courseInstanceId
+      ? () =>
+          getCourseMaterialChapterExerciseProgress({
+            path: {
+              course_instance_id: courseInstanceId,
+              chapter_id: chapterId,
+            },
+          })
+      : skipToken,
     select: (data) => {
       return new Map(data.map((x) => [x.exercise_id, x.score_given]))
     },
-    enabled: courseInstanceId !== undefined,
+    enabled: Boolean(courseInstanceId),
   })
 
   if (getUserCourseInstanceChapterExercisesProgress.isError) {

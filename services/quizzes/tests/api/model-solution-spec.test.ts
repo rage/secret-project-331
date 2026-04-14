@@ -10,7 +10,7 @@ import {
 import testClient from "./utils/appRouterTestClient"
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "./utils/privateSpecGenerator"
 
-import { SpecRequest } from "@/shared-module/common/bindings"
+import { SpecRequest } from "@/utils/exerciseServiceApi"
 
 const client = testClient(POST)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/model-solution"

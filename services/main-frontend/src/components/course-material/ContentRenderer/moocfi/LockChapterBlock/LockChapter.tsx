@@ -14,14 +14,19 @@ import LockChapterLoadingView from "./LockChapterLoadingView"
 import LockChapterLockedView from "./LockChapterLockedView"
 import LockChapterUnlockedView from "./LockChapterUnlockedView"
 
-import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
-import { getChapterLockPreview, lockChapter } from "@/services/course-material/backend"
+import {
+  getCourseMaterialChapterLockPreview,
+  lockCourseMaterialChapter,
+} from "@/generated/course-material-api/sdk.generated"
+import {
+  refetchUserChapterLocks,
+  useUserChapterLocks,
+} from "@/hooks/course-material/useUserChapterLocks"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseMaterialAtom } from "@/state/course-material"
-import { userChapterLocksQueryKey } from "@/state/course-material/queries"
 import { refetchViewAtom } from "@/state/course-material/selectors"
 
 interface LockChapterProps {
@@ -50,14 +55,17 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const course = courseMaterialState.course
 
   const lockMutation = useMutation({
-    mutationFn: () => lockChapter(chapterId),
+    mutationFn: () =>
+      lockCourseMaterialChapter({
+        path: {
+          chapter_id: chapterId,
+        },
+      }),
     onSuccess: async () => {
       // eslint-disable-next-line i18next/no-literal-string
       setLockState("locking")
       setShowAnimation(true)
-      await queryClient.refetchQueries({
-        queryKey: userChapterLocksQueryKey(courseId),
-      })
+      await refetchUserChapterLocks(queryClient, courseId)
     },
   })
 
@@ -69,7 +77,11 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
     setPreviewError(null)
     setIsLoadingPreview(true)
     try {
-      const preview = await getChapterLockPreview(chapterId)
+      const preview = await getCourseMaterialChapterLockPreview({
+        path: {
+          chapter_id: chapterId,
+        },
+      })
       setIsLoadingPreview(false)
 
       let message: React.ReactNode = (

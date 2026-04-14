@@ -1,14 +1,11 @@
-import axios from "axios"
 import FormData from "form-data"
 import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
-import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
-import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
-import { isObjectMap } from "@/shared-module/common/utils/fetching"
+import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
   compressProject,
@@ -17,6 +14,7 @@ import {
   prepareStub,
 } from "@/tmc/langs"
 import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
 import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
@@ -147,15 +145,23 @@ const uploadPublicSpec = async (
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
   }
-  const res = await axios.post(uploadUrl, form, { headers })
+  const res = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { ...headers, ...form.getHeaders() },
+    body: form as unknown as RequestInit["body"],
+  })
+  if (!res.ok) {
+    throw new Error(`Upload failed: ${res.status} ${res.statusText}`)
+  }
+  const resData: unknown = await res.json()
   if (
-    isObjectMap<string>(res.data) &&
-    Object.prototype.hasOwnProperty.call(res.data, archiveName) &&
-    typeof res.data[archiveName] === "string" &&
-    res.data[archiveName].length > 0
+    isObjectMap(isString)(resData) &&
+    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
+    typeof resData[archiveName] === "string" &&
+    resData[archiveName].length > 0
   ) {
     const config = await getExercisePackagingConfiguration(stubDir, log)
-    const stub_download_url = res.data[archiveName]
+    const stub_download_url = resData[archiveName]
     return {
       spec: {
         type,
@@ -168,6 +174,6 @@ const uploadPublicSpec = async (
     }
   }
   throw new Error(
-    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(res.data)}`,
+    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
   )
 }

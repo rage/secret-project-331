@@ -6,10 +6,10 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserDisplay } from "@/components/UserDisplay"
-import {
+import type {
   PeerOrSelfReviewAnswer,
   PeerReviewWithQuestionsAndAnswers,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import LikertScale from "@/shared-module/common/components/PeerReview/LikertScale"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"

@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use utoipa::ToSchema;
+
 use crate::{chapters, prelude::*};
 
 /// Matches the columns in the database.
@@ -25,8 +27,8 @@ struct CourseModulesSchema {
 /**
  * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
  */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseModule {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -147,7 +149,7 @@ impl From<CourseModulesSchema> for CourseModule {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCourseModule {
     completion_policy: CompletionPolicy,
     completion_registration_link_override: Option<String>,
@@ -478,8 +480,8 @@ WHERE uh_course_code IS NOT NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct AutomaticCompletionRequirements {
     /// Course module associated with these requirements.
     pub course_module_id: Uuid,
@@ -517,9 +519,8 @@ impl AutomaticCompletionRequirements {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, Clone, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "policy", rename_all = "kebab-case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum CompletionPolicy {
     Automatic(AutomaticCompletionRequirements),
     Manual,
@@ -621,8 +622,8 @@ RETURNING *
     Ok(res.into())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewModule {
     name: String,
     order_number: i32,
@@ -634,8 +635,8 @@ pub struct NewModule {
     enable_registering_completion_to_uh_open_university: bool,
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct ModifiedModule {
     id: Uuid,
     name: Option<String>,
@@ -647,8 +648,8 @@ pub struct ModifiedModule {
     enable_registering_completion_to_uh_open_university: bool,
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct ModuleUpdates {
     new_modules: Vec<NewModule>,
     deleted_modules: Vec<Uuid>,

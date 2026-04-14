@@ -12,7 +12,7 @@ import type {
   Organization,
   Page,
   UserCourseSettings,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
 
 /** Refetches the current view's data (material or exam). */
 export const refetchViewAtom = atom(null, async (get, _set) => {

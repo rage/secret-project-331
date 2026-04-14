@@ -26,13 +26,16 @@
     "react-aria": "^3.45.0"
   },
   "peerDependencies": {
+    "@tanstack/react-query": "^5.0.0",
     "i18next": ">=23.0.0",
     "next": "^16.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "react-i18next": "^15.0.0 || ^16.0.0"
+    "react-i18next": "^15.0.0 || ^16.0.0",
+    "motion": "^12.0.0"
   },
   "devDependencies": {
+    "@tanstack/react-query": "^5.90.21",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",
@@ -41,6 +44,7 @@
     "jest": "^30.2.0",
     "i18next": "^25.8.0",
     "jest-environment-jsdom": "^30.2.0",
+    "motion": "^12.38.0",
     "next": "^16.1.5",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

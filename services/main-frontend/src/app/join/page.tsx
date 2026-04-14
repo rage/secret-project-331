@@ -6,10 +6,10 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  addUserToCourseWithJoinCode,
-  fetchCourseWithJoinCode,
-  getCourseBreadCrumbInfo,
-} from "@/services/backend/courses"
+  getCourseBreadcrumbInfoOptions,
+  getCourseByJoinCodeOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { joinCourseWithJoinCode } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -18,6 +18,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const JoinCoursePage: React.FC = () => {
   const { t } = useTranslation()
@@ -25,18 +26,34 @@ const JoinCoursePage: React.FC = () => {
   const searchParams = useSearchParams()
   const joinCode = searchParams.get("code")
 
-  const course = useQuery({
-    queryKey: [`/courses/join/${joinCode}/`, joinCode],
-    queryFn: () => fetchCourseWithJoinCode(joinCode ?? ""),
-  })
+  const course = useQuery(
+    optionalGeneratedQueryOptions({
+      value: joinCode,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseByJoinCodeOptions({
+          path: {
+            join_code: value,
+          },
+        }),
+    }),
+  )
 
   const courseId = course.data?.id
 
-  const courseBreadcrumbs = useQuery({
-    queryKey: [`/courses/${courseId}/breadcrumb-info`, courseId],
-    queryFn: () => getCourseBreadCrumbInfo(courseId ?? ""),
-    enabled: false,
-  })
+  const courseBreadcrumbs = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: false,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseBreadcrumbInfoOptions({
+          path: {
+            course_id: value,
+          },
+        }),
+    }),
+  )
 
   useEffect(() => {
     if (
@@ -60,7 +77,11 @@ const JoinCoursePage: React.FC = () => {
 
   const handleRedirectMutation = useToastMutation(
     async (courseId: string) => {
-      await addUserToCourseWithJoinCode(courseId)
+      await joinCourseWithJoinCode({
+        path: {
+          course_id: courseId,
+        },
+      })
     },
     {
       notify: true,
@@ -69,7 +90,6 @@ const JoinCoursePage: React.FC = () => {
     {
       onSuccess: async () => {
         await courseBreadcrumbs.refetch()
-        console.log(courseBreadcrumbs.isSuccess)
       },
     },
   )

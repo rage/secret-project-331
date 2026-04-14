@@ -10,13 +10,11 @@ import ExerciseSubmissionList from "./ExerciseSubmissionList"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
-  downloadExerciseAnswersCsv,
-  downloadExerciseDefinitionsCsv,
-  ExerciseCsvExportTaskOption,
-  fetchExerciseCsvExportTaskOptions,
-  fetchExerciseSubmissions,
-  getExercise,
-} from "@/services/backend/exercises"
+  getExerciseCsvExportTaskOptionsOptions,
+  getExerciseOptions,
+  getExerciseSubmissionsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseCsvExportTaskOption } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -27,25 +25,10 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 type ExportMode = "definitions" | "answers"
-
-const downloadBlobAsFile = (blob: Blob, fileName: string) => {
-  const url = window.URL.createObjectURL(blob)
-  const link = document.createElement("a")
-  link.href = url
-  link.setAttribute("download", fileName)
-  try {
-    document.body.appendChild(link)
-    link.click()
-    link.parentNode?.removeChild(link)
-  } finally {
-    window.URL.revokeObjectURL(url)
-  }
-}
 
 const SubmissionsPage: React.FC = () => {
   const { t } = useTranslation()
@@ -65,18 +48,31 @@ const SubmissionsPage: React.FC = () => {
   })
 
   const exerciseQuery = useQuery({
-    queryKey: [`exercise`, id],
-    queryFn: () => getExercise(id),
+    ...getExerciseOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
   })
 
   const exerciseSubmissionsQuery = useQuery({
-    queryKey: [`exercise-submissions`, id, paginationInfo.page, paginationInfo.limit],
-    queryFn: () => fetchExerciseSubmissions(id, paginationInfo.page, paginationInfo.limit),
+    ...getExerciseSubmissionsOptions({
+      path: {
+        exercise_id: id,
+      },
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
   })
 
   const csvExportTaskOptionsQuery = useQuery({
-    queryKey: [`exercise-csv-export-task-options`, id],
-    queryFn: () => fetchExerciseCsvExportTaskOptions(id),
+    ...getExerciseCsvExportTaskOptionsOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
   })
 
   const definitionTaskOptions = useMemo(
@@ -102,29 +98,6 @@ const SubmissionsPage: React.FC = () => {
     setOnlyLatestPerUser(false)
   }
 
-  const exportCsvMutation = useToastMutation(
-    async ({
-      mode,
-      taskId,
-      onlyLatestPerUser: onlyLatest,
-    }: {
-      mode: ExportMode
-      taskId: string
-      onlyLatestPerUser?: boolean
-    }) => {
-      return mode === "definitions"
-        ? await downloadExerciseDefinitionsCsv(id, taskId)
-        : await downloadExerciseAnswersCsv(id, taskId, onlyLatest ?? false)
-    },
-    { notify: true, method: "POST" },
-    {
-      onSuccess: (download) => {
-        downloadBlobAsFile(download.blob, download.fileName)
-        closeExportDialog()
-      },
-    },
-  )
-
   const openExportDialog = (mode: ExportMode) => {
     const options = mode === "definitions" ? definitionTaskOptions : answerTaskOptions
     if (options.length === 0) {
@@ -138,16 +111,12 @@ const SubmissionsPage: React.FC = () => {
   const currentTaskOptions =
     exportMode === "definitions" ? definitionTaskOptions : answerTaskOptions
 
-  const exportCsv = () => {
-    if (!exportMode || !selectedTaskId) {
-      return
-    }
-    exportCsvMutation.mutate({
-      mode: exportMode,
-      taskId: selectedTaskId,
-      ...(exportMode === "answers" && { onlyLatestPerUser: onlyLatestPerUser }),
-    })
-  }
+  const exportHref =
+    exportMode === "definitions"
+      ? // eslint-disable-next-line i18next/no-literal-string
+        `/api/v0/main-frontend/exercises/${id}/export-definitions-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}`
+      : // eslint-disable-next-line i18next/no-literal-string
+        `/api/v0/main-frontend/exercises/${id}/export-answers-csv?exercise_task_id=${encodeURIComponent(selectedTaskId)}${onlyLatestPerUser ? "&only_latest_per_user=true" : ""}`
 
   return (
     <div>
@@ -194,8 +163,7 @@ const SubmissionsPage: React.FC = () => {
           disabled={
             csvExportTaskOptionsQuery.isLoading ||
             csvExportTaskOptionsQuery.isError ||
-            definitionTaskOptions.length === 0 ||
-            exportCsvMutation.isPending
+            definitionTaskOptions.length === 0
           }
         >
           {t("button-text-export-definitions-csv")}
@@ -208,8 +176,7 @@ const SubmissionsPage: React.FC = () => {
           disabled={
             csvExportTaskOptionsQuery.isLoading ||
             csvExportTaskOptionsQuery.isError ||
-            answerTaskOptions.length === 0 ||
-            exportCsvMutation.isPending
+            answerTaskOptions.length === 0
           }
         >
           {t("button-text-export-answers-csv")}
@@ -283,22 +250,19 @@ const SubmissionsPage: React.FC = () => {
             justify-content: flex-end;
           `}
         >
-          <Button
-            variant="white"
-            size="small"
-            onClick={closeExportDialog}
-            disabled={exportCsvMutation.isPending}
-          >
+          <Button variant="white" size="small" onClick={closeExportDialog}>
             {t("button-text-cancel")}
           </Button>
-          <Button
-            variant="primary"
-            size="small"
-            onClick={exportCsv}
-            disabled={!selectedTaskId || exportCsvMutation.isPending}
+          <a
+            href={exportHref}
+            onClick={closeExportDialog}
+            aria-label={t("actions-export")}
+            download
           >
-            {t("actions-export")}
-          </Button>
+            <Button variant="primary" size="small" disabled={!selectedTaskId} type="button">
+              {t("actions-export")}
+            </Button>
+          </a>
         </div>
       </Dialog>
     </div>

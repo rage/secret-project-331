@@ -10,7 +10,7 @@ import { getEditableHoverStyles, getEditingStyles } from "../styles"
 
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import { selectedBlockIdAtom } from "@/stores/course-material/materialFeedbackStore"
 

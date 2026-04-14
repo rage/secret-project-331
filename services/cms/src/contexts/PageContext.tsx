@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { Page } from "@/shared-module/common/bindings"
+import { Page } from "@/generated/api"
 
 interface PageContextProps {
   page: Page

@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ToSchema)]
+
 pub enum ParagraphSuggestionAction {
     #[serde(rename = "moocfi/ai/generate-draft-from-notes")]
     GenerateDraftFromNotes,

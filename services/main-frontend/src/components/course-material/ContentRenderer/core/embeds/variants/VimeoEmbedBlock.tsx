@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import axios from "axios"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -18,19 +17,23 @@ const VIMEO_MAX_WIDTH = 780
 export const VimeoEmbedBlock: React.FC<
   React.PropsWithChildren<EmbedAttributes & { className?: string }>
 > = (props) => {
-  const [embedHtml, setEmbedHtml] = useState(undefined)
+  const [embedHtml, setEmbedHtml] = useState<string | undefined>(undefined)
   const [fetching, setFetching] = useState(true)
   const { t } = useTranslation()
   useEffect(() => {
     const fetchEmbed = async () => {
       if (props.url) {
         // maxWidth and maxHeight same as backend url_to_oembed_endpoint.rs
-        const response = await axios.get(
+        const response = await fetch(
           `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(
             props.url,
           )}&maxwidth=${VIMEO_MAX_WIDTH}&maxheight=440`,
         )
-        const data = await response.data
+        if (!response.ok) {
+          setFetching(false)
+          return
+        }
+        const data = (await response.json()) as { html?: string }
         if (data.html) {
           setEmbedHtml(data.html)
         }

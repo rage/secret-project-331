@@ -3,10 +3,8 @@
 import React, { useCallback, useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  CourseMaterialExerciseTask,
-  StudentExerciseTaskSubmissionResult,
-} from "@/shared-module/common/bindings"
+import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
+import type { StudentExerciseTaskSubmissionResult } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import ThrottledChildRenderer, {

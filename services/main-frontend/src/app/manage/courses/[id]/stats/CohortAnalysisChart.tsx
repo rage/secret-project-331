@@ -11,7 +11,7 @@ import Echarts from "./Echarts"
 import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
 import StatsHeader from "./StatsHeader"
 
-import { CohortActivity } from "@/shared-module/common/bindings"
+import { CohortActivity } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"

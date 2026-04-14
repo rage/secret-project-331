@@ -12,10 +12,10 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ChatbotBlockAttributes } from "."
 
-import { fetchNondefaultChatbotConfigurationsForCourse } from "@/services/backend/courses"
+import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorAndLoadingWrapper from "@/shared-module/common/components/ErrorAndLoadingWrapper"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
@@ -27,12 +27,18 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
 
-  const chatbotConfigurations = useQuery({
-    queryKey: ["courses", courseId, "nondefault-chatbot-configurations"],
-    queryFn: () =>
-      fetchNondefaultChatbotConfigurationsForCourse(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const chatbotConfigurations = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseNondefaultChatbotConfigurationsOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
   const chatbotConfigurationSelectOptions: { label: string; value: string }[] = [
     ...(chatbotConfigurations.data?.map((c) => ({ label: c.chatbot_name, value: c.id })) ?? []),
   ]

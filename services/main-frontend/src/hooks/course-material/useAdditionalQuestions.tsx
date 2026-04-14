@@ -2,8 +2,8 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchBackgroundQuestionsAndAnswers } from "@/services/course-material/backend"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { getCourseMaterialBackgroundQuestionsAndAnswersOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseAdditionalQuestionsOptions {
   enabled?: boolean
@@ -14,11 +14,20 @@ const useAdditionalQuestions = (
   options: UseAdditionalQuestionsOptions = {},
 ) => {
   const { enabled = true } = options
-  const query = useQuery({
-    queryKey: ["additional-questions", instanceId],
-    queryFn: () => fetchBackgroundQuestionsAndAnswers(assertNotNullOrUndefined(instanceId)),
-    enabled: instanceId !== null && instanceId !== undefined && enabled,
-  })
+
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: instanceId,
+      enabled,
+      isReady: (instanceId): instanceId is string => Boolean(instanceId),
+      build: (instanceId) =>
+        getCourseMaterialBackgroundQuestionsAndAnswersOptions({
+          path: {
+            course_instance_id: instanceId,
+          },
+        }),
+    }),
+  )
   return query
 }
 

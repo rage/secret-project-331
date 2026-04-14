@@ -3,10 +3,10 @@ import { NextResponse } from "next/server"
 import { OldQuiz } from "../../../../types/oldQuizTypes"
 import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 
-import { isSpecRequest } from "@/shared-module/common/bindings.guard"
 import { convertPublicSpecFromPrivateSpec } from "@/util/converter"
 import { isOldQuiz } from "@/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
+import { isSpecRequest } from "@/utils/exerciseServiceApi"
 
 export async function POST(req: Request) {
   try {

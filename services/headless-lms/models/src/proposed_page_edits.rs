@@ -4,6 +4,7 @@ use futures::future::BoxFuture;
 use headless_lms_utils::{document_schema_processor::GutenbergBlock, merge_edits};
 use serde_json::Value;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     SpecFetcher,
@@ -17,15 +18,15 @@ use crate::{
     },
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct NewProposedPageEdits {
     pub page_id: Uuid,
     pub block_edits: Vec<NewProposedBlockEdit>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PageProposal {
     pub id: Uuid,
     pub page_id: Uuid,
@@ -37,16 +38,16 @@ pub struct PageProposal {
     pub page_url_path: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct EditProposalInfo {
     pub page_id: Uuid,
     pub page_proposal_id: Uuid,
     pub block_proposals: Vec<BlockProposalInfo>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct ProposalCount {
     pub pending: u32,
     pub handled: u32,

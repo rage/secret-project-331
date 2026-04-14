@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExamEnrollmentData } from "@/shared-module/common/bindings"
+import type { ExamEnrollmentData } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme } from "@/shared-module/common/styles"

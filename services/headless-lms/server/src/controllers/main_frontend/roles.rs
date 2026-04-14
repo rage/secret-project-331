@@ -4,8 +4,13 @@ use models::{
     roles::{self, RoleDomain, RoleInfo, RoleUser},
     users,
 };
+use utoipa::{OpenApi, ToSchema};
 
 use crate::domain::authorization::skip_authorize;
+
+#[derive(OpenApi)]
+#[openapi(paths(set, unset, fetch, fetch_pending))]
+pub(crate) struct MainFrontendRolesApiDoc;
 
 async fn authorize_role_management(
     conn: &mut PgConnection,
@@ -33,6 +38,16 @@ async fn authorize_role_management(
 /**
  * POST /api/v0/main-frontend/roles/add - Give a role to a user.
  */
+#[utoipa::path(
+    post,
+    path = "/add",
+    operation_id = "addRole",
+    tag = "roles",
+    request_body = RoleInfo,
+    responses(
+        (status = 200, description = "Role added")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn set(
     pool: web::Data<PgPool>,
@@ -65,6 +80,16 @@ pub async fn set(
 /**
  * POST /api/v0/main-frontend/roles/remove - Remove a role from a user.
  */
+#[utoipa::path(
+    post,
+    path = "/remove",
+    operation_id = "removeRole",
+    tag = "roles",
+    request_body = RoleInfo,
+    responses(
+        (status = 200, description = "Role removed")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn unset(
     pool: web::Data<PgPool>,
@@ -86,8 +111,8 @@ pub async fn unset(
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct RoleQuery {
     #[serde(skip_serializing_if = "Option::is_none")]
     global: Option<bool>,
@@ -138,7 +163,22 @@ impl TryFrom<RoleQuery> for RoleDomain {
  * GET /api/v0/main-frontend/roles - Get all roles for the given domain.
  */
 #[instrument(skip(pool))]
-
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getRoles",
+    tag = "roles",
+    params(
+        ("global" = Option<bool>, Query, description = "Global domain"),
+        ("organization_id" = Option<Uuid>, Query, description = "Organization id"),
+        ("course_id" = Option<Uuid>, Query, description = "Course id"),
+        ("course_instance_id" = Option<Uuid>, Query, description = "Course instance id"),
+        ("exam_id" = Option<Uuid>, Query, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Roles", body = [RoleUser])
+    )
+)]
 pub async fn fetch(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,
@@ -158,7 +198,22 @@ pub async fn fetch(
  * GET /api/v0/main-frontend/roles - Get all pending roles for the given domain.
  */
 #[instrument(skip(pool))]
-
+#[utoipa::path(
+    get,
+    path = "/pending",
+    operation_id = "getPendingRoles",
+    tag = "roles",
+    params(
+        ("global" = Option<bool>, Query, description = "Global domain"),
+        ("organization_id" = Option<Uuid>, Query, description = "Organization id"),
+        ("course_id" = Option<Uuid>, Query, description = "Course id"),
+        ("course_instance_id" = Option<Uuid>, Query, description = "Course instance id"),
+        ("exam_id" = Option<Uuid>, Query, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Pending roles", body = [PendingRole])
+    )
+)]
 pub async fn fetch_pending(
     pool: web::Data<PgPool>,
     query: web::Query<RoleQuery>,

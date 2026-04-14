@@ -7,9 +7,9 @@ import React, { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { updateUserInfo } from "@/generated/api/sdk.generated"
+import type { UserDetail } from "@/generated/api/types.generated"
 import { refetchUserDetailsForUser } from "@/hooks/useUserDetailsForUserQuery"
-import { updateUserInfo } from "@/services/backend/user-details"
-import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelectField from "@/shared-module/common/components/InputFields/SearchableSelectField"
@@ -77,14 +77,15 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
   const postUserCountryMutation = useToastMutation<UserDetail, unknown, SelectUserInfoFormFields>(
     async (data) => {
       const { email, first_name, last_name, country, emailCommunicationConsent } = data
-      const result = await updateUserInfo(
-        email,
-        first_name,
-        last_name,
-        country,
-        emailCommunicationConsent,
-      )
-      return result
+      return updateUserInfo({
+        body: {
+          email,
+          first_name,
+          last_name,
+          country,
+          email_communication_consent: emailCommunicationConsent,
+        },
+      })
     },
     {
       method: "POST",

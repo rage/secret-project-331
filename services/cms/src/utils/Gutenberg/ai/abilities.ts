@@ -2,12 +2,12 @@ import { AI_ACTIONS, AI_TONE_SUBMENU, AI_TRANSLATE_SUBMENU } from "./menu"
 import { registerAbility } from "./registry"
 import type { AbilityDefinition } from "./types"
 
-import { requestParagraphSuggestions } from "@/services/backend/ai-suggestions"
 import type {
   ParagraphSuggestionAction,
   ParagraphSuggestionContext,
   ParagraphSuggestionRequest,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import { requestParagraphSuggestions } from "@/generated/api/sdk.generated"
 
 export interface ParagraphAbilityInputMeta {
   tone?: string
@@ -75,7 +75,7 @@ const fixSpellingAbility: AbilityDefinition<
   output_schema: BASE_OUTPUT_SCHEMA,
   callback: async (input) => {
     const payload = buildParagraphSuggestionRequest("moocfi/fix-spelling", input)
-    const response = await requestParagraphSuggestions(payload)
+    const response = await requestParagraphSuggestions({ body: payload })
 
     const suggestions = response.suggestions ?? []
 
@@ -104,7 +104,7 @@ function createPlaceholderAbility(
     output_schema: BASE_OUTPUT_SCHEMA,
     callback: async (input) => {
       const payload = buildParagraphSuggestionRequest(abilityName, input)
-      const response = await requestParagraphSuggestions(payload)
+      const response = await requestParagraphSuggestions({ body: payload })
 
       const suggestions = response.suggestions ?? []
 

@@ -1,25 +1,29 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { getAuthorizedClientInfos, revokeAuthorizedClient } from "../services/backend/users"
-
-import { AuthorizedClientInfo } from "@/shared-module/common/bindings"
+import { getOauthAuthorizedClientsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { deleteOauthAuthorizedClient } from "@/generated/api/sdk.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 
 const useAuthorizedClientsQuery = () => {
   const loginStateContext = useContext(LoginStateContext)
   const queryClient = useQueryClient()
+  const authorizedClientsQueryKey = getOauthAuthorizedClientsOptions().queryKey
 
-  const listQuery = useQuery<AuthorizedClientInfo[]>({
-    queryKey: ["authorized-clients"],
-    queryFn: () => getAuthorizedClientInfos(),
+  const listQuery = useQuery({
+    ...getOauthAuthorizedClientsOptions(),
     enabled: loginStateContext.signedIn === true,
   })
 
   const revokeMutation = useMutation({
-    mutationFn: (clientId: string) => revokeAuthorizedClient(clientId),
+    mutationFn: async (clientId: string) =>
+      deleteOauthAuthorizedClient({
+        path: {
+          client_id: clientId,
+        },
+      }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["authorized-clients"] })
+      queryClient.invalidateQueries({ queryKey: authorizedClientsQueryKey })
     },
   })
 

@@ -9,18 +9,17 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
-import {
-  fetchCourseById,
-  getCoursesDefaultCmsPeerOrSelfReviewConfiguration,
-} from "../services/backend/courses"
 
 import {
   CmsPeerOrSelfReviewConfig,
   CmsPeerOrSelfReviewQuestion,
-  PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionType,
   PeerReviewProcessingStrategy,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import {
+  getCmsCourseDefaultPeerReviewOptions,
+  getCmsCourseOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -30,6 +29,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { editCourseDefaultPeerOrSelfReviewConfigRoute } from "@/shared-module/common/utils/routes"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -125,11 +125,18 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   const peerReviewEnabled = exerciseAttributes.needs_peer_review ?? false
   const selfReviewEnabled = exerciseAttributes.needs_self_review ?? false
 
-  const courseQuery = useQuery({
-    queryKey: ["course", courseId],
-    queryFn: () => fetchCourseById(courseId),
-    enabled: !!courseId,
-  })
+  const courseQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
   const isInitialMount = useRef(true)
@@ -163,10 +170,18 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     setExerciseAttributes,
   ])
 
-  const defaultCmsPeerOrSelfReviewConfig = useQuery({
-    queryKey: [`course-default-peer-review-config-${courseId}`],
-    queryFn: () => getCoursesDefaultCmsPeerOrSelfReviewConfiguration(courseId),
-  })
+  const defaultCmsPeerOrSelfReviewConfig = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseDefaultPeerReviewOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   let parsedPeerOrSelfReviewConfig: CmsPeerOrSelfReviewConfig | null = JSON.parse(
     exerciseAttributes.peer_or_self_review_config ?? "null",
@@ -352,7 +367,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         parsedPeerOrSelfReviewQuestionConfig
           .filter((x) => x.id !== peerOrSelfReviewQuestionId)
           .map((prq, idx) => {
-            return { ...prq, order_number: idx } as PeerOrSelfReviewQuestion
+            return { ...prq, order_number: idx } as CmsPeerOrSelfReviewQuestion
           }),
       ),
       peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),

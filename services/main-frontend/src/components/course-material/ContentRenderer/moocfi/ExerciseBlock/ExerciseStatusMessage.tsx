@@ -5,19 +5,19 @@ import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import YellowBox from "@/components/course-material/YellowBox"
-import {
+import type {
   CourseMaterialPeerOrSelfReviewConfig,
   Exercise,
   GradingProgress,
   ReviewingStage,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
 
 interface ExerciseStatusMessageProps {
   gradingProgress: GradingProgress | undefined
   reviewingStage: ReviewingStage | undefined
-  peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null
+  peerOrSelfReviewConfig: CourseMaterialPeerOrSelfReviewConfig | null | undefined
   exercise: Exercise
-  shouldSeeResetMessage: string | null
+  shouldSeeResetMessage: string | null | undefined
 }
 
 const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMessageProps>> = ({
@@ -30,13 +30,19 @@ const ExerciseStatusMessage: React.FC<React.PropsWithChildren<ExerciseStatusMess
   const { t } = useTranslation()
 
   const resetMessageText = useMemo(
-    () => getResetMessageText(shouldSeeResetMessage, t),
+    () => getResetMessageText(shouldSeeResetMessage ?? null, t),
     [shouldSeeResetMessage, t],
   )
 
   const statusMessageText = useMemo(
     () =>
-      getStatusMessageText(reviewingStage, gradingProgress, peerOrSelfReviewConfig, exercise, t),
+      getStatusMessageText(
+        reviewingStage,
+        gradingProgress,
+        peerOrSelfReviewConfig ?? null,
+        exercise,
+        t,
+      ),
     [gradingProgress, peerOrSelfReviewConfig, reviewingStage, exercise, t],
   )
 

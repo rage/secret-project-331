@@ -13,9 +13,9 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 import { ConditionAttributes } from "."
 
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
-import { fetchCodeGiveawaysByCourseId } from "@/services/backend/code-giveaways"
+import { getCmsCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",
@@ -38,11 +38,18 @@ const CodeGiveawayBlockEditor: React.FC<
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
 
-  const codeGivawayQuery = useQuery({
-    queryKey: [`/code-giveaways/by-course/${courseId}`],
-    queryFn: () => fetchCodeGiveawaysByCourseId(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const codeGivawayQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCodeGiveawaysByCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   const title = useMemo(() => {
     let title = t("code-giveaway")

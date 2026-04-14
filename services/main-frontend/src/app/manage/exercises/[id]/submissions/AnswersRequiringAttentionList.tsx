@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import AnswersRequiringAttentionItem from "./AnswersRequiringAttentionItem"
 import ExerciseAssignmentPreview from "./ExerciseAssignmentPreview"
 
-import { AnswerRequiringAttentionWithTasks } from "@/shared-module/common/bindings"
+import type { AnswerRequiringAttentionWithTasks } from "@/generated/api/types.generated"
 import { useAccordionContext } from "@/shared-module/common/components/Accordion/accordionContext"
 import Button from "@/shared-module/common/components/Button"
 import Centered from "@/shared-module/common/components/Centering/Centered"

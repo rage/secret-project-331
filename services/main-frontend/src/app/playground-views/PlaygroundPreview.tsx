@@ -15,7 +15,6 @@ import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
 import { PlaygroundSettings } from "@/app/playground-tabs/page"
 import { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateSpec"
-import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -26,6 +25,7 @@ import {
 } from "@/shared-module/common/exercise-service-protocol-types"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 

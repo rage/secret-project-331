@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import ContentArea from "./ContentArea"
 
-import { ExerciseServiceNewOrUpdate } from "@/shared-module/common/bindings"
+import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { validURL } from "@/shared-module/common/utils/validation"
@@ -77,7 +77,7 @@ const ExerciseServiceCreationModal: React.FC<
           />
           <ContentArea
             title={t("title-internal-url")}
-            text={exercise_service.internal_url}
+            text={exercise_service.internal_url ?? null}
             editing={true}
             onChange={onChange(SERVICE_INTERNAL_URL)}
             type={"text"}

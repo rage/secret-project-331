@@ -9,11 +9,11 @@ import { BlockRendererProps } from ".."
 
 import useIsPageChapterFrontPage from "@/hooks/course-material/useIsPageChapterFrontPage"
 import Check from "@/img/course-material/checkmark.svg"
-import { Block } from "@/services/course-material/backend"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
+import { Block } from "@/types/courseMaterialBlock"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
 
 // Restricts the width even further than the centered. Centered still used to get some padding on left and right on mobile screens.

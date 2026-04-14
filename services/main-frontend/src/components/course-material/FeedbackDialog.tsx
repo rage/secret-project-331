@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next"
 
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
-import { postFeedback } from "@/services/course-material/backend"
-import { FeedbackBlock } from "@/shared-module/common/bindings"
+import { postFeedback } from "@/generated/course-material-api/sdk.generated"
+import type { FeedbackBlock } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -52,7 +52,12 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
           page_id: pageId,
         }
       })
-      return postFeedback(courseId, feedback)
+      return postFeedback({
+        body: feedback,
+        path: {
+          course_id: courseId,
+        },
+      })
     },
     {
       notify: true,

@@ -1,13 +1,30 @@
 //! Controllers for requests starting with `/api/v0/cms/chapters`.
 
 use models::chapters::DatabaseChapter;
+use utoipa::OpenApi;
 
 use crate::prelude::*;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_all_chapters_by_course_id))]
+pub(crate) struct CmsChaptersApiDoc;
 
 /**
 GET `/api/v0/cms/chapters/{course_id}/all-chapters-for-course` - Gets all chapters with a course_id
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}/all-chapters-for-course",
+    operation_id = "getAllChaptersByCourseId",
+    tag = "cms_chapters",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course chapters", body = Vec<DatabaseChapter>)
+    )
+)]
 async fn get_all_chapters_by_course_id(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

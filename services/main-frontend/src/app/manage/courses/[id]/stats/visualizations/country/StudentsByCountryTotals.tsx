@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -9,7 +8,7 @@ import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { getStudentsByCountryTotals } from "@/services/backend/courses/stats"
+import { useStudentsByCountryTotalsQuery } from "@/hooks/stats"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -22,10 +21,7 @@ interface Props {
 const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
   const { t } = useTranslation()
 
-  const query = useQuery({
-    queryKey: ["students-by-country-totals", courseId],
-    queryFn: () => getStudentsByCountryTotals(courseId),
-  })
+  const query = useStudentsByCountryTotalsQuery(courseId)
 
   const aggregatedData = useMemo(() => {
     if (!query.data || query.data.length === 0) {

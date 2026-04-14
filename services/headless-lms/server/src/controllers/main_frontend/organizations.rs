@@ -20,11 +20,48 @@ use crate::{
 };
 
 use actix_web::web::{self, Json};
+use utoipa::{OpenApi, ToSchema};
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_all_organizations,
+    create_organization,
+    get_organization,
+    update_organization,
+    soft_delete_organization,
+    get_organization_courses,
+    get_organization_duplicatable_courses,
+    get_organization_course_count,
+    get_organization_active_courses,
+    get_organization_active_courses_count,
+    set_organization_image,
+    remove_organization_image,
+    get_course_exams,
+    get_org_exams,
+    get_org_exam_with_exam_id,
+    create_exam
+))]
+pub(crate) struct MainFrontendOrganizationsApiDoc;
+
+#[allow(dead_code)]
+#[derive(Debug, ToSchema)]
+struct OrganizationImageUploadPayload {
+    #[schema(content_media_type = "application/octet-stream")]
+    file: Vec<u8>,
+}
 
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 */
-
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getOrganizations",
+    tag = "organizations",
+    responses(
+        (status = 200, description = "Organizations", body = [Organization])
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_all_organizations(
     pool: web::Data<PgPool>,
@@ -59,6 +96,20 @@ async fn get_all_organizations(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses"` - Returns a list of all courses in a organization.
 */
+#[utoipa::path(
+    get,
+    path = "/{organization_id}/courses",
+    operation_id = "getOrganizationCourses",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Organization courses", body = [Course])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_organization_courses(
     organization_id: web::Path<Uuid>,
@@ -84,7 +135,18 @@ async fn get_organization_courses(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/courses/duplicatable"` - Returns a list of all courses in a organization that the current user has permission to duplicate.
 */
-
+#[utoipa::path(
+    get,
+    path = "/{organization_id}/courses/duplicatable",
+    operation_id = "getOrganizationDuplicatableCourses",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Duplicatable organization courses", body = [Course])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_organization_duplicatable_courses(
     organization_id: web::Path<Uuid>,
@@ -118,6 +180,18 @@ async fn get_organization_duplicatable_courses(
     token.authorized_ok(web::Json(duplicatable_courses))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{organization_id}/courses/count",
+    operation_id = "getOrganizationCourseCount",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Organization course count", body = CourseCount)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_organization_course_count(
     request_organization_id: web::Path<Uuid>,
@@ -131,6 +205,20 @@ async fn get_organization_course_count(
     token.authorized_ok(Json(result))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{organization_id}/courses/active",
+    operation_id = "getOrganizationActiveCourses",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Active organization courses", body = [Course])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_organization_active_courses(
     request_organization_id: web::Path<Uuid>,
@@ -149,6 +237,18 @@ async fn get_organization_active_courses(
     token.authorized_ok(Json(courses))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{organization_id}/courses/active/count",
+    operation_id = "getOrganizationActiveCourseCount",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Active organization course count", body = CourseCount)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_organization_active_courses_count(
     request_organization_id: web::Path<Uuid>,
@@ -178,7 +278,19 @@ Content-Type: multipart/form-data
 BINARY_DATA
 ```
 */
-
+#[utoipa::path(
+    put,
+    path = "/{organization_id}/image",
+    operation_id = "updateOrganizationImage",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    request_body(content = inline(OrganizationImageUploadPayload), content_type = "multipart/form-data"),
+    responses(
+        (status = 200, description = "Updated organization", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(request, payload, pool, file_store, app_conf))]
 async fn set_organization_image(
     request: HttpRequest,
@@ -252,7 +364,18 @@ Request:
 DELETE /api/v0/main-frontend/organizations/d332f3d9-39a5-4a18-80f4-251727693c37/image HTTP/1.1
 ```
 */
-
+#[utoipa::path(
+    delete,
+    path = "/{organization_id}/image",
+    operation_id = "deleteOrganizationImage",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Organization image removed")
+    )
+)]
 #[instrument(skip(pool, file_store))]
 async fn remove_organization_image(
     organization_id: web::Path<Uuid>,
@@ -294,7 +417,18 @@ async fn remove_organization_image(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}` - Returns an organizations with id.
 */
-
+#[utoipa::path(
+    get,
+    path = "/{organization_id}",
+    operation_id = "getOrganization",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Organization", body = Organization)
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_organization(
     organization_id: web::Path<Uuid>,
@@ -312,7 +446,7 @@ async fn get_organization(
     token.authorized_ok(web::Json(organization))
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 struct OrganizationUpdatePayload {
     name: String,
     hidden: bool,
@@ -324,6 +458,19 @@ PUT `/api/v0/main-frontend/organizations/{organization_id}`
 
 Updates an organization's name, hidden status, and slug.
 */
+#[utoipa::path(
+    put,
+    path = "/{organization_id}",
+    operation_id = "updateOrganization",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    request_body = OrganizationUpdatePayload,
+    responses(
+        (status = 200, description = "Organization updated")
+    )
+)]
 #[instrument(skip(pool))]
 async fn update_organization(
     organization_id: web::Path<Uuid>,
@@ -354,7 +501,7 @@ async fn update_organization(
     token.authorized_ok(web::Json(()))
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 struct OrganizationCreatePayload {
     name: String,
     slug: String,
@@ -376,6 +523,16 @@ struct OrganizationCreatePayload {
 ///
 /// # Permissions
 /// Only users with the `Admin` role can access this endpoint.
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createOrganization",
+    tag = "organizations",
+    request_body = OrganizationCreatePayload,
+    responses(
+        (status = 200, description = "Created organization", body = serde_json::Value)
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn create_organization(
     payload: web::Json<OrganizationCreatePayload>,
@@ -429,6 +586,18 @@ async fn create_organization(
     token.authorized_ok(web::Json(org))
 }
 
+#[utoipa::path(
+    patch,
+    path = "/{organization_id}",
+    operation_id = "softDeleteOrganization",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Organization soft deleted")
+    )
+)]
 #[instrument(skip(pool))]
 async fn soft_delete_organization(
     org_id: web::Path<Uuid>,
@@ -452,6 +621,18 @@ async fn soft_delete_organization(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/course_exams` - Returns an organizations exams in CourseExam form.
 */
+#[utoipa::path(
+    get,
+    path = "/{organization_id}/course_exams",
+    operation_id = "getOrganizationCourseExams",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Organization course exams", body = [CourseExam])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_exams(
     pool: web::Data<PgPool>,
@@ -467,6 +648,18 @@ async fn get_course_exams(
 /**
 GET `/api/v0/main-frontend/organizations/{organization_id}/exams` - Returns an organizations exams in Exam form.
 */
+#[utoipa::path(
+    get,
+    path = "/{organization_id}/org_exams",
+    operation_id = "getOrganizationExams",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    responses(
+        (status = 200, description = "Organization exams", body = [OrgExam])
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_org_exams(
     pool: web::Data<PgPool>,
@@ -482,6 +675,18 @@ async fn get_org_exams(
 /**
 GET `/api/v0/main-frontend/organizations/{exam_id}/fetch_org_exam
 */
+#[utoipa::path(
+    get,
+    path = "/{exam_id}/fetch_org_exam",
+    operation_id = "getOrganizationExamByExamId",
+    tag = "organizations",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Organization exam", body = OrgExam)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn get_org_exam_with_exam_id(
     pool: web::Data<PgPool>,
@@ -499,6 +704,19 @@ pub async fn get_org_exam_with_exam_id(
 /**
 POST `/api/v0/main-frontend/organizations/{organization_id}/exams` - Creates new exam for the organization.
 */
+#[utoipa::path(
+    post,
+    path = "/{organization_id}/exams",
+    operation_id = "createOrganizationExam",
+    tag = "organizations",
+    params(
+        ("organization_id" = Uuid, Path, description = "Organization id")
+    ),
+    request_body = NewExam,
+    responses(
+        (status = 200, description = "Organization exam created")
+    )
+)]
 #[instrument(skip(pool))]
 async fn create_exam(
     pool: web::Data<PgPool>,
@@ -601,7 +819,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         )
         .route("/{organization_id}/org_exams", web::get().to(get_org_exams))
         .route(
-            "/{organization_id}/fetch_org_exam",
+            "/{exam_id}/fetch_org_exam",
             web::get().to(get_org_exam_with_exam_id),
         )
         .route("/{organization_id}/exams", web::post().to(create_exam));

@@ -9,9 +9,9 @@ import ResetFilter from "./ResetFilter"
 import SelectedUsers from "./SelectedUsers"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
+import { resetExercisesForSelectedUsers } from "@/generated/api/sdk.generated"
+import type { UserDetail } from "@/generated/api/types.generated"
 import { useUsers } from "@/hooks/useUsers"
-import { resetExercisesForUsers } from "@/services/backend/exercises"
-import { UserDetail } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -55,16 +55,19 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   }
 
   const resetMutation = useToastMutation(
-    () => {
-      return resetExercisesForUsers(
-        courseId,
-        selectedUsers.map((u) => u.user_id),
-        selectedExerciseIds,
-        threshold,
-        resetAllBelowMaxPoints,
-        resetOnlyLockedPeerReviews,
-      )
-    },
+    async () =>
+      resetExercisesForSelectedUsers({
+        body: {
+          user_ids: selectedUsers.map((u) => u.user_id),
+          exercise_ids: selectedExerciseIds,
+          threshold,
+          reset_all_below_max_points: resetAllBelowMaxPoints,
+          reset_only_locked_peer_reviews: resetOnlyLockedPeerReviews,
+        },
+        path: {
+          course_id: courseId,
+        },
+      }),
     {
       notify: true,
       method: "POST",

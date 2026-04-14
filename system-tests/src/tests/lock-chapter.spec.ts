@@ -219,7 +219,9 @@ test.describe("Chapter locking feature", () => {
 
       await teacherPage.getByTestId(`teacher-edit-chapter-status-${chapterId}`).click()
       await teacherPage.getByTestId("teacher-chapter-status-select").selectOption("unlocked")
-      await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
+      })
       await teacherPage
         .getByTestId(`teacher-chapter-lock-status-${chapterId}`)
         .filter({ hasText: "Unlocked" })
@@ -229,7 +231,9 @@ test.describe("Chapter locking feature", () => {
       await teacherPage
         .getByTestId("teacher-chapter-status-select")
         .selectOption("completed_and_locked")
-      await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
+      })
       await teacherPage
         .getByTestId(`teacher-chapter-lock-status-${chapterId}`)
         .filter({ hasText: "Completed and locked" })

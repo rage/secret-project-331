@@ -1,3 +1,4 @@
+use crate::error::missing_model_error;
 use crate::prelude::*;
 use std::convert::TryFrom;
 use utoipa::ToSchema;
@@ -212,7 +213,10 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
 
     res.map(|s| s.try_into())
         .transpose()?
-        .ok_or_else(|| ModelError::new(ModelErrorType::NotFound, "Failed to unlock chapter", None))
+        .ok_or_else(missing_model_error(
+            ModelErrorType::NotFound,
+            "Failed to unlock chapter",
+        ))
 }
 
 pub async fn complete_and_lock_chapter(
@@ -237,9 +241,12 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .fetch_optional(&mut *conn)
     .await?;
 
-    res.map(|s| s.try_into()).transpose()?.ok_or_else(|| {
-        ModelError::new(ModelErrorType::NotFound, "Failed to complete chapter", None)
-    })
+    res.map(|s| s.try_into())
+        .transpose()?
+        .ok_or_else(missing_model_error(
+            ModelErrorType::NotFound,
+            "Failed to complete chapter",
+        ))
 }
 
 pub async fn set_chapter_status(
@@ -250,7 +257,8 @@ pub async fn set_chapter_status(
     status: ChapterLockingStatus,
 ) -> ModelResult<UserChapterLockingStatus> {
     let status_text = status.as_db_str();
-    let res = sqlx::query_as::<_, DatabaseRow>(
+    let res = sqlx::query_as!(
+        DatabaseRow,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES (
@@ -275,21 +283,20 @@ SET status = CASE
     deleted_at = NULL
 RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
         "#,
+        user_id,
+        chapter_id,
+        course_id,
+        status_text
     )
-    .bind(user_id)
-    .bind(chapter_id)
-    .bind(course_id)
-    .bind(status_text)
     .fetch_optional(&mut *conn)
     .await?;
 
-    res.map(|s| s.try_into()).transpose()?.ok_or_else(|| {
-        ModelError::new(
+    res.map(|s| s.try_into())
+        .transpose()?
+        .ok_or_else(missing_model_error(
             ModelErrorType::NotFound,
             "Failed to set chapter status",
-            None,
-        )
-    })
+        ))
 }
 
 pub async fn get_or_init_all_for_course(
@@ -452,13 +459,13 @@ WHERE user_id = $1
     .fetch_optional(&mut *conn)
     .await?;
 
-    retrieved.map(|r| r.try_into()).transpose()?.ok_or_else(|| {
-        ModelError::new(
+    retrieved
+        .map(|r| r.try_into())
+        .transpose()?
+        .ok_or_else(missing_model_error(
             ModelErrorType::NotFound,
             "Failed to ensure not_unlocked_yet status",
-            None,
-        )
-    })
+        ))
 }
 
 /// Unlocks the provided chapters for a user within a course.

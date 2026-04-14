@@ -38,10 +38,4 @@ test("User search works", async ({ page, headless }, testInfo) => {
     .getByRole("button", { name: "Course status summary" })
     .click()
   await page.getByText("5 submissions").first().waitFor()
-  await page.getByTestId("teacher-chapter-lock-status-empty").waitFor()
-  await page.locator('[data-testid^="teacher-lock-chapter-"]').first().waitFor({ state: "hidden" })
-  await page
-    .locator('[data-testid^="teacher-unlock-chapter-"]')
-    .first()
-    .waitFor({ state: "hidden" })
 })

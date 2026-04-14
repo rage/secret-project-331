@@ -33,7 +33,8 @@ pub async fn insert(
     reason: Option<String>,
     source: Option<String>,
 ) -> ModelResult<ChapterLockActionLog> {
-    let row = sqlx::query_as::<_, ChapterLockActionLog>(
+    let row = sqlx::query_as!(
+        ChapterLockActionLog,
         r#"
 INSERT INTO chapter_lock_action_logs (
     actor_user_id,
@@ -50,21 +51,21 @@ RETURNING id,
   target_user_id,
   course_id,
   chapter_id,
-  action,
+  action as "action: ChapterLockActionType",
   reason,
   source,
   created_at,
   updated_at,
   deleted_at
         "#,
+        actor_user_id,
+        target_user_id,
+        course_id,
+        chapter_id,
+        action as ChapterLockActionType,
+        reason,
+        source
     )
-    .bind(actor_user_id)
-    .bind(target_user_id)
-    .bind(course_id)
-    .bind(chapter_id)
-    .bind(action)
-    .bind(reason)
-    .bind(source)
     .fetch_one(conn)
     .await?;
     Ok(row)

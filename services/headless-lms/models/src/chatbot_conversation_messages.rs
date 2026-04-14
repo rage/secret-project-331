@@ -74,15 +74,21 @@ pub async fn insert(
     let msg = sqlx::query_as!(
         ChatbotConversationMessageRow,
         r#"
-INSERT INTO chatbot_conversation_messages (
-    conversation_id,
-    order_number
-)
-VALUES ($1, $2)
+INSERT INTO chatbot_conversation_messages (conversation_id, order_number)
+VALUES (
+    $1,
+    (
+      SELECT order_number
+      FROM chatbot_conversation_messages
+      WHERE conversation_id = '2304a5fa-2834-46de-83ec-5fa71ab6bacf'
+        AND deleted_at IS NULL
+      ORDER BY order_number DESC
+      LIMIT 1
+    ) + 1
+  )
 RETURNING *
         "#,
         input.conversation_id,
-        input.order_number,
     )
     .fetch_one(&mut *tx)
     .await?;

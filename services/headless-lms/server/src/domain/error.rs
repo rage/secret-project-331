@@ -391,10 +391,8 @@ impl error::ResponseError for ControllerError {
             _ => None,
         };
 
-        let metadata_json = match metadata {
-            Some(ErrorMetadata::BlockId(id)) => Some(serde_json::json!({ "block_id": id })),
-            None => None,
-        };
+        let metadata_json =
+            metadata.map(|ErrorMetadata::BlockId(id)| serde_json::json!({ "block_id": id }));
         let (error_type, message_key) = self.error_type_and_message_key();
         let errors = self.validation_issues();
         let message = match self.error_type {

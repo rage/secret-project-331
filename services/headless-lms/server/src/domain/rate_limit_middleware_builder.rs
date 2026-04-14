@@ -201,9 +201,7 @@ where
             let resp = HttpResponse::build(StatusCode::TOO_MANY_REQUESTS)
                 .insert_header((header::RETRY_AFTER, secs.to_string()))
                 .content_type("application/json")
-                .body(format!(
-                    r#"{{"type":"rate_limit","message_key":"rate_limited","message":"Too many requests. Please try again later."}}"#
-                ));
+                .body(r#"{"type":"rate_limit","message_key":"rate_limited","message":"Too many requests. Please try again later."}"#.to_string());
             return Box::pin(async move { Ok(req.into_response(resp).map_into_right_body()) });
         }
 

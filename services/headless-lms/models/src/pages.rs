@@ -83,7 +83,7 @@ impl Page {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum LockChapterContentState {
     NotLocked,
@@ -111,6 +111,162 @@ pub struct PageWithExercises {
     #[serde(flatten)]
     pub page: Page,
     pub exercises: Vec<Exercise>,
+}
+
+#[derive(Default)]
+struct CourseMaterialPageContentFilterCache {
+    chapter_lock_content_states: HashMap<Uuid, LockChapterContentState>,
+    course_chapter_locking_enabled: HashMap<Uuid, bool>,
+}
+
+async fn get_lock_chapter_content_state_for_page(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    page: &Page,
+    cache: &mut CourseMaterialPageContentFilterCache,
+) -> ModelResult<Option<LockChapterContentState>> {
+    let Some(chapter_id) = page.chapter_id else {
+        return Ok(None);
+    };
+
+    if let Some(state) = cache.chapter_lock_content_states.get(&chapter_id).copied() {
+        return Ok(Some(state));
+    }
+
+    let state = match (user_id, page.course_id) {
+        (Some(user_id), Some(course_id)) => {
+            let course_chapter_locking_enabled = if let Some(enabled) = cache
+                .course_chapter_locking_enabled
+                .get(&course_id)
+                .copied()
+            {
+                enabled
+            } else {
+                let enabled = courses::get_course(conn, course_id)
+                    .await?
+                    .chapter_locking_enabled;
+                cache
+                    .course_chapter_locking_enabled
+                    .insert(course_id, enabled);
+                enabled
+            };
+
+            let is_locked = matches!(
+                user_chapter_locking_statuses::get_or_init_status(
+                    conn,
+                    user_id,
+                    chapter_id,
+                    Some(course_id),
+                    Some(course_chapter_locking_enabled),
+                )
+                .await?,
+                Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
+            );
+
+            if !is_locked {
+                LockChapterContentState::NotLocked
+            } else if user_exercise_states::has_pending_manual_reviews_in_chapter(
+                conn, user_id, chapter_id,
+            )
+            .await?
+            {
+                LockChapterContentState::WaitingTeacherReview
+            } else {
+                LockChapterContentState::Visible
+            }
+        }
+        _ => LockChapterContentState::NotLocked,
+    };
+
+    cache.chapter_lock_content_states.insert(chapter_id, state);
+    Ok(Some(state))
+}
+
+async fn filter_course_material_page_with_cache(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    page: Page,
+    cache: &mut CourseMaterialPageContentFilterCache,
+) -> ModelResult<(Page, Option<LockChapterContentState>)> {
+    let mut blocks = match page.blocks_cloned() {
+        Ok(blocks) => blocks,
+        Err(e) => {
+            tracing::warn!(
+                "Failed to deserialize page content for page {}: {}. Falling back to empty blocks.",
+                page.id,
+                e
+            );
+            vec![]
+        }
+    };
+
+    blocks = replace_duplicate_client_ids(blocks);
+
+    let lock_chapter_content_state =
+        get_lock_chapter_content_state_for_page(conn, user_id, &page, cache).await?;
+    if let Some(lock_state) = lock_chapter_content_state {
+        blocks = filter_lock_chapter_blocks(
+            blocks,
+            matches!(lock_state, LockChapterContentState::Visible),
+        );
+    }
+
+    let mut filtered_page = page;
+    filtered_page.content = serde_json::to_value(blocks)?;
+    Ok((filtered_page, lock_chapter_content_state))
+}
+
+pub async fn filter_course_material_page(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    page: Page,
+) -> ModelResult<Page> {
+    let mut cache = CourseMaterialPageContentFilterCache::default();
+    Ok(
+        filter_course_material_page_with_cache(conn, user_id, page, &mut cache)
+            .await?
+            .0,
+    )
+}
+
+pub async fn filter_course_material_pages(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    pages: Vec<Page>,
+) -> ModelResult<Vec<Page>> {
+    let mut cache = CourseMaterialPageContentFilterCache::default();
+    let mut filtered_pages = Vec::with_capacity(pages.len());
+    for page in pages {
+        filtered_pages.push(
+            filter_course_material_page_with_cache(conn, user_id, page, &mut cache)
+                .await?
+                .0,
+        );
+    }
+    Ok(filtered_pages)
+}
+
+pub async fn filter_course_material_pages_with_exercises(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    pages_with_exercises: Vec<PageWithExercises>,
+) -> ModelResult<Vec<PageWithExercises>> {
+    let mut cache = CourseMaterialPageContentFilterCache::default();
+    let mut filtered_pages = Vec::with_capacity(pages_with_exercises.len());
+    for page_with_exercises in pages_with_exercises {
+        let (page, _) = filter_course_material_page_with_cache(
+            conn,
+            user_id,
+            page_with_exercises.page,
+            &mut cache,
+        )
+        .await?;
+        filtered_pages.push(PageWithExercises {
+            page,
+            exercises: page_with_exercises.exercises,
+        });
+    }
+    Ok(filtered_pages)
 }
 
 /// Represents the subset of page fields that are required to create a new page.
@@ -772,78 +928,10 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    let mut blocks = match page.blocks_cloned() {
-        Ok(blocks) => blocks,
-        Err(e) => {
-            tracing::warn!(
-                "Failed to deserialize page content for page {}: {}. Falling back to empty blocks.",
-                page.id,
-                e
-            );
-            vec![]
-        }
-    };
-
-    blocks = replace_duplicate_client_ids(blocks);
-
-    let is_locked = if let (Some(user_id), Some(chapter_id)) = (user_id, page.chapter_id) {
-        if let Some(course_id) = page.course_id {
-            use crate::courses;
-            let course = courses::get_course(conn, course_id).await?;
-            let status = user_chapter_locking_statuses::get_or_init_status(
-                conn,
-                user_id,
-                chapter_id,
-                Some(course_id),
-                Some(course.chapter_locking_enabled),
-            )
+    let mut content_filter_cache = CourseMaterialPageContentFilterCache::default();
+    let (filtered_page, lock_chapter_content_state) =
+        filter_course_material_page_with_cache(conn, user_id, page, &mut content_filter_cache)
             .await?;
-            matches!(
-                status,
-                Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
-            )
-        } else {
-            false
-        }
-    } else {
-        false
-    };
-
-    let lock_chapter_content_state = if page.chapter_id.is_some() {
-        let can_view_locked_chapter_content = if is_locked {
-            match (user_id, page.chapter_id) {
-                (Some(user_id), Some(chapter_id)) => {
-                    let pending_manual_reviews =
-                        user_exercise_states::has_pending_manual_reviews_in_chapter(
-                            conn, user_id, chapter_id,
-                        )
-                        .await?;
-                    !pending_manual_reviews
-                }
-                _ => false,
-            }
-        } else {
-            false
-        };
-
-        let lock_state = if !is_locked {
-            Some(LockChapterContentState::NotLocked)
-        } else if can_view_locked_chapter_content {
-            Some(LockChapterContentState::Visible)
-        } else {
-            Some(LockChapterContentState::WaitingTeacherReview)
-        };
-        blocks = filter_lock_chapter_blocks(blocks, can_view_locked_chapter_content);
-        lock_state
-    } else {
-        None
-    };
-
-    let filtered_content = serde_json::to_value(blocks)?;
-
-    // Create a new page with filtered content
-    let mut filtered_page = page;
-    filtered_page.content = filtered_content;
 
     if let Some(course_id) = filtered_page.course_id
         && let Some(user_id) = user_id
@@ -3681,6 +3769,140 @@ mod test {
             title: "".to_string(),
             chapter_id: None,
         }
+    }
+
+    fn lock_chapter_test_block(hidden_text: &str) -> GutenbergBlock {
+        GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            headless_lms_utils::attributes! {},
+            vec![GutenbergBlock::paragraph(hidden_text)],
+        )
+    }
+
+    fn first_lock_chapter_inner_block_count(page: &Page) -> usize {
+        page.blocks_cloned().unwrap()[0].inner_blocks.len()
+    }
+
+    #[tokio::test]
+    async fn filter_course_material_pages_hides_lock_chapter_inner_blocks_until_reviews_complete() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+
+        sqlx::query!(
+            "UPDATE pages SET content = $2 WHERE id = $1",
+            page_id,
+            serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap()
+        )
+        .execute(tx.as_mut().as_mut())
+        .await
+        .unwrap();
+
+        crate::exercises::update_teacher_reviews_answer_after_locking(
+            tx.as_mut(),
+            exercise_id,
+            true,
+        )
+        .await
+        .unwrap();
+        crate::user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise_id,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        crate::user_chapter_locking_statuses::complete_and_lock_chapter(
+            tx.as_mut(),
+            user,
+            chapter_id,
+            course,
+        )
+        .await
+        .unwrap();
+        crate::user_exercise_states::update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            crate::user_exercise_states::ReviewingStage::WaitingForManualGrading,
+        )
+        .await
+        .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages(tx.as_mut(), Some(user), vec![page])
+            .await
+            .unwrap();
+        assert_eq!(first_lock_chapter_inner_block_count(&filtered_pages[0]), 0);
+
+        crate::user_exercise_states::update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            crate::user_exercise_states::ReviewingStage::ReviewedAndLocked,
+        )
+        .await
+        .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages(tx.as_mut(), Some(user), vec![page])
+            .await
+            .unwrap();
+        assert_eq!(first_lock_chapter_inner_block_count(&filtered_pages[0]), 1);
+    }
+
+    #[tokio::test]
+    async fn filter_course_material_pages_with_exercises_hides_lock_chapter_inner_blocks() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: _chapter_id,
+            page: page_id
+        );
+
+        sqlx::query!(
+            "UPDATE pages SET content = $2 WHERE id = $1",
+            page_id,
+            serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap()
+        )
+        .execute(tx.as_mut().as_mut())
+        .await
+        .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages_with_exercises(
+            tx.as_mut(),
+            None,
+            vec![PageWithExercises {
+                page,
+                exercises: vec![],
+            }],
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(
+            first_lock_chapter_inner_block_count(&filtered_pages[0].page),
+            0
+        );
     }
 
     #[tokio::test]

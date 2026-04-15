@@ -412,6 +412,7 @@ export type CoursePageWithUserData = {
   course?: null | Course
   instance?: null | CourseInstance
   is_test_mode: boolean
+  lock_chapter_content_state?: null | LockChapterContentState
   organization?: null | Organization
   page: Page
   settings?: null | UserCourseSettings
@@ -650,6 +651,8 @@ export type IsChapterFrontPage = {
 export type IsTeacherTesting = {
   is_teacher_testing: boolean
 }
+
+export type LockChapterContentState = "not_locked" | "waiting_teacher_review" | "visible"
 
 export type MaterialReference = {
   citation_key: string

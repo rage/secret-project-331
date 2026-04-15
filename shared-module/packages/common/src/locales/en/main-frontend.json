@@ -182,6 +182,7 @@
   "chapter-locked-complete-previous": "Complete and lock the previous chapter to unlock exercises in this chapter.",
   "chapter-locked-description": "The current chapter is locked, and you can no longer submit exercises.",
   "chapter-locked-message": "Chapter locked",
+  "chapter-locked-waiting-teacher-review-description": "Course staff is reviewing your answers in this chapter. The model solution will be shown after the review is complete.",
   "chapter-progress": "Chapter progress",
   "chapters": "Chapters",
   "chatbot": "Chatbot",

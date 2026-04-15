@@ -1,0 +1,23 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT EXISTS (\n    SELECT 1\n    FROM user_exercise_states ues\n    JOIN exercises e ON e.id = ues.exercise_id\n    WHERE ues.user_id = $1\n      AND e.chapter_id = $2\n      AND e.teacher_reviews_answer_after_locking = TRUE\n      AND ues.reviewing_stage = 'waiting_for_manual_grading'::reviewing_stage\n      AND ues.deleted_at IS NULL\n      AND e.deleted_at IS NULL\n ) as \"exists!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "exists!",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null
+    ]
+  },
+  "hash": "59d5963b185f79f77010db67f2a39ca23f4635f5b9b301764a987396eb88441c"
+}

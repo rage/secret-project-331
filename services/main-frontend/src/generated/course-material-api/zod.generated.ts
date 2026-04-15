@@ -544,6 +544,8 @@ export const zIsTeacherTesting = z.object({
   is_teacher_testing: z.boolean(),
 })
 
+export const zLockChapterContentState = z.enum(["not_locked", "waiting_teacher_review", "visible"])
+
 export const zMaterialReference = z.object({
   citation_key: z.string(),
   course_id: z.uuid(),
@@ -1175,6 +1177,7 @@ export const zCoursePageWithUserData = z.object({
   course: zCourse.nullish(),
   instance: zCourseInstance.nullish(),
   is_test_mode: z.boolean(),
+  lock_chapter_content_state: zLockChapterContentState.nullish(),
   organization: zOrganization.nullish(),
   page: zPage,
   settings: zUserCourseSettings.nullish(),

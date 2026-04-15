@@ -32,6 +32,7 @@ use crate::{
     prelude::*,
     user_chapter_locking_statuses,
     user_course_settings::{self, UserCourseSettings},
+    user_exercise_states,
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -83,6 +84,14 @@ impl Page {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LockChapterContentState {
+    NotLocked,
+    WaitingTeacherReview,
+    Visible,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct CoursePageWithUserData {
     pub page: Page,
@@ -90,6 +99,7 @@ pub struct CoursePageWithUserData {
     pub settings: Option<UserCourseSettings>,
     pub course: Option<Course>,
     pub organization: Option<Organization>,
+    pub lock_chapter_content_state: Option<LockChapterContentState>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
     pub was_redirected: bool,
     pub is_test_mode: bool,
@@ -799,9 +809,35 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         false
     };
 
-    if page.chapter_id.is_some() {
-        blocks = filter_lock_chapter_blocks(blocks, is_locked);
-    }
+    let lock_chapter_content_state = if page.chapter_id.is_some() {
+        let can_view_locked_chapter_content = if is_locked {
+            match (user_id, page.chapter_id) {
+                (Some(user_id), Some(chapter_id)) => {
+                    let pending_manual_reviews =
+                        user_exercise_states::has_pending_manual_reviews_in_chapter(
+                            conn, user_id, chapter_id,
+                        )
+                        .await?;
+                    !pending_manual_reviews
+                }
+                _ => false,
+            }
+        } else {
+            false
+        };
+
+        let lock_state = if !is_locked {
+            Some(LockChapterContentState::NotLocked)
+        } else if can_view_locked_chapter_content {
+            Some(LockChapterContentState::Visible)
+        } else {
+            Some(LockChapterContentState::WaitingTeacherReview)
+        };
+        blocks = filter_lock_chapter_blocks(blocks, can_view_locked_chapter_content);
+        lock_state
+    } else {
+        None
+    };
 
     let filtered_content = serde_json::to_value(blocks)?;
 
@@ -831,6 +867,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
             was_redirected,
             is_test_mode,
             organization: Some(organization),
+            lock_chapter_content_state,
         });
     }
     Ok(CoursePageWithUserData {
@@ -841,6 +878,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         was_redirected,
         is_test_mode,
         organization: None,
+        lock_chapter_content_state,
     })
 }
 

@@ -102,13 +102,29 @@ test.describe("Chapter locking feature", () => {
       ).toBeVisible()
     })
 
-    await test.step("Verify model solution is visible after locking", async () => {
-      await expect(studentPage.getByRole("heading", { name: "Model Solution" })).toBeVisible()
+    await test.step("Verify model solution is hidden until teacher reviews manual-review exercises", async () => {
+      await expect(studentPage.getByRole("heading", { name: "Model Solution" })).toBeHidden()
+      await expect(
+        studentPage.getByText(
+          "Course staff is reviewing your answers in this chapter. The model solution will be shown after the review is complete.",
+        ),
+      ).toBeVisible()
       await expect(
         studentPage.getByText(
           "Congratulations on completing Chapter 1! Here's a model solution for the Customer Behavior Analysis Project.",
         ),
-      ).toBeVisible()
+      ).toBeHidden()
+    })
+
+    await test.step("Verify page API does not expose model solution before teacher review", async () => {
+      const pageResponse = await studentPage.request.get(
+        "http://project-331.local/api/v0/course-material/courses/lock-chapter-test-course/page-by-path/chapter-1/lock-page",
+      )
+      expect(pageResponse.ok()).toBeTruthy()
+      const pageData = await pageResponse.json()
+      const pageContent = JSON.stringify(pageData.page?.content || {})
+      expect(pageContent).not.toContain("Model Solution")
+      expect(pageContent).not.toContain("Congratulations on completing Chapter 1")
     })
 
     await test.step("Teacher reviews exercise from Chapter 1", async () => {
@@ -143,6 +159,12 @@ test.describe("Chapter locking feature", () => {
           .getByText("The current chapter is locked, and you can no longer submit exercises.")
           .first(),
       ).toBeHidden()
+      await expect(studentPage.getByRole("heading", { name: "Model Solution" })).toBeVisible()
+      await expect(
+        studentPage.getByText(
+          "Congratulations on completing Chapter 1! Here's a model solution for the Customer Behavior Analysis Project.",
+        ),
+      ).toBeVisible()
     })
 
     await test.step("Verify manual review message is hidden when chapter is locked", async () => {

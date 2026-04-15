@@ -1,12 +1,6 @@
 use crate::prelude::*;
+use crate::user_chapter_locking_statuses::ChapterLockingStatus;
 use utoipa::ToSchema;
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, sqlx::Type, ToSchema)]
-#[sqlx(type_name = "chapter_lock_action_type", rename_all = "kebab-case")]
-pub enum ChapterLockActionType {
-    TeacherLock,
-    TeacherUnlock,
-}
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, sqlx::FromRow, ToSchema)]
 pub struct ChapterLockActionLog {
@@ -15,9 +9,7 @@ pub struct ChapterLockActionLog {
     pub target_user_id: Uuid,
     pub course_id: Uuid,
     pub chapter_id: Uuid,
-    pub action: ChapterLockActionType,
-    pub reason: Option<String>,
-    pub source: Option<String>,
+    pub status: ChapterLockingStatus,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -29,9 +21,7 @@ pub async fn insert(
     target_user_id: Uuid,
     course_id: Uuid,
     chapter_id: Uuid,
-    action: ChapterLockActionType,
-    reason: Option<String>,
-    source: Option<String>,
+    status: ChapterLockingStatus,
 ) -> ModelResult<ChapterLockActionLog> {
     let row = sqlx::query_as!(
         ChapterLockActionLog,
@@ -41,19 +31,15 @@ INSERT INTO chapter_lock_action_logs (
     target_user_id,
     course_id,
     chapter_id,
-    action,
-    reason,
-    source
+    status
 )
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id,
   actor_user_id,
   target_user_id,
   course_id,
   chapter_id,
-  action as "action: ChapterLockActionType",
-  reason,
-  source,
+  status as "status: ChapterLockingStatus",
   created_at,
   updated_at,
   deleted_at
@@ -62,9 +48,7 @@ RETURNING id,
         target_user_id,
         course_id,
         chapter_id,
-        action as ChapterLockActionType,
-        reason,
-        source
+        status as ChapterLockingStatus,
     )
     .fetch_one(conn)
     .await?;

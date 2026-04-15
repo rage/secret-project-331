@@ -148,10 +148,6 @@ export const zChapterAvailability = z.object({
     }),
 })
 
-export const zChapterLockActionPayload = z.object({
-  reason: z.string().nullish(),
-})
-
 export const zChapterLockingStatus = z.enum([
   "unlocked",
   "completed_and_locked",
@@ -159,7 +155,6 @@ export const zChapterLockingStatus = z.enum([
 ])
 
 export const zChapterLockStatusActionPayload = z.object({
-  reason: z.string().nullish(),
   status: zChapterLockingStatus,
 })
 
@@ -3803,8 +3798,6 @@ export const zGetCourseStudentChapterLockingStatusesPath = z.object({
  */
 export const zGetCourseStudentChapterLockingStatusesResponse = z.array(zUserChapterLockingStatus)
 
-export const zTeacherLockStudentChapterBody = zChapterLockActionPayload
-
 export const zTeacherLockStudentChapterPath = z.object({
   course_id: z.uuid(),
   user_id: z.uuid(),
@@ -3828,8 +3821,6 @@ export const zTeacherSetStudentChapterStatusPath = z.object({
  * Updated chapter locking status
  */
 export const zTeacherSetStudentChapterStatusResponse = zUserChapterLockingStatus
-
-export const zTeacherUnlockStudentChapterBody = zChapterLockActionPayload
 
 export const zTeacherUnlockStudentChapterPath = z.object({
   course_id: z.uuid(),

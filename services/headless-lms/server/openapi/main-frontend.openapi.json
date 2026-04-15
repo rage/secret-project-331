@@ -5064,16 +5064,6 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChapterLockActionPayload"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "description": "Updated chapter locking status",
@@ -5186,16 +5176,6 @@
             }
           }
         ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ChapterLockActionPayload"
-              }
-            }
-          },
-          "required": true
-        },
         "responses": {
           "200": {
             "description": "Updated chapter locking status",
@@ -10790,21 +10770,10 @@
           }
         }
       },
-      "ChapterLockActionPayload": {
-        "type": "object",
-        "properties": {
-          "reason": {
-            "type": ["string", "null"]
-          }
-        }
-      },
       "ChapterLockStatusActionPayload": {
         "type": "object",
         "required": ["status"],
         "properties": {
-          "reason": {
-            "type": ["string", "null"]
-          },
           "status": {
             "$ref": "#/components/schemas/ChapterLockingStatus"
           }

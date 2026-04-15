@@ -3397,10 +3397,6 @@ export const teacherLockStudentChapter = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/lock",
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   })
 
 /**
@@ -3442,10 +3438,6 @@ export const teacherUnlockStudentChapter = <ThrowOnError extends boolean = true>
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/students/{user_id}/chapters/{chapter_id}/unlock",
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options.headers,
-    },
   })
 
 /**

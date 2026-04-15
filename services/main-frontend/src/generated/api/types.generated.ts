@@ -225,12 +225,7 @@ export type ChapterAvailability = {
   points_available: number
 }
 
-export type ChapterLockActionPayload = {
-  reason?: string | null
-}
-
 export type ChapterLockStatusActionPayload = {
-  reason?: string | null
   status: ChapterLockingStatus
 }
 
@@ -5128,7 +5123,7 @@ export type GetCourseStudentChapterLockingStatusesResponse =
   GetCourseStudentChapterLockingStatusesResponses[keyof GetCourseStudentChapterLockingStatusesResponses]
 
 export type TeacherLockStudentChapterData = {
-  body: ChapterLockActionPayload
+  body?: never
   path: {
     /**
      * Course id
@@ -5188,7 +5183,7 @@ export type TeacherSetStudentChapterStatusResponse =
   TeacherSetStudentChapterStatusResponses[keyof TeacherSetStudentChapterStatusResponses]
 
 export type TeacherUnlockStudentChapterData = {
-  body: ChapterLockActionPayload
+  body?: never
   path: {
     /**
      * Course id

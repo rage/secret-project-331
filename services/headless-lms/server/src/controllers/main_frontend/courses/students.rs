@@ -1,7 +1,7 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/courses/{course_id}/students`.
 use crate::prelude::*;
 
-use headless_lms_models::chapter_lock_action_logs::{self, ChapterLockActionType};
+use headless_lms_models::chapter_lock_action_logs;
 use headless_lms_models::chapters::CourseUserInfo;
 use headless_lms_models::library::students_view::{
     CertificateGridRow, CompletionGridRow, ProgressOverview,
@@ -27,14 +27,8 @@ use utoipa::ToSchema;
 pub(crate) struct MainFrontendCourseStudentsApiDoc;
 
 #[derive(Debug, Deserialize, ToSchema)]
-struct ChapterLockActionPayload {
-    reason: Option<String>,
-}
-
-#[derive(Debug, Deserialize, ToSchema)]
 struct ChapterLockStatusActionPayload {
     status: ChapterLockingStatus,
-    reason: Option<String>,
 }
 
 /// GET `/api/v0/main-frontend/courses/{course_id}/students/progress`
@@ -225,7 +219,6 @@ async fn get_certificates(
         ("user_id" = Uuid, Path, description = "Target student id"),
         ("chapter_id" = Uuid, Path, description = "Chapter id")
     ),
-    request_body = ChapterLockActionPayload,
     responses(
         (status = 200, description = "Updated chapter locking status", body = UserChapterLockingStatus)
     )
@@ -233,7 +226,6 @@ async fn get_certificates(
 #[instrument(skip(pool))]
 async fn teacher_lock_student_chapter(
     path: web::Path<(Uuid, Uuid, Uuid)>,
-    payload: web::Json<ChapterLockActionPayload>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<UserChapterLockingStatus>> {
@@ -279,9 +271,7 @@ async fn teacher_lock_student_chapter(
         target_user_id,
         course_id,
         chapter_id,
-        ChapterLockActionType::TeacherLock,
-        payload.reason.clone(),
-        Some("main-frontend-teacher-chapter-lock-control".to_string()),
+        status.status,
     )
     .await?;
     tx.commit().await?;
@@ -300,7 +290,6 @@ async fn teacher_lock_student_chapter(
         ("user_id" = Uuid, Path, description = "Target student id"),
         ("chapter_id" = Uuid, Path, description = "Chapter id")
     ),
-    request_body = ChapterLockActionPayload,
     responses(
         (status = 200, description = "Updated chapter locking status", body = UserChapterLockingStatus)
     )
@@ -308,7 +297,6 @@ async fn teacher_lock_student_chapter(
 #[instrument(skip(pool))]
 async fn teacher_unlock_student_chapter(
     path: web::Path<(Uuid, Uuid, Uuid)>,
-    payload: web::Json<ChapterLockActionPayload>,
     pool: web::Data<PgPool>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<UserChapterLockingStatus>> {
@@ -354,9 +342,7 @@ async fn teacher_unlock_student_chapter(
         target_user_id,
         course_id,
         chapter_id,
-        ChapterLockActionType::TeacherUnlock,
-        payload.reason.clone(),
-        Some("main-frontend-teacher-chapter-lock-control".to_string()),
+        status.status,
     )
     .await?;
     tx.commit().await?;
@@ -424,20 +410,13 @@ async fn teacher_set_student_chapter_status(
         payload.status,
     )
     .await?;
-    let action = if matches!(payload.status, ChapterLockingStatus::Unlocked) {
-        ChapterLockActionType::TeacherUnlock
-    } else {
-        ChapterLockActionType::TeacherLock
-    };
     chapter_lock_action_logs::insert(
         &mut tx,
         Some(user.id),
         target_user_id,
         course_id,
         chapter_id,
-        action,
-        payload.reason.clone(),
-        Some("main-frontend-teacher-chapter-lock-control".to_string()),
+        status.status,
     )
     .await?;
     tx.commit().await?;

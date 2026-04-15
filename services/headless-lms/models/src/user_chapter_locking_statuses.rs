@@ -1,10 +1,10 @@
 use crate::error::missing_model_error;
 use crate::prelude::*;
-use std::convert::TryFrom;
 use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema, sqlx::Type)]
 #[serde(rename_all = "snake_case")]
+#[sqlx(type_name = "chapter_locking_status", rename_all = "snake_case")]
 pub enum ChapterLockingStatus {
     /// Chapter is unlocked and exercises can be submitted.
     Unlocked,
@@ -14,30 +14,7 @@ pub enum ChapterLockingStatus {
     NotUnlockedYet,
 }
 
-impl ChapterLockingStatus {
-    pub fn from_db(s: &str) -> ModelResult<Self> {
-        match s {
-            "unlocked" => Ok(ChapterLockingStatus::Unlocked),
-            "completed_and_locked" => Ok(ChapterLockingStatus::CompletedAndLocked),
-            "not_unlocked_yet" => Ok(ChapterLockingStatus::NotUnlockedYet),
-            _ => Err(ModelError::new(
-                ModelErrorType::Database,
-                format!("Invalid chapter locking status from database: {}", s),
-                None,
-            )),
-        }
-    }
-
-    pub fn as_db_str(self) -> &'static str {
-        match self {
-            ChapterLockingStatus::Unlocked => "unlocked",
-            ChapterLockingStatus::CompletedAndLocked => "completed_and_locked",
-            ChapterLockingStatus::NotUnlockedYet => "not_unlocked_yet",
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema, sqlx::FromRow)]
 
 pub struct UserChapterLockingStatus {
     pub id: Uuid,
@@ -50,36 +27,6 @@ pub struct UserChapterLockingStatus {
     pub status: ChapterLockingStatus,
 }
 
-#[derive(sqlx::FromRow)]
-struct DatabaseRow {
-    id: Uuid,
-    created_at: DateTime<Utc>,
-    updated_at: DateTime<Utc>,
-    deleted_at: Option<DateTime<Utc>>,
-    user_id: Uuid,
-    chapter_id: Uuid,
-    course_id: Uuid,
-    status: String,
-}
-
-impl TryFrom<DatabaseRow> for UserChapterLockingStatus {
-    type Error = ModelError;
-
-    fn try_from(row: DatabaseRow) -> Result<Self, Self::Error> {
-        let status = ChapterLockingStatus::from_db(&row.status)?;
-        Ok(UserChapterLockingStatus {
-            id: row.id,
-            created_at: row.created_at,
-            updated_at: row.updated_at,
-            deleted_at: row.deleted_at,
-            user_id: row.user_id,
-            chapter_id: row.chapter_id,
-            course_id: row.course_id,
-            status,
-        })
-    }
-}
-
 async fn get_or_init_status_row(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -88,9 +35,9 @@ async fn get_or_init_status_row(
     course_locking_enabled: Option<bool>,
 ) -> ModelResult<Option<UserChapterLockingStatus>> {
     let res = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND chapter_id = $2
@@ -103,7 +50,7 @@ WHERE user_id = $1
     .await?;
 
     if let Some(row) = res {
-        return row.try_into().map(Some);
+        return Ok(Some(row));
     }
 
     if let (Some(course_id), Some(true)) = (course_id, course_locking_enabled) {
@@ -122,10 +69,11 @@ pub async fn get_or_init_status(
     course_id: Option<Uuid>,
     course_locking_enabled: Option<bool>,
 ) -> ModelResult<Option<ChapterLockingStatus>> {
-    get_or_init_status_row(conn, user_id, chapter_id, course_id, course_locking_enabled)
-        .await?
-        .map(|s| Ok(s.status))
-        .transpose()
+    Ok(
+        get_or_init_status_row(conn, user_id, chapter_id, course_id, course_locking_enabled)
+            .await?
+            .map(|s| s.status),
+    )
 }
 
 pub async fn is_chapter_accessible(
@@ -196,13 +144,13 @@ pub async fn unlock_chapter(
     course_id: Uuid,
 ) -> ModelResult<UserChapterLockingStatus> {
     let res = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'unlocked'::chapter_locking_status, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'unlocked'::chapter_locking_status, deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
         "#,
         user_id,
         chapter_id,
@@ -211,12 +159,10 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .fetch_optional(&mut *conn)
     .await?;
 
-    res.map(|s| s.try_into())
-        .transpose()?
-        .ok_or_else(missing_model_error(
-            ModelErrorType::NotFound,
-            "Failed to unlock chapter",
-        ))
+    res.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to unlock chapter",
+    ))
 }
 
 pub async fn complete_and_lock_chapter(
@@ -226,13 +172,13 @@ pub async fn complete_and_lock_chapter(
     course_id: Uuid,
 ) -> ModelResult<UserChapterLockingStatus> {
     let res = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'completed_and_locked'::chapter_locking_status, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'completed_and_locked'::chapter_locking_status, deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
         "#,
         user_id,
         chapter_id,
@@ -241,12 +187,10 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .fetch_optional(&mut *conn)
     .await?;
 
-    res.map(|s| s.try_into())
-        .transpose()?
-        .ok_or_else(missing_model_error(
-            ModelErrorType::NotFound,
-            "Failed to complete chapter",
-        ))
+    res.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to complete chapter",
+    ))
 }
 
 pub async fn set_chapter_status(
@@ -256,47 +200,27 @@ pub async fn set_chapter_status(
     course_id: Uuid,
     status: ChapterLockingStatus,
 ) -> ModelResult<UserChapterLockingStatus> {
-    let status_text = status.as_db_str();
     let res = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
-VALUES (
-    $1,
-    $2,
-    $3,
-    CASE
-      WHEN $4::text = 'unlocked' THEN 'unlocked'::chapter_locking_status
-      WHEN $4::text = 'completed_and_locked' THEN 'completed_and_locked'::chapter_locking_status
-      WHEN $4::text = 'not_unlocked_yet' THEN 'not_unlocked_yet'::chapter_locking_status
-      ELSE 'not_unlocked_yet'::chapter_locking_status
-    END,
-    NULL
-)
+VALUES ($1, $2, $3, $4, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
-SET status = CASE
-      WHEN $4::text = 'unlocked' THEN 'unlocked'::chapter_locking_status
-      WHEN $4::text = 'completed_and_locked' THEN 'completed_and_locked'::chapter_locking_status
-      WHEN $4::text = 'not_unlocked_yet' THEN 'not_unlocked_yet'::chapter_locking_status
-      ELSE 'not_unlocked_yet'::chapter_locking_status
-    END,
-    deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SET status = $4, deleted_at = NULL
+RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
         "#,
         user_id,
         chapter_id,
         course_id,
-        status_text
+        status as ChapterLockingStatus,
     )
     .fetch_optional(&mut *conn)
     .await?;
 
-    res.map(|s| s.try_into())
-        .transpose()?
-        .ok_or_else(missing_model_error(
-            ModelErrorType::NotFound,
-            "Failed to set chapter status",
-        ))
+    res.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to set chapter status",
+    ))
 }
 
 pub async fn get_or_init_all_for_course(
@@ -337,9 +261,9 @@ ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
         course_id: Uuid,
     ) -> ModelResult<Vec<UserChapterLockingStatus>> {
         let rows = sqlx::query_as!(
-            DatabaseRow,
+            UserChapterLockingStatus,
             r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND course_id = $2
@@ -351,9 +275,7 @@ WHERE user_id = $1
         .fetch_all(&mut *conn)
         .await?;
 
-        rows.into_iter()
-            .map(|r| r.try_into())
-            .collect::<ModelResult<Vec<_>>>()
+        Ok(rows)
     }
 
     let mut statuses = get_statuses_for_user_and_course(conn, user_id, course_id).await?;
@@ -377,9 +299,9 @@ pub async fn get_all_for_course(
     course_id: Uuid,
 ) -> ModelResult<Vec<UserChapterLockingStatus>> {
     let rows = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
 FROM user_chapter_locking_statuses
 WHERE course_id = $1
   AND deleted_at IS NULL
@@ -389,7 +311,7 @@ WHERE course_id = $1
     .fetch_all(&mut *conn)
     .await?;
 
-    rows.into_iter().map(|row| row.try_into()).collect()
+    Ok(rows)
 }
 
 /// Returns all chapter locking statuses for a specific user in a course.
@@ -399,9 +321,9 @@ pub async fn get_for_user_and_course(
     course_id: Uuid,
 ) -> ModelResult<Vec<UserChapterLockingStatus>> {
     let rows = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND course_id = $2
@@ -413,7 +335,7 @@ WHERE user_id = $1
     .fetch_all(&mut *conn)
     .await?;
 
-    rows.into_iter().map(|row| row.try_into()).collect()
+    Ok(rows)
 }
 
 /// Creates a status row with `not_unlocked_yet` status if one doesn't exist.
@@ -425,13 +347,13 @@ pub async fn ensure_not_unlocked_yet_status(
     chapter_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<UserChapterLockingStatus> {
-    let res: Option<DatabaseRow> = sqlx::query_as!(
-        DatabaseRow,
+    let res: Option<UserChapterLockingStatus> = sqlx::query_as!(
+        UserChapterLockingStatus,
         r#"
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'not_unlocked_yet'::chapter_locking_status, NULL)
 ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
         "#,
         user_id,
         chapter_id,
@@ -441,13 +363,13 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     .await?;
 
     if let Some(status) = res {
-        return status.try_into();
+        return Ok(status);
     }
 
     let retrieved = sqlx::query_as!(
-        DatabaseRow,
+        UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as "status!"
+SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND chapter_id = $2
@@ -459,13 +381,10 @@ WHERE user_id = $1
     .fetch_optional(&mut *conn)
     .await?;
 
-    retrieved
-        .map(|r| r.try_into())
-        .transpose()?
-        .ok_or_else(missing_model_error(
-            ModelErrorType::NotFound,
-            "Failed to ensure not_unlocked_yet status",
-        ))
+    retrieved.ok_or_else(missing_model_error(
+        ModelErrorType::NotFound,
+        "Failed to ensure not_unlocked_yet status",
+    ))
 }
 
 /// Unlocks the provided chapters for a user within a course.

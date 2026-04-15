@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)\nVALUES ($1, $2, $3, 'unlocked'::chapter_locking_status, NULL)\nON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE\nSET status = 'unlocked'::chapter_locking_status, deleted_at = NULL\nRETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\n        ",
+  "query": "\nINSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)\nVALUES ($1, $2, $3, 'completed_and_locked'::chapter_locking_status, NULL)\nON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE\nSET status = 'completed_and_locked'::chapter_locking_status, deleted_at = NULL\nRETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as \"status: ChapterLockingStatus\"\n        ",
   "describe": {
     "columns": [
       {
@@ -40,8 +40,19 @@
       },
       {
         "ordinal": 7,
-        "name": "status!",
-        "type_info": "Text"
+        "name": "status: ChapterLockingStatus",
+        "type_info": {
+          "Custom": {
+            "name": "chapter_locking_status",
+            "kind": {
+              "Enum": [
+                "unlocked",
+                "completed_and_locked",
+                "not_unlocked_yet"
+              ]
+            }
+          }
+        }
       }
     ],
     "parameters": {
@@ -59,8 +70,8 @@
       false,
       false,
       false,
-      null
+      false
     ]
   },
-  "hash": "29a8e811fa6d829134d97a7f49d4e94c4b88a3592cbe35cea96c520e3c62ee2b"
+  "hash": "83183db251f6430d1eda3299e13a6e379fb62de92c4cefcf4f8f74d28d975b74"
 }

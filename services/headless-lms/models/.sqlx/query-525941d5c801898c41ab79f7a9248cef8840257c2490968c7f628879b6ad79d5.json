@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chapter_lock_action_logs (\n    actor_user_id,\n    target_user_id,\n    course_id,\n    chapter_id,\n    action,\n    reason,\n    source\n)\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id,\n  actor_user_id,\n  target_user_id,\n  course_id,\n  chapter_id,\n  action as \"action: ChapterLockActionType\",\n  reason,\n  source,\n  created_at,\n  updated_at,\n  deleted_at\n        ",
+  "query": "\nINSERT INTO chapter_lock_action_logs (\n    actor_user_id,\n    target_user_id,\n    course_id,\n    chapter_id,\n    status\n)\nVALUES ($1, $2, $3, $4, $5)\nRETURNING id,\n  actor_user_id,\n  target_user_id,\n  course_id,\n  chapter_id,\n  status as \"status: ChapterLockingStatus\",\n  created_at,\n  updated_at,\n  deleted_at\n        ",
   "describe": {
     "columns": [
       {
@@ -30,14 +30,15 @@
       },
       {
         "ordinal": 5,
-        "name": "action: ChapterLockActionType",
+        "name": "status: ChapterLockingStatus",
         "type_info": {
           "Custom": {
-            "name": "chapter_lock_action_type",
+            "name": "chapter_locking_status",
             "kind": {
               "Enum": [
-                "teacher-lock",
-                "teacher-unlock"
+                "unlocked",
+                "completed_and_locked",
+                "not_unlocked_yet"
               ]
             }
           }
@@ -45,26 +46,16 @@
       },
       {
         "ordinal": 6,
-        "name": "reason",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 7,
-        "name": "source",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 8,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 9,
+        "ordinal": 7,
         "name": "updated_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 10,
+        "ordinal": 8,
         "name": "deleted_at",
         "type_info": "Timestamptz"
       }
@@ -77,17 +68,16 @@
         "Uuid",
         {
           "Custom": {
-            "name": "chapter_lock_action_type",
+            "name": "chapter_locking_status",
             "kind": {
               "Enum": [
-                "teacher-lock",
-                "teacher-unlock"
+                "unlocked",
+                "completed_and_locked",
+                "not_unlocked_yet"
               ]
             }
           }
-        },
-        "Text",
-        "Text"
+        }
       ]
     },
     "nullable": [
@@ -97,12 +87,10 @@
       false,
       false,
       false,
-      true,
-      true,
       false,
       false,
       true
     ]
   },
-  "hash": "181bf285e9c60236467e8356fdf052f5fe91004dbd0a944fcc811e706445638b"
+  "hash": "525941d5c801898c41ab79f7a9248cef8840257c2490968c7f628879b6ad79d5"
 }

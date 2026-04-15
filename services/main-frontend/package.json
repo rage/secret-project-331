@@ -5,7 +5,6 @@
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production next build",
-    "codegen:api": "openapi-ts -f openapi-ts.config.ts",
     "dev": "next dev --turbopack",
     "export": "next export",
     "postinstall": "mkdir -p public && cp -r ./node_modules/monaco-editor/min ./public/monaco-editor",
@@ -80,7 +79,6 @@
     "zod": "4.1.5"
   },
   "devDependencies": {
-    "@hey-api/openapi-ts": "0.95.0",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

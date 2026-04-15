@@ -32,11 +32,8 @@ pub async fn get_progress(
         crate::user_exercise_states::get_all_for_course(conn, course_id).await?;
     let chapter_availability = chapters::fetch_chapter_availability(conn, course_id).await?;
     let user_chapter_progress = chapters::fetch_user_chapter_progress(conn, course_id).await?;
-    let user_chapter_locking_statuses = if course.chapter_locking_enabled {
-        crate::user_chapter_locking_statuses::get_all_for_course(conn, course_id).await?
-    } else {
-        Vec::new()
-    };
+    let user_chapter_locking_statuses =
+        crate::user_chapter_locking_statuses::get_all_for_course(conn, &course).await?;
 
     Ok(ProgressOverview {
         chapter_locking_enabled: course.chapter_locking_enabled,

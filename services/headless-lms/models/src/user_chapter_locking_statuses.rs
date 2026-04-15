@@ -296,8 +296,12 @@ WHERE user_id = $1
 
 pub async fn get_all_for_course(
     conn: &mut PgConnection,
-    course_id: Uuid,
+    course: &crate::courses::Course,
 ) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    if !course.chapter_locking_enabled {
+        return Ok(Vec::new());
+    }
+
     let rows = sqlx::query_as!(
         UserChapterLockingStatus,
         r#"
@@ -306,7 +310,7 @@ FROM user_chapter_locking_statuses
 WHERE course_id = $1
   AND deleted_at IS NULL
         "#,
-        course_id
+        course.id
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -318,8 +322,12 @@ WHERE course_id = $1
 pub async fn get_for_user_and_course(
     conn: &mut PgConnection,
     user_id: Uuid,
-    course_id: Uuid,
+    course: &crate::courses::Course,
 ) -> ModelResult<Vec<UserChapterLockingStatus>> {
+    if !course.chapter_locking_enabled {
+        return Ok(Vec::new());
+    }
+
     let rows = sqlx::query_as!(
         UserChapterLockingStatus,
         r#"
@@ -330,7 +338,7 @@ WHERE user_id = $1
   AND deleted_at IS NULL
         "#,
         user_id,
-        course_id
+        course.id
     )
     .fetch_all(&mut *conn)
     .await?;
@@ -726,7 +734,10 @@ mod tests {
             .await
             .unwrap();
 
-        let statuses = get_all_for_course(tx.as_mut(), course).await.unwrap();
+        let course = crate::courses::get_course(tx.as_mut(), course)
+            .await
+            .unwrap();
+        let statuses = get_all_for_course(tx.as_mut(), &course).await.unwrap();
 
         assert_eq!(statuses.len(), 1);
         assert_eq!(statuses[0].user_id, user);

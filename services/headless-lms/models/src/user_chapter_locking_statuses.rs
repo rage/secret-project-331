@@ -712,7 +712,23 @@ mod tests {
 
     #[tokio::test]
     async fn get_all_for_course_returns_existing_statuses_without_initializing_missing_rows() {
-        insert_data!(:tx, :user, user_2: user_2, :org, course: course, instance: _instance, :course_module);
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            course: course,
+            instance: _instance,
+            :course_module
+        );
+        let user_2 = crate::users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &format!("{}@example.com", Uuid::new_v4()),
+            None,
+            None,
+        )
+        .await
+        .unwrap();
         let chapter = crate::chapters::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,

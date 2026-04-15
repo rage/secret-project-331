@@ -34,7 +34,7 @@ use crate::chatbot_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
-use crate::citations::chatbot_annotations_to_citations;
+use crate::citations::chatbot_cited_documents_to_citations;
 use crate::llm_utils::{APIMessage, MessageContent, estimate_tokens, make_streaming_llm_request};
 
 use crate::prelude::*;
@@ -389,22 +389,6 @@ impl LLMRequest {
         );
 
         let (search_tool, use_search) = if configuration.use_azure_search {
-            /* this is probably not needed anymore:
-             // if there are data sources, the message history might contain incompatible
-            // tool call and result messages. Remove tool call messages and turn tool
-            // response messages into role=assistant messages with the tool output as
-            // text content.
-            api_chat_messages = api_chat_messages
-                .into_iter()
-                .filter(|m| !matches!(m.fields, APIMessageKind::ToolCall(_)))
-                .map(|m| match m.fields {
-                    APIMessageKind::ToolResponse(r) => APIMessage {
-                        role: MessageRole::Assistant,
-                        fields: APIMessageKind::Text(APIMessageText { content: r.content }),
-                    },
-                    _ => m,
-                })
-                .collect(); */
             (
                 vec![AzureLLMToolDefinition::Search(
                     get_azure_ai_search_tool_definition(
@@ -715,7 +699,7 @@ pub async fn process_output_item(
 
             let conversation_message = chatbot_conversation_messages::insert(conn, message).await?;
 
-            chatbot_annotations_to_citations(
+            chatbot_cited_documents_to_citations(
                 conn,
                 get_urls,
                 &api_key,
@@ -822,18 +806,27 @@ pub async fn parse_tool<'a>(
         let response_output = serde_json::from_str::<ResponseOutput>(json_str)
             .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {} {}", e, json_str))?;
         if let Some(item) = response_output.item {
-            if let OutputItem::FunctionCall {
-                call_id,
-                tool_name,
-                arguments,
-            } = item
-            {
-                // this chunk has tool call data
-                function_name_id_args.push((tool_name, call_id, serde_json::to_value(arguments)?));
-            } else {
-                // this could be a reasoning chunk
-                // this could be an azure search chunk
-                process_output_item(conn, item, conversation_id, app_config).await?;
+            match item {
+                OutputItem::FunctionCall {
+                    call_id,
+                    tool_name,
+                    arguments,
+                } => {
+                    function_name_id_args.push((
+                        tool_name,
+                        call_id,
+                        serde_json::to_value(arguments)?,
+                    ));
+                }
+                OutputItem::Message { .. } => Err(ChatbotError::new(
+                    ChatbotErrorType::StreamingError,
+                    "Error: unexpected message item !!!".to_string(),
+                    None,
+                ))?,
+                _ => {
+                    // save this chunk's data
+                    process_output_item(conn, item, conversation_id, app_config).await?;
+                }
             }
         }
     }
@@ -940,7 +933,7 @@ pub async fn parse_and_stream_to_user<'a>(
             if let Some(item) = &response_output.item {
                 match item {
                     OutputItem::Message { .. } => continue,
-                    OutputItem::FunctionCall { .. } => println!("ERROR! Shouldn't call function here"),
+                    OutputItem::FunctionCall { .. } => Err(ChatbotError::new(ChatbotErrorType::StreamingError, "Error: unexpected function call after / during a text response.".to_string(), None))?,
                     _ => {
                         let mut conn = pool.acquire().await?;
                         process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;

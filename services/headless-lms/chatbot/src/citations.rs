@@ -2,15 +2,13 @@ use std::path::PathBuf;
 
 use crate::{llm_utils::build_llm_headers, prelude::*};
 
-use futures::future::try_join_all;
 use headless_lms_models::chatbot_conversation_messages_citations::{
     self, ChatbotConversationMessageCitation,
 };
-use headless_lms_utils::{ApplicationConfiguration, url_encoding::url_decode};
+use headless_lms_utils::url_encoding::url_decode;
 use reqwest::Response;
-use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
-use tracing::{debug, error, instrument, trace, warn};
+use tracing::{error, instrument, trace};
 use url::Url;
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -70,17 +68,19 @@ impl CourseMaterialDocument {
     }
 }
 
-pub async fn chatbot_annotations_to_citations(
+/// Get documents cited by the chatbot from the search index and save them
+/// as chatbot_conversation_message_citations into the database
+pub async fn chatbot_cited_documents_to_citations(
     conn: &mut PgConnection,
     mut get_urls: Vec<Url>,
     api_key: &str,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
-) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
-    let res = for (idx, url) in get_urls.iter_mut().enumerate() {
+) -> anyhow::Result<()> {
+    for (idx, url) in get_urls.iter_mut().enumerate() {
         let document = get_course_material_document(url, api_key).await?;
         let citation_number = (idx + 1) as i32;
-        let a = save_document(
+        save_document(
             conn,
             document,
             conversation_message_id,
@@ -88,11 +88,12 @@ pub async fn chatbot_annotations_to_citations(
             citation_number,
         )
         .await?;
-    };
+    }
 
-    Ok(vec![])
+    Ok(())
 }
 
+/// Get a document from the search index with a LLM-provided get url
 async fn get_course_material_document(
     endpoint: &mut Url,
     api_key: &str,
@@ -137,6 +138,7 @@ async fn process_course_material_document_response(
     Ok(document)
 }
 
+/// Save a course material document into the database as a citation
 async fn save_document(
     conn: &mut PgConnection,
     document: CourseMaterialDocument,

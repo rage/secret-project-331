@@ -16,6 +16,24 @@ pub struct ChatbotConversationMessageCitation {
     pub citation_number: i32,
 }
 
+impl Default for ChatbotConversationMessageCitation {
+    fn default() -> Self {
+        Self {
+            id: Uuid::nil(),
+            created_at: Default::default(),
+            updated_at: Default::default(),
+            deleted_at: None,
+            conversation_message_id: Uuid::nil(),
+            conversation_id: Uuid::nil(),
+            course_material_chapter_number: None,
+            title: Default::default(),
+            content: Default::default(),
+            document_url: Default::default(),
+            citation_number: Default::default(),
+        }
+    }
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     input: ChatbotConversationMessageCitation,

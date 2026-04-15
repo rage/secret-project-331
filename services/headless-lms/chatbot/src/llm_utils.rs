@@ -114,7 +114,7 @@ impl APIMessage {
                 message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
                     tool_call_id: call_id,
                     tool_kind: ToolKind::AzureAiSearch,
-                    output,
+                    output: serde_json::to_string(&output)?,
                     ..Default::default()
                 }),
                 ..Default::default()
@@ -191,7 +191,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 ToolKind::AzureAiSearch => APIMessage {
                     message_type: OutputItem::AzureAiSearchCallOutput {
                         call_id: tool_output.tool_call_id,
-                        output: tool_output.output,
+                        output: serde_json::from_str(&tool_output.output)?,
                     },
                 },
             },

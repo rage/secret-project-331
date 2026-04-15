@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::{
     Arc,
@@ -19,7 +18,6 @@ use headless_lms_models::chatbot_conversation_message_messages::{
 use headless_lms_models::chatbot_conversation_messages::{
     self, ChatbotConversationMessage, Message,
 };
-use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
 use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
@@ -29,14 +27,15 @@ use tokio::{io::AsyncBufReadExt, sync::Mutex};
 use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use tracing::trace;
+use url::Url;
 
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
+use crate::citations::chatbot_annotations_to_citations;
 use crate::llm_utils::{APIMessage, MessageContent, estimate_tokens, make_streaming_llm_request};
-use headless_lms_utils::url_encoding::url_decode;
 
 use crate::prelude::*;
 
@@ -177,7 +176,7 @@ pub enum OutputItem {
     },
     AzureAiSearchCallOutput {
         call_id: String,
-        output: String, // json string
+        output: AiSearchOutput, // json string
     },
     FunctionCall {
         call_id: String,
@@ -189,6 +188,11 @@ pub enum OutputItem {
         call_id: String,
         output: String,
     },
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+pub struct AiSearchOutput {
+    pub get_urls: Vec<Url>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -599,7 +603,7 @@ pub async fn make_request_and_stream<'a>(
     let peekable_lines_stream = lines_stream.peekable();
     let mut pinned_lines = Box::pin(peekable_lines_stream);
 
-    let mut event_type = "".to_string();
+    let mut event_type;
     let mut output_item_incoming = false;
 
     loop {
@@ -616,9 +620,10 @@ pub async fn make_request_and_stream<'a>(
             }
             Some(Result::Ok(line)) => {
                 println!("🐈🐈🐈🐈🐈🐈🐈🐈{:?}", line);
-                // save the response_id!
+                // todo save the response_id!
                 if line.starts_with("event: ") {
                     event_type = line.trim_start_matches("event: ").to_string();
+                    trace!("Event: {event_type}");
                 } else if output_item_incoming && line.starts_with("data: ") {
                     let json_str = line.trim_start_matches("data: ");
 
@@ -629,7 +634,7 @@ pub async fn make_request_and_stream<'a>(
                         "Expected response ouput item",
                         None,
                     ))?;
-                    process_output_item(conn, item, conversation_id).await?;
+                    process_output_item(conn, item, conversation_id, app_config).await?;
                     output_item_incoming = false;
                     pinned_lines.next().await;
                     continue;
@@ -660,7 +665,6 @@ pub async fn make_request_and_stream<'a>(
                         continue;
                     }
                 }
-                //pinned_lines.next().await;
             }
         }
     }
@@ -677,15 +681,46 @@ pub async fn process_output_item(
     conn: &mut PgConnection,
     item: OutputItem,
     conversation_id: Uuid,
+    app_config: &ApplicationConfiguration,
 ) -> ChatbotResult<ChatbotConversationMessage> {
     match item {
-        OutputItem::AzureAiSearchCall { .. }
-        | OutputItem::AzureAiSearchCallOutput { .. }
-        | OutputItem::Reasoning { .. } => {
+        OutputItem::AzureAiSearchCall { .. } | OutputItem::Reasoning { .. } => {
             let message = APIMessage { message_type: item }
                 .to_chatbot_conversation_message(conversation_id)?;
 
             ChatbotResult::Ok(chatbot_conversation_messages::insert(conn, message).await?)
+        }
+        OutputItem::AzureAiSearchCallOutput { call_id, output } => {
+            let api_key = if let Some(azure_config) = &app_config.azure_configuration
+                && let Some(search_config) = &azure_config.search_config
+            {
+                &search_config.search_api_key
+            } else {
+                return ChatbotResult::Err(ChatbotError::new(
+                    ChatbotErrorType::Other,
+                    "Azure search configuration not found, cannot process Azure AI search output item.".to_string(),
+                    None,
+                ));
+            };
+            let get_urls = output.get_urls.to_owned();
+
+            let message = APIMessage {
+                message_type: OutputItem::AzureAiSearchCallOutput { call_id, output },
+            }
+            .to_chatbot_conversation_message(conversation_id)?;
+
+            let conversation_message = chatbot_conversation_messages::insert(conn, message).await?;
+
+            chatbot_annotations_to_citations(
+                conn,
+                get_urls,
+                &api_key,
+                conversation_message.id,
+                conversation_id,
+            )
+            .await?;
+
+            ChatbotResult::Ok(conversation_message)
         }
         OutputItem::Message { .. } => {
             // this chunk has a text message and should be streamed!
@@ -723,6 +758,7 @@ pub async fn parse_tool<'a>(
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
     user_context: &ChatbotUserContext,
+    app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<Vec<APIMessage>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
@@ -793,7 +829,7 @@ pub async fn parse_tool<'a>(
             } else {
                 // this could be a reasoning chunk
                 // this could be an azure search chunk
-                process_output_item(conn, item, conversation_id).await?;
+                process_output_item(conn, item, conversation_id, app_config).await?;
             }
         }
     }
@@ -808,6 +844,7 @@ pub async fn parse_and_stream_to_user<'a>(
     //response_order_number: i32,
     pool: PgPool,
     request_estimated_tokens: i32,
+    app_config: ApplicationConfiguration,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
     // insert the to-be-streamed bot text response to db
     let response_message = models::chatbot_conversation_messages::insert(
@@ -898,54 +935,15 @@ pub async fn parse_and_stream_to_user<'a>(
 
             if let Some(item) = &response_output.item {
                 match item {
-                    OutputItem::Message { role, content } => continue,
-                    OutputItem::AzureAiSearchCallOutput {call_id, output} => println!("save cited documents {:?}", output),
-                    OutputItem::FunctionCall {call_id, tool_name, arguments} => println!("ERROR! Shouldn't call function here"),
-                    _ => continue,
+                    OutputItem::Message { .. } => continue,
+                    OutputItem::FunctionCall { .. } => println!("ERROR! Shouldn't call function here"),
+                    _ => {
+                        let mut conn = pool.acquire().await?;
+                        process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;
+                        continue;
+                    },
 
                 };
-                let mut conn = pool.acquire().await?;
-                /* for (idx, cit) in context.citations.iter().enumerate() {
-                    let content = if cit.content.len() < 255 {cit.content.clone()} else {cit.content[0..255].to_string()};
-                    let split = content.split_once(CONTENT_FIELD_SEPARATOR);
-                    if split.is_none() {
-                        error!("Chatbot citation doesn't have any content or is missing 'chunk_context'. Something is wrong with Azure.");
-                    }
-                    let cleaned_content: String = split.unwrap_or(("","")).1.to_string();
-
-                    // The title and URL come from Azure Blob Storage metadata, which was URL-encoded
-                    // (percent-encoded) because Azure Blob Storage metadata values must be ASCII-only.
-                    // We decode them back to their original UTF-8 strings before storing in the database.
-                    let decoded_title = url_decode(&cit.title)?;
-                    let decoded_url = url_decode(&cit.url)?;
-
-                    let mut page_path = PathBuf::from(&cit.filepath);
-                    page_path.set_extension("");
-                    let page_id_str = page_path.file_name();
-                    let page_id = page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
-                    let course_material_chapter_number = if let Some(id) = page_id {
-                        let chapter = models::chapters::get_chapter_by_page_id(&mut conn, id).await.ok();
-                        chapter.map(|c| c.chapter_number)
-                    } else {
-                        None
-                    };
-
-                    models::chatbot_conversation_messages_citations::insert(
-                        &mut conn, ChatbotConversationMessageCitation {
-                            id: Uuid::new_v4(),
-                            created_at: Utc::now(),
-                            updated_at: Utc::now(),
-                            deleted_at: None,
-                            conversation_message_id: response_message.id,
-                            conversation_id: response_message.conversation_id,
-                            course_material_chapter_number,
-                            title: decoded_title,
-                            content: cleaned_content,
-                            document_url: decoded_url,
-                            citation_number: (idx+1) as i32,
-                        }
-                    ).await?;
-                } */
             }
         }
 
@@ -999,7 +997,7 @@ pub async fn send_chat_request_and_parse_stream(
 
         let new_tool_msgs = match response_type {
             ResponseStreamType::Toolcall(stream) => {
-                parse_tool(conn, stream, conversation_id, &user_context).await?
+                parse_tool(conn, stream, conversation_id, &user_context, app_config).await?
             }
             ResponseStreamType::TextResponse(stream) => {
                 return parse_and_stream_to_user(
@@ -1008,6 +1006,7 @@ pub async fn send_chat_request_and_parse_stream(
                     conversation_id,
                     pool,
                     request_estimated_tokens,
+                    app_config.to_owned(),
                 )
                 .await;
             }

@@ -86,7 +86,13 @@ async fn get_user_chapter_locking_statuses(
 ) -> ControllerResult<web::Json<Vec<UserChapterLockingStatus>>> {
     let (course_id, target_user_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(user.id),
+        Res::Course(course_id),
+    )
+    .await?;
 
     models::user_details::get_user_details_by_user_id_for_course(
         &mut conn,

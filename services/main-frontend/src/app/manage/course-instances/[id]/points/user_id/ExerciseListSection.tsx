@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { Pen } from "@vectopus/atlas-icons-react"
+import { LockKeyhole, Pen, UnlockKeyhole } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,8 +10,8 @@ import ExerciseAccordion from "./ExerciseAccordion"
 
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -146,6 +146,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
           .map(([chapterId, exerciseStatusListUnsorted]) => {
             const chapter = chapterById[chapterId]
             const chapterLockStatus = chapterLockStatusesByChapterId?.[chapterId]
+            const isChapterLocked = chapterLockStatus !== "unlocked"
 
             const exerciseStatusList = exerciseStatusListUnsorted
               .sort((a, b) => a.exercise.order_number - b.exercise.order_number)
@@ -211,11 +212,13 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                         className={css`
                           margin: 0;
                           color: ${baseTheme.colors.gray[700]};
+                          display: inline-flex;
+                          align-items: center;
+                          gap: 0.4rem;
                         `}
                       >
-                        {t("teacher-chapter-lock-status-prefix", {
-                          status: getTeacherChapterLockLabel(t, chapterLockStatus),
-                        })}
+                        {isChapterLocked ? <LockKeyhole size={20} /> : <UnlockKeyhole size={20} />}
+                        {getTeacherChapterLockLabel(t, chapterLockStatus)}
                       </p>
                       <button
                         type="button"
@@ -251,6 +254,22 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
           open={editorChapterId !== null}
           onClose={closeStatusEditor}
           title={t("teacher-chapter-status-editor-title")}
+          buttons={[
+            {
+              variant: "secondary",
+              onClick: closeStatusEditor,
+              disabled: isSavingEditorStatus,
+              children: t("button-text-cancel"),
+            },
+            {
+              variant: "primary",
+              onClick: () => {
+                void saveEditedStatus()
+              },
+              disabled: isSavingEditorStatus,
+              children: isSavingEditorStatus ? <Spinner variant="small" /> : t("button-text-save"),
+            },
+          ]}
         >
           <div
             className={css`
@@ -272,61 +291,23 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
                   })
                 : ""}
             </p>
-            <label
-              htmlFor="teacher-chapter-status-select"
-              className={css`
-                font-weight: 500;
-              `}
-            >
-              {t("teacher-chapter-status-select-label")}
-            </label>
-            <select
+
+            <SelectField
               id="teacher-chapter-status-select"
               data-testid="teacher-chapter-status-select"
-              value={editorStatus}
-              onChange={(event) => {
-                setEditorStatus(event.target.value as TeacherChapterLockStatus)
+              defaultValue={editorStatus}
+              label={t("teacher-chapter-status-select-label")}
+              onChangeByValue={(value) => {
+                setEditorStatus(value as TeacherChapterLockStatus)
               }}
+              options={teacherChapterLockStatuses.map((status) => ({
+                value: status,
+                label: getTeacherChapterLockLabel(t, status),
+              }))}
               className={css`
-                border: 1px solid ${baseTheme.colors.gray[300]};
-                border-radius: 0.35rem;
-                padding: 0.5rem 0.75rem;
-                font-size: 0.95rem;
+                margin-bottom: 0;
               `}
-            >
-              {teacherChapterLockStatuses.map((status) => (
-                <option key={status} value={status}>
-                  {getTeacherChapterLockLabel(t, status)}
-                </option>
-              ))}
-            </select>
-            <div
-              className={css`
-                display: flex;
-                justify-content: flex-end;
-                gap: 0.75rem;
-              `}
-            >
-              <Button
-                variant="secondary"
-                size="small"
-                onClick={closeStatusEditor}
-                disabled={isSavingEditorStatus}
-              >
-                {t("button-text-cancel")}
-              </Button>
-              <Button
-                variant="primary"
-                size="small"
-                data-testid="teacher-chapter-status-save-button"
-                onClick={() => {
-                  void saveEditedStatus()
-                }}
-                disabled={isSavingEditorStatus}
-              >
-                {isSavingEditorStatus ? <Spinner variant="small" /> : t("button-text-save")}
-              </Button>
-            </div>
+            />
           </div>
         </StandardDialog>
       )}

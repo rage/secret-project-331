@@ -218,9 +218,12 @@ test.describe("Chapter locking feature", () => {
       const chapterId = completedRowTestId.replace("teacher-chapter-lock-status-", "")
 
       await teacherPage.getByTestId(`teacher-edit-chapter-status-${chapterId}`).click()
-      await teacherPage.getByTestId("teacher-chapter-status-select").selectOption("unlocked")
+      const chapterStatusDialog = teacherPage.getByRole("dialog", {
+        name: "Edit chapter lock status",
+      })
+      await chapterStatusDialog.getByLabel("Chapter lock status").selectOption("unlocked")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
+        await chapterStatusDialog.getByRole("button", { name: "Save" }).click()
       })
       await teacherPage
         .getByTestId(`teacher-chapter-lock-status-${chapterId}`)
@@ -228,11 +231,11 @@ test.describe("Chapter locking feature", () => {
         .waitFor()
 
       await teacherPage.getByTestId(`teacher-edit-chapter-status-${chapterId}`).click()
-      await teacherPage
-        .getByTestId("teacher-chapter-status-select")
+      await chapterStatusDialog
+        .getByLabel("Chapter lock status")
         .selectOption("completed_and_locked")
       await waitForSuccessNotification(teacherPage, async () => {
-        await teacherPage.getByTestId("teacher-chapter-status-save-button").click()
+        await chapterStatusDialog.getByRole("button", { name: "Save" }).click()
       })
       await teacherPage
         .getByTestId(`teacher-chapter-lock-status-${chapterId}`)

@@ -6,7 +6,7 @@ use headless_lms_utils::document_schema_processor::{
     replace_duplicate_client_ids,
 };
 use itertools::Itertools;
-use serde_json::json;
+use serde_json::{Value, json};
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
 use utoipa::ToSchema;
@@ -151,28 +151,32 @@ async fn get_lock_chapter_content_state_for_page(
                 enabled
             };
 
-            let is_locked = matches!(
-                user_chapter_locking_statuses::get_or_init_status(
-                    conn,
-                    user_id,
-                    chapter_id,
-                    Some(course_id),
-                    Some(course_chapter_locking_enabled),
-                )
-                .await?,
-                Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
-            );
-
-            if !is_locked {
+            if !course_chapter_locking_enabled {
                 LockChapterContentState::NotLocked
-            } else if user_exercise_states::has_pending_manual_reviews_in_chapter(
-                conn, user_id, chapter_id,
-            )
-            .await?
-            {
-                LockChapterContentState::WaitingTeacherReview
             } else {
-                LockChapterContentState::Visible
+                let is_locked = matches!(
+                    user_chapter_locking_statuses::get_or_init_status(
+                        conn,
+                        user_id,
+                        chapter_id,
+                        Some(course_id),
+                        Some(course_chapter_locking_enabled),
+                    )
+                    .await?,
+                    Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
+                );
+
+                if !is_locked {
+                    LockChapterContentState::NotLocked
+                } else if user_exercise_states::has_pending_manual_reviews_in_chapter(
+                    conn, user_id, chapter_id,
+                )
+                .await?
+                {
+                    LockChapterContentState::WaitingTeacherReview
+                } else {
+                    LockChapterContentState::Visible
+                }
             }
         }
         _ => LockChapterContentState::NotLocked,
@@ -2925,85 +2929,13 @@ pub async fn get_page_search_results_for_phrase(
     course_id: Uuid,
     page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
-    let course = crate::courses::get_course(&mut *conn, course_id).await?;
-
-    // Last word of the search term needed so that the sql statement can change it to a prefix match.
-    // Allows the last word to not be fully typed.
-    let last_word = if let Some(last) = page_search_request
-        .query
-        .trim()
-        .split_ascii_whitespace()
-        .last()
-    {
-        last
-    } else {
-        return Ok(Vec::new());
-    };
-
-    let res =   sqlx::query_as!(
-            PageSearchResult,
-            r#"
--- common table expression for the search term tsquery so that we don't have to repeat it many times
-WITH cte as (
-    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
-    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
-    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.
-    SELECT ts_rewrite(
-        phraseto_tsquery($2::regconfig, $3),
-        to_tsquery($4),
-        to_tsquery($4 || ':*')
-    ) as query
-)
-SELECT p.id,
-    ts_rank(
-    p.content_search,
-    (
-        SELECT query
-        from cte
+    get_page_search_results(
+        conn,
+        course_id,
+        page_search_request,
+        PageSearchQueryType::Phrase,
     )
-    ) as rank,
-    ts_headline(
-    $2::regconfig,
-    p.title,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=1, MaxWords=20, MinWords=1'
-    ) as title_headline,
-    ts_headline(
-    $2::regconfig,
-    p.content_search_original_text,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=0, MaxWords=120, MinWords=70'
-    ) as content_headline,
-    COALESCE(p.url_path, '') as "url_path!",
-    c.name as "chapter_name?"
-FROM pages p
-LEFT JOIN chapters c ON p.chapter_id = c.id
-WHERE p.course_id = $1
-    AND p.deleted_at IS NULL
-    AND p.hidden IS FALSE
-    AND p.url_path IS NOT NULL
-    AND p.content_search @@ (
-    SELECT query
-    from cte
-    )
-ORDER BY rank DESC
-LIMIT 50;
-        "#,
-            course_id,
-            course.content_search_language as _,
-            page_search_request.query,
-            last_word
-        )
-        .fetch_all(conn)
-        .await?;
-
-    Ok(add_course_url_prefix_to_search_results(res, &course))
+    .await
 }
 
 /**
@@ -3014,7 +2946,97 @@ pub async fn get_page_search_results_for_words(
     course_id: Uuid,
     page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
+    get_page_search_results(
+        conn,
+        course_id,
+        page_search_request,
+        PageSearchQueryType::Words,
+    )
+    .await
+}
+
+#[derive(Debug, sqlx::FromRow)]
+struct RawPageSearchResult {
+    id: Uuid,
+    title_headline: Option<String>,
+    rank: Option<f32>,
+    url_path: String,
+    chapter_name: Option<String>,
+    content: Value,
+}
+
+#[derive(Debug, sqlx::FromRow)]
+struct SearchContentHeadlineRow {
+    content_headline: Option<String>,
+}
+
+#[derive(Clone, Copy)]
+enum PageSearchQueryType {
+    Phrase,
+    Words,
+}
+
+fn extract_searchable_text_from_content_value(content: &Value) -> String {
+    let mut searchable_parts = Vec::new();
+    collect_searchable_text_from_content_value(content, None, &mut searchable_parts);
+    searchable_parts.join(" ")
+}
+
+fn collect_searchable_text_from_content_value(
+    value: &Value,
+    current_key: Option<&str>,
+    searchable_parts: &mut Vec<String>,
+) {
+    match value {
+        Value::Object(map) => {
+            for (key, value) in map {
+                collect_searchable_text_from_content_value(value, Some(key), searchable_parts);
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                collect_searchable_text_from_content_value(value, None, searchable_parts);
+            }
+        }
+        Value::String(value) if matches!(current_key, Some("content" | "title" | "subtitle")) => {
+            searchable_parts.push(value.clone());
+        }
+        _ => {}
+    }
+}
+
+fn sanitized_searchable_text_for_public_page(content: &Value) -> String {
+    let Ok(blocks) = serde_json::from_value::<Vec<GutenbergBlock>>(content.clone()) else {
+        tracing::warn!(
+            "Failed to deserialize page content for search snippet sanitization. Falling back to raw searchable text."
+        );
+        return extract_searchable_text_from_content_value(content);
+    };
+
+    let filtered_blocks = filter_lock_chapter_blocks(blocks, false);
+    match serde_json::to_value(filtered_blocks) {
+        Ok(filtered_content) => extract_searchable_text_from_content_value(&filtered_content),
+        Err(error) => {
+            tracing::warn!(
+                "Failed to serialize filtered page content for search snippet sanitization: {}. Falling back to raw searchable text.",
+                error
+            );
+            extract_searchable_text_from_content_value(content)
+        }
+    }
+}
+
+async fn get_page_search_results(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &SearchRequest,
+    query_type: PageSearchQueryType,
+) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
+    let content_search_language = course
+        .content_search_language
+        .as_deref()
+        .unwrap_or("simple");
 
     // Last word of the search term needed so that the sql statement can change it to a prefix match.
     // Allows the last word to not be fully typed.
@@ -3024,54 +3046,57 @@ pub async fn get_page_search_results_for_words(
         .split_ascii_whitespace()
         .last()
     {
-        last
+        last.to_string()
     } else {
         return Ok(Vec::new());
     };
 
-    let res = sqlx::query_as!(
-            PageSearchResult,
-            r#"
--- common table expression for the search term tsquery so that we don't have to repeat it many times
-WITH cte as (
-    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
-    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
+    let query_builder = match query_type {
+        PageSearchQueryType::Phrase => "phraseto_tsquery",
+        PageSearchQueryType::Words => "plainto_tsquery",
+    };
+    let query_builder_comment = match query_type {
+        PageSearchQueryType::Phrase =>
+            "-- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
+    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
+    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.",
+        PageSearchQueryType::Words =>
+            "-- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+    -- last word so that it becomes a prefix match. This way the search will also contain results when the last word in
     -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
-    -- will be skipped.
+    -- will be skipped.",
+    };
+
+    let search_results_sql = format!(
+        r#"
+WITH cte as (
+    {query_builder_comment}
     SELECT ts_rewrite(
-        plainto_tsquery($2::regconfig, $3),
+        {query_builder}($2::regconfig, $3),
         to_tsquery($4),
         to_tsquery($4 || ':*')
     ) as query
 )
 SELECT p.id,
     ts_rank(
-    p.content_search,
-    (
-        SELECT query
-        from cte
-    )
+        p.content_search,
+        (
+            SELECT query
+            from cte
+        )
     ) as rank,
     ts_headline(
-    $2::regconfig,
-    p.title,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=1, MaxWords=20, MinWords=1'
+        $2::regconfig,
+        p.title,
+        (
+            SELECT query
+            from cte
+        ),
+        'MaxFragments=1, MaxWords=20, MinWords=1'
     ) as title_headline,
-    ts_headline(
-    $2::regconfig,
-    p.content_search_original_text,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=0, MaxWords=120, MinWords=70'
-    ) as content_headline,
-    COALESCE(p.url_path, '') as "url_path!",
-    c.name as "chapter_name?"
+    COALESCE(p.url_path, '') as url_path,
+    c.name as chapter_name,
+    p.content
 FROM pages p
 LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.course_id = $1
@@ -3079,21 +3104,119 @@ WHERE p.course_id = $1
     AND p.hidden IS FALSE
     AND p.url_path IS NOT NULL
     AND p.content_search @@ (
-    SELECT query
-    from cte
+        SELECT query
+        from cte
     )
 ORDER BY rank DESC
 LIMIT 50;
-        "#,
-            course_id,
-            course.content_search_language as _,
-            page_search_request.query,
-            last_word
-        )
-        .fetch_all(conn)
+        "#
+    );
+
+    let raw_results = sqlx::query_as::<_, RawPageSearchResult>(&search_results_sql)
+        .bind(course_id)
+        .bind(content_search_language)
+        .bind(&page_search_request.query)
+        .bind(&last_word)
+        .fetch_all(&mut *conn)
         .await?;
 
-    Ok(add_course_url_prefix_to_search_results(res, &course))
+    let sanitized_search_texts = raw_results
+        .iter()
+        .map(|result| sanitized_searchable_text_for_public_page(&result.content))
+        .collect::<Vec<_>>();
+    let content_headlines = build_public_search_content_headlines(
+        conn,
+        content_search_language,
+        &page_search_request.query,
+        &last_word,
+        query_type,
+        &sanitized_search_texts,
+    )
+    .await?;
+
+    let search_results = raw_results
+        .into_iter()
+        .zip(content_headlines)
+        .map(|(result, content_headline)| PageSearchResult {
+            id: result.id,
+            title_headline: result.title_headline,
+            rank: result.rank,
+            content_headline,
+            url_path: result.url_path,
+            chapter_name: result.chapter_name,
+        })
+        .collect::<Vec<_>>();
+
+    Ok(add_course_url_prefix_to_search_results(
+        search_results,
+        &course,
+    ))
+}
+
+async fn build_public_search_content_headlines(
+    conn: &mut PgConnection,
+    content_search_language: &str,
+    query: &str,
+    last_word: &str,
+    query_type: PageSearchQueryType,
+    sanitized_search_texts: &[String],
+) -> ModelResult<Vec<Option<String>>> {
+    if sanitized_search_texts.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let query_builder = match query_type {
+        PageSearchQueryType::Phrase => "phraseto_tsquery",
+        PageSearchQueryType::Words => "plainto_tsquery",
+    };
+    let query_builder_comment = match query_type {
+        PageSearchQueryType::Phrase =>
+            "-- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
+    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
+    -- is only partially typed. Note that if to_tsquery($3) decides to stem the word, the replacement will be skipped.",
+        PageSearchQueryType::Words =>
+            "-- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+    -- last word so that it becomes a prefix match. This way the search will also contain results when the last word in
+    -- the search term is only partially typed. Note that if to_tsquery($3) decides to stem the word, the replacement
+    -- will be skipped.",
+    };
+
+    let content_headline_sql = format!(
+        r#"
+WITH cte as (
+    {query_builder_comment}
+    SELECT ts_rewrite(
+        {query_builder}($1::regconfig, $2),
+        to_tsquery($3),
+        to_tsquery($3 || ':*')
+    ) as query
+)
+SELECT ts_headline(
+    $1::regconfig,
+    input.content,
+    (
+        SELECT query
+        from cte
+    ),
+    'MaxFragments=0, MaxWords=120, MinWords=70'
+) as content_headline
+FROM unnest($4::text[]) WITH ORDINALITY AS input(content, ord)
+ORDER BY ord;
+        "#
+    );
+
+    Ok(
+        sqlx::query_as::<_, SearchContentHeadlineRow>(&content_headline_sql)
+            .bind(content_search_language)
+            .bind(query)
+            .bind(last_word)
+            .bind(sanitized_search_texts.to_vec())
+            .fetch_all(&mut *conn)
+            .await?
+            .into_iter()
+            .map(|row| row.content_headline)
+            .collect(),
+    )
 }
 
 fn add_course_url_prefix_to_search_results(
@@ -3783,6 +3906,20 @@ mod test {
         page.blocks_cloned().unwrap()[0].inner_blocks.len()
     }
 
+    #[test]
+    fn sanitized_searchable_text_for_public_page_hides_lock_chapter_inner_blocks() {
+        let content = serde_json::to_value(vec![
+            GutenbergBlock::paragraph("Visible introduction"),
+            lock_chapter_test_block("Model solution"),
+        ])
+        .unwrap();
+
+        let searchable_text = sanitized_searchable_text_for_public_page(&content);
+
+        assert!(searchable_text.contains("Visible introduction"));
+        assert!(!searchable_text.contains("Model solution"));
+    }
+
     #[tokio::test]
     async fn filter_course_material_pages_hides_lock_chapter_inner_blocks_until_reviews_complete() {
         insert_data!(
@@ -3903,6 +4040,97 @@ mod test {
             first_lock_chapter_inner_block_count(&filtered_pages[0].page),
             0
         );
+    }
+
+    #[tokio::test]
+    async fn filter_course_material_pages_does_not_initialize_lock_status_when_course_locking_is_disabled()
+     {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id
+        );
+
+        sqlx::query("UPDATE courses SET chapter_locking_enabled = FALSE WHERE id = $1")
+            .bind(course)
+            .execute(tx.as_mut().as_mut())
+            .await
+            .unwrap();
+
+        sqlx::query("UPDATE pages SET content = $2 WHERE id = $1")
+            .bind(page_id)
+            .bind(serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap())
+            .execute(tx.as_mut().as_mut())
+            .await
+            .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages(tx.as_mut(), Some(user), vec![page])
+            .await
+            .unwrap();
+
+        assert_eq!(first_lock_chapter_inner_block_count(&filtered_pages[0]), 0);
+
+        let status_count = sqlx::query_scalar::<_, i64>(
+            "SELECT COUNT(*) FROM user_chapter_locking_statuses WHERE user_id = $1 AND chapter_id = $2 AND deleted_at IS NULL",
+        )
+        .bind(user)
+        .bind(chapter_id)
+        .fetch_one(tx.as_mut().as_mut())
+        .await
+        .unwrap();
+
+        assert_eq!(status_count, 0);
+    }
+
+    #[tokio::test]
+    async fn page_search_results_do_not_leak_hidden_lock_chapter_snippet_text() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: _chapter_id,
+            page: page_id
+        );
+
+        sqlx::query("UPDATE pages SET content = $2 WHERE id = $1")
+            .bind(page_id)
+            .bind(
+                serde_json::to_value(vec![
+                    GutenbergBlock::paragraph("Visible introduction"),
+                    lock_chapter_test_block("Model solution"),
+                ])
+                .unwrap(),
+            )
+            .execute(tx.as_mut().as_mut())
+            .await
+            .unwrap();
+
+        let results = get_page_search_results_for_words(
+            tx.as_mut(),
+            course,
+            &SearchRequest {
+                query: "Model".to_string(),
+            },
+        )
+        .await
+        .unwrap();
+
+        let result = results
+            .iter()
+            .find(|result| result.id == page_id)
+            .expect("page should still match the hidden text query");
+        let content_headline = result.content_headline.as_deref().unwrap_or_default();
+
+        assert!(!content_headline.contains("Model solution"));
     }
 
     #[tokio::test]

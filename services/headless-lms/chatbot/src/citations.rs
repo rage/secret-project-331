@@ -98,12 +98,12 @@ async fn get_course_material_document(
     api_key: &str,
 ) -> anyhow::Result<CourseMaterialDocument> {
     endpoint.set_query(Some(
-        "$select=chunk_id,parent_id,chunk,title,url,filepath,course_id",
+        "api-version=2024-07-01&$select=chunk_id,parent_id,chunk,title,url,filepath,course_id",
     ));
     let headers = build_llm_headers(api_key)?;
 
     let response = REQWEST_CLIENT
-        .post(endpoint.clone())
+        .get(endpoint.clone())
         .headers(headers)
         .send()
         .await?;

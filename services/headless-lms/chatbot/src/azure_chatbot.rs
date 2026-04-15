@@ -176,7 +176,7 @@ pub enum OutputItem {
     },
     AzureAiSearchCallOutput {
         call_id: String,
-        output: AiSearchOutput, // json string
+        output: String, // json string
     },
     FunctionCall {
         call_id: String,
@@ -369,7 +369,10 @@ impl LLMRequest {
 
         let mut api_chat_messages: Vec<APIMessage> = conversation_messages
             .into_iter()
-            .map(APIMessage::try_from)
+            .filter_map(|m| match m.message {
+                Message::Reasoning { .. } => None,
+                _ => Some(APIMessage::try_from(m)),
+            })
             .collect::<ChatbotResult<Vec<_>>>()?;
 
         // put new user message into the messages list
@@ -437,7 +440,7 @@ impl LLMRequest {
             LLMRequestParams::Thinking(ThinkingParams {
                 reasoning: Some(Reasoning {
                     effort: configuration.reasoning_effort,
-                    summary: None,
+                    summary: Some(SummaryType::Detailed),
                 }),
             })
         } else {
@@ -691,6 +694,7 @@ pub async fn process_output_item(
             ChatbotResult::Ok(chatbot_conversation_messages::insert(conn, message).await?)
         }
         OutputItem::AzureAiSearchCallOutput { call_id, output } => {
+            let search_output: AiSearchOutput = serde_json::from_str(&output)?;
             let api_key = if let Some(azure_config) = &app_config.azure_configuration
                 && let Some(search_config) = &azure_config.search_config
             {
@@ -702,7 +706,7 @@ pub async fn process_output_item(
                     None,
                 ));
             };
-            let get_urls = output.get_urls.to_owned();
+            let get_urls = search_output.get_urls.to_owned();
 
             let message = APIMessage {
                 message_type: OutputItem::AzureAiSearchCallOutput { call_id, output },

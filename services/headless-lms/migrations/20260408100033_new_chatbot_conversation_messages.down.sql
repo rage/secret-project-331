@@ -4,8 +4,7 @@ RENAME VALUE 'developer' TO 'tool';
 ALTER TABLE chatbot_conversation_messages
 ADD COLUMN message VARCHAR(131072),
   ADD COLUMN message_role message_role,
-  -- not null
-ADD COLUMN tool_output_id UUID REFERENCES chatbot_conversation_message_tool_outputs(id),
+  ADD COLUMN tool_output_id UUID REFERENCES chatbot_conversation_message_tool_outputs(id),
   ADD COLUMN used_tokens INT NOT NULL DEFAULT 0,
   ADD COLUMN message_is_complete BOOLEAN NOT NULL DEFAULT FALSE;
 

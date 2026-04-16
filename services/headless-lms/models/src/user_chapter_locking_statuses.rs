@@ -414,6 +414,40 @@ mod tests {
     use super::*;
     use crate::test_helper::*;
 
+    /// Updates chapter locking on a course for test setup.
+    async fn set_course_chapter_locking_enabled(
+        tx: &mut PgConnection,
+        course_id: Uuid,
+        chapter_locking_enabled: bool,
+    ) {
+        let course_before_update = crate::courses::get_course(tx, course_id).await.unwrap();
+        crate::courses::update_course(
+            tx,
+            course_id,
+            crate::courses::CourseUpdate {
+                chapter_locking_enabled,
+                name: course_before_update.name,
+                description: course_before_update.description,
+                is_draft: course_before_update.is_draft,
+                is_test_mode: course_before_update.is_test_mode,
+                can_add_chatbot: course_before_update.can_add_chatbot,
+                is_unlisted: course_before_update.is_unlisted,
+                is_joinable_by_code_only: course_before_update.is_joinable_by_code_only,
+                ask_marketing_consent: course_before_update.ask_marketing_consent,
+                flagged_answers_threshold: course_before_update
+                    .flagged_answers_threshold
+                    .unwrap_or_default(),
+                flagged_answers_skip_manual_review_and_allow_retry: course_before_update
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: course_before_update.closed_at,
+                closed_additional_message: course_before_update.closed_additional_message,
+                closed_course_successor_id: course_before_update.closed_course_successor_id,
+            },
+        )
+        .await
+        .unwrap();
+    }
+
     #[tokio::test]
     async fn get_status_returns_none_when_no_status_exists() {
         insert_data!(:tx, :user, :org, course: course, instance: _instance, :course_module);
@@ -747,6 +781,7 @@ mod tests {
             instance: _instance,
             :course_module
         );
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
         let user_2 = crate::users::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,

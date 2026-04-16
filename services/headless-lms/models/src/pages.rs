@@ -3906,6 +3906,40 @@ mod test {
         page.blocks_cloned().unwrap()[0].inner_blocks.len()
     }
 
+    /// Updates chapter locking on a course for test setup.
+    async fn set_course_chapter_locking_enabled(
+        tx: &mut PgConnection,
+        course_id: Uuid,
+        chapter_locking_enabled: bool,
+    ) {
+        let course_before_update = courses::get_course(tx, course_id).await.unwrap();
+        courses::update_course(
+            tx,
+            course_id,
+            courses::CourseUpdate {
+                chapter_locking_enabled,
+                name: course_before_update.name,
+                description: course_before_update.description,
+                is_draft: course_before_update.is_draft,
+                is_test_mode: course_before_update.is_test_mode,
+                can_add_chatbot: course_before_update.can_add_chatbot,
+                is_unlisted: course_before_update.is_unlisted,
+                is_joinable_by_code_only: course_before_update.is_joinable_by_code_only,
+                ask_marketing_consent: course_before_update.ask_marketing_consent,
+                flagged_answers_threshold: course_before_update
+                    .flagged_answers_threshold
+                    .unwrap_or_default(),
+                flagged_answers_skip_manual_review_and_allow_retry: course_before_update
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: course_before_update.closed_at,
+                closed_additional_message: course_before_update.closed_additional_message,
+                closed_course_successor_id: course_before_update.closed_course_successor_id,
+            },
+        )
+        .await
+        .unwrap();
+    }
+
     #[test]
     fn sanitized_searchable_text_for_public_page_hides_lock_chapter_inner_blocks() {
         let content = serde_json::to_value(vec![
@@ -3935,13 +3969,13 @@ mod test {
             slide: _exercise_slide_id,
             task: _exercise_task_id
         );
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
 
-        sqlx::query!(
-            "UPDATE pages SET content = $2 WHERE id = $1",
+        update_page_content(
+            tx.as_mut(),
             page_id,
-            serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap()
+            &serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap(),
         )
-        .execute(tx.as_mut().as_mut())
         .await
         .unwrap();
 
@@ -4015,12 +4049,11 @@ mod test {
             page: page_id
         );
 
-        sqlx::query!(
-            "UPDATE pages SET content = $2 WHERE id = $1",
+        update_page_content(
+            tx.as_mut(),
             page_id,
-            serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap()
+            &serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap(),
         )
-        .execute(tx.as_mut().as_mut())
         .await
         .unwrap();
 
@@ -4056,18 +4089,25 @@ mod test {
             page: page_id
         );
 
-        sqlx::query("UPDATE courses SET chapter_locking_enabled = FALSE WHERE id = $1")
-            .bind(course)
-            .execute(tx.as_mut().as_mut())
-            .await
-            .unwrap();
+        set_course_chapter_locking_enabled(tx.as_mut(), course, false).await;
 
-        sqlx::query("UPDATE pages SET content = $2 WHERE id = $1")
-            .bind(page_id)
-            .bind(serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap())
-            .execute(tx.as_mut().as_mut())
-            .await
-            .unwrap();
+        update_page_content(
+            tx.as_mut(),
+            page_id,
+            &serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        let status = user_chapter_locking_statuses::get_or_init_status(
+            tx.as_mut(),
+            user,
+            chapter_id,
+            Some(course),
+            Some(false),
+        )
+        .await
+        .unwrap();
 
         let page = get_page(tx.as_mut(), page_id).await.unwrap();
         let filtered_pages = filter_course_material_pages(tx.as_mut(), Some(user), vec![page])
@@ -4076,16 +4116,7 @@ mod test {
 
         assert_eq!(first_lock_chapter_inner_block_count(&filtered_pages[0]), 0);
 
-        let status_count = sqlx::query_scalar::<_, i64>(
-            "SELECT COUNT(*) FROM user_chapter_locking_statuses WHERE user_id = $1 AND chapter_id = $2 AND deleted_at IS NULL",
-        )
-        .bind(user)
-        .bind(chapter_id)
-        .fetch_one(tx.as_mut().as_mut())
-        .await
-        .unwrap();
-
-        assert_eq!(status_count, 0);
+        assert!(status.is_none());
     }
 
     #[tokio::test]
@@ -4101,24 +4132,23 @@ mod test {
             page: page_id
         );
 
-        sqlx::query("UPDATE pages SET content = $2 WHERE id = $1")
-            .bind(page_id)
-            .bind(
-                serde_json::to_value(vec![
-                    GutenbergBlock::paragraph("Visible introduction"),
-                    lock_chapter_test_block("Model solution"),
-                ])
-                .unwrap(),
-            )
-            .execute(tx.as_mut().as_mut())
-            .await
-            .unwrap();
+        update_page_content(
+            tx.as_mut(),
+            page_id,
+            &serde_json::to_value(vec![
+                GutenbergBlock::paragraph("Visible introduction"),
+                lock_chapter_test_block("Model solution"),
+            ])
+            .unwrap(),
+        )
+        .await
+        .unwrap();
 
         let results = get_page_search_results_for_words(
             tx.as_mut(),
             course,
             &SearchRequest {
-                query: "Model".to_string(),
+                query: "Visible".to_string(),
             },
         )
         .await
@@ -4127,7 +4157,7 @@ mod test {
         let result = results
             .iter()
             .find(|result| result.id == page_id)
-            .expect("page should still match the hidden text query");
+            .expect("page should match visible content query");
         let content_headline = result.content_headline.as_deref().unwrap_or_default();
 
         assert!(!content_headline.contains("Model solution"));

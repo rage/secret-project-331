@@ -1197,6 +1197,7 @@ WHERE user_exercise_state_id IN (
 
         let chapter_ids =
             get_chapter_ids_for_exercises_in_course(&mut tx, exercise_ids, course_id).await?;
+        // Keep chapters that are still in their initial `not_unlocked_yet` state untouched.
         user_chapter_locking_statuses::unlock_chapters_for_user(
             &mut tx,
             *user_id,

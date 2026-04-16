@@ -2,7 +2,7 @@ use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::domain::oauth::revoke_query::RevokeQuery;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     error::ModelErrorType, library::oauth::token_digest_sha256,
     oauth_access_token::OAuthAccessToken, oauth_client::OAuthClient,

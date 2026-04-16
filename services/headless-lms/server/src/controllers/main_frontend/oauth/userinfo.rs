@@ -4,7 +4,7 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, guard, web};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
 use dpop_verifier::DpopError;
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256,
     oauth_access_token::{OAuthAccessToken, TokenType},

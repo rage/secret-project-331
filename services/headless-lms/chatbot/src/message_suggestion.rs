@@ -12,11 +12,12 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
 };
-use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 use rand::seq::IndexedRandom;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in

@@ -7,6 +7,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+headless-lms-base = { path = "../base" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
 rust-i18n = "3.1.5"
@@ -41,6 +42,8 @@ uuid = { version = "1.21.0", features = ["serde", "v4", "v5"] }
 futures = "0.3.32"
 # supports loading ICU4X data from a single serialized blob
 icu_provider_blob = "2.1.1"
+# 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
+sqlx.workspace = true
 
 [lints.clippy]
 unwrap_used = "deny"

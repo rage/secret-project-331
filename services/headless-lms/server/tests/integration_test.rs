@@ -3,6 +3,7 @@ use std::{env, sync::Arc};
 use actix_http::{Request, body::BoxBody};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
+use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
 use headless_lms_models::{
     PKeyPolicy,
     organizations::{self, Organization},
@@ -12,9 +13,7 @@ use headless_lms_server::{
     domain::models_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_utils::{
-    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
-};
+use headless_lms_utils::{file_store::local_file_store::LocalFileStore, tmc::TmcClient};
 use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;
@@ -95,7 +94,7 @@ pub async fn test_config() -> ServerConfig {
             test_chatbot: false,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
+            oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "temp-change-when-needed".into(),
                 rsa_private_key: "test-change".into(),
                 oauth_token_hmac_key: "pippuri".into(),

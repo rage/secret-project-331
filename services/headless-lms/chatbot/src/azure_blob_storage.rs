@@ -7,7 +7,7 @@ use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::*;
 use bytes::Bytes;
 use futures::StreamExt;
-use headless_lms_utils::{ApplicationConfiguration, AzureBlobStorageConfiguration};
+use headless_lms_base::config::{ApplicationConfiguration, AzureBlobStorageConfiguration};
 
 /// A client for interacting with Azure Blob Storage.
 pub struct AzureBlobClient {

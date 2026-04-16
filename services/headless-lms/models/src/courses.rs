@@ -1,6 +1,4 @@
-use headless_lms_utils::{
-    ApplicationConfiguration, file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME,
-};
+use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
 use utoipa::ToSchema;
 
 use crate::{

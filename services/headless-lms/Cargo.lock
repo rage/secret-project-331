@@ -2327,12 +2327,33 @@ dependencies = [
 ]
 
 [[package]]
+name = "headless-lms-base"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "backtrace",
+ "chrono",
+ "futures",
+ "secrecy",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "tracing-error",
+ "tracing-log",
+ "tracing-subscriber",
+ "url",
+ "uuid",
+]
+
+[[package]]
 name = "headless-lms-certificates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "chrono",
  "futures",
+ "headless-lms-base",
  "headless-lms-models",
  "headless-lms-utils",
  "icu",
@@ -2343,6 +2364,7 @@ dependencies = [
  "quick-xml 0.39.2",
  "resvg",
  "rust-i18n",
+ "sqlx",
  "tracing",
  "url",
  "usvg",
@@ -2364,6 +2386,7 @@ dependencies = [
  "chrono",
  "futures",
  "futures-util",
+ "headless-lms-base",
  "headless-lms-models",
  "headless-lms-utils",
  "pin-project",
@@ -2407,6 +2430,7 @@ dependencies = [
  "derive_more 2.1.1",
  "dotenv",
  "futures",
+ "headless-lms-base",
  "headless-lms-utils",
  "hex",
  "hmac",
@@ -2427,8 +2451,6 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-error",
- "tracing-log",
- "tracing-subscriber",
  "ts-rs",
  "url",
  "utoipa",
@@ -2467,6 +2489,7 @@ dependencies = [
  "futures-util",
  "git2",
  "governor",
+ "headless-lms-base",
  "headless-lms-certificates",
  "headless-lms-chatbot",
  "headless-lms-models",
@@ -2532,6 +2555,7 @@ dependencies = [
  "diff",
  "flate2",
  "futures",
+ "headless-lms-base",
  "ipnet",
  "once_cell",
  "percent-encoding",

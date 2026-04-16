@@ -10,6 +10,7 @@ license.workspace = true
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
+headless-lms-base = { path = "../base" }
 headless-lms-utils = { path = "../utils" }
 
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
@@ -80,12 +81,6 @@ argon2 = "0.5.3"
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"
-# Provides compatibility between `tracing` and the `log` crate.
-tracing-log = "0.2.0"
-# Utilities for enriching errors with `tracing`.
-tracing-error = "0.2.1"
-# Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 # HTTP mocking for Rust.
 mockito = "1.7.2"
 

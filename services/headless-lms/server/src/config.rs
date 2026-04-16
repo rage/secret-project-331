@@ -14,9 +14,10 @@ use actix_web::{
     web::{self, Data, PayloadConfig, ServiceConfig},
 };
 use anyhow::Context;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
-    ApplicationConfiguration, cache::Cache, file_store::FileStore, icu4x::Icu4xBlob,
-    ip_to_country::IpToCountryMapper, tmc::TmcClient,
+    cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
+    tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use sqlx::{PgPool, postgres::PgPoolOptions};

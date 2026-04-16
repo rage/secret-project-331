@@ -6,8 +6,8 @@ use tracing::{debug, info};
 use url::Url;
 use uuid::Uuid;
 
-use crate::ApplicationConfiguration;
 use crate::prelude::*;
+use headless_lms_base::config::ApplicationConfiguration;
 
 #[derive(Debug, Clone)]
 pub struct TmcClient {

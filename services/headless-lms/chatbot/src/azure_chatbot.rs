@@ -12,12 +12,12 @@ use bytes::Bytes;
 use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
 use futures::{Stream, StreamExt, TryStreamExt};
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_messages::{
     self, ChatbotConversationMessage, MessageRole,
 };
 use headless_lms_models::chatbot_conversation_messages_citations::ChatbotConversationMessageCitation;
-use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use sqlx::PgPool;

@@ -3,7 +3,7 @@ use crate::domain::oauth::introspect_response::IntrospectResponse;
 use crate::domain::oauth::oauth_validated::OAuthValidated;
 use crate::prelude::*;
 use actix_web::{HttpResponse, web};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256,
     oauth_access_token::{OAuthAccessToken, TokenType},

@@ -5,9 +5,8 @@ Contains error and result types for all the util functions.
 use std::fmt::Display;
 
 use backtrace::Backtrace;
+use headless_lms_base::error::backend_error::BackendError;
 use tracing_error::SpanTrace;
-
-use super::backend_error::BackendError;
 
 /**
 Used as the result types for all utils.

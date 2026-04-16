@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use headless_lms_utils::{ApplicationConfiguration, file_store::FileStore};
+use headless_lms_utils::file_store::FileStore;
 use utoipa::ToSchema;
 
 use crate::prelude::*;

@@ -1,8 +1,8 @@
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     course_modules::{CompletionPolicy, CourseModule},
     user_exercise_states::UserCourseProgress,
 };
-use headless_lms_utils::prelude::BackendError;
 use sqlx::PgConnection;
 
 use crate::{

@@ -12,6 +12,7 @@ use uuid::Uuid;
 
 use crate::setup_tracing;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_chatbot::{
     azure_blob_storage::AzureBlobClient,
     azure_datasources::{create_azure_datasource, does_azure_datasource_exist},
@@ -30,7 +31,6 @@ use headless_lms_models::{
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
-    ApplicationConfiguration,
     document_schema_processor::{GutenbergBlock, remove_sensitive_attributes},
     url_encoding::url_encode,
 };

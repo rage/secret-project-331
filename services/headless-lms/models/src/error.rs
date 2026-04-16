@@ -5,7 +5,8 @@ Contains error and result types for all the model functions.
 use std::{fmt::Display, num::TryFromIntError};
 
 use backtrace::Backtrace;
-use headless_lms_utils::error::{backend_error::BackendError, util_error::UtilError};
+use headless_lms_base::error::backend_error::BackendError;
+use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
 use uuid::Uuid;
 

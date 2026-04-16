@@ -8,7 +8,7 @@ use backtrace::Backtrace;
 use headless_lms_models::ModelError;
 use tracing_error::SpanTrace;
 
-use headless_lms_utils::error::backend_error::BackendError;
+use headless_lms_base::error::backend_error::BackendError;
 
 /**
 Used as the result types for all of chatbot.

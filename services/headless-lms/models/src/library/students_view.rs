@@ -3,6 +3,7 @@ use crate::chapters::{
     self, ChapterAvailability, CourseUserInfo, DatabaseChapter, UserChapterProgress,
 };
 use crate::prelude::*;
+use crate::user_chapter_locking_statuses::UserChapterLockingStatus;
 use crate::user_details::UserDetail;
 use crate::user_exercise_states::UserExerciseState;
 use chrono::{DateTime, Utc};
@@ -11,30 +12,37 @@ use utoipa::ToSchema;
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 
 pub struct ProgressOverview {
+    pub chapter_locking_enabled: bool,
     pub user_details: Vec<UserDetail>,
     pub chapters: Vec<DatabaseChapter>,
     pub user_exercise_states: Vec<UserExerciseState>,
     pub chapter_availability: Vec<ChapterAvailability>,
     pub user_chapter_progress: Vec<UserChapterProgress>,
+    pub user_chapter_locking_statuses: Vec<UserChapterLockingStatus>,
 }
 
 pub async fn get_progress(
     conn: &mut PgConnection,
     course_id: Uuid,
 ) -> ModelResult<ProgressOverview> {
+    let course = crate::courses::get_course(conn, course_id).await?;
     let user_details = crate::user_details::get_users_by_course_id(conn, course_id).await?;
     let chapters = crate::chapters::course_chapters(conn, course_id).await?;
     let user_exercise_states =
         crate::user_exercise_states::get_all_for_course(conn, course_id).await?;
     let chapter_availability = chapters::fetch_chapter_availability(conn, course_id).await?;
     let user_chapter_progress = chapters::fetch_user_chapter_progress(conn, course_id).await?;
+    let user_chapter_locking_statuses =
+        crate::user_chapter_locking_statuses::get_all_for_course(conn, &course).await?;
 
     Ok(ProgressOverview {
+        chapter_locking_enabled: course.chapter_locking_enabled,
         user_details,
         chapters,
         user_exercise_states,
         chapter_availability,
         user_chapter_progress,
+        user_chapter_locking_statuses,
     })
 }
 

@@ -182,6 +182,7 @@
   "chapter-locked-complete-previous": "Slutför och lås det föregående kapitlet för att låsa upp övningar i detta kapitel.",
   "chapter-locked-description": "Det här kapitlet är låst och du kan inte längre lämna in övningar.",
   "chapter-locked-message": "Kapitel låst",
+  "chapter-locked-waiting-teacher-review-description": "Kurspersonalen granskar dina svar i det här kapitlet. Modellösningen visas när granskningen är klar.",
   "chapter-progress": "Kapitel framsteg",
   "chapters": "Kapitel",
   "chatbot": "Chattbot",

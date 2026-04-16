@@ -21,6 +21,7 @@ export type CourseMaterialState = {
   settings: UserCourseSettings | null
   organization: Organization | null
   examData: ExamData | null
+  lockChapterContentState: "not_locked" | "waiting_teacher_review" | "visible" | null
   isTestMode: boolean
   wasRedirected: boolean
 }
@@ -38,6 +39,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
     settings: null,
     organization: null,
     examData: null,
+    lockChapterContentState: null,
     isTestMode: false,
     wasRedirected: false,
   }
@@ -76,6 +78,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
       settings: data.settings ?? null,
       organization: data.organization ?? null,
       examData: null,
+      lockChapterContentState: data.lock_chapter_content_state ?? null,
       isTestMode: data.is_test_mode ?? false,
       wasRedirected: data.was_redirected ?? false,
     }
@@ -106,6 +109,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
       settings: null,
       organization: null,
       examData: data as ExamData,
+      lockChapterContentState: null,
       isTestMode: viewParams.isTestMode,
       wasRedirected: false,
     }

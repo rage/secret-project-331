@@ -471,6 +471,7 @@ Since anyone can access this endpoint, any unlisted pages are omited from these 
 async fn get_public_course_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let pages: Vec<Page> = models::pages::get_all_by_course_id_and_visibility(
@@ -479,6 +480,8 @@ async fn get_public_course_pages(
         PageVisibility::Public,
     )
     .await?;
+    let pages =
+        models::pages::filter_course_material_pages(&mut conn, auth.map(|u| u.id), pages).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(pages))
 }
@@ -891,6 +894,7 @@ GET /api/v0/course-material/courses/:course_id/top-level-pages
 async fn get_public_top_level_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_course_top_level_pages_by_course_id_and_visibility(
@@ -899,6 +903,8 @@ async fn get_public_top_level_pages(
         PageVisibility::Public,
     )
     .await?;
+    let page =
+        models::pages::filter_course_material_pages(&mut conn, auth.map(|u| u.id), page).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
@@ -1000,6 +1006,7 @@ GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - R
 async fn get_page_by_course_id_and_language_group(
     info: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let (course_id, page_language_group_id) = info.into_inner();
@@ -1010,6 +1017,8 @@ async fn get_page_by_course_id_and_language_group(
         page_language_group_id,
     )
     .await?;
+    let page =
+        models::pages::filter_course_material_page(&mut conn, auth.map(|u| u.id), page).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }

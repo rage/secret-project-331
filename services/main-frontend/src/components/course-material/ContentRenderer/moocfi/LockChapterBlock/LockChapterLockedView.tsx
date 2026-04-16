@@ -12,9 +12,13 @@ import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 
 interface LockChapterLockedViewProps {
   blockProps: BlockRendererProps<unknown>
+  showTeacherReviewPendingMessage: boolean
 }
 
-const LockChapterLockedView: React.FC<LockChapterLockedViewProps> = ({ blockProps }) => {
+const LockChapterLockedView: React.FC<LockChapterLockedViewProps> = ({
+  blockProps,
+  showTeacherReviewPendingMessage,
+}) => {
   const { t } = useTranslation()
 
   return (
@@ -70,7 +74,9 @@ const LockChapterLockedView: React.FC<LockChapterLockedViewProps> = ({ blockProp
               color: ${baseTheme.colors.gray[600]};
             `}
           >
-            {t("chapter-locked-description")}
+            {showTeacherReviewPendingMessage
+              ? t("chapter-locked-waiting-teacher-review-description")
+              : t("chapter-locked-description")}
           </p>
         </div>
       </div>

@@ -180,6 +180,7 @@
   "chapter-locked-complete-previous": "Fullfør og lås det forrige kapittelet for å låse opp øvelsene i dette kapittelet.",
   "chapter-locked-description": "Det nåværende kapittelet er låst, og du kan ikke lenger sende inn øvelser.",
   "chapter-locked-message": "Kapittel låst",
+  "chapter-locked-waiting-teacher-review-description": "Kursstaben vurderer svarene dine i dette kapittelet. Modelløsningen vises når vurderingen er fullført.",
   "chapter-progress": "Kapittel fremgang",
   "chapters": "Kapitteler",
   "chatbot": "Chatbot",

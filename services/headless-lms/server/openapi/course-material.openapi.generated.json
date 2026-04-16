@@ -4235,6 +4235,16 @@
           "is_test_mode": {
             "type": "boolean"
           },
+          "lock_chapter_content_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LockChapterContentState"
+              }
+            ]
+          },
           "organization": {
             "oneOf": [
               {
@@ -5067,6 +5077,10 @@
             "type": "boolean"
           }
         }
+      },
+      "LockChapterContentState": {
+        "type": "string",
+        "enum": ["not_locked", "waiting_teacher_review", "visible"]
       },
       "MaterialReference": {
         "type": "object",

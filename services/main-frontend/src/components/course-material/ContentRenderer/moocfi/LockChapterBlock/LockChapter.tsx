@@ -186,6 +186,8 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const currentChapterIsLocked = currentChapterStatus?.status === "completed_and_locked"
   const currentChapterIsNotAccessible =
     !currentChapterStatus || currentChapterStatus.status === "not_unlocked_yet"
+  const isWaitingTeacherReviewForModelSolution =
+    courseMaterialState.lockChapterContentState === "waiting_teacher_review"
 
   if (getUserLocks.isError) {
     return <ErrorBanner variant={"readOnly"} error={getUserLocks.error} />
@@ -205,7 +207,10 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
       `}
     >
       {shouldShowLockedView ? (
-        <LockChapterLockedView blockProps={blockProps} />
+        <LockChapterLockedView
+          blockProps={blockProps}
+          showTeacherReviewPendingMessage={isWaitingTeacherReviewForModelSolution}
+        />
       ) : currentChapterIsNotAccessible ? (
         <div
           className={css`

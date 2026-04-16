@@ -20,11 +20,12 @@ use crate::{
     peer_review_queue_entries::PeerReviewQueueEntry,
     prelude::*,
     teacher_grading_decisions::{TeacherDecisionType, TeacherGradingDecision},
+    user_chapter_locking_statuses,
     user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
     user_course_settings,
     user_exercise_states::{self, ReviewingStage, UserExerciseState},
 };
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
@@ -1014,7 +1015,25 @@ WHERE ues.user_id = ANY($1)
     Ok(user_exercise_map.into_iter().collect())
 }
 
-/// Resets all related tables for selected users and related exercises
+/// Resolves affected chapter ids for exercise resets in a course.
+async fn get_chapter_ids_for_exercises_in_course(
+    conn: &mut PgConnection,
+    exercise_ids: &[Uuid],
+    course_id: Uuid,
+) -> ModelResult<Vec<Uuid>> {
+    let mut chapter_ids = HashSet::new();
+    for exercise_id in exercise_ids {
+        let exercise = get_exercise_by_id(conn, *exercise_id).await?;
+        if exercise.course_id == Some(course_id)
+            && let Some(chapter_id) = exercise.chapter_id
+        {
+            chapter_ids.insert(chapter_id);
+        }
+    }
+    Ok(chapter_ids.into_iter().collect())
+}
+
+/// Resets all related tables for selected users and related exercises.
 pub async fn reset_exercises_for_selected_users(
     conn: &mut PgConnection,
     users_and_exercises: &[(Uuid, Vec<Uuid>)],
@@ -1176,6 +1195,16 @@ WHERE user_exercise_state_id IN (
         )
         .await?;
 
+        let chapter_ids =
+            get_chapter_ids_for_exercises_in_course(&mut tx, exercise_ids, course_id).await?;
+        user_chapter_locking_statuses::unlock_chapters_for_user(
+            &mut tx,
+            *user_id,
+            course_id,
+            &chapter_ids,
+        )
+        .await?;
+
         successful_resets.push((*user_id, exercise_ids.to_vec()));
     }
     tx.commit().await?;
@@ -1188,10 +1217,12 @@ mod test {
     use crate::{
         chapters,
         course_instance_enrollments::{self, NewCourseInstanceEnrollment},
+        courses,
         exercise_service_info::{self, PathInfo},
         exercise_services::{self, ExerciseServiceNewOrUpdate},
         test_helper::Conn,
         test_helper::*,
+        user_chapter_locking_statuses::{self, ChapterLockingStatus},
         user_exercise_states,
     };
     use chrono::TimeZone;
@@ -1353,5 +1384,78 @@ mod test {
         .unwrap();
 
         assert_eq!(exercise.exercise.deadline, Some(chapter_deadline));
+    }
+
+    #[tokio::test]
+    async fn resetting_exercise_unlocks_its_chapter_for_user() {
+        insert_data!(
+            :tx,
+            user: user_id,
+            org: _organization_id,
+            course: course_id,
+            instance: _course_instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+
+        let existing_course = courses::get_course(tx.as_mut(), course_id).await.unwrap();
+        courses::update_course(
+            tx.as_mut(),
+            course_id,
+            courses::CourseUpdate {
+                name: existing_course.name,
+                description: existing_course.description,
+                is_draft: existing_course.is_draft,
+                is_test_mode: existing_course.is_test_mode,
+                can_add_chatbot: existing_course.can_add_chatbot,
+                is_unlisted: existing_course.is_unlisted,
+                is_joinable_by_code_only: existing_course.is_joinable_by_code_only,
+                ask_marketing_consent: existing_course.ask_marketing_consent,
+                flagged_answers_threshold: existing_course.flagged_answers_threshold.unwrap_or(1),
+                flagged_answers_skip_manual_review_and_allow_retry: existing_course
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: existing_course.closed_at,
+                closed_additional_message: existing_course.closed_additional_message,
+                closed_course_successor_id: existing_course.closed_course_successor_id,
+                chapter_locking_enabled: true,
+            },
+        )
+        .await
+        .unwrap();
+
+        user_chapter_locking_statuses::complete_and_lock_chapter(
+            tx.as_mut(),
+            user_id,
+            chapter_id,
+            course_id,
+        )
+        .await
+        .unwrap();
+
+        reset_exercises_for_selected_users(
+            tx.as_mut(),
+            &[(user_id, vec![exercise_id])],
+            Some(user_id),
+            course_id,
+            Some("test-reset".to_string()),
+        )
+        .await
+        .unwrap();
+
+        let status = user_chapter_locking_statuses::get_or_init_status(
+            tx.as_mut(),
+            user_id,
+            chapter_id,
+            Some(course_id),
+            Some(true),
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(status, Some(ChapterLockingStatus::Unlocked));
     }
 }

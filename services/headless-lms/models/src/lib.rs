@@ -9,6 +9,7 @@ pub mod application_task_default_language_models;
 pub mod certificate_configuration_to_requirements;
 pub mod certificate_configurations;
 pub mod certificate_fonts;
+pub mod chapter_lock_action_logs;
 pub mod chapters;
 pub mod chatbot_configurations;
 pub mod chatbot_configurations_models;

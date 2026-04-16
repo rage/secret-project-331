@@ -2574,6 +2574,7 @@ dependencies = [
  "tokio-util",
  "tracing",
  "tracing-error",
+ "tracing-subscriber",
  "ts-rs",
  "url",
  "utoipa",

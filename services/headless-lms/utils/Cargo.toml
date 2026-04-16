@@ -97,6 +97,8 @@ utoipa = { version = "5.4.0", features = ["uuid"] }
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"
+# Utilities for implementing and composing `tracing` subscribers.
+tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -28,6 +28,6 @@ pub use headless_lms_utils::{cache::Cache, file_store::FileStore, pagination::Pa
 pub use rand::Rng;
 pub use rand::RngExt;
 pub use sqlx::{Connection, FromRow, PgConnection, PgPool, Pool, Postgres, Type};
-#[cfg(feature = "ts_rs")]
+#[cfg(feature = "ts-rs")]
 pub use ts_rs::TS;
 pub use uuid::Uuid;

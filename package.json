@@ -15,16 +15,14 @@
   },
   "scripts": {
     "eslint": "eslint --fix .",
-    "export-openapi": "cd services/headless-lms && SQLX_OFFLINE=1 cargo run -p headless-lms-entrypoint -- export-openapi",
+    "export-openapi": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI specs is to run the bin/generate-bindings command.\"; exit 1'",
+    "codegen:openapi-ts": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI TS clients is to run the bin/generate-bindings command.\"; exit 1'",
     "eslint:ci": "eslint .",
     "eslint:format-bindings": "eslint --fix shared-module/packages/common/src/bindings.ts",
     "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
     "lint:css": "stylelint '**/*.tsx'",
     "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/app/playground-views/page.tsx' --glob '!**/app/playground-views/PlaygroundPreview.tsx' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
-    "codegen:api": "cd services/main-frontend && pnpm run codegen:api",
-    "codegen:cms-api": "cd services/main-frontend && pnpm exec openapi-ts -f ../cms/openapi-ts.config.ts",
-    "codegen:auth-api": "cd shared-module/packages/common && pnpm run codegen:auth-api",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },
@@ -38,6 +36,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.3",
+    "@hey-api/openapi-ts": "0.95.0",
     "@next/eslint-plugin-next": "^16.1.6",
     "@stylelint/postcss-css-in-js": "^0.38.0",
     "@tanstack/eslint-plugin-query": "^5.91.4",

@@ -152,15 +152,21 @@ fn export_openapi_specs() -> Result<()> {
     let output_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../server/openapi");
     std::fs::create_dir_all(&output_dir)?;
     write_spec(
-        &output_dir.join("main-frontend.openapi.json"),
+        &output_dir.join("main-frontend.openapi.generated.json"),
         MainFrontendApiDoc::openapi(),
     )?;
-    write_spec(&output_dir.join("cms.openapi.json"), CmsApiDoc::openapi())?;
     write_spec(
-        &output_dir.join("course-material.openapi.json"),
+        &output_dir.join("cms.openapi.generated.json"),
+        CmsApiDoc::openapi(),
+    )?;
+    write_spec(
+        &output_dir.join("course-material.openapi.generated.json"),
         CourseMaterialApiDoc::openapi(),
     )?;
-    write_spec(&output_dir.join("auth.openapi.json"), AuthApiDoc::openapi())?;
+    write_spec(
+        &output_dir.join("auth.openapi.generated.json"),
+        AuthApiDoc::openapi(),
+    )?;
     Ok(())
 }
 

@@ -36,9 +36,12 @@ GET /api/v0/course-material/pages/exam/{page_id}
 async fn get_by_exam_id(
     exam_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
+    let user_id = auth.map(|u| u.id);
     let page = models::pages::get_by_exam_id(&mut conn, *exam_id).await?;
+    let page = models::pages::filter_course_material_page(&mut conn, user_id, page).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
@@ -62,10 +65,18 @@ GET /api/v0/course-material/page/{page_id}
 async fn get_chapter_front_page(
     page_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Option<Page>>> {
     let mut conn = pool.acquire().await?;
+    let user_id = auth.map(|u| u.id);
     let chapter_front_page =
         models::pages::get_chapter_front_page_by_page_id(&mut conn, *page_id).await?;
+    let chapter_front_page = match chapter_front_page {
+        Some(page) => {
+            Some(models::pages::filter_course_material_page(&mut conn, user_id, page).await?)
+        }
+        None => None,
+    };
     let token = skip_authorize();
     token.authorized_ok(web::Json(chapter_front_page))
 }

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status::text as \"status!\"\nFROM user_chapter_locking_statuses\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n            ",
+  "query": "\nSELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as \"status: ChapterLockingStatus\"\nFROM user_chapter_locking_statuses\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n            ",
   "describe": {
     "columns": [
       {
@@ -40,8 +40,19 @@
       },
       {
         "ordinal": 7,
-        "name": "status!",
-        "type_info": "Text"
+        "name": "status: ChapterLockingStatus",
+        "type_info": {
+          "Custom": {
+            "name": "chapter_locking_status",
+            "kind": {
+              "Enum": [
+                "unlocked",
+                "completed_and_locked",
+                "not_unlocked_yet"
+              ]
+            }
+          }
+        }
       }
     ],
     "parameters": {
@@ -58,8 +69,8 @@
       false,
       false,
       false,
-      null
+      false
     ]
   },
-  "hash": "fc53b337ca86ac2ca953989a6e18f198c9aaa261346b070507f5f92eef12e7bc"
+  "hash": "5c4c7794f9f536547d87a06642ad47f8e367c5b8151d23fcda40391fcf48456e"
 }

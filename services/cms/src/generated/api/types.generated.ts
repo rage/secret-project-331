@@ -5,7 +5,7 @@
 /* eslint-disable */
 
 export type ClientOptions = {
-  baseUrl: `${string}://services` | (string & {})
+  baseUrl: `${string}://${string}` | (string & {})
 }
 
 export type AutomaticCompletionRequirements = {

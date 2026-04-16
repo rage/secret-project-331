@@ -10,6 +10,10 @@ import { selectOrganization } from "@/utils/organizationUtils"
 
 const LOCK_CHAPTERS_COURSE_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 const STUDENT1_USER_ID = "02364d40-2aac-4763-8a06-2381fd298d79"
+const LOCK_CHAPTER_1_PAGE_URL =
+  "http://project-331.local/org/university-of-helsinki-department-of-mathematics-and-statistics/courses/lock-chapter-test-course/chapter-1/lock-page"
+const LOCK_CHAPTER_2_PAGE_URL =
+  "http://project-331.local/org/university-of-helsinki-department-of-mathematics-and-statistics/courses/lock-chapter-test-course/chapter-2/lock-page"
 
 test.describe("Chapter locking feature", () => {
   test("Chapter locking complete flow", async ({ browser }) => {
@@ -31,10 +35,7 @@ test.describe("Chapter locking feature", () => {
       )
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       await selectCourseInstanceIfPrompted(studentPage)
-      const chapterSelector = new ChapterSelector(studentPage)
-      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
-      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
-      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.goto(LOCK_CHAPTER_1_PAGE_URL)
       await studentPage.getByText("Mark Chapter as Complete").waitFor()
       await expect(studentPage.getByRole("button", { name: "Lock Chapter" })).toBeVisible()
     })
@@ -88,10 +89,8 @@ test.describe("Chapter locking feature", () => {
 
     await test.step("Lock Chapter 1 with confirmation dialog", async () => {
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      const chapterSelector = new ChapterSelector(studentPage)
-      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
-      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.goto(LOCK_CHAPTER_1_PAGE_URL)
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
       await respondToConfirmDialog(studentPage, true, "Are you sure you want to lock this chapter?")
       await studentPage.getByText("Chapter locked").waitFor()
@@ -159,6 +158,9 @@ test.describe("Chapter locking feature", () => {
           .getByText("The current chapter is locked, and you can no longer submit exercises.")
           .first(),
       ).toBeHidden()
+      await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
+      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.goto(LOCK_CHAPTER_1_PAGE_URL)
       await expect(studentPage.getByRole("heading", { name: "Model Solution" })).toBeVisible()
       await expect(
         studentPage.getByText(
@@ -197,10 +199,8 @@ test.describe("Chapter locking feature", () => {
 
     await test.step("Verify cannot lock an already-locked chapter", async () => {
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      const chapterSelector = new ChapterSelector(studentPage)
-      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
-      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.goto(LOCK_CHAPTER_1_PAGE_URL)
       await expect(studentPage.getByText("Chapter locked")).toBeVisible()
       await expect(studentPage.getByRole("button", { name: "Lock Chapter" })).toBeHidden()
     })
@@ -279,10 +279,8 @@ test.describe("Chapter locking feature", () => {
 
     await test.step("Lock Chapter 2", async () => {
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      const chapterSelector = new ChapterSelector(studentPage)
-      await chapterSelector.clickChapterByTitle("Chapter 2 - Add Lock Later")
-      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.goto(LOCK_CHAPTER_2_PAGE_URL)
       await studentPage.getByText("Mark Chapter as Complete").waitFor()
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
       await respondToConfirmDialog(studentPage, true, "Are you sure you want to lock this chapter?")
@@ -397,10 +395,8 @@ test.describe("Chapter locking feature", () => {
 
     await test.step("Lock chapter and verify points without teacher review", async () => {
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      const chapterSelector = new ChapterSelector(studentPage)
-      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
-      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
       await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.goto(LOCK_CHAPTER_1_PAGE_URL)
       await studentPage.getByRole("button", { name: "Lock Chapter" }).click()
       await respondToConfirmDialog(studentPage, true, "Are you sure you want to lock this chapter?")
       await studentPage.getByText("Chapter locked").waitFor()
@@ -455,10 +451,7 @@ test.describe("Chapter locking feature", () => {
       )
       await student4Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       await selectCourseInstanceIfPrompted(student4Page)
-      const chapterSelector = new ChapterSelector(student4Page)
-      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
-      await clickPageInChapterByTitle(student4Page, "Lock Chapter Page")
-      await selectCourseInstanceIfPrompted(student4Page)
+      await student4Page.goto(LOCK_CHAPTER_1_PAGE_URL)
 
       await expect(student4Page.getByRole("button", { name: "Lock Chapter" })).toBeVisible()
       await expect(student4Page.getByRole("heading", { name: "Model Solution" })).toBeHidden()
@@ -517,10 +510,7 @@ test.describe("Chapter locking feature", () => {
       )
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       await selectCourseInstanceIfPrompted(studentPage)
-      const chapterSelector = new ChapterSelector(studentPage)
-      await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
-      await clickPageInChapterByTitle(studentPage, "Lock Chapter Page")
-      await selectCourseInstanceIfPrompted(studentPage)
+      await studentPage.goto(LOCK_CHAPTER_1_PAGE_URL)
 
       await expect(studentPage.getByRole("heading", { name: "Model Solution" })).toBeHidden()
       await expect(
@@ -545,10 +535,8 @@ test.describe("Chapter locking feature", () => {
         .find((c: { name: string }) => c.name.includes("Chapter 2"))
 
       await student4Page.getByRole("link", { name: "Lock Chapter Test Course" }).click()
-      const chapterSelector2 = new ChapterSelector(student4Page)
-      await chapterSelector2.clickChapterByTitle("Chapter 2 - Add Lock Later")
-      await clickPageInChapterByTitle(student4Page, "Lock Chapter Page")
       await selectCourseInstanceIfPrompted(student4Page)
+      await student4Page.goto(LOCK_CHAPTER_2_PAGE_URL)
       await student4Page.getByText("Mark Chapter as Complete").waitFor()
 
       await student4Page.getByRole("button", { name: "Lock Chapter" }).click()

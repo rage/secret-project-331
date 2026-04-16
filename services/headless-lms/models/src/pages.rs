@@ -3198,7 +3198,7 @@ SELECT ts_headline(
         SELECT query
         from cte
     ),
-    'MaxFragments=0, MaxWords=120, MinWords=70'
+    'MaxFragments=1, MaxWords=30, MinWords=10'
 ) as content_headline
 FROM unnest($4::text[]) WITH ORDINALITY AS input(content, ord)
 ORDER BY ord;

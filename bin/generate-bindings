@@ -10,6 +10,9 @@ ROOT_PATH="$BASEDIR/.."
 HEADLESS_LMS_PATH="$BASEDIR/../services/headless-lms"
 ROOT_ABSOLUTE_PATH=$(realpath "$ROOT_PATH")
 HEADLESS_LMS_ABSOLUTE_PATH=$(realpath "$HEADLESS_LMS_PATH")
+# Used by OpenAPI config guards.
+# Do not set this by hand. Run this script instead.
+export GENERATE_BINDINGS_RUN=1
 
 run_command cd "$HEADLESS_LMS_ABSOLUTE_PATH" || exit
 run_command env SQLX_OFFLINE=1 cargo run -p headless-lms-entrypoint -- export-openapi

@@ -1,4 +1,15 @@
 import { UserConfig } from "@hey-api/openapi-ts"
+import path from "path"
+import { fileURLToPath } from "url"
+
+if (process.env.GENERATE_BINDINGS_RUN !== "1") {
+  throw new Error(
+    "Do not run this generator directly. Run bin/generate-bindings from the repo root.",
+  )
+}
+
+const configDir = path.dirname(fileURLToPath(import.meta.url))
+const resolveFromConfig = (relativePath: string) => path.resolve(configDir, relativePath)
 
 const createConfig = (input: string, path: string) =>
   ({
@@ -39,6 +50,6 @@ const createConfig = (input: string, path: string) =>
   }) satisfies UserConfig
 
 export default createConfig(
-  "services/headless-lms/server/openapi/cms.openapi.generated.json",
-  "services/cms/src/generated/api",
+  resolveFromConfig("../../services/headless-lms/server/openapi/cms.openapi.generated.json"),
+  resolveFromConfig("../../services/cms/src/generated/api"),
 )

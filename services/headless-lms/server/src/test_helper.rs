@@ -11,11 +11,29 @@ use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
 use tokio::sync::Mutex;
 
+/// Returns true if the current process appears to run inside Kubernetes.
+fn running_in_kubernetes() -> bool {
+    // `KUBERNETES_SERVICE_HOST` is injected into all pods by default.
+    env::var_os("KUBERNETES_SERVICE_HOST").is_some()
+}
+
+/// Default database URL for tests when no DB env vars are set.
+fn default_database_url_for_tests() -> String {
+    if running_in_kubernetes() {
+        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test"
+            .to_string()
+    } else {
+        // Matches the local dev convention (e.g. local Postgres or port-forwarded Postgres).
+        "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
+    }
+}
+
 pub async fn test_config() -> ServerConfig {
+    let database_url = env::var("DATABASE_URL_TEST")
+        .or_else(|_| env::var("DATABASE_URL"))
+        .unwrap_or_else(|_| default_database_url_for_tests());
     ServerConfigBuilder {
-        database_url: "\
-postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test"
-            .to_string(),
+        database_url,
         oauth_application_id: "some-id".to_string(),
         oauth_secret: "some-secret".to_string(),
         auth_url: "http://example.com".parse().unwrap(),

@@ -8,7 +8,7 @@
     "jsx": "react-jsx",
     "lib": ["dom", "es2017"],
     "typeRoots": ["types", "./shared-module/types", "./node_modules/@types"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
     "strict": true,

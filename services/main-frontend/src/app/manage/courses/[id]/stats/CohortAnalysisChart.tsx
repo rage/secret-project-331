@@ -2,7 +2,11 @@
 
 import { css } from "@emotion/css"
 import { format } from "date-fns"
-import type { EChartsOption } from "echarts/types/src/export/option"
+import type {
+  DefaultLabelFormatterCallbackParams,
+  EChartsOption,
+  TooltipComponentFormatterCallbackParams,
+} from "echarts"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -121,7 +125,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
   const chartOptions: EChartsOption = {
     tooltip: {
       position: CHART_POSITION,
-      formatter: (params) => {
+      formatter: (params: TooltipComponentFormatterCallbackParams) => {
         if (Array.isArray(params)) {
           throw new Error("Tooltip params is an array")
         }
@@ -307,7 +311,7 @@ const CohortAnalysisChart: React.FC<CohortAnalysisChartProps> = ({
         data: chartData,
         label: {
           show: true,
-          formatter: (params) => {
+          formatter: (params: DefaultLabelFormatterCallbackParams) => {
             if (!params.data || !Array.isArray(params.data)) {
               return "0%"
             }

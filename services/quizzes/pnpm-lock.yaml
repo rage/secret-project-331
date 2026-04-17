@@ -5,12 +5,21 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  dompurify@<3.3.2: '>=3.3.2'
+  dompurify@<=3.3.1: '>=3.3.2'
+  dompurify@<=3.3.3: '>=3.4.0'
+  dompurify@>=3.1.3 <=3.3.1: '>=3.3.2'
+  follow-redirects@<=1.15.11: '>=1.16.0'
   glob@>=10.2.0 <10.5.0: '>=10.5.0'
   js-yaml@>=4.0.0 <4.1.1: '>=4.1.1'
   minimatch@<3.1.3: '>=3.1.3'
   minimatch@<3.1.4: '>=3.1.4'
   minimatch@>=9.0.0 <9.0.6: '>=9.0.6'
   minimatch@>=9.0.0 <9.0.7: '>=9.0.7'
+  path-to-regexp@>=8.0.0 <8.4.0: '>=8.4.0'
+  picomatch@<2.3.2: '>=2.3.2'
+  picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
+  yaml@>=1.0.0 <1.10.3: '>=1.10.3'
 
 importers:
 
@@ -132,10 +141,10 @@ importers:
         version: 11.1.4
       jotai:
         specifier: ^2.19.1
-        version: 2.19.1(@babel/core@7.28.4)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)
+        version: 2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)
       jotai-family:
         specifier: ^1.0.1
-        version: 1.0.1(jotai@2.19.1(@babel/core@7.28.4)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5))
+        version: 1.0.1(jotai@2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5))
       katex:
         specifier: ^0.16.45
         version: 0.16.45
@@ -147,7 +156,7 @@ importers:
         version: 0.55.1
       next:
         specifier: 16.2.4
-        version: 16.2.4(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        version: 16.2.4(@babel/core@7.29.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       postcss:
         specifier: ^8.5.10
         version: 8.5.10
@@ -171,13 +180,13 @@ importers:
         version: 2.6.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-i18next:
         specifier: ^17.0.4
-        version: 17.0.4(i18next@26.0.5(typescript@6.0.3))(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
+        version: 17.0.4(i18next@26.0.5(typescript@6.0.3))(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@6.0.3)
       react-popper:
         specifier: ^2.3.0
         version: 2.3.0(@popperjs/core@2.11.8)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       react-spring:
         specifier: ^10.0.3
-        version: 10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react-konva@19.0.10(@types/react@19.2.14)(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react-zdog@1.2.2)(react@19.2.5)(three@0.180.0)(zdog@1.1.3)
+        version: 10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react-konva@19.0.10(@types/react@19.2.14)(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react-zdog@1.2.2)(react@19.2.5)(three@0.180.0)(zdog@1.1.3)
       svgo:
         specifier: ^4.0.1
         version: 4.0.1
@@ -238,7 +247,7 @@ importers:
         version: 7.2.2
       ts-jest:
         specifier: ^29.4.9
-        version: 29.4.9(@babel/core@7.28.4)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.28.4))(jest-util@30.3.0)(jest@30.3.0(@types/node@25.6.0)(babel-plugin-macros@3.1.0))(typescript@6.0.3)
+        version: 29.4.9(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.29.0))(jest-util@30.3.0)(jest@30.3.0(@types/node@25.6.0)(babel-plugin-macros@3.1.0))(typescript@6.0.3)
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -2661,9 +2670,6 @@ packages:
     resolution: {integrity: sha512-cgwlv/1iFQiFnU96XXgROh8xTeetsnJiDsTc7TYCLFd9+/WNkIqPTxiM/8pSd8VIrhXGTf1Ny1q1hquVqDJB5w==}
     engines: {node: '>= 4'}
 
-  dompurify@3.2.7:
-    resolution: {integrity: sha512-WhL/YuveyGXJaerVlMYGWhvQswa7myDG17P7Vu65EWC05o8vfeNbvNf4d/BOvH99+ZW+LlQsc1GDKMa1vNK6dw==}
-
   dompurify@3.4.0:
     resolution: {integrity: sha512-nolgK9JcaUXMSmW+j1yaSvaEaoXYHwWyGJlkoCTghc97KgGDDSnpoU/PlEnw63Ah+TGKFOyY+X5LnxaWbCSfXg==}
 
@@ -2863,8 +2869,8 @@ packages:
   flow-enums-runtime@0.0.6:
     resolution: {integrity: sha512-3PYnM29RFXwvAN6Pc/scUfkI7RwhQ/xqyLUyPNlXUp9S40zI8nup9tUSrTLSVnWGBN38FNiGWbwZOB6uR4OGdw==}
 
-  follow-redirects@1.15.11:
-    resolution: {integrity: sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ==}
+  follow-redirects@1.16.0:
+    resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
     engines: {node: '>=4.0'}
     peerDependencies:
       debug: '*'
@@ -3874,8 +3880,8 @@ packages:
     resolution: {integrity: sha512-Xa4Nw17FS9ApQFJ9umLiJS4orGjm7ZzwUrwamcGQuHSzDyth9boKDaycYdDcZDuqYATXw4HFXgaqWTctW/v1HA==}
     engines: {node: '>=16 || 14 >=14.18'}
 
-  path-to-regexp@8.3.0:
-    resolution: {integrity: sha512-7jdwVIRtsP8MYpdXSwOS0YdD0Du+qOoF/AEPIt88PcCFrZCzx41oxku1jD88hZBwbNUIEfpqvuhjFaMAqMTWnA==}
+  path-to-regexp@8.4.2:
+    resolution: {integrity: sha512-qRcuIdP69NPm4qbACK+aDogI5CBDMi1jKe0ry5rSQJz8JVLsC7jV8XpiJjGRLLol3N+R5ihGYcrPLTno6pAdBA==}
 
   path-type@4.0.0:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
@@ -3884,16 +3890,8 @@ packages:
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
-  picomatch@2.3.1:
-    resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
-    engines: {node: '>=8.6'}
-
-  picomatch@2.3.2:
-    resolution: {integrity: sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA==}
-    engines: {node: '>=8.6'}
-
-  picomatch@4.0.3:
-    resolution: {integrity: sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q==}
+  picomatch@4.0.4:
+    resolution: {integrity: sha512-QP88BAKvMam/3NxH6vj2o21R6MjxZUAd6nlwAS/pnGvN9IVLocLHxGYIzFhg6fUQ+5th6P4dv4eW9jX3DSIj7A==}
     engines: {node: '>=12'}
 
   pirates@4.0.7:
@@ -4786,10 +4784,6 @@ packages:
 
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
-
-  yaml@1.10.2:
-    resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
-    engines: {node: '>= 6'}
 
   yaml@2.8.3:
     resolution: {integrity: sha512-AvbaCLOO2Otw/lW5bmh9d/WEdcDFdQp2Z2ZUH3pX9U2ihyUY0nvLv7J6TrWowklRGPYbB/IuIMfYgxaCPg5Bpg==}
@@ -6567,9 +6561,9 @@ snapshots:
 
   '@react-native/assets-registry@0.81.4': {}
 
-  '@react-native/codegen@0.81.4(@babel/core@7.28.4)':
+  '@react-native/codegen@0.81.4(@babel/core@7.29.0)':
     dependencies:
-      '@babel/core': 7.28.4
+      '@babel/core': 7.29.0
       '@babel/parser': 7.29.2
       glob: 7.2.3
       hermes-parser: 0.29.1
@@ -6617,12 +6611,12 @@ snapshots:
 
   '@react-native/normalize-colors@0.81.4': {}
 
-  '@react-native/virtualized-lists@0.81.4(@types/react@19.2.14)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)':
+  '@react-native/virtualized-lists@0.81.4(@types/react@19.2.14)(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)':
     dependencies:
       invariant: 2.2.4
       nullthrows: 1.1.1
       react: 19.2.5
-      react-native: 0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5)
+      react-native: 0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5)
     optionalDependencies:
       '@types/react': 19.2.14
 
@@ -6663,14 +6657,14 @@ snapshots:
       react: 19.2.5
       react-konva: 19.0.10(@types/react@19.2.14)(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
 
-  '@react-spring/native@10.0.3(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)':
+  '@react-spring/native@10.0.3(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@react-spring/animated': 10.0.3(react@19.2.5)
       '@react-spring/core': 10.0.3(react@19.2.5)
       '@react-spring/shared': 10.0.3(react@19.2.5)
       '@react-spring/types': 10.0.3
       react: 19.2.5
-      react-native: 0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5)
+      react-native: 0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5)
 
   '@react-spring/rafz@10.0.3': {}
 
@@ -6680,13 +6674,13 @@ snapshots:
       '@react-spring/types': 10.0.3
       react: 19.2.5
 
-  '@react-spring/three@10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(react@19.2.5)(three@0.180.0)':
+  '@react-spring/three@10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(react@19.2.5)(three@0.180.0)':
     dependencies:
       '@react-spring/animated': 10.0.3(react@19.2.5)
       '@react-spring/core': 10.0.3(react@19.2.5)
       '@react-spring/shared': 10.0.3(react@19.2.5)
       '@react-spring/types': 10.0.3
-      '@react-three/fiber': 9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0)
+      '@react-three/fiber': 9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0)
       react: 19.2.5
       three: 0.180.0
 
@@ -6761,7 +6755,7 @@ snapshots:
       react-dom: 19.2.5(react@19.2.5)
       react-stately: 3.46.0(react@19.2.5)
 
-  '@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0)':
+  '@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@types/react-reconciler': 0.32.3(@types/react@19.2.14)
@@ -6779,7 +6773,7 @@ snapshots:
       zustand: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
     optionalDependencies:
       react-dom: 19.2.5(react@19.2.5)
-      react-native: 0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5)
+      react-native: 0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -7181,7 +7175,7 @@ snapshots:
   anymatch@3.1.3:
     dependencies:
       normalize-path: 3.0.0
-      picomatch: 2.3.1
+      picomatch: 4.0.4
 
   argparse@1.0.10:
     dependencies:
@@ -7201,32 +7195,18 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  babel-jest@29.7.0(@babel/core@7.28.4):
+  babel-jest@29.7.0(@babel/core@7.29.0):
     dependencies:
-      '@babel/core': 7.28.4
+      '@babel/core': 7.29.0
       '@jest/transform': 29.7.0
       '@types/babel__core': 7.20.5
       babel-plugin-istanbul: 6.1.1
-      babel-preset-jest: 29.6.3(@babel/core@7.28.4)
+      babel-preset-jest: 29.6.3(@babel/core@7.29.0)
       chalk: 4.1.2
       graceful-fs: 4.2.11
       slash: 3.0.0
     transitivePeerDependencies:
       - supports-color
-
-  babel-jest@30.3.0(@babel/core@7.28.4):
-    dependencies:
-      '@babel/core': 7.28.4
-      '@jest/transform': 30.3.0
-      '@types/babel__core': 7.20.5
-      babel-plugin-istanbul: 7.0.1
-      babel-preset-jest: 30.3.0(@babel/core@7.28.4)
-      chalk: 4.1.2
-      graceful-fs: 4.2.11
-      slash: 3.0.0
-    transitivePeerDependencies:
-      - supports-color
-    optional: true
 
   babel-jest@30.3.0(@babel/core@7.29.0):
     dependencies:
@@ -7344,18 +7324,11 @@ snapshots:
       '@babel/plugin-syntax-private-property-in-object': 7.14.5(@babel/core@7.29.0)
       '@babel/plugin-syntax-top-level-await': 7.14.5(@babel/core@7.29.0)
 
-  babel-preset-jest@29.6.3(@babel/core@7.28.4):
+  babel-preset-jest@29.6.3(@babel/core@7.29.0):
     dependencies:
-      '@babel/core': 7.28.4
+      '@babel/core': 7.29.0
       babel-plugin-jest-hoist: 29.6.3
-      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.28.4)
-
-  babel-preset-jest@30.3.0(@babel/core@7.28.4):
-    dependencies:
-      '@babel/core': 7.28.4
-      babel-plugin-jest-hoist: 30.3.0
-      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.28.4)
-    optional: true
+      babel-preset-current-node-syntax: 1.2.0(@babel/core@7.29.0)
 
   babel-preset-jest@30.3.0(@babel/core@7.29.0):
     dependencies:
@@ -7570,7 +7543,7 @@ snapshots:
       import-fresh: 3.3.1
       parse-json: 5.2.0
       path-type: 4.0.0
-      yaml: 1.10.2
+      yaml: 2.8.3
 
   cosmiconfig@8.3.6(typescript@6.0.3):
     dependencies:
@@ -7699,10 +7672,6 @@ snapshots:
   domhandler@5.0.3:
     dependencies:
       domelementtype: 2.3.0
-
-  dompurify@3.2.7:
-    optionalDependencies:
-      '@types/trusted-types': 2.0.7
 
   dompurify@3.4.0:
     optionalDependencies:
@@ -7935,7 +7904,7 @@ snapshots:
 
   flow-enums-runtime@0.0.6: {}
 
-  follow-redirects@1.15.11(debug@4.4.3):
+  follow-redirects@1.16.0(debug@4.4.3):
     optionalDependencies:
       debug: 4.4.3
 
@@ -8142,7 +8111,7 @@ snapshots:
   http-proxy@1.18.1(debug@4.4.3):
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.15.11(debug@4.4.3)
+      follow-redirects: 1.16.0(debug@4.4.3)
       requires-port: 1.0.0
     transitivePeerDependencies:
       - debug
@@ -8464,7 +8433,7 @@ snapshots:
       jest-regex-util: 30.0.1
       jest-util: 30.3.0
       jest-worker: 30.3.0
-      picomatch: 4.0.3
+      picomatch: 4.0.4
       walker: 1.0.8
     optionalDependencies:
       fsevents: 2.3.3
@@ -8519,7 +8488,7 @@ snapshots:
       '@types/stack-utils': 2.0.3
       chalk: 4.1.2
       graceful-fs: 4.2.11
-      picomatch: 4.0.3
+      picomatch: 4.0.4
       pretty-format: 30.3.0
       slash: 3.0.0
       stack-utils: 2.0.6
@@ -8655,7 +8624,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 3.9.0
       graceful-fs: 4.2.11
-      picomatch: 2.3.2
+      picomatch: 4.0.4
 
   jest-util@30.2.0:
     dependencies:
@@ -8664,7 +8633,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 4.3.0
       graceful-fs: 4.2.11
-      picomatch: 4.0.3
+      picomatch: 4.0.4
 
   jest-util@30.3.0:
     dependencies:
@@ -8673,7 +8642,7 @@ snapshots:
       chalk: 4.1.2
       ci-info: 4.3.0
       graceful-fs: 4.2.11
-      picomatch: 4.0.3
+      picomatch: 4.0.4
 
   jest-validate@29.7.0:
     dependencies:
@@ -8732,13 +8701,13 @@ snapshots:
       - supports-color
       - ts-node
 
-  jotai-family@1.0.1(jotai@2.19.1(@babel/core@7.28.4)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)):
+  jotai-family@1.0.1(jotai@2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)):
     dependencies:
-      jotai: 2.19.1(@babel/core@7.28.4)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)
+      jotai: 2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5)
 
-  jotai@2.19.1(@babel/core@7.28.4)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5):
+  jotai@2.19.1(@babel/core@7.29.0)(@babel/template@7.28.6)(@types/react@19.2.14)(react@19.2.5):
     optionalDependencies:
-      '@babel/core': 7.28.4
+      '@babel/core': 7.29.0
       '@babel/template': 7.28.6
       '@types/react': 19.2.14
       react: 19.2.5
@@ -9060,7 +9029,7 @@ snapshots:
   micromatch@4.0.8:
     dependencies:
       braces: 3.0.3
-      picomatch: 2.3.1
+      picomatch: 4.0.4
 
   mime-db@1.52.0: {}
 
@@ -9092,7 +9061,7 @@ snapshots:
 
   monaco-editor@0.55.1:
     dependencies:
-      dompurify: 3.2.7
+      dompurify: 3.4.0
       marked: 14.0.0
 
   mrmime@2.0.1: {}
@@ -9111,7 +9080,7 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next@16.2.4(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
+  next@16.2.4(@babel/core@7.29.0)(babel-plugin-macros@3.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5):
     dependencies:
       '@next/env': 16.2.4
       '@swc/helpers': 0.5.15
@@ -9120,7 +9089,7 @@ snapshots:
       postcss: 8.4.31
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
-      styled-jsx: 5.1.6(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react@19.2.5)
+      styled-jsx: 5.1.6(@babel/core@7.29.0)(babel-plugin-macros@3.1.0)(react@19.2.5)
     optionalDependencies:
       '@next/swc-darwin-arm64': 16.2.4
       '@next/swc-darwin-x64': 16.2.4
@@ -9237,17 +9206,13 @@ snapshots:
       lru-cache: 10.4.3
       minipass: 7.1.3
 
-  path-to-regexp@8.3.0: {}
+  path-to-regexp@8.4.2: {}
 
   path-type@4.0.0: {}
 
   picocolors@1.1.1: {}
 
-  picomatch@2.3.1: {}
-
-  picomatch@2.3.2: {}
-
-  picomatch@4.0.3: {}
+  picomatch@4.0.4: {}
 
   pirates@4.0.7: {}
 
@@ -9400,7 +9365,7 @@ snapshots:
       react: 19.2.5
       react-dom: 19.2.5(react@19.2.5)
 
-  react-i18next@17.0.4(i18next@26.0.5(typescript@6.0.3))(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@6.0.3):
+  react-i18next@17.0.4(i18next@26.0.5(typescript@6.0.3))(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(typescript@6.0.3):
     dependencies:
       '@babel/runtime': 7.29.2
       html-parse-stringify: 3.0.1
@@ -9409,7 +9374,7 @@ snapshots:
       use-sync-external-store: 1.6.0(react@19.2.5)
     optionalDependencies:
       react-dom: 19.2.5(react@19.2.5)
-      react-native: 0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5)
+      react-native: 0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5)
       typescript: 6.0.3
 
   react-is@16.13.1: {}
@@ -9428,20 +9393,20 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5):
+  react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5):
     dependencies:
       '@jest/create-cache-key-function': 29.7.0
       '@react-native/assets-registry': 0.81.4
-      '@react-native/codegen': 0.81.4(@babel/core@7.28.4)
+      '@react-native/codegen': 0.81.4(@babel/core@7.29.0)
       '@react-native/community-cli-plugin': 0.81.4
       '@react-native/gradle-plugin': 0.81.4
       '@react-native/js-polyfills': 0.81.4
       '@react-native/normalize-colors': 0.81.4
-      '@react-native/virtualized-lists': 0.81.4(@types/react@19.2.14)(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@react-native/virtualized-lists': 0.81.4(@types/react@19.2.14)(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
       abort-controller: 3.0.0
       anser: 1.4.10
       ansi-regex: 5.0.1
-      babel-jest: 29.7.0(@babel/core@7.28.4)
+      babel-jest: 29.7.0(@babel/core@7.29.0)
       babel-plugin-syntax-hermes-parser: 0.29.1
       base64-js: 1.5.1
       commander: 12.1.0
@@ -9495,12 +9460,12 @@ snapshots:
 
   react-refresh@0.14.2: {}
 
-  react-spring@10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react-konva@19.0.10(@types/react@19.2.14)(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react-zdog@1.2.2)(react@19.2.5)(three@0.180.0)(zdog@1.1.3):
+  react-spring@10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react-konva@19.0.10(@types/react@19.2.14)(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react-zdog@1.2.2)(react@19.2.5)(three@0.180.0)(zdog@1.1.3):
     dependencies:
       '@react-spring/core': 10.0.3(react@19.2.5)
       '@react-spring/konva': 10.0.3(konva@10.0.2)(react-konva@19.0.10(@types/react@19.2.14)(konva@10.0.2)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react@19.2.5)
-      '@react-spring/native': 10.0.3(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
-      '@react-spring/three': 10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(react@19.2.5)(three@0.180.0)
+      '@react-spring/native': 10.0.3(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)
+      '@react-spring/three': 10.0.3(@react-three/fiber@9.3.0(@types/react@19.2.14)(immer@11.1.4)(react-dom@19.2.5(react@19.2.5))(react-native@0.81.4(@babel/core@7.29.0)(@types/react@19.2.14)(react@19.2.5))(react@19.2.5)(three@0.180.0))(react@19.2.5)(three@0.180.0)
       '@react-spring/web': 10.0.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@react-spring/zdog': 10.0.3(react-dom@19.2.5(react@19.2.5))(react-zdog@1.2.2)(react@19.2.5)(zdog@1.1.3)
       react: 19.2.5
@@ -9608,7 +9573,7 @@ snapshots:
       depd: 2.0.0
       is-promise: 4.0.0
       parseurl: 1.3.3
-      path-to-regexp: 8.3.0
+      path-to-regexp: 8.4.2
     transitivePeerDependencies:
       - supports-color
 
@@ -9859,12 +9824,12 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  styled-jsx@5.1.6(@babel/core@7.28.4)(babel-plugin-macros@3.1.0)(react@19.2.5):
+  styled-jsx@5.1.6(@babel/core@7.29.0)(babel-plugin-macros@3.1.0)(react@19.2.5):
     dependencies:
       client-only: 0.0.1
       react: 19.2.5
     optionalDependencies:
-      '@babel/core': 7.28.4
+      '@babel/core': 7.29.0
       babel-plugin-macros: 3.1.0
 
   stylelint-config-recommended@18.0.0(stylelint@17.8.0(typescript@6.0.3)):
@@ -10037,7 +10002,7 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  ts-jest@29.4.9(@babel/core@7.28.4)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.28.4))(jest-util@30.3.0)(jest@30.3.0(@types/node@25.6.0)(babel-plugin-macros@3.1.0))(typescript@6.0.3):
+  ts-jest@29.4.9(@babel/core@7.29.0)(@jest/transform@30.3.0)(@jest/types@30.3.0)(babel-jest@30.3.0(@babel/core@7.29.0))(jest-util@30.3.0)(jest@30.3.0(@types/node@25.6.0)(babel-plugin-macros@3.1.0))(typescript@6.0.3):
     dependencies:
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
@@ -10051,10 +10016,10 @@ snapshots:
       typescript: 6.0.3
       yargs-parser: 21.1.1
     optionalDependencies:
-      '@babel/core': 7.28.4
+      '@babel/core': 7.29.0
       '@jest/transform': 30.3.0
       '@jest/types': 30.3.0
-      babel-jest: 30.3.0(@babel/core@7.28.4)
+      babel-jest: 30.3.0(@babel/core@7.29.0)
       jest-util: 30.3.0
 
   tslib@2.8.1: {}
@@ -10262,8 +10227,6 @@ snapshots:
   y18n@5.0.8: {}
 
   yallist@3.1.1: {}
-
-  yaml@1.10.2: {}
 
   yaml@2.8.3: {}
 

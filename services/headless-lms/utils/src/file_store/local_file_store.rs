@@ -21,7 +21,6 @@ pub struct LocalFileStore {
 }
 
 impl LocalFileStore {
-    /// Needs to not be async because of how this is used in worker factories
     pub fn new(base_path: PathBuf, base_url: String) -> UtilResult<Self> {
         if base_path.exists() {
             if !base_path.is_dir() {

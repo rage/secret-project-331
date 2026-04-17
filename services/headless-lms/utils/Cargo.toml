@@ -27,14 +27,16 @@ serde = { version = "1.0.228", features = ["derive"] }
 chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.149"
-# A crate for uploading files to Google cloud storage, and for generating download urls.
-cloud-storage = { version = "0.11.1", default-features = false, features = [
-  "rustls-tls",
-] }
+# Rust client library for Google Cloud Storage.
+google-cloud-storage = "1.11.0"
+# Authentication and signing helpers for Google Cloud Rust client libraries.
+google-cloud-auth = "1.9.0"
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 # Type erasure for async trait methods
 async-trait = "0.1.89"
+# Asynchronous streams using async & await notation
+async-stream = "0.3.6"
 # Types and traits for working with bytes
 bytes = "1.11.1"
 # Random number generators and other randomness functionality.

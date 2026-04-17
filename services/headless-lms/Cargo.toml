@@ -57,8 +57,11 @@ hmac = "0.13.0"
 sha2 = "0.11.0"
 
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries.
-sqlx = { version = "0.8.6", features = [
+sqlx = { version = "0.8.6", default-features = false, features = [
   "postgres",
+  "macros",
+  "derive",
+  "migrate",
   "runtime-tokio",
   "tls-rustls",
   "uuid",

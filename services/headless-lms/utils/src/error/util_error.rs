@@ -210,8 +210,8 @@ impl From<serde_json::Error> for UtilError {
     }
 }
 
-impl From<cloud_storage::Error> for UtilError {
-    fn from(source: cloud_storage::Error) -> Self {
+impl From<google_cloud_storage::Error> for UtilError {
+    fn from(source: google_cloud_storage::Error) -> Self {
         UtilError::new(
             UtilErrorType::CloudStorage,
             source.to_string(),

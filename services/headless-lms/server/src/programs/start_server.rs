@@ -39,6 +39,7 @@ pub async fn main() -> anyhow::Result<()> {
         info!("***********************************");
     }
     let server_config = ServerConfigBuilder::try_from_env()
+        .await
         .expect("Failed to create server config builder")
         .build()
         .await

@@ -231,9 +231,6 @@ importers:
       '@types/tar-stream':
         specifier: ^3.1.4
         version: 3.1.4
-      '@types/workerpool':
-        specifier: ^9.0.0
-        version: 9.0.0
       jest:
         specifier: ^30.3.0
         version: 30.3.0(@types/node@25.6.0)(babel-plugin-macros@3.1.0)
@@ -1943,10 +1940,6 @@ packages:
 
   '@types/webxr@0.5.24':
     resolution: {integrity: sha512-h8fgEd/DpoS9CBrjEQXR+dIDraopAEfu4wYVNY2tEPwk60stPWhvZMf4Foo5FakuQ7HFZoa8WceaWFervK2Ovg==}
-
-  '@types/workerpool@9.0.0':
-    resolution: {integrity: sha512-gEiZU7P4NzkhqcSwHlSx1CddtzzEjFD/uWegp2tV5DXQABOE4qlH4H8ptCm/S5DDvCViqFj7yMrN3yMBh1pkQg==}
-    deprecated: This is a stub types definition. workerpool provides its own type definitions, so you do not need this installed.
 
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
@@ -6904,10 +6897,6 @@ snapshots:
     optional: true
 
   '@types/webxr@0.5.24': {}
-
-  '@types/workerpool@9.0.0':
-    dependencies:
-      workerpool: 10.0.2
 
   '@types/ws@8.18.1':
     dependencies:

@@ -9,18 +9,23 @@
   "bugs": {
     "url": "https://github.com/rage/secret-project-331/issues"
   },
+  "pnpm": {
+    "overrides": {
+      "eslint-plugin-jsx-a11y>minimatch": "3.1.2"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rage/secret-project-331.git"
   },
   "scripts": {
-    "eslint": "eslint --fix .",
-    "export-openapi": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI specs is to run the bin/generate-bindings command.\"; exit 1'",
     "codegen:openapi-ts": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI TS clients is to run the bin/generate-bindings command.\"; exit 1'",
+    "eslint": "eslint --fix .",
     "eslint:ci": "eslint .",
     "eslint:format-bindings": "eslint --fix shared-module/packages/common/src/bindings.ts",
     "eslint:format-generated-docs": "prettier --write services/headless-lms/server/generated-docs/",
     "eslint:open:vscode": "eslint . --format json | jq '(.[] | select((.errorCount > 0) or (.warningCount > 0))).filePath' | xargs code",
+    "export-openapi": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI specs is to run the bin/generate-bindings command.\"; exit 1'",
     "lint:css": "stylelint '**/*.tsx'",
     "lint:no-inline-api-paths": "bash -lc \"! rg -n '(/api/v0/|/api/ws/)' services/cms/src services/main-frontend/src --glob '!**/generated/**' --glob '!**/services/mediaUpload.ts' --glob '!**/hooks/playground/usePlaygroundQueriesAndMutations.tsx' --glob '!**/app/playground-views/page.tsx' --glob '!**/app/playground-views/PlaygroundPreview.tsx' --glob '!**/certificates/CertificateView.tsx' --glob '!**/tabs/CertificatesTab.tsx' --glob '!**/components/course-material/chatbot/shared/hooks/useChatbotStateAndData.ts'\"",
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
@@ -28,11 +33,6 @@
   },
   "dependencies": {
     "@vectopus/atlas-icons": "^0.0.7"
-  },
-  "pnpm": {
-    "overrides": {
-      "eslint-plugin-jsx-a11y>minimatch": "3.1.2"
-    }
   },
   "devDependencies": {
     "@eslint/js": "^9.39.3",

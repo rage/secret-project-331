@@ -26,14 +26,10 @@
     "postinstall": "cd shared-module && pnpm install && pnpm run sync-once",
     "prepare": "husky"
   },
-  "dependencies": {
-    "@vectopus/atlas-icons": "^0.0.7"
-  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@hey-api/openapi-ts": "0.96.0",
     "@next/eslint-plugin-next": "^16.2.4",
-    "@stylelint/postcss-css-in-js": "^0.38.0",
     "@tanstack/eslint-plugin-query": "^5.99.0",
     "@types/node": "^25.6.0",
     "@typescript-eslint/eslint-plugin": "^8.58.2",

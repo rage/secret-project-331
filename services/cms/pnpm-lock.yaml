@@ -264,18 +264,6 @@ importers:
       '@types/wordpress__block-library':
         specifier: ^2.6.3
         version: 2.6.3
-      '@types/wordpress__blocks':
-        specifier: ^15.17.0
-        version: 15.17.0(react@18.3.1)
-      '@types/wordpress__components':
-        specifier: ^23.8.0
-        version: 23.8.0(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/wordpress__deprecated':
-        specifier: ^2.11.0
-        version: 2.11.0
-      '@types/wordpress__media-utils':
-        specifier: ^5.8.0
-        version: 5.8.0
       '@wordpress/scripts':
         specifier: ^32.0.0
         version: 32.0.0(@playwright/test@1.55.1)(@types/eslint@9.6.1)(@types/node@25.6.0)(@typescript-eslint/eslint-plugin@8.58.2(@typescript-eslint/parser@8.58.2(eslint@10.2.0)(typescript@6.0.3))(eslint@10.2.0)(typescript@6.0.3))(@typescript-eslint/parser@8.58.2(eslint@10.2.0)(typescript@6.0.3))(babel-plugin-macros@3.1.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint-scss@6.14.0(stylelint@17.8.0(typescript@6.0.3)))(ts-node@10.9.2(@types/node@25.6.0)(typescript@6.0.3))(tslib@2.8.1)(type-fest@4.41.0)(typescript@6.0.3)
@@ -3665,22 +3653,6 @@ packages:
   '@types/wordpress__block-library@2.6.3':
     resolution: {integrity: sha512-Rr5iO7k1j6B0d5N6ZSZjspE/Ko9fBrfTsytw8v2VgR4kGs8Z3KM/lg0Nb5UNqTBjbdv7eIvsuNvQcTzlc+IlJA==}
 
-  '@types/wordpress__blocks@15.17.0':
-    resolution: {integrity: sha512-jbsqRvEBvNgFJFk1W2jEa+4vkVre6Ks+6eZtzHmWpE4qWJaPrS1R0vNNSE0kKg9t3Nr/tbi40faLaG4KDnrcVQ==}
-    deprecated: This is a stub types definition. @wordpress/blocks provides its own type definitions, so you do not need this installed.
-
-  '@types/wordpress__components@23.8.0':
-    resolution: {integrity: sha512-xCkQMCwy4zLcvqQFC3BZG/X4q1TF+ShPDljT84YgBOjbXhTcOfeVd4BPftfxnZIyjymE3dqLGluEuJObrrALSg==}
-    deprecated: This is a stub types definition. @wordpress/components provides its own type definitions, so you do not need this installed.
-
-  '@types/wordpress__deprecated@2.11.0':
-    resolution: {integrity: sha512-UOgarfzSgtNc3B3UR4bNIKlcpAGmIc+ZCDbw7zi7tseBuAljb5FP37cJnl3ENNHk/prZmL6nuApfuWTvacbn3g==}
-    deprecated: This is a stub types definition. @wordpress/deprecated provides its own type definitions, so you do not need this installed.
-
-  '@types/wordpress__media-utils@5.8.0':
-    resolution: {integrity: sha512-VVT45fQciZz5dPMM4ERy8W0BpmvqoLsEdXglXki1xj8FEr86IjhIN7fwsZRz0hm0onmMCUSUeJFlm/UhUA5hZA==}
-    deprecated: This is a stub types definition. @wordpress/media-utils provides its own type definitions, so you do not need this installed.
-
   '@types/ws@8.18.1':
     resolution: {integrity: sha512-ThVF6DCVhA8kUGy+aazFQ4kXQ7E1Ty7A3ypFOe0IcJV8O/M511G99AW24irKrW56Wt44yG9+ij8FaqoBGkuBXg==}
 
@@ -3947,10 +3919,6 @@ packages:
     resolution: {integrity: sha512-VewBVprbT10DnsIbIamtBXz5jVlwI+nRroXkYsRbYJq63h/dHkD2nnOObIbIdFfMi5m33fwcs1a3v93vqs8WMQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/api-fetch@7.32.0':
-    resolution: {integrity: sha512-kTufX1lhb7AG7J3KMoDOKO9IKWVwWemf/TqaqiRYNC06uxXPl/VPBJC6AzInirsNw0BZknssje+g7Fc6WbrBFA==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/api-fetch@7.44.0':
     resolution: {integrity: sha512-KZP5Y0AzUVPRbwCsp2MUNEjIyYPJdaa7ojzYyc/IVlaAlbXVdd0Ofk8UDf4l8PjtXkyyPs9pX9sFy5iNcrF2cQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -4179,10 +4147,6 @@ packages:
     resolution: {integrity: sha512-osmcIXqNNQIR5AkDFxATXoBuBPrMKWTsGVGSBfnnWzJNdFRBsZSIv9HlFFJVuvwEKQMYha11rbRFFRiKgKN/gg==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/media-utils@5.32.0':
-    resolution: {integrity: sha512-tDlOxyLSKbAZrVgQ92bp6MQHHD7gxTyfE8QmYjft55UaZDXOGo9Q5aLsQ+5PoU+ZuTwImvOpt0EBiO5I/PWa4A==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
   '@wordpress/notices@5.44.0':
     resolution: {integrity: sha512-Q+NSfMES/IW+oKuEgW+XhpB6nfD037V7CDaSsmAJ0bqlfL/ZwX/VVKf3q64vKTajncUZgrD0J4RmntwW8TihlQ==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -4229,10 +4193,6 @@ packages:
 
   '@wordpress/priority-queue@3.44.0':
     resolution: {integrity: sha512-L1BaCwWz/kMr8FMWITZ+Z/RgF7UiX0bikn5XOHGqiEh/3dLLBpCLItK51FA7lejvW1+t5EQf6rcSmeUEkIz1YQ==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/private-apis@1.32.0':
-    resolution: {integrity: sha512-xmc+U8tve6QmGKiYTwVutkPkqqJkvB2fvrimjMkw8TGpnzBcmSlCtwIoLwJOBesD6liDdRFtBPpf6PM0jIRcIA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/private-apis@1.44.0':
@@ -14571,29 +14531,6 @@ snapshots:
 
   '@types/wordpress__block-library@2.6.3': {}
 
-  '@types/wordpress__blocks@15.17.0(react@18.3.1)':
-    dependencies:
-      '@wordpress/blocks': 15.17.0(react@18.3.1)
-    transitivePeerDependencies:
-      - react
-
-  '@types/wordpress__components@23.8.0(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
-    dependencies:
-      '@wordpress/components': 32.6.0(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-    transitivePeerDependencies:
-      - '@emotion/is-prop-valid'
-      - react
-      - react-dom
-      - supports-color
-
-  '@types/wordpress__deprecated@2.11.0':
-    dependencies:
-      '@wordpress/deprecated': 4.44.0
-
-  '@types/wordpress__media-utils@5.8.0':
-    dependencies:
-      '@wordpress/media-utils': 5.32.0
-
   '@types/ws@8.18.1':
     dependencies:
       '@types/node': 25.6.0
@@ -14871,12 +14808,6 @@ snapshots:
     dependencies:
       '@wordpress/dom-ready': 4.44.0
       '@wordpress/i18n': 6.17.0
-
-  '@wordpress/api-fetch@7.32.0':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@wordpress/i18n': 6.17.0
-      '@wordpress/url': 4.44.0
 
   '@wordpress/api-fetch@7.44.0':
     dependencies:
@@ -15505,15 +15436,6 @@ snapshots:
     dependencies:
       temml: 0.10.34
 
-  '@wordpress/media-utils@5.32.0':
-    dependencies:
-      '@babel/runtime': 7.28.4
-      '@wordpress/api-fetch': 7.32.0
-      '@wordpress/blob': 4.44.0
-      '@wordpress/element': 6.44.0
-      '@wordpress/i18n': 6.17.0
-      '@wordpress/private-apis': 1.32.0
-
   '@wordpress/notices@5.44.0(@emotion/is-prop-valid@1.4.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@wordpress/a11y': 4.44.0
@@ -15596,10 +15518,6 @@ snapshots:
   '@wordpress/priority-queue@3.44.0':
     dependencies:
       requestidlecallback: 0.3.0
-
-  '@wordpress/private-apis@1.32.0':
-    dependencies:
-      '@babel/runtime': 7.28.4
 
   '@wordpress/private-apis@1.44.0': {}
 

@@ -1,7 +1,7 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import ChatbotEditor from "./ChatbotEditor"
 import ChatbotSave from "./ChatbotSave"

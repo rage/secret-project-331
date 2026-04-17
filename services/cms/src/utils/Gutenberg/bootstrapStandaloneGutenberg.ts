@@ -1,7 +1,5 @@
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
-  type BlockConfiguration,
-  type BlockVariation,
   getBlockType,
   getBlockTypes,
   registerBlockType,
@@ -11,6 +9,7 @@ import {
   unregisterBlockVariation,
 } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
+import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
 
 import {
   blockTypeMapForFrontPages,
@@ -67,7 +66,7 @@ const syncStandaloneCustomBlocks = (customBlocks?: CustomBlockDefinition[]): voi
     }
 
     if (!getBlockType(blockName)) {
-      registerBlockType(blockName, blockSettings)
+      registerBlockType(blockName, blockSettings as Parameters<typeof registerBlockType>[1])
     }
   })
 }

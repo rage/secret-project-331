@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import React, { useMemo } from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

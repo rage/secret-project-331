@@ -3,7 +3,7 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

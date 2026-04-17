@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { UseMutationResult } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

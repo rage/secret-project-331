@@ -1,4 +1,5 @@
-import { BlockInstance, getBlockType } from "@wordpress/blocks"
+import { getBlockType } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { produce } from "immer"
 
 const ENABLED_BLOCKS = ["moocfi/aside", "moocfi/infobox"]

@@ -1,7 +1,7 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import FrontFlipCardEditor from "./FrontFlipCardEditor"
 import FrontFlipCardSave from "./FrontFlipCardSave"

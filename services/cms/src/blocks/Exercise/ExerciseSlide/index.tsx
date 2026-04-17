@@ -1,7 +1,7 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
+import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 import React, { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 

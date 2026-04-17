@@ -4,7 +4,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

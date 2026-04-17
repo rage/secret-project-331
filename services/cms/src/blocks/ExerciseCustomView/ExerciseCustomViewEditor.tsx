@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockEditProps } from "@wordpress/blocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 import useAllExerciseServices from "../../hooks/useAllExerciseServices"

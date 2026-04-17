@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { BlockEditProps } from "@wordpress/blocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import KaTex from "katex"
 import React from "react"
 

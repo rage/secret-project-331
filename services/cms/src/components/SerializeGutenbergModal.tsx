@@ -1,6 +1,7 @@
 "use client"
 
-import { BlockInstance, serialize } from "@wordpress/blocks"
+import { serialize } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import React, { useState } from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

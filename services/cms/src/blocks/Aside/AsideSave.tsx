@@ -1,7 +1,7 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockSaveProps } from "@wordpress/blocks"
+import type { BlockSaveProps } from "@/utils/Gutenberg/types"
 
 import { AsideComponentProps } from "."
 

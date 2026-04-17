@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React from "react"
 
 import BlockPlaceholderWrapper from "../../BlockPlaceholderWrapper"

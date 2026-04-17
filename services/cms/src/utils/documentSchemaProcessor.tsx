@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { v4, v5 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"

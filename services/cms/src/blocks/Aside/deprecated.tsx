@@ -1,7 +1,8 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockDeprecation, createBlock } from "@wordpress/blocks"
+import { createBlock } from "@wordpress/blocks"
+import type { BlockDeprecation } from "@/utils/Gutenberg/types"
 import { omit } from "lodash"
 
 import { AsideComponentProps } from "."
@@ -29,7 +30,7 @@ export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
   save() {
     return <></>
   },
-  isEligible: (attributes) => attributes.title || attributes.bodyText,
+  isEligible: (attributes) => Boolean(attributes.title || attributes.bodyText),
   // @ts-ignore: wat
   migrate: (attributes, innerBlocks) => {
     const newInnerBlocks = [...innerBlocks]

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps, Template } from "@wordpress/blocks"
+import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"

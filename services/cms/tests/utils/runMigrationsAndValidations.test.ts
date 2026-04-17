@@ -1,5 +1,5 @@
 import { jest } from "@jest/globals"
-import type { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const loadRunMigrationsAndValidations = async () => {
   await jest.unstable_mockModule("@wordpress/blocks", () => ({

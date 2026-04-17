@@ -4,7 +4,7 @@
 import * as jsdom from "jsdom"
 import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
 import type { JSONSchema } from "json-schema-to-typescript"
-import type { Block } from "@wordpress/blocks"
+import type { BlockType } from "@/utils/Gutenberg/types"
 import fs from "fs"
 import path from "path"
 import { createRequire } from "module"
@@ -107,7 +107,7 @@ async function main() {
 
   blockLibrary.registerCoreBlocks()
 
-  blocks.getBlockTypes().forEach((block: Block<Record<string, unknown>>) => {
+  blocks.getBlockTypes().forEach((block: BlockType<Record<string, unknown>>) => {
     if (supportedCoreBlocks.indexOf(block.name) === -1) {
       blocks.unregisterBlockType(block.name)
     }
@@ -118,7 +118,7 @@ async function main() {
     return newName.charAt(0).toUpperCase() + newName.slice(1) + "Attributes"
   }
 
-  const blockTypes: Array<Block<Record<string, unknown>>> = blocks.getBlockTypes()
+  const blockTypes: Array<BlockType<Record<string, unknown>>> = blocks.getBlockTypes()
   const jsonSchemaTypes: JSONSchema[] = blockTypes
     .reverse()
     .map(addSupportsAttributes)
@@ -282,7 +282,7 @@ function fixProperties(properties: { readonly [x: string]: any }) {
   return res
 }
 
-function addSupportsAttributes(block: Block): Block {
+function addSupportsAttributes(block: BlockType): BlockType {
   const attributes = block.attributes
   const supports = block.supports
 

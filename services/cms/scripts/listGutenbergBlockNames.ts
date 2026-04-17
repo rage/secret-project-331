@@ -1,6 +1,6 @@
 // Require imports needs to happen in a specific order.
 
-import { Block } from "@wordpress/blocks"
+import type { BlockType } from "@/utils/Gutenberg/types"
 import * as jsdom from "jsdom"
 const { JSDOM } = jsdom
 
@@ -40,13 +40,13 @@ const blocks = require("@wordpress/blocks")
 
 async function main() {
   blockLibrary.registerCoreBlocks()
-  const allBlockInstances: Block<Record<string, unknown>>[] = blocks.getBlockTypes()
+  const allBlockInstances: BlockType<Record<string, unknown>>[] = blocks.getBlockTypes()
   const coreBlocks = allBlockInstances.map((block) => block.name)
   console.log("Gutenberg all Core block names:")
   console.log(coreBlocks)
   const embedBlocks = blocks
     .getBlockType("core/embed")
-    .variations.map((block: Block<Record<string, unknown>>) => block.name)
+    .variations.map((block: BlockType<Record<string, unknown>>) => block.name)
   console.log("Gutenberg all core/embed names:")
   console.log(embedBlocks)
 }

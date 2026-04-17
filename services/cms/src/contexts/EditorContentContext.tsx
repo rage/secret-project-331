@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { produce } from "immer"
 import React, { Dispatch } from "react"
 import { v4 } from "uuid"

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
+import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
 import React, { useContext } from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

@@ -1,6 +1,6 @@
 "use client"
 
-import { BlockEditProps } from "@wordpress/blocks"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

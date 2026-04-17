@@ -30,7 +30,7 @@ import {
 } from "@wordpress/block-editor"
 // This import is needed for bold, italics, ... formatting
 import "@wordpress/format-library"
-import { type BlockConfiguration, BlockInstance } from "@wordpress/blocks"
+import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
 import { addFilter, removeFilter } from "@wordpress/hooks"

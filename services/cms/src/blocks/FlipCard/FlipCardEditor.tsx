@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
+import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
 import React from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

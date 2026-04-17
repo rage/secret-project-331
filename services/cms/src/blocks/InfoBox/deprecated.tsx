@@ -2,7 +2,8 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { useBlockProps } from "@wordpress/block-editor"
-import { BlockDeprecation, createBlock } from "@wordpress/blocks"
+import { createBlock } from "@wordpress/blocks"
+import type { BlockDeprecation } from "@/utils/Gutenberg/types"
 import { omit } from "lodash"
 
 import { InfoBoxComponentProps } from "."

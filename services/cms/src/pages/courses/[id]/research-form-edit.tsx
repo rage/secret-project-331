@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "@/utils/useCmsTranslation"
 

@@ -9,11 +9,6 @@
   "bugs": {
     "url": "https://github.com/rage/secret-project-331/issues"
   },
-  "pnpm": {
-    "overrides": {
-      "eslint-plugin-jsx-a11y>minimatch": "3.1.2"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rage/secret-project-331.git"

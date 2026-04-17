@@ -20,7 +20,7 @@ tokio-stream.workspace = true
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.32"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.21.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.23.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # Date and time library for Rust
@@ -38,9 +38,9 @@ async-trait = "0.1.89"
 # Types and traits for working with bytes
 bytes = "1.11.1"
 # Random number generators and other randomness functionality.
-rand = "0.10.0"
+rand = "0.10.1"
 # the BLAKE3 hash function
-blake3 = "1.8.3"
+blake3 = "1.8.4"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -61,7 +61,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
 # An implementation of regular expressions for Rust.
 regex = "1.12.3"
 # Single assignment cells and lazy values.
-once_cell = "1.21.3"
+once_cell = "1.21.4"
 # An LCS based slice and string diffing implementation.
 diff = "0.1.13"
 # This library provides a convenient derive macro for the standard library's std::error::Error trait.
@@ -69,7 +69,7 @@ thiserror = "2.0.18"
 # Percent encoding and decoding
 percent-encoding = "2.3.2"
 # Provides types and useful methods for working with IPv4 and IPv6 network addresses.
-ipnet = "2.11.0"
+ipnet = "2.12.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.102"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
@@ -84,7 +84,7 @@ reqwest = { version = "0.13.2", features = [
   "stream",
 ] }
 # Redis driver for Rust.
-redis = { version = "1.0.4", features = [
+redis = { version = "1.2.0", features = [
   "aio",
   "tokio-comp",
   "connection-manager",
@@ -98,7 +98,7 @@ utoipa = { version = "5.4.0", features = ["uuid"] }
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.
 pretty_assertions = "1.4.1"
 # Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 
 [lints.clippy]
 unwrap_used = "deny"

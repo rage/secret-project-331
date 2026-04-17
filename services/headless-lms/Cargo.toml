@@ -40,7 +40,7 @@ opt-level = 3
 debug = 1
 
 [workspace.dependencies]
-tokio = { version = "1.49.0", features = [
+tokio = { version = "1.52.1", features = [
   "fs",
   "io-util",
   "sync",
@@ -48,7 +48,7 @@ tokio = { version = "1.49.0", features = [
   "rt-multi-thread"
 ] }
 
-rustls = { version = "0.23.37", default-features = false, features = ["ring"] }
+rustls = { version = "0.23.38", default-features = false, features = ["ring"] }
 
 sqlx = { version = "0.8.6", features = [
   "postgres",

@@ -22,13 +22,13 @@ dotenv = "0.15.0"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.21.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.23.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # Pure Rust implementation of the SHA-2 hash function family.
-sha2 = "0.10.9"
+sha2 = "0.11.0"
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
-hmac = "0.12.1"
+hmac = "0.13.0"
 # Date and time library for Rust
 chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format
@@ -58,9 +58,9 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
   "uuid-impl",
 ], optional = true }
 # Email client
-lettre = "0.11.19"
+lettre = "0.11.21"
 # Random number generators and other randomness functionality.
-rand = "0.10.0"
+rand = "0.10.1"
 # Flexible concrete Error type built on std::error::Error
 # Zero value on drop for security
 zeroize = { version = "1.8.2", features = ["derive"] }

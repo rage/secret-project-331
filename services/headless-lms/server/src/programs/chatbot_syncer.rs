@@ -5,7 +5,7 @@ use std::{
 };
 
 use chrono::Utc;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use sqlx::{PgConnection, PgPool};
 use url::Url;
 use uuid::Uuid;

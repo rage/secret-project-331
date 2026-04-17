@@ -13,7 +13,7 @@ async fn get_or_init_db() -> String {
     }
 
     // initialize logging and db
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     let db = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string());
     let _ = headless_lms_base::tracing::setup_tracing();

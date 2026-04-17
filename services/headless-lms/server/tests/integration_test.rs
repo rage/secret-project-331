@@ -42,7 +42,7 @@ pub async fn init_db() -> String {
     if let Some(db) = DB_URL.lock().await.as_ref() {
         return db.clone();
     }
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| default_database_url_test());
     if Postgres::database_exists(&db)
         .await

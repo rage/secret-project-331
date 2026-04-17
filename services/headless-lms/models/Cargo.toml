@@ -18,7 +18,7 @@ tokio.workspace = true
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.32"
 # A `dotenv` implementation for Rust
-dotenv = "0.15.0"
+dotenvy = "0.15"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
@@ -26,9 +26,9 @@ uuid = { version = "1.23.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # Pure Rust implementation of the SHA-2 hash function family.
-sha2 = "0.11.0"
+sha2.workspace = true
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
-hmac = "0.13.0"
+hmac.workspace = true
 # Date and time library for Rust
 chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format

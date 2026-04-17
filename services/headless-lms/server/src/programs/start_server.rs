@@ -12,7 +12,7 @@ use actix_web::{
     cookie::{Key, SameSite},
     middleware::Logger,
 };
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use listenfd::ListenFd;
 use rustls::crypto::ring;
 use std::env;

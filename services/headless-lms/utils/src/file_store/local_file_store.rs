@@ -145,7 +145,7 @@ impl FileStore for LocalFileStore {
 mod tests {
     use std::{env, path::Path};
 
-    use tempdir::TempDir;
+    use tempfile::TempDir;
 
     use super::LocalFileStore;
     use crate::file_store::FileStore;
@@ -154,8 +154,8 @@ mod tests {
     async fn upload_download_delete_works() {
         // TODO: Audit that the environment access only happens in single-threaded code.
         unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
-        let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
-        let base_path = dir.into_path();
+        let dir = TempDir::new().expect("Failed to create a temp dir");
+        let base_path = dir.path().to_path_buf();
         let local_file_store =
             LocalFileStore::new(base_path.clone(), "http://localhost:3000".to_string())
                 .expect("Could not create local file storage");
@@ -187,8 +187,8 @@ mod tests {
     async fn get_download_url_works() {
         // TODO: Audit that the environment access only happens in single-threaded code.
         unsafe { env::set_var("HEADLESS_LMS_CACHE_FILES_PATH", "/tmp") };
-        let dir = TempDir::new("test-local-filestore").expect("Failed to create a temp dir");
-        let base_path = dir.into_path();
+        let dir = TempDir::new().expect("Failed to create a temp dir");
+        let base_path = dir.path().to_path_buf();
         let local_file_store =
             LocalFileStore::new(base_path.clone(), "http://localhost:3000".to_string())
                 .expect("Could not create local file storage");

@@ -17,10 +17,8 @@ use headless_lms_models::{
 };
 
 use headless_lms_base::error::backend_error::BackendError;
-use hmac::{Hmac, Mac};
-use jwt::{SignWithKey, VerifyWithKey};
+use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use models::SpecFetcher;
-use sha2::Sha256;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 use std::{borrow::Cow, fmt::Debug};
@@ -36,7 +34,7 @@ const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-clai
 type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
 
 #[derive(Clone, Debug)]
-pub struct JwtKey(Hmac<Sha256>);
+pub struct JwtKey(Vec<u8>);
 
 impl JwtKey {
     pub fn try_from_env() -> anyhow::Result<Self> {
@@ -45,9 +43,8 @@ impl JwtKey {
         Ok(jwt_key)
     }
 
-    pub fn new(key: &str) -> Result<Self, sha2::digest::InvalidLength> {
-        let key: Hmac<Sha256> = Hmac::new_from_slice(key.as_bytes())?;
-        Ok(Self(key))
+    pub fn new(key: &str) -> anyhow::Result<Self> {
+        Ok(Self(key.as_bytes().to_vec()))
     }
 
     #[cfg(test)]
@@ -80,12 +77,12 @@ impl<'a> UploadClaim<'a> {
     }
 
     pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0)
+        sign_hs256_claim(&self, key)
             .expect("JWT signing failed - this should never happen with a valid key")
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
+        let claim: Self = validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid jwt key: {}", err),
@@ -166,12 +163,12 @@ impl GradingUpdateClaim {
     }
 
     pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0)
+        sign_hs256_claim(&self, key)
             .expect("JWT signing failed - this should never happen with a valid key")
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
+        let claim: Self = validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid jwt key: {}", err),
@@ -482,12 +479,12 @@ impl GivePeerReviewClaim {
     }
 
     pub fn sign(self, key: &JwtKey) -> String {
-        self.sign_with_key(&key.0)
+        sign_hs256_claim(&self, key)
             .expect("JWT signing failed - this should never happen with a valid key")
     }
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
-        let claim: Self = token.verify_with_key(&key.0).map_err(|err| {
+        let claim: Self = validate_hs256_claim(token, key).map_err(|err| {
             ControllerError::new(
                 ControllerErrorType::BadRequest,
                 format!("Invalid claim: {}", err),
@@ -503,6 +500,28 @@ impl GivePeerReviewClaim {
         }
         Ok(claim)
     }
+}
+
+/// Signs any serializable claim payload as HS256 using the shared JWT secret.
+fn sign_hs256_claim<T: serde::Serialize>(
+    claim: &T,
+    key: &JwtKey,
+) -> Result<String, jsonwebtoken::errors::Error> {
+    encode(
+        &Header::new(Algorithm::HS256),
+        claim,
+        &EncodingKey::from_secret(&key.0),
+    )
+}
+
+/// Decodes and verifies an HS256 token into the requested claim type.
+fn validate_hs256_claim<T: serde::de::DeserializeOwned>(
+    token: &str,
+    key: &JwtKey,
+) -> Result<T, jsonwebtoken::errors::Error> {
+    let validation = Validation::new(Algorithm::HS256);
+    decode::<T>(token, &DecodingKey::from_secret(&key.0), &validation)
+        .map(|token_data| token_data.claims)
 }
 
 /// A caching spec fetcher ONLY FOR THE SEED that returns a cached spec if the same

@@ -1,5 +1,5 @@
 use crate::setup_tracing;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models::error::TryToOptional;
 use headless_lms_models::peer_review_queue_entries;
 use sqlx::{Connection, PgConnection};

@@ -5,7 +5,7 @@ use std::{
 
 use crate::setup_tracing;
 use chrono::{Duration, Utc};
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{self as models, ModelError, ModelErrorType};
 use sqlx::{Connection, PgConnection, PgPool};

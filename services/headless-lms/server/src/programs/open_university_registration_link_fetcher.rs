@@ -3,7 +3,7 @@ use std::env;
 use crate::setup_tracing;
 use anyhow::Context;
 use chrono::{NaiveDateTime, Utc};
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models as models;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};

@@ -38,7 +38,7 @@ futures = "0.3.32"
 # Common utilities and extension traits for the futures-rs library.
 futures-util = "0.3.32"
 # A `dotenv` implementation for Rust
-dotenv = "0.15.0"
+dotenvy = "0.15"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
 listenfd = "1.0.2"
 # Flexible concrete Error type built on std::error::Error
@@ -132,14 +132,12 @@ flate2 = "1.1.9"
 rand = "0.10.1"
 # A pure Rust implementation of the RSA public key cryptosystem.
 rsa = { version = "0.9", features = ["pem"] }
-# JSON Web Token (JWT) is a compact, URL-safe means of representing claims to be transferred between two parties.
-jwt = "0.16.0"
 # Another JWT crate, used for asymmetric signing for OAuth
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
-hmac = "0.13.0"
+hmac.workspace = true
 # Pure Rust implementation of the SHA-2 hash function family.
-sha2 = "0.11.0"
+sha2.workspace = true
 # Websocket support for actix-web
 actix-web-actors = "4.3.1"
 # Actors for actix-web-actors

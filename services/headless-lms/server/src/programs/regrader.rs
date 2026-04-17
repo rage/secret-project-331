@@ -11,7 +11,7 @@ Starts a thread that will periodically send regrading submissions to the corresp
 pub async fn main() -> anyhow::Result<()> {
     // TODO: Audit that the environment access only happens in single-threaded code.
     unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     crate::setup_tracing()?;
     let db_url = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());

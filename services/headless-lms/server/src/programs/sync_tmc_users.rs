@@ -7,7 +7,7 @@ use crate::setup_tracing;
 use anyhow::Context;
 
 use chrono::DateTime;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models as models;
 use models::users::{get_users_ids_in_db_from_upstream_ids, update_email_for_user};
 

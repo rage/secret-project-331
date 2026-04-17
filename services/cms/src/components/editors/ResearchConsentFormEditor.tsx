@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { blockTypeMapForResearchConsentForm } from "../../blocks"
 import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"

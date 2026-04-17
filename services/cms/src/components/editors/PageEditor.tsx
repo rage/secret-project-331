@@ -7,7 +7,7 @@ import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
 import React, { useMemo, useReducer, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import {
   blockTypeMapForFrontPages,

@@ -5,7 +5,7 @@ import { InspectorControls } from "@wordpress/block-editor"
 import { PanelBody, TextControl } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { updateQueryStringParameter } from "@/shared-module/common/utils/urlManipulation"

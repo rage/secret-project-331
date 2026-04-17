@@ -2,10 +2,10 @@
 
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
-import { t } from "i18next"
 import React from "react"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { ConditionAttributes } from "."
 
@@ -20,6 +20,8 @@ const ALLOWED_NESTED_BLOCKS = [
 const ConditionalBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ConditionAttributes>>
 > = ({ clientId }) => {
+  const { t } = useTranslation()
+
   return (
     <BlockPlaceholderWrapper
       id={clientId}

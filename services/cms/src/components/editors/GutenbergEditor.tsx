@@ -13,18 +13,18 @@ import {
   BlockEditorKeyboardShortcuts,
   BlockEditorProvider,
   BlockInspector,
-  // @ts-expect-error: no type definition
+  // @ts-ignore: no type definition
   __experimentalLibrary as BlockLibrary,
   BlockList,
-  // @ts-expect-error: no type definition
+  // @ts-ignore: no type definition
   BlockTools,
   ButtonBlockAppender,
   EditorBlockListSettings,
   EditorSettings,
-  // @ts-expect-error: no type definition
+  // @ts-ignore: no type definition
   __experimentalListView as ListView,
   ObserveTyping,
-  // @ts-expect-error: no type definition
+  // @ts-ignore: no type definition
   __unstableUseBlockSelectionClearer as useBlockSelectionClearer,
   WritingFlow,
 } from "@wordpress/block-editor"
@@ -34,11 +34,11 @@ import { type BlockConfiguration, BlockInstance } from "@wordpress/blocks"
 import { Popover, SlotFillProvider } from "@wordpress/components"
 import { useMergeRefs } from "@wordpress/compose"
 import { addFilter, removeFilter } from "@wordpress/hooks"
-// @ts-expect-error: no types
+// @ts-ignore: no types
 import { ShortcutProvider } from "@wordpress/keyboard-shortcuts"
 import React, { useEffect, useMemo, useRef, useState } from "react"
 import toast from "react-hot-toast"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import useDisableBrowserDefaultDragFileBehavior from "../../hooks/useDisableBrowserDefaultDragFileBehavior"
 import useSidebarStartingYCoodrinate from "../../hooks/useSidebarStartingYCoodrinate"
@@ -332,7 +332,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             value={content}
             onInput={handleInput}
             onChange={handleChanges}
-            // @ts-expect-error: selection props exist upstream but not in our type package.
+            // @ts-ignore: selection props exist upstream but not in our type package.
             selection={selection}
             onChangeSelection={(nextSelection: GutenbergEditorSelection | undefined) => {
               setSelectionState(nextSelection)
@@ -439,11 +439,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
             <div className="editor__content">
               <BlockTools __unstableContentRef={localRef}>
                 <div className="editor-styles-wrapper">
-                  {/* @ts-expect-error: type signature incorrect */}
+                  {/* @ts-ignore: type signature incorrect */}
                   <BlockEditorKeyboardShortcuts.Register />
                   <CommonKeyboardShortcuts onUndo={handleUndo} onRedo={handleRedo} />
                   <WritingFlow
-                    // @ts-expect-error: Ref missing from type definitions
+                    // @ts-ignore: Ref missing from type definitions
                     ref={contentRef}
                     className="editor-styles-wrapper"
                     tabIndex={-1}
@@ -458,7 +458,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
 
                       {content.length > 0 && (
                         <ButtonBlockAppender
-                          // @ts-expect-error: Typically this component is used to insert innerblocks. However, we are using it to insert blocks at the root level.
+                          // @ts-ignore: Typically this component is used to insert innerblocks. However, we are using it to insert blocks at the root level.
                           rootClientId={undefined}
                         />
                       )}

@@ -9,7 +9,7 @@ import { Fragment, useEffect, useState } from "@wordpress/element"
 import { chevronRight } from "@wordpress/icons"
 import { useContext } from "react"
 import toast from "react-hot-toast"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
 import { createParagraphAiSource, extractPlainTextFromHtml } from "../Gutenberg/paragraphAiSource"

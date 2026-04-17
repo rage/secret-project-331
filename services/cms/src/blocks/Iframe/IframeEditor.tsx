@@ -6,7 +6,7 @@ import { InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import { PanelBody } from "@wordpress/components"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import VisibleBlockWrapper from "../../components/blocks/VisibleBlockWrapper"
 import BlockWrapper from "../BlockWrapper"

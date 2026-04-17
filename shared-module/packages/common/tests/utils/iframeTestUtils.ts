@@ -29,13 +29,13 @@ export function createMockMessageChannel(): MockMessageChannel {
 
   port1.postMessage.mockImplementation((data) => {
     if (port2.onmessage) {
-      port2.onmessage({ data, ports: [] } as MessageEvent)
+      port2.onmessage({ data, ports: [] } as unknown as MessageEvent)
     }
   })
 
   port2.postMessage.mockImplementation((data) => {
     if (port1.onmessage) {
-      port1.onmessage({ data, ports: [] } as MessageEvent)
+      port1.onmessage({ data, ports: [] } as unknown as MessageEvent)
     }
   })
 
@@ -79,7 +79,7 @@ export function createMockMessageEvent(
     NONE: 0,
     lastEventId: "",
     userActivation: null,
-  } as MessageEvent
+  } as unknown as MessageEvent
 }
 
 export function simulateIframeReadyMessage(

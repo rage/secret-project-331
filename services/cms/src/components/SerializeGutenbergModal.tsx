@@ -2,7 +2,7 @@
 
 import { BlockInstance, serialize } from "@wordpress/blocks"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"

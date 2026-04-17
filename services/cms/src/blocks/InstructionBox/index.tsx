@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+import { formatLTR } from "@wordpress/icons"
 
 import InstructionBoxEditor from "./InstructionBoxEditor"
 import InstructionBoxSave from "./InstructionBoxSave"
@@ -22,7 +22,7 @@ const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> 
       selector: "span",
     },
   },
-  icon: formatLtr,
+  icon: formatLTR,
   edit: InstructionBoxEditor,
   save: InstructionBoxSave,
 }

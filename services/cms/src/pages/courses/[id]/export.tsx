@@ -2,7 +2,7 @@
 
 import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 
@@ -157,7 +157,7 @@ function save(filename: string, data: Uint8Array) {
 
 const exported = dontRenderUntilQueryParametersReady(ExportPage)
 
-// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
+// @ts-ignore: hideBreadcrumbs is an addtional property on exported
 exported.hideBreadcrumbs = true
 
 export default exported

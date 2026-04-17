@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { BlockEditProps } from "@wordpress/blocks"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import useAllExerciseServices from "../../hooks/useAllExerciseServices"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"

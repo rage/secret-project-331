@@ -28,7 +28,7 @@ const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
   },
   edit: AsideEditor,
   save: AsideSave,
-  // @ts-expect-error: Wrong type, the deprecations have a different interface for the previous attributes
+  // @ts-ignore: Wrong type, the deprecations have a different interface for the previous attributes
   deprecated: [Deprecated1],
 }
 

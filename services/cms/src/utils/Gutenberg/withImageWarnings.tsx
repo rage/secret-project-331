@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { shouldWarnAboutImageAltPlaceholder } from "./imageAltWarning"
 

@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+import { formatLTR } from "@wordpress/icons"
 
 import LatexEditor from "./LatexEditor"
 import LatexSave from "./LatexSave"
@@ -21,7 +21,7 @@ const LatexBlockConfiguration: BlockConfiguration<TextAttributes> = {
       default: "",
     },
   },
-  icon: formatLtr,
+  icon: formatLTR,
   edit: LatexEditor,
   save: LatexSave,
 }

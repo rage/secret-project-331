@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
@@ -167,7 +167,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
 const exported = dontRenderUntilQueryParametersReady(PeerReviewManager)
 
-// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
+// @ts-ignore: hideBreadcrumbs is an addtional property on exported
 exported.hideBreadcrumbs = true
 
 export default exported

@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 

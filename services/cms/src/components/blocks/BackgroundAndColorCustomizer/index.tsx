@@ -5,7 +5,7 @@ import { BlockIcon } from "@wordpress/block-editor"
 import { ColorPalette, Notice, PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BackgroundImageSection from "./BackgroundImageSection"
 

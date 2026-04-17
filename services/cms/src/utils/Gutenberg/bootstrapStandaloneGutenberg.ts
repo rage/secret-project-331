@@ -76,7 +76,7 @@ const captureDefaultBlockVariations = (): void => {
   for (const blockName of Object.keys(allowedBlockVariants)) {
     defaultAllowedBlockVariations.set(
       blockName,
-      /* @ts-expect-error: type signature incorrect */
+      /* @ts-ignore: type signature incorrect */
       [...(getBlockType(blockName)?.variations ?? [])],
     )
   }
@@ -85,7 +85,7 @@ const captureDefaultBlockVariations = (): void => {
 const syncAllowedBlockVariations = (allowedBlockVariations?: Record<string, string[]>): void => {
   defaultAllowedBlockVariations.forEach((defaultVariations, blockName) => {
     const currentVariations =
-      /* @ts-expect-error: type signature incorrect */
+      /* @ts-ignore: type signature incorrect */
       [...(getBlockType(blockName)?.variations ?? [])]
     const currentVariationNames = new Set(currentVariations.map((variation) => variation.name))
 
@@ -101,7 +101,7 @@ const syncAllowedBlockVariations = (allowedBlockVariations?: Record<string, stri
     }
 
     const syncedVariations =
-      /* @ts-expect-error: type signature incorrect */
+      /* @ts-ignore: type signature incorrect */
       [...(getBlockType(blockName)?.variations ?? [])]
 
     syncedVariations.forEach((variation) => {
@@ -121,7 +121,7 @@ export const ensureStandaloneGutenbergBootstrap = (
 
   if (!hasBootstrappedStandaloneGutenberg) {
     // core/image expects a wp global to exist, and null satisfies its existing checks.
-    // @ts-expect-error: setting a global used by Gutenberg internals
+    // @ts-ignore: setting a global used by Gutenberg internals
     window.wp = null
 
     addFilter(

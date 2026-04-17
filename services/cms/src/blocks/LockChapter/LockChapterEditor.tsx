@@ -6,7 +6,7 @@ import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import { Notice } from "@wordpress/components"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 

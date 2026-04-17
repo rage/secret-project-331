@@ -3,9 +3,9 @@
 
 import { useDispatch } from "@wordpress/data"
 import { useEffect } from "@wordpress/element"
-// @ts-expect-error: No type definitions
+// @ts-ignore: No type definitions
 import { store as keyboardShortcutsStore, useShortcut } from "@wordpress/keyboard-shortcuts"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface UseCommonKeyboardShortcutsProps {
   onUndo?: () => void

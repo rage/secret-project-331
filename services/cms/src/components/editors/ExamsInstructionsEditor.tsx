@@ -3,7 +3,7 @@
 import { UseMutationResult } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import mediaUploadBuilder from "../../services/mediaUpload"

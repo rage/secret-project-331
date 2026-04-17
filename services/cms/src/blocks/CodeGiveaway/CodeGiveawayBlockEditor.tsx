@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext, useMemo } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"

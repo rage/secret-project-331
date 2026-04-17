@@ -6,7 +6,7 @@ import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { useSelect } from "@wordpress/data"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { getHeadingHierarchyIssuesForBlock, HeadingHierarchyIssue } from "./headingHierarchy"
 

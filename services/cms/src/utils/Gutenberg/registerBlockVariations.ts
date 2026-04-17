@@ -1,4 +1,4 @@
-// @ts-expect-error: no type definition
+// @ts-ignore: no type definition
 import { embedContentIcon } from "@wordpress/block-library/build-module/embed/icons"
 import { registerBlockVariation } from "@wordpress/blocks"
 

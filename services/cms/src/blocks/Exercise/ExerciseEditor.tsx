@@ -5,7 +5,7 @@ import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps, TemplateArray } from "@wordpress/blocks"
 import { useContext } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import ExerciseBlockContext from "../../contexts/ExerciseBlockContext"

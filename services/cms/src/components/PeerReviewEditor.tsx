@@ -5,7 +5,7 @@ import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo, useRef } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
@@ -299,7 +299,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
               case "question_type":
                 return { ...prq, question_type: event.target.value as PeerOrSelfReviewQuestionType }
               case "answer_required":
-                // @ts-expect-error: in this case the event is from a checkbox
+                // @ts-ignore: in this case the event is from a checkbox
                 return { ...prq, answer_required: Boolean(event.target.checked) }
               case "weight": {
                 let newWeight = Number(event.target.value)

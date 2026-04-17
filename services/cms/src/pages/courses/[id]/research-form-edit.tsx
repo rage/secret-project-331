@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useEffect, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
 import CourseContext from "../../../contexts/CourseContext"
@@ -176,7 +176,7 @@ function isMoocfiCheckbox(
 
 const exported = withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ResearchForms)))
 
-// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
+// @ts-ignore: hideBreadcrumbs is an addtional property on exported
 exported.hideBreadcrumbs = true
 
 export default exported

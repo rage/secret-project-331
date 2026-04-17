@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useContext } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 import { useMemoOne } from "use-memo-one"
 import { v5 } from "uuid"
 

@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+import { formatLTR } from "@wordpress/icons"
 
 import HighlightEditor from "./HighlightEditor"
 import HighlightSave from "./HighlightSave"
@@ -28,7 +28,7 @@ const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
       selector: "span",
     },
   },
-  icon: formatLtr,
+  icon: formatLTR,
   edit: HighlightEditor,
   save: HighlightSave,
 }

@@ -6,7 +6,7 @@ import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
 import useAllExerciseServices from "../../../hooks/useAllExerciseServices"

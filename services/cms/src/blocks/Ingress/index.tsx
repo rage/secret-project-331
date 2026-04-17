@@ -2,7 +2,7 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+import { formatLTR } from "@wordpress/icons"
 
 import InstructionBoxEditor from "./IngressEditor"
 import InstructionBoxSave from "./IngressSave"
@@ -29,7 +29,7 @@ const InstructionBoxConfiguration: BlockConfiguration<InstructionBoxAttributes> 
       selector: "p",
     },
   },
-  icon: formatLtr,
+  icon: formatLTR,
   edit: InstructionBoxEditor,
   save: InstructionBoxSave,
 }

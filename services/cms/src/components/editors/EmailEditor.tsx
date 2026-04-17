@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { UseMutationResult } from "@tanstack/react-query"
 import { BlockInstance } from "@wordpress/blocks"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"

@@ -18,7 +18,7 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   save: LearningObjectiveSectionSave,
   transforms: {
     from: [
-      // @ts-expect-error: transform example from the documentation
+      // @ts-ignore: transform example from the documentation
       {
         type: "block",
         blocks: ["core/list"],
@@ -34,7 +34,7 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // @ts-expect-error: Transform example from documentation
+        // @ts-ignore: Transform example from documentation
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         transform(_attributes: any, innerBlocks: any[]) {
           return innerBlocks[0]

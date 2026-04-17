@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls, RichText } from "@wordpress/block-editor"
 import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
 import BlockWrapper from "../BlockWrapper"

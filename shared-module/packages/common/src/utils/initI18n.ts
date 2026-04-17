@@ -20,7 +20,7 @@ const initI18n = (defaultNS: string): typeof i18n => {
           const resources = await import(`../locales/${language}/${namespace}.json`)
           callback(null, resources)
         } catch (error) {
-          // @ts-expect-error: checks for existance of the field
+          // @ts-ignore: dynamic import errors may expose a `code` field at runtime
           if (error.code === "MODULE_NOT_FOUND") {
             callback(null, {})
             return

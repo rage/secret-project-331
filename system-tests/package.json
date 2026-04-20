@@ -30,7 +30,7 @@
     "view-trace": "pnpm exec playwright show-trace"
   },
   "dependencies": {
-    "@axe-core/playwright": "^4.11.1",
+    "@axe-core/playwright": "^4.11.2",
     "axe-core": "^4.11.3",
     "jose": "^6.2.2",
     "js-yaml": "^4.1.1",

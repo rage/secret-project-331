@@ -3,7 +3,7 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "target": "es5",
+    "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
     "typeRoots": ["types", "./node_modules/@types"],
     "allowJs": true,

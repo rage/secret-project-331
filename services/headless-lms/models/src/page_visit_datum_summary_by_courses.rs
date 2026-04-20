@@ -55,7 +55,8 @@ SELECT
   $1 AS visit_date
 FROM page_visit_datum
 WHERE deleted_at IS NULL
-  AND created_at::date = $1
+  AND created_at >= ($1::date::timestamp AT TIME ZONE 'UTC')
+  AND created_at < (($1::date + 1)::timestamp AT TIME ZONE 'UTC')
   AND is_bot = FALSE
 GROUP BY course_id,
   exam_id,

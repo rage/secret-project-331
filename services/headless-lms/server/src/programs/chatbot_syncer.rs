@@ -27,7 +27,6 @@ use headless_lms_chatbot::{
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chapters::DatabaseChapter,
-    page_history::PageHistory,
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
@@ -160,8 +159,8 @@ async fn sync_pages(
         )
         .await?;
 
-    let latest_histories =
-        headless_lms_models::page_history::get_latest_history_entries_for_pages_by_course_ids(
+    let latest_history_ids =
+        headless_lms_models::page_history::get_latest_page_history_ids_by_course_ids(
             conn,
             &course_ids,
         )
@@ -202,9 +201,11 @@ async fn sync_pages(
                     return false;
                 }
 
-                let is_outdated = latest_histories
+                let is_outdated = latest_history_ids
                     .get(&status.page_id)
-                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id));
+                    .is_some_and(|history_id| {
+                        status.synced_page_revision_id != Some(*history_id)
+                    });
 
                 if !is_outdated {
                     return false;
@@ -266,7 +267,7 @@ async fn sync_pages(
                 blob_client,
                 &base_url,
                 &config.app_configuration,
-                &latest_histories,
+                &latest_history_ids,
             )
             .await?;
         } else {
@@ -335,7 +336,7 @@ async fn sync_pages_batch(
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
-    latest_histories: &HashMap<Uuid, PageHistory>,
+    latest_history_ids: &HashMap<Uuid, Uuid>,
 ) -> anyhow::Result<()> {
     let course_id = pages
         .first()
@@ -475,9 +476,9 @@ async fn sync_pages_batch(
                     page.id, db_err
                 );
             }
-        } else if let Some(history_id) = latest_histories.get(&page.id) {
+        } else if let Some(history_id) = latest_history_ids.get(&page.id) {
             let mut page_revision_map = HashMap::new();
-            page_revision_map.insert(page.id, history_id.id);
+            page_revision_map.insert(page.id, *history_id);
             if let Err(e) =
                 headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
                     conn,

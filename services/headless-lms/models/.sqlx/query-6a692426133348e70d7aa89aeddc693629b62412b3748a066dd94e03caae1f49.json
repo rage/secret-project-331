@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT users.*\nFROM user_details\nJOIN users ON (user_details.user_id = users.id)\nWHERE user_details.email = $1\n        ",
+  "query": "\nSELECT users.*\nFROM user_details\nJOIN users ON (user_details.user_id = users.id)\nWHERE lower(user_details.email) = lower($1)\n        ",
   "describe": {
     "columns": [
       {
@@ -48,5 +48,5 @@
       true
     ]
   },
-  "hash": "9ff58b17cdc5899c665753277fdaea2d36d6254b4d2863efe22f49db91fa0bf2"
+  "hash": "6a692426133348e70d7aa89aeddc693629b62412b3748a066dd94e03caae1f49"
 }

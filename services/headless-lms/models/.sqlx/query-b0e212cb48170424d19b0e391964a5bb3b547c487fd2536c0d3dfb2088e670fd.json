@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO page_visit_datum_summary_by_courses (\n    course_id,\n    exam_id,\n    referrer,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    num_visitors,\n    visit_date\n  )\nSELECT\n  course_id,\n  exam_id,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at::date = $1\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    referrer,\n    visit_date,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n",
+  "query": "\nINSERT INTO page_visit_datum_summary_by_courses (\n    course_id,\n    exam_id,\n    referrer,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    num_visitors,\n    visit_date\n  )\nSELECT\n  course_id,\n  exam_id,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content,\n  COUNT(DISTINCT anonymous_identifier) AS num_visitors,\n  $1 AS visit_date\nFROM page_visit_datum\nWHERE deleted_at IS NULL\n  AND created_at >= ($1::date::timestamp AT TIME ZONE 'UTC')\n  AND created_at < (($1::date + 1)::timestamp AT TIME ZONE 'UTC')\n  AND is_bot = FALSE\nGROUP BY course_id,\n  exam_id,\n  referrer,\n  utm_source,\n  utm_medium,\n  utm_campaign,\n  utm_term,\n  utm_content\n  ON CONFLICT (\n    course_id,\n    exam_id,\n    referrer,\n    visit_date,\n    utm_source,\n    utm_medium,\n    utm_campaign,\n    utm_term,\n    utm_content,\n    deleted_at\n  ) DO\nUPDATE\nSET num_visitors = EXCLUDED.num_visitors\nRETURNING *\n",
   "describe": {
     "columns": [
       {
@@ -96,5 +96,5 @@
       false
     ]
   },
-  "hash": "78193a38be835dbfb19c07ba153ea3e661127f7e718e1d3db9a717e01312b7a7"
+  "hash": "b0e212cb48170424d19b0e391964a5bb3b547c487fd2536c0d3dfb2088e670fd"
 }

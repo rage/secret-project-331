@@ -79,7 +79,7 @@ pub async fn chatbot_cited_documents_to_citations(
 ) -> anyhow::Result<()> {
     for (idx, url) in get_urls.iter_mut().enumerate() {
         let document = get_course_material_document(url, api_key).await?;
-        let citation_number = (idx + 1) as i32;
+        let citation_number = (idx) as i32;
         save_document(
             conn,
             document,

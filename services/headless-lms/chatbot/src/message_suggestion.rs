@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, OutputItem, RequestTextOptions, Schema,
+        ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
+        LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
+        APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
         parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -88,15 +88,15 @@ pub async fn generate_suggested_messages(
     let conversation =
         &create_conversation_from_msgs(conversation_messages, used_tokens, token_budget)?;
 
-    let system_prompt = APIMessage {
-        message_type: OutputItem::Message {
+    let system_prompt = APIInputMessage {
+        message_type: InputItem::Message {
             role: MessageRole::System,
             content: MessageContent::Text(prompt + conversation),
         },
     };
 
-    let user_prompt = APIMessage {
-        message_type: OutputItem::Message {
+    let user_prompt = APIInputMessage {
+        message_type: InputItem::Message {
             role: MessageRole::User,
             content: MessageContent::Text(USER_PROMPT.to_string()),
         },
@@ -176,9 +176,16 @@ fn create_conversation_from_msgs(
     conversation_messages
         .to_vec()
         .sort_by_key(|el| el.order_number);
-    let conv_len = conversation_messages.len();
+    let conversation: Vec<ChatbotConversationMessage> = conversation_messages
+        .iter()
+        .filter_map(|el| match &el.message {
+            Message::Text(_) => Some(el.to_owned()),
+            _ => None,
+        })
+        .collect();
+    let conv_len = conversation.len();
     // calculate how many messages to include in the conversation context
-    let cutoff = conversation_messages
+    let cutoff = conversation
         .iter()
         .enumerate()
         // we want to take messages starting from the newest (=last)
@@ -215,7 +222,7 @@ fn create_conversation_from_msgs(
             None,
         ))?;
     // cut off messages older than order_n from the conversation to keep context short
-    let conversation = conversation_messages[cutoff..]
+    let conversation = conversation[cutoff..]
         .iter()
         .map(create_msg_string)
         .collect::<Vec<String>>()

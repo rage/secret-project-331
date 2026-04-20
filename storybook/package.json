@@ -2,35 +2,16 @@
   "name": "secret-project-storybook",
   "version": "1.0.0",
   "description": "",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "keywords": [],
+  "license": "Apache-2.0",
   "main": "index.js",
   "packageManager": "pnpm@10.30.3",
-  "keywords": [],
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
-  "license": "Apache-2.0",
-  "devDependencies": {
-    "@chromatic-com/storybook": "^5.0.1",
-    "@storybook/addon-docs": "^10.2.17",
-    "@storybook/addon-links": "^10.2.17",
-    "@storybook/addon-onboarding": "^10.2.17",
-    "@storybook/blocks": "^8.4.7",
-    "@storybook/react": "^10.2.17",
-    "@storybook/react-vite": "^10.2.17",
-    "@storybook/test": "^8.6.15",
-    "@types/react": "^19.2.14",
-    "@vitejs/plugin-react": "^4.3.4",
-    "eslint-plugin-storybook": "10.2.17",
-    "prop-types": "^15.8.1",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "storybook": "^10.2.17",
-    "vite": "^6.0.7"
-  },
   "scripts": {
-    "storybook": "storybook dev -p 6006 --docs",
-    "build-storybook": "storybook build --docs"
+    "build-storybook": "storybook build --docs",
+    "storybook": "storybook dev -p 6006 --docs"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.21",
     "@emotion/css": "^11.13.5",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
@@ -49,6 +30,7 @@
     "@react-stately/toggle": "^3.9.5",
     "@react-types/dialog": "^3.5.0",
     "@react-types/shared": "^3.23.2",
+    "@tanstack/react-query": "^5.90.21",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.1.0",
     "date-fns-tz": "^3.2.0",
@@ -57,5 +39,23 @@
     "react-aria": "^3.46.0",
     "react-i18next": "^15.4.0",
     "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^5.0.1",
+    "@storybook/addon-docs": "^10.2.17",
+    "@storybook/addon-links": "^10.2.17",
+    "@storybook/addon-onboarding": "^10.2.17",
+    "@storybook/blocks": "^8.4.7",
+    "@storybook/react": "^10.2.17",
+    "@storybook/react-vite": "^10.2.17",
+    "@storybook/test": "^8.6.15",
+    "@types/react": "^19.2.14",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint-plugin-storybook": "10.2.17",
+    "prop-types": "^15.8.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "storybook": "^10.2.17",
+    "vite": "^6.0.7"
   }
 }

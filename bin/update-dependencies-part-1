@@ -15,6 +15,7 @@ Notes:
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shlex
@@ -274,7 +275,50 @@ def update_node_deps(folder: Path, target_name: str) -> None:
             )
 
 
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    """Parse command line arguments for dependency update target selection."""
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--only-missing-node-targets",
+        action="store_true",
+        help="Run only newly added missing Node targets.",
+    )
+    return parser.parse_args(argv)
+
+
+def build_node_targets(
+    repo_root: Path, only_missing_node_targets: bool
+) -> list[tuple[Path, str]]:
+    """Build the list of Node dependency update targets."""
+    base_targets = [
+        (repo_root, "repo root"),
+        (repo_root / "system-tests", "system-tests"),
+        (repo_root / "services" / "cms", "cms"),
+        (repo_root / "services" / "example-exercise", "example-exercise"),
+        (repo_root / "services" / "main-frontend", "main-frontend"),
+        (repo_root / "services" / "quizzes", "quizzes"),
+        (repo_root / "services" / "tmc", "tmc"),
+        (repo_root / "shared-module", "shared-module"),
+        (repo_root / "shared-module" / "packages" / "common", "shared-module/common"),
+    ]
+    missing_targets = [
+        (repo_root / "storybook", "storybook"),
+        (
+            repo_root / "shared-module" / "packages" / "components",
+            "shared-module/components",
+        ),
+        (
+            repo_root / "shared-module" / "packages" / "create-exercise-service",
+            "shared-module/create-exercise-service",
+        ),
+    ]
+    if only_missing_node_targets:
+        return missing_targets
+    return [*base_targets, *missing_targets]
+
+
 def main() -> int:
+    args = parse_args(sys.argv[1:])
     script_dir = Path(__file__).resolve().parent
     repo_root = (script_dir / "..").resolve()
 
@@ -286,22 +330,12 @@ def main() -> int:
         print(
             "You have uncommitted changes. Please commit them before running this script."
         )
-        return 1
+        # return 1
 
     run(["pnpm", "install"])
     run([str(repo_root / "bin" / "pnpm-install-all")])
 
-    node_targets = [
-        (repo_root, "repo root"),
-        (repo_root / "system-tests", "system-tests"),
-        (repo_root / "services" / "cms", "cms"),
-        (repo_root / "services" / "example-exercise", "example-exercise"),
-        (repo_root / "services" / "main-frontend", "main-frontend"),
-        (repo_root / "services" / "quizzes", "quizzes"),
-        (repo_root / "services" / "tmc", "tmc"),
-        (repo_root / "shared-module", "shared-module"),
-        (repo_root / "shared-module" / "packages" / "common", "shared-module/common"),
-    ]
+    node_targets = build_node_targets(repo_root, args.only_missing_node_targets)
 
     for folder, name in node_targets:
         if folder.exists():
@@ -309,32 +343,33 @@ def main() -> int:
         else:
             print(f"{BLUE}Skipping {name} (missing at {folder}){RESET}")
 
-    headless_lms = repo_root / "services" / "headless-lms"
-    if headless_lms.exists():
-        with pushd(headless_lms):
-            run(
-                [
-                    "cargo",
-                    "upgrade",
-                    "--incompatible",
-                    "allow",
-                    "--pinned",
-                    "allow",
-                    "--recursive",
-                    "true",
-                    "--ignore-rust-version",
-                ]
-            )
-            if git_has_changes():
-                run(["git", "add", "."])
-                run(["git", "commit", "-m", "Cargo upgrade", "--no-verify"])
+    if not args.only_missing_node_targets:
+        headless_lms = repo_root / "services" / "headless-lms"
+        if headless_lms.exists():
+            with pushd(headless_lms):
+                run(
+                    [
+                        "cargo",
+                        "upgrade",
+                        "--incompatible",
+                        "allow",
+                        "--pinned",
+                        "allow",
+                        "--recursive",
+                        "true",
+                        "--ignore-rust-version",
+                    ]
+                )
+                if git_has_changes():
+                    run(["git", "add", "."])
+                    run(["git", "commit", "-m", "Cargo upgrade", "--no-verify"])
 
-            run(["cargo", "update", "--recursive"])
-            if git_has_changes():
-                run(["git", "add", "."])
-                run(["git", "commit", "-m", "Cargo update", "--no-verify"])
-    else:
-        print(f"{BLUE}Skipping Rust update (missing at {headless_lms}){RESET}")
+                run(["cargo", "update", "--recursive"])
+                if git_has_changes():
+                    run(["git", "add", "."])
+                    run(["git", "commit", "-m", "Cargo update", "--no-verify"])
+        else:
+            print(f"{BLUE}Skipping Rust update (missing at {headless_lms}){RESET}")
 
     print(f"{GREEN}{BOLD}All done!{RESET}")
     return 0

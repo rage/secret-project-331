@@ -110,7 +110,6 @@ export function isButtonAttributes(obj: unknown): obj is ButtonAttributes {
       typeof typedObj["backgroundColor"] === "string") &&
     (typeof typedObj["textColor"] === "undefined" || typeof typedObj["textColor"] === "string") &&
     (typeof typedObj["gradient"] === "undefined" || typeof typedObj["gradient"] === "string") &&
-    (typeof typedObj["width"] === "undefined" || typeof typedObj["width"] === "number") &&
     (typeof typedObj["borderColor"] === "undefined" ||
       typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["lock"] === "undefined" ||

@@ -74,7 +74,7 @@ pub async fn update_users(
         }
     }
 
-    parsed_updates.sort_by(|a, b| a.0.cmp(&b.0));
+    parsed_updates.sort_by_key(|a| a.0);
 
     let email_update_list: Vec<&Change> = parsed_updates
         .into_iter()

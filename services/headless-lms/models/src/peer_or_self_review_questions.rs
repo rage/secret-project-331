@@ -354,7 +354,7 @@ pub fn normalize_cms_peer_or_self_review_questions(
             question.answer_required = true;
         }
     }
-    peer_or_self_review_questions.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    peer_or_self_review_questions.sort_by_key(|a| a.order_number);
     info!(
         "Peer review question weights before normalization: {:?}",
         peer_or_self_review_questions

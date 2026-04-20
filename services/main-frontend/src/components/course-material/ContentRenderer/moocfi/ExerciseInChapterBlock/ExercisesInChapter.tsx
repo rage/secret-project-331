@@ -7,7 +7,6 @@ import React from "react"
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
 import { getCourseMaterialChapterPagesWithExercisesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
-import type { PageWithExercises } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 

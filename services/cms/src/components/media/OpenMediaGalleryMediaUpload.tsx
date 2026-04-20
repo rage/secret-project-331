@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@wordpress/components"
+
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 // Implements a button that opens a modal into media gallery.

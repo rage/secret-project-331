@@ -3,9 +3,7 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { InnerBlocks } from "@wordpress/block-editor"
-import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
 import { useContext } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { EditorContentDispatch } from "../../contexts/EditorContentContext"
 import ExerciseBlockContext from "../../contexts/ExerciseBlockContext"
@@ -17,6 +15,8 @@ import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
+import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/exercise-slide"]
 

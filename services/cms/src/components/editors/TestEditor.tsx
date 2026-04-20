@@ -1,9 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 import React, { useReducer, useState } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
 import { supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -17,6 +15,8 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 

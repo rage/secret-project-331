@@ -1,7 +1,7 @@
 "use client"
 
-import React from "react"
 import { useRouter } from "next/router"
+import React from "react"
 
 // During initial render query parameters are undedined in Next.js due to optimization
 // reasons. This HOC allows one to delay rendering a subtree until required query

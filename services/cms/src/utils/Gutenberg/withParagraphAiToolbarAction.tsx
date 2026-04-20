@@ -9,7 +9,6 @@ import { Fragment, useEffect, useState } from "@wordpress/element"
 import { chevronRight } from "@wordpress/icons"
 import { useContext } from "react"
 import toast from "react-hot-toast"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
 import { createParagraphAiSource, extractPlainTextFromHtml } from "../Gutenberg/paragraphAiSource"
@@ -35,6 +34,7 @@ import {
   useDialog,
 } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { baseTheme } from "@/shared-module/common/styles"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const PARAGRAPH_BLOCK_NAME = "core/paragraph"
 

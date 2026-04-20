@@ -2,7 +2,6 @@
 
 /* eslint-disable i18next/no-literal-string */
 
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { v4, v5 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
@@ -18,6 +17,7 @@ import {
   CmsPageUpdate,
   CmsPeerOrSelfReviewConfig,
 } from "@/generated/api"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 /**
  * Only id is allowed in normalized exercises. This is because:

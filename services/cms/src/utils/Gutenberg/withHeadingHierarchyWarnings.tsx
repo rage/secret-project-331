@@ -1,14 +1,15 @@
 "use client"
 
 import { css } from "@emotion/css"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { useSelect } from "@wordpress/data"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { getHeadingHierarchyIssuesForBlock, HeadingHierarchyIssue } from "./headingHierarchy"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface BlockEditWithClientIdProps {
   clientId: string

@@ -1,11 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import AsideEditor from "./AsideEditor"
 import AsideSave from "./AsideSave"
 import { Deprecated1 } from "./deprecated"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface AsideComponentProps {
   backgroundColor: string
@@ -28,7 +29,7 @@ const AsideConfiguration: BlockConfiguration<AsideComponentProps> = {
   },
   edit: AsideEditor,
   save: AsideSave,
-  // @ts-ignore: Wrong type, the deprecations have a different interface for the previous attributes
+  // @ts-expect-error: Wrong type, the deprecations have a different interface for the previous attributes
   deprecated: [Deprecated1],
 }
 

@@ -4,9 +4,10 @@ import { css } from "@emotion/css"
 import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { shouldWarnAboutParagraphLookingLikeHeading } from "./paragraphHeadingWarning"
+
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ParagraphBlockProps {
   name: string

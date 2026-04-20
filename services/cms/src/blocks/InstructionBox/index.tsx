@@ -1,11 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 import { formatLTR } from "@wordpress/icons"
 
 import InstructionBoxEditor from "./InstructionBoxEditor"
 import InstructionBoxSave from "./InstructionBoxSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface InstructionBoxAttributes {
   content: string

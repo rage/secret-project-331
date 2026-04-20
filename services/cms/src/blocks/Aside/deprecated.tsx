@@ -2,10 +2,11 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { createBlock } from "@wordpress/blocks"
-import type { BlockDeprecation } from "@/utils/Gutenberg/types"
 import { omit } from "lodash"
 
 import { AsideComponentProps } from "."
+
+import type { BlockDeprecation } from "@/utils/Gutenberg/types"
 
 interface Deprecated1AsideComponentProps {
   title: string
@@ -31,7 +32,7 @@ export const Deprecated1: BlockDeprecation<Deprecated1AsideComponentProps> = {
     return <></>
   },
   isEligible: (attributes) => Boolean(attributes.title || attributes.bodyText),
-  // @ts-ignore: wat
+  // @ts-expect-error: wat
   migrate: (attributes, innerBlocks) => {
     const newInnerBlocks = [...innerBlocks]
     if (attributes.title && attributes.title.trim() !== "") {

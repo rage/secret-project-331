@@ -1,11 +1,11 @@
 "use client"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
 import CongratulationsEditor from "./CongratulationsEditor"
 import CongratulationsSave from "./CongratulationsSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const CONGRATULATIONS = "Congratulations"
 

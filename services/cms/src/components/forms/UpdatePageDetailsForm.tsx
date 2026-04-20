@@ -3,9 +3,9 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

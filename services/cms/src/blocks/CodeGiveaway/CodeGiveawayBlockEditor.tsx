@@ -3,9 +3,7 @@
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React, { useContext, useMemo } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
@@ -15,7 +13,9 @@ import { ConditionAttributes } from "."
 import InnerBlocksWrapper from "@/components/blocks/InnerBlocksWrapper"
 import { getCmsCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",

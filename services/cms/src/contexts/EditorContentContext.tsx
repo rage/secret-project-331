@@ -2,13 +2,14 @@
 
 /* eslint-disable i18next/no-literal-string */
 
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { produce } from "immer"
 import React, { Dispatch } from "react"
 import { v4 } from "uuid"
 
 import { ExerciseSlideAttributes } from "../blocks/Exercise/ExerciseSlide/ExerciseSlideEditor"
 import { ExerciseTaskAttributes } from "../blocks/Exercise/ExerciseTask/ExerciseTaskEditor"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 // Context
 

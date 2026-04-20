@@ -1,4 +1,5 @@
 import { getCategories } from "@wordpress/blocks"
+
 import type { Category } from "@/utils/Gutenberg/types"
 
 export const MOOCFI_CATEGORY_SLUG = "moocfi"

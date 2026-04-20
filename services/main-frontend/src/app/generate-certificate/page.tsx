@@ -17,7 +17,6 @@ import type {
   Course,
   GeneratedCertificate,
   CourseModule as GeneratedCourseModule,
-  CourseModuleCompletion as GeneratedCourseModuleCompletion,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -28,7 +27,6 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
-import { isNull, isUnion } from "@/shared-module/common/utils/fetching"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

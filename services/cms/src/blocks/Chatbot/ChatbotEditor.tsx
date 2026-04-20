@@ -3,9 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React, { useContext } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
@@ -15,7 +13,9 @@ import { ChatbotBlockAttributes } from "."
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorAndLoadingWrapper from "@/shared-module/common/components/ErrorAndLoadingWrapper"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 

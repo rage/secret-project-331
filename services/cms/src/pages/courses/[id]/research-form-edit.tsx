@@ -1,9 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 import React, { useEffect, useState } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
 import CourseContext from "../../../contexts/CourseContext"
@@ -24,7 +22,9 @@ import dontRenderUntilQueryParametersReady, {
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">
@@ -176,7 +176,7 @@ function isMoocfiCheckbox(
 
 const exported = withErrorBoundary(withSignedIn(dontRenderUntilQueryParametersReady(ResearchForms)))
 
-// @ts-ignore: hideBreadcrumbs is an addtional property on exported
+// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
 exported.hideBreadcrumbs = true
 
 export default exported

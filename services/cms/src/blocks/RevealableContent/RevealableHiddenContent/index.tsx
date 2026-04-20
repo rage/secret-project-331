@@ -2,12 +2,12 @@
 
 /* eslint-disable i18next/no-literal-string */
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCategories"
 
 import RevealableHiddenContentEditor from "./RevealableHiddenContentEditor"
 import RevealableHiddenContentSave from "./RevealableHiddenContentSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface ConditionAttributes {}

@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, RichText } from "@wordpress/block-editor"
-import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
@@ -15,6 +14,7 @@ import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
+import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 
 const ALLOWED_NESTED_BLOCKS = ["core/heading", "core/buttons", "core/button", "core/paragraph"]
 const COURSE_OBJECTIVE_SECTION_TEMPLATE: Template[] = [

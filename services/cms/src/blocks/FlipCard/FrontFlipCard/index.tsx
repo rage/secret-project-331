@@ -1,12 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import FrontFlipCardEditor from "./FrontFlipCardEditor"
 import FrontFlipCardSave from "./FrontFlipCardSave"
 
 import { MOOCFI_CATEGORY_SLUG } from "@/utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const FrontFlipCardConfiguration: BlockConfiguration = {
   title: "Inner Card",

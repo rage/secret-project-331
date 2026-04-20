@@ -1,12 +1,13 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
 import PartnerEditor from "./PartnersEditor"
 import PartnerSave from "./PartnersSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const PartnerConfiguration: BlockConfiguration = {
   title: "Partner Section",

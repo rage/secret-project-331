@@ -9,7 +9,6 @@ import {
   unregisterBlockVariation,
 } from "@wordpress/blocks"
 import { addFilter } from "@wordpress/hooks"
-import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
 
 import {
   blockTypeMapForFrontPages,
@@ -28,6 +27,8 @@ import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenberg
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
+
+import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
@@ -73,19 +74,13 @@ const syncStandaloneCustomBlocks = (customBlocks?: CustomBlockDefinition[]): voi
 
 const captureDefaultBlockVariations = (): void => {
   for (const blockName of Object.keys(allowedBlockVariants)) {
-    defaultAllowedBlockVariations.set(
-      blockName,
-      /* @ts-ignore: type signature incorrect */
-      [...(getBlockType(blockName)?.variations ?? [])],
-    )
+    defaultAllowedBlockVariations.set(blockName, [...(getBlockType(blockName)?.variations ?? [])])
   }
 }
 
 const syncAllowedBlockVariations = (allowedBlockVariations?: Record<string, string[]>): void => {
   defaultAllowedBlockVariations.forEach((defaultVariations, blockName) => {
-    const currentVariations =
-      /* @ts-ignore: type signature incorrect */
-      [...(getBlockType(blockName)?.variations ?? [])]
+    const currentVariations = [...(getBlockType(blockName)?.variations ?? [])]
     const currentVariationNames = new Set(currentVariations.map((variation) => variation.name))
 
     defaultVariations.forEach((variation) => {
@@ -99,9 +94,7 @@ const syncAllowedBlockVariations = (allowedBlockVariations?: Record<string, stri
       return
     }
 
-    const syncedVariations =
-      /* @ts-ignore: type signature incorrect */
-      [...(getBlockType(blockName)?.variations ?? [])]
+    const syncedVariations = [...(getBlockType(blockName)?.variations ?? [])]
 
     syncedVariations.forEach((variation) => {
       if (!allowedVariations.includes(variation.name)) {
@@ -120,7 +113,7 @@ export const ensureStandaloneGutenbergBootstrap = (
 
   if (!hasBootstrappedStandaloneGutenberg) {
     // core/image expects a wp global to exist, and null satisfies its existing checks.
-    // @ts-ignore: setting a global used by Gutenberg internals
+    // @ts-expect-error: setting a global used by Gutenberg internals
     window.wp = null
 
     addFilter(

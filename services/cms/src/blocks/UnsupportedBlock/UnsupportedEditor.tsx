@@ -1,10 +1,11 @@
 "use client"
 
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
+
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const UnsupportedEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<Record<string, never>>>

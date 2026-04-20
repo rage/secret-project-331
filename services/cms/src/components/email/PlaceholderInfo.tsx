@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import React from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import {
   getPlaceholderConfig,
@@ -10,6 +9,8 @@ import {
   PLACEHOLDER_RESET_LINK,
   PlaceholderValidationResult,
 } from "../../utils/emailPlaceholders"
+
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PlaceholderInfoProps {
   templateType: unknown

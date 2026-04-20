@@ -3,11 +3,9 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { UseMutationResult, useQuery } from "@tanstack/react-query"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
 import React, { useMemo, useReducer, useState } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import {
   blockTypeMapForFrontPages,
@@ -42,7 +40,9 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PageEditorProps {
   data: Page

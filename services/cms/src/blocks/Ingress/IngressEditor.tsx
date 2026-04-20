@@ -3,7 +3,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
@@ -11,6 +10,7 @@ import BlockWrapper from "../BlockWrapper"
 import { InstructionBoxAttributes } from "."
 
 import { headingFont, primaryFont } from "@/shared-module/common/styles"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 const IngressEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<InstructionBoxAttributes>>

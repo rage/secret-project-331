@@ -1,9 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import type { BlockInstance } from "@/utils/Gutenberg/types"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
@@ -25,7 +23,9 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PeerReviewManagerProps {
   // courseId
@@ -167,7 +167,7 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
 
 const exported = dontRenderUntilQueryParametersReady(PeerReviewManager)
 
-// @ts-ignore: hideBreadcrumbs is an addtional property on exported
+// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
 exported.hideBreadcrumbs = true
 
 export default exported

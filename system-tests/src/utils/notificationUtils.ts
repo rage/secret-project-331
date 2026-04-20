@@ -1,3 +1,4 @@
+/* eslint-disable playwright/prefer-locator */
 import { Locator, Page } from "playwright"
 
 import {
@@ -11,12 +12,10 @@ import {
  */
 export const showNextToastsInfinitely = async (page: Page) => {
   await hideToasts(page)
-  // eslint-disable-next-line playwright/prefer-locator
   await page.dispatchEvent("body", SHOW_TOASTS_INIFINITELY_IN_SYSTEM_TESTS_EVENT)
 }
 
 export const showToastsNormally = async (page: Page) => {
-  // eslint-disable-next-line playwright/prefer-locator
   await page.dispatchEvent("body", SHOW_TOASTS_NORMALLY_IN_SYSTEM_TESTS_EVENT)
 }
 

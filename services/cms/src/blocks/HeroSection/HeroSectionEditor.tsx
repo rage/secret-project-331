@@ -3,7 +3,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { InspectorControls, RichText } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React, { useContext, useEffect } from "react"
 
 import BackgroundAndColorCustomizer from "../../components/blocks/BackgroundAndColorCustomizer"
@@ -19,6 +18,7 @@ import {
   CMS_EDITOR_SIDEBAR_THRESHOLD,
   CMS_EDITOR_SIDEBAR_WIDTH,
 } from "@/shared-module/common/utils/constants"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 const HeroSectionEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<HeroSectionAttributes>>

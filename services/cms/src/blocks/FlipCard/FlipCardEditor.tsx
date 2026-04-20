@@ -2,15 +2,15 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
 import React from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { FlipCardAttributes } from "."
 
 import FlipBoxSizeCustomizer from "@/components/blocks/FlipCardSizeCustomizer"
+import type { BlockEditProps, TemplateArray } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = ["moocfi/front-card"]
 const INNER_BLOCKS_TEMPLATE: TemplateArray = [

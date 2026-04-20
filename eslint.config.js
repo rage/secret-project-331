@@ -40,6 +40,9 @@ const baseIgnorePatterns = [
   "**/playwright-report/**",
   "**/storybook-static/**",
   "**/services/main-frontend/public/monaco-editor/**",
+  "**/services/main-frontend/src/generated/**",
+  "**/services/cms/src/generated/**",
+  "**/shared-module/packages/common/src/generated/**",
   "**/.venv/**",
   "**/generated-docs/**",
   "**/GutenbergBlockAttributes.ts",
@@ -224,20 +227,6 @@ const config = [
     files: ["**/*.js", "**/*.cjs"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
-    },
-  },
-  {
-    files: ["services/main-frontend/src/generated/api/**/*.generated.ts"],
-    rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "no-undef": "off",
-    },
-  },
-  {
-    files: ["shared-module/packages/common/src/generated/auth-api/**/*.generated.ts"],
-    rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "no-undef": "off",
     },
   },
   {

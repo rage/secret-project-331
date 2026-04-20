@@ -2,8 +2,8 @@
 
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
+import TsParticles, { initParticlesEngine } from "@tsparticles/react"
 import React, { useEffect, useState } from "react"
-import Particles, { initParticlesEngine } from "@tsparticles/react"
 import { loadFull } from "tsparticles"
 
 import Tick from "@/img/course-material/tick.svg"
@@ -37,7 +37,7 @@ const Confetti: React.FC = () => {
 
   return (
     <StyledDiv>
-      <Particles
+      <TsParticles
         id="tsparticles"
         options={{
           background: {

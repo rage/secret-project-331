@@ -2,12 +2,13 @@
 
 /* eslint-disable i18next/no-literal-string */
 import { createBlock } from "@wordpress/blocks"
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
 import LearningObjectiveSectionEditor from "./LearningObjectiveSectionEditor"
 import LearningObjectiveSectionSave from "./LearningObjectiveSectionSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   title: "Learning Objective Section",
@@ -19,7 +20,6 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
   save: LearningObjectiveSectionSave,
   transforms: {
     from: [
-      // @ts-ignore: transform example from the documentation
       {
         type: "block",
         blocks: ["core/list"],
@@ -35,7 +35,6 @@ const LearningObjectiveSectionConfiguration: BlockConfiguration = {
       {
         type: "block",
         blocks: ["core/list"],
-        // @ts-ignore: Transform example from documentation
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         transform(_attributes: any, innerBlocks: any[]) {
           return innerBlocks[0]

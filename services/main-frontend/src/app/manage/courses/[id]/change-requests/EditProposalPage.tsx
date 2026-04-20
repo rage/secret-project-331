@@ -10,7 +10,7 @@ import {
   getEditProposalsOptions,
   processEditProposalMutation as processProposalMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { BlockProposalInfo, PageProposal } from "@/generated/api/types.generated"
+import type { BlockProposalInfo } from "@/generated/api/types.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"

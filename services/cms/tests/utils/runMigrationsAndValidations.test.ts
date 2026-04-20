@@ -1,4 +1,5 @@
 import { jest } from "@jest/globals"
+
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const loadRunMigrationsAndValidations = async () => {

@@ -2,12 +2,13 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import KaTex from "katex"
 import React from "react"
 
 import "katex/dist/katex.min.css"
 import { TextAttributes } from "."
+
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 const KATEX_OUTPUT_FORMAT = "htmlAndMathml"
 

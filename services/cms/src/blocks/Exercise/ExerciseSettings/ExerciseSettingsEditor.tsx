@@ -4,7 +4,6 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { useContext } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
@@ -17,6 +16,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 

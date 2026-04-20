@@ -1,3 +1,4 @@
+/* eslint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -8,7 +9,8 @@ import { selectOrganization } from "@/utils/organizationUtils"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
-test.describe(() => {
+
+test.describe("Quizzes essay feedback", () => {
   // Chrome sometimes does not render the ui correctly after resizing the window without reloading the page.
   // This does not seem to be something we can fix, so we'll retry
   test.describe.configure({ retries: 4 })

@@ -1,11 +1,11 @@
 "use client"
 
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
-
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
 import MapEditor from "./MapEditor"
 import MapSave from "./MapSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const MAP = "Map"
 const MAP_DESCRIPTION = "Map shows countries of student enrolled in a course"

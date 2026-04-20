@@ -1,3 +1,4 @@
+/* eslint-disable playwright/prefer-locator */
 import {
   PlaywrightTestArgs,
   PlaywrightTestOptions,
@@ -16,10 +17,6 @@ test.describe("Login session with Playwright", () => {
 
   test.beforeAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
     // Executed once before tests
-  })
-
-  test.afterAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
-    // Executed once after tests
   })
 
   test.beforeEach(
@@ -44,6 +41,10 @@ test.describe("Login session with Playwright", () => {
       // Executed after each test
     },
   )
+
+  test.afterAll(async (_args: PlaywrightWorkerArgs & PlaywrightWorkerOptions) => {
+    // Executed once after tests
+  })
 
   test("is succesful", async ({ page }) => {
     await page.locator("id=topbar-user-menu").waitFor()

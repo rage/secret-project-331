@@ -16,7 +16,6 @@ function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
       return null
     }
 
-    // @ts-ignore: preserve wrapped component props without over-constraining JSX
     return <WrappedComponent {...(props as T)} />
   }
 

@@ -5,7 +5,6 @@ import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo, useRef } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
@@ -30,6 +29,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { editCourseDefaultPeerOrSelfReviewConfigRoute } from "@/shared-module/common/utils/routes"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const Wrapper = styled.div`
   margin: 0 auto;
@@ -299,7 +299,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
               case "question_type":
                 return { ...prq, question_type: event.target.value as PeerOrSelfReviewQuestionType }
               case "answer_required":
-                // @ts-ignore: in this case the event is from a checkbox
+                // @ts-expect-error: in this case the event is from a checkbox
                 return { ...prq, answer_required: Boolean(event.target.checked) }
               case "weight": {
                 let newWeight = Number(event.target.value)

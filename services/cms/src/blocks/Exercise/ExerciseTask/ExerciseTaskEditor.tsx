@@ -4,9 +4,7 @@ import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PencilBox, Trash, XmarkCircle } from "@vectopus/atlas-icons-react"
 import { InnerBlocks } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React, { useContext, useState } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { EditorContentDispatch } from "../../../contexts/EditorContentContext"
 import useAllExerciseServices from "../../../hooks/useAllExerciseServices"
@@ -23,6 +21,8 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, primaryFont, typography } from "@/shared-module/common/styles"
 import { runCallbackIfEnterPressed } from "@/shared-module/common/utils/accessibility"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/paragraph",

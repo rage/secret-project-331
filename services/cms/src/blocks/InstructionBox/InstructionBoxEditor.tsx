@@ -3,12 +3,13 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
 import { InstructionBoxAttributes } from "."
+
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 const InstructionBoxEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<InstructionBoxAttributes>>

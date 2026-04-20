@@ -1,13 +1,14 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import React from "react"
 
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { ConditionAttributes } from "."
+
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",

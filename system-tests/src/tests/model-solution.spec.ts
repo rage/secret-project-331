@@ -1,3 +1,4 @@
+/* eslint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"

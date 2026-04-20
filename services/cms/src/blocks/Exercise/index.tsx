@@ -1,7 +1,6 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
@@ -9,6 +8,8 @@ import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCateg
 
 import ExerciseEditor from "./ExerciseEditor"
 import ExerciseSave from "./ExerciseSave"
+
+import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
 export interface ExerciseAttributes {
   id: string

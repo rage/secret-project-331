@@ -1,11 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 import { archive as icon } from "@wordpress/icons"
 
 import IframeEditor from "./IframeEditor"
 import IframeSave from "./IframeSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface IframeAttributes {
   url: string | undefined

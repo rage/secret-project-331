@@ -1,8 +1,7 @@
-import type { ComponentType } from "react"
 import type {
-  Block as GutenbergBlock,
   BlockAttribute,
   BlockCategory,
+  Block as GutenbergBlock,
   BlockConfiguration as GutenbergBlockConfiguration,
   BlockDeprecation as GutenbergBlockDeprecation,
   BlockEditProps as GutenbergBlockEditProps,
@@ -10,7 +9,9 @@ import type {
   BlockType as GutenbergBlockType,
   BlockVariation as GutenbergBlockVariation,
 } from "@wordpress/blocks"
+import type { ComponentType } from "react"
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type UnknownAttributes = Record<string, unknown>
 type CreateBlock = typeof import("@wordpress/blocks").createBlock
 type CreateBlocksFromInnerBlocksTemplate =
@@ -124,3 +125,4 @@ type UpstreamTemplateInput = NonNullable<Parameters<CreateBlocksFromInnerBlocksT
 export type Template = Exclude<UpstreamTemplateInput[number], GutenbergBlock<UnknownAttributes>>
 
 export type TemplateArray = Template[]
+/* eslint-enable @typescript-eslint/no-explicit-any */

@@ -2,7 +2,6 @@
 
 import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 
@@ -14,6 +13,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ExportPageProps {
   // courseId
@@ -157,7 +157,7 @@ function save(filename: string, data: Uint8Array) {
 
 const exported = dontRenderUntilQueryParametersReady(ExportPage)
 
-// @ts-ignore: hideBreadcrumbs is an addtional property on exported
+// @ts-expect-error: hideBreadcrumbs is an addtional property on exported
 exported.hideBreadcrumbs = true
 
 export default exported

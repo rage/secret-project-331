@@ -17,7 +17,6 @@ import type {
   UserCourseInstanceChapterProgress,
 } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
-import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NextSectionLink, {

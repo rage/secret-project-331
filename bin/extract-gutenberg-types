@@ -9,7 +9,13 @@ CMS_PATH="$BASEDIR/../services/cms/"
 RELATIVE_CMS_PATH=$(realpath --relative-to="$(pwd)" "$CMS_PATH")
 
 run_command cd "$RELATIVE_CMS_PATH" || exit
-run_command pnpm exec tsx scripts/extractGutenbergAttributeTypes.ts
+
+# Register a custom Node ESM resolver hook to work around
+# @wordpress/block-editor importing "diff/lib/diff/character" without a .js
+# suffix (diff@9's package exports only define "./lib/*.js" subpaths, so strict
+# Node ESM would otherwise fail with ERR_PACKAGE_PATH_NOT_EXPORTED).
+HOOK_IMPORT="./scripts/registerDiffResolveHook.mjs"
+run_command env NODE_OPTIONS="${NODE_OPTIONS:-} --import $HOOK_IMPORT" pnpm exec tsx scripts/extractGutenbergAttributeTypes.ts
 
 # Format the generated files with prettier instead of eslint
 run_command pnpm exec prettier --write ../main-frontend/types/GutenbergBlockAttributes.ts ../main-frontend/types/DeprecatedGutenbergBlockAttributes.ts

@@ -10,10 +10,10 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@inquirer/prompts": "^3.0.4"
+    "@inquirer/prompts": "^8.4.2"
   },
   "devDependencies": {
-    "tsx": "^4.19.1",
-    "typescript": "^5.2.2"
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
   }
 }

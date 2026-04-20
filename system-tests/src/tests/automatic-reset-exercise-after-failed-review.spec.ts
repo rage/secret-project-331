@@ -149,23 +149,19 @@ test("Automatic reject and reset submission", async () => {
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
     await selectCourseInstanceIfPrompted(student1Page)
-    await getExerciseRegion(student1Page, EXERCISE_NAME)
+    const exerciseRegion = getExerciseRegion(student1Page, EXERCISE_NAME)
+    await exerciseRegion
       .frameLocator('iframe[title="Exercise 1, task 1 content"]')
       .getByRole("checkbox", { name: "3" })
       .click()
-    await student1Page
-      .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-      .getByRole("button", { name: "Submit" })
-      .click()
-    await expect(
-      student1Page
-        .getByLabel("Exercise:Simple multiple choice with automatic reset on zero score")
-        .getByText("Start peer review"),
-    ).toBeVisible()
+    await exerciseRegion.getByRole("button", { name: "Submit" }).click()
+    await expect(exerciseRegion.getByText("Start peer review")).toBeVisible()
     // Student2 still has reviews preserved
     await student2Page.goto(
       "http://project-331.local/org/uh-mathstat/courses/reject-and-reset-submission-with-peer-reviews-course/chapter-1/page-1",
     )
-    await expect(student2Page.getByText("Your answer has been reviewed")).toBeVisible()
+    await expect(
+      getExerciseRegion(student2Page, EXERCISE_NAME).getByText("Your answer has been reviewed"),
+    ).toBeVisible()
   })
 })

@@ -96,9 +96,13 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
         <IconWrapper>
           <CheckCircle color={baseTheme.colors.green[600]} size={20} />
         </IconWrapper>
-        <TextWrapper role="alert">
-          <SuccessHeader>{props.header ?? t("default-toast-success-title")}</SuccessHeader>
-          <SuccessMessage>{props.message ?? t("default-toast-success-message")}</SuccessMessage>
+        <TextWrapper role="alert" data-testid="toast-notification-success">
+          <SuccessHeader data-testid="toast-notification-success-title">
+            {props.header ?? t("default-toast-success-title")}
+          </SuccessHeader>
+          <SuccessMessage data-testid="toast-notification-success-message">
+            {props.message ?? t("default-toast-success-message")}
+          </SuccessMessage>
         </TextWrapper>
         {props.toastId && (
           <CloseIconWrapper onClick={() => toast.remove(props.toastId)}>

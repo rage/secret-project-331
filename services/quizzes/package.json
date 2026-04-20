@@ -37,7 +37,7 @@
     "@react-stately/select": "^3.10.0",
     "@react-stately/toggle": "^3.10.0",
     "@react-types/dialog": "^3.6.0",
-    "@tanstack/react-query": "^5.99.0",
+    "@tanstack/react-query": "^5.99.2",
     "@types/commonmark": "^0.27.10",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "commonmark": "^0.31.2",
@@ -46,7 +46,7 @@
     "dompurify": "^3.4.0",
     "express": "^5.2.1",
     "http-proxy-middleware": "^3.0.5",
-    "i18next": "^26.0.5",
+    "i18next": "^26.0.6",
     "immer": "^11.1.4",
     "jotai": "^2.19.1",
     "jotai-family": "^1.0.1",
@@ -66,7 +66,7 @@
     "react-spring": "^10.0.3",
     "svgo": "^4.0.1",
     "use-debounce": "^10.1.1",
-    "uuid": "^13.0.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@jest/globals": "^30.3.0",

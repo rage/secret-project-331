@@ -1,8 +1,9 @@
 use crate::azure_chatbot::{
-    LLMRequest, LLMRequestParams, NonThinkingParams, OutputItem, ThinkingParams,
+    InputItem, LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams,
 };
 use crate::llm_utils::{
-    APIMessage, MessageContent, estimate_tokens, make_blocking_llm_request, parse_text_completion,
+    APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
+    parse_text_completion,
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
@@ -46,8 +47,8 @@ pub async fn convert_material_blocks_to_markdown_with_llm(
     task_lm: &TaskLMSpec,
 ) -> anyhow::Result<String> {
     debug!("Starting content conversion with {} blocks", blocks.len());
-    let system_message = APIMessage {
-        message_type: OutputItem::Message {
+    let system_message = APIInputMessage {
+        message_type: InputItem::Message {
             role: MessageRole::System,
             content: MessageContent::Text(SYSTEM_PROMPT.to_string()),
         },
@@ -305,7 +306,7 @@ pub fn append_markdown_with_separator(result: &mut String, new_content: &str) {
 #[instrument(skip(chunks, system_message, app_config, task_lm), fields(num_chunks = chunks.len()))]
 async fn process_chunks(
     chunks: &[String],
-    system_message: &APIMessage,
+    system_message: &APIInputMessage,
     app_config: &ApplicationConfiguration,
     task_lm: &TaskLMSpec,
 ) -> anyhow::Result<String> {
@@ -327,7 +328,7 @@ async fn process_chunks(
 #[instrument(skip(chunk, system_message, app_config, task_lm), fields(chunk_tokens = estimate_tokens(chunk)))]
 async fn process_block_chunk(
     chunk: &str,
-    system_message: &APIMessage,
+    system_message: &APIInputMessage,
     app_config: &ApplicationConfiguration,
     task_lm: &TaskLMSpec,
 ) -> ChatbotResult<String> {
@@ -374,16 +375,16 @@ async fn process_block_chunk(
 /// Prepare messages for the LLM request
 pub fn prepare_llm_messages(
     chunk: &str,
-    system_message: &APIMessage,
-) -> anyhow::Result<Vec<APIMessage>> {
+    system_message: &APIInputMessage,
+) -> anyhow::Result<Vec<APIInputMessage>> {
     let content = format!(
         "{}\n\n{}{}\n{}",
         USER_PROMPT_START, JSON_BEGIN_MARKER, chunk, JSON_END_MARKER
     );
     let messages = vec![
         system_message.clone(),
-        APIMessage {
-            message_type: OutputItem::Message {
+        APIInputMessage {
+            message_type: InputItem::Message {
                 role: MessageRole::User,
                 content: MessageContent::Text(content),
             },
@@ -468,8 +469,8 @@ mod tests {
     fn test_prepare_llm_messages() -> anyhow::Result<()> {
         let blocks = vec![create_test_block("Test content")];
         let blocks_json = blocks_to_json_string(&blocks)?;
-        let system_message = APIMessage {
-            message_type: OutputItem::Message {
+        let system_message = APIInputMessage {
+            message_type: InputItem::Message {
                 role: MessageRole::System,
                 content: MessageContent::Text("System prompt".to_string()),
             },
@@ -480,14 +481,14 @@ mod tests {
         assert_eq!(messages.len(), 2);
         let (msg1_content, msg1_role): (&str, Option<&MessageRole>) =
             match &messages[0].message_type {
-                OutputItem::Message { role, content } => {
+                InputItem::Message { role, content } => {
                     (&content.to_owned().get_content_text(), Some(role))
                 }
                 _ => ("", None),
             };
         let (msg2_content, msg2_role): (&str, Option<&MessageRole>) =
             match &messages[1].message_type {
-                OutputItem::Message { role, content } => {
+                InputItem::Message { role, content } => {
                     (&content.to_owned().get_content_text(), Some(role))
                 }
                 _ => ("", None),

@@ -1,5 +1,7 @@
 use crate::{
-    azure_chatbot::{ChatResponse, LLMRequest, OutputItem, ReasoningOutput, ToolCallType},
+    azure_chatbot::{
+        ChatResponse, InputItem, LLMRequest, OutputItem, ReasoningOutput, ToolCallType,
+    },
     chatbot_error::ChatbotResult,
     prelude::*,
 };
@@ -22,9 +24,127 @@ pub const LLM_API_VERSION: &str = "2024-10-21";
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct APIMessage {
+pub struct APIOutputMessage {
     #[serde(flatten)]
     pub message_type: OutputItem,
+}
+
+/// Common message structure used for LLM API requests
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct APIInputMessage {
+    #[serde(flatten)]
+    pub message_type: InputItem,
+}
+
+impl TryFrom<APIOutputMessage> for APIInputMessage {
+    type Error = ChatbotError;
+    fn try_from(message: APIOutputMessage) -> Result<Self, Self::Error> {
+        match message.message_type {
+            OutputItem::Message { role, content } => Ok(APIInputMessage {
+                message_type: InputItem::Message { role, content },
+            }),
+            OutputItem::FunctionCall {
+                call_id,
+                tool_name,
+                arguments,
+            } => Ok(APIInputMessage {
+                message_type: InputItem::FunctionCall {
+                    call_id,
+                    tool_name,
+                    arguments,
+                },
+            }),
+            OutputItem::FunctionCallOutput { call_id, output } => Ok(APIInputMessage {
+                message_type: InputItem::FunctionCallOutput { call_id, output },
+            }),
+            OutputItem::AzureAiSearchCall { call_id, arguments } => Ok(APIInputMessage {
+                message_type: InputItem::FunctionCall {
+                    call_id,
+                    tool_name: "azure_ai_search".to_string(),
+                    arguments,
+                },
+            }),
+            OutputItem::AzureAiSearchCallOutput { call_id, output } => Ok(APIInputMessage {
+                message_type: InputItem::FunctionCallOutput { call_id, output },
+            }),
+            OutputItem::Reasoning { .. } => Err(ChatbotError::new(
+                ChatbotErrorType::Other,
+                "Reasoning input items not allowed.",
+                None,
+            )),
+        }
+    }
+}
+
+impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
+    type Error = ChatbotError;
+
+    fn try_from(message: ChatbotConversationMessage) -> Result<Self, Self::Error> {
+        let res = match message.message {
+            Message::Text(text_message) => {
+                match text_message.message_role {
+                    MessageRole::User | MessageRole::Assistant => APIInputMessage {
+                        message_type: InputItem::Message {
+                            role: text_message.message_role,
+                            content: MessageContent::Text(text_message.text),
+                        },
+                    },
+                    _ => {
+                        return Err(ChatbotError::new(
+                            ChatbotErrorType::Other,
+                            "IDK what to do with system and developer role messages",
+                            None,
+                        ));
+                    } // todo
+                }
+            }
+            Message::ToolCall(tool_call) => match tool_call.tool_kind {
+                ToolKind::Function => APIInputMessage {
+                    message_type: InputItem::FunctionCall {
+                        call_id: tool_call.tool_call_id,
+                        tool_name: tool_call.tool_name,
+                        arguments: serde_json::to_string(&tool_call.tool_arguments)?,
+                    },
+                },
+                ToolKind::AzureAiSearch => APIInputMessage {
+                    message_type: InputItem::FunctionCall {
+                        call_id: tool_call.tool_call_id,
+                        tool_name: "azure_ai_search".to_string(),
+                        arguments: serde_json::to_string(&tool_call.tool_arguments)?,
+                    },
+                },
+            },
+            Message::ToolOutput(tool_output) => match tool_output.tool_kind {
+                ToolKind::Function => APIInputMessage {
+                    message_type: InputItem::FunctionCallOutput {
+                        call_id: tool_output.tool_call_id,
+                        output: tool_output.output,
+                    },
+                },
+                ToolKind::AzureAiSearch => APIInputMessage {
+                    message_type: InputItem::FunctionCallOutput {
+                        call_id: tool_output.tool_call_id,
+                        output: serde_json::from_str(&tool_output.output)?,
+                    },
+                },
+            },
+            Message::Reasoning(..) => {
+                return Err(ChatbotError::new(
+                    ChatbotErrorType::Other,
+                    "Reasoning input items not allowed.",
+                    None,
+                ));
+            } //TODO TODO
+              /* {
+                  return Err(ChatbotError::new(
+                      ChatbotErrorType::InvalidMessageShape,
+                      "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
+                      None,
+                  ));
+              } */
+        };
+        Result::Ok(res)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -47,7 +167,7 @@ impl MessageContent {
     }
 }
 
-impl APIMessage {
+impl APIOutputMessage {
     /// Create a ChatbotConversationMessage from an APIMessage to save it into the DB.
     /// Notice that the insert operation ignores some of the fields, like timestamps.
     /// `to_chatbot_conversation_message` doesn't set the correct order_number field
@@ -145,13 +265,13 @@ impl APIMessage {
     }
 }
 
-impl TryFrom<ChatbotConversationMessage> for APIMessage {
+impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
     type Error = ChatbotError;
     fn try_from(message: ChatbotConversationMessage) -> ChatbotResult<Self> {
         let res = match message.message {
             Message::Text(text_message) => {
                 match text_message.message_role {
-                    MessageRole::User | MessageRole::Assistant => APIMessage {
+                    MessageRole::User | MessageRole::Assistant => APIOutputMessage {
                         message_type: OutputItem::Message {
                             role: text_message.message_role,
                             content: MessageContent::Text(text_message.text),
@@ -167,14 +287,14 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 }
             }
             Message::ToolCall(tool_call) => match tool_call.tool_kind {
-                ToolKind::Function => APIMessage {
+                ToolKind::Function => APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
                         call_id: tool_call.tool_call_id,
                         tool_name: tool_call.tool_name,
                         arguments: serde_json::to_string(&tool_call.tool_arguments)?,
                     },
                 },
-                ToolKind::AzureAiSearch => APIMessage {
+                ToolKind::AzureAiSearch => APIOutputMessage {
                     message_type: OutputItem::AzureAiSearchCall {
                         call_id: tool_call.tool_call_id,
                         arguments: serde_json::to_string(&tool_call.tool_arguments)?,
@@ -182,13 +302,13 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                 },
             },
             Message::ToolOutput(tool_output) => match tool_output.tool_kind {
-                ToolKind::Function => APIMessage {
+                ToolKind::Function => APIOutputMessage {
                     message_type: OutputItem::FunctionCallOutput {
                         call_id: tool_output.tool_call_id,
                         output: tool_output.output,
                     },
                 },
-                ToolKind::AzureAiSearch => APIMessage {
+                ToolKind::AzureAiSearch => APIOutputMessage {
                     message_type: OutputItem::AzureAiSearchCallOutput {
                         call_id: tool_output.tool_call_id,
                         output: serde_json::from_str(&tool_output.output)?,
@@ -197,7 +317,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
             },
             Message::Reasoning(reasoning) => {
                 if let Some(text) = reasoning.summary {
-                    APIMessage {
+                    APIOutputMessage {
                         message_type: OutputItem::Reasoning {
                             summary: vec![ReasoningOutput {
                                 output_type: "summary_text".to_string(),
@@ -206,7 +326,7 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
                         },
                     }
                 } else {
-                    APIMessage {
+                    APIOutputMessage {
                         message_type: OutputItem::Reasoning { summary: vec![] },
                     }
                 }
@@ -223,9 +343,9 @@ impl TryFrom<ChatbotConversationMessage> for APIMessage {
     }
 }
 
-impl From<ChatbotConversationMessageToolOutput> for APIMessage {
+impl From<ChatbotConversationMessageToolOutput> for APIOutputMessage {
     fn from(value: ChatbotConversationMessageToolOutput) -> Self {
-        APIMessage {
+        APIOutputMessage {
             message_type: OutputItem::FunctionCallOutput {
                 call_id: value.tool_call_id,
                 output: value.output,
@@ -234,9 +354,9 @@ impl From<ChatbotConversationMessageToolOutput> for APIMessage {
     }
 }
 
-impl TryFrom<APIMessage> for ChatbotConversationMessageToolOutput {
+impl TryFrom<APIOutputMessage> for ChatbotConversationMessageToolOutput {
     type Error = ChatbotError;
-    fn try_from(value: APIMessage) -> ChatbotResult<Self> {
+    fn try_from(value: APIOutputMessage) -> ChatbotResult<Self> {
         match value.message_type {
             OutputItem::FunctionCallOutput { call_id, output } => {
                 Ok(ChatbotConversationMessageToolOutput {
@@ -307,19 +427,7 @@ pub struct AzureCompletionRequest {
 #[derive(Deserialize, Debug)]
 pub struct LLMResponse {
     pub id: String,
-    pub output: Vec<APIMessage>,
-}
-
-#[derive(Deserialize, Debug)]
-pub struct LLMOutput {
-    #[serde(rename = "type")]
-    pub output_type: String, // "message"
-    pub message: APIMessage,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-pub struct APIOutputMessage {
-    pub content: Vec<ChatResponse>,
+    pub output: Vec<APIOutputMessage>,
 }
 
 /// Builds common headers for LLM requests

@@ -35,7 +35,9 @@ use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
 use crate::citations::chatbot_cited_documents_to_citations;
-use crate::llm_utils::{APIMessage, MessageContent, estimate_tokens, make_streaming_llm_request};
+use crate::llm_utils::{
+    APIInputMessage, APIOutputMessage, MessageContent, estimate_tokens, make_streaming_llm_request,
+};
 
 use crate::prelude::*;
 
@@ -191,6 +193,26 @@ pub enum OutputItem {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(tag = "type")]
+#[serde(rename_all = "snake_case")]
+pub enum InputItem {
+    Message {
+        role: MessageRole,
+        content: MessageContent,
+    }, // we can get annotations and full text from here, but not yet.
+    FunctionCall {
+        call_id: String,
+        #[serde(rename = "name")]
+        tool_name: String,
+        arguments: String,
+    },
+    FunctionCallOutput {
+        call_id: String,
+        output: String,
+    },
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
 pub struct AiSearchOutput {
     pub get_urls: Vec<Url>,
 }
@@ -305,7 +327,7 @@ pub struct LLMRequestResponseFormatParam {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LLMRequest {
-    pub input: Vec<APIMessage>,
+    pub input: Vec<APIInputMessage>,
     pub model: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub tools: Vec<AzureLLMToolDefinition>,
@@ -367,11 +389,11 @@ impl LLMRequest {
         )
         .await?;
 
-        let mut api_chat_messages: Vec<APIMessage> = conversation_messages
+        let mut api_chat_messages: Vec<APIInputMessage> = conversation_messages
             .into_iter()
             .filter_map(|m| match m.message {
                 Message::Reasoning { .. } => None,
-                _ => Some(APIMessage::try_from(m)),
+                _ => Some(APIInputMessage::try_from(m)),
             })
             .collect::<ChatbotResult<Vec<_>>>()?;
 
@@ -380,8 +402,8 @@ impl LLMRequest {
 
         api_chat_messages.insert(
             0,
-            APIMessage {
-                message_type: OutputItem::Message {
+            APIInputMessage {
+                message_type: InputItem::Message {
                     role: MessageRole::System,
                     content: MessageContent::Text(configuration.prompt.clone()),
                 },
@@ -456,13 +478,19 @@ impl LLMRequest {
     pub async fn update_messages_to_db(
         mut self,
         conn: &mut PgConnection,
-        new_msgs: Vec<APIMessage>,
+        new_msgs: Vec<APIOutputMessage>,
         conversation_id: Uuid,
     ) -> anyhow::Result<Self> {
         for m in new_msgs {
             let converted_msg = m.to_chatbot_conversation_message(conversation_id)?;
             chatbot_conversation_messages::insert(conn, converted_msg).await?;
-            self.input.push(m);
+            match m.message_type {
+                OutputItem::Reasoning { .. } => {}
+                _ => {
+                    let input_message = APIInputMessage::try_from(m)?;
+                    self.input.push(input_message);
+                }
+            }
         }
         Ok(self)
     }
@@ -672,7 +700,7 @@ pub async fn process_output_item(
 ) -> ChatbotResult<ChatbotConversationMessage> {
     match item {
         OutputItem::AzureAiSearchCall { .. } | OutputItem::Reasoning { .. } => {
-            let message = APIMessage { message_type: item }
+            let message = APIOutputMessage { message_type: item }
                 .to_chatbot_conversation_message(conversation_id)?;
 
             ChatbotResult::Ok(chatbot_conversation_messages::insert(conn, message).await?)
@@ -692,7 +720,7 @@ pub async fn process_output_item(
             };
             let get_urls = search_output.get_urls.to_owned();
 
-            let message = APIMessage {
+            let message = APIOutputMessage {
                 message_type: OutputItem::AzureAiSearchCallOutput { call_id, output },
             }
             .to_chatbot_conversation_message(conversation_id)?;
@@ -747,7 +775,7 @@ pub async fn parse_tool<'a>(
     conversation_id: Uuid,
     user_context: &ChatbotUserContext,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<Vec<APIMessage>> {
+) -> anyhow::Result<Vec<APIOutputMessage>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
     let mut event_type = "".to_string();
@@ -786,14 +814,14 @@ pub async fn parse_tool<'a>(
             for (name, id, args) in function_name_id_args.iter() {
                 let tool = get_chatbot_tool(conn, name, args, user_context).await?;
 
-                tool_msgs.push(APIMessage {
+                tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
                     },
                 });
-                tool_msgs.push(APIMessage {
+                tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
                         output: tool.get_tool_output(),

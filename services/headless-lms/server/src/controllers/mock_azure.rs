@@ -1,5 +1,5 @@
 use headless_lms_chatbot::{
-    azure_chatbot::OutputItem, cms_ai_suggestion::USER_PROMPT_PREFIX,
+    azure_chatbot::InputItem, cms_ai_suggestion::USER_PROMPT_PREFIX,
     llm_utils::AzureCompletionRequest, message_suggestion::USER_PROMPT,
 };
 
@@ -61,7 +61,7 @@ async fn mock_azure_chat_completions(
         ))?
         .message_type;
     let message = match message_kind {
-        OutputItem::Message {
+        InputItem::Message {
             role: _role,
             content,
         } => Ok(content.to_owned()),

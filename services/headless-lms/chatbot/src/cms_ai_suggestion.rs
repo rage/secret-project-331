@@ -2,13 +2,13 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, JSONType, LLMRequest, LLMRequestParams,
+        ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, OutputItem, RequestTextOptions, Schema,
         ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
+        APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
         parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
@@ -219,15 +219,15 @@ pub async fn generate_paragraph_suggestions(
         ));
     }
 
-    let system_message = APIMessage {
-        message_type: OutputItem::Message {
+    let system_message = APIInputMessage {
+        message_type: InputItem::Message {
             role: MessageRole::System,
             content: MessageContent::Text(system_instructions),
         },
     };
 
-    let user_message = APIMessage {
-        message_type: OutputItem::Message {
+    let user_message = APIInputMessage {
+        message_type: InputItem::Message {
             role: MessageRole::User,
             content: MessageContent::Text(user_message_content),
         },

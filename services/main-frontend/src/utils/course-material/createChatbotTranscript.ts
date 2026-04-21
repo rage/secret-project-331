@@ -1,7 +1,8 @@
-import { REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
+import { matchSpecifiedCitationNumberRegex, REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
 
 import { renumberFilterCitations } from "@/components/course-material/chatbot/shared/MessageBubble"
 import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import { isChatbotConversationMessageMessage } from "@/shared-module/common/bindings.guard"
 
 export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   let messages = info.current_conversation_messages
@@ -28,30 +29,31 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
       }
       let msg = m.message
 
-      if (m.message_role !== "user" && m.message_role !== "assistant") {
-        // don't put system or tool messages in the transcript
+      if (!isChatbotConversationMessageMessage(msg)) {
+        // don't put tool messages or reasoning in the transcript
         return ""
       }
-      if (m.tool_call_fields.length !== 0) {
-        // don't put tool calls in the transcript
+
+      if (msg.message_role !== "user" && msg.message_role !== "assistant") {
+        // don't put system or tool messages in the transcript
         return ""
       }
       let t = ""
       // the role is either user or assistant because of the condition above
-      let name = m.message_role === "user" ? "You" : bot
+      let name = msg.message_role === "user" ? "You" : bot
       t += `[${name} said:]\n`
 
-      if (hideCitations && m.message_role === "assistant") {
-        t += msg.replace(REMOVE_CITATIONS_REGEX, "") + "\n\n"
+      if (hideCitations && msg.message_role === "assistant") {
+        t += msg.text.replace(REMOVE_CITATIONS_REGEX, "") + "\n\n"
         return t
       }
 
       // if there are citations, process them and modify msg
-      if (m.message_role === "assistant" && msgsWithCitations.has(m.id)) {
+      if (msg.message_role === "assistant" && msgsWithCitations.has(m.id)) {
         let currentCitations = citations.filter((c) => c.conversation_message_id === m.id)
         // citationNumberingMap should contain the same numbers as the filteredCitations array
         let { filteredCitations, citationNumberingMap } = renumberFilterCitations(
-          msg,
+          msg.text,
           currentCitations,
           true,
         )
@@ -67,14 +69,17 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
             // the 1st cit in this message has number 1 in citationNumberingMap
             // add to it the last cit number from the prev message, so that
             // the numbers are unique across the whole transcript.
-            let newCitNumber = citationNumberingMap.get(cit.citation_number) + latestCitNumber
-            msg = msg.replaceAll(`[doc${cit.citation_number}]`, `[doc${newCitNumber}]`)
-            citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`
+            if (isChatbotConversationMessageMessage(msg)) {
+              let newCitNumber = citationNumberingMap.get(cit.citation_number) + latestCitNumber
+              let re = matchSpecifiedCitationNumberRegex(cit.citation_number)
+              msg.text = msg.text.replaceAll(re, `[doc${newCitNumber}]`)
+              citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`
+            }
           })
         // latest_cit_n should equal the largest cit number in this message
         latestCitNumber += filteredCitations.length
       }
-      t += msg + "\n\n"
+      t += msg.text + "\n\n"
 
       return t
     })

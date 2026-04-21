@@ -1,7 +1,8 @@
 // Require imports needs to happen in a specific order.
 
-import type { BlockType } from "@/utils/Gutenberg/types"
 import * as jsdom from "jsdom"
+
+import type { BlockType } from "@/utils/Gutenberg/types"
 const { JSDOM } = jsdom
 
 const dom = new JSDOM(`<body>
@@ -25,11 +26,11 @@ Object.defineProperty(dom.window, "matchMedia", {
     }
   },
 })
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.window = dom.window
 global.document = dom.window.document
 global.navigator = dom.window.navigator
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.CSS = {}
 
 // The following import order matters and are dependant on above window definition.

@@ -36,10 +36,10 @@ Object.defineProperty(dom.window, "matchMedia", {
   },
 })
 
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.window = dom.window
 global.document = dom.window.document
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.CSS = {}
 global.location = dom.window.location
 Object.defineProperty(global, "navigator", {
@@ -58,11 +58,11 @@ const urlThatDoesntCrashWithPaths = function (...args: any[]) {
   if (args[0].startsWith("/")) {
     return new OriginalURL(`https://example.com${args[0]}`)
   }
-  // @ts-ignore: mirrors the function
+  // @ts-expect-error: mirrors the function
   return new OriginalURL(...args)
 }
 urlThatDoesntCrashWithPaths.prototype = URL.prototype
-// @ts-ignore: fake constructor
+// @ts-expect-error: fake constructor
 global.URL = urlThatDoesntCrashWithPaths
 
 class FakeMutationObserver {
@@ -71,7 +71,7 @@ class FakeMutationObserver {
   }
 }
 
-// @ts-ignore: Just to prevent a crash, not used
+// @ts-expect-error: Just to prevent a crash, not used
 global.MutationObserver = FakeMutationObserver
 
 //** Extract Gutenberg block attribute types */
@@ -291,7 +291,7 @@ function addSupportsAttributes(block: BlockType): BlockType {
   }
 
   if (supports.typography?.fontSize) {
-    // @ts-ignore: adding a new attribute
+    // @ts-expect-error: adding a new attribute
     attributes["fontSize"] = {
       type: "string",
     }

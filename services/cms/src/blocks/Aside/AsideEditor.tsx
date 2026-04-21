@@ -2,14 +2,14 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import type { BlockEditProps } from "@/utils/Gutenberg/types"
-import React from "react"
-import { useTranslation } from "@/utils/useCmsTranslation"
 
 import BackgroundColorCustomizer from "../../components/blocks/BackgroundColorCustomizer"
 import BlockWrapper from "../BlockWrapper"
 
 import { AsideComponentProps } from "."
+
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const AsideEditor = ({
   clientId,

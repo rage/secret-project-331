@@ -11,6 +11,7 @@ pub use crate::domain::authorization::{
     Action as Act, AuthUser, Resource as Res, authorize, authorize_access_to_course_material,
     parse_secret_key_from_header, skip_authorize,
 };
+pub(crate) use crate::domain::error::controller_err;
 pub use crate::domain::{
     self,
     error::{ControllerError, ControllerErrorType, ControllerResult},

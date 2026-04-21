@@ -5,10 +5,14 @@ This module provides helper macros that simplify error construction
 for types implementing `BackendError`.
 */
 
-/// Internal helper macro that defines an error creation macro.
+/// Defines a crate-local error creation macro that can be re-exported from a module.
 ///
 /// This avoids using the `paste` crate and keeps the implementation simple.
 /// Each error module should use this to define their own specialized macro.
+///
+/// The generated macro is intentionally not `#[macro_export]`, so callers can
+/// re-export it through a crate prelude without creating a root-level macro and
+/// without triggering `macro_expanded_macro_exports_accessed_by_absolute_paths`.
 ///
 /// # Examples
 ///
@@ -38,7 +42,7 @@ macro_rules! define_err_macro {
         /// // With format!
         /// let err = macro_name!(Generic, format!("Failed: {}", detail));
         /// ```
-        #[macro_export]
+        #[allow(unused_macros)]
         macro_rules! $macro_name {
             // Without source: model_err!(Generic, "message")
             ($variant:ident, $msg:expr) => {
@@ -49,5 +53,8 @@ macro_rules! define_err_macro {
                 <$error>::new(<$error_type>::$variant, $msg, Some($src.into()))
             };
         }
+
+        #[allow(unused_imports)]
+        pub(crate) use $macro_name;
     };
 }

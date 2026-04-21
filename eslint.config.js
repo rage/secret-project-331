@@ -38,6 +38,7 @@ const baseIgnorePatterns = [
   "**/playwright-report/**",
   "**/storybook-static/**",
   "**/services/main-frontend/public/monaco-editor/**",
+  "**/services/tmc/public/pyodide/**",
   "**/services/main-frontend/src/generated/**",
   "**/services/cms/src/generated/**",
   "**/shared-module/packages/common/src/generated/**",

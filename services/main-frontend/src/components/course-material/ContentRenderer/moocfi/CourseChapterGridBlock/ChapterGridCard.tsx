@@ -64,7 +64,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   const courseInstance = useAtomValue(materialInstanceAtom)
 
   const getChapterPageUrl = useQuery({
-    queryKey: [`chapter-grid-chapter`, chapter.id, chapter.front_page_id],
+    queryKey: [`chapter-grid-chapter`, chapter.id, chapter.front_page_id, chapter.chapter_number],
     queryFn: () => {
       if (chapter.front_page_id) {
         return getCourseMaterialPageUrlPath({

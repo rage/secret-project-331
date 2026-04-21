@@ -9,10 +9,6 @@ import {
   fetchExamForTesting,
   getCourseMaterialCoursePageByPath,
 } from "@/generated/course-material-api/sdk.generated"
-import type {
-  CoursePageWithUserData,
-  ExamData,
-} from "@/generated/course-material-api/types.generated"
 import { getCourseMaterialPageRequestHeaders } from "@/utils/courseMaterialPageRequestHeaders"
 
 const QUERY_KEYS = {

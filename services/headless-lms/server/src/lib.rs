@@ -42,11 +42,15 @@ pub type OAuthClient = oauth2::basic::BasicClient<
 Setups file store so that it can be passed to actix web as data.
 Using Arc here so that this can be accessed from all the different worker threads.
 */
-pub fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
+pub async fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
     if env::var("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE").is_ok() {
         info!("Using Google Cloud Storage as the file store");
         let bucket_name = env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME").expect("env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.");
-        Arc::new(GoogleCloudFileStore::new(bucket_name).expect("Failed to initialize file store"))
+        Arc::new(
+            GoogleCloudFileStore::new(bucket_name)
+                .await
+                .expect("Failed to initialize file store"),
+        )
     } else {
         info!("Using local file storage as the file store");
         Arc::new(

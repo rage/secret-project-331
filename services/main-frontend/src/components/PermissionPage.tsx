@@ -21,13 +21,7 @@ import {
   addRole as addRoleFromApi,
   removeRole as removeRoleFromApi,
 } from "@/generated/api/sdk.generated"
-import type {
-  GetRolesData,
-  PendingRole,
-  RoleDomain,
-  RoleUser,
-  UserRole,
-} from "@/generated/api/types.generated"
+import type { GetRolesData, RoleDomain, RoleUser, UserRole } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"

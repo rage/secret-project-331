@@ -80,7 +80,7 @@ test("Organization workflow", async ({ page }) => {
       async () => {
         await page.getByRole("button", { name: "Confirm" }).click()
       },
-      /Successfully deleted|Operation successful!?/,
+      "Successfully deleted",
     )
     await expect(page.getByRole("heading", { name: "New Test Edited" })).toHaveCount(0)
   })

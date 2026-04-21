@@ -8,8 +8,10 @@ import { useTranslation } from "react-i18next"
 
 import NewEmailTemplateForm from "./NewEmailTemplateForm"
 
-import { deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { getCourseInstanceEmailTemplatesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  deleteEmailTemplateMutation as deleteEmailTemplateMutationOptions,
+  getCourseInstanceEmailTemplatesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import { createCourseInstanceEmailTemplate } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

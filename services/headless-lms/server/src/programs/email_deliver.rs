@@ -389,7 +389,7 @@ async fn record_message_build_failure(
 
 pub async fn main() -> anyhow::Result<()> {
     tracing_subscriber::fmt().init();
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     tracing::info!("Email sender starting up...");
 
     if std::env::var("SMTP_USER").is_err() || std::env::var("SMTP_PASS").is_err() {

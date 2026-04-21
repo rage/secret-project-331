@@ -159,7 +159,7 @@ async fn upload_from_exercise_service(
     payload: Multipart,
     file_store: web::Data<dyn FileStore>,
     user: Option<AuthUser>,
-    upload_claim: Result<UploadClaim<'static>, ControllerError>,
+    upload_claim: Result<UploadClaim, ControllerError>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<HashMap<String, String>>> {
     let mut conn = pool.acquire().await?;

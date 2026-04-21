@@ -1,9 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
 import {
   analyzeHeadingHierarchy,
@@ -13,6 +11,8 @@ import {
 
 import Button from "@/shared-module/common/components/Button"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface HeadingHierarchyButtonProps {
   content: BlockInstance[]

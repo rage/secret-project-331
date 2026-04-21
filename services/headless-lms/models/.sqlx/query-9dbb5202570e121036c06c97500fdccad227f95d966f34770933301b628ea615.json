@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (ph.page_id)\n  ph.id,\n  ph.page_id\nFROM page_history ph\n  INNER JOIN pages p ON p.id = ph.page_id\nWHERE p.course_id = ANY($1)\n  AND ph.deleted_at IS NULL\nORDER BY ph.page_id,\n  ph.created_at DESC,\n  ph.id DESC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "page_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false
+    ]
+  },
+  "hash": "9dbb5202570e121036c06c97500fdccad227f95d966f34770933301b628ea615"
+}

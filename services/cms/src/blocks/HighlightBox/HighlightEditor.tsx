@@ -3,7 +3,6 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
@@ -11,6 +10,7 @@ import BlockWrapper from "../BlockWrapper"
 import { HighlightAttributes } from "."
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
 
 const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<HighlightAttributes>>> = ({
   clientId,

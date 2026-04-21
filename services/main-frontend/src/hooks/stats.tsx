@@ -111,7 +111,7 @@ const buildDisabledQueryOptions = <TData,>(
   requiredValues: readonly unknown[],
 ): BuiltQueryOptions<TData> =>
   queryOptions<TData, Error>({
-    queryKey,
+    queryKey: [...queryKey, ...requiredValues],
     queryFn: async () => {
       requiredValues.forEach((value) => assertNotNullOrUndefined(value))
       throw new Error("Disabled query executed unexpectedly")

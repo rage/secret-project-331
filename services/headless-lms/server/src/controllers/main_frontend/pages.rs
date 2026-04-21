@@ -329,7 +329,7 @@ async fn get_all_pages_by_course_id(
 
     let mut pages = models::pages::get_pages_by_course_id(&mut conn, *course_id).await?;
 
-    pages.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    pages.sort_by_key(|a| a.order_number);
 
     token.authorized_ok(web::Json(pages))
 }

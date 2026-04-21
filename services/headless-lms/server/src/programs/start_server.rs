@@ -12,7 +12,7 @@ use actix_web::{
     cookie::{Key, SameSite},
     middleware::Logger,
 };
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use listenfd::ListenFd;
 use rustls::crypto::ring;
 use std::env;
@@ -39,6 +39,7 @@ pub async fn main() -> anyhow::Result<()> {
         info!("***********************************");
     }
     let server_config = ServerConfigBuilder::try_from_env()
+        .await
         .expect("Failed to create server config builder")
         .build()
         .await

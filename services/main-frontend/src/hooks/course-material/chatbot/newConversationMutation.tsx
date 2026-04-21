@@ -3,10 +3,7 @@
 import { UseQueryResult } from "@tanstack/react-query"
 
 import { newChatbotConversation } from "@/generated/course-material-api/sdk.generated"
-import type {
-  ChatbotConversation,
-  ChatbotConversationInfo,
-} from "@/generated/course-material-api/types.generated"
+import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const useNewConversationMutation = (

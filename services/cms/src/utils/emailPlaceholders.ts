@@ -1,4 +1,4 @@
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 export const PLACEHOLDER_RESET_LINK = "RESET_LINK"
 export const PLACEHOLDER_CODE = "CODE"

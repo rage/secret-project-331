@@ -2524,12 +2524,12 @@ WHERE page_id IN (
             let page_id = page.id;
             let mut exercises = page_to_exercises.remove(&page_id).unwrap_or_default();
 
-            exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+            exercises.sort_by_key(|a| a.order_number);
             PageWithExercises { page, exercises }
         })
         .collect();
 
-    chapter_pages_with_exercises.sort_by(|a, b| a.page.order_number.cmp(&b.page.order_number));
+    chapter_pages_with_exercises.sort_by_key(|a| a.page.order_number);
 
     Ok(chapter_pages_with_exercises)
 }

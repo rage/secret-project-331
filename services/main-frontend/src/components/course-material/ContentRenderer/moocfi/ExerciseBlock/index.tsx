@@ -34,7 +34,6 @@ import {
 import {
   CourseMaterialExercise,
   StudentExerciseSlideSubmission,
-  StudentExerciseSlideSubmissionResult,
 } from "@/generated/course-material-api/types.generated"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,

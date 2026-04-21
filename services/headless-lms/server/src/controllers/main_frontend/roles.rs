@@ -1,5 +1,6 @@
 use crate::prelude::*;
 use models::{
+    error::TryToOptional,
     pending_roles::{self, PendingRole},
     roles::{self, RoleDomain, RoleInfo, RoleUser},
     users,
@@ -63,7 +64,9 @@ pub async fn set(
     )
     .await?;
 
-    let target_user = users::try_get_by_email(&mut conn, &role_info.email).await?;
+    let target_user = users::get_by_email(&mut conn, &role_info.email)
+        .await
+        .optional()?;
     if let Some(target_user) = target_user {
         roles::insert(&mut conn, target_user.id, role_info.role, role_info.domain).await?;
         let token = skip_authorize();

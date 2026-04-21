@@ -1,4 +1,4 @@
-import { BlockInstance } from "@wordpress/blocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 export function removeUnsupportedBlockType(blocks: BlockInstance[]): BlockInstance[] {
   return blocks.map((block) => {

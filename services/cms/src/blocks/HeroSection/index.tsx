@@ -1,7 +1,6 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
@@ -9,6 +8,7 @@ import HeroSectionEditor from "./HeroSectionEditor"
 import HeroSectionSave from "./HeroSectionSave"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface HeroSectionAttributes {
   title: string

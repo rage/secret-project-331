@@ -90,6 +90,7 @@ VALUES ($1, $2, $3, $4)
     Ok(user)
 }
 
+/// Looks up a user by email (case-insensitive) using the `lower(email)` index on `user_details`.
 pub async fn get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<User> {
     let user = sqlx::query_as!(
         User,
@@ -97,27 +98,11 @@ pub async fn get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<U
 SELECT users.*
 FROM user_details
 JOIN users ON (user_details.user_id = users.id)
-WHERE user_details.email = $1
+WHERE lower(user_details.email) = lower($1)
         ",
         email
     )
     .fetch_one(conn)
-    .await?;
-    Ok(user)
-}
-
-pub async fn try_get_by_email(conn: &mut PgConnection, email: &str) -> ModelResult<Option<User>> {
-    let user = sqlx::query_as!(
-        User,
-        "
-SELECT users.*
-FROM user_details
-JOIN users ON (user_details.user_id = users.id)
-WHERE user_details.email = $1
-        ",
-        email
-    )
-    .fetch_optional(conn)
     .await?;
     Ok(user)
 }

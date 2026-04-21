@@ -1,6 +1,6 @@
 "use client"
 
-import i18n from "i18next"
+import { changeLanguage } from "i18next"
 import { cloneDeep } from "lodash"
 import { orderBy } from "natural-orderby"
 import { useRef, useState } from "react"
@@ -183,7 +183,7 @@ export function useIframeProtocol() {
           (messageData as { language?: string }).language ??
           (messageData as { data?: { language?: string } }).data?.language
         if (typeof language === "string") {
-          void i18n.changeLanguage(language)
+          void changeLanguage(language)
         }
       } else {
         logError("Unexpected message from parent")

@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useContext } from "react"
-import { useTranslation } from "react-i18next"
 import { useMemoOne } from "use-memo-one"
 import { v5 } from "uuid"
 
@@ -24,6 +23,7 @@ import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const VIEW_TYPE = "exercise-editor"
 const UNEXPECTED_MESSAGE_ERROR = "Unexpected message or structure is not valid."

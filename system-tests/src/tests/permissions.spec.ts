@@ -1,3 +1,4 @@
+/* eslint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import {

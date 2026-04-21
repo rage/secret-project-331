@@ -38,10 +38,10 @@ pub async fn test_config() -> ServerConfig {
         auth_url: "http://example.com".parse().unwrap(),
         token_url: "http://example.com/token".parse().unwrap(),
         icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
-        file_store: Arc::new(futures::executor::block_on(async {
+        file_store: Arc::new(
             LocalFileStore::new("uploads".into(), "http://localhost:3000".to_string())
-                .expect("Failed to initialize test file store")
-        })),
+                .expect("Failed to initialize test file store"),
+        ),
         app_conf: ApplicationConfiguration {
             test_mode: true,
             base_url: "http://project-331.local".to_string(),
@@ -81,7 +81,7 @@ async fn get_or_init_db() -> String {
     }
 
     // initialize logging and db
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     let db = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string());
     let _ = setup_tracing();

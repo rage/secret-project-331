@@ -233,7 +233,7 @@ AND deleted_at IS NULL
     .fetch_all(&mut *tx)
     .await?;
     // Should have the same order as in the conversation.
-    msgs.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    msgs.sort_by_key(|a| a.order_number);
     let mut res = vec![];
     for m in msgs {
         let msg = message_row_to_message(&mut tx, m).await?;

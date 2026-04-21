@@ -7,7 +7,7 @@ test.use({
   storageState: "src/states/user@example.com.json",
 })
 
-test.describe(() => {
+test.describe("Quizzes vector feedback", () => {
   // Chrome sometimes does not render the ui correctly after resizing the window without reloading the page.
   // This does not seem to be something we can fix, so we'll retry
   test.describe.configure({ retries: 4 })

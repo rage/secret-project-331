@@ -1,9 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
@@ -25,7 +23,9 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PeerReviewManagerProps {
   // courseId

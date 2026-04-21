@@ -2,7 +2,7 @@ use std::env;
 
 use crate::{domain::models_requests, setup_tracing};
 use anyhow::Result;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use futures::stream::{self, StreamExt};
 use headless_lms_models::{
     exercise_service_info::{ExerciseServiceInfo, fetch_and_upsert_service_info},

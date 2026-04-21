@@ -1,5 +1,6 @@
 import type { EditorSelection } from "@wordpress/block-editor"
-import type { BlockInstance } from "@wordpress/blocks"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 export interface GutenbergEditorSelection {
   selectionStart?: EditorSelection

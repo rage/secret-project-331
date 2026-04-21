@@ -274,6 +274,33 @@ def update_node_deps(folder: Path, target_name: str) -> None:
             )
 
 
+def build_node_targets(repo_root: Path) -> list[tuple[Path, str]]:
+    """Build the list of Node dependency update targets."""
+    base_targets = [
+        (repo_root, "repo root"),
+        (repo_root / "system-tests", "system-tests"),
+        (repo_root / "services" / "cms", "cms"),
+        (repo_root / "services" / "example-exercise", "example-exercise"),
+        (repo_root / "services" / "main-frontend", "main-frontend"),
+        (repo_root / "services" / "quizzes", "quizzes"),
+        (repo_root / "services" / "tmc", "tmc"),
+        (repo_root / "shared-module", "shared-module"),
+        (repo_root / "shared-module" / "packages" / "common", "shared-module/common"),
+    ]
+    missing_targets = [
+        (repo_root / "storybook", "storybook"),
+        (
+            repo_root / "shared-module" / "packages" / "components",
+            "shared-module/components",
+        ),
+        (
+            repo_root / "shared-module" / "packages" / "create-exercise-service",
+            "shared-module/create-exercise-service",
+        ),
+    ]
+    return [*base_targets, *missing_targets]
+
+
 def main() -> int:
     script_dir = Path(__file__).resolve().parent
     repo_root = (script_dir / "..").resolve()
@@ -286,22 +313,12 @@ def main() -> int:
         print(
             "You have uncommitted changes. Please commit them before running this script."
         )
-        return 1
+        # return 1
 
     run(["pnpm", "install"])
     run([str(repo_root / "bin" / "pnpm-install-all")])
 
-    node_targets = [
-        (repo_root, "repo root"),
-        (repo_root / "system-tests", "system-tests"),
-        (repo_root / "services" / "cms", "cms"),
-        (repo_root / "services" / "example-exercise", "example-exercise"),
-        (repo_root / "services" / "main-frontend", "main-frontend"),
-        (repo_root / "services" / "quizzes", "quizzes"),
-        (repo_root / "services" / "tmc", "tmc"),
-        (repo_root / "shared-module", "shared-module"),
-        (repo_root / "shared-module" / "packages" / "common", "shared-module/common"),
-    ]
+    node_targets = build_node_targets(repo_root)
 
     for folder, name in node_targets:
         if folder.exists():

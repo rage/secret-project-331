@@ -75,7 +75,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
               input {
                 border: 1px solid ${baseTheme.colors.gray[500]} !important;
                 border-radius: 4px !important;
-                background: #ffffff !important;
+                background: ${baseTheme.colors.clear[100]} !important;
                 font-family: ${headingFont};
                 font-weight: ${fontWeights.semibold};
                 color: ${baseTheme.colors.gray[700]};
@@ -96,7 +96,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
         </p>
         <div
           className={css`
-            background: #ffffff;
+            background: ${baseTheme.colors.clear[100]};
             border: 1px dashed ${baseTheme.colors.gray[600]};
             border-radius: 4px;
             padding: 1rem;

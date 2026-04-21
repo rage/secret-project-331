@@ -15,7 +15,7 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
-use headless_lms_models::ModelResult;
+use headless_lms_models::{ModelErrorType, ModelResult};
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
     user_passwords, users,
@@ -148,15 +148,20 @@ pub async fn signup(
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
     if user.is_none() {
-        if matches!(
-            models::users::get_by_email(&mut conn, &user_details.email).await,
-            Ok(_)
-        ) {
-            let token = skip_authorize();
-            return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+        match models::users::get_by_email(&mut conn, &user_details.email).await {
+            Ok(_) => {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+                ) => {}
+            Err(error) => return Err(error.into()),
         }
 
-        let upstream_id = tmc_client
+        let upstream_id = match tmc_client
             .post_new_user_to_tmc(
                 NewUserInfo {
                     first_name: user_details.first_name.clone(),
@@ -169,24 +174,33 @@ pub async fn signup(
                 app_conf.as_ref(),
             )
             .await
-            .map_err(|e| {
-                let error_message = e.message().to_string();
-                if matches!(e.error_type(), &UtilErrorType::TmcErrorResponse)
+        {
+            Ok(upstream_id) => upstream_id,
+            Err(error) => {
+                let error_message = error.message().to_string();
+                if matches!(error.error_type(), &UtilErrorType::TmcErrorResponse)
                     && is_duplicate_email_error_message(&error_message)
                 {
-                    return ControllerError::new(
-                        ControllerErrorType::BadRequest,
-                        "Email already exists.".to_string(),
-                        Some(anyhow!(e)),
-                    );
+                    let token = skip_authorize();
+                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
                 }
-                let error_type = match e.error_type() {
-                    UtilErrorType::TmcHttpError => ControllerErrorType::InternalServerError,
-                    UtilErrorType::TmcErrorResponse => ControllerErrorType::BadRequest,
-                    _ => ControllerErrorType::InternalServerError,
+                return match error.error_type() {
+                    UtilErrorType::TmcErrorResponse => {
+                        Err(controller_err!(BadRequest, error_message, anyhow!(error)))
+                    }
+                    UtilErrorType::TmcHttpError => Err(controller_err!(
+                        InternalServerError,
+                        error_message,
+                        anyhow!(error)
+                    )),
+                    _ => Err(controller_err!(
+                        InternalServerError,
+                        error_message,
+                        anyhow!(error)
+                    )),
                 };
-                ControllerError::new(error_type, error_message, Some(anyhow!(e)))
-            })?;
+            }
+        };
         let password_secret = SecretString::new(user_details.password.into());
 
         let user = models::users::insert_with_upstream_id_and_moocfi_id(
@@ -197,21 +211,25 @@ pub async fn signup(
             upstream_id,
             PKeyPolicy::Generate.into_uuid(),
         )
-        .await
-        .map_err(|e| {
-            if is_duplicate_email_error_message(e.message()) {
-                return ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Email already exists.".to_string(),
-                    Some(anyhow!(e)),
-                );
-            }
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to insert user.".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
+        .await;
+        let user = match user {
+            Ok(user) => user,
+            Err(error) => match error.error_type() {
+                ModelErrorType::DatabaseConstraint { constraint, .. }
+                    if constraint == "users_email" =>
+                {
+                    let token = skip_authorize();
+                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                }
+                _ => {
+                    return Err(controller_err!(
+                        InternalServerError,
+                        "Failed to insert user.".to_string(),
+                        anyhow!(error)
+                    ));
+                }
+            },
+        };
 
         let country = user_details.country.clone();
         models::user_details::update_user_country(&mut conn, user.id, &country).await?;
@@ -274,12 +292,17 @@ async fn handle_test_mode_signup(
 
     warn!("Handling signup in test mode. No real account is created.");
 
-    if matches!(
-        models::users::get_by_email(conn, &user_details.email).await,
-        Ok(_)
-    ) {
-        let token = skip_authorize();
-        return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+    match models::users::get_by_email(conn, &user_details.email).await {
+        Ok(_) => {
+            let token = skip_authorize();
+            return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+        }
+        Err(error)
+            if matches!(
+                error.error_type(),
+                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+            ) => {}
+        Err(error) => return Err(error.into()),
     }
 
     let user_id = models::users::insert(

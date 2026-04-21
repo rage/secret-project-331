@@ -55,7 +55,7 @@ const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<Highlight
               border: 1px solid ${baseTheme.colors.gray[500]};
               border-radius: 4px;
               padding: 0.5rem 0.75rem;
-              background: #ffffff;
+              background: ${baseTheme.colors.clear[100]};
               color: ${baseTheme.colors.green[700]};
               font-weight: 700;
               font-family: ${monospaceFont};
@@ -85,7 +85,7 @@ const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<Highlight
               border: 1px solid ${baseTheme.colors.gray[500]};
               border-radius: 4px;
               padding: 0.5rem 0.75rem;
-              background: #ffffff;
+              background: ${baseTheme.colors.clear[100]};
             `}
             tagName="div"
             value={content}

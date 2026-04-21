@@ -1,7 +1,6 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import React, { useContext, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,8 +11,8 @@ import Button from "@/shared-module/common/components/Button"
 import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { postAuthLogout } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
+import useLogout from "@/shared-module/common/hooks/useLogout"
 import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme } from "@/shared-module/common/styles"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
@@ -33,7 +32,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   const loginStateContext = useContext(LoginStateContext)
   const [showSettings, setShowSettings] = useState<boolean>(false)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
-  const queryClient = useQueryClient()
+  const { logout } = useLogout()
   const courseId = useAtomValue(currentCourseIdAtom)
 
   const permissionCheck = useAuthorizeMultiple(
@@ -56,15 +55,6 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
-  }
-
-  const submitLogout = async () => {
-    await postAuthLogout()
-    queryClient.removeQueries()
-    await loginStateContext.refresh()
-    setTimeout(() => {
-      queryClient.refetchQueries()
-    }, 100)
   }
 
   // eslint-disable-next-line i18next/no-literal-string
@@ -137,7 +127,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
               `}
               size="medium"
               variant="primary"
-              onClick={submitLogout}
+              onClick={logout}
             >
               {t("log-out")}
             </Button>

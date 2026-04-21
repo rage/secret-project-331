@@ -313,7 +313,7 @@ def main() -> int:
         print(
             "You have uncommitted changes. Please commit them before running this script."
         )
-        # return 1
+        return 1
 
     run(["pnpm", "install"])
     run([str(repo_root / "bin" / "pnpm-install-all")])

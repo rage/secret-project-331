@@ -79,59 +79,6 @@ pub enum ContentFilterSource {
     Completion,
 }
 
-/// Data in a streamed response chunk
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Choice {
-    pub content_filter_results: Option<ContentFilterResults>,
-    pub delta: Option<Delta>,
-    pub finish_reason: Option<String>,
-    pub index: i32,
-}
-
-/// Content in a streamed response chunk Choice
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Delta {
-    pub content: Option<String>,
-    pub context: Option<DeltaContext>,
-    pub tool_calls: Option<Vec<ToolCallInDelta>>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct DeltaContext {
-    pub citations: Vec<Citation>,
-}
-
-/// A streamed tool call from Azure
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ToolCallInDelta {
-    pub id: Option<String>,
-    pub function: DeltaTool,
-    #[serde(rename = "type")]
-    pub tool_type: Option<ToolCallType>,
-}
-
-/// Streamed tool call content
-#[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct DeltaTool {
-    #[serde(default)]
-    pub arguments: String,
-    pub name: Option<String>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum ToolCallType {
-    Function,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Citation {
-    pub content: String,
-    pub title: String,
-    pub url: String,
-    pub filepath: String,
-}
-
 /// Response received from LLM API
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Response {
@@ -727,6 +674,7 @@ pub async fn process_output_item(
 
             let conversation_message = chatbot_conversation_messages::insert(conn, message).await?;
 
+            // wrong message id
             chatbot_cited_documents_to_citations(
                 conn,
                 get_urls,

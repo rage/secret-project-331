@@ -259,7 +259,7 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
         Message::ToolOutput(tool_output) => {
             format!("Tool output: {}\n\n", tool_output.output) // todo: get the tool name
         }
-        Message::Reasoning(reasoning) => "".to_string(), // todo: do we want to put it in
+        Message::Reasoning(..) => "".to_string(),
     }
 }
 

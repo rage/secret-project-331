@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, OutputItem, RequestTextOptions, Schema,
+        LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         ThinkingParams,
     },
     content_cleaner::calculate_safe_token_limit,

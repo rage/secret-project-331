@@ -7,16 +7,18 @@ import {
   UseMutationOptions,
   UseMutationResult,
 } from "@tanstack/react-query"
+import { BellXmark } from "@vectopus/atlas-icons-react"
+import { ReactNode } from "react"
 import toast, { Toast, ToastOptions } from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
-import DeleteNotification from "../components/Notifications/Delete"
 import ErrorNotification from "../components/Notifications/Error"
 import LoadingNotification from "../components/Notifications/Loading"
 import SuccessNotification from "../components/Notifications/Success"
 import { isAppApiError } from "../errors/AppApiError"
 import { normalizeErrorForDisplay } from "../errors/normalizeErrorForDisplay"
 import { resolveErrorDisplayCopy } from "../errors/resolveErrorDisplayCopy"
+import { baseTheme } from "../styles"
 
 import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfinitely"
 
@@ -38,6 +40,14 @@ interface DisableNotifications {
 
 type NotificationOptions = EnableNotifications | DisableNotifications
 
+interface SuccessNotificationDisplayOptions {
+  header?: string
+  message?: string
+  icon?: ReactNode
+  closeHoverBackgroundColor?: string
+  deleteVariant?: boolean
+}
+
 export default function useToastMutation<
   TData = unknown,
   TError = unknown,
@@ -51,14 +61,21 @@ export default function useToastMutation<
   const { t } = useTranslation()
   const showToastInfinitely = useSetShowStuffInfinitelyInSystemTestScreenshots()
   let toastId = ""
-  const displaySuccessNotification = (notificationOptions: EnableNotifications) => {
+  /** Shows a success toast with method-specific defaults and optional visual overrides. */
+  const displaySuccessNotification = (
+    notificationOptions: EnableNotifications,
+    options: SuccessNotificationDisplayOptions,
+  ) => {
     toast.custom(
       (toast: Toast) => {
         return (
           <SuccessNotification
-            header={notificationOptions.successHeader}
-            message={notificationOptions.successMessage}
+            header={options.header}
+            message={options.message}
             {...(notificationOptions.dismissable ? { toastId: toast.id } : {})}
+            icon={options.icon}
+            closeHoverBackgroundColor={options.closeHoverBackgroundColor}
+            deleteVariant={options.deleteVariant}
           />
         )
       },
@@ -91,28 +108,30 @@ export default function useToastMutation<
       if (notificationOptions.notify) {
         // Remove old toasts
         toast.remove()
+        const isDeleteMethod = notificationOptions.method === "DELETE"
+        const successDisplayOptions: SuccessNotificationDisplayOptions = {
+          header: notificationOptions.successHeader,
+          message: notificationOptions.successMessage,
+          deleteVariant: isDeleteMethod,
+          ...(isDeleteMethod
+            ? {
+                icon: <BellXmark color={baseTheme.colors.red[700]} size={20} />,
+                closeHoverBackgroundColor: baseTheme.colors.gray[100],
+              }
+            : {}),
+        }
         switch (notificationOptions.method) {
           case "PUT":
-            displaySuccessNotification(notificationOptions)
+            displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
           case "POST":
-            displaySuccessNotification(notificationOptions)
+            displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
           case "DELETE":
-            toast.custom(
-              <DeleteNotification
-                header={notificationOptions.successHeader}
-                message={notificationOptions.successMessage}
-                {...(notificationOptions.dismissable ? { id: toastId } : {})}
-              />,
-              {
-                ...notificationOptions.toastOptions,
-                id: toastId,
-              },
-            )
+            displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
           default:
-            displaySuccessNotification(notificationOptions)
+            displaySuccessNotification(notificationOptions, successDisplayOptions)
         }
       }
       if (mutationOptions?.onSuccess) {

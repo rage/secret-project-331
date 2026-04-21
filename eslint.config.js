@@ -1,5 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-
 import js from "@eslint/js"
 import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
@@ -48,6 +46,7 @@ const baseIgnorePatterns = [
   "**/GutenbergBlockAttributes.ts",
   "**/*.guard.ts",
   "**/DeprecatedGutenbergBlockAttributes.ts",
+  "**/*.generated.*",
 ]
 
 const getIgnorePatterns = (prefix = "") =>

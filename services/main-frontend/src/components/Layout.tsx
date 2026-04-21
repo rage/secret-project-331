@@ -10,7 +10,6 @@ import React, { ReactNode } from "react"
 import Topbar from "./Topbar"
 
 import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
-import type { PrivacyLink } from "@/generated/course-material-api/types.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"

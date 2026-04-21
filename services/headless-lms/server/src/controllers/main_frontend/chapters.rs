@@ -364,7 +364,7 @@ async fn get_all_chapters_by_course_id(
 
     let mut chapters = models::chapters::course_chapters(&mut conn, *course_id).await?;
 
-    chapters.sort_by(|a, b| a.chapter_number.cmp(&b.chapter_number));
+    chapters.sort_by_key(|a| a.chapter_number);
 
     token.authorized_ok(web::Json(chapters))
 }

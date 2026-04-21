@@ -20,7 +20,6 @@ import PageContext, {
   type PageState,
 } from "@/contexts/course-material/PageContext"
 import { getCourseMaterialPrivacyLink } from "@/generated/course-material-api/sdk.generated"
-import type { PrivacyLink } from "@/generated/course-material-api/types.generated"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import Footer from "@/shared-module/common/components/Footer"
 import {

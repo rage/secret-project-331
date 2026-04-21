@@ -39,7 +39,7 @@ pub struct ServerConfigBuilder {
 }
 
 impl ServerConfigBuilder {
-    pub fn try_from_env() -> anyhow::Result<Self> {
+    pub async fn try_from_env() -> anyhow::Result<Self> {
         Ok(Self {
             database_url: env::var("DATABASE_URL").context("DATABASE_URL must be defined")?,
             oauth_application_id: env::var("OAUTH_APPLICATION_ID")
@@ -53,7 +53,7 @@ impl ServerConfigBuilder {
                 .context("Failed to parse token url")?,
             icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
                 .context("ICU4X_POSTCARD_PATH must be defined")?,
-            file_store: crate::setup_file_store(),
+            file_store: crate::setup_file_store().await,
             app_conf: ApplicationConfiguration::try_from_env()?,
             redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
             jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,

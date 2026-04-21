@@ -1,15 +1,15 @@
-import DOMPurify from "dompurify"
+import DOMPurify, { type Config } from "dompurify"
 
 import { StringWithHTML } from "@/../types"
 
 export const sanitizeCourseMaterialHtml = (
   dirty: string | undefined | StringWithHTML,
-  config?: DOMPurify.Config,
+  config?: Config,
 ): string => {
   if (dirty === undefined) {
     return ""
   }
-  const newConfig: DOMPurify.Config = {
+  const newConfig: Config = {
     ...config,
     RETURN_TRUSTED_TYPE: true,
   }

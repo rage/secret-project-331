@@ -4,9 +4,10 @@ import { css } from "@emotion/css"
 import { Notice } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "react-i18next"
 
 import { shouldWarnAboutMissingParagraphWrapperInCustomHtml } from "./customHtmlParagraphWarning"
+
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface CustomHtmlBlockProps {
   name: string

@@ -193,7 +193,7 @@ async fn get_peer_review_for_exercise(
                         .peer_or_self_review_config
                         .id,
                 )
-                .sign(&jwt_key),
+                .sign(&jwt_key)?,
             )
         } else {
             None

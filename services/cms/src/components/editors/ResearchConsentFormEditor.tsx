@@ -1,9 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import { blockTypeMapForResearchConsentForm } from "../../blocks"
 import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
@@ -20,6 +18,8 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ResearchFormEditorProps {
   data: ResearchForm

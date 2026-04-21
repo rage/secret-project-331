@@ -1,12 +1,13 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
 import AsideWithImageEditor from "./AsideWithImageEditor"
 import AsideWithImageSave from "./AsideWithImageSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface AsideWithImageBlockAttributes {
   title: string

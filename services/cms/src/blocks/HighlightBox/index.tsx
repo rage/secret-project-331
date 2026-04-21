@@ -1,11 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+import { formatLTR } from "@wordpress/icons"
 
 import HighlightEditor from "./HighlightEditor"
 import HighlightSave from "./HighlightSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface HighlightAttributes {
   title: string
@@ -28,7 +29,7 @@ const HighlightBoxConfiguration: BlockConfiguration<HighlightAttributes> = {
       selector: "span",
     },
   },
-  icon: formatLtr,
+  icon: formatLTR,
   edit: HighlightEditor,
   save: HighlightSave,
 }

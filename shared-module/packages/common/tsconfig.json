@@ -5,7 +5,7 @@
     "typeRoots": ["./src/types", "types", "../node_modules/@types", "node_modules/@types"],
     "jsx": "preserve",
     "lib": ["dom", "es2017"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
     "strict": true,

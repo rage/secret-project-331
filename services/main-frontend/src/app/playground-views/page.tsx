@@ -249,13 +249,13 @@ const IframeViewPlayground: React.FC = () => {
   }, [isValidServiceInfo, url])
 
   const publicSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
       isValidServiceInfo,
       privateSpecValidJson,
       privateSpecParsed,
       exerciseServiceHost,
+      serviceInfoQuery.data?.public_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
@@ -305,7 +305,6 @@ const IframeViewPlayground: React.FC = () => {
           throw new Error("Requirements for the mutation not satisfied.")
         }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
           grading_update_url: buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
             websocket_id: String(websocketId),
           }),
@@ -366,13 +365,13 @@ const IframeViewPlayground: React.FC = () => {
   }, [websocket, submitAnswerMutation])
 
   const modelSolutionSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
       isValidServiceInfo,
       privateSpecValidJson,
       privateSpecParsed,
       exerciseServiceHost,
+      serviceInfoQuery.data?.model_solution_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {

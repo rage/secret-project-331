@@ -2,7 +2,6 @@
 
 import toast, { Toast } from "react-hot-toast"
 
-import DeleteNotification from "./Delete"
 import ErrorNotification from "./Error"
 import LoadingNotification from "./Loading"
 import SuccessNotification from "./Success"
@@ -31,17 +30,6 @@ export const showErrorNotification = ({
 }: NotificationOptions) => {
   return toast.custom(
     (t: Toast) => <ErrorNotification header={header} message={message} toastId={t.id} />,
-    { duration },
-  )
-}
-
-export const showDeleteNotification = ({
-  header,
-  message,
-  duration = 5000,
-}: NotificationOptions) => {
-  return toast.custom(
-    (t: Toast) => <DeleteNotification header={header} message={message} toastId={t.id} />,
     { duration },
   )
 }

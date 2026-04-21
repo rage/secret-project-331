@@ -1,6 +1,5 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
 import { useQuery } from "@tanstack/react-query"
 
 import {

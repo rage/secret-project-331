@@ -9,7 +9,7 @@ test.use({
   storageState: "src/states/teacher@example.com.json",
 })
 
-test.describe(() => {
+test.describe("Gutenberg spacer editing", () => {
   // Sometimes the location of the Gutenberg toolbar is nondeterministic
   test.describe.configure({ retries: 4 })
 

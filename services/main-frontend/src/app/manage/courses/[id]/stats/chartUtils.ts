@@ -1,6 +1,5 @@
 import { format, isSameDay, isSameMonth, parseISO } from "date-fns"
-import { EChartsOption } from "echarts/types/src/export/option"
-import type { CallbackDataParams } from "echarts/types/src/util/types"
+import type { EChartsOption, TooltipComponentFormatterCallbackParams } from "echarts"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -69,7 +68,7 @@ export const useLineChartOptions = ({
       ],
       tooltip: {
         trigger: "axis" as const,
-        formatter: (params: CallbackDataParams | CallbackDataParams[]) => {
+        formatter: (params: TooltipComponentFormatterCallbackParams) => {
           const dataPoint = Array.isArray(params) ? params[0] : params
           const isLastPoint = dataPoint.dataIndex === data.length - 1
           const period = data[dataPoint.dataIndex]?.period

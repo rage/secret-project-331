@@ -2,7 +2,6 @@
 
 import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 
@@ -14,6 +13,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ExportPageProps {
   // courseId

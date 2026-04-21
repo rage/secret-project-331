@@ -1,6 +1,7 @@
 "use client"
 
 import { useRouter } from "next/router"
+import React from "react"
 
 // During initial render query parameters are undedined in Next.js due to optimization
 // reasons. This HOC allows one to delay rendering a subtree until required query
@@ -52,7 +53,13 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
       queryParameters[key] = value?.toString()
     }
 
-    return <WrappedComponent {...(props as T)} query={queryParameters as SimplifiedUrlQuery<P>} />
+    return React.createElement(
+      WrappedComponent as React.ComponentType<React.PropsWithChildren<T & ProvidedExtraProps<P>>>,
+      {
+        ...(props as object),
+        query: queryParameters as SimplifiedUrlQuery<P>,
+      } as React.PropsWithChildren<T & ProvidedExtraProps<P>>,
+    )
   }
 
   InnerComponent.displayName = `dontRenderUntilQueryParameterReady(${displayName})`

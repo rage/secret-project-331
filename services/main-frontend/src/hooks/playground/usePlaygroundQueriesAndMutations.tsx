@@ -77,12 +77,14 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   }, [isValidServiceInfo, args.url])
 
   const publicSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-public-spec-${args.url}-${serviceInfoQuery.data}-${args.parsedPrivateSpec.rawPrivateSpec}`,
       isValidServiceInfo,
       args.parsedPrivateSpec.rawPrivateSpec,
       exerciseServiceHost,
+      args.parsedPrivateSpec.privateSpecValidJson,
+      args.parsedPrivateSpec.parsedPrivateSpec,
+      serviceInfoQuery.data?.public_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (
@@ -119,12 +121,14 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
   })
 
   const modelSolutionSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-model-solution-spec-${args.url}-${serviceInfoQuery.data}-${args.parsedPrivateSpec.rawPrivateSpec}`,
       isValidServiceInfo,
       args.parsedPrivateSpec.rawPrivateSpec,
       exerciseServiceHost,
+      args.parsedPrivateSpec.privateSpecValidJson,
+      args.parsedPrivateSpec.parsedPrivateSpec,
+      serviceInfoQuery.data?.model_solution_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (
@@ -182,7 +186,6 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           throw new Error("Requirements for the mutation not satisfied.")
         }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
           grading_update_url: buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
             websocket_id: String(websocketId),
           }),

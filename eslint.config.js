@@ -1,5 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-
 import js from "@eslint/js"
 import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
@@ -40,11 +38,16 @@ const baseIgnorePatterns = [
   "**/playwright-report/**",
   "**/storybook-static/**",
   "**/services/main-frontend/public/monaco-editor/**",
+  "**/services/tmc/public/pyodide/**",
+  "**/services/main-frontend/src/generated/**",
+  "**/services/cms/src/generated/**",
+  "**/shared-module/packages/common/src/generated/**",
   "**/.venv/**",
   "**/generated-docs/**",
   "**/GutenbergBlockAttributes.ts",
   "**/*.guard.ts",
   "**/DeprecatedGutenbergBlockAttributes.ts",
+  "**/*.generated.*",
 ]
 
 const getIgnorePatterns = (prefix = "") =>
@@ -224,20 +227,6 @@ const config = [
     files: ["**/*.js", "**/*.cjs"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
-    },
-  },
-  {
-    files: ["services/main-frontend/src/generated/api/**/*.generated.ts"],
-    rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "no-undef": "off",
-    },
-  },
-  {
-    files: ["shared-module/packages/common/src/generated/auth-api/**/*.generated.ts"],
-    rules: {
-      "@typescript-eslint/no-explicit-any": "off",
-      "no-undef": "off",
     },
   },
   {

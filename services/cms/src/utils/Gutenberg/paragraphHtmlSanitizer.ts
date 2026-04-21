@@ -1,4 +1,4 @@
-import DOMPurify from "dompurify"
+import DOMPurify, { type Config } from "dompurify"
 
 const INLINE_TAGS = new Set([
   "A",
@@ -67,7 +67,7 @@ const DANGEROUS_TAG_PAIR_REGEX = new RegExp(
   "gi",
 )
 
-const DOMPURIFY_CONFIG: DOMPurify.Config = {
+const DOMPURIFY_CONFIG: Config = {
   ALLOWED_TAGS: [
     "a",
     "strong",

@@ -1,10 +1,10 @@
-import { BlockInstance } from "@wordpress/blocks"
-
 import {
   modifyBlocks,
   removeUncommonSpacesFromBlocks,
 } from "../../src/utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../src/utils/Gutenberg/removeUnsupportedBlockType"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 describe("removeUncommonSpacesFromBlocks", () => {
   it("should replace non-breaking spaces with regular spaces in paragraph blocks", () => {

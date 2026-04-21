@@ -2,7 +2,7 @@ use std::env;
 
 use crate::setup_tracing;
 
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models as models;
 use sqlx::PgPool;
 

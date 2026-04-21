@@ -23,10 +23,8 @@ import {
   postPeerOrSelfReviewSubmission,
 } from "@/generated/course-material-api/sdk.generated"
 import type {
-  CourseMaterialExercise,
   CourseMaterialPeerOrSelfReviewDataWithToken,
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
-  FlaggedAnswer,
   ReportReason,
 } from "@/generated/course-material-api/types.generated"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"

@@ -16,6 +16,8 @@ function withNoSsr<T>(WrappedComponent: React.ComponentType<T>) {
       return null
     }
 
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: Shared module might have a different react version
     return <WrappedComponent {...(props as T)} />
   }
 

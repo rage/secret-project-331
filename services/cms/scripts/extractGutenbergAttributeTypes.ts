@@ -291,7 +291,8 @@ function addSupportsAttributes(block: BlockType): BlockType {
   }
 
   if (supports.typography?.fontSize) {
-    // @ts-expect-error: adding a new attribute
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: adding a new attribute
     attributes["fontSize"] = {
       type: "string",
     }

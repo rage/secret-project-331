@@ -1,7 +1,5 @@
 use crate::{
-    azure_chatbot::{
-        ChatResponse, InputItem, LLMRequest, OutputItem, ReasoningOutput, ToolCallType,
-    },
+    azure_chatbot::{ChatResponse, InputItem, LLMRequest, OutputItem, ReasoningOutput},
     chatbot_error::ChatbotResult,
     prelude::*,
 };
@@ -380,7 +378,7 @@ pub struct APIToolCall {
     pub function: APITool,
     pub id: String,
     #[serde(rename = "type")]
-    pub tool_type: ToolCallType,
+    pub tool_type: ToolKind,
 }
 
 impl From<ChatbotConversationMessageToolCall> for APIToolCall {
@@ -391,7 +389,7 @@ impl From<ChatbotConversationMessageToolCall> for APIToolCall {
                 name: value.tool_name,
             },
             id: value.tool_call_id,
-            tool_type: ToolCallType::Function,
+            tool_type: value.tool_kind,
         }
     }
 }

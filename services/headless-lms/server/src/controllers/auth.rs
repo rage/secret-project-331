@@ -43,8 +43,7 @@ pub enum LoginResponse {
     Failed,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum SignupResponse {
     Success,
@@ -129,7 +128,7 @@ Content-Type: application/json
     operation_id = "postAuthSignup",
     request_body = CreateAccountDetails,
     responses(
-        (status = 200, description = "Account created; session established"),
+        (status = 200, description = "Signup outcome", body = SignupResponse),
         (status = 400, description = "Cannot sign up (e.g. already signed in or validation error)")
     )
 )]
@@ -141,7 +140,7 @@ pub async fn signup(
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<SignupResponse>> {
     let user_details = payload.0;
     let mut conn = pool.acquire().await?;
 
@@ -149,13 +148,12 @@ pub async fn signup(
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
     if user.is_none() {
-        if models::users::try_get_by_email(&mut conn, &user_details.email)
-            .await?
-            .is_some()
-        {
+        if matches!(
+            models::users::get_by_email(&mut conn, &user_details.email).await,
+            Ok(_)
+        ) {
             let token = skip_authorize();
-            return token
-                .authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
+            return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
         }
 
         let upstream_id = tmc_client
@@ -253,7 +251,7 @@ pub async fn signup(
 
         let token = skip_authorize();
         authorization::remember(&session, user)?;
-        token.authorized_ok(HttpResponse::Ok().json(SignupResponse::Success))
+        token.authorized_ok(web::Json(SignupResponse::Success))
     } else {
         Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -268,7 +266,7 @@ async fn handle_test_mode_signup(
     session: &Session,
     user_details: &CreateAccountDetails,
     app_conf: &ApplicationConfiguration,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<SignupResponse>> {
     assert!(
         app_conf.test_mode,
         "handle_test_mode_signup called outside test mode"
@@ -276,12 +274,12 @@ async fn handle_test_mode_signup(
 
     warn!("Handling signup in test mode. No real account is created.");
 
-    if models::users::try_get_by_email(conn, &user_details.email)
-        .await?
-        .is_some()
-    {
+    if matches!(
+        models::users::get_by_email(conn, &user_details.email).await,
+        Ok(_)
+    ) {
         let token = skip_authorize();
-        return token.authorized_ok(HttpResponse::Ok().json(SignupResponse::EmailAlreadyExists));
+        return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
     }
 
     let user_id = models::users::insert(
@@ -327,7 +325,7 @@ async fn handle_test_mode_signup(
     authorization::remember(session, user)?;
 
     let token = skip_authorize();
-    token.authorized_ok(HttpResponse::Ok().json(SignupResponse::Success))
+    token.authorized_ok(web::Json(SignupResponse::Success))
 }
 
 fn is_duplicate_email_error_message(message: &str) -> bool {

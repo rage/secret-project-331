@@ -6,7 +6,8 @@ import { useTranslation } from "react-i18next"
 
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { logout } from "@/shared-module/common/services/backend/auth"
+import { postAuthLogout } from "@/shared-module/common/generated/auth-api/sdk.generated"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { userSettingsRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserMenuItem {
@@ -95,7 +96,7 @@ export function useUserMenuItems({
   const displayEmail = userDetails.data?.email || ""
 
   const submitLogout = async () => {
-    await logout()
+    await postAuthLogout()
     queryClient.removeQueries()
     await loginStateContext.refresh()
     setTimeout(() => {

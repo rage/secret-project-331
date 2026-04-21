@@ -2,10 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { userInfo } from "../services/backend/auth"
+import { getAuthUserInfo } from "../generated/auth-api/sdk.generated"
+import "../init/registerAuthApiClients"
 
 const useUserInfo = () => {
-  const query = useQuery({ queryKey: ["user-info"], queryFn: () => userInfo() })
+  const query = useQuery({ queryKey: ["user-info"], queryFn: () => getAuthUserInfo() })
   return query
 }
 

@@ -12,8 +12,9 @@ import Button from "@/shared-module/common/components/Button"
 import { Menu } from "@/shared-module/common/components/Navigation/NavBar"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { postAuthLogout } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
-import { logout } from "@/shared-module/common/services/backend/auth"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { baseTheme } from "@/shared-module/common/styles"
 import { useCurrentPagePathForReturnTo } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import { manageCourseRoute } from "@/shared-module/common/utils/routes"
@@ -58,7 +59,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
   }
 
   const submitLogout = async () => {
-    await logout()
+    await postAuthLogout()
     queryClient.removeQueries()
     await loginStateContext.refresh()
     setTimeout(() => {

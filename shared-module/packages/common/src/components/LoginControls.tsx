@@ -6,7 +6,8 @@ import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "../contexts/LoginStateContext"
-import { logout } from "../services/backend/auth"
+import { postAuthLogout } from "../generated/auth-api/sdk.generated"
+import "../init/registerAuthApiClients"
 import { useCurrentPagePathForReturnTo } from "../utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "../utils/routes"
 
@@ -32,7 +33,7 @@ const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
   }
 
   const submitLogout = async () => {
-    await logout()
+    await postAuthLogout()
     queryClient.removeQueries()
     await loginStateContext.refresh()
     setTimeout(() => {

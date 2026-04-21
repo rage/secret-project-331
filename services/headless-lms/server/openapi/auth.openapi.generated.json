@@ -213,7 +213,14 @@
         },
         "responses": {
           "200": {
-            "description": "Account created; session established"
+            "description": "Signup outcome",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SignupResponse"
+                }
+              }
+            }
           },
           "400": {
             "description": "Cannot sign up (e.g. already signed in or validation error)"
@@ -803,6 +810,30 @@
             "type": "string"
           }
         }
+      },
+      "SignupResponse": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["success"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["email_already_exists"]
+              }
+            }
+          }
+        ]
       },
       "UserInfo": {
         "type": "object",

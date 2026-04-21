@@ -17,9 +17,11 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
+import { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import "@/shared-module/common/init/registerAuthApiClients"
 import countries from "@/shared-module/common/locales/en/countries.json"
-import { createUser } from "@/shared-module/common/services/backend/auth"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
   useCurrentPagePathForReturnTo,
@@ -156,7 +158,7 @@ const CreateAccountForm: React.FC = () => {
   const password = watch("password")
   const passwordConfirmation = watch("password_confirmation")
 
-  const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
+  const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
     async (data) => {
       const {
         first_name,
@@ -167,15 +169,17 @@ const CreateAccountForm: React.FC = () => {
         country,
         email_communication_consent,
       } = data
-      return createUser({
-        email: email,
-        first_name: first_name,
-        last_name: last_name,
-        language: i18n.language,
-        password: password,
-        password_confirmation: password_confirmation,
-        country: country,
-        email_communication_consent: Boolean(email_communication_consent),
+      return postAuthSignup({
+        body: {
+          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          language: i18n.language,
+          password: password,
+          password_confirmation: password_confirmation,
+          country: country,
+          email_communication_consent: Boolean(email_communication_consent),
+        },
       })
     },
     { notify: true, method: "POST" },
@@ -289,7 +293,16 @@ const CreateAccountForm: React.FC = () => {
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
           try {
-            await createAccountMutation.mutateAsync(data)
+            const result = await createAccountMutation.mutateAsync(data)
+
+            if (result.type === "email_already_exists") {
+              setEmailAlreadyTakenError(t("email-already-taken"))
+              setError("email", {
+                type: "manual",
+                message: t("email-already-taken-field-error"),
+              })
+              return
+            }
 
             setEmailAlreadyTakenError(null)
             reset({

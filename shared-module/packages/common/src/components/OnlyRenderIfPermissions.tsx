@@ -5,7 +5,8 @@ import React, { useContext } from "react"
 
 import { Action, Resource } from "../authApiTypes"
 import LoginStateContext from "../contexts/LoginStateContext"
-import { authorize } from "../services/backend/auth"
+import { postAuthAuthorize } from "../generated/auth-api/sdk.generated"
+import "../init/registerAuthApiClients"
 
 interface ComponentProps {
   action: Action
@@ -25,7 +26,7 @@ const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>>
       `action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-authorization`,
     ],
     queryFn: () => {
-      return authorize({ action, resource })
+      return postAuthAuthorize({ body: { action, resource } })
     },
     gcTime: 15 * 60 * 1000,
     enabled: loginState.signedIn === true,

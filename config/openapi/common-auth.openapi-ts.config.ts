@@ -45,5 +45,6 @@ export default {
         response: "zod",
       },
     },
+    "@tanstack/react-query",
   ],
 } satisfies UserConfig

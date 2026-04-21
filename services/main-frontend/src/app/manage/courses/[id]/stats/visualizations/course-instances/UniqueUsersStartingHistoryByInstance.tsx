@@ -12,8 +12,8 @@ import {
 } from "../../LineChart"
 import LineChartByInstance from "../../LineChartByInstance"
 
+import { TimeGranularity } from "@/generated/api/types.generated"
 import { useUniqueUsersStartingHistoryByInstanceQuery } from "@/hooks/stats"
-import { TimeGranularity } from "@/shared-module/common/bindings"
 
 interface UniqueUsersStartingHistoryByInstanceProps {
   courseId: string

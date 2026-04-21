@@ -9,7 +9,7 @@ import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { fetchCoursePageVisitDatumSummariesByCountry } from "@/services/backend/courses"
+import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -24,8 +24,11 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
 }) => {
   const { t } = useTranslation()
   const query = useQuery({
-    queryKey: [`course-page-visit-datum-summary-by-country${courseId}`],
-    queryFn: () => fetchCoursePageVisitDatumSummariesByCountry(courseId),
+    ...getCoursePageVisitDatumSummaryByCountriesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const aggregatedData = useMemo(() => {

@@ -6,9 +6,9 @@ import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
 import Card from "@/components/Card"
+import { getCourseMaterialPageUrlPath } from "@/generated/course-material-api/sdk.generated"
+import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { useChapterProgress } from "@/hooks/course-material/useChapterProgress"
-import { fetchPageUrl } from "@/services/course-material/backend"
-import { ChapterWithStatus } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import Circle from "@/shared-module/common/img/card-defualt-bg/circle.svg"
@@ -64,10 +64,14 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   const courseInstance = useAtomValue(materialInstanceAtom)
 
   const getChapterPageUrl = useQuery({
-    queryKey: [`chapter-grid-chapter`, chapter.id, chapter.front_page_id],
+    queryKey: [`chapter-grid-chapter`, chapter.id, chapter.front_page_id, chapter.chapter_number],
     queryFn: () => {
       if (chapter.front_page_id) {
-        return fetchPageUrl(chapter.front_page_id)
+        return getCourseMaterialPageUrlPath({
+          path: {
+            current_page_id: chapter.front_page_id,
+          },
+        })
       } else {
         return `/chapter-${chapter.chapter_number}`
       }

@@ -9,14 +9,14 @@ import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
 import ModuleCompletionReprocessButton from "@/app/manage/courses/[id]/course-instances/ModuleCompletionReprocessButton"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import {
-  deleteCourse,
-  setJoinCourseLinkForCourse,
-  teacherResetCourseProgressForEveryone,
-  teacherResetCourseProgressForThemselves,
-} from "@/services/backend/courses"
-import { Course } from "@/shared-module/common/bindings"
+  deleteCourse as deleteCourseFromApi,
+  resetCourseProgressForEveryone,
+  resetCourseProgressForTeacherThemselves,
+  setCourseJoinCode,
+} from "@/generated/api/sdk.generated"
+import type { Course } from "@/generated/api/types.generated"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
@@ -28,7 +28,7 @@ interface Props {
   course: Course
   refetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
-  ) => Promise<QueryObserverResult<Course, unknown>>
+  ) => Promise<QueryObserverResult<Course, Error>>
 }
 
 const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
@@ -40,7 +40,11 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
   const organizationSlug = courseBreadcrumbInfoQuery.data?.organization_slug
   const deleteCourseMutation = useToastMutation(
     async () => {
-      await deleteCourse(course.id)
+      await deleteCourseFromApi({
+        path: {
+          course_id: course.id,
+        },
+      })
       await refetch()
     },
     {
@@ -57,7 +61,11 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
 
   const teacherResetCourseProgressForThemselvesMutation = useToastMutation(
     async () => {
-      await teacherResetCourseProgressForThemselves(course.id)
+      await resetCourseProgressForTeacherThemselves({
+        path: {
+          course_id: course.id,
+        },
+      })
     },
     {
       notify: true,
@@ -68,7 +76,11 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
 
   const teacherResetCourseProgressForEveryoneMutation = useToastMutation(
     async () => {
-      await teacherResetCourseProgressForEveryone(course.id)
+      await resetCourseProgressForEveryone({
+        path: {
+          course_id: course.id,
+        },
+      })
     },
     {
       notify: true,
@@ -83,7 +95,11 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
 
   const setJoinCourseLinkMutation = useToastMutation(
     async (courseId: string) => {
-      await setJoinCourseLinkForCourse(courseId)
+      await setCourseJoinCode({
+        path: {
+          course_id: courseId,
+        },
+      })
     },
     {
       notify: true,
@@ -259,48 +275,66 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
               <a
                 href={`/api/v0/main-frontend/courses/${course.id}/export-submissions`}
                 aria-label={t("link-export-submissions")}
+                download
               >
-                {t("link-export-submissions")}
+                <Button variant="secondary" size="medium" type="button">
+                  {t("link-export-submissions")}
+                </Button>
               </a>
             </li>
             <li>
               <a
                 href={`/api/v0/main-frontend/courses/${course.id}/export-user-details`}
                 aria-label={t("link-export-user-details")}
+                download
               >
-                {t("link-export-user-details")}
+                <Button variant="secondary" size="medium" type="button">
+                  {t("link-export-user-details")}
+                </Button>
               </a>
             </li>
             <li>
               <a
                 href={`/api/v0/main-frontend/courses/${course.id}/export-exercise-tasks`}
                 aria-label={t("link-export-exercise-tasks")}
+                download
               >
-                {t("link-export-exercise-tasks")}
+                <Button variant="secondary" size="medium" type="button">
+                  {t("link-export-exercise-tasks")}
+                </Button>
               </a>
             </li>
             <li>
               <a
                 href={`/api/v0/main-frontend/courses/${course.id}/export-course-instances`}
                 aria-label={t("link-export-course-instances")}
+                download
               >
-                {t("link-export-course-instances")}
+                <Button variant="secondary" size="medium" type="button">
+                  {t("link-export-course-instances")}
+                </Button>
               </a>
             </li>
             <li>
               <a
                 href={`/api/v0/main-frontend/courses/${course.id}/export-course-user-consents`}
                 aria-label={t("link-export-course-user-consents")}
+                download
               >
-                {t("link-export-course-user-consents")}
+                <Button variant="secondary" size="medium" type="button">
+                  {t("link-export-course-user-consents")}
+                </Button>
               </a>
             </li>
             <li>
               <a
                 href={`/api/v0/main-frontend/courses/${course.id}/export-user-exercise-states`}
                 aria-label={t("link-export-user-exercise-states")}
+                download
               >
-                {t("link-export-user-exercise-states")}
+                <Button variant="secondary" size="medium" type="button">
+                  {t("link-export-user-exercise-states")}
+                </Button>
               </a>
             </li>
           </ul>

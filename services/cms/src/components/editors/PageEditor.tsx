@@ -3,11 +3,9 @@
 /* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import { UseMutationResult, useQuery } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
 import { isEqual } from "lodash"
 import { useRouter } from "next/router"
 import React, { useMemo, useReducer, useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import {
   blockTypeMapForFrontPages,
@@ -17,9 +15,7 @@ import {
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
-import { fetchCourseById } from "../../services/backend/courses"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import { fetchNextPageRoutingData } from "../../services/backend/pages"
+import mediaUploadBuilder from "../../services/mediaUpload"
 import { modifyBlocks, removeUncommonSpacesFromBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
@@ -29,7 +25,11 @@ import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
 
-import { CmsPageUpdate, ContentManagementPage, Page } from "@/shared-module/common/bindings"
+import { CmsPageUpdate, ContentManagementPage, Page } from "@/generated/api"
+import {
+  getCmsCourseOptions,
+  getCmsPageNavigationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -39,6 +39,9 @@ import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvi
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface PageEditorProps {
   data: Page
@@ -105,18 +108,21 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const savedTitle = data.title
   const savedContent = modifyBlocks(
     data.content as BlockInstance[],
-    supportedBlocks(data.chapter_id, data.exam_id),
+    supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
   ) as BlockInstance[]
   const [content, contentDispatch] = useReducer(
     editorContentReducer,
-    modifyBlocks(savedContent, supportedBlocks(data.chapter_id, data.exam_id)) as BlockInstance[],
+    modifyBlocks(
+      savedContent,
+      supportedBlocks(data.chapter_id ?? null, data.exam_id ?? null),
+    ) as BlockInstance[],
   )
   const currentContentStateSaved = isEqual(savedContent, content) && savedTitle === title
   const [currentlySaving, setCurrentlySaving] = useState(false)
   const handleOnSave = async () => {
     setCurrentlySaving(true)
     const dataToSave = normalizeDocument({
-      chapterId: data.chapter_id,
+      chapterId: data.chapter_id ?? null,
       content: removeUncommonSpacesFromBlocks(removeUnsupportedBlockType(content)),
       title,
       urlPath: data.url_path,
@@ -164,16 +170,26 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
     throw "The backend should ensure that a page is associated with either a course or an exam"
   }
 
-  const getNextPageRoutingData = useQuery({
-    queryKey: [`pages-${data.id}-page-navigation`],
-    queryFn: () => fetchNextPageRoutingData(data.id),
-  })
+  const getNextPageRoutingData = useQuery(
+    getCmsPageNavigationOptions({
+      path: {
+        page_id: data.id,
+      },
+    }),
+  )
 
-  const courseQuery = useQuery({
-    queryKey: ["course", data.course_id],
-    queryFn: () => fetchCourseById(data.course_id!),
-    enabled: !!data.course_id,
-  })
+  const courseQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: data.course_id,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
 
   const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
 
@@ -269,8 +285,8 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const memoizedCustomBlocks = useMemo(
     () =>
       customBlocks(
-        data.chapter_id,
-        data.exam_id,
+        data.chapter_id ?? null,
+        data.exam_id ?? null,
         data.url_path,
         courseCanAddChatbot,
         chapterLockingEnabled,

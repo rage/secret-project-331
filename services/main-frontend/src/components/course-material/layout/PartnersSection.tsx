@@ -1,14 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import React from "react"
 
 import DynamicSvg from "./DynamicSvg"
 
-import { fetchPartnersBlock } from "@/services/course-material/backend"
+import { getCourseMaterialPartnersBlock } from "@/generated/course-material-api/sdk.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface PartnersBlockProps {
   courseId: string | null
@@ -17,7 +16,14 @@ interface PartnersBlockProps {
 const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
   const getPartnersBlock = useQuery({
     queryKey: ["partners-block", courseId],
-    queryFn: () => fetchPartnersBlock(assertNotNullOrUndefined(courseId)),
+    queryFn: courseId
+      ? () =>
+          getCourseMaterialPartnersBlock({
+            path: {
+              course_id: courseId,
+            },
+          })
+      : skipToken,
     enabled: !!courseId,
   })
 

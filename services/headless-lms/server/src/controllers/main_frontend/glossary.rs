@@ -1,9 +1,29 @@
 use models::glossary::{self, TermUpdate};
+use utoipa::OpenApi;
 
 use crate::prelude::*;
 
+#[derive(OpenApi)]
+#[openapi(paths(update, delete))]
+pub(crate) struct MainFrontendGlossaryApiDoc;
+
 #[instrument(skip(pool))]
-async fn update(
+#[utoipa::path(
+    put,
+    path = "/{term_id}",
+    operation_id = "updateGlossaryTerm",
+    tag = "glossary",
+    params(
+        ("term_id" = Uuid, Path, description = "Glossary term id")
+    ),
+    request_body = TermUpdate,
+    responses(
+        (status = 200, description = "Glossary term updated"),
+        (status = 401, description = "Authentication required"),
+        (status = 403, description = "User is not allowed to manage glossary terms")
+    )
+)]
+pub(crate) async fn update(
     id: web::Path<Uuid>,
     update: web::Json<TermUpdate>,
     pool: web::Data<PgPool>,
@@ -17,7 +37,21 @@ async fn update(
 }
 
 #[instrument(skip(pool))]
-async fn delete(
+#[utoipa::path(
+    delete,
+    path = "/{term_id}",
+    operation_id = "deleteGlossaryTerm",
+    tag = "glossary",
+    params(
+        ("term_id" = Uuid, Path, description = "Glossary term id")
+    ),
+    responses(
+        (status = 200, description = "Glossary term deleted"),
+        (status = 401, description = "Authentication required"),
+        (status = 403, description = "User is not allowed to manage glossary terms")
+    )
+)]
+pub(crate) async fn delete(
     id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     user: AuthUser,

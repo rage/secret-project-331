@@ -1,4 +1,4 @@
-import { ALT_TEXT_NOT_CHANGED_PLACEHOLDER } from "../../src/services/backend/media/altTextPlaceholder"
+import { ALT_TEXT_NOT_CHANGED_PLACEHOLDER } from "../../src/services/altTextPlaceholder"
 import { shouldWarnAboutImageAltPlaceholder } from "../../src/utils/Gutenberg/imageAltWarning"
 
 describe("shouldWarnAboutImageAltPlaceholder", () => {

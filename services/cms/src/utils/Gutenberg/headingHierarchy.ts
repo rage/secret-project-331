@@ -1,6 +1,6 @@
-import { BlockInstance } from "@wordpress/blocks"
-
 import { extractPlainTextFromHtml } from "./paragraphAiSource"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 type HeadingIssueType = "heading-h1-reserved" | "heading-first-should-be-h2" | "heading-level-jump"
 

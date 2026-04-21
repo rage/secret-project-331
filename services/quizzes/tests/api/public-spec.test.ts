@@ -45,7 +45,7 @@ import {
   VALIDITY_REGEX_CANARY_FOR_TESTS,
 } from "./utils/privateSpecGenerator"
 
-import { SpecRequest } from "@/shared-module/common/bindings"
+import { SpecRequest } from "@/utils/exerciseServiceApi"
 
 const client = testClient(POST)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"

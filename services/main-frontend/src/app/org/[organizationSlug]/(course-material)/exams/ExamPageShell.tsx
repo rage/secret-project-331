@@ -13,9 +13,9 @@ import ExamRunningSection from "./ExamRunningSection"
 import ExamStartBanner from "./ExamStartBanner"
 
 import ContentRenderer from "@/components/course-material/ContentRenderer"
+import { enrollInExam } from "@/generated/course-material-api/sdk.generated"
+import type { ExamData, ExamEnrollmentData } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
-import { Block, enrollInExam } from "@/services/course-material/backend"
-import type { ExamData, ExamEnrollmentData } from "@/shared-module/common/bindings"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -26,6 +26,7 @@ import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import { refetchViewAtom } from "@/state/course-material/selectors"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
+import { Block } from "@/types/courseMaterialBlock"
 
 export type ExamPageShellMode = "exam" | "testexam"
 
@@ -80,7 +81,15 @@ export default function ExamPageShell({
   }, [triggerRefetch])
 
   const enrollMutation = useToastMutation(
-    () => enrollInExam(examId, mode === "testexam"),
+    () =>
+      enrollInExam({
+        body: {
+          is_teacher_testing: mode === "testexam",
+        },
+        path: {
+          id: examId,
+        },
+      }),
     { notify: true, method: "POST" },
     { onSuccess: handleRefresh },
   )

@@ -2,7 +2,7 @@ import "@testing-library/jest-dom"
 
 import { renumberFilterCitations } from "../shared/MessageBubble"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 
 describe("MessageBubble", () => {

@@ -3,12 +3,12 @@
 import { css } from "@emotion/css"
 import { Padlock } from "@vectopus/atlas-icons-react"
 import { InnerBlocks, useBlockProps } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import { Notice } from "@wordpress/components"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = [
   "core/heading",

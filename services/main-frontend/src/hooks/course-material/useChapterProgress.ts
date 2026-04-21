@@ -3,8 +3,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { fetchUserChapterInstanceChapterProgress } from "@/services/course-material/backend"
+import { getCourseMaterialChapterProgressOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 /**
  * Hook to fetch user progress for a specific chapter in a course instance.
@@ -16,9 +17,18 @@ import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext
 export const useChapterProgress = (courseInstanceId: string | undefined, chapterId: string) => {
   const loginStateContext = useContext(LoginStateContext)
 
-  return useQuery({
-    queryKey: [`course-instance-${courseInstanceId}-chapter-${chapterId}-progress`],
-    queryFn: () => fetchUserChapterInstanceChapterProgress(courseInstanceId!, chapterId),
-    enabled: !!courseInstanceId && loginStateContext.signedIn === true,
-  })
+  return useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseInstanceId,
+      enabled: loginStateContext.signedIn === true,
+      isReady: (courseInstanceId): courseInstanceId is string => Boolean(courseInstanceId),
+      build: (courseInstanceId) =>
+        getCourseMaterialChapterProgressOptions({
+          path: {
+            chapter_id: chapterId,
+            course_instance_id: courseInstanceId,
+          },
+        }),
+    }),
+  )
 }

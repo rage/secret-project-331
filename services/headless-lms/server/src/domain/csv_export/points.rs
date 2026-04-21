@@ -125,7 +125,7 @@ where
 
     let mut exercises = exercises::get_exercises_by_exam_id(conn, exam_id).await?;
     // I's fine to sort just by order number because exams have no chapters
-    exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    exercises.sort_by_key(|a| a.order_number);
 
     let mut exercise_id_to_header_idx = HashMap::new();
     for (idx, exercise) in exercises.iter().enumerate() {

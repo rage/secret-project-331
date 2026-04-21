@@ -2,9 +2,7 @@
 
 import { css } from "@emotion/css"
 import { InnerBlocks, InspectorControls } from "@wordpress/block-editor"
-import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import TableBoxWidthCustomizer from "../../components/blocks/TableBoxWidthCustomizer"
 import BlockWrapper from "../BlockWrapper"
@@ -12,6 +10,8 @@ import BlockWrapper from "../BlockWrapper"
 import { TableBoxAttributes } from "."
 
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = ["core/table"]
 

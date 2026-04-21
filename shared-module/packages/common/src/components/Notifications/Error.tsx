@@ -98,9 +98,13 @@ const ErrorNotification = (props: ErrorNotificationProps) => {
         <IconWrapper>
           <BellXmark color={baseTheme.colors.red[700]} />
         </IconWrapper>
-        <TextWrapper role="alert" aria-live="assertive">
-          <ErrorHeader>{props.header ?? t("default-toast-error-title")}</ErrorHeader>
-          <ErrorMessage>{props.message ?? t("default-toast-error-message")}</ErrorMessage>
+        <TextWrapper role="alert" aria-live="assertive" data-testid="toast-notification-error">
+          <ErrorHeader data-testid="toast-notification-error-title">
+            {props.header ?? t("default-toast-error-title")}
+          </ErrorHeader>
+          <ErrorMessage data-testid="toast-notification-error-message">
+            {props.message ?? t("default-toast-error-message")}
+          </ErrorMessage>
         </TextWrapper>
         {props.toastId && (
           <CloseIconWrapper onClick={() => toast.remove(props.toastId)}>

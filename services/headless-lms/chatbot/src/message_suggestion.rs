@@ -12,11 +12,12 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
 };
-use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 use rand::seq::IndexedRandom;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
@@ -74,7 +75,11 @@ pub async fn generate_suggested_messages(
         // if there are initial suggested messages, then include <=5 of them as examples
         + &(if let Some(ism) = initial_suggested_messages {
             let mut rng = rand::rng();
-            let examples = ism.choose_multiple(&mut rng, 5).cloned().collect::<Vec<String>>().join(" ");
+            let examples = ism
+                .sample(&mut rng, 5)
+                .cloned()
+                .collect::<Vec<String>>()
+                .join(" ");
             format!("Example suggested messages: {}\n\n", examples)} else {"".to_string()})
         + &(if let Some(c_d) = course_desc {format!("Description for course: {}\n\n", c_d)} else {"".to_string()})
         + "The conversation so far:\n";

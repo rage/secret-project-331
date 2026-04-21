@@ -7,7 +7,7 @@ import { useAtomValue } from "jotai"
 import { compact } from "lodash"
 import { useEffect, useState } from "react"
 
-import { fetchCourseReferences } from "@/services/course-material/backend"
+import { getCourseMaterialReferencesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { currentPageDataAtom } from "@/state/course-material/selectors"
 
 const BIBLIOGRAPHY = "bibliography"
@@ -25,10 +25,13 @@ const useReferences = (courseId: string) => {
   const pageData = useAtomValue(currentPageDataAtom)
   const [pageRefs, setPageRefs] = useState<ReadonlyArray<Citations>>()
 
-  const getCourseReferences = useQuery({
-    queryKey: [`course-${courseId}-references`],
-    queryFn: () => fetchCourseReferences(courseId),
-  })
+  const getCourseReferences = useQuery(
+    getCourseMaterialReferencesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  )
 
   useEffect(() => {
     if (!pageData) {

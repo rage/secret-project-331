@@ -2,12 +2,10 @@
 
 import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
 
-import { getAllPagesForACourse } from "../../../services/backend/courses"
-import { fetchPageInfo, fetchPageWithId } from "../../../services/backend/pages"
 import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 
+import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
@@ -15,6 +13,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ExportPageProps {
   // courseId
@@ -29,7 +28,11 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
   const getAllPagesMutation = useToastMutation(
     async () => {
       try {
-        const pages = await getAllPagesForACourse(query.id)
+        const pages = await getCmsCoursePages({
+          path: {
+            course_id: query.id,
+          },
+        })
         setTotalSteps(pages.length)
         const tarBuilder = new TarBuilder()
         tarBuilder.set_gzip(false)
@@ -39,7 +42,11 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
           setCurrentStep((old) => old + 1)
           // Wait for a bit to avoid hitting rate limits
           await new Promise((r) => setTimeout(r, 100))
-          const data = await fetchPageWithId(page.id)
+          const data = await getCmsPage({
+            path: {
+              page_id: page.id,
+            },
+          })
           if (!isGutenbergBlockArray(data.page.content)) {
             throw new Error("Content is not a GutenbergBlock array")
           }
@@ -96,7 +103,11 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
         if (pages.length === 0) {
           throw new Error("Course has no pages")
         }
-        const pageInfo = await fetchPageInfo(pages[0].id)
+        const pageInfo = await getCmsPageInfo({
+          path: {
+            page_id: pages[0].id,
+          },
+        })
         const tarData = tarBuilder.finish()
         save(
           // eslint-disable-next-line i18next/no-literal-string

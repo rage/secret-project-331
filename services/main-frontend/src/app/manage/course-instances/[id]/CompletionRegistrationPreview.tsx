@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import PreviewUserList from "./PreviewUserList"
 
 import Collapsible from "@/components/Collapsible"
-import { ManualCompletionPreview } from "@/shared-module/common/bindings"
+import type { ManualCompletionPreview } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"

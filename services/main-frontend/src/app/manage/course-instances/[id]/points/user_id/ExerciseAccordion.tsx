@@ -8,15 +8,12 @@ import { useTranslation } from "react-i18next"
 import PeerOrSelfReviewSubmissionSummaryAccordion from "./PeerOrSelfReviewSubmissionSummaryAccordion"
 
 import CustomPointsPopup from "@/app/manage/exercises/[id]/submissions/CustomPointsPopup"
-import { createTeacherGradingDecision } from "@/services/backend/teacher-grading-decisions"
-import {
-  ExerciseStatusSummaryForUser,
-  NewTeacherGradingDecision,
-} from "@/shared-module/common/bindings"
+import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
 
@@ -33,13 +30,11 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
   const userExerciseState = exerciseStatus.user_exercise_state
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const submitMutation = useToastMutation(
-    (update: NewTeacherGradingDecision) => {
-      return createTeacherGradingDecision(update)
-    },
+  const submitMutation = useToastMutationOptions(
+    createTeacherGradingDecisionMutation(),
     {
       notify: true,
-      method: "PUT",
+      method: "POST",
     },
     {
       onSuccess: (_data) => {
@@ -54,13 +49,15 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
         throw new Error("User exercise state not found")
       }
       submitMutation.mutate({
-        user_exercise_state_id: userExerciseState.id,
-        exercise_id: exerciseStatus.exercise.id,
-        // eslint-disable-next-line i18next/no-literal-string
-        action: "CustomPoints",
-        manual_points: points,
-        justification: null,
-        hidden: false,
+        body: {
+          user_exercise_state_id: userExerciseState.id,
+          exercise_id: exerciseStatus.exercise.id,
+          // eslint-disable-next-line i18next/no-literal-string
+          action: "CustomPoints",
+          manual_points: points,
+          justification: null,
+          hidden: false,
+        },
       })
     },
     [exerciseStatus.exercise.id, submitMutation, userExerciseState],

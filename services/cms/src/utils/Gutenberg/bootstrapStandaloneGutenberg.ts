@@ -1,7 +1,5 @@
 import { registerCoreBlocks } from "@wordpress/block-library"
 import {
-  type BlockConfiguration,
-  type BlockVariation,
   getBlockType,
   getBlockTypes,
   registerBlockType,
@@ -29,6 +27,8 @@ import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenberg
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
+
+import type { BlockConfiguration, BlockVariation } from "@/utils/Gutenberg/types"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
@@ -67,26 +67,20 @@ const syncStandaloneCustomBlocks = (customBlocks?: CustomBlockDefinition[]): voi
     }
 
     if (!getBlockType(blockName)) {
-      registerBlockType(blockName, blockSettings)
+      registerBlockType(blockName, blockSettings as Parameters<typeof registerBlockType>[1])
     }
   })
 }
 
 const captureDefaultBlockVariations = (): void => {
   for (const blockName of Object.keys(allowedBlockVariants)) {
-    defaultAllowedBlockVariations.set(
-      blockName,
-      /* @ts-expect-error: type signature incorrect */
-      [...(getBlockType(blockName)?.variations ?? [])],
-    )
+    defaultAllowedBlockVariations.set(blockName, [...(getBlockType(blockName)?.variations ?? [])])
   }
 }
 
 const syncAllowedBlockVariations = (allowedBlockVariations?: Record<string, string[]>): void => {
   defaultAllowedBlockVariations.forEach((defaultVariations, blockName) => {
-    const currentVariations =
-      /* @ts-expect-error: type signature incorrect */
-      [...(getBlockType(blockName)?.variations ?? [])]
+    const currentVariations = [...(getBlockType(blockName)?.variations ?? [])]
     const currentVariationNames = new Set(currentVariations.map((variation) => variation.name))
 
     defaultVariations.forEach((variation) => {
@@ -100,9 +94,7 @@ const syncAllowedBlockVariations = (allowedBlockVariations?: Record<string, stri
       return
     }
 
-    const syncedVariations =
-      /* @ts-expect-error: type signature incorrect */
-      [...(getBlockType(blockName)?.variations ?? [])]
+    const syncedVariations = [...(getBlockType(blockName)?.variations ?? [])]
 
     syncedVariations.forEach((variation) => {
       if (!allowedVariations.includes(variation.name)) {

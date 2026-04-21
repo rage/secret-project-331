@@ -1,23 +1,17 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
-import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
+import React, { useEffect, useState } from "react"
 
 import { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
 import CourseContext from "../../../contexts/CourseContext"
-import {
-  fetchResearchFormWithCourseId,
-  upsertResearchForm,
-  upsertResearchFormQuestions,
-} from "../../../services/backend/courses"
 
+import { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
+import { getCmsCourseResearchFormOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
-  NewResearchForm,
-  NewResearchFormQuestion,
-  ResearchForm,
-} from "@/shared-module/common/bindings"
+  upsertCmsCourseResearchForm,
+  upsertCmsCourseResearchFormQuestions,
+} from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -28,6 +22,9 @@ import dontRenderUntilQueryParametersReady, {
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ResearchFormProps {
   query: SimplifiedUrlQuery<"id">
@@ -49,13 +46,16 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
   const { t } = useTranslation()
 
   const getResearchForm = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form`],
-    queryFn: () => {
-      const res = fetchResearchFormWithCourseId(courseId)
-      // This only works when gCTime is set to 0
-      setNeedToRunMigrationsAndValidations(true)
-      return res
-    },
+    ...optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseResearchFormOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
     gcTime: 0,
     select: (data) => {
       if (data === null) {
@@ -69,10 +69,21 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
     },
   })
 
+  useEffect(() => {
+    if (getResearchForm.isSuccess) {
+      setNeedToRunMigrationsAndValidations(true)
+    }
+  }, [getResearchForm.isSuccess])
+
   const handleCreateNewForm = async () => {
-    await upsertResearchForm(assertNotNullOrUndefined(courseId), {
-      course_id: assertNotNullOrUndefined(courseId),
-      content: [],
+    await upsertCmsCourseResearchForm({
+      path: {
+        course_id: assertNotNullOrUndefined(courseId),
+      },
+      body: {
+        course_id: assertNotNullOrUndefined(courseId),
+        content: [],
+      },
     })
     await getResearchForm.refetch()
   }
@@ -81,9 +92,14 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
       if (!isBlockInstanceArray(form.content)) {
         throw new Error("content is not block instance")
       }
-      const researchForm = await upsertResearchForm(assertNotNullOrUndefined(courseId), form)
+      const researchForm = await upsertCmsCourseResearchForm({
+        path: {
+          course_id: assertNotNullOrUndefined(courseId),
+        },
+        body: form,
+      })
       const questions: NewResearchFormQuestion[] = []
-      form.content.forEach((block) => {
+      form.content.forEach((block: BlockInstance) => {
         if (isMoocfiCheckbox(block)) {
           const newResearchQuestion: NewResearchFormQuestion = {
             question_id: block.clientId,
@@ -93,7 +109,12 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
           }
           questions.push(newResearchQuestion)
         }
-        upsertResearchFormQuestions(researchForm.id, questions)
+        upsertCmsCourseResearchFormQuestions({
+          path: {
+            course_id: researchForm.id,
+          },
+          body: questions,
+        })
       })
     },
     {

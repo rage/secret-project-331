@@ -14,9 +14,10 @@ use actix_web::{
     web::{self, Data, PayloadConfig, ServiceConfig},
 };
 use anyhow::Context;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
-    ApplicationConfiguration, cache::Cache, file_store::FileStore, icu4x::Icu4xBlob,
-    ip_to_country::IpToCountryMapper, tmc::TmcClient,
+    cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
+    tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use sqlx::{PgPool, postgres::PgPoolOptions};
@@ -38,7 +39,7 @@ pub struct ServerConfigBuilder {
 }
 
 impl ServerConfigBuilder {
-    pub fn try_from_env() -> anyhow::Result<Self> {
+    pub async fn try_from_env() -> anyhow::Result<Self> {
         Ok(Self {
             database_url: env::var("DATABASE_URL").context("DATABASE_URL must be defined")?,
             oauth_application_id: env::var("OAUTH_APPLICATION_ID")
@@ -52,7 +53,7 @@ impl ServerConfigBuilder {
                 .context("Failed to parse token url")?,
             icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
                 .context("ICU4X_POSTCARD_PATH must be defined")?,
-            file_store: crate::setup_file_store(),
+            file_store: crate::setup_file_store().await,
             app_conf: ApplicationConfiguration::try_from_env()?,
             redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
             jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,

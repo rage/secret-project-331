@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import { LIGHT_GREEN } from "./styles"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"

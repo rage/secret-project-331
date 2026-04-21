@@ -7,12 +7,12 @@ import React, { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  fetchExam,
-  fetchExerciseSubmissionsAndUserExerciseStatesWithExamId,
-  fetchExercisesWithExamId,
-  releaseGrades,
-} from "@/services/backend/exams"
-import { ExerciseSlideSubmissionAndUserExerciseState } from "@/shared-module/common/bindings"
+  getExamExercisesOptions,
+  getExamOptions,
+  getExamSubmissionsWithExamIdOptions,
+  releaseExamGradesMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/api/types.generated"
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
@@ -22,7 +22,7 @@ import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -34,22 +34,35 @@ const GradingPage: React.FC = () => {
   const { confirm } = useDialog()
 
   const getExam = useQuery({
-    queryKey: [`/exams/${id}/`, id],
-    queryFn: () => fetchExam(id),
+    ...getExamOptions({
+      path: {
+        id,
+      },
+    }),
   })
 
   const getExercises = useQuery({
-    queryKey: [`/exams/${id}/exam-exercises`, id],
-    queryFn: () => fetchExercisesWithExamId(id),
+    ...getExamExercisesOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
   })
 
-  const sorted = getExercises.data?.sort((a, b) =>
-    a.order_number > b.order_number ? 1 : b.order_number > a.order_number ? -1 : 0,
+  const sorted = useMemo(
+    () =>
+      [...(getExercises.data ?? [])].sort((a, b) =>
+        a.order_number > b.order_number ? 1 : b.order_number > a.order_number ? -1 : 0,
+      ),
+    [getExercises.data],
   )
 
   const getAllSubmissions = useQuery({
-    queryKey: [`/exams/${id}/submissions-with-exam-id`, id],
-    queryFn: () => fetchExerciseSubmissionsAndUserExerciseStatesWithExamId(id),
+    ...getExamSubmissionsWithExamIdOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
     staleTime: 1,
   })
 
@@ -61,24 +74,12 @@ const GradingPage: React.FC = () => {
     {} as Record<string, ExerciseSlideSubmissionAndUserExerciseState[]>,
   )
 
-  const publishMutation = useToastMutation(
-    async () => {
-      const freshSubmissions = await getAllSubmissions.refetch()
-      if (!freshSubmissions.data) {
-        throw new Error("Failed to fetch submissions")
-      }
-      const teacherGradingDecisionIds = freshSubmissions.data
-        .flatMap((exerciseSubmissionList) =>
-          exerciseSubmissionList.map((sub) => sub.teacher_grading_decision?.id),
-        )
-        .filter((id): id is string => id !== undefined)
-      return releaseGrades(id, teacherGradingDecisionIds)
-    },
-    { notify: true, method: "PUT" },
+  const publishMutation = useToastMutationOptions(
+    releaseExamGradesMutation(),
+    { notify: true, method: "POST" },
     {
-      onSuccess: () => {
-        getAllSubmissions.refetch()
-        checkPublishable()
+      onSuccess: async () => {
+        await getAllSubmissions.refetch()
       },
     },
   )
@@ -330,7 +331,26 @@ const GradingPage: React.FC = () => {
                   t("message-do-you-want-to-publish-all-currently-graded-submissions"),
                 )
                 if (confirmation) {
-                  publishMutation.mutate()
+                  const freshSubmissions = await getAllSubmissions.refetch()
+                  if (!freshSubmissions.data) {
+                    throw new Error("Failed to fetch submissions")
+                  }
+
+                  const teacherGradingDecisionIds = freshSubmissions.data
+                    .flatMap((exerciseSubmissionList) =>
+                      exerciseSubmissionList.map((sub) => sub.teacher_grading_decision?.id),
+                    )
+                    .filter(
+                      (gradingDecisionId): gradingDecisionId is string =>
+                        gradingDecisionId !== undefined,
+                    )
+
+                  publishMutation.mutate({
+                    path: {
+                      exam_id: id,
+                    },
+                    body: teacherGradingDecisionIds,
+                  })
                 }
               }}
             >

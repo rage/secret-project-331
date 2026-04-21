@@ -7,11 +7,11 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { getCourseSuspectedCheatersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
-  approveSuspectedCheaters,
-  archiveSuspectedCheaters,
-  fetchSuspectedCheaters,
-} from "@/services/backend/courses"
+  approveCourseSuspectedCheater,
+  archiveCourseSuspectedCheater,
+} from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -31,8 +31,14 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   const { t } = useTranslation()
 
   const suspectedCheaters = useQuery({
-    queryKey: [`suspected-cheaters-${courseId}-${archive}`],
-    queryFn: () => fetchSuspectedCheaters(courseId, archive),
+    ...getCourseSuspectedCheatersOptions({
+      path: {
+        course_id: courseId,
+      },
+      query: {
+        archive,
+      },
+    }),
   })
 
   const handleApproval = useToastMutation(
@@ -41,7 +47,12 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
         throw Error("Student ID undefined")
       }
 
-      return approveSuspectedCheaters(courseId, id)
+      return approveCourseSuspectedCheater({
+        path: {
+          course_id: courseId,
+          id,
+        },
+      })
     },
     {
       notify: true,
@@ -61,7 +72,12 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
         throw Error("Student ID undefined")
       }
 
-      return archiveSuspectedCheaters(courseId, id)
+      return archiveCourseSuspectedCheater({
+        path: {
+          course_id: courseId,
+          id,
+        },
+      })
     },
     {
       notify: true,

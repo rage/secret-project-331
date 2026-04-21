@@ -5,22 +5,42 @@ import { useParams } from "next/navigation"
 import { useMemo } from "react"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
-import { fetchExam, fetchOrganization, fetchOrgExam } from "@/services/backend/exams"
+import {
+  getExamOptions,
+  getOrganizationExamByExamIdOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { getOrganization } from "@/generated/api/sdk.generated"
 // TODO: Replace 3-query waterfall with a single fetchExamBreadcrumbInfo (exam + org) endpoint.
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 export default function ExamLayout({ children }: { children: React.ReactNode }) {
   const { id } = useParams<{ id: string }>()
 
-  const examQuery = useQuery({ queryKey: ["exam", id], queryFn: () => fetchExam(id) })
-  const orgExamQuery = useQuery({
-    queryKey: ["org-exam", id],
-    queryFn: () => fetchOrgExam(id),
+  const examQuery = useQuery({
+    ...getExamOptions({
+      path: {
+        id,
+      },
+    }),
   })
+  const orgExamQuery = useQuery({
+    ...getOrganizationExamByExamIdOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
+  })
+  const organizationId = orgExamQuery.data?.organization_id
   const orgQuery = useQuery({
-    queryKey: ["organization", orgExamQuery.data?.organization_id],
-    queryFn: () => fetchOrganization(orgExamQuery.data?.organization_id ?? ""),
-    enabled: !!orgExamQuery.data?.organization_id,
+    queryKey: [{ _id: "getOrganization", path: { organization_id: organizationId } }] as const,
+    queryFn: async () =>
+      getOrganization({
+        path: {
+          organization_id: assertNotNullOrUndefined(organizationId),
+        },
+      }),
+    enabled: organizationId != null,
   })
 
   const crumbs = useMemo(

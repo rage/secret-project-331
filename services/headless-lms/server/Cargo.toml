@@ -10,6 +10,7 @@ license.workspace = true
 # To add a new dependency, search for it using `cargo search` and take the latest version of the package
 # and the comment from there.
 [dependencies]
+headless-lms-base = { path = "../base" }
 headless-lms-certificates = { path = "../certificates" }
 headless-lms-models = { path = "../models" }
 headless-lms-utils = { path = "../utils" }
@@ -37,7 +38,7 @@ futures = "0.3.32"
 # Common utilities and extension traits for the futures-rs library.
 futures-util = "0.3.32"
 # A `dotenv` implementation for Rust
-dotenv = "0.15.0"
+dotenvy = "0.15"
 # A simple library to work with listenfds passed from the outside (systemd/catflap socket activation)
 listenfd = "1.0.2"
 # Flexible concrete Error type built on std::error::Error
@@ -45,13 +46,17 @@ anyhow = "1.0.102"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.21.0", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.23.1", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.149"
+# Code-first OpenAPI generation from Rust types and handlers
+utoipa = { version = "5.4.0", features = ["chrono", "uuid"] }
+# Swagger UI integration for generated OpenAPI documents
+utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
 # Adds #[derive(x)] macros for more traits
 derive_more = { version = "2.1.1", features = ["full"] }
 # Types and traits for working with bytes
@@ -59,7 +64,7 @@ bytes = "1.11.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.14.0"
 # the BLAKE3 hash function
-blake3 = "1.8.3"
+blake3 = "1.8.4"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # higher level HTTP client library
@@ -80,7 +85,7 @@ url = "2.5.8"
 # Application-level tracing for Rust.
 tracing = "0.1.44"
 # Utilities for implementing and composing `tracing` subscribers.
-tracing-subscriber = { version = "0.3.22", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 # Utilities for enriching errors with `tracing`.
 tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
@@ -98,15 +103,15 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
 ], optional = true }
 # restricting the transitive dependencies of actix-web during beta.
 # HTTP primitives for the Actix ecosystem .
-actix-http = "3.12.0"
+actix-http = "3.12.1"
 # Fast CSV parsing with support for serde.
 csv = "1.4.0"
 # Email client
-lettre = "0.11.19"
+lettre = "0.11.21"
 # An implementation of regular expressions for Rust.
 regex = "1.12.3"
 # Single assignment cells and lazy values.
-once_cell = "1.21.3"
+once_cell = "1.21.4"
 # Rate limiting middleware for actix-web
 actix-extensible-rate-limit = "0.4.0"
 # Detect if a user-agent is a known bot
@@ -116,25 +121,23 @@ woothee = "0.13.0"
 # Bindings to libgit2 for interoperating with git repositories.
 git2 = "0.20.4"
 # A library for managing temporary files and directories.
-tempfile = "3.26.0"
+tempfile = "3.27.0"
 #  Binding for the zstd compression library.
 zstd = "0.13.3" # matches the version from actix-http
 # A Rust implementation of a TAR file reader and writer.
-tar = "0.4.44"
+tar = "0.4.45"
 # DEFLATE compression and gzip decompression.
 flate2 = "1.1.9"
 # Utilities for random number generation
-rand = "0.10.0"
+rand = "0.10.1"
 # A pure Rust implementation of the RSA public key cryptosystem.
 rsa = { version = "0.9", features = ["pem"] }
-# JSON Web Token (JWT) is a compact, URL-safe means of representing claims to be transferred between two parties.
-jwt = "0.16.0"
 # Another JWT crate, used for asymmetric signing for OAuth
 jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
-hmac = "0.12.1"
+hmac.workspace = true
 # Pure Rust implementation of the SHA-2 hash function family.
-sha2 = "0.10.9"
+sha2.workspace = true
 # Websocket support for actix-web
 actix-web-actors = "4.3.1"
 # Actors for actix-web-actors
@@ -155,9 +158,9 @@ pkcs8 = "0.10"
 # Dpop verifying
 dpop-verifier = { version = "4.4.0", features = ["actix-web"] }
 # Kubernetes client and async controller runtime
-kube = { version = "3.0.1", features = ["runtime", "derive", "client"] }
+kube = { version = "3.1.0", features = ["runtime", "derive", "client"] }
 # Bindings for the Kubernetes client API
-k8s-openapi = { version = "0.27.0", features = ["v1_31"] }
+k8s-openapi = { version = "0.27.1", features = ["v1_31"] }
 # A rate-limiting implementation in Rust
 governor = "0.10.4"
 
@@ -167,10 +170,7 @@ pretty_assertions = "1.4.1"
 # HTTP mocking for Rust.
 mockito = "1.7.2"
 # Random number generators and other randomness functionality.
-rand = "0.10.0"
-
-[features]
-ts_rs = ["ts-rs", "headless-lms-models/ts_rs", "headless-lms-utils/ts_rs"]
+rand = "0.10.1"
 
 [lints.clippy]
 unwrap_used = "deny"

@@ -1,20 +1,22 @@
 "use client"
 
+import { useQuery } from "@tanstack/react-query"
 import React from "react"
 
 import CourseContext from "../../../contexts/CourseContext"
 
-import { fetchPartnersBlock, setPartnerBlockForCourse } from "@/services/backend/partners-block"
-import { PartnersBlock } from "@/shared-module/common/bindings"
+import { PartnersBlock } from "@/generated/api"
+import { getCmsCoursePartnersBlockOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { upsertCmsCoursePartnersBlock } from "@/generated/api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useStateQuery from "@/shared-module/common/hooks/useStateQuery"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const PartnersBlockEditor = dynamicImport(
   () => import("../../../components/editors/PartnersBlockEditor"),
@@ -27,27 +29,40 @@ export interface PartnersBlockProps {
 const PartnersBlockEdit: React.FC<React.PropsWithChildren<PartnersBlockProps>> = ({ query }) => {
   // const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const courseId = query.id
-  // eslint-disable-next-line i18next/no-literal-string
-  const blockQuery = useStateQuery(["partners-block", courseId], (courseId) =>
-    fetchPartnersBlock(courseId),
+  const blockQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCoursePartnersBlockOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
   )
 
-  if (blockQuery.state === "error") {
+  if (blockQuery.isError) {
     return (
       <>
-        <ErrorBanner variant={"readOnly"} error={blockQuery.error} />
+        <ErrorBanner variant="readOnly" error={blockQuery.error} />
       </>
     )
   }
 
-  if (blockQuery.state !== "ready") {
-    return <Spinner variant={"medium"} />
+  if (blockQuery.isLoading || !blockQuery.data) {
+    return <Spinner variant="medium" />
   }
 
   const handleSave = async (data: unknown): Promise<PartnersBlock> => {
-    const res = await setPartnerBlockForCourse(courseId, data ?? [])
+    const res = await upsertCmsCoursePartnersBlock({
+      path: {
+        course_id: courseId,
+      },
+      body: data ?? [],
+    })
     await blockQuery.refetch()
-    return res
+    return res as PartnersBlock
   }
 
   return (

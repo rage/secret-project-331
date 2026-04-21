@@ -1,61 +1,63 @@
-import axios from "axios"
-
+import { ActionOnResource, CreateAccountDetails, LoginResponse, UserInfo } from "../../authApiTypes"
 import {
-  ActionOnResource,
-  CreateAccountDetails,
-  LoginResponse,
-  SignupResponse,
-  UserInfo,
-} from "../../bindings"
-import { isLoginResponse, isSignupResponse, isUserInfo } from "../../bindings.guard"
-import { isArray, isBoolean, isNull, isUnion, validateResponse } from "../../utils/fetching"
+  getAuthLoggedIn,
+  getAuthUserInfo,
+  postAuthAuthorize,
+  postAuthAuthorizeMultiple,
+  postAuthDeleteUserAccount,
+  postAuthLogin,
+  postAuthLogout,
+  postAuthSendEmailCode,
+  postAuthSignup,
+  postAuthVerifyEmail,
+} from "../../generated/auth-api/sdk.generated"
+import "../../init/registerAuthApiClients"
 
 export const loggedIn = async (): Promise<boolean> => {
-  const response = await axios.get(`/api/v0/auth/logged-in`, { responseType: "json" })
-  return validateResponse(response, isBoolean)
+  return getAuthLoggedIn()
 }
 
-export const createUser = async (newUser: CreateAccountDetails): Promise<SignupResponse> => {
-  const response = await axios.post(`/api/v0/auth/signup`, newUser)
-  return validateResponse(response, isSignupResponse)
+export const createUser = async (newUser: CreateAccountDetails): Promise<void> => {
+  await postAuthSignup({ body: newUser })
 }
 
 export const login = async (email: string, password: string): Promise<LoginResponse> => {
-  const response = await axios.post(`/api/v0/auth/login`, {
-    email,
-    password,
+  return postAuthLogin({
+    body: { email, password },
   })
-  return validateResponse(response, isLoginResponse)
 }
 
 export const verifyEmail = async (
   email_verification_token: string,
   code: string,
 ): Promise<boolean> => {
-  const response = await axios.post(`/api/v0/auth/verify-email`, {
-    email_verification_token,
-    code,
+  return postAuthVerifyEmail({
+    body: { email_verification_token, code },
   })
-  return validateResponse(response, isBoolean)
 }
 
 export const logout = async (): Promise<void> => {
-  await axios.post(`/api/v0/auth/logout`)
+  await postAuthLogout()
 }
 
 export const authorize = async (action: ActionOnResource): Promise<boolean> => {
-  const response = await axios.post("/api/v0/auth/authorize", action)
-  return validateResponse(response, isBoolean)
+  return postAuthAuthorize({ body: action })
 }
 
 export const authorizeMultiple = async (action: ActionOnResource[]): Promise<boolean[]> => {
-  const response = await axios.post("/api/v0/auth/authorize-multiple", action)
-  return validateResponse(response, isArray(isBoolean))
+  return postAuthAuthorizeMultiple({ body: action })
 }
 
 export const userInfo = async (): Promise<UserInfo | null> => {
-  const response = await axios.get(`/api/v0/auth/user-info`, { responseType: "json" })
-  return validateResponse(response, isUnion(isUserInfo, isNull))
+  const response = await getAuthUserInfo()
+  if (response === null) {
+    return null
+  }
+  return {
+    user_id: response.user_id,
+    first_name: response.first_name ?? null,
+    last_name: response.last_name ?? null,
+  }
 }
 
 export const sendEmailCode = async (
@@ -63,17 +65,13 @@ export const sendEmailCode = async (
   password: string,
   language: string,
 ): Promise<boolean> => {
-  const response = await axios.post(`/api/v0/auth/send-email-code`, {
-    email,
-    password,
-    language,
+  return postAuthSendEmailCode({
+    body: { email, password, language },
   })
-  return validateResponse(response, isBoolean)
 }
 
 export const deleteUserAccount = async (code: string): Promise<boolean> => {
-  const response = await axios.post(`/api/v0/auth/delete-user-account`, {
-    code,
+  return postAuthDeleteUserAccount({
+    body: { code },
   })
-  return validateResponse(response, isBoolean)
 }

@@ -1,6 +1,6 @@
 import { createChatbotTranscript } from "../createChatbotTranscript"
 
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 
 describe("getChatbotTranscript", () => {
   const info1: ChatbotConversationInfo = {

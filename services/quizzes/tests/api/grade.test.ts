@@ -12,8 +12,7 @@ import {
   generateUnknownItemTypeGradingRequest,
 } from "./utils/privateSpecGenerator"
 
-import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
-import { isExerciseTaskGradingResult } from "@/shared-module/common/bindings.guard"
+import { ExerciseTaskGradingResult, isExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
 const client = testClient(POST)
 

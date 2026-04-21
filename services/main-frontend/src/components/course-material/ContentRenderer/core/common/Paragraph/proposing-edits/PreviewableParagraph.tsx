@@ -7,7 +7,7 @@ import { getEditableHoverStyles, getParagraphStyles } from "../styles"
 
 import { useParagraphEditing } from "./hooks/useParagraphEditing"
 
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
 
 interface PreviewableParagraphProps {

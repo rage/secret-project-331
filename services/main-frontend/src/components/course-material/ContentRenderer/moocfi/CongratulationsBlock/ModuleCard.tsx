@@ -7,10 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import CongratulationsLinks from "./CongratulationsLinks"
 
+import type { UserModuleCompletionStatus } from "@/generated/course-material-api/types.generated"
 import FailedIcon from "@/img/course-material/failed-icon.svg"
 import Badge from "@/img/course-material/grade-badge.svg"
 import PassedIcon from "@/img/course-material/passed-icon.svg"
-import { UserModuleCompletionStatus } from "@/shared-module/common/bindings"
 import { baseTheme, headingFont, monospaceFont, typography } from "@/shared-module/common/styles"
 
 const Wrapper = styled.div`
@@ -81,7 +81,7 @@ const StyledFailedIcon = styled(FailedIcon)`
 `
 
 export interface ModuleCardProps {
-  certificateConfigurationId: string | null
+  certificateConfigurationId: string | null | undefined
   module: UserModuleCompletionStatus
 }
 

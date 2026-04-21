@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import GlobalStatTable from "./GlobalStatTable"
 
+import { TimeGranularity } from "@/generated/api/types.generated"
 import {
   useCourseModuleStatsByCompletionsRegisteredToStudyRegistryQuery,
   useNumberOfPeopleCompletedACourseQuery,
@@ -13,7 +14,6 @@ import {
   useNumberOfPeopleRegisteredCompletionToStudyRegistryQuery,
   useNumberOfPeopleStartedCourseQuery,
 } from "@/hooks/globalStats"
-import { TimeGranularity } from "@/shared-module/common/bindings"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"

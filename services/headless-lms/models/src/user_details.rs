@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use futures::Stream;
+use utoipa::ToSchema;
 
 use crate::{prelude::*, users::User};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+
 pub struct UserDetail {
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -110,6 +111,8 @@ LIMIT 1000;
     Ok(res)
 }
 
+/// Searches user_details by partial match on the generated `search_helper` column so the
+/// `user_details_search_helper_gist` trigram index can serve the `LIKE '%x%'` predicate.
 pub async fn search_for_user_details_by_other_details(
     conn: &mut PgConnection,
     search: &str,
@@ -119,7 +122,7 @@ pub async fn search_for_user_details_by_other_details(
         "
 SELECT *
 FROM user_details
-WHERE lower(search_helper::text) LIKE '%' || lower($1) || '%'
+WHERE search_helper LIKE '%' || lower($1) || '%'
 LIMIT 1000;
 ",
         search.trim(),

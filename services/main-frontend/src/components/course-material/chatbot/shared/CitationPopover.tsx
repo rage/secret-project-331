@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import { citationId } from "./CitationButton"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type { ChatbotConversationMessageCitation } from "@/generated/course-material-api/types.generated"
 import SpeechBalloonPopover from "@/shared-module/common/components/SpeechBalloonPopover"
 import { baseTheme } from "@/shared-module/common/styles"
 import { getRemarkable } from "@/utils/course-material/getRemarkable"

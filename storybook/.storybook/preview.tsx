@@ -1,13 +1,13 @@
 "use client"
 
 import type { Preview } from "@storybook/react-vite"
-import i18next from "i18next"
+import i18next, { use as i18nextUse } from "i18next"
 import { I18nextProvider, initReactI18next } from "react-i18next"
 
 import { tokensGlobal } from "../src/shared-module/components"
 
 if (!i18next.isInitialized) {
-  void i18next.use(initReactI18next).init({
+  void i18nextUse(initReactI18next).init({
     lng: "en",
     fallbackLng: "en",
     interpolation: { escapeValue: false },
@@ -34,6 +34,10 @@ if (!i18next.isInitialized) {
           "story.time.invalid": "Invalid",
           "story.time.invalidMessage": "Time is required",
           "story.time.playgroundLabel": "Start time",
+          "queryResult.errorMessage": "{{message}}",
+          "queryResult.loading": "Loading",
+          "queryResult.refreshing": "Refreshing",
+          "queryResult.retry": "Retry",
         },
       },
     },

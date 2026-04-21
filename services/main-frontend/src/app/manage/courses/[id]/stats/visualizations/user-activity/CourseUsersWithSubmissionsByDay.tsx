@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { fetchCourseDailyUserCountsWithSubmissions } from "@/services/backend/courses"
+import { getCourseDailyUsersWhoSubmittedSomethingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -24,8 +24,11 @@ const CourseUsersWithSubmissionsByDay: React.FC<
 > = ({ courseId }) => {
   const { t } = useTranslation()
   const query = useQuery({
-    queryKey: [`course-daily-users-count-with-submissionss`, courseId],
-    queryFn: () => fetchCourseDailyUserCountsWithSubmissions(courseId),
+    ...getCourseDailyUsersWhoSubmittedSomethingOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   const processedData = useMemo(() => {

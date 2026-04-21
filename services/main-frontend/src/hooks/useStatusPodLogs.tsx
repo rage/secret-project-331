@@ -2,16 +2,23 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchPodLogs } from "../services/backend/status"
+import { getStatusPodLogsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusPodLogs = (
   podName: string | null | undefined,
   container?: string,
   tail?: number,
 ) => {
-  return useQuery<string>({
-    queryKey: ["status", "pods", podName, "logs", container, tail],
-    queryFn: () => fetchPodLogs(podName!, container, tail),
+  return useQuery({
+    ...getStatusPodLogsOptions({
+      path: {
+        pod_name: podName!,
+      },
+      query: {
+        container,
+        tail,
+      },
+    }),
     enabled: !!podName,
     refetchInterval: 10000,
   })

@@ -12,6 +12,7 @@ use std::{
     sync::RwLock,
     time::{Duration, Instant},
 };
+use utoipa::OpenApi;
 
 // the clients are pinged, to which they are supposed to respond with pongs, and...
 const PING_INTERVAL: Duration = Duration::from_secs(10);
@@ -20,6 +21,10 @@ const CONNECTION_TIMEOUT: Duration = Duration::from_secs(60);
 
 // stores all the ws connections so that they can be fetched by the handler that receives updated gradings
 static WS_CONNECTIONS: WsConnections = WsConnections::new();
+
+#[derive(OpenApi)]
+#[openapi(paths(websocket, receive_grading))]
+pub(crate) struct MainFrontendPlaygroundViewsApiDoc;
 
 // a simple RwLock should be fine since we're not expecting a large amount of ws connections for this page
 struct WsConnections(OnceCell<RwLock<HashMap<Uuid, Addr<ClientConnection>>>>);
@@ -151,7 +156,6 @@ impl Handler<PlaygroundSubmissionMessage> for ClientConnection {
 /// The message type for all messages sent from the server to the client from the playgrounds-views websocket connection.
 #[derive(Debug, Serialize, Message)]
 #[rtype(result = "()")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 #[serde(tag = "tag", content = "data")]
 pub enum PlaygroundViewsMessage {
     /// Server did not receive a pong for a certain period so the connection timed out.
@@ -163,6 +167,15 @@ pub enum PlaygroundViewsMessage {
 }
 
 /// Starts a new websocket connection.
+#[utoipa::path(
+    get,
+    path = "/ws",
+    operation_id = "getPlaygroundViewsWebsocket",
+    tag = "playground-views",
+    responses(
+        (status = 101, description = "WebSocket connection upgraded")
+    )
+)]
 async fn websocket(
     req: HttpRequest,
     stream: web::Payload,
@@ -173,6 +186,19 @@ async fn websocket(
 
 /// playground-views passes a URL pointing to this route to an exercise service when sending submissions so that if
 /// the service has an update for a pending grading, it will be sent here and passed on to through the websocket
+#[utoipa::path(
+    post,
+    path = "/grading/{websocket_id}",
+    operation_id = "receivePlaygroundGrading",
+    tag = "playground-views",
+    params(
+        ("websocket_id" = Uuid, Path, description = "Playground websocket id")
+    ),
+    request_body = ExerciseTaskGradingResult,
+    responses(
+        (status = 200, description = "Grading forwarded to websocket client")
+    )
+)]
 async fn receive_grading(
     websocket_id: web::Path<Uuid>,
     grading_result: web::Json<ExerciseTaskGradingResult>,

@@ -36,6 +36,7 @@ use models::{
     student_countries::StudentCountry,
     user_course_settings::UserCourseSettings,
 };
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{
     domain::authorization::{
@@ -45,9 +46,55 @@ use crate::{
     prelude::*,
 };
 
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_course,
+    get_course_page_by_path,
+    get_current_course_instance,
+    get_course_instances,
+    get_public_course_pages,
+    get_chapters,
+    get_user_course_settings,
+    search_pages_with_phrase,
+    search_pages_with_words,
+    feedback,
+    propose_edit,
+    glossary,
+    get_material_references_by_course_id,
+    get_public_top_level_pages,
+    get_all_course_language_versions_navigation_info_from_page,
+    get_page_by_course_id_and_language_group,
+    student_country,
+    get_student_countries,
+    get_student_country,
+    get_research_form_with_course_id,
+    get_research_form_questions_with_course_id,
+    upsert_course_research_form_answer,
+    get_research_form_answers_with_user_id,
+    update_marketing_consent,
+    fetch_user_marketing_consent,
+    get_partners_block,
+    get_privacy_link,
+    get_custom_privacy_policy_checkbox_texts,
+    get_user_chapter_locks
+))]
+pub(crate) struct CourseMaterialCoursesApiDoc;
+
 /**
 GET `/api/v0/course-material/courses/:course_id` - Get course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}",
+    operation_id = "getCourseMaterialCourse",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course", body = CourseMaterialCourse)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course(
     course_id: web::Path<Uuid>,
@@ -68,6 +115,19 @@ If the page has moved and there's a redirection, this will still return the move
 GET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world
 */
 
+#[utoipa::path(
+    get,
+    path = "/{course_slug}/page-by-path/{url_path}",
+    operation_id = "getCourseMaterialCoursePageByPath",
+    tag = "course-material-courses",
+    params(
+        ("course_slug" = String, Path, description = "Course slug"),
+        ("url_path" = String, Path, description = "Page path within the course")
+    ),
+    responses(
+        (status = 200, description = "Course page with user data", body = CoursePageWithUserData)
+    )
+)]
 #[instrument(skip(pool, ip_to_country_mapper, req, file_store, app_conf))]
 async fn get_course_page_by_path(
     params: web::Path<(String, String)>,
@@ -108,7 +168,9 @@ async fn get_course_page_by_path(
     .await?
     {
         return Err(ControllerError::new(
-            ControllerErrorType::Unauthorized,
+            ControllerErrorType::UnauthorizedWithReason(
+                crate::domain::error::UnauthorizedReason::ChapterNotOpenYet,
+            ),
             "Chapter is not open yet.".to_string(),
             None,
         ));
@@ -327,6 +389,18 @@ async fn derive_information_from_requester(
 /**
 GET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/current-instance",
+    operation_id = "getCurrentCourseMaterialCourseInstance",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Current course instance", body = Option<CourseInstance>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_current_course_instance(
     pool: web::Data<PgPool>,
@@ -353,6 +427,18 @@ async fn get_current_course_instance(
 /**
 GET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-instances",
+    operation_id = "getCourseMaterialCourseInstances",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course instances", body = Vec<CourseInstance>)
+    )
+)]
 async fn get_course_instances(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
@@ -369,10 +455,23 @@ GET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of publi
 
 Since anyone can access this endpoint, any unlisted pages are omited from these results.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/pages",
+    operation_id = "getCourseMaterialCoursePages",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Public course pages", body = Vec<Page>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_public_course_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let pages: Vec<Page> = models::pages::get_all_by_course_id_and_visibility(
@@ -381,19 +480,21 @@ async fn get_public_course_pages(
         PageVisibility::Public,
     )
     .await?;
+    let pages =
+        models::pages::filter_course_material_pages(&mut conn, auth.map(|u| u.id), pages).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(pages))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChaptersWithStatus {
     pub is_previewable: bool,
     pub modules: Vec<CourseMaterialCourseModule>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialCourseModule {
     pub chapters: Vec<ChapterWithStatus>,
     pub id: Uuid,
@@ -406,6 +507,18 @@ pub struct CourseMaterialCourseModule {
 GET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.
 */
 
+#[utoipa::path(
+    get,
+    path = "/{course_id}/chapters",
+    operation_id = "getCourseMaterialChapters",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course chapters grouped by module", body = ChaptersWithStatus)
+    )
+)]
 #[instrument(skip(pool, file_store, app_conf))]
 async fn get_chapters(
     course_id: web::Path<Uuid>,
@@ -489,6 +602,18 @@ fn collect_course_modules(
 /**
 GET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/user-settings",
+    operation_id = "getCourseMaterialUserCourseSettings",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "User course settings", body = Option<UserCourseSettings>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_course_settings(
     pool: web::Data<PgPool>,
@@ -530,6 +655,19 @@ Content-Type: application/json
 }
 ```
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/search-pages-with-phrase",
+    operation_id = "searchPagesWithPhrase",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = SearchRequest,
+    responses(
+        (status = 200, description = "Matching pages", body = Vec<PageSearchResult>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
@@ -561,6 +699,19 @@ Content-Type: application/json
 }
 ```
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/search-pages-with-words",
+    operation_id = "searchPagesWithWords",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = SearchRequest,
+    responses(
+        (status = 200, description = "Matching pages", body = Vec<PageSearchResult>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
@@ -577,6 +728,19 @@ async fn search_pages_with_words(
 /**
 POST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/feedback",
+    operation_id = "postFeedback",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = Vec<NewFeedback>,
+    responses(
+        (status = 200, description = "Created feedback ids", body = Vec<Uuid>)
+    )
+)]
 pub async fn feedback(
     course_id: web::Path<Uuid>,
     new_feedback: web::Json<Vec<NewFeedback>>,
@@ -628,6 +792,19 @@ pub async fn feedback(
 /**
 POST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_slug}/propose-edit",
+    operation_id = "postCourseMaterialCourseEditProposal",
+    tag = "course-material-courses",
+    params(
+        ("course_slug" = String, Path, description = "Course slug")
+    ),
+    request_body = NewProposedPageEdits,
+    responses(
+        (status = 200, description = "Created edit proposal id", body = Uuid)
+    )
+)]
 async fn propose_edit(
     course_slug: web::Path<String>,
     edits: web::Json<NewProposedPageEdits>,
@@ -648,6 +825,18 @@ async fn propose_edit(
     token.authorized_ok(web::Json(id))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{course_id}/glossary",
+    operation_id = "getCourseMaterialGlossary",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course glossary", body = Vec<Term>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn glossary(
     pool: web::Data<PgPool>,
@@ -659,6 +848,18 @@ async fn glossary(
     token.authorized_ok(web::Json(glossary))
 }
 
+#[utoipa::path(
+    get,
+    path = "/{course_id}/references",
+    operation_id = "getCourseMaterialReferences",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course references", body = Vec<MaterialReference>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_material_references_by_course_id(
     course_id: web::Path<Uuid>,
@@ -677,10 +878,23 @@ async fn get_material_references_by_course_id(
 /**
 GET /api/v0/course-material/courses/:course_id/top-level-pages
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/top-level-pages",
+    operation_id = "getCourseMaterialTopLevelPages",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Top-level pages", body = Vec<Page>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_public_top_level_pages(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let page = models::pages::get_course_top_level_pages_by_course_id_and_visibility(
@@ -689,6 +903,8 @@ async fn get_public_top_level_pages(
         PageVisibility::Public,
     )
     .await?;
+    let page =
+        models::pages::filter_course_material_pages(&mut conn, auth.map(|u| u.id), page).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
@@ -696,6 +912,19 @@ async fn get_public_top_level_pages(
 /**
 GET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/language-versions-navigation-info/from-page/{page_id}",
+    operation_id = "getCourseMaterialLanguageVersionNavigationInfos",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("page_id" = Uuid, Path, description = "Page id")
+    ),
+    responses(
+        (status = 200, description = "Language version navigation info", body = Vec<CourseLanguageVersionNavigationInfo>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_all_course_language_versions_navigation_info_from_page(
     pool: web::Data<PgPool>,
@@ -760,10 +989,24 @@ async fn get_all_course_language_versions_navigation_info_from_page(
 /**
 GET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.
  */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/pages/by-language-group-id/{page_language_group_id}",
+    operation_id = "getCourseMaterialPageByCourseIdAndLanguageGroupId",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("page_language_group_id" = Uuid, Path, description = "Page language group id")
+    ),
+    responses(
+        (status = 200, description = "Page in requested language group", body = Page)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_page_by_course_id_and_language_group(
     info: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let (course_id, page_language_group_id) = info.into_inner();
@@ -774,6 +1017,8 @@ async fn get_page_by_course_id_and_language_group(
         page_language_group_id,
     )
     .await?;
+    let page =
+        models::pages::filter_course_material_page(&mut conn, auth.map(|u| u.id), page).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(page))
 }
@@ -781,6 +1026,20 @@ async fn get_page_by_course_id_and_language_group(
 /**
 POST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}",
+    operation_id = "postCourseMaterialStudentCountry",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("course_instance_id" = Uuid, Path, description = "Course instance id"),
+        ("country_code" = String, Path, description = "Country code")
+    ),
+    responses(
+        (status = 200, description = "Student country recorded", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 async fn student_country(
     query: web::Path<(Uuid, Uuid, String)>,
@@ -806,6 +1065,19 @@ async fn student_country(
 /**
 GET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.
  */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/course-instances/{course_instance_id}/student-countries",
+    operation_id = "getCourseMaterialStudentCountries",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id"),
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "Student country counts", body = HashMap<String, u32>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_student_countries(
     query: web::Path<(Uuid, Uuid)>,
@@ -834,6 +1106,18 @@ async fn get_student_countries(
 /**
 GET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.
  */
+#[utoipa::path(
+    get,
+    path = "/{course_instance_id}/student-country",
+    operation_id = "getCourseMaterialStudentCountry",
+    tag = "course-material-courses",
+    params(
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (status = 200, description = "Selected student country", body = StudentCountry)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_student_country(
     course_instance_id: web::Path<Uuid>,
@@ -855,6 +1139,18 @@ async fn get_student_country(
 /**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/research-consent-form",
+    operation_id = "getCourseMaterialResearchConsentForm",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Research consent form", body = Option<ResearchForm>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_research_form_with_course_id(
     course_id: web::Path<Uuid>,
@@ -876,6 +1172,18 @@ async fn get_research_form_with_course_id(
 /**
 GET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/research-consent-form-questions",
+    operation_id = "getCourseMaterialResearchConsentFormQuestions",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Research consent form questions", body = Vec<ResearchFormQuestion>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_research_form_questions_with_course_id(
     course_id: web::Path<Uuid>,
@@ -897,6 +1205,19 @@ async fn get_research_form_questions_with_course_id(
 POST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.
 */
 
+#[utoipa::path(
+    post,
+    path = "/{course_id}/research-consent-form-questions-answer",
+    operation_id = "postCourseMaterialResearchConsentFormAnswer",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = NewResearchFormQuestionAnswer,
+    responses(
+        (status = 200, description = "Research consent answer id", body = Uuid)
+    )
+)]
 #[instrument(skip(pool, payload))]
 async fn upsert_course_research_form_answer(
     payload: web::Json<NewResearchFormQuestionAnswer>,
@@ -918,6 +1239,18 @@ async fn upsert_course_research_form_answer(
 /**
 GET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/research-consent-form-user-answers",
+    operation_id = "getCourseMaterialResearchConsentFormAnswers",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Research consent answers", body = Vec<ResearchFormQuestionAnswer>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_research_form_answers_with_user_id(
     course_id: web::Path<Uuid>,
@@ -937,8 +1270,8 @@ async fn get_research_form_answers_with_user_id(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UserMarketingConsentPayload {
     pub course_language_groups_id: Uuid,
     pub email_subscription: bool,
@@ -948,6 +1281,19 @@ pub struct UserMarketingConsentPayload {
 /**
 POST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.
 */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/user-marketing-consent",
+    operation_id = "updateMarketingConsent",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = UserMarketingConsentPayload,
+    responses(
+        (status = 200, description = "Marketing consent id", body = Uuid)
+    )
+)]
 #[instrument(skip(pool, payload))]
 async fn update_marketing_consent(
     payload: web::Json<UserMarketingConsentPayload>,
@@ -982,6 +1328,18 @@ async fn update_marketing_consent(
 /**
 GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/fetch-user-marketing-consent",
+    operation_id = "getCourseMaterialUserMarketingConsent",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "User marketing consent", body = Option<UserMarketingConsent>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn fetch_user_marketing_consent(
     pool: web::Data<PgPool>,
@@ -1004,6 +1362,18 @@ async fn fetch_user_marketing_consent(
 /**
 GET /courses/:course_id/partners-block - Gets a partners block related to a course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/partners-block",
+    operation_id = "getCourseMaterialPartnersBlock",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Partners block", body = Option<PartnersBlock>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_partners_block(
     path: web::Path<Uuid>,
@@ -1021,6 +1391,18 @@ async fn get_partners_block(
 /**
 GET /courses/:course_id/privacy_link - Gets a privacy link related to a course
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/privacy-link",
+    operation_id = "getCourseMaterialPrivacyLink",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Privacy links", body = Vec<PrivacyLink>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_privacy_link(
     course_id: web::Path<Uuid>,
@@ -1035,6 +1417,18 @@ async fn get_privacy_link(
 /**
 GET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/custom-privacy-policy-checkbox-texts",
+    operation_id = "getCourseMaterialCustomPrivacyPolicyCheckboxTexts",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Custom privacy policy checkbox texts", body = Vec<CourseCustomPrivacyPolicyCheckboxText>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_custom_privacy_policy_checkbox_texts(
     course_id: web::Path<Uuid>,
@@ -1058,6 +1452,18 @@ GET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's
 
 Returns all chapters that the authenticated user has unlocked or completed for the specified course.
 **/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/user-chapter-locks",
+    operation_id = "getCourseMaterialUserChapterLocks",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "User chapter locking statuses", body = Vec<models::user_chapter_locking_statuses::UserChapterLockingStatus>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_chapter_locks(
     course_id: web::Path<Uuid>,

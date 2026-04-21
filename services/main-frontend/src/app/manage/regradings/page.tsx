@@ -10,15 +10,11 @@ import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import {
-  createNewRegrading,
-  fetchAllRegradings,
-  fetchRegradingsCount,
-} from "@/services/backend/regradings"
-import {
-  NewRegrading,
-  NewRegradingIdType,
-  UserPointsUpdateStrategy,
-} from "@/shared-module/common/bindings"
+  createRegradingMutation as createNewRegradingMutationOptions,
+  getRegradingsCountOptions,
+  getRegradingsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { NewRegradingIdType, UserPointsUpdateStrategy } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -30,7 +26,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
 import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
@@ -47,13 +43,14 @@ const RegradingsPage: React.FC = () => {
   const router = useRouter()
   const paginationInfo = usePaginationInfo()
   const regradingsQuery = useQuery({
-    queryKey: ["all-regradings", JSON.stringify(paginationInfo)],
-    queryFn: () => fetchAllRegradings(paginationInfo),
+    ...getRegradingsOptions({
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
   })
-  const regradingsCountQuery = useQuery({
-    queryKey: ["all-regradings-count"],
-    queryFn: () => fetchRegradingsCount(),
-  })
+  const regradingsCountQuery = useQuery(getRegradingsCountOptions())
   const [newRegradingDialogOpen, setNewRegradingDialogOpen] = useState(false)
   const {
     register,
@@ -71,8 +68,8 @@ const RegradingsPage: React.FC = () => {
       idType: "ExerciseTaskSubmissionId",
     },
   })
-  const newRegradingMutation = useToastMutation(
-    (newRegrading: NewRegrading) => createNewRegrading(newRegrading),
+  const newRegradingMutation = useToastMutationOptions(
+    createNewRegradingMutationOptions(),
     { notify: true, method: "POST" },
     {
       onSuccess: (data) => {
@@ -245,9 +242,11 @@ const RegradingsPage: React.FC = () => {
               .split("\n")
               .map((line) => line.trim())
             newRegradingMutation.mutate({
-              ids: lines,
-              user_points_update_strategy: data.userPointsUpdateStrategy,
-              id_type: data.idType,
+              body: {
+                ids: lines,
+                user_points_update_strategy: data.userPointsUpdateStrategy,
+                id_type: data.idType,
+              },
             })
           })}
         >

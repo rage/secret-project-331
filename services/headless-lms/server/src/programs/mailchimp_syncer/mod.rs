@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use crate::setup_tracing;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 use headless_lms_models::marketing_consents::UserEmailSubscription;
 use headless_lms_models::marketing_consents::UserMarketingConsentWithDetails;

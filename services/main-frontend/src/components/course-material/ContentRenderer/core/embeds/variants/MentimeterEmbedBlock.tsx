@@ -5,7 +5,8 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { EmbedAttributes } from "@/../types/GutenbergBlockAttributes"
-import { fetchMentimeterEmbed } from "@/services/course-material/backend"
+import { getCourseMaterialMentimeterOembed } from "@/generated/course-material-api/sdk.generated"
+import type { CourseMaterialOEmbedResponse } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -18,7 +19,11 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
   useEffect(() => {
     const fetchEmbed = async () => {
       if (props.url) {
-        const response = await fetchMentimeterEmbed(props.url)
+        const response: CourseMaterialOEmbedResponse = await getCourseMaterialMentimeterOembed({
+          query: {
+            url: props.url,
+          },
+        })
         if (response.html) {
           setEmbedHtml(response.html)
         }

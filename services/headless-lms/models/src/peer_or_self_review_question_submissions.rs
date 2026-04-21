@@ -2,9 +2,10 @@ use std::collections::HashMap;
 
 use crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType;
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerOrSelfReviewQuestionSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -126,8 +127,7 @@ WHERE peer_or_self_review_submission_id IN (
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(tag = "type", rename_all = "kebab-case")]
 pub enum PeerOrSelfReviewAnswer {
     NoAnswer,
@@ -149,8 +149,8 @@ impl PeerOrSelfReviewAnswer {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerOrSelfReviewQuestionAndAnswer {
     pub peer_or_self_review_config_id: Uuid,
     pub peer_or_self_review_question_id: Uuid,
@@ -162,8 +162,8 @@ pub struct PeerOrSelfReviewQuestionAndAnswer {
     pub answer_required: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerReviewWithQuestionsAndAnswers {
     pub peer_or_self_review_submission_id: Uuid,
     pub peer_review_giver_user_id: Uuid,

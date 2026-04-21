@@ -4,11 +4,11 @@ import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postNewTerm } from "@/services/backend/courses"
+import { createCourseGlossaryTermMutation } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface NewTermForm {
   newTerm: string
@@ -30,8 +30,8 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
     // eslint-disable-next-line i18next/no-literal-string
   } = useForm<NewTermForm>({ mode: "onChange" })
 
-  const createMutation = useToastMutation(
-    (data: NewTermForm) => postNewTerm(courseId, data.newTerm, data.newDefinition),
+  const createMutation = useToastMutationOptions(
+    createCourseGlossaryTermMutation(),
     {
       notify: true,
       method: "POST",
@@ -45,7 +45,15 @@ const CreateTermForm: React.FC<CreateTermFormProps> = ({ refetch, courseId }) =>
   )
 
   const onCreate = (data: NewTermForm) => {
-    createMutation.mutate(data)
+    createMutation.mutate({
+      body: {
+        definition: data.newDefinition,
+        term: data.newTerm,
+      },
+      path: {
+        course_id: courseId,
+      },
+    })
   }
 
   return (

@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,33 +9,31 @@ import DomainCompletionStatsTable from "./DomainCompletionStatsTable"
 import YearFilter from "./YearFilter"
 
 import {
-  getCompletionStatsByEmailDomain,
-  getCourseCompletionStatsForEmailDomain,
-} from "@/services/backend/global-stats"
+  useCompletionStatsByEmailDomainQuery,
+  useCourseCompletionStatsForEmailDomainQuery,
+} from "@/hooks/globalStats"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+const SelectedDomainCourseStatsTable = ({
+  selectedDomain,
+  selectedYear,
+}: {
+  selectedDomain: string
+  selectedYear: number | undefined
+}) => {
+  const courseStatsQuery = useCourseCompletionStatsForEmailDomainQuery(selectedDomain, selectedYear)
+
+  return <CourseCompletionStatsTable query={courseStatsQuery} domain={selectedDomain} />
+}
 
 const DomainStatsPage = () => {
   const { t } = useTranslation()
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined)
   const [selectedDomain, setSelectedDomain] = useState<string | undefined>(undefined)
 
-  // Query for all domains
-  const domainStatsQuery = useQuery({
-    queryKey: ["domainCompletionStats", selectedYear],
-    queryFn: () => getCompletionStatsByEmailDomain(selectedYear),
-  })
-
-  // Query for courses within selected domain
-  const courseStatsQuery = useQuery({
-    queryKey: ["courseCompletionStats", selectedDomain, selectedYear],
-    queryFn: () =>
-      selectedDomain
-        ? getCourseCompletionStatsForEmailDomain(selectedDomain, selectedYear)
-        : Promise.resolve([]),
-    enabled: !!selectedDomain, // Only run query when domain is selected
-  })
+  const domainStatsQuery = useCompletionStatsByEmailDomainQuery(selectedYear)
 
   const handleDomainSelect = (domain: string) => {
     setSelectedDomain(domain)
@@ -87,7 +84,10 @@ const DomainStatsPage = () => {
       {!selectedDomain ? (
         <DomainCompletionStatsTable query={domainStatsQuery} onDomainSelect={handleDomainSelect} />
       ) : (
-        <CourseCompletionStatsTable query={courseStatsQuery} domain={selectedDomain} />
+        <SelectedDomainCourseStatsTable
+          selectedDomain={selectedDomain}
+          selectedYear={selectedYear}
+        />
       )}
     </div>
   )

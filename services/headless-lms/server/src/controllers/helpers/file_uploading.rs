@@ -64,7 +64,7 @@ pub async fn process_exercise_service_upload(
 }
 
 #[derive(Debug, Clone, Copy, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub enum StoreKind {
     Organization(Uuid),
     Course(Uuid),

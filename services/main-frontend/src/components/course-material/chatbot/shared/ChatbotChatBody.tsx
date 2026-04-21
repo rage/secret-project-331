@@ -15,7 +15,10 @@ import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type {
+  ChatbotConversationMessage,
+  ChatbotConversationMessageCitation,
+} from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -58,7 +61,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   ])
 
   const messages = useMemo(() => {
-    const messages = [
+    const messages: ChatbotConversationMessage[] = [
       ...(currentConversationInfo.data?.current_conversation_messages?.filter(
         (m) => m.message_role !== "tool" && m.tool_call_fields.length === 0,
       ) ?? []),
@@ -223,7 +226,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {error && <ErrorDisplay error={error} />}
+      {error != null ? <ErrorDisplay error={error} /> : null}
       <div
         className={css`
           display: flex;

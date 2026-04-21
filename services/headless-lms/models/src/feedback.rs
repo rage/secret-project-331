@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+
 pub struct NewFeedback {
     pub feedback_given: String,
     pub selected_text: Option<String>,
@@ -9,8 +10,8 @@ pub struct NewFeedback {
     pub page_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct FeedbackBlock {
     pub id: Uuid,
     pub text: Option<String>,
@@ -80,8 +81,8 @@ WHERE id = $2
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct Feedback {
     pub id: Uuid,
     pub user_id: Option<Uuid>,
@@ -177,8 +178,8 @@ FROM (
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct FeedbackCount {
     pub read: u32,
     pub unread: u32,

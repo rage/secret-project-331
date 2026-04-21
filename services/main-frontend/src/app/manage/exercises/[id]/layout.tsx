@@ -6,8 +6,8 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { getExerciseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
-import { getExercise } from "@/services/backend/exercises"
 import {
   manageCourseExercisesRoute,
   manageCourseRoute,
@@ -19,8 +19,11 @@ export default function ExerciseLayout({ children }: { children: React.ReactNode
   const { t } = useTranslation()
 
   const exerciseQuery = useQuery({
-    queryKey: ["exercise", id],
-    queryFn: () => getExercise(id),
+    ...getExerciseOptions({
+      path: {
+        exercise_id: id,
+      },
+    }),
   })
 
   const courseId = exerciseQuery.data?.course_id ?? null

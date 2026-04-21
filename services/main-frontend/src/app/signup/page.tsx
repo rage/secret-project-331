@@ -10,8 +10,7 @@ import { Controller, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
-import { fetchCountryFromIP } from "@/services/backend/user-details"
-import { SignupResponse } from "@/shared-module/common/bindings"
+import { getUsersIpCountryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -27,6 +26,10 @@ import {
   validateReturnToRouteOrDefault,
 } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+
+type CreateUserErrorResponse = {
+  message?: string
+}
 
 interface FormFields {
   first_name: string
@@ -126,10 +129,7 @@ const CreateAccountForm: React.FC = () => {
       mode: "onChange",
     })
 
-  const preFillCountry = useQuery({
-    queryKey: [`users-ip-country`],
-    queryFn: () => fetchCountryFromIP(),
-  })
+  const preFillCountry = useQuery(getUsersIpCountryOptions())
 
   useEffect(() => {
     if (preFillCountry.data) {
@@ -156,7 +156,7 @@ const CreateAccountForm: React.FC = () => {
   const password = watch("password")
   const passwordConfirmation = watch("password_confirmation")
 
-  const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
+  const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
     async (data) => {
       const {
         first_name,
@@ -195,6 +195,41 @@ const CreateAccountForm: React.FC = () => {
     }
   }, [password, passwordConfirmation, trigger])
 
+  useEffect(() => {
+    if (createAccountMutation.isError && createAccountMutation.error) {
+      const err = createAccountMutation.error
+      const status =
+        typeof err === "object" && err !== null && "status" in err ? Number(err.status) : null
+      const errorMessage =
+        typeof err === "object" &&
+        err !== null &&
+        "body" in err &&
+        typeof err.body === "object" &&
+        err.body !== null &&
+        "message" in err.body
+          ? String((err.body as CreateUserErrorResponse).message ?? "")
+          : typeof err === "object" && err !== null && "userMessage" in err
+            ? String(err.userMessage ?? "")
+            : ""
+
+      if (
+        status === 400 &&
+        errorMessage.toLowerCase().includes("email") &&
+        (errorMessage.toLowerCase().includes("already been taken") ||
+          errorMessage.toLowerCase().includes("has already been taken"))
+      ) {
+        setEmailAlreadyTakenError(t("email-already-taken"))
+        setError("email", {
+          type: "manual",
+          message: t("email-already-taken-field-error"),
+        })
+      } else {
+        setEmailAlreadyTakenError(null)
+      }
+    } else {
+      setEmailAlreadyTakenError(null)
+    }
+  }, [createAccountMutation.isError, createAccountMutation.error, setError, t])
   const { t: tCountries } = useTranslation("countries")
   const countriesNames = Object.entries(countries).map(([code]) => ({
     value: code,
@@ -254,16 +289,7 @@ const CreateAccountForm: React.FC = () => {
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
           try {
-            const result = await createAccountMutation.mutateAsync(data)
-
-            if (result.type === "email_already_exists") {
-              setEmailAlreadyTakenError(t("email-already-taken"))
-              setError("email", {
-                type: "manual",
-                message: t("email-already-taken-field-error"),
-              })
-              return
-            }
+            await createAccountMutation.mutateAsync(data)
 
             setEmailAlreadyTakenError(null)
             reset({

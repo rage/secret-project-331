@@ -10,7 +10,7 @@ import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { fetchCourseUsersCountByExercise } from "@/services/backend/courses"
+import { getCourseUsersCountsByExerciseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -26,8 +26,11 @@ const CourseUsersCountsByExercise: React.FC<
 > = ({ courseId }) => {
   const { t } = useTranslation()
   const query = useQuery({
-    queryKey: [`course-users-counts-by-exercise-${courseId}`],
-    queryFn: () => fetchCourseUsersCountByExercise(courseId),
+    ...getCourseUsersCountsByExerciseOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   if (query.isError) {

@@ -5,7 +5,7 @@ import { TFunction } from "i18next"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { ManualCompletionPreviewUser } from "@/shared-module/common/bindings"
+import type { ManualCompletionPreviewUser } from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface PreviewUserListProps {
@@ -15,12 +15,11 @@ export interface PreviewUserListProps {
 const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
   const { t } = useTranslation()
 
-  const mapGradeToText = (grade: number | null, passed: boolean): string => {
-    if (grade !== null) {
+  const mapGradeToText = (grade: number | null | undefined, passed: boolean): string => {
+    if (grade != null) {
       return grade.toString()
-    } else {
-      return passed ? t("column-passed") : t("column-failed")
     }
+    return passed ? t("column-passed") : t("column-failed")
   }
 
   return (
@@ -134,8 +133,8 @@ const PreviewUserList: React.FC<PreviewUserListProps> = ({ users }) => {
 
 export default PreviewUserList
 
-function formatGrade(grade: number | null, t: TFunction): string {
-  if (grade === null) {
+function formatGrade(grade: number | null | undefined, t: TFunction): string {
+  if (grade == null) {
     return "-"
   }
   if (grade === -1) {

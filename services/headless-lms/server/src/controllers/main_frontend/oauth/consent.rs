@@ -10,6 +10,12 @@ use models::{
 };
 use sqlx::PgPool;
 use url::{Url, form_urlencoded};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(approve_consent, deny_consent))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthConsentApiDoc;
 
 /// Handles `/consent` approval after the user agrees to grant requested scopes.
 ///
@@ -31,6 +37,16 @@ use url::{Url, form_urlencoded};
 /// Location: /api/v0/main-frontend/oauth/authorize?client_id=...
 /// ```
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/consent",
+    operation_id = "approveOauthConsent",
+    tag = "oauth",
+    request_body = ConsentQuery,
+    responses(
+        (status = 200, description = "Consent approval response", body = ConsentResponse)
+    )
+)]
 pub async fn approve_consent(
     pool: web::Data<PgPool>,
     form: web::Json<ConsentQuery>,
@@ -116,6 +132,16 @@ pub async fn approve_consent(
 /// Location: http://localhost?error=access_denied&state=random123
 /// ```
 #[instrument]
+#[utoipa::path(
+    post,
+    path = "/consent/deny",
+    operation_id = "denyOauthConsent",
+    tag = "oauth",
+    request_body = ConsentDenyQuery,
+    responses(
+        (status = 200, description = "Consent denial response", body = ConsentResponse)
+    )
+)]
 pub async fn deny_consent(
     pool: web::Data<PgPool>,
     form: web::Json<ConsentDenyQuery>,
@@ -156,9 +182,9 @@ pub async fn deny_consent(
         }
     }
 
-    Ok(HttpResponse::Found()
-        .append_header(("Location", url.to_string()))
-        .finish())
+    Ok(HttpResponse::Ok().json(ConsentResponse {
+        redirect_uri: url.to_string(),
+    }))
 }
 
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {

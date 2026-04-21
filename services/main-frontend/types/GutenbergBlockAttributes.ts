@@ -55,7 +55,6 @@ export interface ButtonAttributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
-  width?: number
   borderColor?: string
   lock?: {
     [k: string]: unknown

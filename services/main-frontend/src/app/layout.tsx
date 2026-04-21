@@ -1,5 +1,6 @@
 "use client"
 
+import "@/init/registerMainFrontendApiClients"
 import Script from "next/script"
 import React, { Suspense } from "react"
 

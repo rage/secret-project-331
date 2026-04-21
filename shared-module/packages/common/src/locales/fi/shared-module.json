@@ -60,6 +60,16 @@
   "email": "Sähköposti",
   "email-templates": "Sähköposti-pohjat",
   "error-cannot-render-dynamic-content-missing-url": "Dynaamista sisältöä ei voitu esittää: url puuttuu",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Kirjaudu sisään nähdäksesi tenttitehtävät.",
+      "title": "Kirjautuminen vaaditaan"
+    },
+    "chapter_not_open_yet": {
+      "message": "Tämä luku ei ole vielä avoinna.",
+      "title": "Luku on suljettu"
+    }
+  },
   "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
   "error-title": "Virhe",
   "essay": "Essee",

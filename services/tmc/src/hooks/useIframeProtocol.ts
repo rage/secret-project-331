@@ -1,17 +1,17 @@
 "use client"
 
-import i18n from "i18next"
+import { changeLanguage } from "i18next"
 import { cloneDeep } from "lodash"
 import { orderBy } from "natural-orderby"
 import { useRef, useState } from "react"
 import ReactDOM from "react-dom"
 import { v4 } from "uuid"
 
-import { ExerciseTaskSubmission } from "@/shared-module/common/bindings"
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
 import { isMessageToIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseTaskSubmission } from "@/util/exerciseServiceApi"
 import { publicSpecToIframeUserAnswer } from "@/util/publicSpecToUserAnswer"
 import {
   CurrentStateMessageData,
@@ -183,7 +183,7 @@ export function useIframeProtocol() {
           (messageData as { language?: string }).language ??
           (messageData as { data?: { language?: string } }).data?.language
         if (typeof language === "string") {
-          void i18n.changeLanguage(language)
+          void changeLanguage(language)
         }
       } else {
         logError("Unexpected message from parent")

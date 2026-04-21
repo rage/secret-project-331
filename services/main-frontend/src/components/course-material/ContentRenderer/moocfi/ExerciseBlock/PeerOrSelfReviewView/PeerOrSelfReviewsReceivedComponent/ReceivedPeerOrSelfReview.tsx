@@ -8,10 +8,10 @@ import { useTranslation } from "react-i18next"
 import Essay from "./Essay"
 import Likert from "./Likert"
 
-import {
+import type {
   PeerOrSelfReviewQuestion,
   PeerOrSelfReviewQuestionSubmission,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
 interface ReviewProps {
   orderNumber: number
   reviews: PeerOrSelfReviewQuestionSubmission[]
@@ -74,7 +74,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<ReviewProps> = ({
                 <Essay key={id} question={question} content={text_data} index={index} />
               )}
               {number_data !== null && (
-                <Likert key={id} question={question} content={number_data} index={index} />
+                <Likert key={id} question={question} content={number_data ?? null} index={index} />
               )}
             </>
           )

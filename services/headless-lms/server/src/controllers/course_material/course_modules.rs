@@ -1,13 +1,34 @@
 use headless_lms_models::{course_instances, user_course_exercise_service_variables};
 use models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
+use utoipa::OpenApi;
 
 use crate::{domain::authorization::skip_authorize, prelude::*};
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_course_module_id_by_chapter_id,
+    get_default_course_module_id_by_course_id,
+    get_user_course_module_exercises_by_exercise_type
+))]
+pub(crate) struct CourseMaterialCourseModulesApiDoc;
 
 /**
 GET `/api/v0/course-material/course-modules/chapter/:chapter_id`
 
 Returns course module id based on chapter.
 */
+#[utoipa::path(
+    get,
+    path = "/chapter/{chapter_id}",
+    operation_id = "getCourseMaterialModuleIdByChapterId",
+    tag = "course-material-course-modules",
+    params(
+        ("chapter_id" = Uuid, Path, description = "Chapter id")
+    ),
+    responses(
+        (status = 200, description = "Course module id", body = Uuid)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_course_module_id_by_chapter_id(
     chapter_id: web::Path<Uuid>,
@@ -25,6 +46,18 @@ GET `/api/v0/course-material/course-modules/course/:course_instance_id`
 
 Returns course module id based on chapter.
 */
+#[utoipa::path(
+    get,
+    path = "/course/{course_id}",
+    operation_id = "getCourseMaterialDefaultModuleIdByCourseId",
+    tag = "course-material-course-modules",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Default course module id", body = Uuid)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_default_course_module_id_by_course_id(
     course_id: web::Path<Uuid>,
@@ -43,6 +76,24 @@ GET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:ex
 
 Returns exercise submissions for user to be used in en exercise service Custom view.
 */
+#[utoipa::path(
+    get,
+    path = "/{course_module_id}/exercise-tasks/{exercise_type}/{course_instance_id}",
+    operation_id = "getCourseMaterialExerciseTasksByModuleAndType",
+    tag = "course-material-course-modules",
+    params(
+        ("course_module_id" = Uuid, Path, description = "Course module id"),
+        ("exercise_type" = String, Path, description = "Exercise type"),
+        ("course_instance_id" = Uuid, Path, description = "Course instance id")
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Exercise tasks, exercises, and user variables",
+            body = CustomViewExerciseSubmissions
+        )
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_course_module_exercises_by_exercise_type(
     path: web::Path<(Uuid, String, Uuid)>,

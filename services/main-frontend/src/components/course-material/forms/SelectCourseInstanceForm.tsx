@@ -8,10 +8,13 @@ import { useTranslation } from "react-i18next"
 
 import SelectMarketingConsentForm from "./SelectMarketingConsentForm"
 
+import { updateMarketingConsent } from "@/generated/course-material-api/sdk.generated"
+import type {
+  CourseInstance,
+  NewCourseBackgroundQuestionAnswer,
+} from "@/generated/course-material-api/types.generated"
 import useAdditionalQuestions from "@/hooks/course-material/useAdditionalQuestions"
 import useCourse from "@/hooks/course-material/useCourse"
-import { updateMarketingConsent } from "@/services/course-material/backend"
-import { CourseInstance, NewCourseBackgroundQuestionAnswer } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -112,12 +115,16 @@ const SelectCourseInstanceForm: React.FC<
       })
     }
     if (getCourse.isSuccess && getCourse.data?.ask_marketing_consent) {
-      await updateMarketingConsent(
-        getCourse.data.id,
-        getCourse.data.course_language_group_id,
-        isEmailSubscriptionConsentChecked,
-        isMarketingConsentChecked,
-      )
+      await updateMarketingConsent({
+        body: {
+          course_language_groups_id: getCourse.data.course_language_group_id,
+          email_subscription: isEmailSubscriptionConsentChecked,
+          marketing_consent: isMarketingConsentChecked,
+        },
+        path: {
+          course_id: getCourse.data.id,
+        },
+      })
     }
   }
 

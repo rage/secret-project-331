@@ -2,8 +2,9 @@
 
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
-import React from "react"
-import { Particles } from "react-tsparticles"
+import TsParticles, { initParticlesEngine } from "@tsparticles/react"
+import React, { useEffect, useState } from "react"
+import { loadFull } from "tsparticles"
 
 import Tick from "@/img/course-material/tick.svg"
 
@@ -20,9 +21,23 @@ const StyledDiv = styled.div`
 `
 
 const Confetti: React.FC = () => {
+  const [isReady, setIsReady] = useState(false)
+
+  useEffect(() => {
+    initParticlesEngine(async (engine) => {
+      await loadFull(engine)
+    }).then(() => {
+      setIsReady(true)
+    })
+  }, [])
+
+  if (!isReady) {
+    return null
+  }
+
   return (
     <StyledDiv>
-      <Particles
+      <TsParticles
         id="tsparticles"
         options={{
           background: {

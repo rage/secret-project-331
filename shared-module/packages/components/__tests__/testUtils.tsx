@@ -10,6 +10,11 @@ export function renderUi(ui: React.ReactElement) {
   return render(ui)
 }
 
+/** DOM `click` for tests that need `onPress`/`onClick` without `@testing-library/user-event` (pointer synthesis can throw on Jest jsdom `PointerEvent.pointerId`). */
+export function domClick(element: Element) {
+  fireEvent.click(element)
+}
+
 export function pressEnter(element: Element) {
   fireEvent.keyDown(element, { key: "Enter" })
   fireEvent.keyUp(element, { key: "Enter" })

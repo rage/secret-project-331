@@ -1,17 +1,21 @@
 import { act, renderHook } from "@testing-library/react"
 
 import useMessageChannel from "../../src/hooks/useMessageChannel"
+import { createMockMessageChannel } from "../utils/iframeTestUtils"
 
 test("useMessageChannel returns a message channel and recreate function", () => {
-  // @ts-expect-error: jsdom does not have MessageChannel
-  window.MessageChannel = jest.fn().mockReturnValue({ port1: {}, port2: {} })
+  window.MessageChannel = jest
+    .fn()
+    .mockImplementation(() => createMockMessageChannel()) as unknown as typeof MessageChannel
   const { result } = renderHook(() => useMessageChannel())
   expect(result.current[0]).not.toBeNull()
   expect(result.current[1]).toBeInstanceOf(Function)
 })
 
 test("recreateChannel creates a new MessageChannel", () => {
-  window.MessageChannel = jest.fn(() => ({ port1: {}, port2: {} }))
+  window.MessageChannel = jest
+    .fn()
+    .mockImplementation(() => createMockMessageChannel()) as unknown as typeof MessageChannel
   const { result } = renderHook(() => useMessageChannel())
 
   const [firstChannel] = result.current

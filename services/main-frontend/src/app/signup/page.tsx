@@ -189,7 +189,7 @@ const CreateAccountForm: React.FC = () => {
         },
       })
     },
-    { notify: false },
+    { notify: true, method: "POST" },
   )
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\"\nFROM chatbot_conversation_message_tool_calls\nWHERE chatbot_conversation_message_id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nUPDATE chatbot_conversation_message_tool_outputs\nSET deleted_at = NOW()\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    output,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\n        ",
   "describe": {
     "columns": [
       {
@@ -30,21 +30,16 @@
       },
       {
         "ordinal": 5,
-        "name": "tool_name",
+        "name": "output",
         "type_info": "Varchar"
       },
       {
         "ordinal": 6,
-        "name": "tool_arguments",
-        "type_info": "Jsonb"
-      },
-      {
-        "ordinal": 7,
         "name": "tool_call_id",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "tool_kind: ToolKind",
         "type_info": {
           "Custom": {
@@ -57,6 +52,11 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 8,
+        "name": "response_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -76,5 +76,5 @@
       false
     ]
   },
-  "hash": "9dde7b230b18d16fc2bc152a8ef1bb86114e2705361a68fdf4ba43654e6d3215"
+  "hash": "361e416d5899dde5ad32f6333eb450daff4d9d3db3e98becdf9145da3fa141be"
 }

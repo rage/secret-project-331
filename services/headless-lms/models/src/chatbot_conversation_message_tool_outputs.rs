@@ -11,6 +11,7 @@ pub struct ChatbotConversationMessageToolOutput {
     pub output: String,
     pub tool_call_id: String,
     pub tool_kind: ToolKind,
+    pub response_id: String,
 }
 
 impl Default for ChatbotConversationMessageToolOutput {
@@ -24,6 +25,7 @@ impl Default for ChatbotConversationMessageToolOutput {
             output: Default::default(),
             tool_call_id: Default::default(),
             tool_kind: ToolKind::Function,
+            response_id: Default::default(),
         }
     }
 }
@@ -40,9 +42,10 @@ INSERT INTO chatbot_conversation_message_tool_outputs (
     chatbot_conversation_message_id,
     output,
     tool_call_id,
-    tool_kind
+    tool_kind,
+    response_id
   )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING
     id,
     created_at,
@@ -51,12 +54,14 @@ RETURNING
     chatbot_conversation_message_id,
     output,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
         "#,
         msg_id,
         input.output,
         input.tool_call_id,
         input.tool_kind as ToolKind,
+        input.response_id
     )
     .fetch_one(conn)
     .await?;
@@ -78,7 +83,8 @@ SELECT
     chatbot_conversation_message_id,
     output,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
 FROM chatbot_conversation_message_tool_outputs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -105,7 +111,8 @@ SELECT
     chatbot_conversation_message_id,
     output,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
 FROM chatbot_conversation_message_tool_outputs
 WHERE chatbot_conversation_message_id = $1
   AND deleted_at IS NULL
@@ -135,7 +142,8 @@ RETURNING
     chatbot_conversation_message_id,
     output,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
         "#,
         id
     )

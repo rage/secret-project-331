@@ -30,6 +30,7 @@ pub struct ChatbotConversationMessageMessage {
     pub message_role: MessageRole,
     pub message_is_complete: bool,
     pub used_tokens: i32,
+    pub response_id: Option<String>,
 }
 
 impl Default for ChatbotConversationMessageMessage {
@@ -44,6 +45,7 @@ impl Default for ChatbotConversationMessageMessage {
             message_role: MessageRole::System,
             message_is_complete: false,
             used_tokens: Default::default(),
+            response_id: None,
         }
     }
 }
@@ -68,9 +70,10 @@ INSERT INTO chatbot_conversation_message_messages (
     text,
     message_role,
     message_is_complete,
-    used_tokens
+    used_tokens,
+    response_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING
     id,
     created_at,
@@ -80,13 +83,15 @@ RETURNING
     text,
     message_role as "message_role: MessageRole",
     message_is_complete,
-    used_tokens
+    used_tokens,
+    response_id
         "#,
         message_id,
         input.text,
         input.message_role as MessageRole,
         input.message_is_complete,
         input.used_tokens,
+        input.response_id,
     )
     .fetch_one(conn)
     .await?;
@@ -115,7 +120,8 @@ RETURNING
     text,
     message_role as "message_role: MessageRole",
     message_is_complete,
-    used_tokens
+    used_tokens,
+    response_id
         "#,
         conversation_message_id,
         text.to_string(),
@@ -144,7 +150,8 @@ SELECT
     text,
     message_role as "message_role: MessageRole",
     message_is_complete,
-    used_tokens
+    used_tokens,
+    response_id
 FROM chatbot_conversation_message_messages
 WHERE id = $1
   AND deleted_at IS NULL
@@ -172,7 +179,8 @@ SELECT
     text,
     message_role as "message_role: MessageRole",
     message_is_complete,
-    used_tokens
+    used_tokens,
+    response_id
 FROM chatbot_conversation_message_messages
 WHERE chatbot_conversation_message_id = $1
   AND deleted_at IS NULL
@@ -203,7 +211,8 @@ RETURNING
     text,
     message_role as "message_role: MessageRole",
     message_is_complete,
-    used_tokens
+    used_tokens,
+    response_id
         "#,
         id
     )

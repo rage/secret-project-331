@@ -791,7 +791,9 @@ export function isChatbotConversationMessageMessage(obj: unknown): obj is Chatbo
         typeof typedObj["text"] === "string" &&
         isMessageRole(typedObj["message_role"]) as boolean &&
         typeof typedObj["message_is_complete"] === "boolean" &&
-        typeof typedObj["used_tokens"] === "number"
+        typeof typedObj["used_tokens"] === "number" &&
+        (typedObj["response_id"] === null ||
+            typeof typedObj["response_id"] === "string")
     )
 }
 
@@ -808,7 +810,8 @@ export function isChatbotConversationMessageReasoning(obj: unknown): obj is Chat
         (typedObj["deleted_at"] === null ||
             typeof typedObj["deleted_at"] === "string") &&
         (typedObj["summary"] === null ||
-            typeof typedObj["summary"] === "string")
+            typeof typedObj["summary"] === "string") &&
+        typeof typedObj["response_id"] === "string"
     )
 }
 
@@ -848,7 +851,8 @@ export function isChatbotConversationMessageToolCall(obj: unknown): obj is Chatb
         typeof typedObj["chatbot_conversation_message_id"] === "string" &&
         typeof typedObj["tool_name"] === "string" &&
         typeof typedObj["tool_call_id"] === "string" &&
-        isToolKind(typedObj["tool_kind"]) as boolean
+        isToolKind(typedObj["tool_kind"]) as boolean &&
+        typeof typedObj["response_id"] === "string"
     )
 }
 
@@ -874,7 +878,8 @@ export function isChatbotConversationMessageToolOutput(obj: unknown): obj is Cha
         typeof typedObj["chatbot_conversation_message_id"] === "string" &&
         typeof typedObj["output"] === "string" &&
         typeof typedObj["tool_call_id"] === "string" &&
-        isToolKind(typedObj["tool_kind"]) as boolean
+        isToolKind(typedObj["tool_kind"]) as boolean &&
+        typeof typedObj["response_id"] === "string"
     )
 }
 

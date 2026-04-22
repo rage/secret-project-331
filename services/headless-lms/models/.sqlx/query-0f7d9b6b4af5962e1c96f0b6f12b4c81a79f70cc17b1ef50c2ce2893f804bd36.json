@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_conversation_message_tool_outputs (\n    chatbot_conversation_message_id,\n    output,\n    tool_call_id,\n    tool_kind\n  )\nVALUES ($1, $2, $3, $4)\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    output,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\"\n        ",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    output,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\nFROM chatbot_conversation_message_tool_outputs\nWHERE chatbot_conversation_message_id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -52,24 +52,16 @@
             }
           }
         }
+      },
+      {
+        "ordinal": 8,
+        "name": "response_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Varchar",
-        "Varchar",
-        {
-          "Custom": {
-            "name": "tool_kind",
-            "kind": {
-              "Enum": [
-                "function",
-                "azure-ai-search"
-              ]
-            }
-          }
-        }
+        "Uuid"
       ]
     },
     "nullable": [
@@ -80,8 +72,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "c199c565ef8906d647b9b47ccfd0b5b67d336dd937686471e331eba60608428c"
+  "hash": "0f7d9b6b4af5962e1c96f0b6f12b4c81a79f70cc17b1ef50c2ce2893f804bd36"
 }

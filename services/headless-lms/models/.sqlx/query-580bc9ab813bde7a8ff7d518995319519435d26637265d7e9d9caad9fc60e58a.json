@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens\nFROM chatbot_conversation_message_messages\nWHERE chatbot_conversation_message_id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nINSERT INTO chatbot_conversation_message_messages (\n    chatbot_conversation_message_id,\n    text,\n    message_role,\n    message_is_complete,\n    used_tokens,\n    response_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    response_id\n        ",
   "describe": {
     "columns": [
       {
@@ -58,11 +58,32 @@
         "ordinal": 8,
         "name": "used_tokens",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "response_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Uuid",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "message_role",
+            "kind": {
+              "Enum": [
+                "user",
+                "assistant",
+                "developer"
+              ]
+            }
+          }
+        },
+        "Bool",
+        "Int4",
+        "Text"
       ]
     },
     "nullable": [
@@ -74,8 +95,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "a269f9f597cc8accbceb6dbe508a1502dd5467df12a50da5d25684f0b70d62ed"
+  "hash": "580bc9ab813bde7a8ff7d518995319519435d26637265d7e9d9caad9fc60e58a"
 }

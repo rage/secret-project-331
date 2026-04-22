@@ -23,6 +23,7 @@ pub struct ChatbotConversationMessageToolCall {
     pub tool_arguments: Value,
     pub tool_call_id: String,
     pub tool_kind: ToolKind,
+    pub response_id: String,
 }
 
 impl Default for ChatbotConversationMessageToolCall {
@@ -37,6 +38,7 @@ impl Default for ChatbotConversationMessageToolCall {
             tool_arguments: Default::default(),
             tool_call_id: Default::default(),
             tool_kind: ToolKind::Function,
+            response_id: Default::default(),
         }
     }
 }
@@ -54,9 +56,10 @@ INSERT INTO chatbot_conversation_message_tool_calls (
     tool_name,
     tool_arguments,
     tool_call_id,
-    tool_kind
+    tool_kind,
+    response_id
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING
     id,
     created_at,
@@ -66,13 +69,15 @@ RETURNING
     tool_name,
     tool_arguments,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
         "#,
         msg_id,
         input.tool_name,
         input.tool_arguments,
         input.tool_call_id,
-        input.tool_kind as ToolKind
+        input.tool_kind as ToolKind,
+        input.response_id
     )
     .fetch_one(conn)
     .await?;
@@ -84,10 +89,12 @@ pub async fn insert_batch(
     input: Vec<ChatbotConversationMessageToolCall>,
     msg_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
+    // assumes the batch belongs to the same response
     let tool_names: Vec<String> = input.iter().map(|i| i.tool_name.to_owned()).collect();
     let tool_args: Vec<Value> = input.iter().map(|i| i.tool_arguments.to_owned()).collect();
     let tool_ids: Vec<String> = input.iter().map(|i| i.tool_call_id.to_owned()).collect();
     let kinds: Vec<ToolKind> = input.iter().map(|i| i.tool_kind.to_owned()).collect();
+    let response_id = &input[0].response_id;
 
     let res = sqlx::query_as!(
         ChatbotConversationMessageToolCall,
@@ -97,13 +104,15 @@ INSERT INTO chatbot_conversation_message_tool_calls (
     tool_name,
     tool_arguments,
     tool_call_id,
-    tool_kind
+    tool_kind,
+    response_id
   )
 SELECT $1,
   UNNEST($2::VARCHAR(255) []),
   UNNEST($3::JSONB []),
   UNNEST($4::VARCHAR(255) []),
-  UNNEST($5::tool_kind [])
+  UNNEST($5::tool_kind []),
+  $6
 RETURNING
     id,
     created_at,
@@ -113,13 +122,15 @@ RETURNING
     tool_name,
     tool_arguments,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
         "#,
         msg_id,
         &tool_names,
         &tool_args,
         &tool_ids,
         kinds as Vec<ToolKind>,
+        response_id,
     )
     .fetch_all(conn)
     .await?;
@@ -142,7 +153,8 @@ SELECT
     tool_name,
     tool_arguments,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
 FROM chatbot_conversation_message_tool_calls
 WHERE id = $1
   AND deleted_at IS NULL
@@ -170,7 +182,8 @@ SELECT
     tool_name,
     tool_arguments,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
 FROM chatbot_conversation_message_tool_calls
 WHERE chatbot_conversation_message_id = $1
   AND deleted_at IS NULL
@@ -201,7 +214,8 @@ RETURNING
     tool_name,
     tool_arguments,
     tool_call_id,
-    tool_kind as "tool_kind: ToolKind"
+    tool_kind as "tool_kind: ToolKind",
+    response_id
         "#,
         id
     )

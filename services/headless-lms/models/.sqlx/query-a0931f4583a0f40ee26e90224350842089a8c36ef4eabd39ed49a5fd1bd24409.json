@@ -32,6 +32,11 @@
         "ordinal": 5,
         "name": "summary",
         "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "response_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -45,7 +50,8 @@
       false,
       true,
       false,
-      true
+      true,
+      false
     ]
   },
   "hash": "a0931f4583a0f40ee26e90224350842089a8c36ef4eabd39ed49a5fd1bd24409"

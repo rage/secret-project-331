@@ -137,6 +137,7 @@ async fn new_conversation(
                 message_role: MessageRole::Assistant,
                 message_is_complete: true,
                 used_tokens: estimate_tokens(&configuration.initial_message),
+                response_id: Some("initial-message".to_string()),
                 ..Default::default()
             }),
         },

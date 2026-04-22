@@ -1131,6 +1131,7 @@ pub async fn verify_email(
         Login,
         LoginResponse,
         CreateAccountDetails,
+        SignupResponse,
         UserInfo,
         crate::domain::authorization::ActionOnResource,
         crate::domain::authorization::Action,

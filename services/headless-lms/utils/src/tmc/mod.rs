@@ -156,42 +156,20 @@ impl TmcClient {
         })
     }
 
-    pub fn new_from_env() -> UtilResult<Self> {
-        let is_dev =
-            cfg!(debug_assertions) || std::env::var("APP_ENV").map_or(true, |v| v == "development");
-
-        let admin_access_token = std::env::var("TMC_ACCESS_TOKEN").unwrap_or_else(|_| {
-            if is_dev {
-                "mock-access-token".to_string()
-            } else {
-                panic!("TMC_ACCESS_TOKEN must be defined in production")
-            }
-        });
-
-        let ratelimit_api_key =
-            std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY").unwrap_or_else(|_| {
-                if is_dev {
-                    "mock-api-key".to_string()
-                } else {
-                    panic!("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined in production")
-                }
-            });
-
-        if !is_dev {
-            if admin_access_token.trim().is_empty() {
-                return Err(UtilError::new(
-                    UtilErrorType::Other,
-                    "TMC_ACCESS_TOKEN cannot be empty".to_string(),
-                    None,
-                ));
-            }
-            if ratelimit_api_key.trim().is_empty() {
-                return Err(UtilError::new(
-                    UtilErrorType::Other,
-                    "RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty".to_string(),
-                    None,
-                ));
-            }
+    pub fn new(admin_access_token: String, ratelimit_api_key: String) -> UtilResult<Self> {
+        if admin_access_token.trim().is_empty() {
+            return Err(UtilError::new(
+                UtilErrorType::Other,
+                "TMC_ACCESS_TOKEN cannot be empty".to_string(),
+                None,
+            ));
+        }
+        if ratelimit_api_key.trim().is_empty() {
+            return Err(UtilError::new(
+                UtilErrorType::Other,
+                "RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty".to_string(),
+                None,
+            ));
         }
 
         let client = reqwest::Client::builder()

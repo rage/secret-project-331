@@ -1,5 +1,6 @@
-use std::{env, error::Error as StdError, time::Duration};
+use std::{error::Error as StdError, time::Duration};
 
+use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
@@ -30,15 +31,17 @@ const MAX_BACKOFF_SECS: i64 = 24 * 60 * 60;
 const MAX_RETRY_AGE_SECS: i64 = 3 * 24 * 60 * 60;
 const JITTER_SECS: i64 = 30;
 
-static SMTP_FROM: Lazy<String> =
-    Lazy::new(|| env::var("SMTP_FROM").expect("No moocfi email found in the env variables."));
-static SMTP_HOST: Lazy<String> =
-    Lazy::new(|| env::var("SMTP_HOST").expect("No email relay found in the env variables."));
-static DB_URL: Lazy<String> =
-    Lazy::new(|| env::var("DATABASE_URL").expect("No db url found in the env variables."));
+static SMTP_FROM: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("SMTP_FROM").expect("No moocfi email found in the env variables.")
+});
+static SMTP_HOST: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("SMTP_HOST").expect("No email relay found in the env variables.")
+});
+static DB_URL: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("DATABASE_URL").expect("No db url found in the env variables.")
+});
 static SMTP_MESSAGE_ID_DOMAIN: Lazy<String> = Lazy::new(|| {
-    env::var("SMTP_MESSAGE_ID_DOMAIN")
-        .ok()
+    ProgramConfig::optional("SMTP_MESSAGE_ID_DOMAIN")
         .and_then(|value| {
             let trimmed = value.trim();
             if trimmed.is_empty() {
@@ -50,10 +53,12 @@ static SMTP_MESSAGE_ID_DOMAIN: Lazy<String> = Lazy::new(|| {
         .or_else(|| infer_email_domain(SMTP_FROM.as_str()))
         .unwrap_or_else(|| "courses.mooc.fi".to_string())
 });
-static SMTP_USER: Lazy<String> =
-    Lazy::new(|| env::var("SMTP_USER").expect("No smtp user found in env variables."));
-static SMTP_PASS: Lazy<String> =
-    Lazy::new(|| env::var("SMTP_PASS").expect("No smtp password found in env variables."));
+static SMTP_USER: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("SMTP_USER").expect("No smtp user found in env variables.")
+});
+static SMTP_PASS: Lazy<String> = Lazy::new(|| {
+    ProgramConfig::required("SMTP_PASS").expect("No smtp password found in env variables.")
+});
 
 pub async fn mail_sender(pool: &PgPool, mailer: &SmtpTransport) -> Result<()> {
     let mut conn = pool.acquire().await?;
@@ -227,8 +232,8 @@ async fn apply_email_template_replacements(
             if let Some(token_str) =
                 get_unused_reset_password_token_with_user_id(conn, user_id).await?
             {
-                let base =
-                    std::env::var("FRONTEND_BASE_URL").unwrap_or(FRONTEND_BASE_URL.to_string());
+                let base = ProgramConfig::optional("FRONTEND_BASE_URL")
+                    .unwrap_or(FRONTEND_BASE_URL.to_string());
 
                 let reset_url = format!(
                     "{}/reset-user-password/{}",
@@ -392,7 +397,9 @@ pub async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     tracing::info!("Email sender starting up...");
 
-    if std::env::var("SMTP_USER").is_err() || std::env::var("SMTP_PASS").is_err() {
+    if ProgramConfig::optional("SMTP_USER").is_none()
+        || ProgramConfig::optional("SMTP_PASS").is_none()
+    {
         tracing::warn!("SMTP user or password is missing or incorrect");
     }
 

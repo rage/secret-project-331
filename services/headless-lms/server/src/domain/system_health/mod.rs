@@ -12,6 +12,7 @@ pub use kubernetes::{
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::config::server_runtime_config;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -116,5 +117,5 @@ pub struct SystemHealthStatus {
 }
 
 pub fn get_namespace() -> String {
-    std::env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string())
+    server_runtime_config().pod_namespace.clone()
 }

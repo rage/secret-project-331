@@ -1,7 +1,10 @@
 //! Functionality for configuring the server
+pub mod open_university_config;
+pub mod program_config;
 
 use crate::{
     OAuthClient,
+    config::program_config::ProgramConfig,
     domain::{
         models_requests::JwtKey, rate_limit_middleware_builder::RateLimit,
         request_span_middleware::RequestSpan,
@@ -20,9 +23,109 @@ use headless_lms_utils::{
     tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
+use secrecy::ExposeSecret;
 use sqlx::{PgPool, postgres::PgPoolOptions};
-use std::{env, sync::Arc};
+use std::{
+    env,
+    sync::{Arc, OnceLock},
+};
 use url::Url;
+
+static SERVER_RUNTIME_CONFIG: OnceLock<ServerRuntimeConfig> = OnceLock::new();
+
+#[derive(Clone)]
+pub struct FileStoreRuntimeConfig {
+    pub use_google_cloud_storage: bool,
+    pub google_cloud_storage_bucket_name: Option<String>,
+}
+
+#[derive(Clone)]
+pub struct ServerRuntimeConfig {
+    pub database_url: String,
+    pub oauth_application_id: String,
+    pub oauth_secret: String,
+    pub icu4x_postcard_path: String,
+    pub app_conf: ApplicationConfiguration,
+    pub redis_url: String,
+    pub jwt_password: String,
+    pub private_cookie_key: String,
+    pub test_mode: bool,
+    pub allow_no_https_for_development: bool,
+    pub host: String,
+    pub port: String,
+    pub file_store: FileStoreRuntimeConfig,
+    pub tmc_server_secret_for_communicating_to_secret_project: String,
+    pub ratelimit_protection_safe_api_key: String,
+    pub pod_namespace: String,
+}
+
+impl ServerRuntimeConfig {
+    /// Loads runtime configuration from environment variables.
+    pub fn try_from_env() -> anyhow::Result<Self> {
+        let app_conf = ApplicationConfiguration::try_from_env()?;
+        let test_mode = app_conf.test_mode;
+        let file_store_use_google_cloud_storage =
+            ProgramConfig::bool_flag("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE");
+        let google_cloud_storage_bucket_name = if file_store_use_google_cloud_storage {
+            Some(
+                env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME")
+                    .context("GOOGLE_CLOUD_STORAGE_BUCKET_NAME must be defined when FILE_STORE_USE_GOOGLE_CLOUD_STORAGE is enabled")?,
+            )
+        } else {
+            None
+        };
+        let ratelimit_protection_safe_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+            .unwrap_or_else(|_| {
+                if cfg!(debug_assertions) || test_mode {
+                    "mock-api-key".to_string()
+                } else {
+                    panic!("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined in production")
+                }
+            });
+
+        Ok(Self {
+            database_url: env::var("DATABASE_URL").context("DATABASE_URL must be defined")?,
+            oauth_application_id: env::var("OAUTH_APPLICATION_ID")
+                .context("OAUTH_APPLICATION_ID must be defined")?,
+            oauth_secret: env::var("OAUTH_SECRET").context("OAUTH_SECRET must be defined")?,
+            icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
+                .context("ICU4X_POSTCARD_PATH must be defined")?,
+            redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
+            jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,
+            private_cookie_key: env::var("PRIVATE_COOKIE_KEY")
+                .context("PRIVATE_COOKIE_KEY must be defined")?,
+            allow_no_https_for_development: ProgramConfig::bool_flag(
+                "ALLOW_NO_HTTPS_FOR_DEVELOPMENT",
+            ),
+            host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
+            port: env::var("PORT").unwrap_or_else(|_| "3001".to_string()),
+            file_store: FileStoreRuntimeConfig {
+                use_google_cloud_storage: file_store_use_google_cloud_storage,
+                google_cloud_storage_bucket_name,
+            },
+            tmc_server_secret_for_communicating_to_secret_project: env::var(
+                "TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT",
+            )
+            .context("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined")?,
+            ratelimit_protection_safe_api_key,
+            pod_namespace: env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string()),
+            app_conf,
+            test_mode,
+        })
+    }
+}
+
+/// Sets global runtime configuration for request-path consumers.
+pub fn set_server_runtime_config(config: ServerRuntimeConfig) {
+    let _ = SERVER_RUNTIME_CONFIG.set(config);
+}
+
+/// Returns global runtime configuration loaded during startup.
+pub fn server_runtime_config() -> &'static ServerRuntimeConfig {
+    SERVER_RUNTIME_CONFIG
+        .get()
+        .expect("Server runtime config has not been initialized")
+}
 
 pub struct ServerConfigBuilder {
     pub database_url: String,
@@ -39,25 +142,34 @@ pub struct ServerConfigBuilder {
 }
 
 impl ServerConfigBuilder {
-    pub async fn try_from_env() -> anyhow::Result<Self> {
+    pub async fn from_runtime_config(runtime_config: &ServerRuntimeConfig) -> anyhow::Result<Self> {
         Ok(Self {
-            database_url: env::var("DATABASE_URL").context("DATABASE_URL must be defined")?,
-            oauth_application_id: env::var("OAUTH_APPLICATION_ID")
-                .context("OAUTH_APPLICATION_ID must be defined")?,
-            oauth_secret: env::var("OAUTH_SECRET").context("OAUTH_SECRET must be defined")?,
+            database_url: runtime_config.database_url.clone(),
+            oauth_application_id: runtime_config.oauth_application_id.clone(),
+            oauth_secret: runtime_config.oauth_secret.clone(),
             auth_url: "https://tmc.mooc.fi/oauth/authorize"
                 .parse()
                 .context("Failed to parse auth_url")?,
             token_url: "https://tmc.mooc.fi/oauth/token"
                 .parse()
                 .context("Failed to parse token url")?,
-            icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
-                .context("ICU4X_POSTCARD_PATH must be defined")?,
-            file_store: crate::setup_file_store().await,
-            app_conf: ApplicationConfiguration::try_from_env()?,
-            redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
-            jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,
-            tmc_client: TmcClient::new_from_env()?,
+            icu4x_postcard_path: runtime_config.icu4x_postcard_path.clone(),
+            file_store: crate::setup_file_store(
+                &runtime_config.file_store,
+                &runtime_config.app_conf.base_url,
+            )
+            .await,
+            app_conf: runtime_config.app_conf.clone(),
+            redis_url: runtime_config.redis_url.clone(),
+            jwt_password: runtime_config.jwt_password.clone(),
+            tmc_client: TmcClient::new(
+                runtime_config
+                    .app_conf
+                    .tmc_admin_access_token
+                    .expose_secret()
+                    .to_string(),
+                runtime_config.ratelimit_protection_safe_api_key.clone(),
+            )?,
         })
     }
 

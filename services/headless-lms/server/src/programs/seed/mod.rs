@@ -18,6 +18,7 @@ pub mod seed_users;
 use std::{env, process::Command, sync::Arc, time::Duration};
 
 use crate::{
+    config::program_config::ProgramConfig,
     domain::models_requests::JwtKey,
     programs::seed::{
         seed_application_task_llms::seed_application_task_llms,
@@ -26,7 +27,6 @@ use crate::{
     setup_tracing,
 };
 
-use anyhow::Context;
 use futures::try_join;
 
 use headless_lms_utils::futures::run_parallelly;
@@ -34,9 +34,10 @@ use sqlx::{Pool, Postgres, migrate::MigrateDatabase, postgres::PgPoolOptions};
 use tracing::info;
 
 pub async fn main() -> anyhow::Result<()> {
-    let base_url = std::env::var("BASE_URL").context("BASE_URL must be defined")?;
+    let base_url = ProgramConfig::required("BASE_URL")?;
     let db_pool = setup_seed_environment().await?;
-    let jwt_key = Arc::new(JwtKey::try_from_env().expect("Failed to create JwtKey"));
+    let jwt_password = ProgramConfig::required("JWT_PASSWORD")?;
+    let jwt_key = Arc::new(JwtKey::new(&jwt_password).expect("Failed to create JwtKey"));
 
     // Initialize the global spec fetcher before any seeding
     seed_helpers::init_seed_spec_fetcher(base_url.clone(), Arc::clone(&jwt_key))
@@ -112,7 +113,7 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
 
     let clean = env::args().any(|a| a == "clean");
 
-    let db_url = env::var("DATABASE_URL")?;
+    let db_url = ProgramConfig::required("DATABASE_URL")?;
     let cpu_count = std::thread::available_parallelism()
         .map(|n| n.get())
         .unwrap_or(2);
@@ -141,7 +142,7 @@ async fn setup_seed_environment() -> anyhow::Result<Pool<Postgres>> {
             .arg("headless_lms_dev")
             .status()?;
         assert!(status.success());
-        let db_url = env::var("DATABASE_URL")?;
+        let db_url = ProgramConfig::required("DATABASE_URL")?;
         Postgres::create_database(&db_url).await?;
     }
 

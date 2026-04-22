@@ -1,5 +1,6 @@
 //! Contains helper functions that are passed to headless-lms-models where it needs to make requests to exercise services.
 
+use crate::config::server_runtime_config;
 use crate::prelude::*;
 use actix_http::Payload;
 use actix_web::{FromRequest, HttpRequest};
@@ -40,7 +41,7 @@ pub struct JwtKey(Vec<u8>);
 
 impl JwtKey {
     pub fn try_from_env() -> anyhow::Result<Self> {
-        let jwt_password = std::env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?;
+        let jwt_password = server_runtime_config().jwt_password.clone();
         let jwt_key = Self::new(&jwt_password)?;
         Ok(jwt_key)
     }

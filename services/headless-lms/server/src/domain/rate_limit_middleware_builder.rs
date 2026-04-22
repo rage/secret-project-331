@@ -1,3 +1,4 @@
+use crate::config::server_runtime_config;
 use actix_web::{
     Error, HttpResponse,
     body::{EitherBody, MessageBody},
@@ -101,7 +102,7 @@ pub struct RateLimit {
 impl RateLimit {
     /// Global `/api/v0` limits aligned with nginx ingress `limit-rps` and `limit-rpm`; relaxed when `TEST_MODE` is set.
     pub fn global_api_rate_limit_config() -> RateLimitConfig {
-        if std::env::var("TEST_MODE").is_ok() {
+        if server_runtime_config().test_mode {
             RateLimitConfig {
                 per_second: Some(10000),
                 per_minute: Some(200000),

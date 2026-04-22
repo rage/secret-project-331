@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { RichText } from "@wordpress/block-editor"
-import React from "react"
+import React, { useId } from "react"
 
 import BlockWrapper from "../BlockWrapper"
 
@@ -19,6 +19,8 @@ const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<Highlight
 }) => {
   const { t } = useTranslation()
   const { title, content } = attributes
+  const highlightTitleLabelId = useId()
+  const highlightContentLabelId = useId()
 
   return (
     <BlockWrapper id={clientId}>
@@ -38,6 +40,7 @@ const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<Highlight
           `}
         >
           <p
+            id={highlightTitleLabelId}
             className={css`
               margin: 0 0 0.5rem 0;
               font-family: ${primaryFont};
@@ -57,16 +60,18 @@ const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<Highlight
               padding: 0.5rem 0.75rem;
               background: ${baseTheme.colors.clear[100]};
               color: ${baseTheme.colors.green[700]};
-              font-weight: 700;
+              font-weight: ${fontWeights.bold};
               font-family: ${monospaceFont};
               margin-bottom: 0.875rem;
             `}
             tagName="div"
+            aria-labelledby={highlightTitleLabelId}
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
             placeholder={t("highlight-box-title-placeholder")}
           />
           <p
+            id={highlightContentLabelId}
             className={css`
               margin: 0 0 0.5rem 0;
               font-family: ${primaryFont};
@@ -88,6 +93,7 @@ const HighlightEditor: React.FC<React.PropsWithChildren<BlockEditProps<Highlight
               background: ${baseTheme.colors.clear[100]};
             `}
             tagName="div"
+            aria-labelledby={highlightContentLabelId}
             value={content}
             onChange={(value: string) => setAttributes({ content: value })}
             placeholder={t("highlight-box-content-placeholder")}

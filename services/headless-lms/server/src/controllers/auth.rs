@@ -312,14 +312,25 @@ async fn handle_test_mode_signup(
         Some(&user_details.first_name),
         Some(&user_details.last_name),
     )
-    .await
-    .map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Failed to insert test user.".to_string(),
-            Some(anyhow!(e)),
-        )
-    })?;
+    .await;
+    let user_id = match user_id {
+        Ok(user_id) => user_id,
+        Err(error) => match error.error_type() {
+            ModelErrorType::DatabaseConstraint { constraint, .. }
+                if constraint == "users_email" =>
+            {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            _ => {
+                return Err(controller_err!(
+                    InternalServerError,
+                    "Failed to insert test user.".to_string(),
+                    anyhow!(error)
+                ));
+            }
+        },
+    };
 
     models::user_details::update_user_country(conn, user_id, &user_details.country).await?;
     models::user_details::update_user_email_communication_consent(
@@ -353,12 +364,14 @@ async fn handle_test_mode_signup(
 
 fn is_duplicate_email_error_message(message: &str) -> bool {
     let normalized = message.to_lowercase();
-    normalized.contains("email")
-        && (normalized.contains("already")
-            || normalized.contains("taken")
-            || normalized.contains("exists")
-            || normalized.contains("in use")
-            || normalized.contains("registered"))
+    normalized.contains("email already exists")
+        || normalized.contains("email is already registered")
+        || normalized.contains("email already in use")
+        || normalized.contains("duplicate email")
+        || normalized.contains("unique constraint")
+        || normalized.contains("duplicate key")
+        || normalized.contains("users_email")
+        || normalized.contains("email_key")
 }
 
 /**

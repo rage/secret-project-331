@@ -21,6 +21,7 @@ export default function useLogout() {
     } catch (error) {
       logoutError = error
     } finally {
+      await queryClient.cancelQueries()
       queryClient.removeQueries()
       await loginStateContext.refresh()
       setTimeout(() => {

@@ -125,11 +125,20 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC = () => {
-  const { register, formState, watch, reset, handleSubmit, trigger, control, setError } =
-    useForm<FormFields>({
-      // eslint-disable-next-line i18next/no-literal-string
-      mode: "onChange",
-    })
+  const {
+    register,
+    formState,
+    watch,
+    reset,
+    handleSubmit,
+    trigger,
+    control,
+    setError,
+    clearErrors,
+  } = useForm<FormFields>({
+    // eslint-disable-next-line i18next/no-literal-string
+    mode: "onChange",
+  })
 
   const preFillCountry = useQuery(getUsersIpCountryOptions())
 
@@ -155,8 +164,14 @@ const CreateAccountForm: React.FC = () => {
 
   const { t, i18n } = useTranslation()
 
+  const email = watch("email")
   const password = watch("password")
   const passwordConfirmation = watch("password_confirmation")
+
+  useEffect(() => {
+    clearErrors("email")
+    setEmailAlreadyTakenError(null)
+  }, [clearErrors, email])
 
   const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
     async (data) => {

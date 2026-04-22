@@ -6,6 +6,7 @@ use headless_lms_utils::document_schema_processor::{
     replace_duplicate_client_ids,
 };
 use itertools::Itertools;
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde_json::{Value, json};
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
@@ -117,6 +118,41 @@ pub struct PageWithExercises {
 struct CourseMaterialPageContentFilterCache {
     chapter_lock_content_states: HashMap<Uuid, LockChapterContentState>,
     course_chapter_locking_enabled: HashMap<Uuid, bool>,
+}
+
+const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'!')
+    .add(b'"')
+    .add(b'#')
+    .add(b'$')
+    .add(b'%')
+    .add(b'&')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'*')
+    .add(b'+')
+    .add(b',')
+    .add(b':')
+    .add(b';')
+    .add(b'<')
+    .add(b'=')
+    .add(b'>')
+    .add(b'?')
+    .add(b'@')
+    .add(b'[')
+    .add(b'\\')
+    .add(b']')
+    .add(b'^')
+    .add(b'`')
+    .add(b'{')
+    .add(b'|')
+    .add(b'}');
+
+/// Percent-encodes URL path characters that are not part of the safe path alphabet.
+fn normalize_url_path_for_storage(url_path: &str) -> String {
+    utf8_percent_encode(url_path.trim(), URL_PATH_ENCODE_SET).to_string()
 }
 
 async fn get_lock_chapter_content_state_for_page(
@@ -2229,6 +2265,7 @@ pub async fn insert_page(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
+    let normalized_url_path = normalize_url_path_for_storage(&new_page.url_path);
     let mut page_language_group_id = None;
     if let Some(course_id) = new_page.course_id {
         // insert language group
@@ -2297,7 +2334,7 @@ RETURNING id,
         new_page.course_id,
         new_page.exam_id,
         serde_json::to_value(content)?,
-        new_page.url_path.trim(),
+        normalized_url_path,
         new_page.title.trim(),
         next_order_number,
         new_page.chapter_id,
@@ -3654,6 +3691,7 @@ pub async fn update_page_details(
     page_id: Uuid,
     page_details_update: &PageDetailsUpdate,
 ) -> ModelResult<()> {
+    let normalized_url_path = normalize_url_path_for_storage(&page_details_update.url_path);
     let mut tx = conn.begin().await?;
     let page_before_update = get_page(&mut tx, page_id).await?;
     sqlx::query!(
@@ -3665,13 +3703,13 @@ WHERE id = $1
 ",
         page_id,
         page_details_update.title,
-        page_details_update.url_path,
+        normalized_url_path,
     )
     .execute(&mut *tx)
     .await?;
 
     if let Some(course_id) = page_before_update.course_id
-        && page_before_update.url_path != page_details_update.url_path
+        && page_before_update.url_path != normalized_url_path
     {
         // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
         crate::url_redirections::upsert(

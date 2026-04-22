@@ -182,8 +182,8 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
     module_completion_date: completionDate ? parseISO(completionDate).toLocaleDateString() : null,
     user_information: {
       user_id: userInfo.data.user_id,
-      first_name: userInfo.data.first_name,
-      last_name: userInfo.data.last_name,
+      first_name: userInfo.data.first_name ?? null,
+      last_name: userInfo.data.last_name ?? null,
     },
     user_variables: user_vars,
     data: {

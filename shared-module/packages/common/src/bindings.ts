@@ -2486,6 +2486,8 @@ export type LoginResponse =
   | { type: "requires_email_verification"; email_verification_token: string }
   | { type: "failed" }
 
+export type SignupResponse = { type: "success" } | { type: "email_already_exists" }
+
 export interface VerifyEmailRequest {
   email_verification_token: string
   code: string

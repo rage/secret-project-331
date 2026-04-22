@@ -17,10 +17,11 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SearchableSelect from "@/shared-module/common/components/InputFields/SearchableSelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
+import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
+import { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import "@/shared-module/common/init/registerAuthApiClients"
 import countries from "@/shared-module/common/locales/en/countries.json"
-import { createUser } from "@/shared-module/common/services/backend/auth"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
   useCurrentPagePathForReturnTo,
@@ -154,10 +155,17 @@ const CreateAccountForm: React.FC = () => {
 
   const { t, i18n } = useTranslation()
 
+  const email = watch("email")
   const password = watch("password")
   const passwordConfirmation = watch("password_confirmation")
 
-  const createAccountMutation = useToastMutation<unknown, unknown, FormFields>(
+  useEffect(() => {
+    setEmailAlreadyTakenError(null)
+    // eslint-disable-next-line i18next/no-literal-string
+    void trigger("email")
+  }, [email, trigger])
+
+  const createAccountMutation = useToastMutation<SignupResponse, unknown, FormFields>(
     async (data) => {
       const {
         first_name,
@@ -168,33 +176,20 @@ const CreateAccountForm: React.FC = () => {
         country,
         email_communication_consent,
       } = data
-      await createUser({
-        email: email,
-        first_name: first_name,
-        last_name: last_name,
-        language: i18n.language,
-        password: password,
-        password_confirmation: password_confirmation,
-        country: country,
-        email_communication_consent: Boolean(email_communication_consent),
+      return postAuthSignup({
+        body: {
+          email: email,
+          first_name: first_name,
+          last_name: last_name,
+          language: i18n.language,
+          password: password,
+          password_confirmation: password_confirmation,
+          country: country,
+          email_communication_consent: Boolean(email_communication_consent),
+        },
       })
     },
     { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        reset({
-          first_name: "",
-          last_name: "",
-          email: "",
-          password: "",
-          password_confirmation: "",
-          country: "",
-          email_communication_consent: false,
-        })
-        setConfirmEmailPageVisible(true)
-        loginStateContext.refresh()
-      },
-    },
   )
 
   useEffect(() => {
@@ -214,15 +209,18 @@ const CreateAccountForm: React.FC = () => {
   useEffect(() => {
     if (createAccountMutation.isError && createAccountMutation.error) {
       const err = createAccountMutation.error
-      const status = isAppApiError(err) ? err.status : null
+      const status =
+        typeof err === "object" && err !== null && "status" in err ? Number(err.status) : null
       const errorMessage =
-        isAppApiError(err) &&
+        typeof err === "object" &&
+        err !== null &&
+        "body" in err &&
         typeof err.body === "object" &&
         err.body !== null &&
         "message" in err.body
           ? String((err.body as CreateUserErrorResponse).message ?? "")
-          : isAppApiError(err)
-            ? (err.userMessage ?? "")
+          : typeof err === "object" && err !== null && "userMessage" in err
+            ? String(err.userMessage ?? "")
             : ""
 
       if (
@@ -243,7 +241,6 @@ const CreateAccountForm: React.FC = () => {
       setEmailAlreadyTakenError(null)
     }
   }, [createAccountMutation.isError, createAccountMutation.error, setError, t])
-
   const { t: tCountries } = useTranslation("countries")
   const countriesNames = Object.entries(countries).map(([code]) => ({
     value: code,
@@ -302,7 +299,33 @@ const CreateAccountForm: React.FC = () => {
       <form
         onSubmit={handleSubmit(async (data, event) => {
           event?.preventDefault()
-          createAccountMutation.mutate(data)
+          try {
+            const result = await createAccountMutation.mutateAsync(data)
+
+            if (result.type === "email_already_exists") {
+              setEmailAlreadyTakenError(t("email-already-taken"))
+              setError("email", {
+                type: "manual",
+                message: t("email-already-taken-field-error"),
+              })
+              return
+            }
+
+            setEmailAlreadyTakenError(null)
+            reset({
+              first_name: "",
+              last_name: "",
+              email: "",
+              password: "",
+              password_confirmation: "",
+              country: "",
+              email_communication_consent: false,
+            })
+            setConfirmEmailPageVisible(true)
+            await loginStateContext.refresh()
+          } catch {
+            setEmailAlreadyTakenError(null)
+          }
         })}
       >
         <fieldset disabled={isSubmitting}>

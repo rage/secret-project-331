@@ -15,7 +15,7 @@ use crate::{
 use actix_session::Session;
 use anyhow::Error;
 use anyhow::anyhow;
-use headless_lms_models::ModelResult;
+use headless_lms_models::{ModelErrorType, ModelResult};
 use headless_lms_models::{
     email_templates::EmailTemplateType, email_verification_tokens, user_email_codes,
     user_passwords, users,
@@ -41,6 +41,13 @@ pub enum LoginResponse {
     Success,
     RequiresEmailVerification { email_verification_token: String },
     Failed,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum SignupResponse {
+    Success,
+    EmailAlreadyExists,
 }
 
 /**
@@ -121,7 +128,7 @@ Content-Type: application/json
     operation_id = "postAuthSignup",
     request_body = CreateAccountDetails,
     responses(
-        (status = 200, description = "Account created; session established"),
+        (status = 200, description = "Signup outcome", body = SignupResponse),
         (status = 400, description = "Cannot sign up (e.g. already signed in or validation error)")
     )
 )]
@@ -133,7 +140,7 @@ pub async fn signup(
     user: Option<AuthUser>,
     app_conf: web::Data<ApplicationConfiguration>,
     tmc_client: web::Data<TmcClient>,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<SignupResponse>> {
     let user_details = payload.0;
     let mut conn = pool.acquire().await?;
 
@@ -141,7 +148,20 @@ pub async fn signup(
         return handle_test_mode_signup(&mut conn, &session, &user_details, &app_conf).await;
     }
     if user.is_none() {
-        let upstream_id = tmc_client
+        match models::users::get_by_email(&mut conn, &user_details.email).await {
+            Ok(_) => {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            Err(error)
+                if matches!(
+                    error.error_type(),
+                    ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+                ) => {}
+            Err(error) => return Err(error.into()),
+        }
+
+        let upstream_id = match tmc_client
             .post_new_user_to_tmc(
                 NewUserInfo {
                     first_name: user_details.first_name.clone(),
@@ -154,15 +174,33 @@ pub async fn signup(
                 app_conf.as_ref(),
             )
             .await
-            .map_err(|e| {
-                let error_message = e.message().to_string();
-                let error_type = match e.error_type() {
-                    UtilErrorType::TmcHttpError => ControllerErrorType::InternalServerError,
-                    UtilErrorType::TmcErrorResponse => ControllerErrorType::BadRequest,
-                    _ => ControllerErrorType::InternalServerError,
+        {
+            Ok(upstream_id) => upstream_id,
+            Err(error) => {
+                let error_message = error.message().to_string();
+                if matches!(error.error_type(), &UtilErrorType::TmcErrorResponse)
+                    && is_duplicate_email_error_message(&error_message)
+                {
+                    let token = skip_authorize();
+                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                }
+                return match error.error_type() {
+                    UtilErrorType::TmcErrorResponse => {
+                        Err(controller_err!(BadRequest, error_message, anyhow!(error)))
+                    }
+                    UtilErrorType::TmcHttpError => Err(controller_err!(
+                        InternalServerError,
+                        error_message,
+                        anyhow!(error)
+                    )),
+                    _ => Err(controller_err!(
+                        InternalServerError,
+                        error_message,
+                        anyhow!(error)
+                    )),
                 };
-                ControllerError::new(error_type, error_message, Some(anyhow!(e)))
-            })?;
+            }
+        };
         let password_secret = SecretString::new(user_details.password.into());
 
         let user = models::users::insert_with_upstream_id_and_moocfi_id(
@@ -173,14 +211,25 @@ pub async fn signup(
             upstream_id,
             PKeyPolicy::Generate.into_uuid(),
         )
-        .await
-        .map_err(|e| {
-            ControllerError::new(
-                ControllerErrorType::InternalServerError,
-                "Failed to insert user.".to_string(),
-                Some(anyhow!(e)),
-            )
-        })?;
+        .await;
+        let user = match user {
+            Ok(user) => user,
+            Err(error) => match error.error_type() {
+                ModelErrorType::DatabaseConstraint { constraint, .. }
+                    if constraint == "users_email" =>
+                {
+                    let token = skip_authorize();
+                    return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+                }
+                _ => {
+                    return Err(controller_err!(
+                        InternalServerError,
+                        "Failed to insert user.".to_string(),
+                        anyhow!(error)
+                    ));
+                }
+            },
+        };
 
         let country = user_details.country.clone();
         models::user_details::update_user_country(&mut conn, user.id, &country).await?;
@@ -220,7 +269,7 @@ pub async fn signup(
 
         let token = skip_authorize();
         authorization::remember(&session, user)?;
-        token.authorized_ok(HttpResponse::Ok().finish())
+        token.authorized_ok(web::Json(SignupResponse::Success))
     } else {
         Err(ControllerError::new(
             ControllerErrorType::BadRequest,
@@ -235,13 +284,26 @@ async fn handle_test_mode_signup(
     session: &Session,
     user_details: &CreateAccountDetails,
     app_conf: &ApplicationConfiguration,
-) -> ControllerResult<HttpResponse> {
+) -> ControllerResult<web::Json<SignupResponse>> {
     assert!(
         app_conf.test_mode,
         "handle_test_mode_signup called outside test mode"
     );
 
     warn!("Handling signup in test mode. No real account is created.");
+
+    match models::users::get_by_email(conn, &user_details.email).await {
+        Ok(_) => {
+            let token = skip_authorize();
+            return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+        }
+        Err(error)
+            if matches!(
+                error.error_type(),
+                ModelErrorType::RecordNotFound | ModelErrorType::NotFound
+            ) => {}
+        Err(error) => return Err(error.into()),
+    }
 
     let user_id = models::users::insert(
         conn,
@@ -250,14 +312,25 @@ async fn handle_test_mode_signup(
         Some(&user_details.first_name),
         Some(&user_details.last_name),
     )
-    .await
-    .map_err(|e| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Failed to insert test user.".to_string(),
-            Some(anyhow!(e)),
-        )
-    })?;
+    .await;
+    let user_id = match user_id {
+        Ok(user_id) => user_id,
+        Err(error) => match error.error_type() {
+            ModelErrorType::DatabaseConstraint { constraint, .. }
+                if constraint == "users_email" =>
+            {
+                let token = skip_authorize();
+                return token.authorized_ok(web::Json(SignupResponse::EmailAlreadyExists));
+            }
+            _ => {
+                return Err(controller_err!(
+                    InternalServerError,
+                    "Failed to insert test user.".to_string(),
+                    anyhow!(error)
+                ));
+            }
+        },
+    };
 
     models::user_details::update_user_country(conn, user_id, &user_details.country).await?;
     models::user_details::update_user_email_communication_consent(
@@ -286,7 +359,19 @@ async fn handle_test_mode_signup(
     authorization::remember(session, user)?;
 
     let token = skip_authorize();
-    token.authorized_ok(HttpResponse::Ok().finish())
+    token.authorized_ok(web::Json(SignupResponse::Success))
+}
+
+fn is_duplicate_email_error_message(message: &str) -> bool {
+    let normalized = message.to_lowercase();
+    normalized.contains("email already exists")
+        || normalized.contains("email is already registered")
+        || normalized.contains("email already in use")
+        || normalized.contains("duplicate email")
+        || normalized.contains("unique constraint")
+        || normalized.contains("duplicate key")
+        || normalized.contains("users_email")
+        || normalized.contains("email_key")
 }
 
 /**
@@ -1046,6 +1131,7 @@ pub async fn verify_email(
         Login,
         LoginResponse,
         CreateAccountDetails,
+        SignupResponse,
         UserInfo,
         crate::domain::authorization::ActionOnResource,
         crate::domain::authorization::Action,

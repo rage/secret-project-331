@@ -21,7 +21,6 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
 import { coursePageRoute } from "../../utils/routing"
-import SerializeGutenbergModal from "../SerializeGutenbergModal"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
@@ -325,13 +324,6 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             margin-bottom: 1rem;
           `}
         >
-          <div
-            className={css`
-              margin-bottom: 0.5rem;
-            `}
-          >
-            <SerializeGutenbergModal content={content} />
-          </div>
           <DebugModal
             data={content}
             readOnly={false}

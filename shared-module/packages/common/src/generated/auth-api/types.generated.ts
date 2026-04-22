@@ -175,6 +175,14 @@ export type SendEmailCodeData = {
   password: string
 }
 
+export type SignupResponse =
+  | {
+      type: "success"
+    }
+  | {
+      type: "email_already_exists"
+    }
+
 /**
  * Generic information about the logged in user.
  *
@@ -330,10 +338,12 @@ export type PostAuthSignupErrors = {
 
 export type PostAuthSignupResponses = {
   /**
-   * Account created; session established
+   * Signup outcome
    */
-  200: unknown
+  200: SignupResponse
 }
+
+export type PostAuthSignupResponse = PostAuthSignupResponses[keyof PostAuthSignupResponses]
 
 export type GetAuthUserInfoData = {
   body?: never

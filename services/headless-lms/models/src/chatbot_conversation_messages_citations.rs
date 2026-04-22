@@ -100,3 +100,27 @@ AND deleted_at IS NULL
     .await?;
     Ok(res)
 }
+
+pub async fn update_citation_message_ids(
+    conn: &mut PgConnection,
+    response_id: String,
+    conversation_message_id: Uuid,
+) -> ModelResult<Vec<ChatbotConversationMessageCitation>> {
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageCitation,
+        r#"
+UPDATE chatbot_conversation_messages_citations SET conversation_message_id = $1
+WHERE conversation_message_id IN
+(SELECT id FROM chatbot_conversation_message_tool_outputs
+WHERE response_id = $2
+AND deleted_at IS NULL)
+RETURNING *
+        "#,
+        conversation_message_id,
+        response_id
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res)
+}

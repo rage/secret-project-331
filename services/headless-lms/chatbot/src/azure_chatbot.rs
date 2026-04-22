@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::pin::Pin;
+use std::string;
 use std::sync::{
     Arc,
     atomic::{self, AtomicBool},
@@ -113,27 +114,33 @@ pub struct ResponseOutput {
 #[serde(rename_all = "snake_case")]
 pub enum OutputItem {
     Message {
+        response_id: String,
         role: MessageRole,
         content: MessageContent,
     }, // we can get annotations and full text from here, but not yet.
     Reasoning {
+        response_id: String,
         summary: Vec<ReasoningOutput>,
     },
     AzureAiSearchCall {
+        response_id: String,
         call_id: String,
         arguments: String, // json string
     },
     AzureAiSearchCallOutput {
+        response_id: String,
         call_id: String,
         output: String, // json string
     },
     FunctionCall {
+        response_id: String,
         call_id: String,
         #[serde(rename = "name")]
         tool_name: String,
         arguments: String,
     },
     FunctionCallOutput {
+        response_id: String,
         call_id: String,
         output: String,
     },
@@ -540,7 +547,7 @@ pub async fn make_request_and_stream<'a>(
     chat_request: LLMRequest,
     conversation_id: Uuid,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<ResponseStreamType<'a>> {
+) -> anyhow::Result<(String, ResponseStreamType<'a>)> {
     let response = make_streaming_llm_request(chat_request, app_config).await?;
 
     trace!("Receiving chat response with {:?}", response.version());
@@ -566,7 +573,9 @@ pub async fn make_request_and_stream<'a>(
     let mut pinned_lines = Box::pin(peekable_lines_stream);
 
     let mut event_type;
+    let mut response_id = "".to_string();
     let mut output_item_incoming = false;
+    let mut response_created_incoming = false;
 
     loop {
         let line_res = pinned_lines.as_mut().peek().await;
@@ -600,6 +609,20 @@ pub async fn make_request_and_stream<'a>(
                     output_item_incoming = false;
                     pinned_lines.next().await;
                     continue;
+                } else if response_created_incoming && line.starts_with("data: ") {
+                    let json_str = line.trim_start_matches("data: ");
+
+                    let response_output = serde_json::from_str::<ResponseOutput>(json_str)
+                        .map_err(|e| ChatbotError::from(e))?;
+                    let res = response_output.response.ok_or(ChatbotError::new(
+                        ChatbotErrorType::DeserializationError,
+                        "Expected response onject",
+                        None,
+                    ))?;
+                    response_id = res.id;
+                    response_created_incoming = false;
+                    pinned_lines.next().await;
+                    continue;
                 } else {
                     pinned_lines.next().await;
                     continue;
@@ -607,9 +630,10 @@ pub async fn make_request_and_stream<'a>(
 
                 match event_type.as_str() {
                     "response.created" => {
+                        response_created_incoming = true;
                         pinned_lines.next().await;
                         continue;
-                    } // save the response_id
+                    }
                     "response.output_item.done" => {
                         println!("Doing stuff");
                         output_item_incoming = true;
@@ -617,10 +641,15 @@ pub async fn make_request_and_stream<'a>(
                         continue;
                     } // there can be reasoning or tool calls, do stuff
                     "response.function_call_arguments.delta" => {
-                        return Ok(ResponseStreamType::Toolcall(pinned_lines));
+                        if response_id.is_empty() {
+                            return Err(anyhow::anyhow!(
+                                "No response_id found! This should never happen!"
+                            ));
+                        }
+                        return Ok((response_id, ResponseStreamType::Toolcall(pinned_lines)));
                     }
                     "response.output_text.delta" => {
-                        return Ok(ResponseStreamType::TextResponse(pinned_lines));
+                        return Ok((response_id, ResponseStreamType::TextResponse(pinned_lines)));
                     }
                     _ => {
                         pinned_lines.next().await;
@@ -652,7 +681,11 @@ pub async fn process_output_item(
 
             ChatbotResult::Ok(chatbot_conversation_messages::insert(conn, message).await?)
         }
-        OutputItem::AzureAiSearchCallOutput { call_id, output } => {
+        OutputItem::AzureAiSearchCallOutput {
+            call_id,
+            output,
+            response_id,
+        } => {
             let search_output: AiSearchOutput = serde_json::from_str(&output)?;
             let api_key = if let Some(azure_config) = &app_config.azure_configuration
                 && let Some(search_config) = &azure_config.search_config
@@ -668,7 +701,11 @@ pub async fn process_output_item(
             let get_urls = search_output.get_urls.to_owned();
 
             let message = APIOutputMessage {
-                message_type: OutputItem::AzureAiSearchCallOutput { call_id, output },
+                message_type: OutputItem::AzureAiSearchCallOutput {
+                    call_id,
+                    output,
+                    response_id,
+                },
             }
             .to_chatbot_conversation_message(conversation_id)?;
 
@@ -726,6 +763,7 @@ pub async fn parse_tool<'a>(
 ) -> anyhow::Result<Vec<APIOutputMessage>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
+    let mut common_response_id = "".to_string();
     let mut event_type = "".to_string();
     let mut response_received = false;
 
@@ -757,6 +795,11 @@ pub async fn parse_tool<'a>(
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ));
             }
+            if common_response_id.is_empty() {
+                return Err(anyhow::anyhow!(
+                    "Received tool response but response id not found, this shouldn't happen."
+                ));
+            };
             let mut tool_msgs = Vec::new();
 
             for (name, id, args) in function_name_id_args.iter() {
@@ -764,6 +807,7 @@ pub async fn parse_tool<'a>(
 
                 tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
+                        response_id: (&common_response_id).to_owned(),
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
@@ -773,6 +817,7 @@ pub async fn parse_tool<'a>(
                     message_type: OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
                         output: tool.get_tool_output(),
+                        response_id: (&common_response_id).to_owned(),
                     },
                 })
             }
@@ -787,7 +832,9 @@ pub async fn parse_tool<'a>(
                     call_id,
                     tool_name,
                     arguments,
+                    response_id,
                 } => {
+                    common_response_id = response_id;
                     function_name_id_args.push((
                         tool_name,
                         call_id,
@@ -817,6 +864,7 @@ pub async fn parse_and_stream_to_user<'a>(
     //response_order_number: i32,
     pool: PgPool,
     request_estimated_tokens: i32,
+    response_id: String,
     app_config: ApplicationConfiguration,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
     // insert the to-be-streamed bot text response to db
@@ -829,10 +877,17 @@ pub async fn parse_and_stream_to_user<'a>(
                 message_role: MessageRole::Assistant,
                 message_is_complete: false,
                 used_tokens: request_estimated_tokens,
+                response_id: Some(response_id.to_owned()),
                 ..Default::default()
             }),
             ..Default::default()
         },
+    )
+    .await?;
+    models::chatbot_conversation_messages_citations::update_citation_message_ids(
+        conn,
+        response_id,
+        response_message.id,
     )
     .await?;
 
@@ -964,7 +1019,7 @@ pub async fn send_chat_request_and_parse_stream(
             ));
         }
 
-        let response_type =
+        let (response_id, response_type) =
             make_request_and_stream(conn, chat_request.clone(), conversation_id, app_config)
                 .await?;
 
@@ -979,6 +1034,7 @@ pub async fn send_chat_request_and_parse_stream(
                     conversation_id,
                     pool,
                     request_estimated_tokens,
+                    response_id,
                     app_config.to_owned(),
                 )
                 .await;

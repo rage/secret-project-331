@@ -391,6 +391,7 @@ export interface ChatbotConversationMessageMessage {
   message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
+  response_id: string | null
 }
 
 export interface ChatbotConversationMessageReasoning {
@@ -400,6 +401,7 @@ export interface ChatbotConversationMessageReasoning {
   updated_at: string
   deleted_at: string | null
   summary: string | null
+  response_id: string
 }
 
 export interface ChatbotConversationMessageCitation {
@@ -426,6 +428,7 @@ export interface ChatbotConversationMessageToolCall {
   tool_arguments: unknown
   tool_call_id: string
   tool_kind: ToolKind
+  response_id: string
 }
 
 export type ToolKind = "function" | "azure_ai_search"
@@ -439,6 +442,7 @@ export interface ChatbotConversationMessageToolOutput {
   output: string
   tool_call_id: string
   tool_kind: ToolKind
+  response_id: string
 }
 
 export interface ChatbotConversationSuggestedMessage {

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_message_messages\nSET text = $2, message_is_complete = $3, used_tokens = $4\nWHERE chatbot_conversation_message_id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens\n        ",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\nFROM chatbot_conversation_message_tool_calls\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -30,42 +30,43 @@
       },
       {
         "ordinal": 5,
-        "name": "text",
+        "name": "tool_name",
         "type_info": "Varchar"
       },
       {
         "ordinal": 6,
-        "name": "message_role: MessageRole",
+        "name": "tool_arguments",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "tool_call_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "tool_kind: ToolKind",
         "type_info": {
           "Custom": {
-            "name": "message_role",
+            "name": "tool_kind",
             "kind": {
               "Enum": [
-                "user",
-                "assistant",
-                "developer"
+                "function",
+                "azure-ai-search"
               ]
             }
           }
         }
       },
       {
-        "ordinal": 7,
-        "name": "message_is_complete",
-        "type_info": "Bool"
-      },
-      {
-        "ordinal": 8,
-        "name": "used_tokens",
-        "type_info": "Int4"
+        "ordinal": 9,
+        "name": "response_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid",
-        "Varchar",
-        "Bool",
-        "Int4"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -77,8 +78,9 @@
       false,
       false,
       false,
+      false,
       false
     ]
   },
-  "hash": "629717ac1ad492a06fe9087c1abf9522530f9a1ae93e7af623c446b81e02e88b"
+  "hash": "a276d92fa2de8a51de66aa28081d750c72c3fa9014c385cee069182b7c7d555f"
 }

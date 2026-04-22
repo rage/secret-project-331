@@ -13,7 +13,8 @@ CREATE TABLE chatbot_conversation_message_messages (
   message_is_complete BOOLEAN NOT NULL DEFAULT FALSE,
   text VARCHAR(131072) NOT NULL,
   used_tokens INT NOT NULL DEFAULT 0,
-  citation_ids UUID []
+  citation_ids UUID [],
+  response_id TEXT -- set constraint later
 );
 
 CREATE TRIGGER set_timestamp BEFORE
@@ -31,6 +32,7 @@ COMMENT ON COLUMN chatbot_conversation_message_messages.message_is_complete IS '
 COMMENT ON COLUMN chatbot_conversation_message_messages.text IS 'The message content.';
 COMMENT ON COLUMN chatbot_conversation_message_messages.used_tokens IS 'The number of tokens used to send or receive this message. Is non-zero only for role user messages, which track all the tokens used for input, reasoning, and output.';
 COMMENT ON COLUMN chatbot_conversation_message_messages.citation_ids IS 'IDs of any citations (annotations) that are associated with this message. A role assistant message can cite course material.';
+COMMENT ON COLUMN chatbot_conversation_message_messages.response_id IS 'The ID assigned by Azure per response, is the same for every message generated in one conversation turn of the LLM (one response). Used to fetch and delete a response from the Azure API.';
 
 
 CREATE TABLE chatbot_conversation_message_reasoning (
@@ -39,7 +41,8 @@ CREATE TABLE chatbot_conversation_message_reasoning (
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   deleted_at TIMESTAMP WITH TIME ZONE,
   chatbot_conversation_message_id UUID NOT NULL REFERENCES chatbot_conversation_messages(id) ON DELETE CASCADE,
-  summary VARCHAR(32376)
+  summary VARCHAR(32376),
+  response_id TEXT NOT NULL
 );
 
 CREATE TRIGGER set_timestamp BEFORE
@@ -52,18 +55,31 @@ COMMENT ON COLUMN chatbot_conversation_message_reasoning.updated_at IS 'Timestam
 COMMENT ON COLUMN chatbot_conversation_message_reasoning.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 COMMENT ON COLUMN chatbot_conversation_message_reasoning.chatbot_conversation_message_id IS 'The chatbot_conversation_message that this row belongs to.';
 COMMENT ON COLUMN chatbot_conversation_message_reasoning.summary IS 'A summary of the reasoning process, if provided.';
+COMMENT ON COLUMN chatbot_conversation_message_reasoning.response_id IS 'The ID assigned by Azure per response, is the same for every message generated in one conversation turn of the LLM (one response). Used to fetch and delete a response from the Azure API.';
 
 CREATE TYPE tool_kind AS ENUM ('function', 'azure-ai-search');
 
 ALTER TABLE chatbot_conversation_message_tool_calls
-ADD COLUMN tool_kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
+ADD COLUMN tool_kind tool_kind NOT NULL DEFAULT 'function'::tool_kind,
+  ADD COLUMN response_id TEXT;
+--set not null later
 ALTER TABLE chatbot_conversation_message_tool_calls
   RENAME COLUMN message_id TO chatbot_conversation_message_id;
 
+UPDATE chatbot_conversation_message_tool_calls
+SET response_id = 'unknown'
+WHERE TRUE;
+ALTER TABLE chatbot_conversation_message_tool_calls
+ALTER COLUMN response_id
+SET NOT NULL;
+
 COMMENT ON COLUMN chatbot_conversation_message_tool_calls.tool_kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
+COMMENT ON COLUMN chatbot_conversation_message_tool_calls.response_id IS 'The ID assigned by Azure per response, is the same for every message generated in one conversation turn of the LLM (one response). Used to fetch and delete a response from the Azure API.';
 
 ALTER TABLE chatbot_conversation_message_tool_outputs
-ADD COLUMN tool_kind tool_kind NOT NULL DEFAULT 'function'::tool_kind;
+ADD COLUMN tool_kind tool_kind NOT NULL DEFAULT 'function'::tool_kind,
+  ADD COLUMN response_id TEXT;
+-- set not null later;
 ALTER TABLE chatbot_conversation_message_tool_outputs
   RENAME COLUMN message_id TO chatbot_conversation_message_id;
 ALTER TABLE chatbot_conversation_message_tool_outputs
@@ -72,7 +88,15 @@ ALTER TABLE chatbot_conversation_message_tool_outputs
 ALTER COLUMN output
 SET DATA TYPE VARCHAR(131072);
 
+UPDATE chatbot_conversation_message_tool_outputs
+SET response_id = 'unknown'
+WHERE TRUE;
+ALTER TABLE chatbot_conversation_message_tool_outputs
+ALTER COLUMN response_id
+SET NOT NULL;
+
 COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.tool_kind IS 'The kind of the tool: is it a function tool or Azure AI Search tool.';
+COMMENT ON COLUMN chatbot_conversation_message_tool_outputs.response_id IS 'The ID assigned by Azure per response, is the same for every message generated in one conversation turn of the LLM (one response). Used to fetch and delete a response from the Azure API.';
 
 -- move data from ccm to new tables
 INSERT INTO chatbot_conversation_message_messages (
@@ -96,6 +120,22 @@ WHERE chatbot_conversation_messages.message_role IN ('user'::message_role, 'assi
   AND chatbot_conversation_messages.id NOT IN (
     SELECT chatbot_conversation_message_id
     FROM chatbot_conversation_message_tool_calls
+  );
+
+UPDATE chatbot_conversation_message_messages
+SET response_id = 'unknown'
+WHERE message_role <> 'user'::message_role;
+
+ALTER TABLE chatbot_conversation_message_messages
+ADD CONSTRAINT not_null_for_llm_generated_messages CHECK (
+    (
+      response_id IS NULL
+      AND message_role = 'user'::message_role
+    )
+    OR (
+      response_id IS NOT NULL
+      AND message_role <> 'user'::message_role
+    )
   );
 
 ALTER TABLE chatbot_conversation_messages DROP COLUMN message,

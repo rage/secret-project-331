@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens\nFROM chatbot_conversation_message_messages\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    text,\n    message_role as \"message_role: MessageRole\",\n    message_is_complete,\n    used_tokens,\n    response_id\nFROM chatbot_conversation_message_messages\nWHERE chatbot_conversation_message_id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -58,6 +58,11 @@
         "ordinal": 8,
         "name": "used_tokens",
         "type_info": "Int4"
+      },
+      {
+        "ordinal": 9,
+        "name": "response_id",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -74,8 +79,9 @@
       false,
       false,
       false,
-      false
+      false,
+      true
     ]
   },
-  "hash": "cb36de8120f9d304ac7c70bb4483e827ae0a5eaba6fd452f5126198a8795dd38"
+  "hash": "da8cb48402fc5fc1d3215648368fd084f4f3f325a8bb0d31bea712bf32680737"
 }

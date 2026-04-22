@@ -42,11 +42,13 @@ SET NOT NULL;
 DROP TABLE chatbot_conversation_message_messages;
 DROP TABLE chatbot_conversation_message_reasoning;
 
-ALTER TABLE chatbot_conversation_message_tool_calls DROP COLUMN tool_kind;
+ALTER TABLE chatbot_conversation_message_tool_calls DROP COLUMN tool_kind,
+  DROP COLUMN response_id;
 ALTER TABLE chatbot_conversation_message_tool_calls
   RENAME COLUMN chatbot_conversation_message_id TO message_id;
 
-ALTER TABLE chatbot_conversation_message_tool_outputs DROP COLUMN tool_kind;
+ALTER TABLE chatbot_conversation_message_tool_outputs DROP COLUMN tool_kind,
+  DROP COLUMN response_id;
 ALTER TABLE chatbot_conversation_message_tool_outputs
   RENAME COLUMN chatbot_conversation_message_id TO message_id;
 ALTER TABLE chatbot_conversation_message_tool_outputs

@@ -38,13 +38,18 @@ impl TryFrom<APIOutputMessage> for APIInputMessage {
     type Error = ChatbotError;
     fn try_from(message: APIOutputMessage) -> Result<Self, Self::Error> {
         match message.message_type {
-            OutputItem::Message { role, content } => Ok(APIInputMessage {
+            OutputItem::Message {
+                role,
+                content,
+                response_id: _response_id,
+            } => Ok(APIInputMessage {
                 message_type: InputItem::Message { role, content },
             }),
             OutputItem::FunctionCall {
                 call_id,
                 tool_name,
                 arguments,
+                response_id: _response_id,
             } => Ok(APIInputMessage {
                 message_type: InputItem::FunctionCall {
                     call_id,
@@ -52,17 +57,29 @@ impl TryFrom<APIOutputMessage> for APIInputMessage {
                     arguments,
                 },
             }),
-            OutputItem::FunctionCallOutput { call_id, output } => Ok(APIInputMessage {
+            OutputItem::FunctionCallOutput {
+                call_id,
+                output,
+                response_id: _response_id,
+            } => Ok(APIInputMessage {
                 message_type: InputItem::FunctionCallOutput { call_id, output },
             }),
-            OutputItem::AzureAiSearchCall { call_id, arguments } => Ok(APIInputMessage {
+            OutputItem::AzureAiSearchCall {
+                call_id,
+                arguments,
+                response_id: _response_id,
+            } => Ok(APIInputMessage {
                 message_type: InputItem::FunctionCall {
                     call_id,
                     tool_name: "azure_ai_search".to_string(),
                     arguments,
                 },
             }),
-            OutputItem::AzureAiSearchCallOutput { call_id, output } => Ok(APIInputMessage {
+            OutputItem::AzureAiSearchCallOutput {
+                call_id,
+                output,
+                response_id: _response_id,
+            } => Ok(APIInputMessage {
                 message_type: InputItem::FunctionCallOutput { call_id, output },
             }),
             OutputItem::Reasoning { .. } => Err(ChatbotError::new(
@@ -175,7 +192,11 @@ impl APIOutputMessage {
         conversation_id: Uuid,
     ) -> ChatbotResult<ChatbotConversationMessage> {
         let res = match self.message_type.clone() {
-            OutputItem::Message { role, content } => {
+            OutputItem::Message {
+                role,
+                content,
+                response_id,
+            } => {
                 let text = content.get_content_text();
                 let used_tokens = estimate_tokens(&text);
 
@@ -186,6 +207,11 @@ impl APIOutputMessage {
                         message_role: role,
                         message_is_complete: true,
                         used_tokens,
+                        response_id: if role == MessageRole::User {
+                            None
+                        } else {
+                            Some(response_id)
+                        },
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -195,6 +221,7 @@ impl APIOutputMessage {
                 call_id,
                 tool_name,
                 arguments,
+                response_id,
             } => ChatbotConversationMessage {
                 conversation_id,
                 message: Message::ToolCall(ChatbotConversationMessageToolCall {
@@ -202,42 +229,61 @@ impl APIOutputMessage {
                     tool_arguments: serde_json::to_value(arguments)?,
                     tool_call_id: call_id,
                     tool_kind: ToolKind::Function,
+                    response_id,
                     ..Default::default()
                 }),
                 ..Default::default()
             },
-            OutputItem::FunctionCallOutput { call_id, output } => ChatbotConversationMessage {
+            OutputItem::FunctionCallOutput {
+                call_id,
+                output,
+                response_id,
+            } => ChatbotConversationMessage {
                 conversation_id,
                 message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
                     output,
                     tool_call_id: call_id,
                     tool_kind: ToolKind::Function,
+                    response_id,
                     ..Default::default()
                 }),
                 ..Default::default()
             },
-            OutputItem::AzureAiSearchCall { call_id, arguments } => ChatbotConversationMessage {
+            OutputItem::AzureAiSearchCall {
+                call_id,
+                arguments,
+                response_id,
+            } => ChatbotConversationMessage {
                 conversation_id,
                 message: Message::ToolCall(ChatbotConversationMessageToolCall {
                     tool_arguments: serde_json::to_value(arguments)?,
                     tool_call_id: call_id,
                     tool_kind: ToolKind::AzureAiSearch,
                     tool_name: "azure_ai_search".to_string(),
+                    response_id,
                     ..Default::default()
                 }),
                 ..Default::default()
             },
-            OutputItem::AzureAiSearchCallOutput { call_id, output } => ChatbotConversationMessage {
+            OutputItem::AzureAiSearchCallOutput {
+                call_id,
+                output,
+                response_id,
+            } => ChatbotConversationMessage {
                 conversation_id,
                 message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
                     tool_call_id: call_id,
                     tool_kind: ToolKind::AzureAiSearch,
                     output: serde_json::to_string(&output)?,
+                    response_id,
                     ..Default::default()
                 }),
                 ..Default::default()
             },
-            OutputItem::Reasoning { summary } => {
+            OutputItem::Reasoning {
+                summary,
+                response_id,
+            } => {
                 let text = if summary.len() > 0 {
                     Some(
                         summary
@@ -253,6 +299,7 @@ impl APIOutputMessage {
                     conversation_id,
                     message: Message::Reasoning(ChatbotConversationMessageReasoning {
                         summary: text,
+                        response_id,
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -273,6 +320,15 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                         message_type: OutputItem::Message {
                             role: text_message.message_role,
                             content: MessageContent::Text(text_message.text),
+                            response_id: if text_message.message_role == MessageRole::User {
+                                "".to_string()
+                            } else {
+                                text_message.response_id.ok_or(ChatbotError::new(
+                                    ChatbotErrorType::Other,
+                                    "Can't convert ChatbotConversationMessage into APIOutputMessage: a role='assistant' message should have a response_id, but it's missing",
+                                    None,
+                                ))?
+                            },
                         },
                     },
                     _ => {
@@ -290,12 +346,14 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                         call_id: tool_call.tool_call_id,
                         tool_name: tool_call.tool_name,
                         arguments: serde_json::to_string(&tool_call.tool_arguments)?,
+                        response_id: tool_call.response_id,
                     },
                 },
                 ToolKind::AzureAiSearch => APIOutputMessage {
                     message_type: OutputItem::AzureAiSearchCall {
                         call_id: tool_call.tool_call_id,
                         arguments: serde_json::to_string(&tool_call.tool_arguments)?,
+                        response_id: tool_call.response_id,
                     },
                 },
             },
@@ -304,12 +362,14 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                     message_type: OutputItem::FunctionCallOutput {
                         call_id: tool_output.tool_call_id,
                         output: tool_output.output,
+                        response_id: tool_output.response_id,
                     },
                 },
                 ToolKind::AzureAiSearch => APIOutputMessage {
                     message_type: OutputItem::AzureAiSearchCallOutput {
                         call_id: tool_output.tool_call_id,
                         output: serde_json::from_str(&tool_output.output)?,
+                        response_id: tool_output.response_id,
                     },
                 },
             },
@@ -321,11 +381,15 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                                 output_type: "summary_text".to_string(),
                                 text,
                             }],
+                            response_id: reasoning.response_id,
                         },
                     }
                 } else {
                     APIOutputMessage {
-                        message_type: OutputItem::Reasoning { summary: vec![] },
+                        message_type: OutputItem::Reasoning {
+                            summary: vec![],
+                            response_id: reasoning.response_id,
+                        },
                     }
                 }
             } //TODO TODO
@@ -347,6 +411,7 @@ impl From<ChatbotConversationMessageToolOutput> for APIOutputMessage {
             message_type: OutputItem::FunctionCallOutput {
                 call_id: value.tool_call_id,
                 output: value.output,
+                response_id: value.response_id,
             },
         }
     }
@@ -356,13 +421,16 @@ impl TryFrom<APIOutputMessage> for ChatbotConversationMessageToolOutput {
     type Error = ChatbotError;
     fn try_from(value: APIOutputMessage) -> ChatbotResult<Self> {
         match value.message_type {
-            OutputItem::FunctionCallOutput { call_id, output } => {
-                Ok(ChatbotConversationMessageToolOutput {
-                    output,
-                    tool_call_id: call_id,
-                    ..Default::default()
-                })
-            }
+            OutputItem::FunctionCallOutput {
+                call_id,
+                output,
+                response_id,
+            } => Ok(ChatbotConversationMessageToolOutput {
+                output,
+                tool_call_id: call_id,
+                response_id,
+                ..Default::default()
+            }),
             _ => Err(ChatbotError::new(
                 ChatbotErrorType::Other,
                 "Can't convert APIMessage to ChatbotConversationMessageToolOutput: APIMessage type is not OutputItem::FunctionCallOutput",
@@ -644,7 +712,7 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
         .output
         .into_iter()
         .map(|x| match x.message_type {
-            OutputItem::Message { role: _role, content } => Ok(content.get_content_text()),
+            OutputItem::Message {  content , ..} => Ok(content.get_content_text()),
             _ =>  Err(ChatbotError::new( ChatbotErrorType::InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.", None)),
         })
         .collect::<ChatbotResult<Vec<String>>>()?

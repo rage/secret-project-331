@@ -36,6 +36,7 @@ import {
   zPostAuthDeleteUserAccountResponse,
   zPostAuthLoginResponse,
   zPostAuthSendEmailCodeResponse,
+  zPostAuthSignupResponse,
   zPostAuthVerifyEmailResponse,
 } from "./zod.generated"
 
@@ -223,6 +224,7 @@ export const postAuthSignup = <ThrowOnError extends boolean = true>(
     ThrowOnError,
     "data"
   >({
+    responseValidator: async (data) => await zPostAuthSignupResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/auth/signup",
     ...options,

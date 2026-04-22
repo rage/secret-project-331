@@ -116,6 +116,15 @@ export const zSendEmailCodeData = z.object({
   password: z.string(),
 })
 
+export const zSignupResponse = z.union([
+  z.object({
+    type: z.enum(["success"]),
+  }),
+  z.object({
+    type: z.enum(["email_already_exists"]),
+  }),
+])
+
 /**
  * Generic information about the logged in user.
  *
@@ -244,6 +253,11 @@ export const zPostAuthSendEmailCodeBody = zSendEmailCodeData
 export const zPostAuthSendEmailCodeResponse = z.boolean()
 
 export const zPostAuthSignupBody = zCreateAccountDetails
+
+/**
+ * Signup outcome
+ */
+export const zPostAuthSignupResponse = zSignupResponse
 
 /**
  * Profile when signed in; null when anonymous

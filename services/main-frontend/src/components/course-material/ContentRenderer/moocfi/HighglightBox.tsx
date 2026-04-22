@@ -59,6 +59,7 @@ const HightlightBlock: React.FC<
                 color: ${baseTheme.colors.green[700]};
                 font-weight: 700;
                 font-family: ${monospaceFont};
+                margin-right: 0.25em;
               `,
             }}
             useWrapperElement={true}

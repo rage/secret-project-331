@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nWITH deleted AS (\n    DELETE FROM error_occurrences\n    WHERE created_at < now() - interval '2 months'\n    RETURNING error_group_id\n)\nUPDATE error_groups g\nSET\n    occurrence_count = (SELECT COUNT(*) FROM error_occurrences WHERE error_group_id = g.id),\n    last_seen_at = COALESCE(\n        (SELECT MAX(created_at) FROM error_occurrences WHERE error_group_id = g.id),\n        g.created_at\n    ),\n    updated_at = now()\nFROM (SELECT DISTINCT error_group_id FROM deleted) d\nWHERE g.id = d.error_group_id\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "057843fb5030db07f803a3dee0c166a75f6363a791c864f31792f004662af951"
+}

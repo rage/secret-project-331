@@ -1,0 +1,35 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO error_groups (id, fingerprint, error_source, message, stack_trace)\nVALUES (uuid_generate_v4(), $1, $2, $3, $4)\nON CONFLICT (fingerprint) DO UPDATE SET\n    occurrence_count = error_groups.occurrence_count + 1,\n    last_seen_at = now(),\n    updated_at = now()\nRETURNING id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        {
+          "Custom": {
+            "name": "error_source",
+            "kind": {
+              "Enum": [
+                "backend",
+                "frontend"
+              ]
+            }
+          }
+        },
+        "Text",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "8d5320018a0090744b7e22948711e1d61397247a5a775cf627e7c88a6b13a05d"
+}

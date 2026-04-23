@@ -4,6 +4,7 @@ pub mod cache;
 pub mod document_schema_processor;
 pub mod email_processor;
 pub mod error;
+pub mod error_fingerprint;
 pub mod file_store;
 pub mod folder_checksum;
 pub mod futures;

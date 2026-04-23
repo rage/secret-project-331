@@ -39,6 +39,7 @@ pub mod email_templates;
 pub mod email_verification_tokens;
 pub mod ended_processed_exams;
 pub mod error;
+pub mod errors;
 pub mod exams;
 pub mod exercise_language_groups;
 pub mod exercise_repositories;

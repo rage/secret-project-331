@@ -41,6 +41,8 @@ derive_more = { version = "2.1.1", features = ["full"] }
 itertools = "0.14.0"
 # URL library for Rust, based on the WHATWG URL Standard
 url = "2.5.8"
+# Percent encoding for URL-safe path storage
+percent-encoding = "2.3.2"
 # Application-level tracing for Rust.
 tracing = "0.1.44"
 # Utilities for enriching errors with `tracing`.

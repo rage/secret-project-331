@@ -1,5 +1,6 @@
 use std::env;
 
+use crate::config::program_config::ProgramConfig;
 use crate::{domain::models_requests, setup_tracing};
 use anyhow::Result;
 use dotenvy::dotenv;
@@ -23,8 +24,7 @@ pub async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     setup_tracing()?;
 
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let database_url = ProgramConfig::database_url_with_default();
     let db_pool = PgPool::connect(&database_url).await?;
 
     let mut conn = db_pool.acquire().await?;

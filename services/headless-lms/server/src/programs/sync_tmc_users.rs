@@ -3,6 +3,7 @@ Syncs tmc users
 */
 use std::env;
 
+use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 use anyhow::Context;
 
@@ -36,8 +37,7 @@ pub async fn main() -> anyhow::Result<()> {
     unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let database_url = ProgramConfig::database_url_with_default();
     let recent_changes = fetch_recently_changed_user_details().await?;
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
@@ -124,9 +124,8 @@ pub async fn delete_users(
 }
 
 pub async fn fetch_recently_changed_user_details() -> anyhow::Result<TMCRecentChanges> {
-    let access_token = env::var("TMC_ACCESS_TOKEN").expect("TMC_ACCESS_TOKEN must be defined");
-    let ratelimit_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-        .expect("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined");
+    let access_token = ProgramConfig::required("TMC_ACCESS_TOKEN")?;
+    let ratelimit_api_key = ProgramConfig::required("RATELIMIT_PROTECTION_SAFE_API_KEY")?;
     let client = reqwest::Client::new();
     let res = client
         .get(URL)

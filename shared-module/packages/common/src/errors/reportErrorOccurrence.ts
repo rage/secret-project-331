@@ -19,10 +19,6 @@ export function setDefaultErrorReportingService(service: string): void {
   defaultServiceSlug = trimmed ? trimmed : null
 }
 
-function trimTrailingSlash(url: string): string {
-  return url.endsWith("/") ? url.slice(0, -1) : url
-}
-
 function resolveServiceSlug(explicit?: string): string {
   const fromArg = explicit?.trim()
   if (fromArg) {
@@ -48,13 +44,7 @@ function resolveUrlForEnvironment(): string | null {
     // Prefer same-origin relative URL in the browser. This matches how the generated API clients work today.
     return ERRORS_ENDPOINT_PATH
   }
-
-  const baseUrl = typeof process !== "undefined" ? process.env.ERROR_REPORTING_BASE_URL?.trim() : ""
-  if (!baseUrl) {
-    // In Node/Next server contexts, relative fetch URLs throw. Require an explicit base URL.
-    return null
-  }
-  return `${trimTrailingSlash(baseUrl)}${ERRORS_ENDPOINT_PATH}`
+  return null
 }
 
 export async function reportErrorOccurrence(report: ErrorOccurrenceReport): Promise<void> {

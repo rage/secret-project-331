@@ -59,8 +59,13 @@ async function postImpl(req: Request) {
   } catch {
     return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
   }
-  const result = handleGradingRequest(body)
-  return NextResponse.json(result, { status: 200 })
+  try {
+    const result = handleGradingRequest(body)
+    return NextResponse.json(result, { status: 200 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error"
+    return NextResponse.json({ error_message: message }, { status: 500 })
+  }
 }
 
 function notFound() {

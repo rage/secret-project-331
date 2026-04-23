@@ -11,16 +11,6 @@ pub enum ErrorSource {
     Frontend,
 }
 
-impl ErrorSource {
-    /// Returns the stable serialized value for hashing and SQL writes.
-    fn as_str(self) -> &'static str {
-        match self {
-            Self::Backend => "backend",
-            Self::Frontend => "frontend",
-        }
-    }
-}
-
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub struct ErrorGroup {
     pub id: Uuid,
@@ -63,11 +53,20 @@ pub async fn insert(
     }
 
     let error_source = report.error_source.unwrap_or(ErrorSource::Frontend);
-    let error_source_str = error_source.as_str();
+    let error_source_str = serde_json::to_value(error_source)?
+        .as_str()
+        .ok_or_else(|| {
+            ModelError::new(
+                ModelErrorType::Conversion,
+                "Failed to serialize ErrorSource as a string".to_string(),
+                None,
+            )
+        })?
+        .to_string();
 
     let error_identifier = calculate_error_identifier(
         service,
-        error_source_str,
+        &error_source_str,
         &report.message,
         report.stack_trace.as_deref(),
     );

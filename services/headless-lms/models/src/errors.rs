@@ -127,27 +127,42 @@ LIMIT $1 OFFSET $2
 }
 
 pub async fn delete_expired(conn: &mut PgConnection) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    let deleted_group_ids = sqlx::query!(
+        r#"
+DELETE FROM error_occurrences
+WHERE created_at < now() - interval '2 months'
+RETURNING error_group_id
+        "#
+    )
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .map(|r| r.error_group_id)
+    .collect::<Vec<_>>();
+
     sqlx::query!(
         r#"
-WITH deleted AS (
-    DELETE FROM error_occurrences
-    WHERE created_at < now() - interval '2 months'
-    RETURNING error_group_id
-)
 UPDATE error_groups g
 SET
-    occurrence_count = (SELECT COUNT(*) FROM error_occurrences WHERE error_group_id = g.id),
+    occurrence_count = (
+        SELECT COUNT(*)::int
+        FROM error_occurrences
+        WHERE error_group_id = g.id
+    ),
     last_seen_at = COALESCE(
         (SELECT MAX(created_at) FROM error_occurrences WHERE error_group_id = g.id),
         g.created_at
     ),
     updated_at = now()
-FROM (SELECT DISTINCT error_group_id FROM deleted) d
-WHERE g.id = d.error_group_id
-        "#
+WHERE g.id = ANY($1)
+        "#,
+        &deleted_group_ids
     )
-    .execute(conn)
+    .execute(&mut *tx)
     .await?;
+
+    tx.commit().await?;
     Ok(())
 }
 

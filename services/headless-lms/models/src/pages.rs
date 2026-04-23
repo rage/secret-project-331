@@ -6,6 +6,7 @@ use headless_lms_utils::document_schema_processor::{
     replace_duplicate_client_ids,
 };
 use itertools::Itertools;
+use percent_encoding::{AsciiSet, CONTROLS, percent_decode_str, utf8_percent_encode};
 use serde_json::{Value, json};
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
@@ -117,6 +118,42 @@ pub struct PageWithExercises {
 struct CourseMaterialPageContentFilterCache {
     chapter_lock_content_states: HashMap<Uuid, LockChapterContentState>,
     course_chapter_locking_enabled: HashMap<Uuid, bool>,
+}
+
+const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'!')
+    .add(b'"')
+    .add(b'#')
+    .add(b'$')
+    .add(b'%')
+    .add(b'&')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'*')
+    .add(b'+')
+    .add(b',')
+    .add(b':')
+    .add(b';')
+    .add(b'<')
+    .add(b'=')
+    .add(b'>')
+    .add(b'?')
+    .add(b'@')
+    .add(b'[')
+    .add(b'\\')
+    .add(b']')
+    .add(b'^')
+    .add(b'`')
+    .add(b'{')
+    .add(b'|')
+    .add(b'}');
+
+/// Percent-encodes URL path characters that are not part of the safe path alphabet.
+fn normalize_url_path_for_storage(url_path: &str) -> String {
+    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
+    utf8_percent_encode(decoded.trim(), URL_PATH_ENCODE_SET).to_string()
 }
 
 async fn get_lock_chapter_content_state_for_page(
@@ -806,7 +843,7 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
     Ok(res)
 }
 
-async fn get_page_by_path(
+async fn get_page_by_stored_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -849,7 +886,8 @@ pub async fn get_page_with_user_data_by_path(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
+    let normalized_url_path = normalize_url_path_for_storage(url_path);
+    let page_option = get_page_by_stored_path(conn, course_data.id, &normalized_url_path).await?;
 
     if let Some(page) = page_option {
         return get_course_page_with_user_data_from_selected_page(
@@ -864,7 +902,8 @@ pub async fn get_page_with_user_data_by_path(
         .await;
     } else {
         let potential_redirect =
-            try_to_find_redirected_page(conn, course_data.id, url_path).await?;
+            try_to_find_redirected_page_by_stored_path(conn, course_data.id, &normalized_url_path)
+                .await?;
         if let Some(redirected_page) = potential_redirect {
             return get_course_page_with_user_data_from_selected_page(
                 conn,
@@ -887,6 +926,15 @@ pub async fn get_page_with_user_data_by_path(
 }
 
 pub async fn try_to_find_redirected_page(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    url_path: &str,
+) -> ModelResult<Option<Page>> {
+    let normalized_url_path = normalize_url_path_for_storage(url_path);
+    try_to_find_redirected_page_by_stored_path(conn, course_id, &normalized_url_path).await
+}
+
+async fn try_to_find_redirected_page_by_stored_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -1297,6 +1345,7 @@ pub async fn update_page(
     }
 
     let content = replace_duplicate_client_ids(cms_page_update.content.clone());
+    let normalized_url_path = normalize_url_path_for_storage(&cms_page_update.url_path);
 
     if !page_update.is_exam_page
         && cms_page_update.chapter_id.is_none()
@@ -1336,7 +1385,7 @@ RETURNING id,
         ",
         page_update.page_id,
         serde_json::to_value(&content)?,
-        cms_page_update.url_path.trim(),
+        normalized_url_path,
         cms_page_update.title.trim(),
         cms_page_update.chapter_id
     )
@@ -2229,6 +2278,7 @@ pub async fn insert_page(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
+    let normalized_url_path = normalize_url_path_for_storage(&new_page.url_path);
     let mut page_language_group_id = None;
     if let Some(course_id) = new_page.course_id {
         // insert language group
@@ -2297,7 +2347,7 @@ RETURNING id,
         new_page.course_id,
         new_page.exam_id,
         serde_json::to_value(content)?,
-        new_page.url_path.trim(),
+        normalized_url_path,
         new_page.title.trim(),
         next_order_number,
         new_page.chapter_id,
@@ -3654,6 +3704,7 @@ pub async fn update_page_details(
     page_id: Uuid,
     page_details_update: &PageDetailsUpdate,
 ) -> ModelResult<()> {
+    let normalized_url_path = normalize_url_path_for_storage(&page_details_update.url_path);
     let mut tx = conn.begin().await?;
     let page_before_update = get_page(&mut tx, page_id).await?;
     sqlx::query!(
@@ -3665,13 +3716,13 @@ WHERE id = $1
 ",
         page_id,
         page_details_update.title,
-        page_details_update.url_path,
+        normalized_url_path,
     )
     .execute(&mut *tx)
     .await?;
 
     if let Some(course_id) = page_before_update.course_id
-        && page_before_update.url_path != page_details_update.url_path
+        && page_before_update.url_path != normalized_url_path
     {
         // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
         crate::url_redirections::upsert(
@@ -3766,6 +3817,26 @@ mod test {
 
     use super::*;
     use crate::{exams::NewExam, test_helper::*};
+
+    #[test]
+    fn normalizes_decoded_page_paths_for_storage_and_lookup() {
+        assert_eq!(
+            normalize_url_path_for_storage("/foo bar#part"),
+            "/foo%20bar%23part"
+        );
+        assert_eq!(
+            normalize_url_path_for_storage("/foo%20bar%23part"),
+            "/foo%20bar%23part"
+        );
+        assert_eq!(
+            normalize_url_path_for_storage(" /literal%percent "),
+            "/literal%25percent"
+        );
+        assert_eq!(
+            normalize_url_path_for_storage(" /literal%25percent "),
+            "/literal%25percent"
+        );
+    }
 
     #[tokio::test]
     async fn gets_organization_id() {

@@ -10,6 +10,7 @@ use sqlx::{PgConnection, PgPool};
 use url::Url;
 use uuid::Uuid;
 
+use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 
 use headless_lms_base::config::ApplicationConfiguration;
@@ -97,15 +98,14 @@ struct SyncerConfig {
 }
 
 async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
-
-    let base_url = Url::parse(&env::var("BASE_URL").expect("BASE_URL must be defined"))
-        .expect("BASE_URL must be a valid URL");
+    let database_url = ProgramConfig::database_url_with_default();
+    let base_url_raw = ProgramConfig::required("BASE_URL")?;
+    let base_url =
+        Url::parse(&base_url_raw).map_err(|e| anyhow::anyhow!("invalid BASE_URL: {}", e))?;
 
     let name = base_url
         .host_str()
-        .expect("BASE_URL must have a host")
+        .ok_or_else(|| anyhow::anyhow!("BASE_URL must have a host"))?
         .replace(".", "-");
 
     let app_configuration = ApplicationConfiguration::try_from_env()?;

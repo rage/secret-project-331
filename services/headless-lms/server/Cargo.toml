@@ -150,6 +150,8 @@ tokio-util = "0.7.18"
 async-stream = "0.3.6"
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
+# Constant-time equality checks for secrets
+subtle = "2.6.1"
 # Password hashing using Argon2id
 argon2 = "0.5.3"
 # For building an EC public key from JWK {x,y} and encoding to SPKI DER

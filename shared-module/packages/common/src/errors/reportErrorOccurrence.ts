@@ -1,0 +1,113 @@
+export type ErrorSource = "backend" | "frontend"
+
+export type ErrorOccurrenceReport = {
+  service?: string
+  error_source?: ErrorSource
+  message: string
+  stack_trace?: string | null
+  path?: string | null
+  app_version?: string | null
+  details?: unknown
+}
+
+const ERRORS_ENDPOINT_PATH = "/api/v0/errors"
+
+let defaultServiceSlug: string | null = null
+
+export function setDefaultErrorReportingService(service: string): void {
+  const trimmed = service.trim()
+  defaultServiceSlug = trimmed ? trimmed : null
+}
+
+function trimTrailingSlash(url: string): string {
+  return url.endsWith("/") ? url.slice(0, -1) : url
+}
+
+function resolveServiceSlug(explicit?: string): string {
+  const fromArg = explicit?.trim()
+  if (fromArg) {
+    return fromArg
+  }
+
+  const fromDefault = defaultServiceSlug?.trim()
+  if (fromDefault) {
+    return fromDefault
+  }
+
+  const fromEnv =
+    typeof process !== "undefined" ? process.env.NEXT_PUBLIC_SERVICE_SLUG?.trim() : undefined
+  if (fromEnv) {
+    return fromEnv
+  }
+
+  return "unknown"
+}
+
+function resolveUrlForEnvironment(): string | null {
+  if (typeof window !== "undefined") {
+    // Prefer same-origin relative URL in the browser. This matches how the generated API clients work today.
+    return ERRORS_ENDPOINT_PATH
+  }
+
+  const baseUrl = typeof process !== "undefined" ? process.env.ERROR_REPORTING_BASE_URL?.trim() : ""
+  if (!baseUrl) {
+    // In Node/Next server contexts, relative fetch URLs throw. Require an explicit base URL.
+    return null
+  }
+  return `${trimTrailingSlash(baseUrl)}${ERRORS_ENDPOINT_PATH}`
+}
+
+export async function reportErrorOccurrence(report: ErrorOccurrenceReport): Promise<void> {
+  try {
+    const url = resolveUrlForEnvironment()
+    if (!url) {
+      return
+    }
+
+    const service = resolveServiceSlug(report.service)
+
+    const path =
+      report.path ?? (typeof window !== "undefined" ? window.location.href : null) ?? undefined
+
+    const payload = {
+      service,
+      error_source: report.error_source,
+      message: report.message,
+      stack_trace: report.stack_trace ?? undefined,
+      path,
+      app_version: report.app_version ?? undefined,
+      details: report.details ?? undefined,
+    }
+
+    const body = JSON.stringify(payload)
+
+    // Best-effort fire-and-forget for crash contexts.
+    if (
+      typeof window !== "undefined" &&
+      typeof navigator !== "undefined" &&
+      "sendBeacon" in navigator
+    ) {
+      try {
+        const blob = new Blob([body], { type: "application/json" })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((navigator as any).sendBeacon(url, blob) === true) {
+          return
+        }
+      } catch {
+        // Fall back to fetch below.
+      }
+    }
+
+    await fetch(url, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body,
+      keepalive: true,
+      credentials: "include",
+    })
+  } catch {
+    // Reporting must never throw.
+  }
+}

@@ -34,7 +34,7 @@ fn bundler_hash_re() -> &'static Regex {
 }
 
 /// Normalizes dynamic values out of an error message so that errors with
-/// different UUIDs, addresses, or IDs still hash to the same fingerprint.
+/// different UUIDs, addresses, or IDs still hash to the same identifier.
 pub fn normalize_message(message: &str) -> String {
     // Order matters: UUIDs before long numbers (UUID contains long numeric runs).
     let s = uuid_re().replace_all(message, "{uuid}");
@@ -57,16 +57,23 @@ pub fn normalize_stack_trace(stack_trace: &str) -> String {
     s.lines().map(str::trim).collect::<Vec<_>>().join("\n")
 }
 
-/// Computes a stable BLAKE3 fingerprint for an error.
+/// Computes a stable BLAKE3 identifier for an error.
 ///
 /// Components are separated by null bytes so that ("foo", "") and ("", "foo")
 /// never collide.
-pub fn compute_fingerprint(source_debug: &str, message: &str, stack_trace: Option<&str>) -> String {
+pub fn calculate_error_identifier(
+    service: &str,
+    error_source: &str,
+    message: &str,
+    stack_trace: Option<&str>,
+) -> String {
     let normalized_message = normalize_message(message);
     let normalized_stack = stack_trace.map(normalize_stack_trace);
 
     let mut hasher = blake3::Hasher::new();
-    hasher.update(source_debug.as_bytes());
+    hasher.update(service.as_bytes());
+    hasher.update(b"\x00");
+    hasher.update(error_source.as_bytes());
     hasher.update(b"\x00");
     hasher.update(normalized_message.as_bytes());
     hasher.update(b"\x00");
@@ -148,17 +155,19 @@ mod tests {
         );
     }
 
-    // --- compute_fingerprint ---
+    // --- calculate_error_identifier ---
 
     #[test]
     fn test_same_error_different_uuids_same_fingerprint() {
-        let fp1 = compute_fingerprint(
-            "Frontend",
+        let fp1 = calculate_error_identifier(
+            "main-frontend",
+            "frontend",
             "User 550e8400-e29b-41d4-a716-446655440000 not found",
             None,
         );
-        let fp2 = compute_fingerprint(
-            "Frontend",
+        let fp2 = calculate_error_identifier(
+            "main-frontend",
+            "frontend",
             "User 660f9511-f3ac-52e5-b827-557766551111 not found",
             None,
         );
@@ -167,13 +176,15 @@ mod tests {
 
     #[test]
     fn test_same_error_different_hex_addr_in_stack_same_fingerprint() {
-        let fp1 = compute_fingerprint(
-            "Backend",
+        let fp1 = calculate_error_identifier(
+            "headless-lms",
+            "backend",
             "null pointer dereference",
             Some("at 0x7f0a1234abcd"),
         );
-        let fp2 = compute_fingerprint(
-            "Backend",
+        let fp2 = calculate_error_identifier(
+            "headless-lms",
+            "backend",
             "null pointer dereference",
             Some("at 0x7f9b5678efab"),
         );
@@ -182,13 +193,15 @@ mod tests {
 
     #[test]
     fn test_same_stack_different_bundler_hash_same_fingerprint() {
-        let fp1 = compute_fingerprint(
-            "Frontend",
+        let fp1 = calculate_error_identifier(
+            "main-frontend",
+            "frontend",
             "Cannot read property",
             Some("at fn (app.abc12345def0.js:10:5)"),
         );
-        let fp2 = compute_fingerprint(
-            "Frontend",
+        let fp2 = calculate_error_identifier(
+            "main-frontend",
+            "frontend",
             "Cannot read property",
             Some("at fn (app.fed09876543.js:10:5)"),
         );
@@ -197,43 +210,69 @@ mod tests {
 
     #[test]
     fn test_different_errors_different_fingerprints() {
-        let fp1 = compute_fingerprint("Frontend", "Cannot read property 'foo' of undefined", None);
-        let fp2 = compute_fingerprint("Frontend", "Cannot read property 'bar' of undefined", None);
+        let fp1 = calculate_error_identifier(
+            "main-frontend",
+            "frontend",
+            "Cannot read property 'foo' of undefined",
+            None,
+        );
+        let fp2 = calculate_error_identifier(
+            "main-frontend",
+            "frontend",
+            "Cannot read property 'bar' of undefined",
+            None,
+        );
         assert_ne!(fp1, fp2);
     }
 
     #[test]
     fn test_source_affects_fingerprint() {
-        let fp1 = compute_fingerprint("Frontend", "an error occurred", None);
-        let fp2 = compute_fingerprint("Backend", "an error occurred", None);
+        let fp1 =
+            calculate_error_identifier("main-frontend", "frontend", "an error occurred", None);
+        let fp2 = calculate_error_identifier("main-frontend", "backend", "an error occurred", None);
         assert_ne!(fp1, fp2);
     }
 
     #[test]
     fn test_stack_presence_affects_fingerprint() {
-        let fp1 = compute_fingerprint("Frontend", "an error", Some("at foo (a.js:1:1)"));
-        let fp2 = compute_fingerprint("Frontend", "an error", None);
+        let fp1 = calculate_error_identifier(
+            "main-frontend",
+            "frontend",
+            "an error",
+            Some("at foo (a.js:1:1)"),
+        );
+        let fp2 = calculate_error_identifier("main-frontend", "frontend", "an error", None);
         assert_ne!(fp1, fp2);
     }
 
     #[test]
     fn test_separator_prevents_collision() {
-        let fp1 = compute_fingerprint("Frontend", "foobar", None);
-        let fp2 = compute_fingerprint("Frontend", "foo", Some("bar"));
+        let fp1 = calculate_error_identifier("main-frontend", "frontend", "foobar", None);
+        let fp2 = calculate_error_identifier("main-frontend", "frontend", "foo", Some("bar"));
         assert_ne!(fp1, fp2);
     }
 
     #[test]
     fn test_fingerprint_is_deterministic() {
-        let fp1 = compute_fingerprint("Backend", "test error", Some("stack trace"));
-        let fp2 = compute_fingerprint("Backend", "test error", Some("stack trace"));
+        let fp1 = calculate_error_identifier(
+            "headless-lms",
+            "backend",
+            "test error",
+            Some("stack trace"),
+        );
+        let fp2 = calculate_error_identifier(
+            "headless-lms",
+            "backend",
+            "test error",
+            Some("stack trace"),
+        );
         assert_eq!(fp1, fp2);
     }
 
     #[test]
     fn test_fingerprint_length() {
         // BLAKE3 produces 32 bytes = 64 hex chars by default
-        let fp = compute_fingerprint("Frontend", "error", None);
+        let fp = calculate_error_identifier("main-frontend", "frontend", "error", None);
         assert_eq!(fp.len(), 64);
     }
 }

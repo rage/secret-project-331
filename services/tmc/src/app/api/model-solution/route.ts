@@ -4,6 +4,7 @@ import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
@@ -12,7 +13,7 @@ import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseS
 import { createScopedLogger } from "@/util/logger"
 import { ModelSolutionSpec, PrivateSpec } from "@/util/stateInterfaces"
 
-export async function POST(request: Request): Promise<Response> {
+async function postImpl(request: Request): Promise<Response> {
   try {
     const body = await request.json()
     if (!isSpecRequest(body)) {
@@ -32,6 +33,11 @@ export async function POST(request: Request): Promise<Response> {
     return internalServerError("Error while processing request", err)
   }
 }
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: "tmc",
+  operation: "POST /model-solution",
+})
 
 const processModelSolution = async (
   requestId: string,

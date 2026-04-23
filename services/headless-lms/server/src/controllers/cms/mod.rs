@@ -11,7 +11,6 @@ pub mod code_giveaways;
 pub mod course_instances;
 pub mod courses;
 pub mod email_templates;
-pub mod errors;
 pub mod exams;
 pub mod exercise_services;
 pub mod gutenberg;
@@ -27,7 +26,6 @@ use utoipa::OpenApi;
     nest(
         (path = "/ai-suggestions", api = ai_suggestions::CmsAiSuggestionsApiDoc),
         (path = "/chapters", api = chapters::CmsChaptersApiDoc),
-        (path = "/errors", api = errors::CmsErrorsApiDoc),
         (path = "/course-instances", api = course_instances::CmsCourseInstancesApiDoc),
         (path = "/courses", api = courses::CmsCoursesApiDoc),
         (path = "/code-giveaways", api = code_giveaways::CmsCodeGiveawaysApiDoc),
@@ -53,6 +51,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
         .service(web::scope("/code-giveaways").configure(code_giveaways::_add_routes))
         .service(web::scope("/repository-exercises").configure(repository_exercises::_add_routes))
-        .service(web::scope("/ai-suggestions").configure(ai_suggestions::_add_routes))
-        .service(web::scope("/errors").configure(errors::_add_routes));
+        .service(web::scope("/ai-suggestions").configure(ai_suggestions::_add_routes));
 }

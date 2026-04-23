@@ -14,7 +14,6 @@ pub mod course_instances;
 pub mod course_modules;
 pub mod courses;
 pub mod email_templates;
-pub mod errors;
 pub mod exams;
 pub mod exercise_repositories;
 pub mod exercise_services;
@@ -59,7 +58,6 @@ use utoipa::OpenApi;
         (path = "/exercise-services", api = exercise_services::MainFrontendExerciseServicesApiDoc),
         (path = "/exercise-slide-submissions", api = exercise_slide_submissions::MainFrontendExerciseSlideSubmissionsApiDoc),
         (path = "/exercises", api = exercises::MainFrontendExercisesApiDoc),
-        (path = "/errors", api = errors::MainFrontendErrorsApiDoc),
         (path = "/feedback", api = feedback::MainFrontendFeedbackApiDoc),
         (path = "/global-stats", api = global_stats::MainFrontendGlobalStatsApiDoc),
         (path = "/glossary", api = glossary::MainFrontendGlossaryApiDoc),
@@ -90,7 +88,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/courses").configure(courses::_add_routes))
         .service(web::scope("/email-templates").configure(email_templates::_add_routes))
         .service(web::scope("/exercises").configure(exercises::_add_routes))
-        .service(web::scope("/errors").configure(errors::_add_routes))
         .service(web::scope("/feedback").configure(feedback::_add_routes))
         .service(web::scope("/org").configure(org::_add_routes))
         .service(web::scope("/organizations").configure(organizations::_add_routes))

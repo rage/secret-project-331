@@ -20,7 +20,8 @@ run_command cd "$ROOT_ABSOLUTE_PATH" || exit
 run_command pnpm exec openapi-ts -f config/openapi/main-frontend.openapi-ts.config.ts
 run_command pnpm exec openapi-ts -f config/openapi/cms.openapi-ts.config.ts
 run_command pnpm exec openapi-ts -f config/openapi/common-auth.openapi-ts.config.ts
-run_command pnpm exec prettier --write services/headless-lms/server/openapi/*.json services/main-frontend/src/generated services/cms/src/generated/api shared-module/packages/common/src/generated/auth-api
+run_command pnpm exec openapi-ts -f config/openapi/errors.openapi-ts.config.ts
+run_command pnpm exec prettier --write services/headless-lms/server/openapi/*.json services/main-frontend/src/generated services/cms/src/generated/api shared-module/packages/common/src/generated/auth-api shared-module/packages/common/src/generated/errors-api
 
 echo ""
 echo -e "${GREEN}✅ OpenAPI specs and Hey API clients have been regenerated.${RESET_EVERYTHING}"

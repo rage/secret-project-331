@@ -1,0 +1,80 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Errors API",
+    "description": "",
+    "contact": {
+      "name": "University of Helsinki",
+      "email": "mooc@cs.helsinki.fi"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v0/errors": {
+      "post": {
+        "tags": ["errors"],
+        "summary": "\nPOST `/api/v0/errors` - Reports an error occurrence.\n\nAccessible to both authenticated and anonymous users. If the user is logged in, their id is stored with the error occurrence.",
+        "operationId": "postError",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewErrorReport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Error recorded successfully"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ErrorSource": {
+        "type": "string",
+        "enum": ["Backend", "Frontend"]
+      },
+      "NewErrorReport": {
+        "type": "object",
+        "required": ["service", "message"],
+        "properties": {
+          "app_version": {
+            "type": ["string", "null"]
+          },
+          "details": {},
+          "error_source": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ErrorSource"
+              }
+            ]
+          },
+          "message": {
+            "type": "string"
+          },
+          "path": {
+            "type": ["string", "null"]
+          },
+          "service": {
+            "type": "string"
+          },
+          "stack_trace": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    }
+  }
+}

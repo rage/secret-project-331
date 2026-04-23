@@ -8,6 +8,7 @@ import { submissionFeedback } from "../../../grading/feedback"
 import { gradeAnswers } from "../../../grading/grading"
 import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../../grading/utils"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
@@ -49,7 +50,9 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
 /**
  * Handle grading requests
  */
-export async function POST(req: Request) {
+const SERVICE = "quizzes"
+
+async function postImpl(req: Request) {
   try {
     const body = await req.json()
     const result = handleGradingRequest(body)
@@ -70,26 +73,17 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET() {
+function notFound() {
   return NextResponse.json({ message: "Not found" }, { status: 404 })
 }
 
-export async function PUT() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function PATCH() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function DELETE() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function OPTIONS() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function HEAD() {
-  return new Response(null, { status: 404 })
-}
+export const POST = wrapRouteHandler(postImpl, { service: SERVICE, operation: "POST /grade" })
+export const GET = wrapRouteHandler(notFound, { service: SERVICE, operation: "GET /grade" })
+export const PUT = wrapRouteHandler(notFound, { service: SERVICE, operation: "PUT /grade" })
+export const PATCH = wrapRouteHandler(notFound, { service: SERVICE, operation: "PATCH /grade" })
+export const DELETE = wrapRouteHandler(notFound, { service: SERVICE, operation: "DELETE /grade" })
+export const OPTIONS = wrapRouteHandler(notFound, { service: SERVICE, operation: "OPTIONS /grade" })
+export const HEAD = wrapRouteHandler(() => new Response(null, { status: 404 }), {
+  service: SERVICE,
+  operation: "HEAD /grade",
+})

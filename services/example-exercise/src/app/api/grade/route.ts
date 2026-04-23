@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import {
   GradingRequest,
   GradingResult,
@@ -15,7 +16,7 @@ export interface ExerciseFeedback {
 
 type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
 
-export async function POST(request: Request) {
+async function postImpl(request: Request) {
   try {
     const body = await request.json()
     if (!isNonGenericGradingRequest(body)) {
@@ -70,3 +71,8 @@ const handlePost = (gradingRequest: ServiceGradingRequest) => {
     feedback_json: { selectedOptionIsCorrect: true },
   })
 }
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: "example-exercise",
+  operation: "POST /grade",
+})

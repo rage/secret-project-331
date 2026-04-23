@@ -56,3 +56,13 @@ pub struct CourseMaterialApiDoc;
     )
 )]
 pub struct AuthApiDoc;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest((path = "/api/v0/errors", api = crate::controllers::errors::ErrorsRoutesApiDoc)),
+    info(
+        title = "Errors API",
+        version = "0.1.0"
+    )
+)]
+pub struct ErrorsApiDoc;

@@ -3,6 +3,7 @@ import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import {
@@ -64,7 +65,7 @@ function normalizePodOutput(parsed: unknown): NormalizedRunResult | null {
   }
 }
 
-export async function POST(request: Request): Promise<Response> {
+async function postImpl(request: Request): Promise<Response> {
   try {
     const body = await request.json()
 
@@ -78,6 +79,8 @@ export async function POST(request: Request): Promise<Response> {
     return internalServerError("Error while processing request", err)
   }
 }
+
+export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
 
 type TmcGradingRequest = GradingRequest<PrivateSpec, UserAnswer>
 

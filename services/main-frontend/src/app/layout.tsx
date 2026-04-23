@@ -2,12 +2,13 @@
 
 import "@/init/registerMainFrontendApiClients"
 import Script from "next/script"
-import React, { Suspense } from "react"
+import React, { Suspense, useEffect } from "react"
 
 import Layout from "@/components/Layout"
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import { AriaRouterProvider } from "@/components/providers/AriaRouterProvider"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { installGlobalErrorReporting } from "@/shared-module/common/errors/installGlobalErrorReporting"
 import { getDir } from "@/shared-module/common/hooks/useLanguage"
 import { OUTDATED_BROWSER_WARNING_SCRIPT } from "@/shared-module/common/utils/constants"
 import generateWebVitalsReporter from "@/shared-module/common/utils/generateWebVitalsReporter"
@@ -24,6 +25,10 @@ const RootLayout = ({
   children: React.ReactNode
   params: Promise<Record<string, string | string[]>>
 }) => {
+  useEffect(() => {
+    installGlobalErrorReporting({ service: SERVICE_NAME })
+  }, [])
+
   // @ts-expect-error: custom prop
   const noVisibleLayout = Boolean(children?.noVisibleLayout)
   return (

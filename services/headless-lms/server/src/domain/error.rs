@@ -307,6 +307,33 @@ impl error::ResponseError for ControllerError {
                 source = err.source();
             }
             error!("Internal server error: {}", err_string);
+
+            if let Some(pool) = crate::domain::internal_error_reporting::error_reporting_pool() {
+                let pool = pool.clone();
+                let message = self.message.clone();
+                let stack_trace = format!("{:?}", self);
+                let details = serde_json::json!({
+                    "kind": "controller_error",
+                    "controller_error_type": self.error_type.to_string(),
+                });
+
+                actix_web::rt::spawn(async move {
+                    let mut conn = match pool.acquire().await {
+                        Ok(conn) => conn,
+                        Err(_) => return,
+                    };
+                    let report = headless_lms_models::errors::NewErrorReport {
+                        service: "headless-lms".to_string(),
+                        error_source: Some(headless_lms_models::errors::ErrorSource::Backend),
+                        message,
+                        stack_trace: Some(stack_trace),
+                        path: None,
+                        app_version: None,
+                        details: Some(details),
+                    };
+                    let _ = headless_lms_models::errors::insert(&mut conn, None, &report).await;
+                });
+            }
         }
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
             if let Some(uri) = &data.redirect_uri

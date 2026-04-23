@@ -3,12 +3,15 @@ import { NextResponse } from "next/server"
 import { OldQuiz } from "../../../../types/oldQuizTypes"
 import { PrivateSpecQuiz } from "../../../../types/quizTypes/privateSpec"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { convertPublicSpecFromPrivateSpec } from "@/util/converter"
 import { isOldQuiz } from "@/util/migration/migrationSettings"
 import { migratePrivateSpecQuiz } from "@/util/migration/privateSpecQuiz"
 import { isSpecRequest } from "@/utils/exerciseServiceApi"
 
-export async function POST(req: Request) {
+const SERVICE = "quizzes"
+
+async function postImpl(req: Request) {
   try {
     let specRequest
     try {
@@ -60,29 +63,29 @@ export async function POST(req: Request) {
   }
 }
 
-export function GET() {
+function notFound() {
   return NextResponse.json({ message: "Not found" }, { status: 404 })
 }
 
-export function PUT() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export function PATCH() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export function DELETE() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export function OPTIONS() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export function HEAD() {
-  return new Response(null, { status: 404 })
-}
+export const POST = wrapRouteHandler(postImpl, { service: SERVICE, operation: "POST /public-spec" })
+export const GET = wrapRouteHandler(notFound, { service: SERVICE, operation: "GET /public-spec" })
+export const PUT = wrapRouteHandler(notFound, { service: SERVICE, operation: "PUT /public-spec" })
+export const PATCH = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "PATCH /public-spec",
+})
+export const DELETE = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "DELETE /public-spec",
+})
+export const OPTIONS = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "OPTIONS /public-spec",
+})
+export const HEAD = wrapRouteHandler(() => new Response(null, { status: 404 }), {
+  service: SERVICE,
+  operation: "HEAD /public-spec",
+})
 
 function handlePost(specRequest: unknown) {
   if (typeof specRequest !== "object" || specRequest === null || !("private_spec" in specRequest)) {

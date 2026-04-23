@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isSpecRequest, SpecRequest } from "@/util/exerciseServiceApi"
 import { Alternative, ClientErrorResponse, PublicAlternative } from "@/util/stateInterfaces"
 
@@ -7,7 +8,9 @@ function notFound() {
   return NextResponse.json({ message: "Not found" }, { status: 404 })
 }
 
-export async function POST(req: Request): Promise<Response> {
+const SERVICE = "example-exercise"
+
+async function postImpl(req: Request): Promise<Response> {
   try {
     let body
     try {
@@ -76,26 +79,19 @@ function handlePost(specRequest: SpecRequest): Response {
   return NextResponse.json(publicAlternatives, { status: 200 })
 }
 
-export async function GET(): Promise<Response> {
-  return notFound()
-}
-
-export async function PUT(): Promise<Response> {
-  return notFound()
-}
-
-export async function PATCH(): Promise<Response> {
-  return notFound()
-}
-
-export async function DELETE(): Promise<Response> {
-  return notFound()
-}
-
-export async function OPTIONS(): Promise<Response> {
-  return notFound()
-}
-
-export async function HEAD(): Promise<Response> {
-  return notFound()
-}
+export const POST = wrapRouteHandler(postImpl, { service: SERVICE, operation: "POST /public-spec" })
+export const GET = wrapRouteHandler(notFound, { service: SERVICE, operation: "GET /public-spec" })
+export const PUT = wrapRouteHandler(notFound, { service: SERVICE, operation: "PUT /public-spec" })
+export const PATCH = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "PATCH /public-spec",
+})
+export const DELETE = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "DELETE /public-spec",
+})
+export const OPTIONS = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "OPTIONS /public-spec",
+})
+export const HEAD = wrapRouteHandler(notFound, { service: SERVICE, operation: "HEAD /public-spec" })

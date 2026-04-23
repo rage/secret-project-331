@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use headless_lms_utils::error_fingerprint::compute_fingerprint;
+use headless_lms_utils::error_identifier::calculate_error_identifier;
 use rand::RngExt;
 use utoipa::ToSchema;
 
@@ -13,7 +13,8 @@ pub enum ErrorSource {
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub struct ErrorGroup {
     pub id: Uuid,
-    pub fingerprint: String,
+    pub service: String,
+    pub error_identifier: String,
     pub error_source: ErrorSource,
     pub message: String,
     pub stack_trace: Option<String>,
@@ -27,6 +28,8 @@ pub struct ErrorGroup {
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub struct NewErrorReport {
+    pub service: String,
+    pub error_source: Option<ErrorSource>,
     pub message: String,
     pub stack_trace: Option<String>,
     pub path: Option<String>,
@@ -37,27 +40,43 @@ pub struct NewErrorReport {
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
-    source: ErrorSource,
     report: &NewErrorReport,
 ) -> ModelResult<Uuid> {
-    let fingerprint = compute_fingerprint(
-        &format!("{:?}", source),
+    let service = report.service.trim();
+    if service.is_empty() {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "service must not be empty".to_string(),
+            None,
+        ));
+    }
+
+    let error_source = report.error_source.unwrap_or(ErrorSource::Frontend);
+    let error_source_str = match error_source {
+        ErrorSource::Backend => "backend",
+        ErrorSource::Frontend => "frontend",
+    };
+
+    let error_identifier = calculate_error_identifier(
+        service,
+        error_source_str,
         &report.message,
         report.stack_trace.as_deref(),
     );
 
     let group_id = sqlx::query!(
         r#"
-INSERT INTO error_groups (id, fingerprint, error_source, message, stack_trace)
-VALUES (uuid_generate_v4(), $1, $2, $3, $4)
-ON CONFLICT (fingerprint) DO UPDATE SET
+INSERT INTO error_groups (id, service, error_identifier, error_source, message, stack_trace)
+VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5)
+ON CONFLICT (service, error_identifier) DO UPDATE SET
     occurrence_count = error_groups.occurrence_count + 1,
     last_seen_at = now(),
     updated_at = now()
 RETURNING id
         "#,
-        fingerprint,
-        source as ErrorSource,
+        service,
+        error_identifier,
+        error_source as ErrorSource,
         report.message,
         report.stack_trace
     )
@@ -67,10 +86,11 @@ RETURNING id
 
     sqlx::query!(
         "
-INSERT INTO error_occurrences (id, error_group_id, user_id, path, app_version, details)
-VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5)
+INSERT INTO error_occurrences (id, error_group_id, service, user_id, path, app_version, details)
+VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6)
         ",
         group_id,
+        service,
         user_id,
         report.path,
         report.app_version,
@@ -90,7 +110,8 @@ pub async fn get_all_groups(
         r#"
 SELECT
     id,
-    fingerprint,
+    service,
+    error_identifier,
     error_source AS "error_source: ErrorSource",
     message,
     stack_trace,
@@ -110,7 +131,8 @@ LIMIT $1 OFFSET $2
     )
     .map(|r| ErrorGroup {
         id: r.id,
-        fingerprint: r.fingerprint,
+        service: r.service,
+        error_identifier: r.error_identifier,
         error_source: r.error_source,
         message: r.message,
         stack_trace: r.stack_trace,

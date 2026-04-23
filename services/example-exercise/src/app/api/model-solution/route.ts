@@ -1,35 +1,14 @@
 import { NextResponse } from "next/server"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isSpecRequest, SpecRequest } from "@/util/exerciseServiceApi"
 import { Alternative, ModelSolutionApi } from "@/util/stateInterfaces"
 
 const methodNotFound = () => NextResponse.json({ message: "Not found" }, { status: 404 })
 
-export async function GET() {
-  return methodNotFound()
-}
+const SERVICE = "example-exercise"
 
-export async function PUT() {
-  return methodNotFound()
-}
-
-export async function PATCH() {
-  return methodNotFound()
-}
-
-export async function DELETE() {
-  return methodNotFound()
-}
-
-export async function OPTIONS() {
-  return methodNotFound()
-}
-
-export async function HEAD() {
-  return new Response(null, { status: 404 })
-}
-
-export async function POST(req: Request) {
+async function postImpl(req: Request) {
   try {
     let body
     try {
@@ -103,3 +82,32 @@ const handlePost = (specRequest: SpecRequest) => {
 
   return NextResponse.json(correctAlternatives, { status: 200 })
 }
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: SERVICE,
+  operation: "POST /model-solution",
+})
+export const GET = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "GET /model-solution",
+})
+export const PUT = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "PUT /model-solution",
+})
+export const PATCH = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "PATCH /model-solution",
+})
+export const DELETE = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "DELETE /model-solution",
+})
+export const OPTIONS = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "OPTIONS /model-solution",
+})
+export const HEAD = wrapRouteHandler(() => new Response(null, { status: 404 }), {
+  service: SERVICE,
+  operation: "HEAD /model-solution",
+})

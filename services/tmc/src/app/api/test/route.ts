@@ -2,6 +2,7 @@ import { v4 } from "uuid"
 
 import { testRuns } from "./testRuns"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { RunResult } from "@/tmc/cli"
 import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
 import { ExerciseFile } from "@/util/stateInterfaces"
@@ -56,7 +57,7 @@ function isValidTestRequest(body: unknown): body is TestRequest {
   return false
 }
 
-export async function POST(req: Request): Promise<Response> {
+async function postImpl(req: Request): Promise<Response> {
   try {
     const body = await req.json()
     if (!isValidTestRequest(body)) {
@@ -87,3 +88,5 @@ export async function POST(req: Request): Promise<Response> {
     return internalServerError("Error while processing request", err)
   }
 }
+
+export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /test" })

@@ -41,7 +41,7 @@
     "schemas": {
       "ErrorSource": {
         "type": "string",
-        "enum": ["Backend", "Frontend"]
+        "enum": ["backend", "frontend"]
       },
       "NewErrorReport": {
         "type": "object",

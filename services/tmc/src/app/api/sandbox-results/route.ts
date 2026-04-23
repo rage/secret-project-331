@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+
 /** Returns 404 for unsupported sandbox-results route. */
 function notFound() {
   return NextResponse.json({ message: "Not found" }, { status: 404 })
 }
-
-import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 
 const SERVICE = "tmc"
 

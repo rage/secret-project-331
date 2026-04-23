@@ -14,7 +14,7 @@ import {
   getExercisePackagingConfiguration,
   prepareStub,
 } from "@/tmc/langs"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
@@ -23,24 +23,20 @@ import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 export const runtime = "nodejs"
 
 async function postImpl(request: Request): Promise<Response> {
-  try {
-    const body = await request.json()
-    if (!isSpecRequest(body)) {
-      return badRequest("Invalid spec request")
-    }
-    const specRequest = body as SpecRequest
-    const requestId = specRequest.request_id.slice(0, 4)
-
-    let uploadClaim: string | null = null
-    const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
-    if (typeof uploadClaimHeader === "string") {
-      uploadClaim = uploadClaimHeader
-    }
-
-    return await processPublicSpec(requestId, specRequest, uploadClaim)
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+  const body = await request.json()
+  if (!isSpecRequest(body)) {
+    return badRequest("Invalid spec request")
   }
+  const specRequest = body as SpecRequest
+  const requestId = specRequest.request_id.slice(0, 4)
+
+  let uploadClaim: string | null = null
+  const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
+  if (typeof uploadClaimHeader === "string") {
+    uploadClaim = uploadClaimHeader
+  }
+
+  return await processPublicSpec(requestId, specRequest, uploadClaim)
 }
 
 export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /public-spec" })
@@ -99,8 +95,6 @@ async function processPublicSpec(
       }
     }
     return jsonOk(publicSpec)
-  } catch (err) {
-    return internalServerError("Error while processing the public spec", err)
   } finally {
     await Promise.allSettled(
       tempPaths.map((p) => fsPromises.rm(p, { recursive: true, force: true })),

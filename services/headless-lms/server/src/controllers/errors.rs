@@ -22,7 +22,7 @@ Accessible to both authenticated and anonymous users. If the user is logged in, 
         (status = 204, description = "Error recorded successfully")
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, user, payload))]
 pub async fn post_error(
     pool: web::Data<PgPool>,
     user: Option<AuthUser>,
@@ -31,7 +31,9 @@ pub async fn post_error(
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
     errors::insert(&mut conn, user_id, &payload).await?;
-    errors::maybe_delete_expired(&mut conn).await?;
+    if let Err(err) = errors::maybe_delete_expired(&mut conn).await {
+        warn!("best-effort error cleanup failed: {err}");
+    }
     let token = skip_authorize();
     token.authorized_ok(HttpResponse::NoContent().finish())
 }

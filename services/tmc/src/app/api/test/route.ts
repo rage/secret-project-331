@@ -2,9 +2,10 @@ import { v4 } from "uuid"
 
 import { testRuns } from "./testRuns"
 
+import { reportErrorOccurrence } from "@/shared-module/common/errors/reportErrorOccurrence"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { RunResult } from "@/tmc/cli"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { ExerciseFile } from "@/util/stateInterfaces"
 import { runTests } from "@/util/test"
 
@@ -30,6 +31,17 @@ function errorRunResult(err: unknown): RunResult {
     testResults: [],
     logs: { error: err instanceof Error ? err.message : String(err) },
   }
+}
+
+function reportBackgroundFailure(err: unknown): void {
+  const message = err instanceof Error ? err.message : String(err)
+  const stack = err instanceof Error ? err.stack : null
+  void reportErrorOccurrence({
+    service: "tmc",
+    message,
+    stack_trace: stack,
+    details: { kind: "tmc-background-test-run" },
+  })
 }
 
 function isValidTestRequest(body: unknown): body is TestRequest {
@@ -58,35 +70,36 @@ function isValidTestRequest(body: unknown): body is TestRequest {
 }
 
 async function postImpl(req: Request): Promise<Response> {
-  try {
-    const body = await req.json()
-    if (!isValidTestRequest(body)) {
-      return badRequest("Invalid test request")
-    }
-
-    const testRunId = v4()
-    testRuns.set(testRunId, null)
-    const templateDownloadUrl = body.templateDownloadUrl
-    if (body.type === "browser") {
-      runTests(templateDownloadUrl, {
-        type: "browser",
-        files: body.files,
-      })
-        .then((rr) => testRuns.set(testRunId, rr))
-        .catch((err) => testRuns.set(testRunId, errorRunResult(err)))
-      return jsonOk<TestRequestResult>({ id: testRunId })
-    } else {
-      runTests(templateDownloadUrl, {
-        type: "editor",
-        archiveDownloadUrl: body.archiveDownloadUrl,
-      })
-        .then((rr) => testRuns.set(testRunId, rr))
-        .catch((err) => testRuns.set(testRunId, errorRunResult(err)))
-      return jsonOk<TestRequestResult>({ id: testRunId })
-    }
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+  const body = await req.json()
+  if (!isValidTestRequest(body)) {
+    return badRequest("Invalid test request")
   }
+
+  const testRunId = v4()
+  testRuns.set(testRunId, null)
+  const templateDownloadUrl = body.templateDownloadUrl
+  if (body.type === "browser") {
+    runTests(templateDownloadUrl, {
+      type: "browser",
+      files: body.files,
+    })
+      .then((rr) => testRuns.set(testRunId, rr))
+      .catch((err) => {
+        testRuns.set(testRunId, errorRunResult(err))
+        reportBackgroundFailure(err)
+      })
+    return jsonOk<TestRequestResult>({ id: testRunId })
+  }
+  runTests(templateDownloadUrl, {
+    type: "editor",
+    archiveDownloadUrl: body.archiveDownloadUrl,
+  })
+    .then((rr) => testRuns.set(testRunId, rr))
+    .catch((err) => {
+      testRuns.set(testRunId, errorRunResult(err))
+      reportBackgroundFailure(err)
+    })
+  return jsonOk<TestRequestResult>({ id: testRunId })
 }
 
 export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /test" })

@@ -11,7 +11,11 @@ export function wrapRouteHandler<TArgs extends unknown[], TResult>(
     try {
       return await handler(...args)
     } catch (error) {
-      const request = args[0] instanceof Request ? args[0] : null
+      const firstArg = args[0] as { url?: unknown; method?: unknown } | undefined
+      const request =
+        firstArg && typeof firstArg.url === "string" && typeof firstArg.method === "string"
+          ? firstArg
+          : null
       const url = request?.url ?? null
       const method = request?.method ?? null
 
@@ -20,7 +24,6 @@ export function wrapRouteHandler<TArgs extends unknown[], TResult>(
 
       void reportErrorOccurrence({
         service: meta.service,
-        error_source: "backend",
         message,
         stack_trace: stack ?? null,
         path: url,

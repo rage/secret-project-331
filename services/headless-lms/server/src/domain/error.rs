@@ -317,10 +317,16 @@ impl error::ResponseError for ControllerError {
                     "controller_error_type": self.error_type.to_string(),
                 });
 
+                // Uses the main DB pool intentionally for best-effort reporting; this can amplify outage pressure.
                 actix_web::rt::spawn(async move {
                     let mut conn = match pool.acquire().await {
                         Ok(conn) => conn,
-                        Err(_) => return,
+                        Err(err) => {
+                            warn!(
+                                "internal error reporting skipped: failed to acquire pool connection: {err}"
+                            );
+                            return;
+                        }
                     };
                     let report = headless_lms_models::errors::NewErrorReport {
                         service: "headless-lms".to_string(),
@@ -331,7 +337,11 @@ impl error::ResponseError for ControllerError {
                         app_version: None,
                         details: Some(details),
                     };
-                    let _ = headless_lms_models::errors::insert(&mut conn, None, &report).await;
+                    if let Err(err) =
+                        headless_lms_models::errors::insert(&mut conn, None, &report).await
+                    {
+                        debug!("internal error reporting insert failed: {err}");
+                    }
                 });
             }
         }

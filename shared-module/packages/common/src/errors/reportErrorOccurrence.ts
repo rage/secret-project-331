@@ -78,12 +78,14 @@ export async function reportErrorOccurrence(report: ErrorOccurrenceReport): Prom
       "sendBeacon" in navigator
     ) {
       try {
-        const blob = new Blob([body], { type: "application/json" })
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        if ((navigator as any).sendBeacon(url, blob) === true) {
+        const blob = new Blob([body], { type: "text/plain" })
+        if (navigator.sendBeacon(url, blob) === true) {
           return
         }
-      } catch {
+      } catch (error) {
+        if (process.env.NODE_ENV !== "production") {
+          console.debug("reportErrorOccurrence sendBeacon fallback", error)
+        }
         // Fall back to fetch below.
       }
     }
@@ -97,7 +99,10 @@ export async function reportErrorOccurrence(report: ErrorOccurrenceReport): Prom
       keepalive: true,
       credentials: "include",
     })
-  } catch {
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("reportErrorOccurrence failed", error)
+    }
     // Reporting must never throw.
   }
 }

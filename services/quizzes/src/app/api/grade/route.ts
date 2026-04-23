@@ -53,24 +53,14 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
 const SERVICE = "quizzes"
 
 async function postImpl(req: Request) {
+  let body: unknown
   try {
-    const body = await req.json()
-    const result = handleGradingRequest(body)
-    return NextResponse.json(result, { status: 200 })
-  } catch (e) {
-    console.error("Grading request failed:", e)
-    if (e instanceof Error) {
-      return NextResponse.json(
-        {
-          error_name: e.name,
-          error_message: e.message,
-          error_stack: e.stack,
-        },
-        { status: 500 },
-      )
-    }
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
   }
+  const result = handleGradingRequest(body)
+  return NextResponse.json(result, { status: 200 })
 }
 
 function notFound() {
@@ -83,7 +73,11 @@ export const PUT = wrapRouteHandler(notFound, { service: SERVICE, operation: "PU
 export const PATCH = wrapRouteHandler(notFound, { service: SERVICE, operation: "PATCH /grade" })
 export const DELETE = wrapRouteHandler(notFound, { service: SERVICE, operation: "DELETE /grade" })
 export const OPTIONS = wrapRouteHandler(notFound, { service: SERVICE, operation: "OPTIONS /grade" })
-export const HEAD = wrapRouteHandler(() => new Response(null, { status: 404 }), {
+function headNotFound() {
+  return new Response(null, { status: 404 })
+}
+
+export const HEAD = wrapRouteHandler(headNotFound, {
   service: SERVICE,
   operation: "HEAD /grade",
 })

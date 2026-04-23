@@ -3,7 +3,7 @@ import { temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { extractTarZstd } from "@/util/helpers"
 
 export const runtime = "nodejs"
@@ -11,23 +11,19 @@ export const runtime = "nodejs"
 type ExtractStubBody = { stub_download_url?: string }
 
 async function postImpl(request: Request): Promise<Response> {
+  const body = (await request.json()) as ExtractStubBody
+  const stubDownloadUrl = body?.stub_download_url
+  if (typeof stubDownloadUrl !== "string" || stubDownloadUrl.length === 0) {
+    return badRequest("stub_download_url is required")
+  }
+  const tmpPath = temporaryFile()
   try {
-    const body = (await request.json()) as ExtractStubBody
-    const stubDownloadUrl = body?.stub_download_url
-    if (typeof stubDownloadUrl !== "string" || stubDownloadUrl.length === 0) {
-      return badRequest("stub_download_url is required")
-    }
-    const tmpPath = temporaryFile()
-    try {
-      await downloadStream(stubDownloadUrl, tmpPath)
-      const buffer = await fs.readFile(tmpPath)
-      const files = await extractTarZstd(buffer)
-      return jsonOk({ files })
-    } finally {
-      await fs.rm(tmpPath, { force: true }).catch(() => {})
-    }
-  } catch (err) {
-    return internalServerError("Error extracting stub", err)
+    await downloadStream(stubDownloadUrl, tmpPath)
+    const buffer = await fs.readFile(tmpPath)
+    const files = await extractTarZstd(buffer)
+    return jsonOk({ files })
+  } finally {
+    await fs.rm(tmpPath, { force: true }).catch(() => {})
   }
 }
 

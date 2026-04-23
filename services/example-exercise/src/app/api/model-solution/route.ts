@@ -9,60 +9,45 @@ const methodNotFound = () => NextResponse.json({ message: "Not found" }, { statu
 const SERVICE = "example-exercise"
 
 async function postImpl(req: Request) {
+  let body
   try {
-    let body
-    try {
-      body = await req.json()
-    } catch (jsonError) {
-      const bodyText = await req.text()
+    body = await req.json()
+  } catch (jsonError) {
+    const bodyText = await req.text()
 
-      const contentType = req.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error("Model solution request failed: Invalid Content-Type", {
-          contentType,
-          bodyText,
-        })
-        return NextResponse.json(
-          { message: "Content-Type must be application/json" },
-          { status: 400 },
-        )
-      }
-
-      if (!bodyText || bodyText.trim() === "") {
-        console.error("Model solution request failed: Empty request body", {
-          bodyText,
-        })
-        return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
-      }
-
-      console.error("Model solution request failed: Invalid JSON", {
+    const contentType = req.headers.get("content-type")
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("Model solution request failed: Invalid Content-Type", {
+        contentType,
         bodyText,
-        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
       })
-      return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
-    }
-
-    if (!isSpecRequest(body)) {
-      console.error("Model solution request failed: Invalid spec request", {
-        body,
-      })
-      throw new Error("Request was not valid.")
-    }
-    return handlePost(body)
-  } catch (e) {
-    console.error("Model solution request failed:", e)
-    if (e instanceof Error) {
       return NextResponse.json(
-        {
-          error_name: e.name,
-          error_message: e.message,
-          error_stack: e.stack,
-        },
-        { status: 500 },
+        { message: "Content-Type must be application/json" },
+        { status: 400 },
       )
     }
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+
+    if (!bodyText || bodyText.trim() === "") {
+      console.error("Model solution request failed: Empty request body", {
+        bodyText,
+      })
+      return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
+    }
+
+    console.error("Model solution request failed: Invalid JSON", {
+      bodyText,
+      parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
+    })
+    return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
   }
+
+  if (!isSpecRequest(body)) {
+    console.error("Model solution request failed: Invalid spec request", {
+      body,
+    })
+    return NextResponse.json({ message: "Request was not valid." }, { status: 400 })
+  }
+  return handlePost(body)
 }
 
 const handlePost = (specRequest: SpecRequest) => {

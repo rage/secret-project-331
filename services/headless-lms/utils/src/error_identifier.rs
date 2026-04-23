@@ -1,58 +1,40 @@
-use std::sync::OnceLock;
+use std::sync::LazyLock;
 
 use regex::Regex;
 
-static UUID_RE: OnceLock<Regex> = OnceLock::new();
-static HEX_ADDR_RE: OnceLock<Regex> = OnceLock::new();
-static TIMESTAMP_RE: OnceLock<Regex> = OnceLock::new();
-static LONG_NUMBER_RE: OnceLock<Regex> = OnceLock::new();
-static BUNDLER_HASH_RE: OnceLock<Regex> = OnceLock::new();
-
-fn uuid_re() -> &'static Regex {
-    UUID_RE.get_or_init(|| {
-        Regex::new(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
-            .expect("valid regex")
-    })
-}
-
-fn hex_addr_re() -> &'static Regex {
-    HEX_ADDR_RE.get_or_init(|| Regex::new(r"0x[0-9a-fA-F]{6,}").expect("valid regex"))
-}
-
-fn timestamp_re() -> &'static Regex {
-    TIMESTAMP_RE
-        .get_or_init(|| Regex::new(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}").expect("valid regex"))
-}
-
-fn long_number_re() -> &'static Regex {
-    LONG_NUMBER_RE.get_or_init(|| Regex::new(r"\b\d{5,}\b").expect("valid regex"))
-}
-
-fn bundler_hash_re() -> &'static Regex {
-    BUNDLER_HASH_RE
-        .get_or_init(|| Regex::new(r"\.[0-9a-f]{8,}\.(js|css|wasm|map)").expect("valid regex"))
-}
+static UUID_RE: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}")
+        .expect("valid regex")
+});
+static HEX_ADDR_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"0x[0-9a-fA-F]{6,}").expect("valid regex"));
+static TIMESTAMP_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}").expect("valid regex"));
+static LONG_NUMBER_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\b\d{5,}\b").expect("valid regex"));
+static BUNDLER_HASH_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\.[0-9a-f]{8,}\.(js|css|wasm|map)").expect("valid regex"));
 
 /// Normalizes dynamic values out of an error message so that errors with
 /// different UUIDs, addresses, or IDs still hash to the same identifier.
 pub fn normalize_message(message: &str) -> String {
     // Order matters: UUIDs before long numbers (UUID contains long numeric runs).
-    let s = uuid_re().replace_all(message, "{uuid}");
-    let s = hex_addr_re().replace_all(&s, "{addr}");
-    let s = timestamp_re().replace_all(&s, "{timestamp}");
-    let s = long_number_re().replace_all(&s, "{N}");
+    let s = UUID_RE.replace_all(message, "{uuid}");
+    let s = HEX_ADDR_RE.replace_all(&s, "{addr}");
+    let s = TIMESTAMP_RE.replace_all(&s, "{timestamp}");
+    let s = LONG_NUMBER_RE.replace_all(&s, "{N}");
     s.into_owned()
 }
 
 /// Normalizes a stack trace: strips dynamic addresses and bundler hashes,
 /// and trims each line.
 pub fn normalize_stack_trace(stack_trace: &str) -> String {
-    let s = uuid_re().replace_all(stack_trace, "{uuid}");
-    let s = hex_addr_re().replace_all(&s, "{addr}");
-    let s = timestamp_re().replace_all(&s, "{timestamp}");
-    let s = long_number_re().replace_all(&s, "{N}");
+    let s = UUID_RE.replace_all(stack_trace, "{uuid}");
+    let s = HEX_ADDR_RE.replace_all(&s, "{addr}");
+    let s = TIMESTAMP_RE.replace_all(&s, "{timestamp}");
     // Strip webpack/vite/esbuild content hashes from filenames.
-    let s = bundler_hash_re().replace_all(&s, ".{hash}.$1");
+    let s = BUNDLER_HASH_RE.replace_all(&s, ".{hash}.$1");
+    let s = LONG_NUMBER_RE.replace_all(&s, "{N}");
     // Trim each line.
     s.lines().map(str::trim).collect::<Vec<_>>().join("\n")
 }
@@ -84,8 +66,6 @@ pub fn calculate_error_identifier(
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // --- normalize_message ---
 
     #[test]
     fn test_normalize_message_uuid() {
@@ -126,8 +106,6 @@ mod tests {
         assert_eq!(normalize_message(msg), "User {uuid} (id={N}) at {addr}");
     }
 
-    // --- normalize_stack_trace ---
-
     #[test]
     fn test_normalize_stack_trace_hex_addr() {
         let trace = "at process (0x00007f0a1234abcd)";
@@ -147,6 +125,12 @@ mod tests {
     }
 
     #[test]
+    fn test_normalize_stack_trace_bundler_hash_digits_only() {
+        let trace = "at fn (app.12345678.js:10:5)";
+        assert_eq!(normalize_stack_trace(trace), "at fn (app.{hash}.js:10:5)");
+    }
+
+    #[test]
     fn test_normalize_stack_trace_line_trimming() {
         let trace = "   at foo (bar.js:1:1)   \n   at baz (qux.js:2:2)   ";
         assert_eq!(
@@ -154,8 +138,6 @@ mod tests {
             "at foo (bar.js:1:1)\nat baz (qux.js:2:2)"
         );
     }
-
-    // --- calculate_error_identifier ---
 
     #[test]
     fn test_same_error_different_uuids_same_fingerprint() {

@@ -2,15 +2,18 @@ import { reportErrorOccurrence, setDefaultErrorReportingService } from "./report
 
 let installed = false
 
+function sanitizedPath(): string {
+  return window.location.pathname
+}
+
 export function installGlobalErrorReporting(options?: { service?: string }): void {
+  if (typeof window === "undefined") {
+    return
+  }
   if (installed) {
     return
   }
   installed = true
-
-  if (typeof window === "undefined") {
-    return
-  }
 
   if (options?.service) {
     setDefaultErrorReportingService(options.service)
@@ -25,7 +28,7 @@ export function installGlobalErrorReporting(options?: { service?: string }): voi
       error_source: "frontend",
       message,
       stack_trace: stack ?? null,
-      path: window.location.href,
+      path: sanitizedPath(),
       details: {
         kind: "window-error",
         filename: event.filename,
@@ -44,7 +47,7 @@ export function installGlobalErrorReporting(options?: { service?: string }): voi
       error_source: "frontend",
       message,
       stack_trace: stack ?? null,
-      path: window.location.href,
+      path: sanitizedPath(),
       details: {
         kind: "unhandledrejection",
       },

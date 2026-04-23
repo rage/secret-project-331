@@ -4,10 +4,21 @@ use rand::RngExt;
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, Type, ToSchema)]
+#[serde(rename_all = "snake_case")]
 #[sqlx(type_name = "error_source", rename_all = "snake_case")]
 pub enum ErrorSource {
     Backend,
     Frontend,
+}
+
+impl ErrorSource {
+    /// Returns the stable serialized value for hashing and SQL writes.
+    fn as_str(self) -> &'static str {
+        match self {
+            Self::Backend => "backend",
+            Self::Frontend => "frontend",
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
@@ -52,10 +63,7 @@ pub async fn insert(
     }
 
     let error_source = report.error_source.unwrap_or(ErrorSource::Frontend);
-    let error_source_str = match error_source {
-        ErrorSource::Backend => "backend",
-        ErrorSource::Frontend => "frontend",
-    };
+    let error_source_str = error_source.as_str();
 
     let error_identifier = calculate_error_identifier(
         service,
@@ -68,7 +76,8 @@ pub async fn insert(
         r#"
 INSERT INTO error_groups (id, service, error_identifier, error_source, message, stack_trace)
 VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5)
-ON CONFLICT (service, error_identifier) DO UPDATE SET
+ON CONFLICT (service, error_identifier, deleted_at) DO UPDATE SET
+    deleted_at = NULL,
     occurrence_count = error_groups.occurrence_count + 1,
     last_seen_at = now(),
     updated_at = now()
@@ -149,6 +158,8 @@ LIMIT $1 OFFSET $2
 }
 
 pub async fn delete_expired(conn: &mut PgConnection) -> ModelResult<()> {
+    use std::collections::HashSet;
+
     let mut tx = conn.begin().await?;
     let deleted_group_ids = sqlx::query!(
         r#"
@@ -161,8 +172,11 @@ RETURNING error_group_id
     .await?
     .into_iter()
     .map(|r| r.error_group_id)
+    .collect::<HashSet<_>>()
+    .into_iter()
     .collect::<Vec<_>>();
 
+    // Benign race: a concurrent insert between DELETE and this UPDATE can briefly skew aggregates.
     sqlx::query!(
         r#"
 UPDATE error_groups g

@@ -13,7 +13,7 @@ CREATE TABLE error_groups (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
   deleted_at TIMESTAMP WITH TIME ZONE,
-  UNIQUE (service, error_identifier)
+  UNIQUE NULLS NOT DISTINCT (service, error_identifier, deleted_at)
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON error_groups FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE INDEX idx_error_groups_service_source_last_seen ON error_groups (service, error_source, last_seen_at DESC) WHERE deleted_at IS NULL;
@@ -34,7 +34,7 @@ COMMENT ON COLUMN error_groups.deleted_at IS 'Timestamp when the record was dele
 
 CREATE TABLE error_occurrences (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
-  error_group_id UUID NOT NULL REFERENCES error_groups(id),
+  error_group_id UUID NOT NULL REFERENCES error_groups(id) ON DELETE RESTRICT,
   service TEXT NOT NULL,
   user_id UUID REFERENCES users(id),
   path TEXT,
@@ -45,8 +45,21 @@ CREATE TABLE error_occurrences (
   deleted_at TIMESTAMP WITH TIME ZONE
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON error_occurrences FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
-CREATE INDEX idx_error_occurrences_group ON error_occurrences (error_group_id, created_at DESC);
+CREATE INDEX idx_error_occurrences_group ON error_occurrences (error_group_id, created_at DESC) WHERE deleted_at IS NULL;
 CREATE INDEX idx_error_occurrences_user ON error_occurrences (user_id) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
+
+CREATE OR REPLACE FUNCTION sync_error_occurrence_service()
+RETURNS TRIGGER AS $$
+BEGIN
+  SELECT service INTO NEW.service FROM error_groups WHERE id = NEW.error_group_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER sync_error_occurrence_service_trigger
+BEFORE INSERT OR UPDATE OF error_group_id ON error_occurrences
+FOR EACH ROW
+EXECUTE FUNCTION sync_error_occurrence_service();
 
 COMMENT ON TABLE error_occurrences IS 'One row per individual error report. References error_groups for deduplication. Rows expire after 2 months.';
 COMMENT ON COLUMN error_occurrences.id IS 'A unique, stable identifier for the record.';

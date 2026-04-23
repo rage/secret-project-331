@@ -27,6 +27,10 @@ function notFound() {
   return NextResponse.json<ClientErrorResponse>({ message: "Not found" }, { status: 404 })
 }
 
+function notFoundHead() {
+  return new Response(null, { status: 404 })
+}
+
 export const POST = wrapRouteHandler(notFound, {
   service: SERVICE,
   operation: "POST /service-info",
@@ -44,7 +48,7 @@ export const OPTIONS = wrapRouteHandler(notFound, {
   service: SERVICE,
   operation: "OPTIONS /service-info",
 })
-export const HEAD = wrapRouteHandler(notFound, {
+export const HEAD = wrapRouteHandler(notFoundHead, {
   service: SERVICE,
   operation: "HEAD /service-info",
 })

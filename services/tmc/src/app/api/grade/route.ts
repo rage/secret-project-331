@@ -12,7 +12,7 @@ import {
   fastAvailablePoints,
   prepareSubmission,
 } from "@/tmc/langs"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
@@ -66,18 +66,12 @@ function normalizePodOutput(parsed: unknown): NormalizedRunResult | null {
 }
 
 async function postImpl(request: Request): Promise<Response> {
-  try {
-    const body = await request.json()
-
-    if (!isNonGenericGradingRequest(body)) {
-      throw new Error("Invalid grading request")
-    }
-
-    const specRequest = body as TmcGradingRequest
-    return await processGrading(specRequest)
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+  const body = await request.json()
+  if (!isNonGenericGradingRequest(body)) {
+    return badRequest("Invalid grading request")
   }
+  const specRequest = body as TmcGradingRequest
+  return await processGrading(specRequest)
 }
 
 export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
@@ -168,8 +162,6 @@ const processGrading = async (req: TmcGradingRequest): Promise<Response> => {
     const gradingResult = await gradeInPod(preparedSubmissionArchivePath, sandboxImage, points)
     log("grading finished, returning result")
     return jsonOk(gradingResult)
-  } catch (e) {
-    return internalServerError("Error while processing grading", e)
   } finally {
     await Promise.allSettled(tempPaths.map((p) => fs.rm(p, { recursive: true, force: true })))
   }

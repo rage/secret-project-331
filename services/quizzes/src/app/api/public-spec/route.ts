@@ -12,55 +12,38 @@ import { isSpecRequest } from "@/utils/exerciseServiceApi"
 const SERVICE = "quizzes"
 
 async function postImpl(req: Request) {
+  let specRequest
   try {
-    let specRequest
-    try {
-      specRequest = await req.json()
-    } catch (jsonError) {
-      const bodyText = await req.text()
+    specRequest = await req.json()
+  } catch (jsonError) {
+    const bodyText = await req.text()
 
-      const contentType = req.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error("Public spec request failed: Invalid Content-Type", {
-          contentType,
-          bodyText,
-        })
-        return NextResponse.json(
-          { message: "Content-Type must be application/json" },
-          { status: 400 },
-        )
-      }
-
-      if (!bodyText || bodyText.trim() === "") {
-        console.error("Public spec request failed: Empty request body", {
-          bodyText,
-        })
-        return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
-      }
-
-      console.error("Public spec request failed: Invalid JSON", {
+    const contentType = req.headers.get("content-type")
+    if (!contentType || !contentType.includes("application/json")) {
+      console.error("Public spec request failed: Invalid Content-Type", {
+        contentType,
         bodyText,
-        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
       })
-      return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
+      return NextResponse.json(
+        { message: "Content-Type must be application/json" },
+        { status: 400 },
+      )
     }
 
-    return handlePost(specRequest)
-  } catch (e) {
-    console.error("Public spec request failed:", e)
-    if (e instanceof Error) {
-      return NextResponse.json(
-        {
-          error_name: e.name,
-          error_message: e.message,
-          error_stack: e.stack,
-        },
-        { status: 500 },
-      )
-    } else {
-      return NextResponse.json({ error_message: String(e) }, { status: 500 })
+    if (!bodyText || bodyText.trim() === "") {
+      console.error("Public spec request failed: Empty request body", {
+        bodyText,
+      })
+      return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
     }
+
+    console.error("Public spec request failed: Invalid JSON", {
+      bodyText,
+      parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
+    })
+    return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
   }
+  return handlePost(specRequest)
 }
 
 function notFound() {
@@ -98,7 +81,7 @@ function handlePost(specRequest: unknown) {
         specRequest && typeof specRequest === "object" && "private_spec" in specRequest,
     }
     console.error("Public spec request failed: Invalid request structure", errorInfo)
-    throw new Error(`Invalid request structure: ${JSON.stringify(errorInfo)}`)
+    return NextResponse.json({ message: "Invalid request structure" }, { status: 400 })
   }
   if (!isSpecRequest(specRequest)) {
     const errorInfo = {
@@ -110,11 +93,11 @@ function handlePost(specRequest: unknown) {
           : [],
     }
     console.error("Public spec request failed: Invalid private_spec", errorInfo)
-    throw new Error(`Invalid private_spec: ${JSON.stringify(errorInfo)}`)
+    return NextResponse.json({ message: "Invalid private_spec" }, { status: 400 })
   }
   const quiz = specRequest.private_spec as unknown as OldQuiz | PrivateSpecQuiz | null
   if (quiz === null) {
-    throw new Error("Quiz cannot be null")
+    return NextResponse.json({ message: "Quiz cannot be null" }, { status: 400 })
   }
   let converted: PrivateSpecQuiz | null = null
   if (isOldQuiz(quiz)) {

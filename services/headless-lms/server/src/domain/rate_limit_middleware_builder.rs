@@ -100,8 +100,8 @@ pub struct RateLimit {
 
 impl RateLimit {
     /// Global `/api/v0` limits aligned with nginx ingress `limit-rps` and `limit-rpm`; relaxed when `TEST_MODE` is set.
-    pub fn global_api_rate_limit_config() -> RateLimitConfig {
-        if std::env::var("TEST_MODE").is_ok() {
+    pub fn global_api_rate_limit_config(test_mode: bool) -> RateLimitConfig {
+        if test_mode {
             RateLimitConfig {
                 per_second: Some(10000),
                 per_minute: Some(200000),
@@ -251,6 +251,19 @@ mod tests {
             per_month,
             ..Default::default()
         })
+    }
+
+    #[actix_web::test]
+    async fn global_api_rate_limit_config_uses_test_mode_argument() {
+        let test_cfg = RateLimit::global_api_rate_limit_config(true);
+        assert_eq!(test_cfg.per_second, Some(10000));
+        assert_eq!(test_cfg.per_minute, Some(200000));
+        assert_eq!(test_cfg.per_hour, None);
+
+        let production_cfg = RateLimit::global_api_rate_limit_config(false);
+        assert_eq!(production_cfg.per_second, Some(20));
+        assert_eq!(production_cfg.per_minute, Some(1000));
+        assert_eq!(production_cfg.per_hour, Some(10000));
     }
 
     async fn call_get<S>(

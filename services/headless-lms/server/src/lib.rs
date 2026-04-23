@@ -13,6 +13,8 @@ pub mod domain;
 pub mod openapi;
 pub mod prelude;
 
+#[cfg(test)]
+mod env_guard;
 pub mod programs;
 #[cfg(test)]
 pub mod test_helper;
@@ -23,12 +25,13 @@ extern crate tracing;
 #[macro_use]
 extern crate doc_macro;
 
+use crate::config::FileStoreRuntimeConfig;
 pub use headless_lms_base::tracing::setup_tracing;
 use headless_lms_utils::file_store::{
     FileStore, google_cloud_file_store::GoogleCloudFileStore, local_file_store::LocalFileStore,
 };
 use oauth2::{EndpointNotSet, EndpointSet};
-use std::{env, sync::Arc};
+use std::sync::Arc;
 
 pub type OAuthClient = oauth2::basic::BasicClient<
     EndpointSet,
@@ -42,10 +45,16 @@ pub type OAuthClient = oauth2::basic::BasicClient<
 Setups file store so that it can be passed to actix web as data.
 Using Arc here so that this can be accessed from all the different worker threads.
 */
-pub async fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
-    if env::var("FILE_STORE_USE_GOOGLE_CLOUD_STORAGE").is_ok() {
+pub async fn setup_file_store(
+    file_store_config: &FileStoreRuntimeConfig,
+    base_url: &str,
+) -> Arc<dyn FileStore + Send + Sync> {
+    if file_store_config.use_google_cloud_storage {
         info!("Using Google Cloud Storage as the file store");
-        let bucket_name = env::var("GOOGLE_CLOUD_STORAGE_BUCKET_NAME").expect("env FILE_STORE_USE_GOOGLE_CLOUD_STORAGE was defined but GOOGLE_CLOUD_STORAGE_BUCKET_NAME was not.");
+        let bucket_name = file_store_config
+            .google_cloud_storage_bucket_name
+            .clone()
+            .expect("GOOGLE_CLOUD_STORAGE_BUCKET_NAME missing from runtime config");
         Arc::new(
             GoogleCloudFileStore::new(bucket_name)
                 .await
@@ -53,10 +62,11 @@ pub async fn setup_file_store() -> Arc<dyn FileStore + Send + Sync> {
         )
     } else {
         info!("Using local file storage as the file store");
+        let normalized_base_url = base_url.trim_end_matches('/');
         Arc::new(
             LocalFileStore::new(
                 "uploads".into(),
-                "http://project-331.local/api/v0/files/uploads/".into(),
+                format!("{normalized_base_url}/api/v0/files/uploads/"),
             )
             .expect("Failed to initialize file store"),
         )

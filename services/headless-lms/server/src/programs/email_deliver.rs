@@ -233,7 +233,15 @@ async fn apply_email_template_replacements(
                 get_unused_reset_password_token_with_user_id(conn, user_id).await?
             {
                 let base = ProgramConfig::optional("FRONTEND_BASE_URL")
-                    .unwrap_or(FRONTEND_BASE_URL.to_string());
+                    .and_then(|value| {
+                        let trimmed = value.trim();
+                        if trimmed.is_empty() {
+                            None
+                        } else {
+                            Some(trimmed.to_string())
+                        }
+                    })
+                    .unwrap_or_else(|| FRONTEND_BASE_URL.to_string());
 
                 let reset_url = format!(
                     "{}/reset-user-password/{}",

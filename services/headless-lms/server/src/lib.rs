@@ -62,10 +62,11 @@ pub async fn setup_file_store(
         )
     } else {
         info!("Using local file storage as the file store");
+        let normalized_base_url = base_url.trim_end_matches('/');
         Arc::new(
             LocalFileStore::new(
                 "uploads".into(),
-                format!("{base_url}/api/v0/files/uploads/"),
+                format!("{normalized_base_url}/api/v0/files/uploads/"),
             )
             .expect("Failed to initialize file store"),
         )

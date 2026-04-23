@@ -100,11 +100,12 @@ struct SyncerConfig {
 async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
     let database_url = ProgramConfig::database_url_with_default();
     let base_url_raw = ProgramConfig::required("BASE_URL")?;
-    let base_url = Url::parse(&base_url_raw).expect("BASE_URL must be a valid URL");
+    let base_url =
+        Url::parse(&base_url_raw).map_err(|e| anyhow::anyhow!("invalid BASE_URL: {}", e))?;
 
     let name = base_url
         .host_str()
-        .expect("BASE_URL must have a host")
+        .ok_or_else(|| anyhow::anyhow!("BASE_URL must have a host"))?
         .replace(".", "-");
 
     let app_configuration = ApplicationConfiguration::try_from_env()?;

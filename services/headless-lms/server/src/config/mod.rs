@@ -74,14 +74,14 @@ impl ServerRuntimeConfig {
         } else {
             None
         };
-        let ratelimit_protection_safe_api_key = env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
-            .unwrap_or_else(|_| {
-                if cfg!(debug_assertions) || test_mode {
-                    "mock-api-key".to_string()
-                } else {
-                    panic!("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined in production")
-                }
-            });
+        let ratelimit_protection_safe_api_key = match env::var("RATELIMIT_PROTECTION_SAFE_API_KEY")
+        {
+            Ok(value) => value,
+            Err(_) if cfg!(debug_assertions) || test_mode => "mock-api-key".to_string(),
+            Err(_) => {
+                anyhow::bail!("RATELIMIT_PROTECTION_SAFE_API_KEY must be defined in production")
+            }
+        };
 
         Ok(Self {
             database_url: env::var("DATABASE_URL").context("DATABASE_URL must be defined")?,
@@ -116,15 +116,19 @@ impl ServerRuntimeConfig {
 }
 
 /// Sets global runtime configuration for request-path consumers.
-pub fn set_server_runtime_config(config: ServerRuntimeConfig) {
-    let _ = SERVER_RUNTIME_CONFIG.set(config);
+pub fn set_server_runtime_config(config: ServerRuntimeConfig) -> anyhow::Result<()> {
+    SERVER_RUNTIME_CONFIG.set(config).map_err(|_| {
+        anyhow::anyhow!(
+            "SERVER_RUNTIME_CONFIG was already initialized in set_server_runtime_config"
+        )
+    })
 }
 
 /// Returns global runtime configuration loaded during startup.
 pub fn server_runtime_config() -> &'static ServerRuntimeConfig {
     SERVER_RUNTIME_CONFIG
         .get()
-        .expect("Server runtime config has not been initialized")
+        .expect("SERVER_RUNTIME_CONFIG has not been initialized; call set_server_runtime_config before request handling")
 }
 
 pub struct ServerConfigBuilder {
@@ -264,6 +268,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         payload_config,
         tmc_client,
     } = server_config;
+    let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc
     let file_store = Data::from(file_store as Arc<dyn FileStore>);
@@ -281,7 +286,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(tmc_client)
         .service(
             web::scope("/api/v0")
-                .wrap(RateLimit::new(RateLimit::global_api_rate_limit_config()))
+                .wrap(RateLimit::new(api_rate_limit_config))
                 .wrap(RequestSpan)
                 .configure(|c| crate::controllers::configure_controllers(c, app_conf)),
         );

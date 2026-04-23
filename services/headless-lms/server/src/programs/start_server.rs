@@ -32,7 +32,7 @@ pub async fn main() -> anyhow::Result<()> {
     let allow_no_https_for_development = runtime_config.allow_no_https_for_development;
     let host = runtime_config.host.clone();
     let port = runtime_config.port.clone();
-    set_server_runtime_config(runtime_config.clone());
+    set_server_runtime_config(runtime_config.clone())?;
 
     if test_mode {
         info!("***********************************");

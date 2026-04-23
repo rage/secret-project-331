@@ -15,12 +15,12 @@ use sqlx::{PgConnection, PgPool};
 const OPEN_UNIVERSITY_REGISTRATION_BASE_URL: &str =
     "https://www.avoin.helsinki.fi/palvelut/esittely.aspx?s=";
 pub async fn main() -> anyhow::Result<()> {
+    dotenv().ok();
     let config = OpenUniversityConfig::try_from_env();
     // TODO: Audit that the environment access only happens in single-threaded code.
     if config.rust_log.is_none() {
         unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     }
-    dotenv().ok();
     setup_tracing()?;
     match (config.course_url, config.token) {
         (Some(url), Some(token)) => {

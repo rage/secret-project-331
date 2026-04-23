@@ -29,6 +29,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgConnection;
 use std::pin::Pin;
+use subtle::ConstantTimeEq;
 use tracing_log::log;
 use utoipa::ToSchema;
 
@@ -37,6 +38,10 @@ use uuid::Uuid;
 const SESSION_KEY: &str = "user";
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
+
+fn constant_time_eq_str(left: &str, right: &str) -> bool {
+    left.as_bytes().ct_eq(right.as_bytes()).into()
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GraphQLRequest<'a> {
@@ -372,7 +377,10 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
             )
         })?;
     // If auth header correct one, grant access
-    if auth_header == tmc_server_secret_for_communicating_to_secret_project.as_str() {
+    if constant_time_eq_str(
+        auth_header,
+        tmc_server_secret_for_communicating_to_secret_project.as_str(),
+    ) {
         return Ok(skip_authorize());
     }
     Err(ControllerError::new(

@@ -24,6 +24,7 @@ mod tests {
         let mut files = Vec::new();
         collect_rs_files(&src_root, &mut files);
 
+        let allowed_files = ["src/env_guard.rs", "src/test_helper.rs"];
         let allowed_prefixes = ["src/config.rs", "src/config/"];
         let mut violations = Vec::new();
 
@@ -33,6 +34,9 @@ mod tests {
                 .unwrap_or(&file)
                 .to_string_lossy()
                 .replace('\\', "/");
+            if allowed_files.contains(&relative.as_str()) {
+                continue;
+            }
             if allowed_prefixes
                 .iter()
                 .any(|allowed| relative.starts_with(allowed))

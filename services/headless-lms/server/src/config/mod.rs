@@ -197,6 +197,7 @@ impl ServerConfigBuilder {
             .min_connections(5)
             .connect(&self.database_url)
             .await?;
+        crate::domain::internal_error_reporting::init_error_reporting(db_pool.clone());
         let db_pool = Data::new(db_pool);
 
         let oauth_client: OAuthClient = BasicClient::new(ClientId::new(self.oauth_application_id))
@@ -268,7 +269,6 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         payload_config,
         tmc_client,
     } = server_config;
-    crate::domain::internal_error_reporting::init_error_reporting(db_pool.get_ref().clone());
     let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
     // Not using Data::new for file_store to avoid double wrapping it in a arc

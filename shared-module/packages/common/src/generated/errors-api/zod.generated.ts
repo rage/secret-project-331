@@ -5,7 +5,7 @@
 
 import * as z from "zod"
 
-export const zErrorSource = z.enum(["Backend", "Frontend"])
+export const zErrorSource = z.enum(["backend", "frontend"])
 
 export const zNewErrorReport = z.object({
   app_version: z.string().nullish(),

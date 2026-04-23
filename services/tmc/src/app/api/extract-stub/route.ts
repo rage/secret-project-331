@@ -11,7 +11,12 @@ export const runtime = "nodejs"
 type ExtractStubBody = { stub_download_url?: string }
 
 async function postImpl(request: Request): Promise<Response> {
-  const body = (await request.json()) as ExtractStubBody
+  let body: ExtractStubBody
+  try {
+    body = (await request.json()) as ExtractStubBody
+  } catch {
+    return badRequest("invalid JSON body")
+  }
   const stubDownloadUrl = body?.stub_download_url
   if (typeof stubDownloadUrl !== "string" || stubDownloadUrl.length === 0) {
     return badRequest("stub_download_url is required")

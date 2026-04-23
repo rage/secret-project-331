@@ -9,33 +9,29 @@ const methodNotFound = () => NextResponse.json({ message: "Not found" }, { statu
 const SERVICE = "example-exercise"
 
 async function postImpl(req: Request) {
-  let body
+  const contentType = req.headers.get("content-type")
+  const bodyText = await req.text()
+  if (!contentType || !contentType.includes("application/json")) {
+    console.error("Model solution request failed: Invalid Content-Type", {
+      contentType,
+      bodyLength: bodyText.length,
+    })
+    return NextResponse.json({ message: "Content-Type must be application/json" }, { status: 400 })
+  }
+  if (!bodyText || bodyText.trim() === "") {
+    console.error("Model solution request failed: Empty request body", {
+      contentType,
+      bodyLength: bodyText.length,
+    })
+    return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
+  }
+  let body: unknown
   try {
-    body = await req.json()
+    body = JSON.parse(bodyText)
   } catch (jsonError) {
-    const bodyText = await req.text()
-
-    const contentType = req.headers.get("content-type")
-    if (!contentType || !contentType.includes("application/json")) {
-      console.error("Model solution request failed: Invalid Content-Type", {
-        contentType,
-        bodyText,
-      })
-      return NextResponse.json(
-        { message: "Content-Type must be application/json" },
-        { status: 400 },
-      )
-    }
-
-    if (!bodyText || bodyText.trim() === "") {
-      console.error("Model solution request failed: Empty request body", {
-        bodyText,
-      })
-      return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
-    }
-
     console.error("Model solution request failed: Invalid JSON", {
-      bodyText,
+      contentType,
+      errorType: jsonError instanceof Error ? jsonError.name : typeof jsonError,
       parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
     })
     return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
@@ -43,7 +39,8 @@ async function postImpl(req: Request) {
 
   if (!isSpecRequest(body)) {
     console.error("Model solution request failed: Invalid spec request", {
-      body,
+      contentType,
+      bodyType: typeof body,
     })
     return NextResponse.json({ message: "Request was not valid." }, { status: 400 })
   }

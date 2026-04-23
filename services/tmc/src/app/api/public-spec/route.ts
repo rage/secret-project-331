@@ -23,7 +23,12 @@ import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 export const runtime = "nodejs"
 
 async function postImpl(request: Request): Promise<Response> {
-  const body = await request.json()
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return badRequest("Invalid spec request")
+  }
   if (!isSpecRequest(body)) {
     return badRequest("Invalid spec request")
   }

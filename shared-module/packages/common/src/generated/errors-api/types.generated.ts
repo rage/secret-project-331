@@ -7,7 +7,7 @@ export type ClientOptions = {
   baseUrl: `${string}://${string}` | (string & {})
 }
 
-export type ErrorSource = "Backend" | "Frontend"
+export type ErrorSource = "backend" | "frontend"
 
 export type NewErrorReport = {
   app_version?: string | null

@@ -12,17 +12,16 @@ import { isSpecRequest } from "@/utils/exerciseServiceApi"
 const SERVICE = "quizzes"
 
 async function postImpl(req: Request) {
-  let specRequest
+  const rawBody = await req.text()
+  let specRequest: unknown
   try {
-    specRequest = await req.json()
+    specRequest = JSON.parse(rawBody)
   } catch (jsonError) {
-    const bodyText = await req.text()
-
     const contentType = req.headers.get("content-type")
     if (!contentType || !contentType.includes("application/json")) {
       console.error("Public spec request failed: Invalid Content-Type", {
         contentType,
-        bodyText,
+        bodyLength: rawBody.length,
       })
       return NextResponse.json(
         { message: "Content-Type must be application/json" },
@@ -30,15 +29,16 @@ async function postImpl(req: Request) {
       )
     }
 
-    if (!bodyText || bodyText.trim() === "") {
+    if (!rawBody || rawBody.trim() === "") {
       console.error("Public spec request failed: Empty request body", {
-        bodyText,
+        contentType,
+        bodyLength: rawBody.length,
       })
       return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
     }
 
     console.error("Public spec request failed: Invalid JSON", {
-      bodyText,
+      contentType,
       parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
     })
     return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })

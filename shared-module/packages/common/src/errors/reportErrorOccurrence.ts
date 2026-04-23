@@ -41,10 +41,20 @@ function resolveServiceSlug(explicit?: string): string {
 
 function resolveUrlForEnvironment(): string | null {
   if (typeof window !== "undefined") {
-    // Prefer same-origin relative URL in the browser. This matches how the generated API clients work today.
     return ERRORS_ENDPOINT_PATH
   }
-  return null
+  if (typeof process === "undefined") {
+    return null
+  }
+  const baseUrl =
+    process.env.ERRORS_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_ERRORS_BASE_URL?.trim() ||
+    process.env.SERVICE_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_BASE_URL?.trim()
+  if (!baseUrl) {
+    return null
+  }
+  return new URL(ERRORS_ENDPOINT_PATH, baseUrl).toString()
 }
 
 export async function reportErrorOccurrence(report: ErrorOccurrenceReport): Promise<void> {
@@ -57,7 +67,7 @@ export async function reportErrorOccurrence(report: ErrorOccurrenceReport): Prom
     const service = resolveServiceSlug(report.service)
 
     const path =
-      report.path ?? (typeof window !== "undefined" ? window.location.href : null) ?? undefined
+      report.path ?? (typeof window !== "undefined" ? window.location.pathname : null) ?? undefined
 
     const payload = {
       service,

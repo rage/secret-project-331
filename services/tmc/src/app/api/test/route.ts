@@ -54,12 +54,20 @@ function isValidTestRequest(body: unknown): body is TestRequest {
     return false
   }
   const b = body as TestRequest
+  if (typeof b.templateDownloadUrl !== "string") {
+    return false
+  }
   if (b.type === "browser") {
     return (
       Array.isArray(b.files) &&
       b.files.every(
         (f): f is { filepath: string; contents: string } =>
-          typeof f === "object" && f !== null && "filepath" in f && "contents" in f,
+          typeof f === "object" &&
+          f !== null &&
+          "filepath" in f &&
+          "contents" in f &&
+          typeof f.filepath === "string" &&
+          typeof f.contents === "string",
       )
     )
   }
@@ -70,7 +78,12 @@ function isValidTestRequest(body: unknown): body is TestRequest {
 }
 
 async function postImpl(req: Request): Promise<Response> {
-  const body = await req.json()
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
+  }
   if (!isValidTestRequest(body)) {
     return badRequest("Invalid test request")
   }

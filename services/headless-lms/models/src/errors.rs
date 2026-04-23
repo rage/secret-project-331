@@ -45,10 +45,9 @@ pub async fn insert(
 ) -> ModelResult<Uuid> {
     let service = report.service.trim();
     if service.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "service must not be empty".to_string(),
-            None,
+        return Err(model_err!(
+            InvalidRequest,
+            "service must not be empty".to_string()
         ));
     }
 
@@ -71,12 +70,14 @@ pub async fn insert(
         report.stack_trace.as_deref(),
     );
 
+    let mut tx = conn.begin().await?;
     let group_id = sqlx::query!(
         r#"
 INSERT INTO error_groups (id, service, error_identifier, error_source, message, stack_trace)
 VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5)
 ON CONFLICT (service, error_identifier, deleted_at) DO UPDATE SET
     deleted_at = NULL,
+    resolved_at = NULL,
     occurrence_count = error_groups.occurrence_count + 1,
     last_seen_at = now(),
     updated_at = now()
@@ -88,7 +89,7 @@ RETURNING id
         report.message,
         report.stack_trace
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?
     .id;
 
@@ -104,8 +105,9 @@ VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6)
         report.app_version,
         report.details
     )
-    .execute(&mut *conn)
+    .execute(&mut *tx)
     .await?;
+    tx.commit().await?;
 
     Ok(group_id)
 }
@@ -184,9 +186,15 @@ SET
         SELECT COUNT(*)::int
         FROM error_occurrences
         WHERE error_group_id = g.id
+          AND deleted_at IS NULL
     ),
     last_seen_at = COALESCE(
-        (SELECT MAX(created_at) FROM error_occurrences WHERE error_group_id = g.id),
+        (
+            SELECT MAX(created_at)
+            FROM error_occurrences
+            WHERE error_group_id = g.id
+              AND deleted_at IS NULL
+        ),
         g.created_at
     ),
     updated_at = now()

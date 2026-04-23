@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE error_groups g\nSET\n    occurrence_count = (\n        SELECT COUNT(*)::int\n        FROM error_occurrences\n        WHERE error_group_id = g.id\n          AND deleted_at IS NULL\n    ),\n    last_seen_at = COALESCE(\n        (\n            SELECT MAX(created_at)\n            FROM error_occurrences\n            WHERE error_group_id = g.id\n              AND deleted_at IS NULL\n        ),\n        g.created_at\n    ),\n    updated_at = now()\nWHERE g.id = ANY($1)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a884e8d1de6779f62effe644b133468bbbcb0e05defc0a70ae1e887a55755471"
+}

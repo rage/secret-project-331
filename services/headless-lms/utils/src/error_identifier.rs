@@ -41,7 +41,6 @@ pub fn normalize_stack_trace(stack_trace: &str) -> String {
 
 pub fn canonicalize_grouping_message(normalized_message: &str) -> String {
     normalized_message
-        .trim()
         .split_whitespace()
         .collect::<Vec<_>>()
         .join(" ")

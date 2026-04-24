@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nDELETE FROM error_occurrences\nWHERE created_at < now() - interval '2 months'\nRETURNING error_variant_id\n        ",
+  "query": "\nUPDATE error_occurrences\nSET deleted_at = now()\nWHERE created_at < now() - interval '2 months'\n  AND deleted_at IS NULL\nRETURNING error_variant_id\n        ",
   "describe": {
     "columns": [
       {
@@ -16,5 +16,5 @@
       false
     ]
   },
-  "hash": "acb3cd54d535e814b4adc4d098a25ffba509ab8b0b930a4c075715b3d2d5e7c5"
+  "hash": "f670a30c20b8da071899e9e094e2df7fb0208289116714cecccbffd59902e822"
 }

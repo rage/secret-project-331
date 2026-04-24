@@ -33,15 +33,24 @@ function errorRunResult(err: unknown): RunResult {
   }
 }
 
-function reportBackgroundFailure(err: unknown): void {
+function reportBackgroundFailure(err: unknown, request: Request): void {
   const message = err instanceof Error ? err.message : String(err)
   const stack = err instanceof Error ? err.stack : null
-  void reportErrorOccurrence({
-    service: "tmc",
-    message,
-    stack_trace: stack,
-    details: { kind: "tmc-background-test-run" },
-  })
+  void reportErrorOccurrence(
+    {
+      service: "tmc",
+      error_source: "backend",
+      message,
+      stack_trace: stack,
+      details: { kind: "tmc-background-test-run" },
+    },
+    {
+      requestContext: {
+        headers: request.headers,
+        url: request.url,
+      },
+    },
+  )
 }
 
 function isValidTestRequest(body: unknown): body is TestRequest {
@@ -99,7 +108,7 @@ async function postImpl(req: Request): Promise<Response> {
       .then((rr) => testRuns.set(testRunId, rr))
       .catch((err) => {
         testRuns.set(testRunId, errorRunResult(err))
-        reportBackgroundFailure(err)
+        reportBackgroundFailure(err, req)
       })
     return jsonOk<TestRequestResult>({ id: testRunId })
   }
@@ -110,7 +119,7 @@ async function postImpl(req: Request): Promise<Response> {
     .then((rr) => testRuns.set(testRunId, rr))
     .catch((err) => {
       testRuns.set(testRunId, errorRunResult(err))
-      reportBackgroundFailure(err)
+      reportBackgroundFailure(err, req)
     })
   return jsonOk<TestRequestResult>({ id: testRunId })
 }

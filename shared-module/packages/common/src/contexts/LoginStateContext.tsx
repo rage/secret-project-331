@@ -7,7 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"
 import Spinner from "../components/Spinner"
-import { getAuthLoggedInOptions } from "../generated/auth-api/@tanstack/react-query.generated"
+import {
+  getAuthLoggedInOptions,
+  getAuthUserInfoOptions,
+} from "../generated/auth-api/@tanstack/react-query.generated"
 import "../init/registerAuthApiClients"
 
 export interface LoginState {
@@ -31,6 +34,10 @@ export default LoginStateContext
 export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
   const isLoggedIn = useQuery(getAuthLoggedInOptions())
+  useQuery({
+    ...getAuthUserInfoOptions(),
+    enabled: isLoggedIn.data === true,
+  })
 
   useEffect(() => {
     setLoginState((prev) => ({

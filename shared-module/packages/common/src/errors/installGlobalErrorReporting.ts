@@ -1,4 +1,8 @@
-import { reportErrorOccurrence, setDefaultErrorReportingService } from "./reportErrorOccurrence"
+import {
+  flushPendingErrorOccurrences,
+  reportErrorOccurrence,
+  setDefaultErrorReportingService,
+} from "./reportErrorOccurrence"
 
 let installed = false
 
@@ -18,6 +22,20 @@ export function installGlobalErrorReporting(options?: { service?: string }): voi
   if (options?.service) {
     setDefaultErrorReportingService(options.service)
   }
+
+  window.addEventListener("online", () => {
+    void flushPendingErrorOccurrences()
+  })
+
+  window.addEventListener("pagehide", () => {
+    void flushPendingErrorOccurrences({ transport: "exit" })
+  })
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      void flushPendingErrorOccurrences({ transport: "exit" })
+    }
+  })
 
   window.addEventListener("error", (event) => {
     const err = event.error

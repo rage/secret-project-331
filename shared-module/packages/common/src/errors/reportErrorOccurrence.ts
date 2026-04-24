@@ -273,7 +273,21 @@ function pickForwardedRequestHeaders(
     return undefined
   }
 
-  const requestHeaders = new Headers(requestContext.headers)
+  const headersInput = requestContext.headers
+  const requestHeaders = new Headers()
+  if (headersInput instanceof Headers) {
+    headersInput.forEach((value, key) => {
+      requestHeaders.set(key, value)
+    })
+  } else if (Array.isArray(headersInput)) {
+    for (const [key, value] of headersInput) {
+      requestHeaders.set(key, value)
+    }
+  } else {
+    for (const [key, value] of Object.entries(headersInput)) {
+      requestHeaders.set(key, value)
+    }
+  }
   const forwardedHeaders: Record<string, string> = {}
 
   for (const headerName of ["authorization", "cookie"]) {

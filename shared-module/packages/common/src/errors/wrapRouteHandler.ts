@@ -32,11 +32,11 @@ export function wrapRouteHandler<TArgs extends unknown[], TResult>(
       const requestContext = request
         ? {
             headers: request.headers,
-            url: request.url,
+            url: typeof request.url === "string" ? request.url : null,
           }
         : undefined
-      const url = request?.url ?? null
-      const method = request?.method ?? null
+      const url = typeof request?.url === "string" ? request.url : null
+      const method = typeof request?.method === "string" ? request.method : null
 
       const message = error instanceof Error ? error.message : String(error)
       const stack = error instanceof Error ? error.stack : undefined

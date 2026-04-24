@@ -53,7 +53,7 @@ function reportBackgroundFailure(err: unknown, request: Request): void {
         kind: "tmc-background-test-run",
         operation: "tmc.background-test-run",
         method: request.method,
-        path,
+        url: path,
       },
     },
     {

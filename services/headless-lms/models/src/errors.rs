@@ -73,11 +73,11 @@ pub async fn insert(
     let exact_error_identifier = calculate_exact_error_identifier(
         service,
         error_source_str,
-        &report.message,
-        report.stack_trace.as_deref(),
+        &normalized_message,
+        normalized_stack_trace.as_deref(),
     );
     let error_grouping_identifier =
-        calculate_error_grouping_identifier(service, error_source_str, &report.message);
+        calculate_error_grouping_identifier(service, error_source_str, &normalized_message);
 
     let mut tx = conn.begin().await?;
     let variant_id = sqlx::query!(

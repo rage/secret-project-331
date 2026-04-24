@@ -1,5 +1,3 @@
-const path = require("path")
-
 const externallyEmbeddableIFrameResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").externallyEmbeddableIFrameResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
@@ -15,7 +13,7 @@ const config = {
     ]
   },
   output: "standalone",
-  outputFileTracingRoot: path.resolve(__dirname),
+  outputFileTracingRoot: __dirname,
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,

@@ -99,9 +99,9 @@ function resolveUrlForEnvironment(requestContext?: ErrorOccurrenceRequestContext
   const baseUrl =
     process.env.ERRORS_BASE_URL?.trim() ||
     process.env.NEXT_PUBLIC_ERRORS_BASE_URL?.trim() ||
-    process.env.SERVICE_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_BASE_URL?.trim() ||
     resolveErrorReportUrlFromRequestContext(requestContext) ||
+    process.env.ERRORS_MAIN_FRONTEND_BASE_URL?.trim() ||
+    process.env.NEXT_PUBLIC_ERRORS_MAIN_FRONTEND_BASE_URL?.trim() ||
     process.env.BASE_URL?.trim() ||
     process.env.PUBLIC_ADDRESS?.trim() ||
     DEFAULT_INTERNAL_ERRORS_BASE_URL
@@ -343,7 +343,7 @@ function sendWithBeacon(url: string, body: string): boolean {
   }
 
   try {
-    const blob = new Blob([body], { type: "application/json" })
+    const blob = new Blob([body], { type: "text/plain;charset=UTF-8" })
     return navigator.sendBeacon(url, blob) === true
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {

@@ -65,7 +65,7 @@ describe("wrapRouteHandler", () => {
         service: "main-frontend",
         error_source: "backend",
         message: "route exploded",
-        path: "https://example.com/api/course",
+        path: "/api/course",
         details: {
           kind: "next-route-handler",
           method: "POST",

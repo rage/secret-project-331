@@ -44,6 +44,10 @@ pub struct NewErrorReport {
     pub details: Option<serde_json::Value>,
 }
 
+/// Inserts one error occurrence and upserts its variant in a single transaction.
+/// The variant service is treated as immutable after creation; any future service
+/// rename must update both error_variants.service and related error_occurrences.service
+/// in the same transaction.
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
@@ -111,12 +115,15 @@ RETURNING id
     .await?
     .id;
 
+    let occurrence_id = Uuid::new_v4();
     sqlx::query!(
         "
-INSERT INTO error_occurrences (id, error_variant_id, user_id, path, app_version, details)
-VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5)
+INSERT INTO error_occurrences (id, error_variant_id, service, user_id, path, app_version, details)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
         ",
+        occurrence_id,
         variant_id,
+        service,
         user_id,
         report.path,
         report.app_version,
@@ -124,6 +131,28 @@ VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5)
     )
     .execute(&mut *tx)
     .await?;
+
+    let service_consistent = sqlx::query_scalar!(
+        r#"
+SELECT EXISTS(
+    SELECT 1
+    FROM error_occurrences o
+    JOIN error_variants v ON v.id = o.error_variant_id
+    WHERE o.id = $1
+      AND o.service = v.service
+) AS "exists!"
+        "#,
+        occurrence_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+    if !service_consistent {
+        return Err(model_err!(
+            Generic,
+            "error occurrence service must match variant service".to_string()
+        ));
+    }
+
     tx.commit().await?;
 
     Ok(variant_id)

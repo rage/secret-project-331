@@ -37,6 +37,16 @@ export function wrapRouteHandler<TArgs extends unknown[], TResult>(
         : undefined
       const url = typeof request?.url === "string" ? request.url : null
       const method = typeof request?.method === "string" ? request.method : null
+      const pathname =
+        url !== null
+          ? (() => {
+              try {
+                return new URL(url).pathname
+              } catch {
+                return null
+              }
+            })()
+          : null
 
       const message = error instanceof Error ? error.message : String(error)
       const stack = error instanceof Error ? error.stack : undefined
@@ -47,7 +57,7 @@ export function wrapRouteHandler<TArgs extends unknown[], TResult>(
           error_source: "backend",
           message,
           stack_trace: stack ?? null,
-          path: url,
+          path: pathname,
           details: {
             kind: "next-route-handler",
             operation: meta.operation ?? null,

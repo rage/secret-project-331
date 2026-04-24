@@ -56,23 +56,10 @@ CREATE TRIGGER set_timestamp BEFORE UPDATE ON error_occurrences FOR EACH ROW EXE
 CREATE INDEX idx_error_occurrences_variant ON error_occurrences (error_variant_id, created_at DESC) WHERE deleted_at IS NULL;
 CREATE INDEX idx_error_occurrences_user ON error_occurrences (user_id, created_at DESC) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
 
-CREATE OR REPLACE FUNCTION sync_error_occurrence_service()
-RETURNS TRIGGER AS $$
-BEGIN
-  SELECT service INTO STRICT NEW.service FROM error_variants WHERE id = NEW.error_variant_id;
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER sync_error_occurrence_service_trigger
-BEFORE INSERT OR UPDATE OF error_variant_id ON error_occurrences
-FOR EACH ROW
-EXECUTE FUNCTION sync_error_occurrence_service();
-
 COMMENT ON TABLE error_occurrences IS 'One row per individual error report. References error_variants for exact deduplication. Rows expire after 2 months.';
 COMMENT ON COLUMN error_occurrences.id IS 'A unique, stable identifier for the record.';
 COMMENT ON COLUMN error_occurrences.error_variant_id IS 'The exact error variant this occurrence belongs to.';
-COMMENT ON COLUMN error_occurrences.service IS 'Service slug that reported the error. Duplicated from error_variants for convenience.';
+COMMENT ON COLUMN error_occurrences.service IS 'Service slug that reported the error. Kept in sync by application writes.';
 COMMENT ON COLUMN error_occurrences.user_id IS 'The user who experienced this occurrence, if known.';
 COMMENT ON COLUMN error_occurrences.path IS 'Page URL (frontend) or HTTP route (backend) where this occurrence happened.';
 COMMENT ON COLUMN error_occurrences.app_version IS 'Frontend bundle version or backend git SHA at the time of this occurrence.';

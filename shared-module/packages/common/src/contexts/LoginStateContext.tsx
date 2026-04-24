@@ -47,7 +47,7 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ c
       isLoading: isLoggedIn.isLoading || (isLoggedIn.data === true && userInfo.isLoading),
       refresh: isLoggedIn.refetch,
       signedIn: isLoggedIn.data,
-      userId: userInfo.data?.user_id,
+      userId: isLoggedIn.data === true ? userInfo.data?.user_id : undefined,
     }))
   }, [
     isLoggedIn.data,

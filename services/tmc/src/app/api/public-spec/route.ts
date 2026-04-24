@@ -32,7 +32,7 @@ async function postImpl(request: Request): Promise<Response> {
   if (!isSpecRequest(body)) {
     return badRequest("Invalid spec request")
   }
-  const specRequest = body as SpecRequest
+  const specRequest = body
   const requestId = specRequest.request_id.slice(0, 4)
 
   const uploadClaim = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)

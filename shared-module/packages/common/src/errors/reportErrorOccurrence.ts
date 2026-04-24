@@ -343,7 +343,7 @@ function sendWithBeacon(url: string, body: string): boolean {
   }
 
   try {
-    const blob = new Blob([body], { type: "text/plain;charset=UTF-8" })
+    const blob = new Blob([body], { type: "application/json" })
     return navigator.sendBeacon(url, blob) === true
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {

@@ -58,28 +58,22 @@ pub async fn insert(
     }
 
     let error_source = report.error_source.unwrap_or(ErrorSource::Frontend);
-    let error_source_str = serde_json::to_value(error_source)?
-        .as_str()
-        .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::Conversion,
-                "Failed to serialize ErrorSource as a string".to_string(),
-                None,
-            )
-        })?
-        .to_string();
+    let error_source_str = match error_source {
+        ErrorSource::Frontend => "frontend",
+        ErrorSource::Backend => "backend",
+    };
 
     let normalized_message = normalize_message(&report.message);
     let normalized_stack_trace = report.stack_trace.as_deref().map(normalize_stack_trace);
 
     let exact_error_identifier = calculate_exact_error_identifier(
         service,
-        &error_source_str,
+        error_source_str,
         &report.message,
         report.stack_trace.as_deref(),
     );
     let error_grouping_identifier =
-        calculate_error_grouping_identifier(service, &error_source_str, &report.message);
+        calculate_error_grouping_identifier(service, error_source_str, &report.message);
 
     let mut tx = conn.begin().await?;
     let variant_id = sqlx::query!(
@@ -119,11 +113,10 @@ RETURNING id
 
     sqlx::query!(
         "
-INSERT INTO error_occurrences (id, error_variant_id, service, user_id, path, app_version, details)
-VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6)
+INSERT INTO error_occurrences (id, error_variant_id, user_id, path, app_version, details)
+VALUES (uuid_generate_v4(), $1, $2, $3, $4, $5)
         ",
         variant_id,
-        service,
         user_id,
         report.path,
         report.app_version,
@@ -194,8 +187,10 @@ pub async fn delete_expired(conn: &mut PgConnection) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
     let deleted_variant_ids = sqlx::query!(
         r#"
-DELETE FROM error_occurrences
+UPDATE error_occurrences
+SET deleted_at = now()
 WHERE created_at < now() - interval '2 months'
+  AND deleted_at IS NULL
 RETURNING error_variant_id
         "#
     )

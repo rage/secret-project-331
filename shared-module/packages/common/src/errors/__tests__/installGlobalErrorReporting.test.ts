@@ -59,4 +59,32 @@ describe("installGlobalErrorReporting", () => {
 
     expect(sendBeacon).toHaveBeenCalledTimes(1)
   })
+
+  test("flushes buffered reports on visibilitychange when hidden", async () => {
+    const sendBeacon = jest.fn(() => true)
+    const fetchMock = jest.fn(() => Promise.resolve({ ok: false, status: 503 } as Response))
+
+    Object.defineProperty(navigator, "sendBeacon", {
+      configurable: true,
+      value: sendBeacon,
+      writable: true,
+    })
+    browserGlobal.fetch = fetchMock as typeof fetch
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      value: "hidden",
+    })
+
+    await reportErrorOccurrence({
+      service: "main-frontend",
+      error_source: "frontend",
+      message: "Visibility flush test",
+      path: "/dashboard",
+    })
+
+    installGlobalErrorReporting({ service: "main-frontend" })
+    document.dispatchEvent(new Event("visibilitychange"))
+
+    expect(sendBeacon).toHaveBeenCalledTimes(1)
+  })
 })

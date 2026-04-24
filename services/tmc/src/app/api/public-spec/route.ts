@@ -27,7 +27,7 @@ async function postImpl(request: Request): Promise<Response> {
   try {
     body = await request.json()
   } catch {
-    return badRequest("Invalid spec request")
+    return badRequest("Invalid JSON payload")
   }
   if (!isSpecRequest(body)) {
     return badRequest("Invalid spec request")
@@ -35,11 +35,7 @@ async function postImpl(request: Request): Promise<Response> {
   const specRequest = body as SpecRequest
   const requestId = specRequest.request_id.slice(0, 4)
 
-  let uploadClaim: string | null = null
-  const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
-  if (typeof uploadClaimHeader === "string") {
-    uploadClaim = uploadClaimHeader
-  }
+  const uploadClaim = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
 
   return await processPublicSpec(requestId, specRequest, uploadClaim)
 }

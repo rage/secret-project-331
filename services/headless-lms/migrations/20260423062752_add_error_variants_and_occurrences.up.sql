@@ -21,6 +21,7 @@ CREATE TABLE error_variants (
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON error_variants FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE INDEX idx_error_variants_service_source_last_seen ON error_variants (service, error_source, last_seen_at DESC) WHERE deleted_at IS NULL;
 CREATE INDEX idx_error_variants_service_grouping_last_seen ON error_variants (service, error_grouping_identifier, last_seen_at DESC) WHERE deleted_at IS NULL;
+CREATE INDEX idx_error_variants_last_seen ON error_variants (last_seen_at DESC) WHERE deleted_at IS NULL;
 
 COMMENT ON TABLE error_variants IS 'One row per exact stored error variant, identified by (service, exact_error_identifier). Tracks aggregated stats across all occurrences.';
 COMMENT ON COLUMN error_variants.id IS 'A unique, stable identifier for the record.';
@@ -53,12 +54,12 @@ CREATE TABLE error_occurrences (
 );
 CREATE TRIGGER set_timestamp BEFORE UPDATE ON error_occurrences FOR EACH ROW EXECUTE PROCEDURE trigger_set_timestamp();
 CREATE INDEX idx_error_occurrences_variant ON error_occurrences (error_variant_id, created_at DESC) WHERE deleted_at IS NULL;
-CREATE INDEX idx_error_occurrences_user ON error_occurrences (user_id) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
+CREATE INDEX idx_error_occurrences_user ON error_occurrences (user_id, created_at DESC) WHERE user_id IS NOT NULL AND deleted_at IS NULL;
 
 CREATE OR REPLACE FUNCTION sync_error_occurrence_service()
 RETURNS TRIGGER AS $$
 BEGIN
-  SELECT service INTO NEW.service FROM error_variants WHERE id = NEW.error_variant_id;
+  SELECT service INTO STRICT NEW.service FROM error_variants WHERE id = NEW.error_variant_id;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;

@@ -100,22 +100,12 @@ async function postImpl(req: Request): Promise<Response> {
   const testRunId = v4()
   testRuns.set(testRunId, null)
   const templateDownloadUrl = body.templateDownloadUrl
-  if (body.type === "browser") {
-    runTests(templateDownloadUrl, {
-      type: "browser",
-      files: body.files,
-    })
-      .then((rr) => testRuns.set(testRunId, rr))
-      .catch((err) => {
-        testRuns.set(testRunId, errorRunResult(err))
-        reportBackgroundFailure(err, req)
-      })
-    return jsonOk<TestRequestResult>({ id: testRunId })
-  }
-  runTests(templateDownloadUrl, {
-    type: "editor",
-    archiveDownloadUrl: body.archiveDownloadUrl,
-  })
+  const options =
+    body.type === "browser"
+      ? { type: "browser" as const, files: body.files }
+      : { type: "editor" as const, archiveDownloadUrl: body.archiveDownloadUrl }
+
+  runTests(templateDownloadUrl, options)
     .then((rr) => testRuns.set(testRunId, rr))
     .catch((err) => {
       testRuns.set(testRunId, errorRunResult(err))

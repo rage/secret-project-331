@@ -116,7 +116,7 @@ function isPendingErrorReportAuthScope(value: unknown): value is PendingErrorRep
   return (
     value === "anonymous" ||
     value === "unknown" ||
-    (typeof value === "string" && value.startsWith("user:"))
+    (typeof value === "string" && value.startsWith("user:") && value.length > "user:".length)
   )
 }
 
@@ -208,7 +208,7 @@ function resolveCurrentPendingErrorReportAuthScopeFromCache(): PendingErrorRepor
   }
 
   const userInfo = queryClient.getQueryData<GetAuthUserInfoResponse>(getAuthUserInfoQueryKey())
-  if (userInfo && typeof userInfo.user_id === "string") {
+  if (userInfo && typeof userInfo.user_id === "string" && userInfo.user_id.trim() !== "") {
     return `user:${userInfo.user_id}`
   }
 
@@ -234,7 +234,7 @@ async function probeCurrentPendingErrorReportAuthScope(): Promise<PendingErrorRe
       }
 
       const userInfo = await getAuthUserInfo({ throwOnError: false })
-      if (userInfo && typeof userInfo.user_id === "string") {
+      if (userInfo && typeof userInfo.user_id === "string" && userInfo.user_id.trim() !== "") {
         queryClient.setQueryData(getAuthUserInfoQueryKey(), userInfo)
         return `user:${userInfo.user_id}`
       }

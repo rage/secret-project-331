@@ -17,6 +17,7 @@ export interface LoginState {
   isLoading: boolean
   refresh(): Promise<unknown>
   signedIn: boolean | null | undefined
+  userId: string | null | undefined
 }
 
 const defaultLoginState: LoginState = {
@@ -25,6 +26,7 @@ const defaultLoginState: LoginState = {
     /* No op */
   },
   signedIn: null,
+  userId: null,
 }
 
 const LoginStateContext = React.createContext<LoginState>(defaultLoginState)
@@ -34,7 +36,7 @@ export default LoginStateContext
 export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
   const isLoggedIn = useQuery(getAuthLoggedInOptions())
-  useQuery({
+  const userInfo = useQuery({
     ...getAuthUserInfoOptions(),
     enabled: isLoggedIn.data === true,
   })
@@ -42,11 +44,18 @@ export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ c
   useEffect(() => {
     setLoginState((prev) => ({
       ...prev,
-      isLoading: isLoggedIn.isLoading,
+      isLoading: isLoggedIn.isLoading || (isLoggedIn.data === true && userInfo.isLoading),
       refresh: isLoggedIn.refetch,
       signedIn: isLoggedIn.data,
+      userId: userInfo.data?.user_id,
     }))
-  }, [isLoggedIn.data, isLoggedIn.isLoading, isLoggedIn.refetch])
+  }, [
+    isLoggedIn.data,
+    isLoggedIn.isLoading,
+    isLoggedIn.refetch,
+    userInfo.data?.user_id,
+    userInfo.isLoading,
+  ])
 
   if (isLoggedIn.isError) {
     return <ErrorBanner variant={"readOnly"} error={isLoggedIn.error} />

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    service,\n    error_identifier,\n    error_source AS \"error_source: ErrorSource\",\n    message,\n    stack_trace,\n    occurrence_count,\n    last_seen_at,\n    resolved_at,\n    created_at,\n    updated_at,\n    deleted_at\nFROM error_groups\nWHERE deleted_at IS NULL\nORDER BY last_seen_at DESC\nLIMIT $1 OFFSET $2\n        ",
+  "query": "\nSELECT\n    id,\n    service,\n    exact_error_identifier,\n    error_grouping_identifier,\n    error_source AS \"error_source: ErrorSource\",\n    example_message,\n    example_stack_trace,\n    normalized_message,\n    normalized_stack_trace,\n    occurrence_count,\n    last_seen_at,\n    resolved_at,\n    created_at,\n    updated_at,\n    deleted_at\nFROM error_variants\nWHERE deleted_at IS NULL\nORDER BY last_seen_at DESC\nLIMIT $1 OFFSET $2\n        ",
   "describe": {
     "columns": [
       {
@@ -15,11 +15,16 @@
       },
       {
         "ordinal": 2,
-        "name": "error_identifier",
+        "name": "exact_error_identifier",
         "type_info": "Text"
       },
       {
         "ordinal": 3,
+        "name": "error_grouping_identifier",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
         "name": "error_source: ErrorSource",
         "type_info": {
           "Custom": {
@@ -34,42 +39,52 @@
         }
       },
       {
-        "ordinal": 4,
-        "name": "message",
-        "type_info": "Text"
-      },
-      {
         "ordinal": 5,
-        "name": "stack_trace",
+        "name": "example_message",
         "type_info": "Text"
       },
       {
         "ordinal": 6,
+        "name": "example_stack_trace",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
+        "name": "normalized_message",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 8,
+        "name": "normalized_stack_trace",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 9,
         "name": "occurrence_count",
         "type_info": "Int4"
       },
       {
-        "ordinal": 7,
+        "ordinal": 10,
         "name": "last_seen_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 8,
+        "ordinal": 11,
         "name": "resolved_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 9,
+        "ordinal": 12,
         "name": "created_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 10,
+        "ordinal": 13,
         "name": "updated_at",
         "type_info": "Timestamptz"
       },
       {
-        "ordinal": 11,
+        "ordinal": 14,
         "name": "deleted_at",
         "type_info": "Timestamptz"
       }
@@ -86,6 +101,9 @@
       false,
       false,
       false,
+      false,
+      true,
+      false,
       true,
       false,
       false,
@@ -95,5 +113,5 @@
       true
     ]
   },
-  "hash": "b60a84aead19eb238eef89d5c3f6c938c55c612ea158ec562a5adae2686a3f92"
+  "hash": "058811fb49fad884a24d93af59e3a7ba30fca81597b575bfc11e49fadbbe77ad"
 }

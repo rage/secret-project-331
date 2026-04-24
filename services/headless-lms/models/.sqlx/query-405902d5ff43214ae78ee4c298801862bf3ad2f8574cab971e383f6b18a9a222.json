@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO error_occurrences (id, error_variant_id, service, user_id, path, app_version, details)\nVALUES (uuid_generate_v4(), $1, $2, $3, $4, $5, $6)\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Text",
+        "Text",
+        "Jsonb"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "405902d5ff43214ae78ee4c298801862bf3ad2f8574cab971e383f6b18a9a222"
+}

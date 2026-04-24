@@ -39,11 +39,31 @@ pub fn normalize_stack_trace(stack_trace: &str) -> String {
     s.lines().map(str::trim).collect::<Vec<_>>().join("\n")
 }
 
-/// Computes a stable BLAKE3 identifier for an error.
+pub fn canonicalize_grouping_message(normalized_message: &str) -> String {
+    normalized_message
+        .trim()
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase()
+}
+
+fn hash_identifier(parts: &[&str]) -> String {
+    let mut hasher = blake3::Hasher::new();
+    for (idx, part) in parts.iter().enumerate() {
+        if idx > 0 {
+            hasher.update(b"\x00");
+        }
+        hasher.update(part.as_bytes());
+    }
+    hasher.finalize().to_hex().to_string()
+}
+
+/// Computes a stable BLAKE3 identifier for an exact error variant.
 ///
 /// Components are separated by null bytes so that ("foo", "") and ("", "foo")
 /// never collide.
-pub fn calculate_error_identifier(
+pub fn calculate_exact_error_identifier(
     service: &str,
     error_source: &str,
     message: &str,
@@ -52,15 +72,24 @@ pub fn calculate_error_identifier(
     let normalized_message = normalize_message(message);
     let normalized_stack = stack_trace.map(normalize_stack_trace);
 
-    let mut hasher = blake3::Hasher::new();
-    hasher.update(service.as_bytes());
-    hasher.update(b"\x00");
-    hasher.update(error_source.as_bytes());
-    hasher.update(b"\x00");
-    hasher.update(normalized_message.as_bytes());
-    hasher.update(b"\x00");
-    hasher.update(normalized_stack.as_deref().unwrap_or("").as_bytes());
-    hasher.finalize().to_hex().to_string()
+    hash_identifier(&[
+        service,
+        error_source,
+        normalized_message.as_str(),
+        normalized_stack.as_deref().unwrap_or(""),
+    ])
+}
+
+/// Computes a stable BLAKE3 identifier for broadly grouping related errors.
+pub fn calculate_error_grouping_identifier(
+    service: &str,
+    error_source: &str,
+    message: &str,
+) -> String {
+    let normalized_message = normalize_message(message);
+    let grouping_message = canonicalize_grouping_message(&normalized_message);
+
+    hash_identifier(&[service, error_source, grouping_message.as_str()])
 }
 
 #[cfg(test)]
@@ -140,14 +169,14 @@ mod tests {
     }
 
     #[test]
-    fn test_same_error_different_uuids_same_fingerprint() {
-        let fp1 = calculate_error_identifier(
+    fn test_same_error_different_uuids_same_exact_identifier() {
+        let fp1 = calculate_exact_error_identifier(
             "main-frontend",
             "frontend",
             "User 550e8400-e29b-41d4-a716-446655440000 not found",
             None,
         );
-        let fp2 = calculate_error_identifier(
+        let fp2 = calculate_exact_error_identifier(
             "main-frontend",
             "frontend",
             "User 660f9511-f3ac-52e5-b827-557766551111 not found",
@@ -157,14 +186,14 @@ mod tests {
     }
 
     #[test]
-    fn test_same_error_different_hex_addr_in_stack_same_fingerprint() {
-        let fp1 = calculate_error_identifier(
+    fn test_same_error_different_hex_addr_in_stack_same_exact_identifier() {
+        let fp1 = calculate_exact_error_identifier(
             "headless-lms",
             "backend",
             "null pointer dereference",
             Some("at 0x7f0a1234abcd"),
         );
-        let fp2 = calculate_error_identifier(
+        let fp2 = calculate_exact_error_identifier(
             "headless-lms",
             "backend",
             "null pointer dereference",
@@ -174,14 +203,14 @@ mod tests {
     }
 
     #[test]
-    fn test_same_stack_different_bundler_hash_same_fingerprint() {
-        let fp1 = calculate_error_identifier(
+    fn test_same_stack_different_bundler_hash_same_exact_identifier() {
+        let fp1 = calculate_exact_error_identifier(
             "main-frontend",
             "frontend",
             "Cannot read property",
             Some("at fn (app.abc12345def0.js:10:5)"),
         );
-        let fp2 = calculate_error_identifier(
+        let fp2 = calculate_exact_error_identifier(
             "main-frontend",
             "frontend",
             "Cannot read property",
@@ -191,14 +220,14 @@ mod tests {
     }
 
     #[test]
-    fn test_different_errors_different_fingerprints() {
-        let fp1 = calculate_error_identifier(
+    fn test_different_errors_different_exact_identifiers() {
+        let fp1 = calculate_exact_error_identifier(
             "main-frontend",
             "frontend",
             "Cannot read property 'foo' of undefined",
             None,
         );
-        let fp2 = calculate_error_identifier(
+        let fp2 = calculate_exact_error_identifier(
             "main-frontend",
             "frontend",
             "Cannot read property 'bar' of undefined",
@@ -208,41 +237,46 @@ mod tests {
     }
 
     #[test]
-    fn test_source_affects_fingerprint() {
-        let fp1 =
-            calculate_error_identifier("main-frontend", "frontend", "an error occurred", None);
-        let fp2 = calculate_error_identifier("main-frontend", "backend", "an error occurred", None);
+    fn test_source_affects_exact_identifier() {
+        let fp1 = calculate_exact_error_identifier(
+            "main-frontend",
+            "frontend",
+            "an error occurred",
+            None,
+        );
+        let fp2 =
+            calculate_exact_error_identifier("main-frontend", "backend", "an error occurred", None);
         assert_ne!(fp1, fp2);
     }
 
     #[test]
-    fn test_stack_presence_affects_fingerprint() {
-        let fp1 = calculate_error_identifier(
+    fn test_stack_presence_affects_exact_identifier() {
+        let fp1 = calculate_exact_error_identifier(
             "main-frontend",
             "frontend",
             "an error",
             Some("at foo (a.js:1:1)"),
         );
-        let fp2 = calculate_error_identifier("main-frontend", "frontend", "an error", None);
+        let fp2 = calculate_exact_error_identifier("main-frontend", "frontend", "an error", None);
         assert_ne!(fp1, fp2);
     }
 
     #[test]
     fn test_separator_prevents_collision() {
-        let fp1 = calculate_error_identifier("main-frontend", "frontend", "foobar", None);
-        let fp2 = calculate_error_identifier("main-frontend", "frontend", "foo", Some("bar"));
+        let fp1 = calculate_exact_error_identifier("main-frontend", "frontend", "foobar", None);
+        let fp2 = calculate_exact_error_identifier("main-frontend", "frontend", "foo", Some("bar"));
         assert_ne!(fp1, fp2);
     }
 
     #[test]
-    fn test_fingerprint_is_deterministic() {
-        let fp1 = calculate_error_identifier(
+    fn test_exact_identifier_is_deterministic() {
+        let fp1 = calculate_exact_error_identifier(
             "headless-lms",
             "backend",
             "test error",
             Some("stack trace"),
         );
-        let fp2 = calculate_error_identifier(
+        let fp2 = calculate_exact_error_identifier(
             "headless-lms",
             "backend",
             "test error",
@@ -252,9 +286,63 @@ mod tests {
     }
 
     #[test]
-    fn test_fingerprint_length() {
+    fn test_exact_identifier_length() {
         // BLAKE3 produces 32 bytes = 64 hex chars by default
-        let fp = calculate_error_identifier("main-frontend", "frontend", "error", None);
+        let fp = calculate_exact_error_identifier("main-frontend", "frontend", "error", None);
         assert_eq!(fp.len(), 64);
+    }
+
+    #[test]
+    fn test_grouping_message_collapses_whitespace_and_case() {
+        let msg = "  Cannot READ   property   {uuid}   ";
+        assert_eq!(
+            canonicalize_grouping_message(msg),
+            "cannot read property {uuid}"
+        );
+    }
+
+    #[test]
+    fn test_grouping_identifier_is_case_and_whitespace_insensitive() {
+        let fp1 = calculate_error_grouping_identifier(
+            "main-frontend",
+            "frontend",
+            "Cannot read properties of undefined (reading 'foo')",
+        );
+        let fp2 = calculate_error_grouping_identifier(
+            "main-frontend",
+            "frontend",
+            "  cannot read   properties of undefined (reading 'foo')  ",
+        );
+        assert_eq!(fp1, fp2);
+    }
+
+    #[test]
+    fn test_grouping_identifier_normalizes_dynamic_message_values() {
+        let fp1 = calculate_error_grouping_identifier(
+            "main-frontend",
+            "frontend",
+            "Request 123456 failed for user 550e8400-e29b-41d4-a716-446655440000",
+        );
+        let fp2 = calculate_error_grouping_identifier(
+            "main-frontend",
+            "frontend",
+            "Request 987654 failed for user 660f9511-f3ac-52e5-b827-557766551111",
+        );
+        assert_eq!(fp1, fp2);
+    }
+
+    #[test]
+    fn test_grouping_identifier_differs_for_different_messages() {
+        let fp1 = calculate_error_grouping_identifier(
+            "main-frontend",
+            "frontend",
+            "Cannot read properties of undefined",
+        );
+        let fp2 = calculate_error_grouping_identifier(
+            "main-frontend",
+            "frontend",
+            "Network request failed",
+        );
+        assert_ne!(fp1, fp2);
     }
 }

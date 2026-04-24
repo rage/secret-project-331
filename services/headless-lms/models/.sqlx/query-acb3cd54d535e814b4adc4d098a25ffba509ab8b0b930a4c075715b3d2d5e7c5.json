@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nDELETE FROM error_occurrences\nWHERE created_at < now() - interval '2 months'\nRETURNING error_variant_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "error_variant_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "acb3cd54d535e814b4adc4d098a25ffba509ab8b0b930a4c075715b3d2d5e7c5"
+}

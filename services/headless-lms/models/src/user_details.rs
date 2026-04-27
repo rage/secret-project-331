@@ -142,6 +142,10 @@ pub async fn search_for_user_details_fuzzy_match(
     // To combat this, we omit the email domain from the fuzzy match
     let search = search.split('@').next().unwrap_or(search);
 
+    // ORDER BY dist only — no secondary tiebreaker. Adding one (e.g. user_id)
+    // would prevent the GiST trigram index from serving the distance ordering,
+    // forcing a full table scan+sort. Ties at exactly equal float distances are
+    // rare enough in practice that non-determinism in the LIMIT 100 is acceptable.
     let res = sqlx::query_as!(
         UserDetail,
         "

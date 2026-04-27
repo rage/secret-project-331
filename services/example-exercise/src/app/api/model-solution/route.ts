@@ -1,89 +1,50 @@
 import { NextResponse } from "next/server"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isSpecRequest, SpecRequest } from "@/util/exerciseServiceApi"
 import { Alternative, ModelSolutionApi } from "@/util/stateInterfaces"
 
 const methodNotFound = () => NextResponse.json({ message: "Not found" }, { status: 404 })
 
-export async function GET() {
-  return methodNotFound()
-}
+const SERVICE = "example-exercise"
 
-export async function PUT() {
-  return methodNotFound()
-}
-
-export async function PATCH() {
-  return methodNotFound()
-}
-
-export async function DELETE() {
-  return methodNotFound()
-}
-
-export async function OPTIONS() {
-  return methodNotFound()
-}
-
-export async function HEAD() {
-  return new Response(null, { status: 404 })
-}
-
-export async function POST(req: Request) {
-  try {
-    let body
-    try {
-      body = await req.json()
-    } catch (jsonError) {
-      const bodyText = await req.text()
-
-      const contentType = req.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error("Model solution request failed: Invalid Content-Type", {
-          contentType,
-          bodyText,
-        })
-        return NextResponse.json(
-          { message: "Content-Type must be application/json" },
-          { status: 400 },
-        )
-      }
-
-      if (!bodyText || bodyText.trim() === "") {
-        console.error("Model solution request failed: Empty request body", {
-          bodyText,
-        })
-        return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
-      }
-
-      console.error("Model solution request failed: Invalid JSON", {
-        bodyText,
-        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
-      })
-      return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
-    }
-
-    if (!isSpecRequest(body)) {
-      console.error("Model solution request failed: Invalid spec request", {
-        body,
-      })
-      throw new Error("Request was not valid.")
-    }
-    return handlePost(body)
-  } catch (e) {
-    console.error("Model solution request failed:", e)
-    if (e instanceof Error) {
-      return NextResponse.json(
-        {
-          error_name: e.name,
-          error_message: e.message,
-          error_stack: e.stack,
-        },
-        { status: 500 },
-      )
-    }
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+async function postImpl(req: Request) {
+  const contentType = req.headers.get("content-type")
+  const bodyText = await req.text()
+  if (!contentType || !contentType.includes("application/json")) {
+    console.error("Model solution request failed: Invalid Content-Type", {
+      contentType,
+      bodyLength: bodyText.length,
+    })
+    return NextResponse.json({ message: "Content-Type must be application/json" }, { status: 400 })
   }
+  if (!bodyText || bodyText.trim() === "") {
+    console.error("Model solution request failed: Empty request body", {
+      contentType,
+      bodyLength: bodyText.length,
+    })
+    return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
+  }
+  let body: unknown
+  try {
+    body = JSON.parse(bodyText)
+  } catch (jsonError) {
+    console.error("Model solution request failed: Invalid JSON", {
+      contentType,
+      errorType: jsonError instanceof Error ? jsonError.name : typeof jsonError,
+      parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
+    })
+    return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
+  }
+
+  if (!isSpecRequest(body)) {
+    console.error("Model solution request failed: Invalid spec request", {
+      contentType,
+      bodyType: typeof body,
+    })
+    return NextResponse.json({ message: "Request was not valid." }, { status: 400 })
+  }
+  return handlePost(body)
 }
 
 const handlePost = (specRequest: SpecRequest) => {
@@ -103,3 +64,32 @@ const handlePost = (specRequest: SpecRequest) => {
 
   return NextResponse.json(correctAlternatives, { status: 200 })
 }
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: SERVICE,
+  operation: "POST /model-solution",
+})
+export const GET = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "GET /model-solution",
+})
+export const PUT = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "PUT /model-solution",
+})
+export const PATCH = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "PATCH /model-solution",
+})
+export const DELETE = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "DELETE /model-solution",
+})
+export const OPTIONS = wrapRouteHandler(methodNotFound, {
+  service: SERVICE,
+  operation: "OPTIONS /model-solution",
+})
+export const HEAD = wrapRouteHandler(() => new Response(null, { status: 404 }), {
+  service: SERVICE,
+  operation: "HEAD /model-solution",
+})

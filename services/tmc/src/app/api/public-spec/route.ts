@@ -4,6 +4,7 @@ import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
@@ -13,7 +14,7 @@ import {
   getExercisePackagingConfiguration,
   prepareStub,
 } from "@/tmc/langs"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
@@ -21,26 +22,25 @@ import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 
 export const runtime = "nodejs"
 
-export async function POST(request: Request): Promise<Response> {
+async function postImpl(request: Request): Promise<Response> {
+  let body: unknown
   try {
-    const body = await request.json()
-    if (!isSpecRequest(body)) {
-      return badRequest("Invalid spec request")
-    }
-    const specRequest = body as SpecRequest
-    const requestId = specRequest.request_id.slice(0, 4)
-
-    let uploadClaim: string | null = null
-    const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
-    if (typeof uploadClaimHeader === "string") {
-      uploadClaim = uploadClaimHeader
-    }
-
-    return await processPublicSpec(requestId, specRequest, uploadClaim)
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+    body = await request.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
   }
+  if (!isSpecRequest(body)) {
+    return badRequest("Invalid spec request")
+  }
+  const specRequest = body
+  const requestId = specRequest.request_id.slice(0, 4)
+
+  const uploadClaim = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
+
+  return await processPublicSpec(requestId, specRequest, uploadClaim)
 }
+
+export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /public-spec" })
 
 async function processPublicSpec(
   requestId: string,
@@ -96,8 +96,6 @@ async function processPublicSpec(
       }
     }
     return jsonOk(publicSpec)
-  } catch (err) {
-    return internalServerError("Error while processing the public spec", err)
   } finally {
     await Promise.allSettled(
       tempPaths.map((p) => fsPromises.rm(p, { recursive: true, force: true })),

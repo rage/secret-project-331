@@ -4,6 +4,7 @@ import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
 import { Translation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"
+import { reportErrorOccurrence } from "../errors/reportErrorOccurrence"
 
 interface ErrorBoundaryState {
   showTrace: boolean
@@ -38,6 +39,22 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       console.error(`ErrorInfo.componentStack: ${info.componentStack}`)
 
       console.groupEnd()
+
+      const combinedStack = [error.stack, info.componentStack]
+        .filter((s): s is string => typeof s === "string" && s.trim() !== "")
+        .join("\n\n")
+      void reportErrorOccurrence({
+        // eslint-disable-next-line i18next/no-literal-string
+        error_source: "frontend",
+        message: error.message,
+        stack_trace: combinedStack || null,
+        details: {
+          // eslint-disable-next-line i18next/no-literal-string
+          kind: "react-error-boundary",
+          component: Component.displayName ?? null,
+        },
+      })
+
       if (this.state.error !== undefined) {
         console.warn(`ErrorBoundary caught multiple errors. Showing only the first one.`)
         return

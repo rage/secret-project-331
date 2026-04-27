@@ -2,6 +2,8 @@ import { NextResponse } from "next/server"
 
 import { CsvExportResponse, parsePrivateSpec } from "../csv-export-utils"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+
 interface CsvExportDefinitionsRequestItem {
   private_spec: unknown
 }
@@ -20,7 +22,7 @@ function parseRequest(body: unknown): CsvExportDefinitionsRequest {
   return body as CsvExportDefinitionsRequest
 }
 
-export async function POST(request: Request) {
+async function postImpl(request: Request) {
   try {
     const body = await request.json()
     const parsed = parseRequest(body)
@@ -60,9 +62,33 @@ function notFound() {
   return NextResponse.json({ message: "Not found" }, { status: 404 })
 }
 
-export const GET = notFound
-export const PUT = notFound
-export const PATCH = notFound
-export const DELETE = notFound
-export const OPTIONS = notFound
-export const HEAD = notFound
+const SERVICE = "example-exercise"
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: SERVICE,
+  operation: "POST /export-definitions",
+})
+export const GET = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "GET /export-definitions",
+})
+export const PUT = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "PUT /export-definitions",
+})
+export const PATCH = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "PATCH /export-definitions",
+})
+export const DELETE = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "DELETE /export-definitions",
+})
+export const OPTIONS = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "OPTIONS /export-definitions",
+})
+export const HEAD = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "HEAD /export-definitions",
+})

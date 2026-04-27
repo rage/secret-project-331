@@ -4,34 +4,36 @@ import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { createScopedLogger } from "@/util/logger"
 import { ModelSolutionSpec, PrivateSpec } from "@/util/stateInterfaces"
 
-export async function POST(request: Request): Promise<Response> {
-  try {
-    const body = await request.json()
-    if (!isSpecRequest(body)) {
-      return badRequest("Request was not valid.")
-    }
-    const specRequest = body as SpecRequest
-    const requestId = specRequest.request_id.slice(0, 4)
-
-    let uploadClaim: string | null = null
-    const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
-    if (typeof uploadClaimHeader === "string") {
-      uploadClaim = uploadClaimHeader
-    }
-
-    return await processModelSolution(requestId, specRequest, uploadClaim)
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+async function postImpl(request: Request): Promise<Response> {
+  const body = await request.json()
+  if (!isSpecRequest(body)) {
+    return badRequest("Request was not valid.")
   }
+  const specRequest = body as SpecRequest
+  const requestId = specRequest.request_id.slice(0, 4)
+
+  let uploadClaim: string | null = null
+  const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
+  if (typeof uploadClaimHeader === "string") {
+    uploadClaim = uploadClaimHeader
+  }
+
+  return await processModelSolution(requestId, specRequest, uploadClaim)
 }
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: "tmc",
+  operation: "POST /model-solution",
+})
 
 const processModelSolution = async (
   requestId: string,
@@ -80,7 +82,7 @@ const processModelSolution = async (
     return jsonOk(spec)
   } catch (err) {
     error("Error while processing the model solution spec", err)
-    return internalServerError("Error while processing the model solution spec", err)
+    throw err
   } finally {
     await Promise.allSettled(
       tempPaths.map((p) => fsPromises.rm(p, { recursive: true, force: true })),

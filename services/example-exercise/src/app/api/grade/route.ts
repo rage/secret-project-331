@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import {
   GradingRequest,
   GradingResult,
@@ -15,27 +16,17 @@ export interface ExerciseFeedback {
 
 type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
 
-export async function POST(request: Request) {
+async function postImpl(request: Request) {
+  let body: unknown
   try {
-    const body = await request.json()
-    if (!isNonGenericGradingRequest(body)) {
-      throw new Error("Invalid grading request")
-    }
-    return handlePost(body as ServiceGradingRequest)
-  } catch (e) {
-    console.error("Grading request failed:", e)
-    if (e instanceof Error) {
-      return NextResponse.json(
-        {
-          error_name: e.name,
-          error_message: e.message,
-          error_stack: e.stack,
-        },
-        { status: 500 },
-      )
-    }
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
   }
+  if (!isNonGenericGradingRequest(body)) {
+    return NextResponse.json({ message: "Invalid grading request" }, { status: 400 })
+  }
+  return handlePost(body as ServiceGradingRequest)
 }
 
 const handlePost = (gradingRequest: ServiceGradingRequest) => {
@@ -70,3 +61,8 @@ const handlePost = (gradingRequest: ServiceGradingRequest) => {
     feedback_json: { selectedOptionIsCorrect: true },
   })
 }
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: "example-exercise",
+  operation: "POST /grade",
+})

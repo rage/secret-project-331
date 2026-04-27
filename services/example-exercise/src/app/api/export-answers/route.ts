@@ -8,6 +8,8 @@ import {
   parseSelectedOptionId,
 } from "../csv-export-utils"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+
 interface CsvExportAnswersRequestItem {
   private_spec: unknown
   answer: unknown
@@ -29,7 +31,7 @@ function parseRequest(body: unknown): CsvExportAnswersRequest {
   return body as CsvExportAnswersRequest
 }
 
-export async function POST(request: Request) {
+async function postImpl(request: Request) {
   try {
     const body = await request.json()
     const parsed = parseRequest(body)
@@ -81,9 +83,33 @@ function notFound() {
   return NextResponse.json({ message: "Not found" }, { status: 404 })
 }
 
-export const GET = notFound
-export const PUT = notFound
-export const PATCH = notFound
-export const DELETE = notFound
-export const OPTIONS = notFound
-export const HEAD = notFound
+const SERVICE = "example-exercise"
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: SERVICE,
+  operation: "POST /export-answers",
+})
+export const GET = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "GET /export-answers",
+})
+export const PUT = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "PUT /export-answers",
+})
+export const PATCH = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "PATCH /export-answers",
+})
+export const DELETE = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "DELETE /export-answers",
+})
+export const OPTIONS = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "OPTIONS /export-answers",
+})
+export const HEAD = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "HEAD /export-answers",
+})

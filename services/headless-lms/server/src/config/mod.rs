@@ -197,6 +197,7 @@ impl ServerConfigBuilder {
             .min_connections(5)
             .connect(&self.database_url)
             .await?;
+        crate::domain::internal_error_reporting::init_error_reporting(db_pool.clone());
         let db_pool = Data::new(db_pool);
 
         let oauth_client: OAuthClient = BasicClient::new(ClientId::new(self.oauth_application_id))

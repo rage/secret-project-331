@@ -35,18 +35,18 @@
       },
       {
         "ordinal": 6,
-        "name": "search_helper",
-        "type_info": "Text"
-      },
-      {
-        "ordinal": 7,
         "name": "country",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 8,
+        "ordinal": 7,
         "name": "email_communication_consent",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
+        "name": "search_helper",
+        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -62,8 +62,8 @@
       true,
       false,
       true,
-      true,
-      false
+      false,
+      true
     ]
   },
   "hash": "fcc2dc901aa905a4e5a8c4241da33f43ce3d9916b3979336d0daf6f5bf231287"

@@ -102,7 +102,8 @@ pub async fn search_for_user_details_by_email(
 SELECT *
 FROM user_details
 WHERE lower(email::text) LIKE '%' || lower($1) || '%'
-LIMIT 1000;
+ORDER BY similarity(lower(email::text), lower($1)) DESC
+LIMIT 100;
 ",
         email.trim(),
     )
@@ -123,7 +124,8 @@ pub async fn search_for_user_details_by_other_details(
 SELECT *
 FROM user_details
 WHERE search_helper LIKE '%' || lower($1) || '%'
-LIMIT 1000;
+ORDER BY similarity(search_helper, lower($1)) DESC
+LIMIT 100;
 ",
         search.trim(),
     )
@@ -154,9 +156,9 @@ SELECT user_id,
   email_communication_consent
 FROM (
     SELECT *,
-      LOWER($1) <<->search_helper AS dist
+      LOWER($1) <<-> search_helper AS dist
     FROM user_details
-    ORDER BY dist, LENGTH(search_helper)
+    ORDER BY dist
     LIMIT 100
   ) search
 WHERE dist < 0.7;

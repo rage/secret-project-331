@@ -1,10 +1,5 @@
 import { jest } from "@jest/globals"
 
-import {
-  getAuthLoggedInQueryKey,
-  getAuthUserInfoQueryKey,
-} from "../../generated/auth-api/@tanstack/react-query.generated"
-import { queryClient } from "../../services/appQueryClient"
 import { flushPendingErrorOccurrences, reportErrorOccurrence } from "../reportErrorOccurrence"
 
 describe("reportErrorOccurrence", () => {
@@ -14,14 +9,9 @@ describe("reportErrorOccurrence", () => {
   const originalSendBeacon = navigator.sendBeacon
   const originalNavigatorOnline = navigator.onLine
 
-  beforeEach(() => {
-    setAnonymousAuthState()
-  })
-
   afterEach(() => {
     jest.restoreAllMocks()
     window.localStorage.clear()
-    queryClient.clear()
 
     if (originalFetch) {
       browserGlobal.fetch = originalFetch
@@ -44,25 +34,6 @@ describe("reportErrorOccurrence", () => {
       value: originalNavigatorOnline,
     })
   })
-
-  const setAnonymousAuthState = () => {
-    queryClient.setQueryData(getAuthLoggedInQueryKey(), false)
-    queryClient.removeQueries({ queryKey: getAuthUserInfoQueryKey(), exact: true })
-  }
-
-  const setUnknownAuthState = () => {
-    queryClient.removeQueries({ queryKey: getAuthLoggedInQueryKey(), exact: true })
-    queryClient.removeQueries({ queryKey: getAuthUserInfoQueryKey(), exact: true })
-  }
-
-  const setAuthenticatedAuthState = (userId: string) => {
-    queryClient.setQueryData(getAuthLoggedInQueryKey(), true)
-    queryClient.setQueryData(getAuthUserInfoQueryKey(), {
-      user_id: userId,
-      first_name: null,
-      last_name: null,
-    })
-  }
 
   const readPendingReports = () => {
     const raw = window.localStorage.getItem(pendingErrorReportsStorageKey)
@@ -225,36 +196,6 @@ describe("reportErrorOccurrence", () => {
     expect(readPendingReports()).toHaveLength(0)
   })
 
-  test("drops buffered reports when the authenticated user changes", async () => {
-    const fetchMock = jest.fn(() => Promise.resolve({ ok: true } as Response))
-    const payload = {
-      service: "main-frontend",
-      error_source: "frontend" as const,
-      message: "Frontend crashed",
-      path: "/dashboard",
-    }
-
-    setAuthenticatedAuthState("user-a")
-    Object.defineProperty(navigator, "onLine", {
-      configurable: true,
-      value: false,
-    })
-    browserGlobal.fetch = fetchMock as typeof fetch
-
-    await reportErrorOccurrence(payload)
-
-    setAuthenticatedAuthState("user-b")
-    Object.defineProperty(navigator, "onLine", {
-      configurable: true,
-      value: true,
-    })
-
-    await flushPendingErrorOccurrences()
-
-    expect(fetchMock).not.toHaveBeenCalled()
-    expect(readPendingReports()).toHaveLength(0)
-  })
-
   test("buffers immediately while offline", async () => {
     const sendBeacon = jest.fn(() => true)
     const fetchMock = jest.fn(() => Promise.resolve({ ok: true } as Response))
@@ -283,38 +224,5 @@ describe("reportErrorOccurrence", () => {
     await flushPendingErrorOccurrences({ transport: "exit" })
 
     expect(sendBeacon).toHaveBeenCalledTimes(1)
-  })
-
-  test("flushes buffered unknown-auth reports on exit", async () => {
-    const sendBeacon = jest.fn(() => true)
-    const payload = {
-      service: "main-frontend",
-      error_source: "frontend" as const,
-      message: "Frontend crashed",
-      path: "/dashboard",
-    }
-
-    setUnknownAuthState()
-    Object.defineProperty(navigator, "sendBeacon", {
-      configurable: true,
-      value: sendBeacon,
-      writable: true,
-    })
-    Object.defineProperty(navigator, "onLine", {
-      configurable: true,
-      value: false,
-    })
-
-    await reportErrorOccurrence(payload)
-
-    Object.defineProperty(navigator, "onLine", {
-      configurable: true,
-      value: true,
-    })
-
-    await flushPendingErrorOccurrences({ transport: "exit" })
-
-    expect(sendBeacon).toHaveBeenCalledTimes(1)
-    expect(readPendingReports()).toHaveLength(0)
   })
 })

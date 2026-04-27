@@ -1,8 +1,9 @@
 import { jest } from "@jest/globals"
 
-import { getAuthLoggedInQueryKey } from "../../generated/auth-api/@tanstack/react-query.generated"
-import { queryClient } from "../../services/appQueryClient"
-import { installGlobalErrorReporting } from "../installGlobalErrorReporting"
+import {
+  installGlobalErrorReporting,
+  resetInstalledFlagForTesting,
+} from "../installGlobalErrorReporting"
 import { reportErrorOccurrence } from "../reportErrorOccurrence"
 
 describe("installGlobalErrorReporting", () => {
@@ -10,14 +11,10 @@ describe("installGlobalErrorReporting", () => {
   const originalFetch = browserGlobal.fetch
   const originalSendBeacon = navigator.sendBeacon
 
-  beforeEach(() => {
-    queryClient.setQueryData(getAuthLoggedInQueryKey(), false)
-  })
-
   afterEach(() => {
     jest.restoreAllMocks()
     window.localStorage.clear()
-    queryClient.clear()
+    resetInstalledFlagForTesting()
 
     if (originalFetch) {
       browserGlobal.fetch = originalFetch

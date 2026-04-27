@@ -1,14 +1,3 @@
-import {
-  getAuthLoggedInQueryKey,
-  getAuthUserInfoQueryKey,
-} from "../generated/auth-api/@tanstack/react-query.generated"
-import { getAuthLoggedIn, getAuthUserInfo } from "../generated/auth-api/sdk.generated"
-import type {
-  GetAuthLoggedInResponse,
-  GetAuthUserInfoResponse,
-} from "../generated/auth-api/types.generated"
-import { queryClient } from "../services/appQueryClient"
-
 export type ErrorSource = "backend" | "frontend"
 export type ErrorOccurrenceTransport = "default" | "exit"
 type ErrorOccurrenceRequestHeaders =
@@ -36,18 +25,14 @@ const DEFAULT_INTERNAL_ERRORS_BASE_URL = "http://headless-lms:3001"
 const PENDING_ERROR_REPORTS_STORAGE_KEY = "pending_error_occurrence_reports"
 const MAX_PENDING_ERROR_REPORTS = 20
 
-type PendingErrorReportAuthScope = "anonymous" | "unknown" | `user:${string}`
-
 type PendingErrorReportRecord = {
   id: string
   body: string
-  authScope: PendingErrorReportAuthScope
 }
 
 let defaultServiceSlug: string | null = null
 let pendingFlushTransport: ErrorOccurrenceTransport | null = null
 let flushInFlightPromise: Promise<void> | null = null
-let authScopeProbePromise: Promise<PendingErrorReportAuthScope> | null = null
 
 export function setDefaultErrorReportingService(service: string): void {
   const trimmed = service.trim()
@@ -98,10 +83,7 @@ function resolveUrlForEnvironment(requestContext?: ErrorOccurrenceRequestContext
   }
   const baseUrl =
     process.env.ERRORS_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_ERRORS_BASE_URL?.trim() ||
     resolveErrorReportUrlFromRequestContext(requestContext) ||
-    process.env.ERRORS_MAIN_FRONTEND_BASE_URL?.trim() ||
-    process.env.NEXT_PUBLIC_ERRORS_MAIN_FRONTEND_BASE_URL?.trim() ||
     process.env.BASE_URL?.trim() ||
     process.env.PUBLIC_ADDRESS?.trim() ||
     DEFAULT_INTERNAL_ERRORS_BASE_URL
@@ -112,24 +94,12 @@ function isBrowserEnvironment(): boolean {
   return typeof window !== "undefined"
 }
 
-function isPendingErrorReportAuthScope(value: unknown): value is PendingErrorReportAuthScope {
-  return (
-    value === "anonymous" ||
-    value === "unknown" ||
-    (typeof value === "string" && value.startsWith("user:") && value.length > "user:".length)
-  )
-}
-
 function toPendingErrorReportRecord(
   value: unknown,
   index: number,
 ): PendingErrorReportRecord | null {
   if (typeof value === "string") {
-    return {
-      id: `legacy-${index}`,
-      body: value,
-      authScope: "unknown",
-    }
+    return { id: `legacy-${index}`, body: value }
   }
 
   if (!value || typeof value !== "object") {
@@ -144,7 +114,6 @@ function toPendingErrorReportRecord(
   return {
     id: typeof record.id === "string" && record.id.trim() ? record.id : `legacy-${index}`,
     body: record.body,
-    authScope: isPendingErrorReportAuthScope(record.authScope) ? record.authScope : "unknown",
   }
 }
 
@@ -201,65 +170,14 @@ function createPendingErrorReportId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
 }
 
-function resolveCurrentPendingErrorReportAuthScopeFromCache(): PendingErrorReportAuthScope {
-  const isLoggedIn = queryClient.getQueryData<GetAuthLoggedInResponse>(getAuthLoggedInQueryKey())
-  if (isLoggedIn === false) {
-    return "anonymous"
-  }
-
-  const userInfo = queryClient.getQueryData<GetAuthUserInfoResponse>(getAuthUserInfoQueryKey())
-  if (userInfo && typeof userInfo.user_id === "string" && userInfo.user_id.trim() !== "") {
-    return `user:${userInfo.user_id}`
-  }
-
-  return "unknown"
-}
-
-async function probeCurrentPendingErrorReportAuthScope(): Promise<PendingErrorReportAuthScope> {
-  if (authScopeProbePromise) {
-    return authScopeProbePromise
-  }
-
-  authScopeProbePromise = (async () => {
-    try {
-      const isLoggedIn = await getAuthLoggedIn({ throwOnError: false })
-      if (isLoggedIn === false) {
-        queryClient.setQueryData(getAuthLoggedInQueryKey(), false)
-        queryClient.removeQueries({ queryKey: getAuthUserInfoQueryKey(), exact: true })
-        return "anonymous"
-      }
-
-      if (isLoggedIn === true) {
-        queryClient.setQueryData(getAuthLoggedInQueryKey(), true)
-      }
-
-      const userInfo = await getAuthUserInfo({ throwOnError: false })
-      if (userInfo && typeof userInfo.user_id === "string" && userInfo.user_id.trim() !== "") {
-        queryClient.setQueryData(getAuthUserInfoQueryKey(), userInfo)
-        return `user:${userInfo.user_id}`
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV !== "production") {
-        console.debug("reportErrorOccurrence failed to probe auth scope", error)
-      }
-    } finally {
-      authScopeProbePromise = null
-    }
-
-    return "unknown"
-  })()
-
-  return authScopeProbePromise
-}
-
 function enqueuePendingErrorReport(body: string): void {
   const queued = readPendingErrorReports()
-  queued.push({
-    id: createPendingErrorReportId(),
-    body,
-    authScope: resolveCurrentPendingErrorReportAuthScopeFromCache(),
-  })
+  queued.push({ id: createPendingErrorReportId(), body })
   writePendingErrorReports(queued.slice(-MAX_PENDING_ERROR_REPORTS))
+}
+
+export function clearPendingErrorReports(): void {
+  writePendingErrorReports([])
 }
 
 function browserLooksOffline(): boolean {
@@ -288,8 +206,8 @@ function pickForwardedRequestHeaders(
       requestHeaders.set(key, value)
     }
   }
-  const forwardedHeaders: Record<string, string> = {}
 
+  const forwardedHeaders: Record<string, string> = {}
   for (const headerName of ["authorization", "cookie"]) {
     const headerValue = requestHeaders.get(headerName)
     if (headerValue) {
@@ -377,65 +295,16 @@ function removeSentPendingErrorReports(sentIds: ReadonlySet<string>): void {
   }
 }
 
-function classifyPendingErrorReportForFlush(
-  report: PendingErrorReportRecord,
-  authScope: PendingErrorReportAuthScope,
-): "discard" | "retain" | "send" {
-  if (report.authScope === "unknown") {
-    return "send"
-  }
-
-  if (report.authScope === "anonymous") {
-    return authScope === "unknown" ? "retain" : "send"
-  }
-
-  if (authScope === "unknown") {
-    return "retain"
-  }
-
-  return report.authScope === authScope ? "send" : "discard"
-}
-
-function selectPendingErrorReportsForFlush(authScope: PendingErrorReportAuthScope): {
-  discardedIds: Set<string>
-  pending: PendingErrorReportRecord[]
-} {
-  const discardedIds = new Set<string>()
-  const pending: PendingErrorReportRecord[] = []
-
-  for (const report of readPendingErrorReports()) {
-    const disposition = classifyPendingErrorReportForFlush(report, authScope)
-
-    if (disposition === "discard") {
-      discardedIds.add(report.id)
-      continue
-    }
-
-    if (disposition === "send") {
-      pending.push(report)
-    }
-  }
-
-  return { discardedIds, pending }
-}
-
 async function sendPendingErrorReport(
   url: string,
   report: PendingErrorReportRecord,
   transport: ErrorOccurrenceTransport,
-  authScope: PendingErrorReportAuthScope,
 ): Promise<boolean> {
-  if (
-    transport === "exit" &&
-    (report.authScope !== "anonymous" || authScope === "anonymous") &&
-    sendWithBeacon(url, report.body)
-  ) {
+  if (transport === "exit" && sendWithBeacon(url, report.body)) {
     return true
   }
 
-  return await sendWithFetch(url, report.body, {
-    credentials: report.authScope === "anonymous" ? "omit" : "include",
-  })
+  return await sendWithFetch(url, report.body)
 }
 
 async function flushPendingErrorOccurrencesOnce(options?: {
@@ -452,31 +321,22 @@ async function flushPendingErrorOccurrencesOnce(options?: {
     }
 
     const transport = options?.transport ?? "default"
-    let authScope = resolveCurrentPendingErrorReportAuthScopeFromCache()
-    if (authScope === "unknown" && transport !== "exit") {
-      authScope = await probeCurrentPendingErrorReportAuthScope()
-    }
-    const { discardedIds, pending } = selectPendingErrorReportsForFlush(authScope)
+    const pending = readPendingErrorReports()
     if (pending.length === 0) {
-      removeSentPendingErrorReports(discardedIds)
       return
     }
 
     if (transport === "default" && browserLooksOffline()) {
-      removeSentPendingErrorReports(discardedIds)
       return
     }
 
-    const sentIds = new Set<string>(discardedIds)
-
+    const sentIds = new Set<string>()
     for (const pendingReport of pending) {
-      const sent = await sendPendingErrorReport(url, pendingReport, transport, authScope)
-
+      const sent = await sendPendingErrorReport(url, pendingReport, transport)
       if (sent) {
         sentIds.add(pendingReport.id)
       }
     }
-
     removeSentPendingErrorReports(sentIds)
   } catch (error) {
     if (process.env.NODE_ENV !== "production") {

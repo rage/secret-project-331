@@ -1,12 +1,5 @@
 import { type ErrorOccurrenceRequestContext, reportErrorOccurrence } from "./reportErrorOccurrence"
 
-/**
- * Wrap a route handler to add consistent error reporting context.
- * @param handler Route handler to execute (sync or async).
- * @param meta.service Service slug used for reporting.
- * @param meta.operation Optional operation name attached to telemetry details.
- * @returns A function that reports failures with context and rethrows the original error.
- */
 export function wrapRouteHandler<TArgs extends unknown[], TResult>(
   handler: (...args: TArgs) => Promise<TResult> | TResult,
   meta: {
@@ -29,14 +22,14 @@ export function wrapRouteHandler<TArgs extends unknown[], TResult>(
         firstArg && typeof firstArg.url === "string" && typeof firstArg.method === "string"
           ? firstArg
           : null
+      const url = typeof request?.url === "string" ? request.url : null
+      const method = typeof request?.method === "string" ? request.method : null
       const requestContext = request
         ? {
             headers: request.headers,
-            url: typeof request.url === "string" ? request.url : null,
+            url,
           }
         : undefined
-      const url = typeof request?.url === "string" ? request.url : null
-      const method = typeof request?.method === "string" ? request.method : null
       const pathname =
         url !== null
           ? (() => {

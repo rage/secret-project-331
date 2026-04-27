@@ -6,6 +6,10 @@ import {
 
 let installed = false
 
+export function resetInstalledFlagForTesting(): void {
+  installed = false
+}
+
 function sanitizedPath(): string {
   return window.location.pathname
 }

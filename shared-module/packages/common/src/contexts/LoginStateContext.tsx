@@ -2,22 +2,19 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import React, { ComponentType, useContext, useEffect, useState } from "react"
+import React, { ComponentType, useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"
 import Spinner from "../components/Spinner"
-import {
-  getAuthLoggedInOptions,
-  getAuthUserInfoOptions,
-} from "../generated/auth-api/@tanstack/react-query.generated"
+import { clearPendingErrorReports } from "../errors/reportErrorOccurrence"
+import { getAuthLoggedInOptions } from "../generated/auth-api/@tanstack/react-query.generated"
 import "../init/registerAuthApiClients"
 
 export interface LoginState {
   isLoading: boolean
   refresh(): Promise<unknown>
   signedIn: boolean | null | undefined
-  userId: string | null | undefined
 }
 
 const defaultLoginState: LoginState = {
@@ -26,7 +23,6 @@ const defaultLoginState: LoginState = {
     /* No op */
   },
   signedIn: null,
-  userId: null,
 }
 
 const LoginStateContext = React.createContext<LoginState>(defaultLoginState)
@@ -36,26 +32,23 @@ export default LoginStateContext
 export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
   const isLoggedIn = useQuery(getAuthLoggedInOptions())
-  const userInfo = useQuery({
-    ...getAuthUserInfoOptions(),
-    enabled: isLoggedIn.data === true,
-  })
+  const prevSignedIn = useRef<boolean | null | undefined>(undefined)
+
+  useEffect(() => {
+    if (prevSignedIn.current === true && isLoggedIn.data === false) {
+      clearPendingErrorReports()
+    }
+    prevSignedIn.current = isLoggedIn.data
+  }, [isLoggedIn.data])
 
   useEffect(() => {
     setLoginState((prev) => ({
       ...prev,
-      isLoading: isLoggedIn.isLoading || (isLoggedIn.data === true && userInfo.isLoading),
+      isLoading: isLoggedIn.isLoading,
       refresh: isLoggedIn.refetch,
       signedIn: isLoggedIn.data,
-      userId: isLoggedIn.data === true ? userInfo.data?.user_id : undefined,
     }))
-  }, [
-    isLoggedIn.data,
-    isLoggedIn.isLoading,
-    isLoggedIn.refetch,
-    userInfo.data?.user_id,
-    userInfo.isLoading,
-  ])
+  }, [isLoggedIn.data, isLoggedIn.isLoading, isLoggedIn.refetch])
 
   if (isLoggedIn.isError) {
     return <ErrorBanner variant={"readOnly"} error={isLoggedIn.error} />

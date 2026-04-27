@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import basePath from "@/shared-module/common/utils/base-path"
 import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 import type { ClientErrorResponse } from "@/util/stateInterfaces"
@@ -18,17 +19,36 @@ const handleGet = () => {
   return NextResponse.json<ExerciseServiceInfoApi>(data)
 }
 
-export function GET() {
-  return handleGet()
-}
+const SERVICE = "example-exercise"
+
+export const GET = wrapRouteHandler(handleGet, { service: SERVICE, operation: "GET /service-info" })
 
 function notFound() {
   return NextResponse.json<ClientErrorResponse>({ message: "Not found" }, { status: 404 })
 }
 
-export const POST = notFound
-export const PUT = notFound
-export const PATCH = notFound
-export const DELETE = notFound
-export const OPTIONS = notFound
-export const HEAD = notFound
+function notFoundHead() {
+  return new Response(null, { status: 404 })
+}
+
+export const POST = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "POST /service-info",
+})
+export const PUT = wrapRouteHandler(notFound, { service: SERVICE, operation: "PUT /service-info" })
+export const PATCH = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "PATCH /service-info",
+})
+export const DELETE = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "DELETE /service-info",
+})
+export const OPTIONS = wrapRouteHandler(notFound, {
+  service: SERVICE,
+  operation: "OPTIONS /service-info",
+})
+export const HEAD = wrapRouteHandler(notFoundHead, {
+  service: SERVICE,
+  operation: "HEAD /service-info",
+})

@@ -303,9 +303,14 @@ mod test {
 
     #[tokio::test]
     async fn caches() {
-        tracing_subscriber::fmt().init();
-        let redis_url = std::env::var("REDIS_URL")
-            .unwrap_or("redis://redis.default.svc.cluster.local/1".to_string());
+        let _ = tracing_subscriber::fmt().try_init();
+
+        // This is an integration-ish test that needs a real Redis instance.
+        // Skip by default so `cargo test` doesn't require external infra.
+        let Ok(redis_url) = std::env::var("REDIS_URL") else {
+            info!("REDIS_URL not set; skipping Redis cache integration test");
+            return;
+        };
         info!("Redis URL: {redis_url}");
 
         #[derive(Deserialize, Serialize, Debug, PartialEq)]

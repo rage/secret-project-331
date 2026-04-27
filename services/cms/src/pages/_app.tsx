@@ -12,6 +12,7 @@ import LocalStyles from "../styles/LocalStyles"
 
 import DialogProvider from "@/shared-module/common/components/dialogs/DialogProvider"
 import { LoginStateContextProvider } from "@/shared-module/common/contexts/LoginStateContext"
+import { installGlobalErrorReporting } from "@/shared-module/common/errors/installGlobalErrorReporting"
 import useLanguage, { getDir } from "@/shared-module/common/hooks/useLanguage.pages"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
 import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
@@ -32,6 +33,10 @@ const MyApp: React.FC<React.PropsWithChildren<AppProps>> = ({ Component, pagePro
   // eslint-disable-next-line i18next/no-literal-string
   const [language, setLanguage] = useState(initialLanguage ?? "en")
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
+
+  useEffect(() => {
+    installGlobalErrorReporting({ service: SERVICE_NAME })
+  }, [])
 
   useEffect(() => {
     // Remove the server-side injected CSS.

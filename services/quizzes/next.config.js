@@ -4,9 +4,6 @@ const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 /** @type {import('next').NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   async headers() {
     return [
       {
@@ -16,7 +13,7 @@ const config = {
     ]
   },
   output: "standalone",
-  outputFileTracingRoot: ".",
+  outputFileTracingRoot: __dirname,
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,

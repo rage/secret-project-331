@@ -307,6 +307,54 @@ impl error::ResponseError for ControllerError {
                 source = err.source();
             }
             error!("Internal server error: {}", err_string);
+
+            if let Some(pool) = crate::domain::internal_error_reporting::error_reporting_pool() {
+                let pool = pool.clone();
+                let message = self.message.clone();
+                let stack_trace = format!("{:?}", self);
+                let details = serde_json::json!({
+                    "kind": "controller_error",
+                    "controller_error_type": self.error_type.to_string(),
+                });
+
+                // Uses the main DB pool intentionally for best-effort reporting; this can amplify outage pressure.
+                actix_web::rt::spawn(async move {
+                    let mut conn = match tokio::time::timeout(
+                        std::time::Duration::from_millis(250),
+                        pool.acquire(),
+                    )
+                    .await
+                    {
+                        Ok(Ok(conn)) => conn,
+                        Ok(Err(err)) => {
+                            warn!(
+                                "internal error reporting skipped: failed to acquire pool connection: {err}"
+                            );
+                            return;
+                        }
+                        Err(_) => {
+                            warn!(
+                                "internal error reporting skipped: timed out acquiring pool connection"
+                            );
+                            return;
+                        }
+                    };
+                    let report = headless_lms_models::errors::NewErrorReport {
+                        service: "headless-lms".to_string(),
+                        error_source: Some(headless_lms_models::errors::ErrorSource::Backend),
+                        message,
+                        stack_trace: Some(stack_trace),
+                        path: None,
+                        app_version: None,
+                        details: Some(details),
+                    };
+                    if let Err(err) =
+                        headless_lms_models::errors::insert(&mut conn, None, &report).await
+                    {
+                        debug!("internal error reporting insert failed: {err}");
+                    }
+                });
+            }
         }
         if let ControllerErrorType::OAuthError(data) = &self.error_type {
             if let Some(uri) = &data.redirect_uri

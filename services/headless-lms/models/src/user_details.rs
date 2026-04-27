@@ -102,7 +102,8 @@ pub async fn search_for_user_details_by_email(
 SELECT *
 FROM user_details
 WHERE lower(email::text) LIKE '%' || lower($1) || '%'
-LIMIT 1000;
+ORDER BY similarity(lower(email::text), lower($1)) DESC
+LIMIT 100;
 ",
         email.trim(),
     )
@@ -123,7 +124,8 @@ pub async fn search_for_user_details_by_other_details(
 SELECT *
 FROM user_details
 WHERE search_helper LIKE '%' || lower($1) || '%'
-LIMIT 1000;
+ORDER BY similarity(search_helper, lower($1)) DESC
+LIMIT 100;
 ",
         search.trim(),
     )
@@ -140,6 +142,10 @@ pub async fn search_for_user_details_fuzzy_match(
     // To combat this, we omit the email domain from the fuzzy match
     let search = search.split('@').next().unwrap_or(search);
 
+    // ORDER BY dist only — no secondary tiebreaker. Adding one (e.g. user_id)
+    // would prevent the GiST trigram index from serving the distance ordering,
+    // forcing a full table scan+sort. Ties at exactly equal float distances are
+    // rare enough in practice that non-determinism in the LIMIT 100 is acceptable.
     let res = sqlx::query_as!(
         UserDetail,
         "
@@ -154,9 +160,9 @@ SELECT user_id,
   email_communication_consent
 FROM (
     SELECT *,
-      LOWER($1) <<->search_helper AS dist
+      LOWER($1) <<-> search_helper AS dist
     FROM user_details
-    ORDER BY dist, LENGTH(search_helper)
+    ORDER BY dist
     LIMIT 100
   ) search
 WHERE dist < 0.7;

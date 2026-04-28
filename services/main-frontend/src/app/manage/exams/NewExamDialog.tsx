@@ -5,15 +5,18 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import NewExamForm from "@/components/forms/NewExamForm"
-import { createExam, createExamDuplicate } from "@/services/backend/exams"
-import { NewExam, OrgExam } from "@/shared-module/common/bindings"
+import {
+  createOrganizationExamMutation as createOrganizationExamMutationOptions,
+  duplicateExamMutation as duplicateExamMutationOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { NewExam, OrgExam } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface ExamDialogProps {
   organizationId: string
-  getOrgExams: UseQueryResult<OrgExam[], unknown>
+  getOrgExams: UseQueryResult<OrgExam[], Error>
   open: boolean
   close: () => void
 }
@@ -25,8 +28,8 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
   close,
 }) => {
   const { t } = useTranslation()
-  const createExamMutation = useToastMutation(
-    (exam: NewExam) => createExam(organizationId, exam),
+  const createExamMutation = useToastMutationOptions(
+    createOrganizationExamMutationOptions(),
     {
       notify: true,
       successMessage: t("exam-created-successfully"),
@@ -40,8 +43,8 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
     },
   )
 
-  const duplicateExamMutation = useToastMutation(
-    (data: { examId: string; newExam: NewExam }) => createExamDuplicate(data.examId, data.newExam),
+  const duplicateExamMutation = useToastMutationOptions(
+    duplicateExamMutationOptions(),
     {
       notify: true,
       successMessage: t("exam-duplicated-successfully"),
@@ -78,9 +81,21 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
         initialData={null}
         organizationId={organizationId}
         onCancel={close}
-        onCreateNewExam={(newExam) => createExamMutation.mutate(newExam)}
+        onCreateNewExam={(newExam) =>
+          createExamMutation.mutate({
+            body: newExam,
+            path: {
+              organization_id: organizationId,
+            },
+          })
+        }
         onDuplicateExam={(parentId: string, newExam: NewExam) =>
-          duplicateExamMutation.mutate({ examId: parentId, newExam: newExam })
+          duplicateExamMutation.mutate({
+            path: {
+              id: parentId,
+            },
+            body: newExam,
+          })
         }
       />
     </StandardDialog>

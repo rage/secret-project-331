@@ -10,6 +10,7 @@ const customJestConfig = {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/tests/setup-jest.js"],
   testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/"],
+  modulePathIgnorePatterns: ["<rootDir>/.next/"],
   extensionsToTreatAsEsm: [".ts", ".tsx"],
 }
 

@@ -1,19 +1,19 @@
 "use client"
 
 import { UseMutationResult } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import { allowedExamInstructionsCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
+import mediaUploadBuilder from "../../services/mediaUpload"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 
-import { ExamInstructions, ExamInstructionsUpdate } from "@/shared-module/common/bindings"
+import { ExamInstructions, ExamInstructionsUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ExamsInstructionsEditorProps {
   data: ExamInstructions

@@ -6,9 +6,11 @@ use headless_lms_utils::document_schema_processor::{
     replace_duplicate_client_ids,
 };
 use itertools::Itertools;
-use serde_json::json;
+use percent_encoding::{AsciiSet, CONTROLS, percent_decode_str, utf8_percent_encode};
+use serde_json::{Value, json};
 use sqlx::{Postgres, QueryBuilder, Row};
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId, SpecFetcher,
@@ -31,10 +33,11 @@ use crate::{
     prelude::*,
     user_chapter_locking_statuses,
     user_course_settings::{self, UserCourseSettings},
+    user_exercise_states,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct Page {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -53,8 +56,8 @@ pub struct Page {
     pub page_language_group_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PageInfo {
     pub page_id: Uuid,
     pub page_title: String,
@@ -65,7 +68,7 @@ pub struct PageInfo {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PageAudioFiles {
     pub id: Uuid,
     pub page_id: Uuid,
@@ -81,30 +84,235 @@ impl Page {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Copy, ToSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum LockChapterContentState {
+    NotLocked,
+    WaitingTeacherReview,
+    Visible,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CoursePageWithUserData {
     pub page: Page,
     pub instance: Option<CourseInstance>,
     pub settings: Option<UserCourseSettings>,
     pub course: Option<Course>,
     pub organization: Option<Organization>,
+    pub lock_chapter_content_state: Option<LockChapterContentState>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
     pub was_redirected: bool,
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PageWithExercises {
     #[serde(flatten)]
     pub page: Page,
     pub exercises: Vec<Exercise>,
 }
 
+#[derive(Default)]
+struct CourseMaterialPageContentFilterCache {
+    chapter_lock_content_states: HashMap<Uuid, LockChapterContentState>,
+    course_chapter_locking_enabled: HashMap<Uuid, bool>,
+}
+
+const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
+    .add(b' ')
+    .add(b'!')
+    .add(b'"')
+    .add(b'#')
+    .add(b'$')
+    .add(b'%')
+    .add(b'&')
+    .add(b'\'')
+    .add(b'(')
+    .add(b')')
+    .add(b'*')
+    .add(b'+')
+    .add(b',')
+    .add(b':')
+    .add(b';')
+    .add(b'<')
+    .add(b'=')
+    .add(b'>')
+    .add(b'?')
+    .add(b'@')
+    .add(b'[')
+    .add(b'\\')
+    .add(b']')
+    .add(b'^')
+    .add(b'`')
+    .add(b'{')
+    .add(b'|')
+    .add(b'}');
+
+/// Percent-encodes URL path characters that are not part of the safe path alphabet.
+fn normalize_url_path_for_storage(url_path: &str) -> String {
+    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
+    utf8_percent_encode(decoded.trim(), URL_PATH_ENCODE_SET).to_string()
+}
+
+async fn get_lock_chapter_content_state_for_page(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    page: &Page,
+    cache: &mut CourseMaterialPageContentFilterCache,
+) -> ModelResult<Option<LockChapterContentState>> {
+    let Some(chapter_id) = page.chapter_id else {
+        return Ok(None);
+    };
+
+    if let Some(state) = cache.chapter_lock_content_states.get(&chapter_id).copied() {
+        return Ok(Some(state));
+    }
+
+    let state = match (user_id, page.course_id) {
+        (Some(user_id), Some(course_id)) => {
+            let course_chapter_locking_enabled = if let Some(enabled) = cache
+                .course_chapter_locking_enabled
+                .get(&course_id)
+                .copied()
+            {
+                enabled
+            } else {
+                let enabled = courses::get_course(conn, course_id)
+                    .await?
+                    .chapter_locking_enabled;
+                cache
+                    .course_chapter_locking_enabled
+                    .insert(course_id, enabled);
+                enabled
+            };
+
+            if !course_chapter_locking_enabled {
+                LockChapterContentState::NotLocked
+            } else {
+                let is_locked = matches!(
+                    user_chapter_locking_statuses::get_or_init_status(
+                        conn,
+                        user_id,
+                        chapter_id,
+                        Some(course_id),
+                        Some(course_chapter_locking_enabled),
+                    )
+                    .await?,
+                    Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
+                );
+
+                if !is_locked {
+                    LockChapterContentState::NotLocked
+                } else if user_exercise_states::has_pending_manual_reviews_in_chapter(
+                    conn, user_id, chapter_id,
+                )
+                .await?
+                {
+                    LockChapterContentState::WaitingTeacherReview
+                } else {
+                    LockChapterContentState::Visible
+                }
+            }
+        }
+        _ => LockChapterContentState::NotLocked,
+    };
+
+    cache.chapter_lock_content_states.insert(chapter_id, state);
+    Ok(Some(state))
+}
+
+async fn filter_course_material_page_with_cache(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    page: Page,
+    cache: &mut CourseMaterialPageContentFilterCache,
+) -> ModelResult<(Page, Option<LockChapterContentState>)> {
+    let mut blocks = match page.blocks_cloned() {
+        Ok(blocks) => blocks,
+        Err(e) => {
+            tracing::warn!(
+                "Failed to deserialize page content for page {}: {}. Falling back to empty blocks.",
+                page.id,
+                e
+            );
+            vec![]
+        }
+    };
+
+    blocks = replace_duplicate_client_ids(blocks);
+
+    let lock_chapter_content_state =
+        get_lock_chapter_content_state_for_page(conn, user_id, &page, cache).await?;
+    if let Some(lock_state) = lock_chapter_content_state {
+        blocks = filter_lock_chapter_blocks(
+            blocks,
+            matches!(lock_state, LockChapterContentState::Visible),
+        );
+    }
+
+    let mut filtered_page = page;
+    filtered_page.content = serde_json::to_value(blocks)?;
+    Ok((filtered_page, lock_chapter_content_state))
+}
+
+pub async fn filter_course_material_page(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    page: Page,
+) -> ModelResult<Page> {
+    let mut cache = CourseMaterialPageContentFilterCache::default();
+    Ok(
+        filter_course_material_page_with_cache(conn, user_id, page, &mut cache)
+            .await?
+            .0,
+    )
+}
+
+pub async fn filter_course_material_pages(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    pages: Vec<Page>,
+) -> ModelResult<Vec<Page>> {
+    let mut cache = CourseMaterialPageContentFilterCache::default();
+    let mut filtered_pages = Vec::with_capacity(pages.len());
+    for page in pages {
+        filtered_pages.push(
+            filter_course_material_page_with_cache(conn, user_id, page, &mut cache)
+                .await?
+                .0,
+        );
+    }
+    Ok(filtered_pages)
+}
+
+pub async fn filter_course_material_pages_with_exercises(
+    conn: &mut PgConnection,
+    user_id: Option<Uuid>,
+    pages_with_exercises: Vec<PageWithExercises>,
+) -> ModelResult<Vec<PageWithExercises>> {
+    let mut cache = CourseMaterialPageContentFilterCache::default();
+    let mut filtered_pages = Vec::with_capacity(pages_with_exercises.len());
+    for page_with_exercises in pages_with_exercises {
+        let (page, _) = filter_course_material_page_with_cache(
+            conn,
+            user_id,
+            page_with_exercises.page,
+            &mut cache,
+        )
+        .await?;
+        filtered_pages.push(PageWithExercises {
+            page,
+            exercises: page_with_exercises.exercises,
+        });
+    }
+    Ok(filtered_pages)
+}
+
 /// Represents the subset of page fields that are required to create a new page.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewPage {
     pub exercises: Vec<CmsPageExercise>,
     pub exercise_slides: Vec<CmsPageExerciseSlide>,
@@ -122,15 +330,15 @@ pub struct NewPage {
 }
 
 /// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PageDetailsUpdate {
     pub title: String,
     pub url_path: String,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NormalizedCmsExerciseTask {
     pub id: Uuid,
     pub exercise_type: String,
@@ -138,8 +346,8 @@ pub struct NormalizedCmsExerciseTask {
     pub private_spec: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PageRoutingData {
     pub url_path: String,
     pub title: String,
@@ -160,8 +368,8 @@ pub struct PageMetadata {
     pub exam_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct PageChapterAndCourseInformation {
     pub chapter_name: Option<String>,
     pub chapter_number: Option<i32>,
@@ -172,8 +380,8 @@ pub struct PageChapterAndCourseInformation {
     pub organization_slug: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct PageSearchResult {
     pub id: Uuid,
     pub title_headline: Option<String>,
@@ -183,8 +391,8 @@ pub struct PageSearchResult {
     pub chapter_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ContentManagementPage {
     pub page: Page,
     pub exercises: Vec<CmsPageExercise>,
@@ -195,13 +403,13 @@ pub struct ContentManagementPage {
     pub organization_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct SearchRequest {
     pub query: String,
 }
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct PageNavigationInformation {
     pub chapter_front_page: Option<PageRoutingData>,
     pub next_page: Option<PageRoutingData>,
@@ -209,7 +417,7 @@ pub struct PageNavigationInformation {
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExerciseWithExerciseTasks {
     id: Uuid,
     created_at: DateTime<Utc>,
@@ -223,14 +431,14 @@ pub struct ExerciseWithExerciseTasks {
     score_maximum: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct IsChapterFrontPage {
     pub is_chapter_front_page: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+
 pub struct HistoryRestoreData {
     pub history_id: Uuid,
 }
@@ -635,7 +843,7 @@ pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResul
     Ok(res)
 }
 
-async fn get_page_by_path(
+async fn get_page_by_stored_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -678,7 +886,8 @@ pub async fn get_page_with_user_data_by_path(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    let page_option = get_page_by_path(conn, course_data.id, url_path).await?;
+    let normalized_url_path = normalize_url_path_for_storage(url_path);
+    let page_option = get_page_by_stored_path(conn, course_data.id, &normalized_url_path).await?;
 
     if let Some(page) = page_option {
         return get_course_page_with_user_data_from_selected_page(
@@ -693,7 +902,8 @@ pub async fn get_page_with_user_data_by_path(
         .await;
     } else {
         let potential_redirect =
-            try_to_find_redirected_page(conn, course_data.id, url_path).await?;
+            try_to_find_redirected_page_by_stored_path(conn, course_data.id, &normalized_url_path)
+                .await?;
         if let Some(redirected_page) = potential_redirect {
             return get_course_page_with_user_data_from_selected_page(
                 conn,
@@ -716,6 +926,15 @@ pub async fn get_page_with_user_data_by_path(
 }
 
 pub async fn try_to_find_redirected_page(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    url_path: &str,
+) -> ModelResult<Option<Page>> {
+    let normalized_url_path = normalize_url_path_for_storage(url_path);
+    try_to_find_redirected_page_by_stored_path(conn, course_id, &normalized_url_path).await
+}
+
+async fn try_to_find_redirected_page_by_stored_path(
     conn: &mut PgConnection,
     course_id: Uuid,
     url_path: &str,
@@ -761,52 +980,10 @@ pub async fn get_course_page_with_user_data_from_selected_page(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    let mut blocks = match page.blocks_cloned() {
-        Ok(blocks) => blocks,
-        Err(e) => {
-            tracing::warn!(
-                "Failed to deserialize page content for page {}: {}. Falling back to empty blocks.",
-                page.id,
-                e
-            );
-            vec![]
-        }
-    };
-
-    blocks = replace_duplicate_client_ids(blocks);
-
-    let is_locked = if let (Some(user_id), Some(chapter_id)) = (user_id, page.chapter_id) {
-        if let Some(course_id) = page.course_id {
-            use crate::courses;
-            let course = courses::get_course(conn, course_id).await?;
-            let status = user_chapter_locking_statuses::get_or_init_status(
-                conn,
-                user_id,
-                chapter_id,
-                Some(course_id),
-                Some(course.chapter_locking_enabled),
-            )
+    let mut content_filter_cache = CourseMaterialPageContentFilterCache::default();
+    let (filtered_page, lock_chapter_content_state) =
+        filter_course_material_page_with_cache(conn, user_id, page, &mut content_filter_cache)
             .await?;
-            matches!(
-                status,
-                Some(user_chapter_locking_statuses::ChapterLockingStatus::CompletedAndLocked)
-            )
-        } else {
-            false
-        }
-    } else {
-        false
-    };
-
-    if page.chapter_id.is_some() {
-        blocks = filter_lock_chapter_blocks(blocks, is_locked);
-    }
-
-    let filtered_content = serde_json::to_value(blocks)?;
-
-    // Create a new page with filtered content
-    let mut filtered_page = page;
-    filtered_page.content = filtered_content;
 
     if let Some(course_id) = filtered_page.course_id
         && let Some(user_id) = user_id
@@ -830,6 +1007,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
             was_redirected,
             is_test_mode,
             organization: Some(organization),
+            lock_chapter_content_state,
         });
     }
     Ok(CoursePageWithUserData {
@@ -840,6 +1018,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
         was_redirected,
         is_test_mode,
         organization: None,
+        lock_chapter_content_state,
     })
 }
 
@@ -984,8 +1163,8 @@ AND pages.deleted_at IS NULL
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPageExercise {
     pub id: Uuid,
     pub name: String,
@@ -1027,8 +1206,8 @@ impl CmsPageExercise {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPageExerciseSlide {
     pub id: Uuid,
     pub exercise_id: Uuid,
@@ -1045,8 +1224,8 @@ impl From<ExerciseSlide> for CmsPageExerciseSlide {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPageExerciseTask {
     pub id: Uuid,
     pub exercise_slide_id: Uuid,
@@ -1069,8 +1248,8 @@ impl From<ExerciseTask> for CmsPageExerciseTask {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPageUpdate {
     pub content: Vec<GutenbergBlock>,
     pub exercises: Vec<CmsPageExercise>,
@@ -1166,6 +1345,7 @@ pub async fn update_page(
     }
 
     let content = replace_duplicate_client_ids(cms_page_update.content.clone());
+    let normalized_url_path = normalize_url_path_for_storage(&cms_page_update.url_path);
 
     if !page_update.is_exam_page
         && cms_page_update.chapter_id.is_none()
@@ -1205,7 +1385,7 @@ RETURNING id,
         ",
         page_update.page_id,
         serde_json::to_value(&content)?,
-        cms_page_update.url_path.trim(),
+        normalized_url_path,
         cms_page_update.title.trim(),
         cms_page_update.chapter_id
     )
@@ -2098,6 +2278,7 @@ pub async fn insert_page(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
+    let normalized_url_path = normalize_url_path_for_storage(&new_page.url_path);
     let mut page_language_group_id = None;
     if let Some(course_id) = new_page.course_id {
         // insert language group
@@ -2166,7 +2347,7 @@ RETURNING id,
         new_page.course_id,
         new_page.exam_id,
         serde_json::to_value(content)?,
-        new_page.url_path.trim(),
+        normalized_url_path,
         new_page.title.trim(),
         next_order_number,
         new_page.chapter_id,
@@ -2393,12 +2574,12 @@ WHERE page_id IN (
             let page_id = page.id;
             let mut exercises = page_to_exercises.remove(&page_id).unwrap_or_default();
 
-            exercises.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+            exercises.sort_by_key(|a| a.order_number);
             PageWithExercises { page, exercises }
         })
         .collect();
 
-    chapter_pages_with_exercises.sort_by(|a, b| a.page.order_number.cmp(&b.page.order_number));
+    chapter_pages_with_exercises.sort_by_key(|a| a.page.order_number);
 
     Ok(chapter_pages_with_exercises)
 }
@@ -2798,85 +2979,13 @@ pub async fn get_page_search_results_for_phrase(
     course_id: Uuid,
     page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
-    let course = crate::courses::get_course(&mut *conn, course_id).await?;
-
-    // Last word of the search term needed so that the sql statement can change it to a prefix match.
-    // Allows the last word to not be fully typed.
-    let last_word = if let Some(last) = page_search_request
-        .query
-        .trim()
-        .split_ascii_whitespace()
-        .last()
-    {
-        last
-    } else {
-        return Ok(Vec::new());
-    };
-
-    let res =   sqlx::query_as!(
-            PageSearchResult,
-            r#"
--- common table expression for the search term tsquery so that we don't have to repeat it many times
-WITH cte as (
-    -- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
-    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
-    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.
-    SELECT ts_rewrite(
-        phraseto_tsquery($2::regconfig, $3),
-        to_tsquery($4),
-        to_tsquery($4 || ':*')
-    ) as query
-)
-SELECT p.id,
-    ts_rank(
-    p.content_search,
-    (
-        SELECT query
-        from cte
+    get_page_search_results(
+        conn,
+        course_id,
+        page_search_request,
+        PageSearchQueryType::Phrase,
     )
-    ) as rank,
-    ts_headline(
-    $2::regconfig,
-    p.title,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=1, MaxWords=20, MinWords=1'
-    ) as title_headline,
-    ts_headline(
-    $2::regconfig,
-    p.content_search_original_text,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=0, MaxWords=120, MinWords=70'
-    ) as content_headline,
-    COALESCE(p.url_path, '') as "url_path!",
-    c.name as "chapter_name?"
-FROM pages p
-LEFT JOIN chapters c ON p.chapter_id = c.id
-WHERE p.course_id = $1
-    AND p.deleted_at IS NULL
-    AND p.hidden IS FALSE
-    AND p.url_path IS NOT NULL
-    AND p.content_search @@ (
-    SELECT query
-    from cte
-    )
-ORDER BY rank DESC
-LIMIT 50;
-        "#,
-            course_id,
-            course.content_search_language as _,
-            page_search_request.query,
-            last_word
-        )
-        .fetch_all(conn)
-        .await?;
-
-    Ok(add_course_url_prefix_to_search_results(res, &course))
+    .await
 }
 
 /**
@@ -2887,7 +2996,97 @@ pub async fn get_page_search_results_for_words(
     course_id: Uuid,
     page_search_request: &SearchRequest,
 ) -> ModelResult<Vec<PageSearchResult>> {
+    get_page_search_results(
+        conn,
+        course_id,
+        page_search_request,
+        PageSearchQueryType::Words,
+    )
+    .await
+}
+
+#[derive(Debug, sqlx::FromRow)]
+struct RawPageSearchResult {
+    id: Uuid,
+    title_headline: Option<String>,
+    rank: Option<f32>,
+    url_path: String,
+    chapter_name: Option<String>,
+    content: Value,
+}
+
+#[derive(Debug, sqlx::FromRow)]
+struct SearchContentHeadlineRow {
+    content_headline: Option<String>,
+}
+
+#[derive(Clone, Copy)]
+enum PageSearchQueryType {
+    Phrase,
+    Words,
+}
+
+fn extract_searchable_text_from_content_value(content: &Value) -> String {
+    let mut searchable_parts = Vec::new();
+    collect_searchable_text_from_content_value(content, None, &mut searchable_parts);
+    searchable_parts.join(" ")
+}
+
+fn collect_searchable_text_from_content_value(
+    value: &Value,
+    current_key: Option<&str>,
+    searchable_parts: &mut Vec<String>,
+) {
+    match value {
+        Value::Object(map) => {
+            for (key, value) in map {
+                collect_searchable_text_from_content_value(value, Some(key), searchable_parts);
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                collect_searchable_text_from_content_value(value, None, searchable_parts);
+            }
+        }
+        Value::String(value) if matches!(current_key, Some("content" | "title" | "subtitle")) => {
+            searchable_parts.push(value.clone());
+        }
+        _ => {}
+    }
+}
+
+fn sanitized_searchable_text_for_public_page(content: &Value) -> String {
+    let Ok(blocks) = serde_json::from_value::<Vec<GutenbergBlock>>(content.clone()) else {
+        tracing::warn!(
+            "Failed to deserialize page content for search snippet sanitization. Falling back to raw searchable text."
+        );
+        return extract_searchable_text_from_content_value(content);
+    };
+
+    let filtered_blocks = filter_lock_chapter_blocks(blocks, false);
+    match serde_json::to_value(filtered_blocks) {
+        Ok(filtered_content) => extract_searchable_text_from_content_value(&filtered_content),
+        Err(error) => {
+            tracing::warn!(
+                "Failed to serialize filtered page content for search snippet sanitization: {}. Falling back to raw searchable text.",
+                error
+            );
+            extract_searchable_text_from_content_value(content)
+        }
+    }
+}
+
+async fn get_page_search_results(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    page_search_request: &SearchRequest,
+    query_type: PageSearchQueryType,
+) -> ModelResult<Vec<PageSearchResult>> {
     let course = crate::courses::get_course(&mut *conn, course_id).await?;
+    let content_search_language = course
+        .content_search_language
+        .as_deref()
+        .unwrap_or("simple");
 
     // Last word of the search term needed so that the sql statement can change it to a prefix match.
     // Allows the last word to not be fully typed.
@@ -2897,54 +3096,57 @@ pub async fn get_page_search_results_for_words(
         .split_ascii_whitespace()
         .last()
     {
-        last
+        last.to_string()
     } else {
         return Ok(Vec::new());
     };
 
-    let res = sqlx::query_as!(
-            PageSearchResult,
-            r#"
--- common table expression for the search term tsquery so that we don't have to repeat it many times
-WITH cte as (
-    -- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
-    -- last word so that it  becomes a prefix match. This way the search will also contain results when the last word in
+    let query_builder = match query_type {
+        PageSearchQueryType::Phrase => "phraseto_tsquery",
+        PageSearchQueryType::Words => "plainto_tsquery",
+    };
+    let query_builder_comment = match query_type {
+        PageSearchQueryType::Phrase =>
+            "-- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
+    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
+    -- is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement will be skipped.",
+        PageSearchQueryType::Words =>
+            "-- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+    -- last word so that it becomes a prefix match. This way the search will also contain results when the last word in
     -- the search term is only partially typed. Note that if to_tsquery($4) decides to stem the word, the replacement
-    -- will be skipped.
+    -- will be skipped.",
+    };
+
+    let search_results_sql = format!(
+        r#"
+WITH cte as (
+    {query_builder_comment}
     SELECT ts_rewrite(
-        plainto_tsquery($2::regconfig, $3),
+        {query_builder}($2::regconfig, $3),
         to_tsquery($4),
         to_tsquery($4 || ':*')
     ) as query
 )
 SELECT p.id,
     ts_rank(
-    p.content_search,
-    (
-        SELECT query
-        from cte
-    )
+        p.content_search,
+        (
+            SELECT query
+            from cte
+        )
     ) as rank,
     ts_headline(
-    $2::regconfig,
-    p.title,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=1, MaxWords=20, MinWords=1'
+        $2::regconfig,
+        p.title,
+        (
+            SELECT query
+            from cte
+        ),
+        'MaxFragments=1, MaxWords=20, MinWords=1'
     ) as title_headline,
-    ts_headline(
-    $2::regconfig,
-    p.content_search_original_text,
-    (
-        SELECT query
-        from cte
-    ),
-    'MaxFragments=0, MaxWords=120, MinWords=70'
-    ) as content_headline,
-    COALESCE(p.url_path, '') as "url_path!",
-    c.name as "chapter_name?"
+    COALESCE(p.url_path, '') as url_path,
+    c.name as chapter_name,
+    p.content
 FROM pages p
 LEFT JOIN chapters c ON p.chapter_id = c.id
 WHERE p.course_id = $1
@@ -2952,21 +3154,119 @@ WHERE p.course_id = $1
     AND p.hidden IS FALSE
     AND p.url_path IS NOT NULL
     AND p.content_search @@ (
-    SELECT query
-    from cte
+        SELECT query
+        from cte
     )
 ORDER BY rank DESC
 LIMIT 50;
-        "#,
-            course_id,
-            course.content_search_language as _,
-            page_search_request.query,
-            last_word
-        )
-        .fetch_all(conn)
+        "#
+    );
+
+    let raw_results = sqlx::query_as::<_, RawPageSearchResult>(&search_results_sql)
+        .bind(course_id)
+        .bind(content_search_language)
+        .bind(&page_search_request.query)
+        .bind(&last_word)
+        .fetch_all(&mut *conn)
         .await?;
 
-    Ok(add_course_url_prefix_to_search_results(res, &course))
+    let sanitized_search_texts = raw_results
+        .iter()
+        .map(|result| sanitized_searchable_text_for_public_page(&result.content))
+        .collect::<Vec<_>>();
+    let content_headlines = build_public_search_content_headlines(
+        conn,
+        content_search_language,
+        &page_search_request.query,
+        &last_word,
+        query_type,
+        &sanitized_search_texts,
+    )
+    .await?;
+
+    let search_results = raw_results
+        .into_iter()
+        .zip(content_headlines)
+        .map(|(result, content_headline)| PageSearchResult {
+            id: result.id,
+            title_headline: result.title_headline,
+            rank: result.rank,
+            content_headline,
+            url_path: result.url_path,
+            chapter_name: result.chapter_name,
+        })
+        .collect::<Vec<_>>();
+
+    Ok(add_course_url_prefix_to_search_results(
+        search_results,
+        &course,
+    ))
+}
+
+async fn build_public_search_content_headlines(
+    conn: &mut PgConnection,
+    content_search_language: &str,
+    query: &str,
+    last_word: &str,
+    query_type: PageSearchQueryType,
+    sanitized_search_texts: &[String],
+) -> ModelResult<Vec<Option<String>>> {
+    if sanitized_search_texts.is_empty() {
+        return Ok(Vec::new());
+    }
+
+    let query_builder = match query_type {
+        PageSearchQueryType::Phrase => "phraseto_tsquery",
+        PageSearchQueryType::Words => "plainto_tsquery",
+    };
+    let query_builder_comment = match query_type {
+        PageSearchQueryType::Phrase =>
+            "-- Converts the search term to a phrase search with phraseto_tsquery but appends ':*' to the last word so that it
+    -- becomes a prefix match. This way the search will also contain results when the last word in the search term
+    -- is only partially typed. Note that if to_tsquery($3) decides to stem the word, the replacement will be skipped.",
+        PageSearchQueryType::Words =>
+            "-- Converts the search term to a word search with ands between the words with plainto_tsquery but appends ':*' to the
+    -- last word so that it becomes a prefix match. This way the search will also contain results when the last word in
+    -- the search term is only partially typed. Note that if to_tsquery($3) decides to stem the word, the replacement
+    -- will be skipped.",
+    };
+
+    let content_headline_sql = format!(
+        r#"
+WITH cte as (
+    {query_builder_comment}
+    SELECT ts_rewrite(
+        {query_builder}($1::regconfig, $2),
+        to_tsquery($3),
+        to_tsquery($3 || ':*')
+    ) as query
+)
+SELECT ts_headline(
+    $1::regconfig,
+    input.content,
+    (
+        SELECT query
+        from cte
+    ),
+    'MaxFragments=1, MaxWords=30, MinWords=10'
+) as content_headline
+FROM unnest($4::text[]) WITH ORDINALITY AS input(content, ord)
+ORDER BY ord;
+        "#
+    );
+
+    Ok(
+        sqlx::query_as::<_, SearchContentHeadlineRow>(&content_headline_sql)
+            .bind(content_search_language)
+            .bind(query)
+            .bind(last_word)
+            .bind(sanitized_search_texts.to_vec())
+            .fetch_all(&mut *conn)
+            .await?
+            .into_iter()
+            .map(|row| row.content_headline)
+            .collect(),
+    )
 }
 
 fn add_course_url_prefix_to_search_results(
@@ -3404,6 +3704,7 @@ pub async fn update_page_details(
     page_id: Uuid,
     page_details_update: &PageDetailsUpdate,
 ) -> ModelResult<()> {
+    let normalized_url_path = normalize_url_path_for_storage(&page_details_update.url_path);
     let mut tx = conn.begin().await?;
     let page_before_update = get_page(&mut tx, page_id).await?;
     sqlx::query!(
@@ -3415,13 +3716,13 @@ WHERE id = $1
 ",
         page_id,
         page_details_update.title,
-        page_details_update.url_path,
+        normalized_url_path,
     )
     .execute(&mut *tx)
     .await?;
 
     if let Some(course_id) = page_before_update.course_id
-        && page_before_update.url_path != page_details_update.url_path
+        && page_before_update.url_path != normalized_url_path
     {
         // Some students might be trying to reach the page with the old url path, so let's redirect them to the new one
         crate::url_redirections::upsert(
@@ -3516,6 +3817,26 @@ mod test {
 
     use super::*;
     use crate::{exams::NewExam, test_helper::*};
+
+    #[test]
+    fn normalizes_decoded_page_paths_for_storage_and_lookup() {
+        assert_eq!(
+            normalize_url_path_for_storage("/foo bar#part"),
+            "/foo%20bar%23part"
+        );
+        assert_eq!(
+            normalize_url_path_for_storage("/foo%20bar%23part"),
+            "/foo%20bar%23part"
+        );
+        assert_eq!(
+            normalize_url_path_for_storage(" /literal%percent "),
+            "/literal%25percent"
+        );
+        assert_eq!(
+            normalize_url_path_for_storage(" /literal%25percent "),
+            "/literal%25percent"
+        );
+    }
 
     #[tokio::test]
     async fn gets_organization_id() {
@@ -3642,6 +3963,275 @@ mod test {
             title: "".to_string(),
             chapter_id: None,
         }
+    }
+
+    fn lock_chapter_test_block(hidden_text: &str) -> GutenbergBlock {
+        GutenbergBlock::block_with_name_attributes_and_inner_blocks(
+            "moocfi/lock-chapter",
+            headless_lms_utils::attributes! {},
+            vec![GutenbergBlock::paragraph(hidden_text)],
+        )
+    }
+
+    fn first_lock_chapter_inner_block_count(page: &Page) -> usize {
+        page.blocks_cloned().unwrap()[0].inner_blocks.len()
+    }
+
+    /// Updates chapter locking on a course for test setup.
+    async fn set_course_chapter_locking_enabled(
+        tx: &mut PgConnection,
+        course_id: Uuid,
+        chapter_locking_enabled: bool,
+    ) {
+        let course_before_update = courses::get_course(tx, course_id).await.unwrap();
+        courses::update_course(
+            tx,
+            course_id,
+            courses::CourseUpdate {
+                chapter_locking_enabled,
+                name: course_before_update.name,
+                description: course_before_update.description,
+                is_draft: course_before_update.is_draft,
+                is_test_mode: course_before_update.is_test_mode,
+                can_add_chatbot: course_before_update.can_add_chatbot,
+                is_unlisted: course_before_update.is_unlisted,
+                is_joinable_by_code_only: course_before_update.is_joinable_by_code_only,
+                ask_marketing_consent: course_before_update.ask_marketing_consent,
+                flagged_answers_threshold: course_before_update
+                    .flagged_answers_threshold
+                    .unwrap_or_default(),
+                flagged_answers_skip_manual_review_and_allow_retry: course_before_update
+                    .flagged_answers_skip_manual_review_and_allow_retry,
+                closed_at: course_before_update.closed_at,
+                closed_additional_message: course_before_update.closed_additional_message,
+                closed_course_successor_id: course_before_update.closed_course_successor_id,
+            },
+        )
+        .await
+        .unwrap();
+    }
+
+    #[test]
+    fn sanitized_searchable_text_for_public_page_hides_lock_chapter_inner_blocks() {
+        let content = serde_json::to_value(vec![
+            GutenbergBlock::paragraph("Visible introduction"),
+            lock_chapter_test_block("Model solution"),
+        ])
+        .unwrap();
+
+        let searchable_text = sanitized_searchable_text_for_public_page(&content);
+
+        assert!(searchable_text.contains("Visible introduction"));
+        assert!(!searchable_text.contains("Model solution"));
+    }
+
+    #[tokio::test]
+    async fn filter_course_material_pages_hides_lock_chapter_inner_blocks_until_reviews_complete() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+        set_course_chapter_locking_enabled(tx.as_mut(), course, true).await;
+
+        update_page_content(
+            tx.as_mut(),
+            page_id,
+            &serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        crate::exercises::update_teacher_reviews_answer_after_locking(
+            tx.as_mut(),
+            exercise_id,
+            true,
+        )
+        .await
+        .unwrap();
+        crate::user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise_id,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        crate::user_chapter_locking_statuses::complete_and_lock_chapter(
+            tx.as_mut(),
+            user,
+            chapter_id,
+            course,
+        )
+        .await
+        .unwrap();
+        crate::user_exercise_states::update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            crate::user_exercise_states::ReviewingStage::WaitingForManualGrading,
+        )
+        .await
+        .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages(tx.as_mut(), Some(user), vec![page])
+            .await
+            .unwrap();
+        assert_eq!(first_lock_chapter_inner_block_count(&filtered_pages[0]), 0);
+
+        crate::user_exercise_states::update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            crate::user_exercise_states::ReviewingStage::ReviewedAndLocked,
+        )
+        .await
+        .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages(tx.as_mut(), Some(user), vec![page])
+            .await
+            .unwrap();
+        assert_eq!(first_lock_chapter_inner_block_count(&filtered_pages[0]), 1);
+    }
+
+    #[tokio::test]
+    async fn filter_course_material_pages_with_exercises_hides_lock_chapter_inner_blocks() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: _chapter_id,
+            page: page_id
+        );
+
+        update_page_content(
+            tx.as_mut(),
+            page_id,
+            &serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages_with_exercises(
+            tx.as_mut(),
+            None,
+            vec![PageWithExercises {
+                page,
+                exercises: vec![],
+            }],
+        )
+        .await
+        .unwrap();
+
+        assert_eq!(
+            first_lock_chapter_inner_block_count(&filtered_pages[0].page),
+            0
+        );
+    }
+
+    #[tokio::test]
+    async fn filter_course_material_pages_does_not_initialize_lock_status_when_course_locking_is_disabled()
+     {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: page_id
+        );
+
+        set_course_chapter_locking_enabled(tx.as_mut(), course, false).await;
+
+        update_page_content(
+            tx.as_mut(),
+            page_id,
+            &serde_json::to_value(vec![lock_chapter_test_block("Model solution")]).unwrap(),
+        )
+        .await
+        .unwrap();
+
+        let status = user_chapter_locking_statuses::get_or_init_status(
+            tx.as_mut(),
+            user,
+            chapter_id,
+            Some(course),
+            Some(false),
+        )
+        .await
+        .unwrap();
+
+        let page = get_page(tx.as_mut(), page_id).await.unwrap();
+        let filtered_pages = filter_course_material_pages(tx.as_mut(), Some(user), vec![page])
+            .await
+            .unwrap();
+
+        assert_eq!(first_lock_chapter_inner_block_count(&filtered_pages[0]), 0);
+
+        assert!(status.is_none());
+    }
+
+    #[tokio::test]
+    async fn page_search_results_do_not_leak_hidden_lock_chapter_snippet_text() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: _chapter_id,
+            page: page_id
+        );
+
+        update_page_content(
+            tx.as_mut(),
+            page_id,
+            &serde_json::to_value(vec![
+                GutenbergBlock::paragraph("Visible introduction"),
+                lock_chapter_test_block("Model solution"),
+            ])
+            .unwrap(),
+        )
+        .await
+        .unwrap();
+
+        let results = get_page_search_results_for_words(
+            tx.as_mut(),
+            course,
+            &SearchRequest {
+                query: "Visible".to_string(),
+            },
+        )
+        .await
+        .unwrap();
+
+        let result = results
+            .iter()
+            .find(|result| result.id == page_id)
+            .expect("page should match visible content query");
+        let content_headline = result.content_headline.as_deref().unwrap_or_default();
+
+        assert!(!content_headline.contains("Model solution"));
     }
 
     #[tokio::test]

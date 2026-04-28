@@ -13,11 +13,17 @@ use crate::prelude::*;
 use actix_web::{HttpResponse, web};
 use chrono::{Duration, Utc};
 use domain::error::{OAuthErrorCode, OAuthErrorData};
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256, oauth_access_token::TokenType, oauth_client::OAuthClient,
 };
 use sqlx::PgPool;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(token))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthTokenApiDoc;
 
 /// Handles the `/token` endpoint for exchanging authorization codes or refresh tokens.
 ///
@@ -87,6 +93,20 @@ use sqlx::PgPool;
 /// WWW-Authenticate: DPoP error="use_dpop_proof", error_description="Missing DPoP header"
 /// ```
 #[instrument(skip(pool, app_conf, form))]
+#[utoipa::path(
+    post,
+    path = "/token",
+    operation_id = "exchangeOauthToken",
+    tag = "oauth",
+    request_body(
+        content = serde_json::Value,
+        content_type = "application/x-www-form-urlencoded"
+    ),
+    responses(
+        (status = 200, description = "OAuth token response", body = serde_json::Value),
+        (status = 401, description = "OAuth token error")
+    )
+)]
 pub async fn token(
     pool: web::Data<PgPool>,
     OAuthValidated(form): OAuthValidated<TokenQuery>,

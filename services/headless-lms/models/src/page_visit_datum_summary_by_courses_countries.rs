@@ -1,9 +1,10 @@
 use chrono::NaiveDate;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PageVisitDatumSummaryByCoursesCountries {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -38,7 +39,8 @@ SELECT course_id,
   $1 AS visit_date
 FROM page_visit_datum
 WHERE deleted_at IS NULL
-  AND created_at::date = $1
+  AND created_at >= ($1::date::timestamp AT TIME ZONE 'UTC')
+  AND created_at < (($1::date + 1)::timestamp AT TIME ZONE 'UTC')
   AND is_bot = FALSE
 GROUP BY course_id,
   exam_id,

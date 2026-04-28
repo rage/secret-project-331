@@ -1,10 +1,11 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps, Template } from "@wordpress/blocks"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
+
+import type { BlockEditProps, Template } from "@/utils/Gutenberg/types"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph"]
 const AUTHOR_BLOCK_TEMPLATE: Template[] = [

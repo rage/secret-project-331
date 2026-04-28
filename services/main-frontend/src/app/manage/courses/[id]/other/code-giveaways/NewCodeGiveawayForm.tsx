@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { createCodeGiveaway } from "@/services/backend/codeGiveaways"
+import { createCodeGiveawayMutation as createCodeGiveawayMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
 type NewCodeGiveawayFormProps = {
@@ -32,16 +32,8 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
   const valid = useMemo(() => name.trim() !== "", [name])
   const { t } = useTranslation()
 
-  const createCodeGiveawayMutation = useToastMutation(
-    () =>
-      createCodeGiveaway({
-        course_id: courseId,
-        name,
-        course_module_id: nullIfEmptyString(courseModuleId.trim()),
-        require_course_specific_consent_form_question_id: nullIfEmptyString(
-          requireCourseSpecificConsentFormQuestionId.trim(),
-        ),
-      }),
+  const createCodeGiveawayMutation = useToastMutationOptions(
+    createCodeGiveawayMutationOptions(),
     {
       method: "POST",
       notify: true,
@@ -67,7 +59,17 @@ const NewCodeGiveawayForm: React.FC<NewCodeGiveawayFormProps> = ({
       buttons={[
         {
           variant: "primary",
-          onClick: () => createCodeGiveawayMutation.mutate(),
+          onClick: () =>
+            createCodeGiveawayMutation.mutate({
+              body: {
+                course_id: courseId,
+                name,
+                course_module_id: nullIfEmptyString(courseModuleId.trim()),
+                require_course_specific_consent_form_question_id: nullIfEmptyString(
+                  requireCourseSpecificConsentFormQuestionId.trim(),
+                ),
+              },
+            }),
           disabled: !valid || createCodeGiveawayMutation.isPending,
           children: t("button-text-create"),
         },

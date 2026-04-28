@@ -1,10 +1,11 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import UnsupportedEditor from "./UnsupportedEditor"
 import UnsupportedSave from "./UnsupportedSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const UnsupportedBlock: BlockConfiguration = {
   title: "Unsupported block",

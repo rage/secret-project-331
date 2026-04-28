@@ -182,6 +182,7 @@
   "chapter-locked-complete-previous": "أكمل وأغلق الفصل السابق لفتح التمارين في هذا الفصل.",
   "chapter-locked-description": "الفصل الحالي مقفول، ولم يعد بإمكانك تقديم التمارين.",
   "chapter-locked-message": "تم قفل الفصل",
+  "chapter-locked-waiting-teacher-review-description": "يقوم طاقم المقرر بمراجعة إجاباتك في هذا الفصل. سيتم عرض الحل النموذجي بعد اكتمال المراجعة.",
   "chapter-progress": "تقدم الفصل",
   "chapters": "فصول",
   "chatbot": "الروبوت المحادثة",

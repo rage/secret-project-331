@@ -10,8 +10,8 @@ import {
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
-import { PageVisitDatumSummaryByCourse } from "@/shared-module/common/bindings"
 import Accordion from "@/shared-module/common/components/Accordion"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"

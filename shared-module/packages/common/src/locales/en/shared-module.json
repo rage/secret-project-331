@@ -61,7 +61,57 @@
   "email": "Email",
   "email-templates": "Email templates",
   "error-cannot-render-dynamic-content-missing-url": "Cannot render dynamic content: missing url",
+  "error-code": "Code: {{code}}",
+  "error-issue-code": {
+    "missing_exercise_type": {
+      "message": "Missing exercise type for exercise task."
+    }
+  },
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Please sign in to view exam exercises.",
+      "title": "Sign in required"
+    },
+    "chapter_not_open_yet": {
+      "message": "This chapter is not open yet.",
+      "title": "Chapter is closed"
+    },
+    "forbidden": {
+      "message": "You do not have permission for this action.",
+      "title": "Forbidden"
+    },
+    "internal_error": {
+      "message": "Please try again in a moment.",
+      "title": "Something went wrong"
+    },
+    "not_found": {
+      "message": "The requested resource could not be found.",
+      "title": "Not found"
+    },
+    "oauth_error": {
+      "message": "Please sign in again.",
+      "title": "Authentication failed"
+    },
+    "rate_limited": {
+      "message": "Please wait and try again.",
+      "title": "Too many requests"
+    },
+    "unauthorized": {
+      "message": "Please sign in and try again.",
+      "title": "Unauthorized"
+    },
+    "validation_error": {
+      "message": "Please check your input and try again.",
+      "title": "Invalid input"
+    },
+    "validation_error_with_metadata": {
+      "message": "Please check the highlighted content and try again.",
+      "title": "Invalid input"
+    }
+  },
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
+  "error-request-id": "Request ID: {{requestId}}",
+  "error-retry-after": "Retry after: {{seconds}}s",
   "error-title": "Error",
   "essay": "Essay",
   "exercise-iframe-reload-exhausted-message": "Automatic reload attempts were exhausted. You can try reloading the exercise manually.",

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { EChartsOption } from "echarts/types/src/export/option"
+import type { EChartsOption } from "echarts"
 import React from "react"
 
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"

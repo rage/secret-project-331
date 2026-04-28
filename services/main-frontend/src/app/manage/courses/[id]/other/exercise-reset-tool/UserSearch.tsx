@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { UserDetail } from "@/shared-module/common/bindings"
+import type { UserDetail } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextFieldWithIcon from "@/shared-module/common/components/InputFields/TextFieldWithIcon"
 import Spinner from "@/shared-module/common/components/Spinner"

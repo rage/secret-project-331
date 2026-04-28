@@ -1,5 +1,7 @@
 use std::fmt;
 
+use utoipa::ToSchema;
+
 use crate::{
     certificate_configuration_to_requirements::{
         CertificateAllRequirements, get_all_requirements_for_certificate_configuration,
@@ -7,8 +9,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[serde(rename_all = "kebab-case")]
 #[sqlx(type_name = "certificate_paper_size", rename_all = "kebab-case")]
 pub enum PaperSize {
@@ -32,8 +33,7 @@ impl PaperSize {
 }
 
 /// How text should be positioned relative to the given coordinates. See <https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/text-anchor>.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[serde(rename_all = "kebab-case")]
 #[sqlx(type_name = "certificate_text_anchor", rename_all = "kebab-case")]
 pub enum CertificateTextAnchor {
@@ -52,15 +52,15 @@ impl fmt::Display for CertificateTextAnchor {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CertificateConfigurationAndRequirements {
     pub certificate_configuration: CertificateConfiguration,
     pub requirements: CertificateAllRequirements,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CertificateConfiguration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -276,7 +276,7 @@ WHERE cctr.course_module_id IN (
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct DatabaseCertificateConfiguration {
     pub id: Uuid,
     pub certificate_owner_name_y_pos: Option<String>,

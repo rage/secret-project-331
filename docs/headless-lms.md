@@ -66,7 +66,7 @@ and corresponding Rust enum
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -182,13 +182,17 @@ INSERT INTO exercises (id, name, course_id) VALUES (e1.id, e1.name, e1.course_id
 
 Most usable QueryBuilder is for bulk inserting or updating.
 
-## Generating type bindings for frontend
+## Generating frontend API clients and types
 
-Some structures and enums are also used by frontend services, primarily those that represent a request or response data. When these types are either changed or new ones added, their type bindings need to be regenerated.
+Run `bin/generate-bindings` from repo root to regenerate the frontend API clients and types used for backend calls.
 
-The configuration for which types should be generated is located in `/services/headless-lms/server/src/ts_binding_generator.rs`. Any new type added there should derive the `ts_rs::TS` type. The ts_rs crate is behind a feature flag for [compilation performance reasons](https://github.com/rage/secret-project-331/pull/685), so you need to do the derive like this: `#[cfg_attr(feature = "ts_rs", derive(TS))]`.
+To ensure endpoints are included in generated clients:
 
-To generate bindings, run the `bin/generate-bindings` binary. This will generate bindings for all services and makes sure they are properly formated.
+1. Add `#[utoipa::path(...)]` to each endpoint handler with correct method, path, params, request body, and response types.
+2. Ensure all request/response DTOs used by the endpoint derive the OpenAPI schema traits (for example `ToSchema`), including nested DTOs.
+3. Register the endpoint in the correct OpenAPI document in `services/headless-lms/server/src/openapi.rs` under the matching `paths(...)` section.
+4. Register any schemas that are not auto-collected into the same document's `components(schemas(...))` section.
+5. Run `bin/generate-bindings` after changes.
 
 ## New endpoint
 
@@ -275,7 +279,7 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 
 When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it.
 
-The binary at `server/src/bin/doc-file-generator.rs` can be used to generate documentation for the response type from Rust code, ensuring they stay up to date. The binary can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc]` or `#[generated_doc(MyType)]`. The macro will attempt to parse the return type from the function signature if omitted from the macro call. This should be used only for public API endpoints, not internal ones.
+The `doc-file-generator` program in `headless-lms-entrypoint` can be used to generate documentation for response types from Rust code, ensuring they stay up to date. The program can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc]` or `#[generated_doc(MyType)]`. The macro will attempt to parse the return type from the function signature if omitted from the macro call. This should be used only for public API endpoints, not internal ones.
 
 For example
 

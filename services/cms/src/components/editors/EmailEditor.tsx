@@ -2,23 +2,23 @@
 
 import { css } from "@emotion/css"
 import { UseMutationResult } from "@tanstack/react-query"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import { allowedEmailCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
-import type { MediaUploadProps } from "../../services/backend/media/mediaUpload"
+import mediaUploadBuilder from "../../services/mediaUpload"
+import type { MediaUploadProps } from "../../services/mediaUpload"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import { extractPlaceholders, validatePlaceholders } from "../../utils/emailPlaceholders"
 import UpdateEmailDetailsForm from "../forms/UpdateEmailDetailsForm"
 
-import { EmailTemplate, EmailTemplateUpdate } from "@/shared-module/common/bindings"
+import { EmailTemplate, EmailTemplateUpdate } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface EmailEditorProps {
   data: EmailTemplate

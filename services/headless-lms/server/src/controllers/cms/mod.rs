@@ -19,6 +19,24 @@ pub mod pages;
 pub mod repository_exercises;
 
 use actix_web::web::{self, ServiceConfig};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest(
+        (path = "/ai-suggestions", api = ai_suggestions::CmsAiSuggestionsApiDoc),
+        (path = "/chapters", api = chapters::CmsChaptersApiDoc),
+        (path = "/course-instances", api = course_instances::CmsCourseInstancesApiDoc),
+        (path = "/courses", api = courses::CmsCoursesApiDoc),
+        (path = "/code-giveaways", api = code_giveaways::CmsCodeGiveawaysApiDoc),
+        (path = "/email-templates", api = email_templates::CmsEmailTemplatesApiDoc),
+        (path = "/exams", api = exams::CmsExamsApiDoc),
+        (path = "/exercise-services", api = exercise_services::CmsExerciseServicesApiDoc),
+        (path = "/pages", api = pages::CmsPagesApiDoc),
+        (path = "/repository-exercises", api = repository_exercises::CmsRepositoryExercisesApiDoc)
+    )
+)]
+pub struct CmsRoutesApiDoc;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {

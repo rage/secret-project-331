@@ -19,12 +19,15 @@ import {
 } from "./PageList/PageListItem"
 
 import BottomPanel from "@/components/BottomPanel"
+import { deleteChapterMutation as deleteChapterMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  updateCourseChapterOrdering,
+  updateCoursePageOrdering,
+} from "@/generated/api/sdk.generated"
+import type { Chapter, CourseStructure } from "@/generated/api/types.generated"
 import managePageOrderReducer, {
   managePageOrderInitialState,
 } from "@/reducers/managePageOrderReducer"
-import { deleteChapter } from "@/services/backend/chapters"
-import { postNewChapterOrdering, postNewPageOrdering } from "@/services/backend/courses"
-import { Chapter, CourseStructure } from "@/shared-module/common/bindings"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
@@ -32,6 +35,7 @@ import DebugModal from "@/shared-module/common/components/DebugModal"
 import DropdownMenu from "@/shared-module/common/components/DropdownMenu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 
 const headingDropdown = css`
@@ -45,7 +49,7 @@ export interface ManageCourseStructureProps {
   courseStructure: CourseStructure
   refetch: (
     options?: (RefetchOptions & RefetchQueryFilters) | undefined,
-  ) => Promise<QueryObserverResult<CourseStructure, unknown>>
+  ) => Promise<QueryObserverResult<CourseStructure, Error>>
 }
 
 const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStructureProps>> = ({
@@ -53,10 +57,8 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
   refetch,
 }) => {
   const { confirm } = useDialog()
-  const deleteChapterMutation = useToastMutation(
-    (chapterId: string) => {
-      return deleteChapter(chapterId)
-    },
+  const deleteChapterMutation = useToastMutationOptions(
+    deleteChapterMutationOptions(),
     { notify: true, method: "DELETE" },
     { onSuccess: () => refetch() },
   )
@@ -75,7 +77,15 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         throw new Error("Page data not loaded")
       }
       const pages = Object.values(pageOrderState.chapterIdToPages).flat()
-      return postNewPageOrdering(courseStructure.course.id, pages)
+      return updateCoursePageOrdering({
+        body: pages.map((page) => ({
+          ...page,
+          content: null,
+        })),
+        path: {
+          course_id: courseStructure.course.id,
+        },
+      })
     },
     {
       notify: true,
@@ -90,7 +100,12 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
         throw new Error("Chapter data not loaded")
       }
       const chapters = Object.values(pageOrderState.chapters).flat()
-      return postNewChapterOrdering(courseStructure.course.id, chapters)
+      return updateCourseChapterOrdering({
+        body: chapters,
+        path: {
+          course_id: courseStructure.course.id,
+        },
+      })
     },
     {
       notify: true,
@@ -250,7 +265,11 @@ const ManageCourseStructure: React.FC<React.PropsWithChildren<ManageCourseStruct
                                   ) {
                                     return
                                   }
-                                  deleteChapterMutation.mutate(chapter.id)
+                                  deleteChapterMutation.mutate({
+                                    path: {
+                                      chapter_id: chapter.id,
+                                    },
+                                  })
                                 },
                               },
                             ]}

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
@@ -10,19 +10,20 @@ import { useTranslation } from "react-i18next"
 import EditExamDialog from "../EditExamDialog"
 
 import {
-  fetchExam,
-  fetchOrganization,
-  fetchOrgExam,
-  setCourse,
-  unsetCourse,
-} from "@/services/backend/exams"
+  getExamOptions,
+  getOrganizationExamByExamIdOptions,
+  setExamCourseMutation,
+  unsetExamCourseMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { getOrganization } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont, typography } from "@/shared-module/common/styles"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import {
   manageCourseByIdRoute,
   manageExamQuestionsRoute,
@@ -30,6 +31,8 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+const GET_ORGANIZATION_QUERY_KEY = "getOrganization"
 
 const detailRow = css`
   font-family: ${primaryFont};
@@ -47,24 +50,39 @@ const detailValue = css`
 const ManageExam: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t, i18n } = useTranslation()
-  const getExam = useQuery({ queryKey: [`exam-${id}`], queryFn: () => fetchExam(id) })
-  const organizationId = useQuery({
-    queryKey: [`organizations-${id}`],
-    queryFn: () => fetchOrgExam(id),
-  }).data?.organization_id
+  const getExam = useQuery({
+    ...getExamOptions({
+      path: {
+        id,
+      },
+    }),
+  })
+  const organizationExam = useQuery({
+    ...getOrganizationExamByExamIdOptions({
+      path: {
+        exam_id: id,
+      },
+    }),
+  })
+  const organizationId = organizationExam.data?.organization_id
 
   const organizationSlug = useQuery({
-    queryKey: [`organizations-${organizationId}`],
-    queryFn: () => fetchOrganization(organizationId ?? ""),
-    enabled: !!organizationId,
+    queryKey: [GET_ORGANIZATION_QUERY_KEY, organizationId] as const,
+    queryFn: organizationId
+      ? () =>
+          getOrganization({
+            path: {
+              organization_id: assertNotNullOrUndefined(organizationId),
+            },
+          })
+      : skipToken,
+    enabled: organizationId != null,
   }).data?.slug
 
   const [editExamFormOpen, setEditExamFormOpen] = useState(false)
   const [newCourse, setNewCourse] = useState("")
-  const setCourseMutation = useToastMutation(
-    ({ examId, courseId }: { examId: string; courseId: string }) => {
-      return setCourse(examId, courseId)
-    },
+  const setCourseMutation = useToastMutationOptions(
+    setExamCourseMutation(),
     {
       notify: true,
       method: "POST",
@@ -76,10 +94,8 @@ const ManageExam: React.FC = () => {
     },
   )
 
-  const unsetCourseMutation = useToastMutation(
-    ({ examId, courseId }: { examId: string; courseId: string }) => {
-      return unsetCourse(examId, courseId)
-    },
+  const unsetCourseMutation = useToastMutationOptions(
+    unsetExamCourseMutation(),
     {
       notify: true,
       method: "POST",
@@ -214,13 +230,20 @@ const ManageExam: React.FC = () => {
               <a href={`/cms/exams/${getExam.data.id}/edit`}>{t("link-edit-exam-instructions")}</a>
             </li>
             <li className={detailRow}>
-              <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`}>
-                {t("link-export-points")}
+              <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-points`} download>
+                <Button variant="tertiary" size="medium" type="button">
+                  {t("link-export-points")}
+                </Button>
               </a>
             </li>
             <li className={detailRow}>
-              <a href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-submissions`}>
-                {t("link-export-submissions")}
+              <a
+                href={`/api/v0/main-frontend/exams/${getExam.data.id}/export-submissions`}
+                download
+              >
+                <Button variant="tertiary" size="medium" type="button">
+                  {t("link-export-submissions")}
+                </Button>
               </a>
             </li>
             <li className={detailRow}>
@@ -261,8 +284,12 @@ const ManageExam: React.FC = () => {
               <Button
                 onClick={() => {
                   unsetCourseMutation.mutate({
-                    examId: getExam.data.id,
-                    courseId: c.id,
+                    path: {
+                      id: getExam.data.id,
+                    },
+                    body: {
+                      course_id: c.id,
+                    },
                   })
                 }}
                 variant="secondary"
@@ -284,8 +311,12 @@ const ManageExam: React.FC = () => {
           <Button
             onClick={() => {
               setCourseMutation.mutate({
-                examId: getExam.data.id,
-                courseId: newCourse,
+                path: {
+                  id: getExam.data.id,
+                },
+                body: {
+                  course_id: newCourse,
+                },
               })
               setNewCourse("")
             }}

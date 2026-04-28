@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::{
     pages::{CmsPageExercise, CmsPageExerciseSlide, CmsPageExerciseTask},
@@ -9,8 +10,7 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "history_change_reason", rename_all = "kebab-case")]
 pub enum HistoryChangeReason {
     PageSaved,
@@ -18,8 +18,8 @@ pub enum HistoryChangeReason {
     PageDeleted,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PageHistory {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -32,7 +32,7 @@ pub struct PageHistory {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct PageHistoryContent {
     pub content: serde_json::Value,
     pub exercises: Vec<CmsPageExercise>,
@@ -157,44 +157,28 @@ AND deleted_at IS NULL
     Ok(res.count.unwrap_or_default())
 }
 
-pub async fn get_latest_history_entries_for_pages_by_course_ids(
+/// Latest non-deleted `page_history` row id per page for pages in the given courses.
+pub async fn get_latest_page_history_ids_by_course_ids(
     conn: &mut PgConnection,
     course_ids: &[Uuid],
-) -> ModelResult<HashMap<Uuid, PageHistory>> {
-    let res = sqlx::query_as!(
-        PageHistory,
+) -> ModelResult<HashMap<Uuid, Uuid>> {
+    let rows = sqlx::query!(
         r#"
-WITH ranked_history AS (
-  SELECT ph.*,
-    ROW_NUMBER() OVER (
-      PARTITION BY ph.page_id
-      ORDER BY ph.created_at DESC
-    ) AS rn
-  FROM page_history ph
-    JOIN pages p ON p.id = ph.page_id
-  WHERE p.course_id = ANY($1)
-    AND ph.deleted_at IS NULL
-)
-SELECT id,
-  title,
-  content,
-  created_at,
-  history_change_reason AS "history_change_reason: HistoryChangeReason",
-  restored_from_id,
-  author_user_id,
-  page_id
-FROM ranked_history
-WHERE rn = 1
+SELECT DISTINCT ON (ph.page_id)
+  ph.id,
+  ph.page_id
+FROM page_history ph
+  INNER JOIN pages p ON p.id = ph.page_id
+WHERE p.course_id = ANY($1)
+  AND ph.deleted_at IS NULL
+ORDER BY ph.page_id,
+  ph.created_at DESC,
+  ph.id DESC
 "#,
         course_ids
     )
     .fetch_all(conn)
-    .await?
-    .into_iter()
-    .fold(HashMap::new(), |mut map, history| {
-        map.insert(history.page_id, history);
-        map
-    });
+    .await?;
 
-    Ok(res)
+    Ok(rows.into_iter().map(|row| (row.page_id, row.id)).collect())
 }

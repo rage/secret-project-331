@@ -62,6 +62,16 @@
   "email": "البريد الإلكتروني",
   "email-templates": "قوالب البريد الإلكتروني",
   "error-cannot-render-dynamic-content-missing-url": "لا يمكن عرض المحتوى الديناميكي: عنوان URL مفقود",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "يرجى تسجيل الدخول لعرض تمارين الامتحان.",
+      "title": "تسجيل الدخول مطلوب"
+    },
+    "chapter_not_open_yet": {
+      "message": "هذا الفصل غير مفتوح بعد.",
+      "title": "الفصل مغلق"
+    }
+  },
   "error-part-of-page-has-crashed-error": "تعطل جزء من الصفحة: {{error}}",
   "error-title": "خطأ",
   "essay": "مقال",

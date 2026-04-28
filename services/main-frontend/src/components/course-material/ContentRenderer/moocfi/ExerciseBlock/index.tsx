@@ -27,16 +27,19 @@ import {
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
 import { exerciseCardPillShell } from "@/components/exercise-card/exerciseCardPillShell"
+import {
+  postStartPeerOrSelfReview,
+  postSubmission,
+} from "@/generated/course-material-api/sdk.generated"
+import {
+  CourseMaterialExercise,
+  StudentExerciseSlideSubmission,
+} from "@/generated/course-material-api/types.generated"
 import useCourseMaterialExerciseQuery, {
   courseMaterialExerciseQueryKey,
 } from "@/hooks/course-material/useCourseMaterialExerciseQuery"
 import { useUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import exerciseBlockPostThisStateToIFrameReducer from "@/reducers/course-material/exerciseBlockPostThisStateToIFrameReducer"
-import { postStartPeerOrSelfReview, postSubmission } from "@/services/course-material/backend"
-import {
-  CourseMaterialExercise,
-  StudentExerciseSlideSubmission,
-} from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
@@ -254,8 +257,8 @@ const ExerciseBlock: React.FC<
     if (!getCourseMaterialExercise.data) {
       return
     }
-    if (getCourseMaterialExercise.data.exercise_status?.score_given) {
-      setPoints(getCourseMaterialExercise.data.exercise_status?.score_given)
+    if (getCourseMaterialExercise.data.exercise_status?.score_given !== undefined) {
+      setPoints(getCourseMaterialExercise.data.exercise_status?.score_given ?? null)
     }
     const chapterId = getCourseMaterialExercise.data.exercise.chapter_id
     const chapterStatus = chapterId
@@ -281,14 +284,20 @@ const ExerciseBlock: React.FC<
   }, [getCourseMaterialExercise.data, loginState.signedIn, getUserLocks.data])
 
   const postSubmissionMutation = useToastMutation(
-    (submission: StudentExerciseSlideSubmission) => postSubmission(id, submission),
+    (submission: StudentExerciseSlideSubmission) =>
+      postSubmission({
+        path: {
+          exercise_id: id,
+        },
+        body: submission,
+      }),
     {
       notify: false,
     },
     {
       onSuccess: async (data) => {
         if (data.exercise_status) {
-          setPoints(data.exercise_status.score_given)
+          setPoints(data.exercise_status.score_given ?? null)
         }
         dispatch({
           type: "submissionGraded",
@@ -349,7 +358,12 @@ const ExerciseBlock: React.FC<
   )
 
   const startPeerOrSelfReviewMutation = useToastMutation(
-    () => postStartPeerOrSelfReview(id),
+    () =>
+      postStartPeerOrSelfReview({
+        path: {
+          exercise_id: id,
+        },
+      }),
     { notify: false },
     {
       onSuccess: async () => {
@@ -411,12 +425,11 @@ const ExerciseBlock: React.FC<
     ] ?? 0
 
   const maxTries = getCourseMaterialExercise.data.exercise.max_tries_per_slide
-
-  const triesRemaining = maxTries && maxTries - spentTries
+  const triesRemaining = maxTries == null ? null : maxTries - spentTries
 
   const limit_number_of_tries = getCourseMaterialExercise.data.exercise.limit_number_of_tries
   const ranOutOfTries =
-    limit_number_of_tries && maxTries !== null && triesRemaining !== null && triesRemaining <= 0
+    limit_number_of_tries && maxTries != null && triesRemaining !== null && triesRemaining <= 0
 
   const exerciseSlideSubmissionId =
     getCourseMaterialExercise.data.previous_exercise_slide_submission?.id
@@ -491,7 +504,7 @@ const ExerciseBlock: React.FC<
                 }
               `}
             >
-              {limit_number_of_tries && maxTries !== null && triesRemaining !== null && (
+              {limit_number_of_tries && maxTries != null && triesRemaining !== null && (
                 <ExerciseCardTriesBadge triesRemaining={triesRemaining} />
               )}
               {isExam && points === null ? (
@@ -562,7 +575,7 @@ const ExerciseBlock: React.FC<
               ) : (
                 <ExerciseCardPointsBadge
                   score={points ?? 0}
-                  maxScore={getCourseMaterialExercise.data.exercise.score_maximum}
+                  maxScore={getCourseMaterialExercise.data.exercise.score_maximum ?? 0}
                 />
               )}
             </div>
@@ -636,7 +649,7 @@ const ExerciseBlock: React.FC<
             reviewingStage={reviewingStage}
             peerOrSelfReviewConfig={getCourseMaterialExercise.data.peer_or_self_review_config}
             exercise={getCourseMaterialExercise.data.exercise}
-            shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message}
+            shouldSeeResetMessage={getCourseMaterialExercise.data.should_show_reset_message ?? null}
           />
           {/* Reviewing stage seems to be undefined at least for exams */}
           {reviewingStage !== "PeerReview" &&
@@ -659,20 +672,20 @@ const ExerciseBlock: React.FC<
                     (x) => x.exercise_task_id === task.id,
                   )}
                   canPostSubmission={getCourseMaterialExercise.data.can_post_submission}
-                  exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+                  exerciseNumber={getCourseMaterialExercise.data.exercise.order_number ?? 0}
                   isChapterLocked={Boolean(isChapterLocked)}
                 />
               ))}
           {reviewingStage === "PeerReview" && (
             <PeerOrSelfReviewView
-              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number ?? 0}
               exerciseId={id}
               parentExerciseQuery={getCourseMaterialExercise}
             />
           )}
           {reviewingStage === "SelfReview" && (
             <PeerOrSelfReviewView
-              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number}
+              exerciseNumber={getCourseMaterialExercise.data.exercise.order_number ?? 0}
               exerciseId={id}
               parentExerciseQuery={getCourseMaterialExercise}
               selfReview

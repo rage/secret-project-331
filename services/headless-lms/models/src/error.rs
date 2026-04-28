@@ -5,7 +5,8 @@ Contains error and result types for all the model functions.
 use std::{fmt::Display, num::TryFromIntError};
 
 use backtrace::Backtrace;
-use headless_lms_utils::error::{backend_error::BackendError, util_error::UtilError};
+use headless_lms_base::error::backend_error::BackendError;
+use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
 use uuid::Uuid;
 
@@ -248,6 +249,14 @@ impl From<sqlx::Error> for ModelError {
                             err.to_string(),
                             Some(err.into()),
                         ),
+                        "users_email" => ModelError::new(
+                            ModelErrorType::DatabaseConstraint {
+                                constraint: constraint.to_string(),
+                                description: "Email is already in use.",
+                            },
+                            err.to_string(),
+                            Some(err.into()),
+                        ),
                         "unique_chatbot_names_within_course" => ModelError::new(
                             ModelErrorType::DatabaseConstraint {
                                 constraint: constraint.to_string(),
@@ -353,6 +362,61 @@ impl From<reqwest::Error> for ModelError {
     }
 }
 
+// Generate error creation macros for ModelError
+headless_lms_utils::define_err_macro!(
+    model_err,
+    ModelError,
+    ModelErrorType,
+    "Create a ModelError with less boilerplate."
+);
+
+/// Helper function for `.map_err()` chains to wrap any error as ModelError.
+///
+/// This function creates a closure that converts any error into a `ModelError`
+/// with the specified error type and message, including the original error as the source.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .map_err(|e| ModelError::new(ModelErrorType::Generic, e.to_string(), Some(e.into())))?
+///
+/// // You can write:
+/// .map_err(as_model_error(ModelErrorType::Generic, "Failed to process".to_string()))?
+/// ```
+pub fn as_model_error<E>(
+    error_type: ModelErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce(E) -> ModelError
+where
+    E: Into<anyhow::Error>,
+{
+    let msg = message.into();
+    move |e| ModelError::new(error_type, msg, Some(e.into()))
+}
+
+/// Helper function for `.ok_or_else()` to create ModelError on None.
+///
+/// This function creates a closure that generates a `ModelError` with the
+/// specified error type and message when called.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .ok_or_else(|| ModelError::new(ModelErrorType::NotFound, "Item not found".to_string(), None))
+///
+/// // You can write:
+/// .ok_or_else(missing_model_error(ModelErrorType::NotFound, "Item not found".to_string()))
+/// ```
+pub fn missing_model_error(
+    error_type: ModelErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce() -> ModelError {
+    let msg = message.into();
+    move || ModelError::new(error_type, msg, None)
+}
+
 #[cfg(test)]
 mod test {
     use uuid::Uuid;
@@ -363,6 +427,59 @@ mod test {
         email_templates::{EmailTemplateNew, EmailTemplateType},
         test_helper::*,
     };
+
+    #[test]
+    fn test_model_err_macro_without_source() {
+        let err = model_err!(Generic, "Test error message".to_string());
+        assert_eq!(err.message(), "Test error message");
+        assert!(matches!(err.error_type(), ModelErrorType::Generic));
+    }
+
+    #[test]
+    fn test_model_err_macro_with_source() {
+        let source_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err = model_err!(Generic, "Wrapped error".to_string(), source_err);
+        assert_eq!(err.message(), "Wrapped error");
+        assert!(err.source.is_some());
+    }
+
+    #[test]
+    fn test_as_model_error_helper() {
+        let result: Result<(), std::io::Error> = Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "test error",
+        ));
+        let model_result = result.map_err(as_model_error(
+            ModelErrorType::Generic,
+            "Failed to read file".to_string(),
+        ));
+
+        assert!(model_result.is_err());
+        let err = model_result.unwrap_err();
+        assert_eq!(err.message(), "Failed to read file");
+        assert!(matches!(err.error_type(), ModelErrorType::Generic));
+    }
+
+    #[test]
+    fn test_missing_model_error_helper() {
+        let option: Option<String> = None;
+        let result = option.ok_or_else(missing_model_error(
+            ModelErrorType::NotFound,
+            "Item not found".to_string(),
+        ));
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.message(), "Item not found");
+        assert!(matches!(err.error_type(), ModelErrorType::NotFound));
+    }
+
+    #[test]
+    fn test_model_err_with_format() {
+        let id = 123;
+        let err = model_err!(NotFound, format!("Item with id {} not found", id));
+        assert_eq!(err.message(), "Item with id 123 not found");
+    }
 
     #[tokio::test]
     async fn email_templates_check() {

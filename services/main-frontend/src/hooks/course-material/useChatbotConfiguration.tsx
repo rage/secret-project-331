@@ -3,9 +3,9 @@
 import { useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 
-import { getDefaultChatbotConfigurationForCourse } from "@/services/course-material/backend"
+import { getDefaultChatbotConfigurationForCourseOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 interface UseChatbotConfigurationOptions {
   enabled?: boolean
@@ -17,11 +17,20 @@ const useChatbotConfiguration = (
 ) => {
   const { enabled = true } = options
   const loginState = useContext(LoginStateContext)
-  const query = useQuery({
-    queryKey: ["chatbot", "default-for-course", courseId],
-    queryFn: () => getDefaultChatbotConfigurationForCourse(assertNotNullOrUndefined(courseId)),
-    enabled: loginState.signedIn === true && Boolean(courseId) && enabled,
-  })
+
+  const query = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: loginState.signedIn === true && enabled,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getDefaultChatbotConfigurationForCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
   return query
 }
 

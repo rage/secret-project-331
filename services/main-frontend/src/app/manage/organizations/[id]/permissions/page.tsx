@@ -7,7 +7,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
-import { fetchOrganization } from "@/services/backend/organizations"
+import { getOrganizationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
@@ -18,8 +18,11 @@ const OrganizationPermissions: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
   const organization = useQuery({
-    queryKey: [`organization-${id}`],
-    queryFn: () => fetchOrganization(id),
+    ...getOrganizationOptions({
+      path: {
+        organization_id: id,
+      },
+    }),
   })
 
   return (

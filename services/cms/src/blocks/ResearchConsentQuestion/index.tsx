@@ -1,11 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
-import { formatLtr } from "@wordpress/icons"
+import { formatLTR } from "@wordpress/icons"
 
 import ResearchConsentCheckBoxEditor from "./ResearchConsentQuestionEditor"
 import ResearchConsentCheckBoxSave from "./ResearchConsentQuestionSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ResearchConsentQuestionAttributes {
   content: string
@@ -23,7 +24,7 @@ const ResearchConsentQuestionConfiguration: BlockConfiguration<ResearchConsentQu
         selector: "span",
       },
     },
-    icon: formatLtr,
+    icon: formatLTR,
     edit: ResearchConsentCheckBoxEditor,
     save: ResearchConsentCheckBoxSave,
   }

@@ -61,6 +61,16 @@
   "email": "E-post",
   "email-templates": "E-postmaler",
   "error-cannot-render-dynamic-content-missing-url": "Kan ikke gjengi dynamisk innhold: manglende URL",
+  "error-message-key": {
+    "authentication_required_for_exam_exercise": {
+      "message": "Logg inn for å se eksamensoppgaver.",
+      "title": "Innlogging kreves"
+    },
+    "chapter_not_open_yet": {
+      "message": "Dette kapittelet er ikke åpent ennå.",
+      "title": "Kapittelet er stengt"
+    }
+  },
   "error-part-of-page-has-crashed-error": "Del av siden har krasjet: {{error}}",
   "error-title": "Feil",
   "essay": "Essay",

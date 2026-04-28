@@ -1,12 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import BackFlipCardEditor from "./BackFlipCardEditor"
 import InnerCardSave from "./BackFlipCardSave"
 
 import { MOOCFI_CATEGORY_SLUG } from "@/utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const BackFlipCardConfiguration: BlockConfiguration = {
   title: "Back Flip Card",

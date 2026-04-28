@@ -7,6 +7,7 @@ pub mod csv_export;
 pub mod error;
 pub mod exercise_repositories;
 pub mod exercises;
+pub mod internal_error_reporting;
 pub mod langs;
 pub mod models_requests;
 pub mod oauth;

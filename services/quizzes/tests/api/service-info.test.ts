@@ -7,8 +7,7 @@ import { GET } from "../../src/app/api/service-info/route"
 
 import testClient from "./utils/appRouterTestClient"
 
-import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
-import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
+import { ExerciseServiceInfoApi, isExerciseServiceInfoApi } from "@/utils/exerciseServiceApi"
 
 describe("service-info", () => {
   it("exists", async () => {

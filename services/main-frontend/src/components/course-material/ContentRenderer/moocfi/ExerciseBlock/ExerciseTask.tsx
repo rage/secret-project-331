@@ -9,11 +9,11 @@ import ContentRenderer from "../.."
 
 import ExerciseTaskIframe from "./ExerciseTaskIframe"
 
-import { Block } from "@/services/course-material/backend"
-import { CourseMaterialExerciseTask } from "@/shared-module/common/bindings"
+import type { CourseMaterialExerciseTask } from "@/generated/course-material-api/types.generated"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { ExerciseIframeState } from "@/shared-module/common/exercise-service-protocol-types"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { Block } from "@/types/courseMaterialBlock"
 
 interface ExerciseTaskProps {
   canPostSubmission: boolean

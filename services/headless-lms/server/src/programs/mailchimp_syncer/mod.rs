@@ -1,6 +1,7 @@
+use crate::config::program_config::ProgramConfig;
 use crate::prelude::*;
 use crate::setup_tracing;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 use headless_lms_models::marketing_consents::UserEmailSubscription;
 use headless_lms_models::marketing_consents::UserMarketingConsentWithDetails;
@@ -212,8 +213,7 @@ struct SyncerConfig {
 
 /// Initializes and returns configuration settings (database URL).
 async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let database_url = ProgramConfig::database_url_with_default();
 
     Ok(SyncerConfig { database_url })
 }

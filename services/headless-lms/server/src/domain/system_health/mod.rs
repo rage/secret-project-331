@@ -11,11 +11,12 @@ pub use kubernetes::{
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+use crate::config::server_runtime_config;
+use utoipa::ToSchema;
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct PodInfo {
     pub name: String,
     pub phase: String,
@@ -23,8 +24,8 @@ pub struct PodInfo {
     pub labels: HashMap<String, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct DeploymentInfo {
     pub name: String,
     pub replicas: i32,
@@ -32,16 +33,16 @@ pub struct DeploymentInfo {
     pub selector_labels: HashMap<String, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct CronJobInfo {
     pub name: String,
     pub schedule: String,
     pub last_schedule_time: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct JobInfo {
     pub name: String,
     pub succeeded: Option<i32>,
@@ -49,16 +50,16 @@ pub struct JobInfo {
     pub active: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ServiceInfo {
     pub name: String,
     pub cluster_ip: Option<String>,
     pub ports: Vec<ServicePortInfo>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ServicePortInfo {
     pub name: Option<String>,
     pub port: i32,
@@ -66,8 +67,8 @@ pub struct ServicePortInfo {
     pub protocol: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct EventInfo {
     pub name: String,
     pub reason: Option<String>,
@@ -80,8 +81,8 @@ pub struct EventInfo {
     pub involved_object_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct IngressInfo {
     pub name: String,
     pub hosts: Vec<String>,
@@ -89,8 +90,8 @@ pub struct IngressInfo {
     pub class_name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct PodDisruptionBudgetInfo {
     pub name: String,
     pub current_healthy: i32,
@@ -100,8 +101,7 @@ pub struct PodDisruptionBudgetInfo {
     pub selector_labels: HashMap<String, String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq, ToSchema)]
 #[serde(rename_all = "lowercase")]
 pub enum HealthStatus {
     Healthy,
@@ -109,13 +109,13 @@ pub enum HealthStatus {
     Error,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct SystemHealthStatus {
     pub status: HealthStatus,
     pub issues: Vec<String>,
 }
 
 pub fn get_namespace() -> String {
-    std::env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string())
+    server_runtime_config().pod_namespace.clone()
 }

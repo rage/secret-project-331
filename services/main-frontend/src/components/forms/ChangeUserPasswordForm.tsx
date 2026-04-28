@@ -5,10 +5,12 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { postPasswordChange } from "@/services/backend/users"
+import { changeUserPassword } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { isBoolean } from "@/shared-module/common/utils/fetching"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 type ChangePasswordFormFields = {
   current_password: string
@@ -39,8 +41,15 @@ const ChangeUserPasswordForm: React.FC = () => {
 
   const changePasswordMutation = useToastMutation<boolean, unknown, ChangePasswordFormFields>(
     async (data) => {
-      const response = await postPasswordChange(data.current_password, data.new_password)
-      return response
+      return validateGeneratedData(
+        await changeUserPassword({
+          body: {
+            old_password: data.current_password,
+            new_password: data.new_password,
+          },
+        }),
+        isBoolean,
+      )
     },
     {
       method: "POST",

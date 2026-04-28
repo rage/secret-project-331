@@ -11,6 +11,7 @@ This documents all endpoints. Select a module below for a namespace.
 pub mod auth;
 pub mod cms;
 pub mod course_material;
+pub mod errors;
 pub mod exercise_services;
 pub mod files;
 pub mod health;
@@ -27,14 +28,13 @@ use actix_web::{
     HttpRequest, HttpResponse, ResponseError,
     web::{self, ServiceConfig},
 };
-use headless_lms_utils::{ApplicationConfiguration, prelude::*};
+use headless_lms_utils::prelude::*;
 use serde::{Deserialize, Serialize};
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+use utoipa::ToSchema;
 
 /// Result of a image upload. Tells where the uploaded image can be retrieved from.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct UploadResult {
     pub url: String,
 }
@@ -49,6 +49,7 @@ pub fn configure_controllers(
         .service(web::scope("/files").configure(files::_add_routes))
         .service(web::scope("/main-frontend").configure(main_frontend::_add_routes))
         .service(web::scope("/auth").configure(auth::_add_routes))
+        .service(web::scope("/errors").configure(errors::_add_routes))
         .service(web::scope("/study-registry").configure(study_registry::_add_routes))
         .service(web::scope("/exercise-services").configure(exercise_services::_add_routes))
         .service(

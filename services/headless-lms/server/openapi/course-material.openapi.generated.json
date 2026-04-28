@@ -1,0 +1,6568 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Course Material API",
+    "description": "",
+    "contact": {
+      "name": "University of Helsinki",
+      "email": "mooc@cs.helsinki.fi"
+    },
+    "license": {
+      "name": "Apache-2.0",
+      "identifier": "Apache-2.0"
+    },
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/api/v0/course-material/acronyms/{id}/delete": {
+      "delete": {
+        "tags": ["course-material-glossary"],
+        "operationId": "deleteCourseMaterialGlossaryTerm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Glossary term id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Glossary term deleted"
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/acronyms/{id}/update": {
+      "put": {
+        "tags": ["course-material-glossary"],
+        "operationId": "updateCourseMaterialGlossaryTerm",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Glossary term id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TermUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Glossary term updated"
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chapters/{chapter_id}/exercises": {
+      "get": {
+        "tags": ["course-material-chapters"],
+        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/exercises` - Returns a list of pages and its exercises in chapter.",
+        "operationId": "getCourseMaterialChapterPagesWithExercises",
+        "parameters": [
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chapter pages with exercises",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageWithExercises"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chapters/{chapter_id}/lock": {
+      "post": {
+        "tags": ["course-material-chapters"],
+        "summary": "\nPOST `/api/v0/course-material/chapters/:chapter_id/lock` - Complete chapter (mark as done)\n\nCompletes a chapter for the authenticated user (marks it as done).\n\nValidates that:\n- Course has chapter_locking_enabled\n- Chapter is currently unlocked (student can work on it)\n- All previous chapters in the same module are completed (sequential completion)\n- Moves all exercises to manual review\n- Unlocks next chapters for the user\n*",
+        "operationId": "lockCourseMaterialChapter",
+        "parameters": [
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated chapter locking status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserChapterLockingStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chapters/{chapter_id}/lock-preview": {
+      "get": {
+        "tags": ["course-material-chapters"],
+        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/lock-preview` - Preview lock chapter\n\nReturns information about unreturned exercises in the chapter before locking.\n*",
+        "operationId": "getCourseMaterialChapterLockPreview",
+        "parameters": [
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chapter lock preview",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChapterLockPreview"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chapters/{chapter_id}/pages": {
+      "get": {
+        "tags": ["course-material-chapters"],
+        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/pages` - Returns a list of pages in chapter.",
+        "operationId": "getCourseMaterialChapterPages",
+        "parameters": [
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public chapter pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Page"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chapters/{chapter_id}/pages-exclude-mainfrontpage": {
+      "get": {
+        "tags": ["course-material-chapters"],
+        "summary": "\nGET `/api/v0/course-material/chapters/:chapter_id/pages-exclude-mainfrontpage` - Returns a list of pages in chapter mainfrontpage excluded.",
+        "operationId": "getCourseMaterialChapterPagesExcludingFrontPage",
+        "parameters": [
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Visible chapter pages without main front page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Page"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/default-for-course/{course_id}": {
+      "get": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nGET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`\n\nReturns the default chatbot configuration id for a course if the default chatbot is enabled to students.",
+        "operationId": "getDefaultChatbotConfigurationForCourse",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default chatbot configuration id",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": ["string", "null"],
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/current": {
+      "get": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPOST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/current`\n\nReturns the current conversation for the user.",
+        "operationId": "getChatbotCurrentConversationInfo",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current chatbot conversation info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConversationInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/new": {
+      "post": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPOST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/conversations/new`\n\nSends a new chat message to the chatbot.",
+        "operationId": "newChatbotConversation",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Created chatbot conversation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatbotConversation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message": {
+      "post": {
+        "tags": ["course-material-chatbot"],
+        "summary": "\nPOST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`\n\nSends a new chat message to the chatbot.",
+        "operationId": "sendChatbotMessage",
+        "parameters": [
+          {
+            "name": "chatbot_configuration_id",
+            "in": "path",
+            "description": "Chatbot configuration id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "description": "Conversation id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Chatbot response stream",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/code-giveaways/{id}/claim": {
+      "post": {
+        "tags": ["course-material-code-giveaways"],
+        "summary": "\n POST /api/v0/course-material/code-giveaways/:id/claim - Claim a code from a code giveaway. If user has not completed the course module that is a requirement for the code, returns an error.",
+        "operationId": "claimCodeFromCodeGiveaway",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Code giveaway id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Claimed code",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/code-giveaways/{id}/status": {
+      "get": {
+        "tags": ["course-material-code-giveaways"],
+        "summary": "\n GET /api/v0/course-material/code-giveaways/:id/status - Returns information about a code giveaway.",
+        "operationId": "getCodeGiveawayStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Code giveaway id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Code giveaway status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CodeGiveawayStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/background-questions-and-answers": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nGET /api/v0/course-material/course-instance/:course_instance_id/background-questions-and-answers - Gets background questions and answers for an course instance.",
+        "operationId": "getCourseMaterialBackgroundQuestionsAndAnswers",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Background questions and answers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseBackgroundQuestionsAndAnswers"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/chapters/{chapter_id}/exercises/progress": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nGET /api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/exercises/progress - Returns user progress for an exercise in given course instance.",
+        "operationId": "getCourseMaterialChapterExerciseProgress",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course instance chapter exercise progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserCourseChapterExerciseProgress"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/chapters/{chapter_id}/progress": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nGET `/api/v0/course-material/course-instance/:course_instance_id/chapters/:chapter_id/progress - Returns user progress for chapter in course instance.",
+        "operationId": "getCourseMaterialChapterProgress",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course instance chapter progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCourseInstanceChapterProgress"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/course-module-completions/{user_id}": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nGET /course-instances/:id/course-module-completions/:user_id - Returns a list of all course module completions for a given user for this course instance.",
+        "operationId": "getCourseMaterialCourseModuleCompletionsForUser",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course module completions for user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleCompletion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/module-completions": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nGET `/api/v0/course-material/course-instance/{course_instance_id}/module-completions`",
+        "operationId": "getCourseMaterialUserModuleCompletions",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User module completion statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserModuleCompletionStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/progress": {
+      "get": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\n GET /api/v0/course-material/course-instance/:course_intance_id/progress - returns user progress information.",
+        "operationId": "getCourseMaterialUserCourseProgress",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User course progress",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserCourseProgress"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-instances/{course_instance_id}/save-course-settings": {
+      "post": {
+        "tags": ["course-material-course-instances"],
+        "summary": "\nPOST /api/v0/course-material/course-instance/:course_instance_id/save-course-settings - enrolls user to the course instance and save background questions.",
+        "operationId": "saveCourseMaterialCourseSettings",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCourseSettingsPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Course instance enrollment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseInstanceEnrollment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-modules/chapter/{chapter_id}": {
+      "get": {
+        "tags": ["course-material-course-modules"],
+        "summary": "\nGET `/api/v0/course-material/course-modules/chapter/:chapter_id`\n\nReturns course module id based on chapter.",
+        "operationId": "getCourseMaterialModuleIdByChapterId",
+        "parameters": [
+          {
+            "name": "chapter_id",
+            "in": "path",
+            "description": "Chapter id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course module id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-modules/course/{course_id}": {
+      "get": {
+        "tags": ["course-material-course-modules"],
+        "summary": "\nGET `/api/v0/course-material/course-modules/course/:course_instance_id`\n\nReturns course module id based on chapter.",
+        "operationId": "getCourseMaterialDefaultModuleIdByCourseId",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default course module id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/course-modules/{course_module_id}/exercise-tasks/{exercise_type}/{course_instance_id}": {
+      "get": {
+        "tags": ["course-material-course-modules"],
+        "summary": "\nGET `/api/v0/course-material/course-modules/:course_module_id/exercise-tasks/:exercise_type/:course_instance_id`\n\nReturns exercise submissions for user to be used in en exercise service Custom view.",
+        "operationId": "getCourseMaterialExerciseTasksByModuleAndType",
+        "parameters": [
+          {
+            "name": "course_module_id",
+            "in": "path",
+            "description": "Course module id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "exercise_type",
+            "in": "path",
+            "description": "Exercise type",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exercise tasks, exercises, and user variables",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomViewExerciseSubmissions"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id` - Get course.",
+        "operationId": "getCourseMaterialCourse",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseMaterialCourse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/chapters": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/chapters` - Returns a list of chapters in a course.",
+        "operationId": "getCourseMaterialChapters",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course chapters grouped by module",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaptersWithStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/course-instances": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/course-instances` - Returns all course instances for given course id.",
+        "operationId": "getCourseMaterialCourseInstances",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course instances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseInstance"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/course-instances/{course_instance_id}/student-countries": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries - Returns countries of student registered in a course.",
+        "operationId": "getCourseMaterialStudentCountries",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student country counts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "format": "int32",
+                    "minimum": 0
+                  },
+                  "propertyNames": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}": {
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/{course_id}/course-instances/{course_instance_id}/student-countries/{country_code}` - Add a new student's country entry.",
+        "operationId": "postCourseMaterialStudentCountry",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "country_code",
+            "in": "path",
+            "description": "Country code",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Student country recorded",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/current-instance": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/current-instance` - Returns the instance of a course for the current user, if there is one.",
+        "operationId": "getCurrentCourseMaterialCourseInstance",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Current course instance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CourseInstance"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/custom-privacy-policy-checkbox-texts": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET /courses/:course_id/custom-privacy-policy-checkbox-texts - Used to get customized checkbox texts for courses that use a different privacy policy than all our other courses (e.g. the Elements of AI course). These texts are shown in the course settings dialog.",
+        "operationId": "getCourseMaterialCustomPrivacyPolicyCheckboxTexts",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Custom privacy policy checkbox texts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseCustomPrivacyPolicyCheckboxText"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/feedback": {
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/feedback` - Creates new feedback.",
+        "operationId": "postFeedback",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NewFeedback"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created feedback ids",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/fetch-user-marketing-consent": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`",
+        "operationId": "getCourseMaterialUserMarketingConsent",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User marketing consent",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UserMarketingConsent"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/glossary": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "operationId": "getCourseMaterialGlossary",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course glossary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Term"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/language-versions-navigation-info/from-page/{page_id}": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:id/language-versions-navigation-info/from-page/:page_id` - Returns all language versions of the same course. Since this is for course material, this does not include draft courses. To make developing new courses easier, we include all draft courses that the user has access to.",
+        "operationId": "getCourseMaterialLanguageVersionNavigationInfos",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Language version navigation info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseLanguageVersionNavigationInfo"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/pages": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/pages` - Returns a list of public pages on a course.\n\nSince anyone can access this endpoint, any unlisted pages are omited from these results.",
+        "operationId": "getCourseMaterialCoursePages",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public course pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Page"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/pages/by-language-group-id/{page_language_group_id}": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/{course_id}/pages/by-language-group-id/{page_language_group_id} - Returns a page with the given course id and language group id.",
+        "operationId": "getCourseMaterialPageByCourseIdAndLanguageGroupId",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "page_language_group_id",
+            "in": "path",
+            "description": "Page language group id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page in requested language group",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/partners-block": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET /courses/:course_id/partners-block - Gets a partners block related to a course",
+        "operationId": "getCourseMaterialPartnersBlock",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Partners block",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/PartnersBlock"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/privacy-link": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET /courses/:course_id/privacy_link - Gets a privacy link related to a course",
+        "operationId": "getCourseMaterialPrivacyLink",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Privacy links",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PrivacyLink"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/references": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "operationId": "getCourseMaterialReferences",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course references",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MaterialReference"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/research-consent-form": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/research-consent-form` - Fetches courses research form with course id.",
+        "operationId": "getCourseMaterialResearchConsentForm",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Research consent form",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ResearchForm"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/research-consent-form-questions": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/research-consent-form-questions` - Fetches courses research form questions with course id.",
+        "operationId": "getCourseMaterialResearchConsentFormQuestions",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Research consent form questions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResearchFormQuestion"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/research-consent-form-questions-answer": {
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/research-consent-form-questions-answer` - Upserts users consent for a courses research form question.",
+        "operationId": "postCourseMaterialResearchConsentFormAnswer",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewResearchFormQuestionAnswer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Research consent answer id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/research-consent-form-user-answers": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course/courses/:course_id/research-consent-form-users-answers` - Fetches users answers for courses research form.",
+        "operationId": "getCourseMaterialResearchConsentFormAnswers",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Research consent answers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ResearchFormQuestionAnswer"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/search-pages-with-phrase": {
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/search-pages-with-phrase` - Returns a list of pages given a search query.\n\nProvided words are supposed to appear right after each other in the source document.\n\n# Example\n\nRequest:\n\n```http\nPOST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-phrase HTTP/1.1\nContent-Type: application/json\n\n{\n  \"query\": \"Everything\"\n}\n```",
+        "operationId": "searchPagesWithPhrase",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageSearchResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/search-pages-with-words": {
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/search-pages-with-words` - Returns a list of pages given a search query.\n\nProvided words can appear in any order in the source document.\n\n# Example\n\nRequest:\n\n```http\nPOST /api/v0/course-material/courses/1a68e8b0-d151-4c0e-9307-bb154e9d2be1/search-pages-with-words HTTP/1.1\nContent-Type: application/json\n\n{\n  \"query\": \"Everything\"\n}\n```",
+        "operationId": "searchPagesWithWords",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Matching pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageSearchResult"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/top-level-pages": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET /api/v0/course-material/courses/:course_id/top-level-pages",
+        "operationId": "getCourseMaterialTopLevelPages",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Top-level pages",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Page"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/user-chapter-locks": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/user-chapter-locks` - Get user's chapter locking statuses for course\n\nReturns all chapters that the authenticated user has unlocked or completed for the specified course.\n*",
+        "operationId": "getCourseMaterialUserChapterLocks",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User chapter locking statuses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserChapterLockingStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/user-marketing-consent": {
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/user-marketing-consent` - Adds or updates user's marketing consent for a specific course.",
+        "operationId": "updateMarketingConsent",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserMarketingConsentPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Marketing consent id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_id}/user-settings": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/user-settings` - Returns user settings for the current course.",
+        "operationId": "getCourseMaterialUserCourseSettings",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User course settings",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/UserCourseSettings"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_instance_id}/student-country": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/{course_id}/student-country - Returns country of a student registered in a course.",
+        "operationId": "getCourseMaterialStudentCountry",
+        "parameters": [
+          {
+            "name": "course_instance_id",
+            "in": "path",
+            "description": "Course instance id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Selected student country",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentCountry"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_slug}/page-by-path/{url_path}": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/:course_slug/page-by-path/...` - Returns a course page by path\n\nIf the page has moved and there's a redirection, this will still return the moved page but the field `was_redirected` will indicate that the redirection happened. The new path can be found in the page object. The frontend is supposed to update the url of the page to the new location without reloading the page.\n\n# Example\nGET /api/v0/course-material/courses/introduction-to-everything/page-by-path//part-2/hello-world",
+        "operationId": "getCourseMaterialCoursePageByPath",
+        "parameters": [
+          {
+            "name": "course_slug",
+            "in": "path",
+            "description": "Course slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "url_path",
+            "in": "path",
+            "description": "Page path within the course",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course page with user data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoursePageWithUserData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/courses/{course_slug}/propose-edit": {
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/course-material/courses/:course_slug/edit` - Creates a new edit proposal.",
+        "operationId": "postCourseMaterialCourseEditProposal",
+        "parameters": [
+          {
+            "name": "course_slug",
+            "in": "path",
+            "description": "Course slug",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewProposedPageEdits"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created edit proposal id",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exams/testexam/{id}/fetch-exam-for-testing": {
+      "get": {
+        "tags": ["course-material-exams"],
+        "summary": "\nGET /api/v0/course-material/exams/:id/fetch-exam-for-testing\n\nFetches an exam for testing.",
+        "operationId": "fetchExamForTesting",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exam data for testing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exams/testexam/{id}/reset-exam-progress": {
+      "post": {
+        "tags": ["course-material-exams"],
+        "summary": "\nPOST /api/v0/course-material/exams/:id/reset-exam-progress\n\nUsed for testing an exam, resets exercise submissions and restarts the exam time.",
+        "operationId": "resetExamProgress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exam progress reset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exams/testexam/{id}/update-show-exercise-answers": {
+      "post": {
+        "tags": ["course-material-exams"],
+        "summary": "\nPOST /api/v0/course-material/exams/:id/update-show-exercise-answers\n\nUsed for testing an exam, updates wheter exercise answers are shown.",
+        "operationId": "updateShowExerciseAnswers",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShowExerciseAnswers"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Show answers flag updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exams/{id}": {
+      "get": {
+        "tags": ["course-material-exams"],
+        "summary": "\nGET /api/v0/course-material/exams/:id",
+        "operationId": "fetchExam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exam data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExamData"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exams/{id}/end-exam-time": {
+      "post": {
+        "tags": ["course-material-exams"],
+        "summary": "\nPOST /api/v0/course-material/exams/:id/end-exam-time\n\nUsed for marking the students exam as ended in the exam enrollment",
+        "operationId": "endExamTime",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exam end time updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exams/{id}/enroll": {
+      "post": {
+        "tags": ["course-material-exams"],
+        "summary": "\nPOST /api/v0/course-material/exams/:id/enroll",
+        "operationId": "enrollInExam",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IsTeacherTesting"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Enrollment created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "default": null
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exams/{id}/enrollment": {
+      "get": {
+        "tags": ["course-material-exams"],
+        "summary": "\nGET /api/v0/course-material/exams/:id/enrollment",
+        "operationId": "fetchExamEnrollment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exam enrollment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ExamEnrollment"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exercises/{exercise_id}": {
+      "get": {
+        "tags": ["course-material-exercises"],
+        "summary": "\nGET `/api/v0/course-material/exercises/:exercise_id` - Get exercise by id. Includes\nrelevant context so that doing the exercise is possible based on the response.\n\nThis endpoint does not expose exercise's private spec because it would\nexpose the correct answers to the user.",
+        "operationId": "getCourseMaterialExercise",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course material exercise",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseMaterialExercise"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exercises/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received": {
+      "get": {
+        "tags": ["course-material-exercises"],
+        "summary": "\nGET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.",
+        "operationId": "fetchPeerReviewDataReceivedByExerciseId",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "exercise_slide_submission_id",
+            "in": "path",
+            "description": "Exercise slide submission id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peer reviews received",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PeerOrSelfReviewsReceived"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exercises/{exercise_id}/flag-peer-review-answer": {
+      "post": {
+        "tags": ["course-material-exercises"],
+        "summary": "\n * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student",
+        "operationId": "postFlagAnswerInPeerReview",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewFlaggedAnswerWithToken"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created flagged answer",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FlaggedAnswer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exercises/{exercise_id}/peer-or-self-reviews": {
+      "post": {
+        "tags": ["course-material-exercises"],
+        "summary": "\n * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an\n * exercise submission.",
+        "operationId": "postPeerOrSelfReviewSubmission",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Peer or self review submitted",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exercises/{exercise_id}/peer-or-self-reviews/start": {
+      "post": {
+        "tags": ["course-material-exercises"],
+        "summary": "\n * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews/start` - Post a signal indicating that\n * the user will start the peer or self reviewing process.\n *\n * This operation is only valid for exercises marked for peer reviews. No further submissions will be\n * accepted after posting to this endpoint.",
+        "operationId": "postStartPeerOrSelfReview",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peer or self review started",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exercises/{exercise_id}/peer-review": {
+      "get": {
+        "tags": ["course-material-exercises"],
+        "summary": "\nGET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer review for an exercise. This includes the submission to peer review and the questions the user is supposed to answer.ALTER\n\nThis request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.",
+        "operationId": "fetchPeerOrSelfReviewDataByExerciseId",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Peer or self review data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewDataWithToken"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/exercises/{exercise_id}/submissions": {
+      "post": {
+        "tags": ["course-material-exercises"],
+        "summary": "\nPOST `/api/v0/course-material/exercises/:exercise_id/submissions` - Post new submission for an\nexercise.\n\n# Example\n```http\nPOST /api/v0/course-material/exercises/:exercise_id/submissions HTTP/1.1\nContent-Type: application/json\n\n{\n  \"exercise_slide_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n  \"exercise_task_answers\": [\n    {\n      \"exercise_task_id\": \"0125c21b-6afa-4652-89f7-56c48bd8ffe4\",\n      \"data_json\": { \"selectedOptionId\": \"8f09e9a0-ac20-486a-ba29-704e7eeaf6af\" }\n    }\n  ]\n}\n```",
+        "operationId": "postSubmission",
+        "parameters": [
+          {
+            "name": "exercise_id",
+            "in": "path",
+            "description": "Exercise id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StudentExerciseSlideSubmission"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Submission result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StudentExerciseSlideSubmissionResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/oembed/mentimeter": {
+      "get": {
+        "tags": ["course-material-oembed"],
+        "summary": "\nGET `/api/v0/course-material/oembed/mentimeter?url=https://menti.com/123qwerty`",
+        "operationId": "getCourseMaterialMentimeterOembed",
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "description": "Mentimeter URL",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mentimeter oEmbed response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseMaterialOEmbedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/organizations/{organization_id}": {
+      "get": {
+        "tags": ["course-material-organizations"],
+        "summary": "\nGET /organizations/:organization_id - Get organization.",
+        "operationId": "getCourseMaterialOrganization",
+        "parameters": [
+          {
+            "name": "organization_id",
+            "in": "path",
+            "description": "Organization id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organization",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Organization"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/page_audio/{page_id}/files": {
+      "get": {
+        "tags": ["course-material-page-audio"],
+        "operationId": "getCourseMaterialPageAudioFiles",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page audio files",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PageAudioFile"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/pages/exam/{page_id}": {
+      "get": {
+        "tags": ["course-material-pages"],
+        "summary": "\nGET /api/v0/course-material/pages/exam/{page_id}",
+        "operationId": "getCourseMaterialPageByExamId",
+        "parameters": [
+          {
+            "name": "page_id",
+            "in": "path",
+            "description": "Exam id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Exam page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/pages/{current_page_id}/chapter-and-course-information": {
+      "get": {
+        "tags": ["course-material-pages"],
+        "summary": "\n GET /api/v0/course-material/pages/:page_id/chapter-and-course-information - gives the page's chapter and course information -- useful for the breadcrumbs",
+        "operationId": "getCourseMaterialPageChapterAndCourseInformation",
+        "parameters": [
+          {
+            "name": "current_page_id",
+            "in": "path",
+            "description": "Current page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page chapter and course information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageChapterAndCourseInformation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/pages/{current_page_id}/chapter-front-page": {
+      "get": {
+        "tags": ["course-material-pages"],
+        "summary": "\nGET /api/v0/course-material/page/{page_id}",
+        "operationId": "getCourseMaterialChapterFrontPage",
+        "parameters": [
+          {
+            "name": "current_page_id",
+            "in": "path",
+            "description": "Current page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chapter front page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "null"
+                    },
+                    {
+                      "$ref": "#/components/schemas/Page"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/pages/{current_page_id}/is-chapter-front-page": {
+      "get": {
+        "tags": ["course-material-pages"],
+        "operationId": "getCourseMaterialIsPageChapterFrontPage",
+        "parameters": [
+          {
+            "name": "current_page_id",
+            "in": "path",
+            "description": "Current page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether page is chapter front page",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IsChapterFrontPage"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/pages/{current_page_id}/page-navigation": {
+      "get": {
+        "tags": ["course-material-pages"],
+        "summary": "\nGET /api/v0/course-material/pages/:page_id/page-navigation - tells what's the next page, previous page, and the chapter front page given a page id.",
+        "operationId": "getCourseMaterialPageNavigation",
+        "parameters": [
+          {
+            "name": "current_page_id",
+            "in": "path",
+            "description": "Current page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page navigation information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PageNavigationInformation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/pages/{current_page_id}/url-path": {
+      "get": {
+        "tags": ["course-material-pages"],
+        "summary": "\n GET /api/v0/course-material/pages/:page_id/url-path - returns the page's URL path.\n # Example\n ```json\n \"chapter-1/page-2\"\n ```",
+        "operationId": "getCourseMaterialPageUrlPath",
+        "parameters": [
+          {
+            "name": "current_page_id",
+            "in": "path",
+            "description": "Current page id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Page URL path",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/proposed-edits/{course_id}": {
+      "post": {
+        "tags": ["course-material-proposed-edits"],
+        "summary": "\nPOST `/api/v0/course-material/proposed-edits/:course-id`",
+        "operationId": "postCourseMaterialProposedEdits",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewProposedPageEdits"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created proposed edit"
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/user-details/update-user-info": {
+      "post": {
+        "tags": ["course-material-user-details"],
+        "summary": "\nPOST `/api/v0/course-material/user-details/update-user-info` - Updates the users information such as email, name, country and email communication consent",
+        "operationId": "updateCourseMaterialUserInfo",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInfoPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated user details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/user-details/user": {
+      "get": {
+        "tags": ["course-material-user-details"],
+        "summary": "\nGET `/api/v0/course-material/user-details/user` - Find user details by user id",
+        "operationId": "getCourseMaterialAuthenticatedUserDetails",
+        "responses": {
+          "200": {
+            "description": "Authenticated user details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/course-material/user-details/users-ip-country": {
+      "get": {
+        "tags": ["course-material-user-details"],
+        "summary": "\nGET `/api/v0/course-material/user-details/users-ip-country` - Find users country by their IP  address",
+        "operationId": "getCourseMaterialCountryFromIp",
+        "responses": {
+          "200": {
+            "description": "Detected country code",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ActivityProgress": {
+        "type": "string",
+        "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
+        "enum": ["Initialized", "Started", "InProgress", "Submitted", "Completed"]
+      },
+      "ChapterLockPreview": {
+        "type": "object",
+        "required": [
+          "has_unreturned_exercises",
+          "unreturned_exercises_count",
+          "unreturned_exercises"
+        ],
+        "properties": {
+          "has_unreturned_exercises": {
+            "type": "boolean"
+          },
+          "unreturned_exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnreturnedExercise"
+            }
+          },
+          "unreturned_exercises_count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ChapterLockingStatus": {
+        "type": "string",
+        "enum": ["unlocked", "completed_and_locked", "not_unlocked_yet"]
+      },
+      "ChapterStatus": {
+        "type": "string",
+        "enum": ["open", "closed"]
+      },
+      "ChapterWithStatus": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "name",
+          "course_id",
+          "chapter_number",
+          "status",
+          "course_module_id",
+          "exercise_deadline_override_count",
+          "exercise_deadline_override_distinct_count"
+        ],
+        "properties": {
+          "chapter_image_url": {
+            "type": ["string", "null"]
+          },
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "color": {
+            "type": ["string", "null"]
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deadline": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "earliest_exercise_deadline_override": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_deadline_override_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "exercise_deadline_override_distinct_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "front_page_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "opens_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChapterStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChaptersWithStatus": {
+        "type": "object",
+        "required": ["is_previewable", "modules"],
+        "properties": {
+          "is_previewable": {
+            "type": "boolean"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseMaterialCourseModule"
+            }
+          }
+        }
+      },
+      "ChatbotConversation": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "user_id",
+          "chatbot_configuration_id"
+        ],
+        "properties": {
+          "chatbot_configuration_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ChatbotConversationInfo": {
+        "type": "object",
+        "description": "Should contain all information required to display the chatbot to the user.",
+        "required": ["chatbot_name", "course_name", "hide_citations"],
+        "properties": {
+          "chatbot_name": {
+            "type": "string"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "current_conversation": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatbotConversation"
+              }
+            ]
+          },
+          "current_conversation_message_citations": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/ChatbotConversationMessageCitation"
+            }
+          },
+          "current_conversation_messages": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/ChatbotConversationMessage"
+            }
+          },
+          "hide_citations": {
+            "type": "boolean"
+          },
+          "suggested_messages": {
+            "type": ["array", "null"],
+            "items": {
+              "$ref": "#/components/schemas/ChatbotConversationSuggestedMessage"
+            }
+          }
+        }
+      },
+      "ChatbotConversationMessage": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "conversation_id",
+          "message_role",
+          "message_is_complete",
+          "used_tokens",
+          "order_number",
+          "tool_call_fields"
+        ],
+        "properties": {
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": ["string", "null"]
+          },
+          "message_is_complete": {
+            "type": "boolean"
+          },
+          "message_role": {
+            "$ref": "#/components/schemas/MessageRole"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tool_call_fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChatbotConversationMessageToolCall"
+            }
+          },
+          "tool_output": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ChatbotConversationMessageToolOutput"
+              }
+            ]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "used_tokens": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ChatbotConversationMessageCitation": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "conversation_message_id",
+          "conversation_id",
+          "title",
+          "content",
+          "document_url",
+          "citation_number"
+        ],
+        "properties": {
+          "citation_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "content": {
+            "type": "string"
+          },
+          "conversation_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_material_chapter_number": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "document_url": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationMessageToolCall": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "message_id",
+          "tool_name",
+          "tool_arguments",
+          "tool_call_id"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tool_arguments": {},
+          "tool_call_id": {
+            "type": "string"
+          },
+          "tool_name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationMessageToolOutput": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "message_id",
+          "tool_name",
+          "tool_output",
+          "tool_call_id"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tool_call_id": {
+            "type": "string"
+          },
+          "tool_name": {
+            "type": "string"
+          },
+          "tool_output": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationSuggestedMessage": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "conversation_message_id", "message"],
+        "properties": {
+          "conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "message": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CodeGiveawayStatus": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["tag"],
+            "properties": {
+              "tag": {
+                "type": "string",
+                "enum": ["Disabled"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["tag"],
+            "properties": {
+              "tag": {
+                "type": "string",
+                "enum": ["NotEligible"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["codes_left", "tag"],
+            "properties": {
+              "codes_left": {
+                "type": "boolean"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["Eligible"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["given_code", "tag"],
+            "properties": {
+              "given_code": {
+                "type": "string"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["AlreadyGottenCode"]
+              }
+            }
+          }
+        ]
+      },
+      "Course": {
+        "type": "object",
+        "required": [
+          "id",
+          "slug",
+          "created_at",
+          "updated_at",
+          "name",
+          "organization_id",
+          "language_code",
+          "course_language_group_id",
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "base_module_completion_requires_n_submodule_completions",
+          "can_add_chatbot",
+          "is_joinable_by_code_only",
+          "ask_marketing_consent",
+          "flagged_answers_skip_manual_review_and_allow_retry",
+          "chapter_locking_enabled"
+        ],
+        "properties": {
+          "ask_marketing_consent": {
+            "type": "boolean"
+          },
+          "base_module_completion_requires_n_submodule_completions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "can_add_chatbot": {
+            "type": "boolean"
+          },
+          "chapter_locking_enabled": {
+            "type": "boolean"
+          },
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "content_search_language": {
+            "type": ["string", "null"]
+          },
+          "copied_from": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "flagged_answers_skip_manual_review_and_allow_retry": {
+            "type": "boolean"
+          },
+          "flagged_answers_threshold": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
+          },
+          "join_code": {
+            "type": ["string", "null"]
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseBackgroundQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "question_text",
+          "question_type"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question_text": {
+            "type": "string"
+          },
+          "question_type": {
+            "$ref": "#/components/schemas/CourseBackgroundQuestionType"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseBackgroundQuestionAnswer": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "course_background_question_id", "user_id"],
+        "properties": {
+          "answer_value": {
+            "type": ["string", "null"]
+          },
+          "course_background_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseBackgroundQuestionType": {
+        "type": "string",
+        "enum": ["Checkbox", "Text"]
+      },
+      "CourseBackgroundQuestionsAndAnswers": {
+        "type": "object",
+        "required": ["background_questions", "answers"],
+        "properties": {
+          "answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseBackgroundQuestionAnswer"
+            }
+          },
+          "background_questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseBackgroundQuestion"
+            }
+          }
+        }
+      },
+      "CourseCustomPrivacyPolicyCheckboxText": {
+        "type": "object",
+        "required": ["id", "course_id", "created_at", "updated_at", "text_html", "text_slug"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text_html": {
+            "type": "string"
+          },
+          "text_slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseInstance": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "teacher_in_charge_name",
+          "teacher_in_charge_email"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "ends_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "starts_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "support_email": {
+            "type": ["string", "null"]
+          },
+          "teacher_in_charge_email": {
+            "type": "string"
+          },
+          "teacher_in_charge_name": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseInstanceEnrollment": {
+        "type": "object",
+        "required": ["user_id", "course_id", "course_instance_id", "created_at", "updated_at"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseLanguageVersionNavigationInfo": {
+        "type": "object",
+        "description": "All the necessary info that can be used to switch the user's browser to a different language version of the course.",
+        "required": [
+          "course_language_group_id",
+          "course_id",
+          "language_code",
+          "course_slug",
+          "page_path",
+          "is_draft",
+          "current_page_unavailable_in_this_language"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_slug": {
+            "type": "string"
+          },
+          "current_page_unavailable_in_this_language": {
+            "type": "boolean"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "page_path": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseMaterialCourse": {
+        "type": "object",
+        "description": "A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials.",
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "organization_id",
+          "language_code",
+          "course_language_group_id",
+          "is_draft",
+          "is_test_mode",
+          "is_unlisted",
+          "base_module_completion_requires_n_submodule_completions",
+          "is_joinable_by_code_only",
+          "ask_marketing_consent",
+          "chapter_locking_enabled"
+        ],
+        "properties": {
+          "ask_marketing_consent": {
+            "type": "boolean"
+          },
+          "base_module_completion_requires_n_submodule_completions": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "chapter_locking_enabled": {
+            "type": "boolean"
+          },
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "content_search_language": {
+            "type": ["string", "null"]
+          },
+          "copied_from": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_draft": {
+            "type": "boolean"
+          },
+          "is_joinable_by_code_only": {
+            "type": "boolean"
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "is_unlisted": {
+            "type": "boolean"
+          },
+          "language_code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "slug": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseMaterialCourseModule": {
+        "type": "object",
+        "required": ["chapters", "id", "is_default", "order_number"],
+        "properties": {
+          "chapters": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChapterWithStatus"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_default": {
+            "type": "boolean"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CourseMaterialExercise": {
+        "type": "object",
+        "required": [
+          "exercise",
+          "can_post_submission",
+          "current_exercise_slide",
+          "exercise_slide_submission_counts",
+          "user_course_instance_exercise_service_variables"
+        ],
+        "properties": {
+          "can_post_submission": {
+            "type": "boolean"
+          },
+          "current_exercise_slide": {
+            "$ref": "#/components/schemas/CourseMaterialExerciseSlide"
+          },
+          "exercise": {
+            "$ref": "#/components/schemas/Exercise"
+          },
+          "exercise_slide_submission_counts": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "propertyNames": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "exercise_status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseStatus",
+                "description": "None for logged out users."
+              }
+            ]
+          },
+          "peer_or_self_review_config": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewConfig"
+              }
+            ]
+          },
+          "previous_exercise_slide_submission": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseSlideSubmission"
+              }
+            ]
+          },
+          "should_show_reset_message": {
+            "type": ["string", "null"]
+          },
+          "user_course_instance_exercise_service_variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCourseExerciseServiceVariable"
+            }
+          }
+        }
+      },
+      "CourseMaterialExerciseSlide": {
+        "type": "object",
+        "required": ["id", "exercise_tasks"],
+        "properties": {
+          "exercise_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseMaterialExerciseTask"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseMaterialExerciseTask": {
+        "type": "object",
+        "description": "Information necessary for the frontend to render an exercise task",
+        "required": [
+          "id",
+          "exercise_service_slug",
+          "exercise_slide_id",
+          "assignment",
+          "order_number"
+        ],
+        "properties": {
+          "assignment": {},
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_iframe_url": {
+            "type": ["string", "null"],
+            "description": "\n    If none, the task is not completable at the moment because the service needs to\n    be configured to the system."
+          },
+          "exercise_service_slug": {
+            "type": "string"
+          },
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "model_solution_spec": {},
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "previous_submission": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseTaskSubmission"
+              }
+            ]
+          },
+          "previous_submission_grading": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseTaskGrading"
+              }
+            ]
+          },
+          "pseudonumous_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid",
+            "description": "\n    Unique for each (exercise_service, user) combo. If none, the task is not completable at the moment because the service needs to\n    be configured to the system."
+          },
+          "public_spec": {}
+        }
+      },
+      "CourseMaterialOEmbedResponse": {
+        "type": "object",
+        "required": [
+          "author_name",
+          "author_url",
+          "html",
+          "provider_name",
+          "provider_url",
+          "title",
+          "version"
+        ],
+        "properties": {
+          "author_name": {
+            "type": "string"
+          },
+          "author_url": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          },
+          "provider_name": {
+            "type": "string"
+          },
+          "provider_url": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseMaterialPeerOrSelfReviewConfig": {
+        "type": "object",
+        "description": "Like `PeerOrSelfReviewConfig` but only the fields it's fine to show to all users.",
+        "required": ["id", "course_id", "peer_reviews_to_give", "peer_reviews_to_receive"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_reviews_to_give": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "peer_reviews_to_receive": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "CourseMaterialPeerOrSelfReviewData": {
+        "type": "object",
+        "required": [
+          "peer_or_self_review_config",
+          "peer_or_self_review_questions",
+          "num_peer_reviews_given"
+        ],
+        "properties": {
+          "answer_to_review": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewDataAnswerToReview",
+                "description": "If none, no answer was available for review."
+              }
+            ]
+          },
+          "num_peer_reviews_given": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "peer_or_self_review_config": {
+            "$ref": "#/components/schemas/PeerOrSelfReviewConfig"
+          },
+          "peer_or_self_review_questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewQuestion"
+            }
+          }
+        }
+      },
+      "CourseMaterialPeerOrSelfReviewDataAnswerToReview": {
+        "type": "object",
+        "required": ["exercise_slide_submission_id", "course_material_exercise_tasks"],
+        "properties": {
+          "course_material_exercise_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseMaterialExerciseTask"
+            },
+            "description": "Uses the same type as we use when we render and exercise in course material. Allows us to reuse existing logic for getting all the necessary information for rendering the submission."
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseMaterialPeerOrSelfReviewDataWithToken": {
+        "type": "object",
+        "required": ["course_material_peer_or_self_review_data"],
+        "properties": {
+          "course_material_peer_or_self_review_data": {
+            "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewData"
+          },
+          "token": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CourseMaterialPeerOrSelfReviewQuestionAnswer": {
+        "type": "object",
+        "required": ["peer_or_self_review_question_id"],
+        "properties": {
+          "number_data": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "peer_or_self_review_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text_data": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CourseMaterialPeerOrSelfReviewSubmission": {
+        "type": "object",
+        "required": [
+          "exercise_slide_submission_id",
+          "peer_or_self_review_config_id",
+          "peer_review_question_answers",
+          "token"
+        ],
+        "properties": {
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_or_self_review_config_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_review_question_answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseMaterialPeerOrSelfReviewQuestionAnswer"
+            }
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "CourseModuleCompletion": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "course_module_id",
+          "user_id",
+          "completion_date",
+          "completion_language",
+          "eligible_for_ects",
+          "email",
+          "passed",
+          "prerequisite_modules_completed",
+          "needs_to_be_reviewed"
+        ],
+        "properties": {
+          "completion_date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "completion_granter_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "completion_language": {
+            "type": "string"
+          },
+          "completion_registration_attempt_date": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "eligible_for_ects": {
+            "type": "boolean"
+          },
+          "email": {
+            "type": "string"
+          },
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "needs_to_be_reviewed": {
+            "type": "boolean"
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "prerequisite_modules_completed": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CoursePageWithUserData": {
+        "type": "object",
+        "required": ["page", "was_redirected", "is_test_mode"],
+        "properties": {
+          "course": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Course"
+              }
+            ]
+          },
+          "instance": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseInstance"
+              }
+            ]
+          },
+          "is_test_mode": {
+            "type": "boolean"
+          },
+          "lock_chapter_content_state": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/LockChapterContentState"
+              }
+            ]
+          },
+          "organization": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/Organization"
+              }
+            ]
+          },
+          "page": {
+            "$ref": "#/components/schemas/Page"
+          },
+          "settings": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/UserCourseSettings"
+              }
+            ]
+          },
+          "was_redirected": {
+            "type": "boolean",
+            "description": "If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page."
+          }
+        }
+      },
+      "CustomViewExerciseSubmissions": {
+        "type": "object",
+        "required": ["exercise_tasks", "exercises", "user_variables"],
+        "properties": {
+          "exercise_tasks": {
+            "$ref": "#/components/schemas/CustomViewExerciseTasks"
+          },
+          "exercises": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Exercise"
+            }
+          },
+          "user_variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCourseExerciseServiceVariable"
+            }
+          }
+        }
+      },
+      "CustomViewExerciseTaskGrading": {
+        "type": "object",
+        "required": ["id", "created_at", "exercise_id", "exercise_task_id"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "feedback_json": {},
+          "feedback_text": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CustomViewExerciseTaskSpec": {
+        "type": "object",
+        "required": ["id", "order_number"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "public_spec": {}
+        }
+      },
+      "CustomViewExerciseTaskSubmission": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "exercise_slide_submission_id",
+          "exercise_slide_id",
+          "exercise_task_id"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data_json": {},
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_grading_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CustomViewExerciseTasks": {
+        "type": "object",
+        "required": ["exercise_tasks", "task_submissions", "task_gradings"],
+        "properties": {
+          "exercise_tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomViewExerciseTaskSpec"
+            }
+          },
+          "task_gradings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomViewExerciseTaskGrading"
+            }
+          },
+          "task_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomViewExerciseTaskSubmission"
+            }
+          }
+        }
+      },
+      "ExamData": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "instructions",
+          "starts_at",
+          "ends_at",
+          "ended",
+          "time_minutes",
+          "enrollment_data",
+          "language"
+        ],
+        "properties": {
+          "ended": {
+            "type": "boolean"
+          },
+          "ends_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "enrollment_data": {
+            "$ref": "#/components/schemas/ExamEnrollmentData"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "instructions": {},
+          "language": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "starts_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "time_minutes": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ExamEnrollment": {
+        "type": "object",
+        "required": ["user_id", "exam_id", "started_at", "is_teacher_testing"],
+        "properties": {
+          "ended_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_teacher_testing": {
+            "type": "boolean"
+          },
+          "show_exercise_answers": {
+            "type": ["boolean", "null"]
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ExamEnrollmentData": {
+        "oneOf": [
+          {
+            "type": "object",
+            "description": "The student has enrolled to the exam and started it.",
+            "required": ["page_id", "page", "enrollment", "tag"],
+            "properties": {
+              "enrollment": {
+                "$ref": "#/components/schemas/ExamEnrollment"
+              },
+              "page": {
+                "$ref": "#/components/schemas/Page"
+              },
+              "page_id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["EnrolledAndStarted"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The student has not enrolled to the exam yet. However, the the exam is open.",
+            "required": ["can_enroll", "tag"],
+            "properties": {
+              "can_enroll": {
+                "type": "boolean"
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["NotEnrolled"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The exam's start time is in the future, no one can enroll yet.",
+            "required": ["tag"],
+            "properties": {
+              "tag": {
+                "type": "string",
+                "enum": ["NotYetStarted"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "description": "The exam is still open but the student has run out of time.",
+            "required": ["tag"],
+            "properties": {
+              "tag": {
+                "type": "string",
+                "enum": ["StudentTimeUp"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["gradings", "enrollment", "tag"],
+            "properties": {
+              "enrollment": {
+                "$ref": "#/components/schemas/ExamEnrollment"
+              },
+              "gradings": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": false,
+                  "prefixItems": [
+                    {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "user_exercise_state_id",
+                        "created_at",
+                        "updated_at",
+                        "score_given",
+                        "teacher_decision"
+                      ],
+                      "properties": {
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "deleted_at": {
+                          "type": ["string", "null"],
+                          "format": "date-time"
+                        },
+                        "hidden": {
+                          "type": ["boolean", "null"]
+                        },
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "justification": {
+                          "type": ["string", "null"]
+                        },
+                        "score_given": {
+                          "type": "number",
+                          "format": "float"
+                        },
+                        "teacher_decision": {
+                          "$ref": "#/components/schemas/TeacherDecisionType"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "user_exercise_state_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "created_at",
+                        "updated_at",
+                        "name",
+                        "page_id",
+                        "score_maximum",
+                        "order_number",
+                        "limit_number_of_tries",
+                        "needs_peer_review",
+                        "needs_self_review",
+                        "use_course_default_peer_or_self_review_config",
+                        "teacher_reviews_answer_after_locking"
+                      ],
+                      "properties": {
+                        "chapter_id": {
+                          "type": ["string", "null"],
+                          "format": "uuid"
+                        },
+                        "copied_from": {
+                          "type": ["string", "null"],
+                          "format": "uuid"
+                        },
+                        "course_id": {
+                          "type": ["string", "null"],
+                          "format": "uuid"
+                        },
+                        "created_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "deadline": {
+                          "type": ["string", "null"],
+                          "format": "date-time"
+                        },
+                        "deleted_at": {
+                          "type": ["string", "null"],
+                          "format": "date-time"
+                        },
+                        "exam_id": {
+                          "type": ["string", "null"],
+                          "format": "uuid"
+                        },
+                        "exercise_language_group_id": {
+                          "type": ["string", "null"],
+                          "format": "uuid"
+                        },
+                        "id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "limit_number_of_tries": {
+                          "type": "boolean"
+                        },
+                        "max_tries_per_slide": {
+                          "type": ["integer", "null"],
+                          "format": "int32"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "needs_peer_review": {
+                          "type": "boolean"
+                        },
+                        "needs_self_review": {
+                          "type": "boolean"
+                        },
+                        "order_number": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "page_id": {
+                          "type": "string",
+                          "format": "uuid"
+                        },
+                        "score_maximum": {
+                          "type": "integer",
+                          "format": "int32"
+                        },
+                        "teacher_reviews_answer_after_locking": {
+                          "type": "boolean"
+                        },
+                        "updated_at": {
+                          "type": "string",
+                          "format": "date-time"
+                        },
+                        "use_course_default_peer_or_self_review_config": {
+                          "type": "boolean"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "tag": {
+                "type": "string",
+                "enum": ["StudentCanViewGrading"]
+              }
+            }
+          }
+        ]
+      },
+      "Exercise": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "name",
+          "page_id",
+          "score_maximum",
+          "order_number",
+          "limit_number_of_tries",
+          "needs_peer_review",
+          "needs_self_review",
+          "use_course_default_peer_or_self_review_config",
+          "teacher_reviews_answer_after_locking"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "copied_from": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deadline": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exercise_language_group_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "limit_number_of_tries": {
+            "type": "boolean"
+          },
+          "max_tries_per_slide": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "needs_peer_review": {
+            "type": "boolean"
+          },
+          "needs_self_review": {
+            "type": "boolean"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "teacher_reviews_answer_after_locking": {
+            "type": "boolean"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "use_course_default_peer_or_self_review_config": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ExerciseSlideSubmission": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "exercise_slide_id",
+          "exercise_id",
+          "user_id",
+          "user_points_update_strategy"
+        ],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "flag_count": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_points_update_strategy": {
+            "$ref": "#/components/schemas/UserPointsUpdateStrategy"
+          }
+        }
+      },
+      "ExerciseStatus": {
+        "type": "object",
+        "required": ["activity_progress", "grading_progress", "reviewing_stage"],
+        "properties": {
+          "activity_progress": {
+            "$ref": "#/components/schemas/ActivityProgress"
+          },
+          "grading_progress": {
+            "$ref": "#/components/schemas/GradingProgress"
+          },
+          "reviewing_stage": {
+            "$ref": "#/components/schemas/ReviewingStage"
+          },
+          "score_given": {
+            "type": ["number", "null"],
+            "format": "float"
+          }
+        }
+      },
+      "ExerciseTaskGrading": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "exercise_task_submission_id",
+          "exercise_id",
+          "exercise_task_id",
+          "grading_priority",
+          "grading_progress"
+        ],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "feedback_json": {},
+          "feedback_text": {
+            "type": ["string", "null"]
+          },
+          "grading_completed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "grading_priority": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "grading_progress": {
+            "$ref": "#/components/schemas/GradingProgress"
+          },
+          "grading_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_given": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "unscaled_score_given": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "unscaled_score_maximum": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ExerciseTaskSubmission": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "exercise_slide_submission_id",
+          "exercise_task_id",
+          "exercise_slide_id"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "data_json": {},
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_grading_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "metadata": {},
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FeedbackBlock": {
+        "type": "object",
+        "required": ["id"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "text": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "FlaggedAnswer": {
+        "type": "object",
+        "required": [
+          "id",
+          "submission_id",
+          "flagged_user",
+          "flagged_by",
+          "reason",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "flagged_by": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "flagged_user": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/ReportReason"
+          },
+          "submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "GradingProgress": {
+        "type": "string",
+        "description": "\n\nTells what's the status of the grading progress for a user and exercise.\n\nAs close as possible LTI's grading progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress>",
+        "enum": ["Failed", "NotReady", "PendingManual", "Pending", "FullyGraded"]
+      },
+      "IsChapterFrontPage": {
+        "type": "object",
+        "required": ["is_chapter_front_page"],
+        "properties": {
+          "is_chapter_front_page": {
+            "type": "boolean"
+          }
+        }
+      },
+      "IsTeacherTesting": {
+        "type": "object",
+        "required": ["is_teacher_testing"],
+        "properties": {
+          "is_teacher_testing": {
+            "type": "boolean"
+          }
+        }
+      },
+      "LockChapterContentState": {
+        "type": "string",
+        "enum": ["not_locked", "waiting_teacher_review", "visible"]
+      },
+      "MaterialReference": {
+        "type": "object",
+        "required": ["id", "course_id", "citation_key", "reference", "created_at", "updated_at"],
+        "properties": {
+          "citation_key": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "MessageRole": {
+        "type": "string",
+        "enum": ["assistant", "user", "tool", "system"]
+      },
+      "NewCourseBackgroundQuestionAnswer": {
+        "type": "object",
+        "required": ["course_background_question_id"],
+        "properties": {
+          "answer_value": {
+            "type": ["string", "null"]
+          },
+          "course_background_question_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "NewFeedback": {
+        "type": "object",
+        "required": ["feedback_given", "related_blocks", "page_id"],
+        "properties": {
+          "feedback_given": {
+            "type": "string"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "related_blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackBlock"
+            }
+          },
+          "selected_text": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "NewFlaggedAnswerWithToken": {
+        "type": "object",
+        "required": ["submission_id", "reason", "peer_or_self_review_config_id", "token"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "flagged_by": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "flagged_user": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "peer_or_self_review_config_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reason": {
+            "$ref": "#/components/schemas/ReportReason"
+          },
+          "submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "token": {
+            "type": "string"
+          }
+        }
+      },
+      "NewProposedBlockEdit": {
+        "type": "object",
+        "required": ["block_id", "block_attribute", "original_text", "changed_text"],
+        "properties": {
+          "block_attribute": {
+            "type": "string"
+          },
+          "block_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "changed_text": {
+            "type": "string"
+          },
+          "original_text": {
+            "type": "string"
+          }
+        }
+      },
+      "NewProposedPageEdits": {
+        "type": "object",
+        "required": ["page_id", "block_edits"],
+        "properties": {
+          "block_edits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewProposedBlockEdit"
+            }
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "NewResearchFormQuestionAnswer": {
+        "type": "object",
+        "required": ["user_id", "research_form_question_id", "research_consent"],
+        "properties": {
+          "research_consent": {
+            "type": "boolean"
+          },
+          "research_form_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Organization": {
+        "type": "object",
+        "required": ["id", "slug", "created_at", "updated_at", "name", "hidden"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_image_url": {
+            "type": ["string", "null"]
+          },
+          "slug": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Page": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "url_path",
+          "title",
+          "content",
+          "order_number",
+          "hidden"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "content": {},
+          "copied_from": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "hidden": {
+            "type": "boolean"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "page_language_group_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "PageAudioFile": {
+        "type": "object",
+        "required": ["id", "page_id", "created_at", "path", "mime_type"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mime_type": {
+            "type": "string"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "path": {
+            "type": "string"
+          }
+        }
+      },
+      "PageChapterAndCourseInformation": {
+        "type": "object",
+        "required": ["organization_slug"],
+        "properties": {
+          "chapter_front_page_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "chapter_front_page_url_path": {
+            "type": ["string", "null"]
+          },
+          "chapter_name": {
+            "type": ["string", "null"]
+          },
+          "chapter_number": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "course_name": {
+            "type": ["string", "null"]
+          },
+          "course_slug": {
+            "type": ["string", "null"]
+          },
+          "organization_slug": {
+            "type": "string"
+          }
+        }
+      },
+      "PageNavigationInformation": {
+        "type": "object",
+        "properties": {
+          "chapter_front_page": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageRoutingData"
+              }
+            ]
+          },
+          "next_page": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageRoutingData"
+              }
+            ]
+          },
+          "previous_page": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageRoutingData"
+              }
+            ]
+          }
+        }
+      },
+      "PageRoutingData": {
+        "type": "object",
+        "required": ["url_path", "title", "page_id", "chapter_number", "chapter_id"],
+        "properties": {
+          "chapter_front_page_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "chapter_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "chapter_opens_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "page_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "PageSearchResult": {
+        "type": "object",
+        "required": ["id", "url_path"],
+        "properties": {
+          "chapter_name": {
+            "type": ["string", "null"]
+          },
+          "content_headline": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rank": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "title_headline": {
+            "type": ["string", "null"]
+          },
+          "url_path": {
+            "type": "string"
+          }
+        }
+      },
+      "PageWithExercises": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Page"
+          },
+          {
+            "type": "object",
+            "required": ["exercises"],
+            "properties": {
+              "exercises": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Exercise"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PartnersBlock": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "content", "course_id"],
+        "properties": {
+          "content": {},
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PeerOrSelfReviewConfig": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_id",
+          "peer_reviews_to_give",
+          "peer_reviews_to_receive",
+          "accepting_threshold",
+          "processing_strategy",
+          "manual_review_cutoff_in_days",
+          "points_are_all_or_nothing",
+          "reset_answer_if_zero_points_from_review"
+        ],
+        "properties": {
+          "accepting_threshold": {
+            "type": "number",
+            "format": "float"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "manual_review_cutoff_in_days": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "peer_reviews_to_give": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "peer_reviews_to_receive": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "points_are_all_or_nothing": {
+            "type": "boolean"
+          },
+          "processing_strategy": {
+            "$ref": "#/components/schemas/PeerReviewProcessingStrategy"
+          },
+          "reset_answer_if_zero_points_from_review": {
+            "type": "boolean"
+          },
+          "review_instructions": {},
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PeerOrSelfReviewQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "peer_or_self_review_config_id",
+          "order_number",
+          "question",
+          "question_type",
+          "answer_required",
+          "weight"
+        ],
+        "properties": {
+          "answer_required": {
+            "type": "boolean"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "peer_or_self_review_config_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question": {
+            "type": "string"
+          },
+          "question_type": {
+            "$ref": "#/components/schemas/PeerOrSelfReviewQuestionType"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "weight": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "PeerOrSelfReviewQuestionSubmission": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "peer_or_self_review_question_id",
+          "peer_or_self_review_submission_id"
+        ],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "number_data": {
+            "type": ["number", "null"],
+            "format": "float"
+          },
+          "peer_or_self_review_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_or_self_review_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "text_data": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PeerOrSelfReviewQuestionType": {
+        "type": "string",
+        "enum": ["Essay", "Scale"]
+      },
+      "PeerOrSelfReviewSubmission": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "exercise_id",
+          "course_id",
+          "peer_or_self_review_config_id",
+          "exercise_slide_submission_id"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_slide_submission_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "peer_or_self_review_config_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "PeerOrSelfReviewsReceived": {
+        "type": "object",
+        "required": [
+          "peer_or_self_review_questions",
+          "peer_or_self_review_question_submissions",
+          "peer_or_self_review_submissions"
+        ],
+        "properties": {
+          "peer_or_self_review_question_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewQuestionSubmission"
+            }
+          },
+          "peer_or_self_review_questions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewQuestion"
+            }
+          },
+          "peer_or_self_review_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PeerOrSelfReviewSubmission"
+            }
+          }
+        }
+      },
+      "PeerReviewProcessingStrategy": {
+        "type": "string",
+        "description": "\nDetermines how we will treat the answer being peer reviewed once it has received enough reviews and the student has given enough peer reviews.\n\nSome strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.",
+        "enum": [
+          "AutomaticallyGradeByAverage",
+          "AutomaticallyGradeOrManualReviewByAverage",
+          "ManualReviewEverything"
+        ]
+      },
+      "PrivacyLink": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "title", "url", "course_id"],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      },
+      "ReportReason": {
+        "type": "string",
+        "enum": ["Spam", "HarmfulContent", "AiGenerated"]
+      },
+      "ResearchForm": {
+        "type": "object",
+        "required": ["id", "course_id", "content", "created_at", "updated_at"],
+        "properties": {
+          "content": {},
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResearchFormQuestion": {
+        "type": "object",
+        "required": [
+          "id",
+          "course_id",
+          "research_consent_form_id",
+          "question",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "question": {
+            "type": "string"
+          },
+          "research_consent_form_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ResearchFormQuestionAnswer": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "course_id",
+          "research_form_question_id",
+          "research_consent",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "research_consent": {
+            "type": "boolean"
+          },
+          "research_form_question_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "ReviewingStage": {
+        "type": "string",
+        "description": "\nTells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.",
+        "enum": [
+          "NotStarted",
+          "PeerReview",
+          "SelfReview",
+          "WaitingForPeerReviews",
+          "WaitingForManualGrading",
+          "ReviewedAndLocked",
+          "Locked"
+        ]
+      },
+      "SaveCourseSettingsPayload": {
+        "type": "object",
+        "required": ["background_question_answers"],
+        "properties": {
+          "background_question_answers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewCourseBackgroundQuestionAnswer"
+            }
+          }
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "required": ["query"],
+        "properties": {
+          "query": {
+            "type": "string"
+          }
+        }
+      },
+      "ShowExerciseAnswers": {
+        "type": "object",
+        "required": ["show_exercise_answers"],
+        "properties": {
+          "show_exercise_answers": {
+            "type": "boolean"
+          }
+        }
+      },
+      "StudentCountry": {
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "course_id",
+          "course_instance_id",
+          "country_code",
+          "created_at"
+        ],
+        "properties": {
+          "country_code": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "StudentExerciseSlideSubmission": {
+        "type": "object",
+        "description": "Contains data sent by the student when they make a submission for an exercise slide.",
+        "required": ["exercise_slide_id", "exercise_task_submissions"],
+        "properties": {
+          "exercise_slide_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "exercise_task_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentExerciseTaskSubmission"
+            }
+          }
+        }
+      },
+      "StudentExerciseSlideSubmissionResult": {
+        "type": "object",
+        "required": [
+          "exercise_task_submission_results",
+          "user_course_instance_exercise_service_variables"
+        ],
+        "properties": {
+          "exercise_status": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseStatus"
+              }
+            ]
+          },
+          "exercise_task_submission_results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StudentExerciseTaskSubmissionResult"
+            }
+          },
+          "user_course_instance_exercise_service_variables": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UserCourseExerciseServiceVariable"
+            }
+          }
+        }
+      },
+      "StudentExerciseTaskSubmission": {
+        "type": "object",
+        "required": ["exercise_task_id", "data_json"],
+        "properties": {
+          "data_json": {},
+          "exercise_task_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "StudentExerciseTaskSubmissionResult": {
+        "type": "object",
+        "required": ["submission", "exercise_task_exercise_service_slug"],
+        "properties": {
+          "exercise_task_exercise_service_slug": {
+            "type": "string"
+          },
+          "grading": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ExerciseTaskGrading"
+              }
+            ]
+          },
+          "model_solution_spec": {},
+          "submission": {
+            "$ref": "#/components/schemas/ExerciseTaskSubmission"
+          }
+        }
+      },
+      "TeacherDecisionType": {
+        "type": "string",
+        "enum": [
+          "FullPoints",
+          "ZeroPoints",
+          "CustomPoints",
+          "SuspectedPlagiarism",
+          "RejectAndReset"
+        ]
+      },
+      "Term": {
+        "type": "object",
+        "required": ["id", "term", "definition"],
+        "properties": {
+          "definition": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "term": {
+            "type": "string"
+          }
+        }
+      },
+      "TermUpdate": {
+        "type": "object",
+        "required": ["term", "definition"],
+        "properties": {
+          "definition": {
+            "type": "string"
+          },
+          "term": {
+            "type": "string"
+          }
+        }
+      },
+      "UnreturnedExercise": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "UserChapterLockingStatus": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "user_id",
+          "chapter_id",
+          "course_id",
+          "status"
+        ],
+        "properties": {
+          "chapter_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "status": {
+            "$ref": "#/components/schemas/ChapterLockingStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserCourseChapterExerciseProgress": {
+        "type": "object",
+        "required": ["exercise_id", "score_given"],
+        "properties": {
+          "exercise_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          }
+        }
+      },
+      "UserCourseExerciseServiceVariable": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "exercise_service_slug",
+          "user_id",
+          "variable_key",
+          "variable_value"
+        ],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exercise_service_slug": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "variable_key": {
+            "type": "string"
+          },
+          "variable_value": {}
+        }
+      },
+      "UserCourseInstanceChapterProgress": {
+        "type": "object",
+        "required": ["score_given", "score_maximum"],
+        "properties": {
+          "attempted_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          },
+          "score_maximum": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "total_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "UserCourseProgress": {
+        "type": "object",
+        "required": [
+          "course_module_id",
+          "course_module_name",
+          "course_module_order_number",
+          "score_given"
+        ],
+        "properties": {
+          "attempted_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "attempted_exercises_required": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_module_name": {
+            "type": "string"
+          },
+          "course_module_order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "score_given": {
+            "type": "number",
+            "format": "float"
+          },
+          "score_maximum": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          },
+          "score_required": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "total_exercises": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "minimum": 0
+          }
+        }
+      },
+      "UserCourseSettings": {
+        "type": "object",
+        "required": [
+          "user_id",
+          "course_language_group_id",
+          "created_at",
+          "updated_at",
+          "current_course_id",
+          "current_course_instance_id"
+        ],
+        "properties": {
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "current_course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "current_course_instance_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserDetail": {
+        "type": "object",
+        "required": ["user_id", "created_at", "updated_at", "email"],
+        "properties": {
+          "country": {
+            "type": ["string", "null"]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string"
+          },
+          "email_communication_consent": {
+            "type": ["boolean", "null"]
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "search_helper": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "UserInfoPayload": {
+        "type": "object",
+        "required": ["email", "first_name", "last_name", "country", "email_communication_consent"],
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "email_communication_consent": {
+            "type": "boolean"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        }
+      },
+      "UserMarketingConsent": {
+        "type": "object",
+        "required": [
+          "id",
+          "course_id",
+          "course_language_group_id",
+          "user_id",
+          "consent",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "consent": {
+            "type": "boolean"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_language_group_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "email_subscription_in_mailchimp": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "synced_to_mailchimp_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "user_mailchimp_id": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "UserMarketingConsentPayload": {
+        "type": "object",
+        "required": ["course_language_groups_id", "email_subscription", "marketing_consent"],
+        "properties": {
+          "course_language_groups_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email_subscription": {
+            "type": "boolean"
+          },
+          "marketing_consent": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserModuleCompletionStatus": {
+        "type": "object",
+        "required": [
+          "completed",
+          "default",
+          "module_id",
+          "name",
+          "order_number",
+          "prerequisite_modules_completed",
+          "enable_registering_completion_to_uh_open_university",
+          "certification_enabled",
+          "needs_to_be_reviewed"
+        ],
+        "properties": {
+          "certificate_configuration_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "certification_enabled": {
+            "type": "boolean"
+          },
+          "completed": {
+            "type": "boolean"
+          },
+          "default": {
+            "type": "boolean"
+          },
+          "enable_registering_completion_to_uh_open_university": {
+            "type": "boolean"
+          },
+          "grade": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "needs_to_be_reviewed": {
+            "type": "boolean"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "passed": {
+            "type": ["boolean", "null"]
+          },
+          "prerequisite_modules_completed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UserPointsUpdateStrategy": {
+        "type": "string",
+        "enum": ["CanAddPointsButCannotRemovePoints", "CanAddPointsAndCanRemovePoints"]
+      }
+    }
+  }
+}

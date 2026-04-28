@@ -1,25 +1,25 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useContext, useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import { blockTypeMapForResearchConsentForm } from "../../blocks"
 import { allowedResearchFormCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import CourseContext from "../../contexts/CourseContext"
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
+import mediaUploadBuilder from "../../services/mediaUpload"
 import { isBlockInstanceArray } from "../../utils/Gutenberg/blockInstance"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsupportedBlockType"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
 
-import { NewResearchForm, ResearchForm } from "@/shared-module/common/bindings"
+import { NewResearchForm, ResearchForm } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface ResearchFormEditorProps {
   data: ResearchForm

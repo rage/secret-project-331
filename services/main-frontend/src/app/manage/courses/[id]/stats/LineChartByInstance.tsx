@@ -2,8 +2,7 @@
 
 import { css } from "@emotion/css"
 import { format } from "date-fns"
-import type { EChartsOption } from "echarts/types/src/export/option"
-import { ZRColor } from "echarts/types/src/util/types"
+import type { Color, EChartsOption, TooltipComponentFormatterCallbackParams } from "echarts"
 import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -12,8 +11,8 @@ import Echarts from "./Echarts"
 import { DAILY_PERIOD, MONTHLY_PERIOD, Period } from "./LineChart"
 import StatsHeader from "./StatsHeader"
 
+import { CountResult } from "@/generated/api/types.generated"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
-import { CountResult } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -51,7 +50,7 @@ const tooltipLabel = css`
   align-items: center;
 `
 
-const getTooltipDotStyle = (color: ZRColor | undefined) => css`
+const getTooltipDotStyle = (color: Color | undefined) => css`
   display: inline-block;
   width: 10px;
   height: 10px;
@@ -281,7 +280,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       series,
       tooltip: {
         trigger: AXIS,
-        formatter: (params) => {
+        formatter: (params: TooltipComponentFormatterCallbackParams) => {
           if (!Array.isArray(params)) {
             throw new Error("Tooltip params is not an array")
           }

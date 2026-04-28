@@ -5,9 +5,9 @@ import { BlockIcon } from "@wordpress/block-editor"
 import { ColorPalette, PanelBody, Placeholder } from "@wordpress/components"
 import { cover as icon } from "@wordpress/icons"
 import React from "react"
-import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const placeHolderFixHeightStyles = css`
   min-height: unset !important;

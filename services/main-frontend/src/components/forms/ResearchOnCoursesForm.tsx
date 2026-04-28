@@ -6,8 +6,9 @@ import { LinesClipboard } from "@vectopus/atlas-icons-react"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { createUserResearchConsent } from "@/generated/api/sdk.generated"
+import type { UserResearchConsent } from "@/generated/api/types.generated"
 import { refetchUserResearchConsent } from "@/hooks/useUserResearchConsentQuery"
-import { postUserResearchConsent } from "@/services/backend/users"
 import Button from "@/shared-module/common/components/Button"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
@@ -34,8 +35,13 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
     setOptionSelected(false)
   }
 
-  const consentQuery = useToastMutation(
-    () => postUserResearchConsent(assertNotNullOrUndefined(consent)),
+  const consentQuery = useToastMutation<UserResearchConsent, unknown, void>(
+    async () =>
+      createUserResearchConsent({
+        body: {
+          consent: assertNotNullOrUndefined(consent),
+        },
+      }),
     {
       notify: true,
       method: "POST",

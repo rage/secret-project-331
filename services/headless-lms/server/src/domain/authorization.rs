@@ -1,6 +1,7 @@
 //! Common functionality related to authorization
 
 use crate::OAuthClient;
+use crate::config::server_runtime_config;
 use crate::prelude::*;
 use actix_http::Payload;
 use actix_session::Session;
@@ -27,16 +28,20 @@ use secrecy::SecretString;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use sqlx::PgConnection;
-use std::env;
 use std::pin::Pin;
+use subtle::ConstantTimeEq;
 use tracing_log::log;
-#[cfg(feature = "ts_rs")]
-pub use ts_rs::TS;
+use utoipa::ToSchema;
+
 use uuid::Uuid;
 
 const SESSION_KEY: &str = "user";
 
 const MOOCFI_GRAPHQL_URL: &str = "https://www.mooc.fi/api";
+
+fn constant_time_eq_str(left: &str, right: &str) -> bool {
+    left.as_bytes().ct_eq(right.as_bytes()).into()
+}
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GraphQLRequest<'a> {
@@ -73,8 +78,7 @@ pub struct AuthUser {
     upstream_id: Option<i32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub struct ActionOnResource {
     pub action: Action,
@@ -197,8 +201,7 @@ pub fn forget(session: &Session) {
 }
 
 /// Describes an action that a user can take on some resource.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case", tag = "type", content = "variant")]
 pub enum Action {
     ViewMaterial,
@@ -221,8 +224,7 @@ pub enum Action {
 }
 
 /// The target of an action.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(rename_all = "snake_case", tag = "type", content = "id")]
 pub enum Resource {
     GlobalPermissions,
@@ -354,8 +356,7 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
     request: &HttpRequest,
 ) -> Result<AuthorizationToken, ControllerError> {
     let tmc_server_secret_for_communicating_to_secret_project =
-        env::var("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT")
-            .expect("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined");
+        &server_runtime_config().tmc_server_secret_for_communicating_to_secret_project;
     // check authorization header
     let auth_header = request
         .headers()
@@ -376,7 +377,10 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
             )
         })?;
     // If auth header correct one, grant access
-    if auth_header == tmc_server_secret_for_communicating_to_secret_project {
+    if constant_time_eq_str(
+        auth_header,
+        tmc_server_secret_for_communicating_to_secret_project.as_str(),
+    ) {
         return Ok(skip_authorize());
     }
     Err(ControllerError::new(
@@ -1046,21 +1050,10 @@ pub async fn authenticate_test_token(
 */
 fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientError<reqwest::Error>>
 {
-    let key = match std::env::var("RATELIMIT_PROTECTION_SAFE_API_KEY") {
-        Ok(key) => {
-            debug!("Found RATELIMIT_PROTECTION_SAFE_API_KEY");
-            key
-        }
-        Err(e) => {
-            error!(
-                "RATELIMIT_PROTECTION_SAFE_API_KEY environment variable not set: {}",
-                e
-            );
-            return Err(HttpClientError::Other(
-                "RATELIMIT_PROTECTION_SAFE_API_KEY must be defined".to_string(),
-            ));
-        }
-    };
+    let key = server_runtime_config()
+        .ratelimit_protection_safe_api_key
+        .clone();
+    debug!("Using ratelimit API key from runtime config");
 
     key.parse::<reqwest::header::HeaderValue>().map_err(|err| {
         error!("Invalid RATELIMIT API key format: {}", err);

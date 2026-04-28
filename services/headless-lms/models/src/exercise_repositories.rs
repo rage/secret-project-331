@@ -1,7 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "exercise_repository_status", rename_all = "kebab-case")]
 pub enum ExerciseRepositoryStatus {
     Pending,
@@ -9,8 +9,8 @@ pub enum ExerciseRepositoryStatus {
     Failure,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExerciseRepository {
     pub id: Uuid,
     pub url: String,
@@ -145,7 +145,7 @@ WHERE (
     Ok(res)
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct ExerciseRepositoryUpdate {
     pub url: String,
 }

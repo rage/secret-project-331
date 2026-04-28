@@ -6,9 +6,9 @@ import React from "react"
 import AnswerBrowserExercise from "./AnswerBrowserExercise"
 import AnswerEditorExercise from "./AnswerEditorExercise"
 
-import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
 
 interface Props {

@@ -5,8 +5,12 @@ import { useContext, useEffect, useState } from "react"
 
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import {
+  postAuthLogin,
+  postAuthVerifyEmail,
+} from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { login, verifyEmail } from "@/shared-module/common/services/backend/auth"
+import "@/shared-module/common/init/registerAuthApiClients"
 
 export type LoginStep =
   | { step: "credentials" }
@@ -44,7 +48,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
     async (credentials: { email: string; password: string }) => {
       setError(null)
       setCredentialsError(false)
-      const response = await login(credentials.email, credentials.password)
+      const response = await postAuthLogin({
+        body: { email: credentials.email, password: credentials.password },
+      })
 
       if (response.type === "success") {
         await loginStateContext.refresh()
@@ -71,7 +77,9 @@ export const useLoginFlow = (onComplete: () => void, t: TFunction): UseLoginFlow
       }
       setError(null)
       setVerificationError(null)
-      const success = await verifyEmail(currentToken, code)
+      const success = await postAuthVerifyEmail({
+        body: { email_verification_token: currentToken, code },
+      })
       if (success) {
         await loginStateContext.refresh()
         setStep({ step: "awaiting_consent_check" })

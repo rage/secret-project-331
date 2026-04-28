@@ -1,5 +1,3 @@
-import { BlockInstance } from "@wordpress/blocks"
-
 import {
   canRedoEditorHistory,
   createEditorHistoryEntry,
@@ -10,6 +8,8 @@ import {
   undoEditorHistory,
   updateCurrentEditorHistoryEntry,
 } from "../../src/utils/Gutenberg/editorHistory"
+
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 const createParagraphBlock = (clientId: string, content: string): BlockInstance => ({
   name: "core/paragraph",

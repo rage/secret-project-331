@@ -1,12 +1,12 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import { useQueryClient } from "@tanstack/react-query"
 import React, { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
 import LoginStateContext from "../contexts/LoginStateContext"
-import { logout } from "../services/backend/auth"
+import useLogout from "../hooks/useLogout"
+import "../init/registerAuthApiClients"
 import { useCurrentPagePathForReturnTo } from "../utils/redirectBackAfterLoginOrSignup"
 import { loginRoute, signUpRoute } from "../utils/routes"
 
@@ -25,19 +25,10 @@ const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
   const returnTo = useCurrentPagePathForReturnTo(currentPagePath)
-  const queryClient = useQueryClient()
+  const { logout } = useLogout()
 
   if (loginStateContext.isLoading) {
     return <Spinner variant="large" />
-  }
-
-  const submitLogout = async () => {
-    await logout()
-    queryClient.removeQueries()
-    await loginStateContext.refresh()
-    setTimeout(() => {
-      queryClient.refetchQueries()
-    }, 100)
   }
 
   return loginStateContext.signedIn ? (
@@ -50,7 +41,7 @@ const LoginControls: React.FC<React.PropsWithChildren<LoginControlsProps>> = ({
         </a>
       </li>
       <li className={cx(styles)}>
-        <Button size="medium" variant="primary" onClick={submitLogout}>
+        <Button size="medium" variant="primary" onClick={logout}>
           {t("log-out")}
         </Button>
       </li>

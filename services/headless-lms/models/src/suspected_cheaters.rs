@@ -1,8 +1,9 @@
 use crate::course_modules;
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct SuspectedCheaters {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -15,21 +16,21 @@ pub struct SuspectedCheaters {
     pub is_archived: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ThresholdData {
     pub duration_seconds: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct DeletedSuspectedCheater {
     pub id: i32,
     pub count: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Threshold {
     pub id: Uuid,
     pub course_module_id: Uuid,

@@ -22,6 +22,29 @@ pub mod proposed_edits;
 pub mod user_details;
 
 use actix_web::web::{self, ServiceConfig};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(
+    nest(
+        (path = "/chapters", api = chapters::CourseMaterialChaptersApiDoc),
+        (path = "/chatbot", api = chatbot::CourseMaterialChatbotApiDoc),
+        (path = "/code-giveaways", api = code_giveaways::CourseMaterialCodeGiveawaysApiDoc),
+        (path = "/course-instances", api = course_instances::CourseMaterialCourseInstancesApiDoc),
+        (path = "/course-modules", api = course_modules::CourseMaterialCourseModulesApiDoc),
+        (path = "/courses", api = courses::CourseMaterialCoursesApiDoc),
+        (path = "/exams", api = exams::CourseMaterialExamsApiDoc),
+        (path = "/exercises", api = exercises::CourseMaterialExercisesApiDoc),
+        (path = "/acronyms", api = glossary::CourseMaterialGlossaryApiDoc),
+        (path = "/oembed", api = oembed::CourseMaterialOembedApiDoc),
+        (path = "/organizations", api = organizations::CourseMaterialOrganizationsApiDoc),
+        (path = "/page_audio", api = page_audio_files::CourseMaterialPageAudioApiDoc),
+        (path = "/pages", api = pages::CourseMaterialPagesApiDoc),
+        (path = "/proposed-edits", api = proposed_edits::CourseMaterialProposedEditsApiDoc),
+        (path = "/user-details", api = user_details::CourseMaterialUserDetailsApiDoc)
+    )
+)]
+pub struct CourseMaterialRoutesApiDoc;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {

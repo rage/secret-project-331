@@ -1,14 +1,12 @@
-import axios from "axios"
 import FormData from "form-data"
 import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
-import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
-import { isSpecRequest } from "@/shared-module/common/bindings.guard"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
-import { isObjectMap } from "@/shared-module/common/utils/fetching"
+import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
   compressProject,
@@ -16,33 +14,33 @@ import {
   getExercisePackagingConfiguration,
   prepareStub,
 } from "@/tmc/langs"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
+import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
 import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 
 export const runtime = "nodejs"
 
-export async function POST(request: Request): Promise<Response> {
+async function postImpl(request: Request): Promise<Response> {
+  let body: unknown
   try {
-    const body = await request.json()
-    if (!isSpecRequest(body)) {
-      return badRequest("Invalid spec request")
-    }
-    const specRequest = body as SpecRequest
-    const requestId = specRequest.request_id.slice(0, 4)
-
-    let uploadClaim: string | null = null
-    const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
-    if (typeof uploadClaimHeader === "string") {
-      uploadClaim = uploadClaimHeader
-    }
-
-    return await processPublicSpec(requestId, specRequest, uploadClaim)
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+    body = await request.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
   }
+  if (!isSpecRequest(body)) {
+    return badRequest("Invalid spec request")
+  }
+  const specRequest = body
+  const requestId = specRequest.request_id.slice(0, 4)
+
+  const uploadClaim = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
+
+  return await processPublicSpec(requestId, specRequest, uploadClaim)
 }
+
+export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /public-spec" })
 
 async function processPublicSpec(
   requestId: string,
@@ -98,8 +96,6 @@ async function processPublicSpec(
       }
     }
     return jsonOk(publicSpec)
-  } catch (err) {
-    return internalServerError("Error while processing the public spec", err)
   } finally {
     await Promise.allSettled(
       tempPaths.map((p) => fsPromises.rm(p, { recursive: true, force: true })),
@@ -147,15 +143,23 @@ const uploadPublicSpec = async (
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
   }
-  const res = await axios.post(uploadUrl, form, { headers })
+  const res = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { ...headers, ...form.getHeaders() },
+    body: form as unknown as RequestInit["body"],
+  })
+  if (!res.ok) {
+    throw new Error(`Upload failed: ${res.status} ${res.statusText}`)
+  }
+  const resData: unknown = await res.json()
   if (
-    isObjectMap<string>(res.data) &&
-    Object.prototype.hasOwnProperty.call(res.data, archiveName) &&
-    typeof res.data[archiveName] === "string" &&
-    res.data[archiveName].length > 0
+    isObjectMap(isString)(resData) &&
+    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
+    typeof resData[archiveName] === "string" &&
+    resData[archiveName].length > 0
   ) {
     const config = await getExercisePackagingConfiguration(stubDir, log)
-    const stub_download_url = res.data[archiveName]
+    const stub_download_url = resData[archiveName]
     return {
       spec: {
         type,
@@ -168,6 +172,6 @@ const uploadPublicSpec = async (
     }
   }
   throw new Error(
-    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(res.data)}`,
+    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
   )
 }

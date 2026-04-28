@@ -10,16 +10,15 @@ import CreateChatbotDialog from "./CreateChatbotDialog"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import {
-  getCourseChatbots,
-  setAsDefaultChatbot,
-  setAsNonDefaultChatbot,
-} from "@/services/backend/courses/chatbots"
+  getCourseChatbotsOptions,
+  setCourseChatbotAsDefaultMutation,
+  setCourseChatbotAsNonDefaultMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
 import { CardList, CardListItem } from "@/styles/styles"
 
@@ -29,11 +28,13 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
 
   const [createChatbotVisible, setCreateChatbotVisible] = useState(false)
 
-  const getChatbotsList = useQuery({
-    queryKey: ["course-chatbots", courseId],
-    queryFn: () => getCourseChatbots(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const getChatbotsList = useQuery(
+    getCourseChatbotsOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  )
 
   const sortedChatbotsList = useMemo(() => {
     return [...(getChatbotsList.data ?? [])].sort((a, b) => {
@@ -47,9 +48,8 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     })
   }, [getChatbotsList.data])
 
-  const setDefaultChatbotMutation = useToastMutation(
-    async (chatbotConfigurationId: string) =>
-      await setAsDefaultChatbot(assertNotNullOrUndefined(courseId), chatbotConfigurationId),
+  const setDefaultChatbotMutation = useToastMutationOptions(
+    setCourseChatbotAsDefaultMutation(),
     {
       method: "POST",
       notify: true,
@@ -57,9 +57,8 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     { onSuccess: () => getChatbotsList.refetch() },
   )
 
-  const unsetDefaultChatbotMutation = useToastMutation(
-    async (chatbotConfigurationId: string) =>
-      await setAsNonDefaultChatbot(assertNotNullOrUndefined(courseId), chatbotConfigurationId),
+  const unsetDefaultChatbotMutation = useToastMutationOptions(
+    setCourseChatbotAsNonDefaultMutation(),
     {
       method: "POST",
       notify: true,
@@ -131,7 +130,12 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   size="medium"
                   variant="secondary"
                   onClick={() => {
-                    setDefaultChatbotMutation.mutate(bot.id)
+                    setDefaultChatbotMutation.mutate({
+                      path: {
+                        chatbot_configuration_id: bot.id,
+                        course_id: courseId,
+                      },
+                    })
                   }}
                   disabled={setDefaultChatbotMutation.isPending}
                 >
@@ -142,7 +146,12 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
                   size="medium"
                   variant="secondary"
                   onClick={() => {
-                    unsetDefaultChatbotMutation.mutate(bot.id)
+                    unsetDefaultChatbotMutation.mutate({
+                      path: {
+                        chatbot_configuration_id: bot.id,
+                        course_id: courseId,
+                      },
+                    })
                   }}
                   disabled={unsetDefaultChatbotMutation.isPending}
                 >

@@ -3,7 +3,7 @@ import {
   parseText,
   replaceTextNodeWithGlossarySpans,
 } from "@/components/course-material/ContentRenderer/util/textParsing"
-import { Term } from "@/shared-module/common/bindings"
+import type { Term } from "@/generated/api/types.generated"
 
 describe("findTermMatches", () => {
   test("single match in middle of string", () => {

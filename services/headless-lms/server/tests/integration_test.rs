@@ -3,6 +3,7 @@ use std::{env, sync::Arc};
 use actix_http::{Request, body::BoxBody};
 use actix_session::{SessionMiddleware, storage::CookieSessionStore};
 use actix_web::{App, cookie::Key, dev::ServiceResponse, test};
+use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
 use headless_lms_models::{
     PKeyPolicy,
     organizations::{self, Organization},
@@ -12,9 +13,7 @@ use headless_lms_server::{
     domain::models_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_utils::{
-    ApplicationConfiguration, file_store::local_file_store::LocalFileStore, tmc::TmcClient,
-};
+use headless_lms_utils::{file_store::local_file_store::LocalFileStore, tmc::TmcClient};
 use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;
@@ -23,6 +22,19 @@ use uuid::Uuid;
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
 
+fn running_in_kubernetes() -> bool {
+    env::var_os("KUBERNETES_SERVICE_HOST").is_some()
+}
+
+fn default_database_url_test() -> String {
+    if running_in_kubernetes() {
+        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test"
+            .to_string()
+    } else {
+        "postgres://headless-lms@localhost:54328/headless_lms_test".to_string()
+    }
+}
+
 /// Reinitializes the test database once per `cargo test` call.
 /// This is done because there's no good way to clean up the database after testing,
 /// so there may be leftover data.
@@ -30,10 +42,8 @@ pub async fn init_db() -> String {
     if let Some(db) = DB_URL.lock().await.as_ref() {
         return db.clone();
     }
-    dotenv::dotenv().ok();
-    let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| {
-        "postgres://headless-lms:only-for-local-development-intentionally-public@postgres/headless_lms_test".to_string()
-    });
+    dotenvy::dotenv().ok();
+    let db = env::var("DATABASE_URL_TEST").unwrap_or_else(|_| default_database_url_test());
     if Postgres::database_exists(&db)
         .await
         .expect("failed to check test db existence")
@@ -84,7 +94,7 @@ pub async fn test_config() -> ServerConfig {
             test_chatbot: false,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
-            oauth_server_configuration: headless_lms_utils::OAuthServerConfiguration {
+            oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "temp-change-when-needed".into(),
                 rsa_private_key: "test-change".into(),
                 oauth_token_hmac_key: "pippuri".into(),

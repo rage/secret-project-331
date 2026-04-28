@@ -5,12 +5,12 @@ import { CheckCircle, ExclamationTriangle, XmarkCircle } from "@vectopus/atlas-i
 import React, { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import type { EventInfo } from "@/generated/api/types.generated"
 import { useStatusDeployments } from "@/hooks/useStatusDeployments"
 import { useStatusEvents } from "@/hooks/useStatusEvents"
 import { useStatusPodDisruptionBudgets } from "@/hooks/useStatusPodDisruptionBudgets"
 import { useStatusPods } from "@/hooks/useStatusPods"
 import { useSystemHealthDetailed } from "@/hooks/useSystemHealthDetailed"
-import { EventInfo } from "@/shared-module/common/bindings"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"

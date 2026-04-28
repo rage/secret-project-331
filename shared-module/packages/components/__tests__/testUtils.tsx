@@ -85,6 +85,11 @@ export function renderBooleanField(
   return renderWithForm<BooleanFieldForm>(renderFn, { defaultValues: { f: defaultValue } })
 }
 
+/** DOM `click` for tests that need `onPress`/`onClick` without `@testing-library/user-event` (pointer synthesis can throw on Jest jsdom `PointerEvent.pointerId`). */
+export function domClick(element: Element) {
+  fireEvent.click(element)
+}
+
 export function pressEnter(element: Element) {
   fireEvent.keyDown(element, { key: "Enter" })
   fireEvent.keyUp(element, { key: "Enter" })

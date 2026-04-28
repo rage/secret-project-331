@@ -2,8 +2,10 @@ import { v4 } from "uuid"
 
 import { testRuns } from "./testRuns"
 
+import { reportErrorOccurrence } from "@/shared-module/common/errors/reportErrorOccurrence"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { RunResult } from "@/tmc/cli"
-import { badRequest, internalServerError, jsonOk } from "@/util/apiResponse"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { ExerciseFile } from "@/util/stateInterfaces"
 import { runTests } from "@/util/test"
 
@@ -31,6 +33,38 @@ function errorRunResult(err: unknown): RunResult {
   }
 }
 
+function reportBackgroundFailure(err: unknown, request: Request): void {
+  const message = err instanceof Error ? err.message : String(err)
+  const stack = err instanceof Error ? err.stack : null
+  let path: string | null = null
+  try {
+    path = new URL(request.url).pathname
+  } catch {
+    path = null
+  }
+  void reportErrorOccurrence(
+    {
+      service: "tmc",
+      error_source: "backend",
+      message,
+      stack_trace: stack,
+      path,
+      details: {
+        kind: "tmc-background-test-run",
+        operation: "tmc.background-test-run",
+        method: request.method,
+        url: path,
+      },
+    },
+    {
+      requestContext: {
+        headers: request.headers,
+        url: request.url,
+      },
+    },
+  )
+}
+
 function isValidTestRequest(body: unknown): body is TestRequest {
   if (
     body === null ||
@@ -41,12 +75,20 @@ function isValidTestRequest(body: unknown): body is TestRequest {
     return false
   }
   const b = body as TestRequest
+  if (typeof b.templateDownloadUrl !== "string") {
+    return false
+  }
   if (b.type === "browser") {
     return (
       Array.isArray(b.files) &&
       b.files.every(
         (f): f is { filepath: string; contents: string } =>
-          typeof f === "object" && f !== null && "filepath" in f && "contents" in f,
+          typeof f === "object" &&
+          f !== null &&
+          "filepath" in f &&
+          "contents" in f &&
+          typeof f.filepath === "string" &&
+          typeof f.contents === "string",
       )
     )
   }
@@ -56,34 +98,35 @@ function isValidTestRequest(body: unknown): body is TestRequest {
   return false
 }
 
-export async function POST(req: Request): Promise<Response> {
+async function postImpl(req: Request): Promise<Response> {
+  let body: unknown
   try {
-    const body = await req.json()
-    if (!isValidTestRequest(body)) {
-      return badRequest("Invalid test request")
-    }
-
-    const testRunId = v4()
-    testRuns.set(testRunId, null)
-    const templateDownloadUrl = body.templateDownloadUrl
-    if (body.type === "browser") {
-      runTests(templateDownloadUrl, {
-        type: "browser",
-        files: body.files,
-      })
-        .then((rr) => testRuns.set(testRunId, rr))
-        .catch((err) => testRuns.set(testRunId, errorRunResult(err)))
-      return jsonOk<TestRequestResult>({ id: testRunId })
-    } else {
-      runTests(templateDownloadUrl, {
-        type: "editor",
-        archiveDownloadUrl: body.archiveDownloadUrl,
-      })
-        .then((rr) => testRuns.set(testRunId, rr))
-        .catch((err) => testRuns.set(testRunId, errorRunResult(err)))
-      return jsonOk<TestRequestResult>({ id: testRunId })
-    }
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+    body = await req.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
   }
+  if (!isValidTestRequest(body)) {
+    return badRequest("Invalid test request")
+  }
+
+  const testRunId = v4()
+  testRuns.set(testRunId, null)
+  const templateDownloadUrl = body.templateDownloadUrl
+  const options =
+    body.type === "browser"
+      ? { type: "browser" as const, files: body.files }
+      : { type: "editor" as const, archiveDownloadUrl: body.archiveDownloadUrl }
+
+  runTests(templateDownloadUrl, options)
+    .then((rr) => testRuns.set(testRunId, rr))
+    .catch((err) => {
+      testRuns.set(testRunId, errorRunResult(err))
+      reportBackgroundFailure(err, req)
+    })
+    .catch((err) => {
+      reportBackgroundFailure(err, req)
+    })
+  return jsonOk<TestRequestResult>({ id: testRunId })
 }
+
+export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /test" })

@@ -10,7 +10,10 @@ import CodeGiveawayCode from "./CodeGiveawayCode"
 import ImportCodesForm from "./ImportCodesForm"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { fetchCodeGiveawayById, fetchCodesByCodeGiveawayId } from "@/services/backend/codeGiveaways"
+import {
+  getCodeGiveawayByIdOptions,
+  getCodeGiveawayCodesOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -20,17 +23,23 @@ const CodeGiveawayPage = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const [importDialogOpen, setImportDialogOpen] = useState(false)
-  const codeGiveawayQuery = useQuery({
-    queryKey: ["code-giveaway", id],
-    queryFn: () => fetchCodeGiveawayById(id!.toString()),
-  })
+  const codeGiveawayQuery = useQuery(
+    getCodeGiveawayByIdOptions({
+      path: {
+        id,
+      },
+    }),
+  )
 
   const [revealCodes, setRevealCodes] = useState(false)
 
-  const codeGiveawayCodesQuery = useQuery({
-    queryKey: ["code-giveaway-codes", id],
-    queryFn: () => fetchCodesByCodeGiveawayId(id!.toString()),
-  })
+  const codeGiveawayCodesQuery = useQuery(
+    getCodeGiveawayCodesOptions({
+      path: {
+        id,
+      },
+    }),
+  )
 
   if (codeGiveawayQuery.isLoading || codeGiveawayCodesQuery.isLoading) {
     return <Spinner variant="medium" />
@@ -70,6 +79,7 @@ const CodeGiveawayPage = () => {
           <Button
             size="medium"
             variant="primary"
+            type="button"
             className={css`
               margin-top: 1rem;
             `}

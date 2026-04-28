@@ -3,9 +3,11 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useContext } from "react"
 
-import { Action, Resource } from "../bindings"
+import { Action, Resource } from "../authApiTypes"
 import LoginStateContext from "../contexts/LoginStateContext"
-import { authorize } from "../services/backend/auth"
+import { getAuthUserInfoOptions } from "../generated/auth-api/@tanstack/react-query.generated"
+import { postAuthAuthorize } from "../generated/auth-api/sdk.generated"
+import "../init/registerAuthApiClients"
 
 interface ComponentProps {
   action: Action
@@ -20,12 +22,18 @@ const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>>
   elseRender,
 }) => {
   const loginState = useContext(LoginStateContext)
+  const userInfo = useQuery({
+    ...getAuthUserInfoOptions(),
+    enabled: loginState.signedIn === true,
+  })
+  // eslint-disable-next-line i18next/no-literal-string
+  const userScopedCacheKey = userInfo.data?.user_id ?? "anonymous"
   const data = useQuery({
     queryKey: [
-      `action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-authorization`,
+      `action-${JSON.stringify(action)}-on-resource-${JSON.stringify(resource)}-for-user-${userScopedCacheKey}-authorization`,
     ],
     queryFn: () => {
-      return authorize({ action, resource })
+      return postAuthAuthorize({ body: { action, resource } })
     },
     gcTime: 15 * 60 * 1000,
     enabled: loginState.signedIn === true,

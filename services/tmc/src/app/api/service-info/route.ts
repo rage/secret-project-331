@@ -1,8 +1,9 @@
-import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import basePath from "@/shared-module/common/utils/base-path"
 import { jsonOk } from "@/util/apiResponse"
+import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 
-export function GET() {
+function getImpl() {
   const prefix = basePath()
   return jsonOk<ExerciseServiceInfoApi>({
     service_name: "TMC",
@@ -12,3 +13,5 @@ export function GET() {
     model_solution_spec_endpoint_path: `${prefix}/api/model-solution`,
   })
 }
+
+export const GET = wrapRouteHandler(getImpl, { service: "tmc", operation: "GET /service-info" })

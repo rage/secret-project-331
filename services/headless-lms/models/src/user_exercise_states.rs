@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use futures::Stream;
 use headless_lms_utils::numbers::option_f32_to_f32_two_decimals_with_none_as_zero;
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::{
     course_modules::{self, CourseModule},
@@ -12,9 +13,8 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, Display, ToSchema)]
 #[sqlx(type_name = "reviewing_stage", rename_all = "snake_case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 /**
 Tells what stage of reviewing the user is currently in. Used for for peer review, self review, and manual review. If an exercise does not involve reviewing, the value of this stage will always be `NotStarted`.
 */
@@ -51,8 +51,7 @@ pub enum ReviewingStage {
     Locked,
 }
 
-#[cfg_attr(feature = "ts_rs", derive(TS))]
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct UserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -100,8 +99,8 @@ pub struct UserExerciseStateUpdate {
     pub grading_progress: GradingProgress,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct UserCourseProgress {
     pub course_module_id: Uuid,
     pub course_module_name: String,
@@ -114,8 +113,8 @@ pub struct UserCourseProgress {
     pub attempted_exercises_required: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct UserCourseChapterExerciseProgress {
     pub exercise_id: Uuid,
     pub score_given: f32,
@@ -147,19 +146,19 @@ pub struct CourseExerciseMetrics {
     score_maximum: Option<i64>,
 }
 
-#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseUserCounts {
     exercise_name: String,
     exercise_order_number: i32,
     page_order_number: i32,
     chapter_number: i32,
     exercise_id: Uuid,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_attempted: Option<i64>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_with_some_points: Option<i64>,
-    #[cfg_attr(feature = "ts_rs", ts(type = "number"))]
+
     n_users_with_max_points: Option<i64>,
 }
 
@@ -790,6 +789,39 @@ WHERE user_id = $1
     Ok(res)
 }
 
+/// Returns true when user has chapter exercises pending teacher review.
+pub async fn has_pending_manual_reviews_in_chapter(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    chapter_id: Uuid,
+) -> ModelResult<bool> {
+    struct PendingManualReviewsInChapterRow {
+        exists: bool,
+    }
+
+    let pending_manual_reviews = sqlx::query_as!(
+        PendingManualReviewsInChapterRow,
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM user_exercise_states ues
+    JOIN exercises e ON e.id = ues.exercise_id
+    WHERE ues.user_id = $1
+      AND e.chapter_id = $2
+      AND ues.reviewing_stage = 'waiting_for_manual_grading'::reviewing_stage
+      AND ues.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+ ) as "exists!"
+        "#,
+        user_id,
+        chapter_id
+    )
+    .fetch_one(conn)
+    .await?
+    .exists;
+    Ok(pending_manual_reviews)
+}
+
 pub async fn get_all_for_user_and_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -1271,7 +1303,7 @@ WHERE exercises.deleted_at IS NULL
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExportedUserExerciseState {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -1687,5 +1719,104 @@ mod tests {
         assert_eq!(progress_all.len(), 2);
         assert_eq!(progress_open_chapters_modules.len(), 0);
         assert_eq!(progress_all[1].total_exercises, Some(1));
+    }
+
+    #[tokio::test]
+    async fn has_pending_manual_reviews_in_chapter_reflects_review_state() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+
+        exercises::update_teacher_reviews_answer_after_locking(tx.as_mut(), exercise_id, true)
+            .await
+            .unwrap();
+        get_or_create_user_exercise_state(tx.as_mut(), user, exercise_id, Some(course), None)
+            .await
+            .unwrap();
+
+        update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await
+        .unwrap();
+
+        let has_pending = has_pending_manual_reviews_in_chapter(tx.as_mut(), user, chapter_id)
+            .await
+            .unwrap();
+        assert!(has_pending);
+
+        update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            ReviewingStage::ReviewedAndLocked,
+        )
+        .await
+        .unwrap();
+
+        let has_pending = has_pending_manual_reviews_in_chapter(tx.as_mut(), user, chapter_id)
+            .await
+            .unwrap();
+        assert!(!has_pending);
+    }
+
+    #[tokio::test]
+    async fn has_pending_manual_reviews_in_chapter_counts_self_review_manual_flows() {
+        insert_data!(
+            :tx,
+            :user,
+            :org,
+            :course,
+            instance: _instance,
+            :course_module,
+            chapter: chapter_id,
+            page: _page_id,
+            exercise: exercise_id,
+            slide: _exercise_slide_id,
+            task: _exercise_task_id
+        );
+
+        exercises::set_exercise_to_use_exercise_specific_peer_or_self_review_config(
+            tx.as_mut(),
+            exercise_id,
+            false,
+            true,
+            false,
+        )
+        .await
+        .unwrap();
+        get_or_create_user_exercise_state(tx.as_mut(), user, exercise_id, Some(course), None)
+            .await
+            .unwrap();
+
+        update_reviewing_stage(
+            tx.as_mut(),
+            user,
+            CourseOrExamId::Course(course),
+            exercise_id,
+            ReviewingStage::WaitingForManualGrading,
+        )
+        .await
+        .unwrap();
+
+        let has_pending = has_pending_manual_reviews_in_chapter(tx.as_mut(), user, chapter_id)
+            .await
+            .unwrap();
+        assert!(has_pending);
     }
 }

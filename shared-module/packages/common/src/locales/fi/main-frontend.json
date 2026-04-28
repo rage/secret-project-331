@@ -182,6 +182,7 @@
   "chapter-locked-complete-previous": "Suorita ja lukitse edellinen luku avataksesi tämän luvun tehtävät.",
   "chapter-locked-description": "Nykyinen luku on lukittu, etkä voi enää palauttaa tehtäviä.",
   "chapter-locked-message": "Luku lukittu",
+  "chapter-locked-waiting-teacher-review-description": "Kurssin henkilökunta arvioi tämän luvun vastauksiasi. Malliratkaisu näytetään, kun arviointi on valmis.",
   "chapter-progress": "Luvun edistyminen",
   "chapters": "Luvut",
   "chatbot": "Keskustelurobotti",

@@ -97,6 +97,10 @@ test("Join course by code only", async ({}) => {
     await student2Page.goto(
       "http://project-331.local/org/uh-mathstat/courses/joinable-by-code-only",
     )
-    await student2Page.getByText("Unauthorized").first().waitFor()
+    await student2Page.getByRole("heading", { name: /Forbidden|Unauthorized/i }).waitFor()
+    await student2Page
+      .getByText(/do not have permission|Unauthorized/i)
+      .first()
+      .waitFor()
   })
 })

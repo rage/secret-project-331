@@ -11,7 +11,7 @@ import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hook
 
 interface CourseInstanceUserInfoBoxProps {
   courseId: string
-  courseInstanceId: string
+  courseInstanceId?: string
   userId: string
 }
 
@@ -42,9 +42,9 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
     return null
   }
 
-  const courseInstance = courseInstancesQuery.data.find(
-    (instance) => instance.id === courseInstanceId,
-  )
+  const resolvedCourseInstance = courseInstanceId
+    ? courseInstancesQuery.data.find((instance) => instance.id === courseInstanceId)
+    : undefined
 
   const items = [
     {
@@ -54,13 +54,13 @@ const CourseInstanceUserInfoBox: React.FC<CourseInstanceUserInfoBoxProps> = ({
       value: courseQuery.data.name,
       colSpan: 4,
     },
-    ...(courseInstance
+    ...(resolvedCourseInstance
       ? [
           {
             // eslint-disable-next-line i18next/no-literal-string
             key: "instance",
             label: t("course-instance"),
-            value: courseInstance.name || t("default-instance"),
+            value: resolvedCourseInstance.name || t("default-instance"),
             colSpan: 4,
           },
         ]

@@ -3,13 +3,13 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
 import { getPlaceholderConfig, PlaceholderValidationResult } from "../../utils/emailPlaceholders"
 import PlaceholderInfo from "../email/PlaceholderInfo"
 
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;

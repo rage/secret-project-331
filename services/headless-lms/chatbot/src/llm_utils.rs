@@ -4,13 +4,13 @@ use crate::{
     prelude::*,
 };
 use core::default::Default;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_tool_calls::ChatbotConversationMessageToolCall,
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, MessageRole},
 };
-use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};

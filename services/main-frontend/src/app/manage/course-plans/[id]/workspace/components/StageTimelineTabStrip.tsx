@@ -17,7 +17,7 @@ import {
 import {
   type CourseDesignerPlanStageWithTasks,
   type CourseDesignerStage,
-} from "@/services/backend/courseDesigner"
+} from "@/generated/api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const timelineShellStyles = css`

@@ -20,8 +20,10 @@ import { useForm, useFormState, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useDebouncedCallback } from "use-debounce"
 
-import { coursePlanQueryKeys } from "../../../coursePlanQueryKeys"
-
+import {
+  getCourseDesignerPlanQueryKey,
+  updateCourseDesignerStageWorkspaceMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
   ANALYSIS_WORKSPACE_SCHEMA_V1,
   type AnalysisCourseType,
@@ -29,10 +31,9 @@ import {
   type CourseDesignerStage,
   defaultAnalysisWorkspaceV1,
   parseAnalysisWorkspaceFromApi,
-  patchCourseDesignerStageWorkspace,
 } from "@/services/backend/courseDesigner"
 import Button from "@/shared-module/common/components/Button"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
@@ -830,11 +831,16 @@ export default function AnalysisWorkspaceForm(props: {
   }, [workspaceData, reset])
 
   const patchWorkspace = useCallback(
-    (payload: AnalysisWorkspaceV1) =>
-      patchCourseDesignerStageWorkspace(planId, STAGE_ANALYSIS, {
+    (payload: AnalysisWorkspaceV1) => ({
+      body: {
         schema: ANALYSIS_WORKSPACE_SCHEMA_V1,
         payload,
-      }),
+      },
+      path: {
+        plan_id: planId,
+        stage: STAGE_ANALYSIS.toLowerCase(),
+      },
+    }),
     [planId],
   )
 
@@ -843,18 +849,20 @@ export default function AnalysisWorkspaceForm(props: {
       reset(stripOpenPeriodAll(saved))
       setAutosaveError(false)
       setShowSavedStatus(true)
-      await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.detail(planId) })
+      await queryClient.invalidateQueries({
+        queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+      })
       onDirtyChange?.(false)
     },
     [onDirtyChange, planId, queryClient, reset],
   )
 
-  const autosaveMutation = useToastMutation(
-    patchWorkspace,
+  const autosaveMutation = useToastMutationOptions(
+    updateCourseDesignerStageWorkspaceMutation(),
     { notify: false },
     {
       onSuccess: async (_data, variables) => {
-        await handleSaveSuccess(variables)
+        await handleSaveSuccess(variables.body.payload)
       },
       onError: () => {
         setAutosaveError(true)
@@ -862,8 +870,8 @@ export default function AnalysisWorkspaceForm(props: {
     },
   )
 
-  const manualSaveMutation = useToastMutation(
-    patchWorkspace,
+  const manualSaveMutation = useToastMutationOptions(
+    updateCourseDesignerStageWorkspaceMutation(),
     {
       notify: true,
       method: "PATCH",
@@ -871,7 +879,7 @@ export default function AnalysisWorkspaceForm(props: {
     },
     {
       onSuccess: async (_data, variables) => {
-        await handleSaveSuccess(variables)
+        await handleSaveSuccess(variables.body.payload)
       },
     },
   )
@@ -895,7 +903,7 @@ export default function AnalysisWorkspaceForm(props: {
       return
     }
     setAutosaveError(false)
-    autosaveMutation.mutate(withDerivedOpenPeriodAll(getValues()))
+    autosaveMutation.mutate(patchWorkspace(withDerivedOpenPeriodAll(getValues())))
   }, AUTOSAVE_DEBOUNCE_MS)
 
   useEffect(() => {
@@ -947,7 +955,7 @@ export default function AnalysisWorkspaceForm(props: {
   }, [expandedSections])
 
   const onSubmit = (data: AnalysisWorkspaceFormValues) => {
-    manualSaveMutation.mutate(withDerivedOpenPeriodAll(data))
+    manualSaveMutation.mutate(patchWorkspace(withDerivedOpenPeriodAll(data)))
   }
 
   const saving = autosaveMutation.isPending || manualSaveMutation.isPending

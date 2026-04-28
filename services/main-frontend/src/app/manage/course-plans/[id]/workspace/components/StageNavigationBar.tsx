@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import type { CourseDesignerStage } from "@/services/backend/courseDesigner"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import { CourseDesignerPlanSummary } from "@/services/backend/courseDesigner"
+import type { CourseDesignerPlanSummary } from "@/generated/api/types.generated"
 import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
 
 const cardStyles = css`

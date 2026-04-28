@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
-import { type CourseDesignerStage } from "@/services/backend/courseDesigner"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"

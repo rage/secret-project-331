@@ -1,19 +1,18 @@
 //! Serialized JSON shape for the Analysis stage workspace form (`workspace_data` on `course_designer_plan_stages`).
 
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
 /// Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, ToSchema)]
 #[serde(tag = "schema", content = "payload", rename_all = "snake_case")]
 pub enum CourseDesignerStageWorkspace {
     AnalysisV1(AnalysisWorkspaceV1),
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum AnalysisCourseType {
     Compulsory,
@@ -21,8 +20,7 @@ pub enum AnalysisCourseType {
 }
 
 /// Analysis stage form: course metadata, needs, wishes, market, resources, contributors.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub struct AnalysisWorkspaceV1 {
     pub course_title: Option<String>,
@@ -111,7 +109,9 @@ impl AnalysisWorkspaceV1 {
 }
 
 /// Parses `workspace_data` JSON from the DB into a typed envelope.
-pub fn parse_workspace_data(value: Option<serde_json::Value>) -> ModelResult<Option<CourseDesignerStageWorkspace>> {
+pub fn parse_workspace_data(
+    value: Option<serde_json::Value>,
+) -> ModelResult<Option<CourseDesignerStageWorkspace>> {
     match value {
         None => Ok(None),
         Some(v) if v.is_null() => Ok(None),
@@ -132,7 +132,9 @@ pub fn parse_workspace_data(value: Option<serde_json::Value>) -> ModelResult<Opt
 }
 
 /// Serializes workspace for storage; `None` clears the column.
-pub fn workspace_to_json(workspace: Option<CourseDesignerStageWorkspace>) -> ModelResult<Option<serde_json::Value>> {
+pub fn workspace_to_json(
+    workspace: Option<CourseDesignerStageWorkspace>,
+) -> ModelResult<Option<serde_json::Value>> {
     match workspace {
         None => Ok(None),
         Some(w) => {

@@ -6,15 +6,17 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  type CourseDesignerPlanStageTask,
-  type CourseDesignerPlanStageWithTasks,
-  createCourseDesignerStageTask,
-  deleteCourseDesignerStageTask,
-  updateCourseDesignerStageTask,
-} from "@/services/backend/courseDesigner"
+  createCourseDesignerStageTaskMutation,
+  deleteCourseDesignerStageTaskMutation,
+  updateCourseDesignerStageTaskMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type {
+  CourseDesignerPlanStageTask,
+  CourseDesignerPlanStageWithTasks,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const cardStyles = css`
@@ -245,8 +247,8 @@ export default function WorkspaceStageSection({
   const { t } = useTranslation()
   const [newTaskTitle, setNewTaskTitle] = useState("")
 
-  const createMutation = useToastMutation(
-    (title: string) => createCourseDesignerStageTask(planId, stage.id, { title: title.trim() }),
+  const createMutation = useToastMutationOptions(
+    createCourseDesignerStageTaskMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -256,15 +258,14 @@ export default function WorkspaceStageSection({
     },
   )
 
-  const updateMutation = useToastMutation(
-    ({ taskId, is_completed }: { taskId: string; is_completed: boolean }) =>
-      updateCourseDesignerStageTask(planId, taskId, { is_completed }),
+  const updateMutation = useToastMutationOptions(
+    updateCourseDesignerStageTaskMutation(),
     { notify: false },
     { onSuccess: onInvalidate },
   )
 
-  const deleteMutation = useToastMutation(
-    (taskId: string) => deleteCourseDesignerStageTask(planId, taskId),
+  const deleteMutation = useToastMutationOptions(
+    deleteCourseDesignerStageTaskMutation(),
     { notify: true, method: "DELETE" },
     { onSuccess: onInvalidate },
   )
@@ -274,7 +275,10 @@ export default function WorkspaceStageSection({
     if (!title) {
       return
     }
-    createMutation.mutate(title)
+    createMutation.mutate({
+      body: { title },
+      path: { plan_id: planId, stage_id: stage.id },
+    })
   }
 
   return (
@@ -360,8 +364,17 @@ export default function WorkspaceStageSection({
             <WorkspaceTaskRow
               key={task.id}
               task={task}
-              onToggle={(is_completed) => updateMutation.mutate({ taskId: task.id, is_completed })}
-              onDelete={() => deleteMutation.mutate(task.id)}
+              onToggle={(is_completed) =>
+                updateMutation.mutate({
+                  body: { is_completed },
+                  path: { plan_id: planId, task_id: task.id },
+                })
+              }
+              onDelete={() =>
+                deleteMutation.mutate({
+                  path: { plan_id: planId, task_id: task.id },
+                })
+              }
               isUpdating={updateMutation.isPending}
               isDeleting={deleteMutation.isPending}
             />

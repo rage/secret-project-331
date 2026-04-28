@@ -6,7 +6,6 @@ import { useParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { coursePlanQueryKeys } from "../../../coursePlanQueryKeys"
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
 import AnalysisWorkspaceForm from "./AnalysisWorkspaceForm"
@@ -15,17 +14,18 @@ import StageTimelineTabStrip from "./StageTimelineTabStrip"
 import WorkspaceStageSection from "./WorkspaceStageSection"
 
 import {
-  advanceCourseDesignerStage,
-  type CourseDesignerStage,
-  extendCourseDesignerStage,
-  getCourseDesignerPlan,
-  startCourseDesignerPlan,
-} from "@/services/backend/courseDesigner"
+  advanceCourseDesignerStageMutation,
+  extendCourseDesignerStageMutation,
+  getCourseDesignerPlanOptions,
+  getCourseDesignerPlanQueryKey,
+  startCourseDesignerPlanMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
@@ -309,39 +309,46 @@ export default function CoursePlanWorkspacePage() {
   const [analysisWorkspaceDirty, setAnalysisWorkspaceDirty] = useState(false)
   const previousActiveStageRef = useRef<CourseDesignerStage | null>(null)
 
-  const planQuery = useQuery({
-    queryKey: coursePlanQueryKeys.detail(planId),
-    queryFn: () => getCourseDesignerPlan(planId),
-    enabled: !!planId,
-  })
+  const planQuery = useQuery(
+    getCourseDesignerPlanOptions({
+      path: {
+        plan_id: planId,
+      },
+    }),
+  )
 
-  const startMutation = useToastMutation(
-    () => startCourseDesignerPlan(planId),
+  const startMutation = useToastMutationOptions(
+    startCourseDesignerPlanMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.detail(planId) })
+        void queryClient.invalidateQueries({
+          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+        })
       },
     },
   )
 
-  const extendMutation = useToastMutation(
-    (params: { stage: CourseDesignerStage; months: number }) =>
-      extendCourseDesignerStage(planId, params.stage, params.months),
+  const extendMutation = useToastMutationOptions(
+    extendCourseDesignerStageMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.detail(planId) })
+        void queryClient.invalidateQueries({
+          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+        })
       },
     },
   )
 
-  const advanceMutation = useToastMutation(
-    () => advanceCourseDesignerStage(planId),
+  const advanceMutation = useToastMutationOptions(
+    advanceCourseDesignerStageMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        void queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.detail(planId) })
+        void queryClient.invalidateQueries({
+          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+        })
       },
     },
   )
@@ -426,7 +433,13 @@ export default function CoursePlanWorkspacePage() {
             <Button
               variant="primary"
               size="medium"
-              onClick={() => startMutation.mutate()}
+              onClick={() =>
+                startMutation.mutate({
+                  path: {
+                    plan_id: planId,
+                  },
+                })
+              }
               disabled={startMutation.isPending}
             >
               {t("course-plans-start-plan")}
@@ -437,7 +450,7 @@ export default function CoursePlanWorkspacePage() {
     )
   }
 
-  const currentStage = plan.active_stage
+  const currentStage = plan.active_stage ?? null
   const currentStageData = currentStage ? stages.find((s) => s.stage === currentStage) : null
 
   const viewedStageData =
@@ -515,7 +528,7 @@ export default function CoursePlanWorkspacePage() {
         showStageTitle={false}
         onInvalidate={() =>
           void queryClient.invalidateQueries({
-            queryKey: coursePlanQueryKeys.detail(planId),
+            queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
           })
         }
       />
@@ -587,9 +600,22 @@ export default function CoursePlanWorkspacePage() {
           stageLabel={stageLabel}
           canActOnCurrentStage={Boolean(canAct)}
           onExtendCurrentStage={(months) =>
-            currentStage && extendMutation.mutate({ stage: currentStage, months })
+            currentStage &&
+            extendMutation.mutate({
+              body: { months },
+              path: {
+                plan_id: planId,
+                stage: currentStage.toLowerCase(),
+              },
+            })
           }
-          onAdvanceStage={() => advanceMutation.mutate()}
+          onAdvanceStage={() =>
+            advanceMutation.mutate({
+              path: {
+                plan_id: planId,
+              },
+            })
+          }
           isExtendPending={extendMutation.isPending}
           isAdvancePending={advanceMutation.isPending}
           timeRemainingText={timeRemainingText}

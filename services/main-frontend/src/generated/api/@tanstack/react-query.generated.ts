@@ -16,6 +16,7 @@ import {
   addCodeGiveawayCodes,
   addRole,
   addTeacherGradingForExamSubmission,
+  advanceCourseDesignerStage,
   approveCourseSuspectedCheater,
   approveOauthConsent,
   archiveCourseSuspectedCheater,
@@ -28,6 +29,9 @@ import {
   createCourse,
   createCourseChatbot,
   createCourseCopy,
+  createCourseDesignerPlan,
+  createCourseDesignerScheduleSuggestion,
+  createCourseDesignerStageTask,
   createCourseGlossaryTerm,
   createCourseInstance,
   createCourseInstanceCompletions,
@@ -50,6 +54,7 @@ import {
   deleteChatbotConfiguration,
   deleteCodeGiveawayCode,
   deleteCourse,
+  deleteCourseDesignerStageTask,
   deleteCourseInstance,
   deleteCourseModuleThreshold,
   deleteCoursePartnersBlock,
@@ -81,6 +86,8 @@ import {
   exportExamSubmissionsCsv,
   exportExerciseAnswersCsv,
   exportExerciseDefinitionsCsv,
+  extendCourseDesignerStage,
+  finalizeCourseDesignerSchedule,
   generateCertificate,
   getAvgTimeToFirstSubmissionHistory,
   getBulkUserDetails,
@@ -107,6 +114,8 @@ import {
   getCourseDailySubmissionCounts,
   getCourseDailyUsersWhoSubmittedSomething,
   getCourseDefaultPeerReview,
+  getCourseDesignerPlan,
+  getCourseDesignerPlans,
   getCourseExercises,
   getCourseExercisesAndAnswersRequiringAttentionCounts,
   getCourseExerciseStatusesForUser,
@@ -261,6 +270,7 @@ import {
   resetUserPassword,
   restorePageHistory,
   revokeOauthToken,
+  saveCourseDesignerSchedule,
   searchUserDetailsByEmail,
   searchUserDetailsByOtherDetails,
   searchUserDetailsFuzzyMatch,
@@ -271,6 +281,7 @@ import {
   setCourseModuleCertificateGeneration,
   setExamCourse,
   softDeleteOrganization,
+  startCourseDesignerPlan,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
@@ -280,6 +291,8 @@ import {
   updateChapterImage,
   updateCourse,
   updateCourseChapterOrdering,
+  updateCourseDesignerStageTask,
+  updateCourseDesignerStageWorkspace,
   updateCourseModules,
   updateCoursePageOrdering,
   updateCoursePeerReviewQueueReviewsReceived,
@@ -303,6 +316,8 @@ import type {
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
+  AdvanceCourseDesignerStageData,
+  AdvanceCourseDesignerStageResponse,
   ApproveCourseSuspectedCheaterData,
   ApproveOauthConsentData,
   ApproveOauthConsentResponse,
@@ -322,6 +337,12 @@ import type {
   CreateCourseCopyData,
   CreateCourseCopyResponse,
   CreateCourseData,
+  CreateCourseDesignerPlanData,
+  CreateCourseDesignerPlanResponse,
+  CreateCourseDesignerScheduleSuggestionData,
+  CreateCourseDesignerScheduleSuggestionResponse,
+  CreateCourseDesignerStageTaskData,
+  CreateCourseDesignerStageTaskResponse,
   CreateCourseGlossaryTermData,
   CreateCourseGlossaryTermResponse,
   CreateCourseInstanceCompletionsData,
@@ -358,6 +379,8 @@ import type {
   DeleteChatbotConfigurationData,
   DeleteCodeGiveawayCodeData,
   DeleteCourseData,
+  DeleteCourseDesignerStageTaskData,
+  DeleteCourseDesignerStageTaskResponse,
   DeleteCourseInstanceData,
   DeleteCourseModuleThresholdData,
   DeleteCoursePartnersBlockData,
@@ -410,6 +433,10 @@ import type {
   ExportExerciseAnswersCsvResponse,
   ExportExerciseDefinitionsCsvData,
   ExportExerciseDefinitionsCsvResponse,
+  ExtendCourseDesignerStageData,
+  ExtendCourseDesignerStageResponse,
+  FinalizeCourseDesignerScheduleData,
+  FinalizeCourseDesignerScheduleResponse,
   GenerateCertificateData,
   GenerateCertificateResponse,
   GetAvgTimeToFirstSubmissionHistoryData,
@@ -459,6 +486,10 @@ import type {
   GetCourseDailyUsersWhoSubmittedSomethingResponse,
   GetCourseData,
   GetCourseDefaultPeerReviewData,
+  GetCourseDesignerPlanData,
+  GetCourseDesignerPlanResponse,
+  GetCourseDesignerPlansData,
+  GetCourseDesignerPlansResponse,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
   GetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   GetCourseExercisesData,
@@ -748,6 +779,8 @@ import type {
   RestorePageHistoryData,
   RestorePageHistoryResponse,
   RevokeOauthTokenData,
+  SaveCourseDesignerScheduleData,
+  SaveCourseDesignerScheduleResponse,
   SearchUserDetailsByEmailData,
   SearchUserDetailsByEmailResponse,
   SearchUserDetailsByOtherDetailsData,
@@ -765,6 +798,8 @@ import type {
   SetCourseModuleCertificateGenerationResponse,
   SetExamCourseData,
   SoftDeleteOrganizationData,
+  StartCourseDesignerPlanData,
+  StartCourseDesignerPlanResponse,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
   TeacherSetStudentChapterStatusData,
@@ -780,6 +815,10 @@ import type {
   UpdateChapterResponse,
   UpdateCourseChapterOrderingData,
   UpdateCourseData,
+  UpdateCourseDesignerStageTaskData,
+  UpdateCourseDesignerStageTaskResponse,
+  UpdateCourseDesignerStageWorkspaceData,
+  UpdateCourseDesignerStageWorkspaceResponse,
   UpdateCourseModulesData,
   UpdateCoursePageOrderingData,
   UpdateCoursePeerReviewQueueReviewsReceivedData,
@@ -2128,6 +2167,288 @@ export const getCourseModuleUserCompletionOptions = (
       }),
     queryKey: getCourseModuleUserCompletionQueryKey(options),
   })
+
+export const getCourseDesignerPlansQueryKey = (options?: Options<GetCourseDesignerPlansData>) =>
+  createQueryKey("getCourseDesignerPlans", options)
+
+export const getCourseDesignerPlansOptions = (options?: Options<GetCourseDesignerPlansData>) =>
+  queryOptions<
+    GetCourseDesignerPlansResponse,
+    DefaultError,
+    GetCourseDesignerPlansResponse,
+    ReturnType<typeof getCourseDesignerPlansQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerPlans({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerPlansQueryKey(options),
+  })
+
+export const createCourseDesignerPlanMutation = (
+  options?: Partial<Options<CreateCourseDesignerPlanData>>,
+): UseMutationOptions<
+  CreateCourseDesignerPlanResponse,
+  DefaultError,
+  Options<CreateCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateCourseDesignerPlanResponse,
+    DefaultError,
+    Options<CreateCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const getCourseDesignerPlanQueryKey = (options: Options<GetCourseDesignerPlanData>) =>
+  createQueryKey("getCourseDesignerPlan", options)
+
+export const getCourseDesignerPlanOptions = (options: Options<GetCourseDesignerPlanData>) =>
+  queryOptions<
+    GetCourseDesignerPlanResponse,
+    DefaultError,
+    GetCourseDesignerPlanResponse,
+    ReturnType<typeof getCourseDesignerPlanQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseDesignerPlan({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseDesignerPlanQueryKey(options),
+  })
+
+export const saveCourseDesignerScheduleMutation = (
+  options?: Partial<Options<SaveCourseDesignerScheduleData>>,
+): UseMutationOptions<
+  SaveCourseDesignerScheduleResponse,
+  DefaultError,
+  Options<SaveCourseDesignerScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    SaveCourseDesignerScheduleResponse,
+    DefaultError,
+    Options<SaveCourseDesignerScheduleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await saveCourseDesignerSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const finalizeCourseDesignerScheduleMutation = (
+  options?: Partial<Options<FinalizeCourseDesignerScheduleData>>,
+): UseMutationOptions<
+  FinalizeCourseDesignerScheduleResponse,
+  DefaultError,
+  Options<FinalizeCourseDesignerScheduleData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    FinalizeCourseDesignerScheduleResponse,
+    DefaultError,
+    Options<FinalizeCourseDesignerScheduleData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await finalizeCourseDesignerSchedule({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const createCourseDesignerScheduleSuggestionMutation = (
+  options?: Partial<Options<CreateCourseDesignerScheduleSuggestionData>>,
+): UseMutationOptions<
+  CreateCourseDesignerScheduleSuggestionResponse,
+  DefaultError,
+  Options<CreateCourseDesignerScheduleSuggestionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateCourseDesignerScheduleSuggestionResponse,
+    DefaultError,
+    Options<CreateCourseDesignerScheduleSuggestionData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createCourseDesignerScheduleSuggestion({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const advanceCourseDesignerStageMutation = (
+  options?: Partial<Options<AdvanceCourseDesignerStageData>>,
+): UseMutationOptions<
+  AdvanceCourseDesignerStageResponse,
+  DefaultError,
+  Options<AdvanceCourseDesignerStageData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AdvanceCourseDesignerStageResponse,
+    DefaultError,
+    Options<AdvanceCourseDesignerStageData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await advanceCourseDesignerStage({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const createCourseDesignerStageTaskMutation = (
+  options?: Partial<Options<CreateCourseDesignerStageTaskData>>,
+): UseMutationOptions<
+  CreateCourseDesignerStageTaskResponse,
+  DefaultError,
+  Options<CreateCourseDesignerStageTaskData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateCourseDesignerStageTaskResponse,
+    DefaultError,
+    Options<CreateCourseDesignerStageTaskData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await createCourseDesignerStageTask({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const extendCourseDesignerStageMutation = (
+  options?: Partial<Options<ExtendCourseDesignerStageData>>,
+): UseMutationOptions<
+  ExtendCourseDesignerStageResponse,
+  DefaultError,
+  Options<ExtendCourseDesignerStageData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ExtendCourseDesignerStageResponse,
+    DefaultError,
+    Options<ExtendCourseDesignerStageData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await extendCourseDesignerStage({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const updateCourseDesignerStageWorkspaceMutation = (
+  options?: Partial<Options<UpdateCourseDesignerStageWorkspaceData>>,
+): UseMutationOptions<
+  UpdateCourseDesignerStageWorkspaceResponse,
+  DefaultError,
+  Options<UpdateCourseDesignerStageWorkspaceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCourseDesignerStageWorkspaceResponse,
+    DefaultError,
+    Options<UpdateCourseDesignerStageWorkspaceData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateCourseDesignerStageWorkspace({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const startCourseDesignerPlanMutation = (
+  options?: Partial<Options<StartCourseDesignerPlanData>>,
+): UseMutationOptions<
+  StartCourseDesignerPlanResponse,
+  DefaultError,
+  Options<StartCourseDesignerPlanData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    StartCourseDesignerPlanResponse,
+    DefaultError,
+    Options<StartCourseDesignerPlanData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await startCourseDesignerPlan({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const deleteCourseDesignerStageTaskMutation = (
+  options?: Partial<Options<DeleteCourseDesignerStageTaskData>>,
+): UseMutationOptions<
+  DeleteCourseDesignerStageTaskResponse,
+  DefaultError,
+  Options<DeleteCourseDesignerStageTaskData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteCourseDesignerStageTaskResponse,
+    DefaultError,
+    Options<DeleteCourseDesignerStageTaskData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await deleteCourseDesignerStageTask({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const updateCourseDesignerStageTaskMutation = (
+  options?: Partial<Options<UpdateCourseDesignerStageTaskData>>,
+): UseMutationOptions<
+  UpdateCourseDesignerStageTaskResponse,
+  DefaultError,
+  Options<UpdateCourseDesignerStageTaskData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCourseDesignerStageTaskResponse,
+    DefaultError,
+    Options<UpdateCourseDesignerStageTaskData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateCourseDesignerStageTask({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

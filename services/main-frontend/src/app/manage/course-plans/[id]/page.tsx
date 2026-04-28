@@ -4,9 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
-import { coursePlanQueryKeys } from "../coursePlanQueryKeys"
-
-import { getCourseDesignerPlan } from "@/services/backend/courseDesigner"
+import { getCourseDesignerPlanOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import {
@@ -14,17 +12,25 @@ import {
   manageCoursePlanWorkspaceRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 function CoursePlanHubRedirect() {
   const params = useParams<{ id: string }>()
   const router = useRouter()
   const planId = params.id
 
-  const planQuery = useQuery({
-    queryKey: coursePlanQueryKeys.detail(planId),
-    queryFn: () => getCourseDesignerPlan(planId),
-    enabled: !!planId,
-  })
+  const planQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: planId,
+      isReady: (value): value is string => Boolean(value),
+      build: (value) =>
+        getCourseDesignerPlanOptions({
+          path: {
+            plan_id: value,
+          },
+        }),
+    }),
+  )
 
   useEffect(() => {
     if (!planQuery.data) {

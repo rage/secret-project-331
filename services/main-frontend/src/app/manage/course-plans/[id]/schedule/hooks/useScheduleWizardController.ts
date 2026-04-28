@@ -19,16 +19,16 @@ import {
 } from "../scheduleMappers"
 import { validateScheduleStages } from "../scheduleValidation"
 
-import { coursePlanQueryKeys } from "@/app/manage/course-plans/coursePlanQueryKeys"
 import {
-  CourseDesignerCourseSize,
-  CourseDesignerStage,
-  finalizeCourseDesignerSchedule,
-  generateCourseDesignerScheduleSuggestion,
-  getCourseDesignerPlan,
-  saveCourseDesignerSchedule,
-} from "@/services/backend/courseDesigner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+  createCourseDesignerScheduleSuggestionMutation,
+  finalizeCourseDesignerScheduleMutation,
+  getCourseDesignerPlanOptions,
+  getCourseDesignerPlanQueryKey,
+  getCourseDesignerPlansQueryKey,
+  saveCourseDesignerScheduleMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseDesignerCourseSize, CourseDesignerStage } from "@/generated/api/types.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 const todayMonthValue = () => {
   const date = new Date()
@@ -77,10 +77,13 @@ function stepIndex(step: ScheduleWizardStepId): number {
 export default function useScheduleWizardController(planId: string) {
   const queryClient = useQueryClient()
 
-  const planQuery = useQuery({
-    queryKey: coursePlanQueryKeys.detail(planId),
-    queryFn: () => getCourseDesignerPlan(planId),
-  })
+  const planQuery = useQuery(
+    getCourseDesignerPlanOptions({
+      path: {
+        plan_id: planId,
+      },
+    }),
+  )
 
   const [planName, setPlanName] = useState("")
 
@@ -136,12 +139,8 @@ export default function useScheduleWizardController(planId: string) {
     setInitializedFromQuery(planId)
   }, [initializedFromQuery, planId, planQuery.data, setDraftStages, setWizardStepAtom])
 
-  const suggestionMutation = useToastMutation(
-    () =>
-      generateCourseDesignerScheduleSuggestion(planId, {
-        course_size: courseSize,
-        starts_on: monthToStartsOnDate(startsOnMonth),
-      }),
+  const suggestionMutation = useToastMutationOptions(
+    createCourseDesignerScheduleSuggestionMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: (result) => {
@@ -150,29 +149,29 @@ export default function useScheduleWizardController(planId: string) {
     },
   )
 
-  const saveMutation = useToastMutation(
-    () =>
-      saveCourseDesignerSchedule(planId, {
-        name: planName.trim() === "" ? null : planName.trim(),
-        stages: draftStages,
-      }),
+  const saveMutation = useToastMutationOptions(
+    saveCourseDesignerScheduleMutation(),
     { notify: true, method: "PUT" },
     {
       onSuccess: async (details) => {
         setDraftStages(toDraftStages(details.stages))
-        await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.detail(planId) })
-        await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.list() })
+        await queryClient.invalidateQueries({
+          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+        })
+        await queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
       },
     },
   )
 
-  const finalizeMutation = useToastMutation(
-    () => finalizeCourseDesignerSchedule(planId),
+  const finalizeMutation = useToastMutationOptions(
+    finalizeCourseDesignerScheduleMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.detail(planId) })
-        await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.list() })
+        await queryClient.invalidateQueries({
+          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+        })
+        await queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
       },
     },
   )
@@ -203,7 +202,15 @@ export default function useScheduleWizardController(planId: string) {
   const generateSuggestion = useCallback(
     async (options?: { goToScheduleStep?: boolean }) => {
       try {
-        await suggestionMutation.mutateAsync()
+        await suggestionMutation.mutateAsync({
+          body: {
+            course_size: courseSize,
+            starts_on: monthToStartsOnDate(startsOnMonth),
+          },
+          path: {
+            plan_id: planId,
+          },
+        })
         if (options?.goToScheduleStep) {
           goToStep("schedule", 1)
         }
@@ -212,27 +219,47 @@ export default function useScheduleWizardController(planId: string) {
         return false
       }
     },
-    [goToStep, suggestionMutation],
+    [courseSize, goToStep, planId, startsOnMonth, suggestionMutation],
   )
 
   const saveDraft = useCallback(async () => {
     try {
-      await saveMutation.mutateAsync()
+      await saveMutation.mutateAsync({
+        body: {
+          name: planName.trim() === "" ? null : planName.trim(),
+          stages: draftStages,
+        },
+        path: {
+          plan_id: planId,
+        },
+      })
       return true
     } catch {
       return false
     }
-  }, [saveMutation])
+  }, [draftStages, planId, planName, saveMutation])
 
   const finalizeDraft = useCallback(async () => {
     try {
-      await saveMutation.mutateAsync()
-      await finalizeMutation.mutateAsync()
+      await saveMutation.mutateAsync({
+        body: {
+          name: planName.trim() === "" ? null : planName.trim(),
+          stages: draftStages,
+        },
+        path: {
+          plan_id: planId,
+        },
+      })
+      await finalizeMutation.mutateAsync({
+        path: {
+          plan_id: planId,
+        },
+      })
       return true
     } catch {
       return false
     }
-  }, [finalizeMutation, saveMutation])
+  }, [draftStages, finalizeMutation, planId, planName, saveMutation])
 
   return {
     planQuery,

@@ -10,52 +10,64 @@ use models::course_designer_plans::{
     CourseDesignerPlanStageTask, CourseDesignerPlanSummary, CourseDesignerScheduleStageInput,
     CourseDesignerStage,
 };
+use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(
+    post_new_plan,
+    get_plans,
+    get_plan,
+    post_schedule_suggestion,
+    put_schedule,
+    post_finalize_schedule,
+    post_stage_task,
+    patch_task,
+    delete_task,
+    post_start_plan,
+    post_extend_stage,
+    post_advance_stage,
+    patch_stage_workspace
+))]
+pub(crate) struct MainFrontendCourseDesignerApiDoc;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct CreateCourseDesignerPlanRequest {
     pub name: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct CourseDesignerScheduleSuggestionRequest {
     pub course_size: CourseDesignerCourseSize,
     pub starts_on: NaiveDate,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct CourseDesignerScheduleSuggestionResponse {
     pub stages: Vec<CourseDesignerScheduleStageInput>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct SaveCourseDesignerScheduleRequest {
     pub name: Option<String>,
     pub stages: Vec<CourseDesignerScheduleStageInput>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct CreateCourseDesignerStageTaskRequest {
     pub title: String,
     pub description: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct UpdateCourseDesignerStageTaskRequest {
     pub title: Option<String>,
     pub description: Option<String>,
     pub is_completed: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct ExtendStageRequest {
     pub months: u32,
 }
@@ -72,6 +84,14 @@ fn sanitize_optional_name(name: Option<String>) -> Option<String> {
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "",
+    operation_id = "createCourseDesignerPlan",
+    tag = "course-plans",
+    request_body = CreateCourseDesignerPlanRequest,
+    responses((status = 200, description = "Created plan", body = CourseDesignerPlan))
+)]
 async fn post_new_plan(
     payload: web::Json<CreateCourseDesignerPlanRequest>,
     pool: web::Data<PgPool>,
@@ -89,6 +109,13 @@ async fn post_new_plan(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "",
+    operation_id = "getCourseDesignerPlans",
+    tag = "course-plans",
+    responses((status = 200, description = "Plans", body = [CourseDesignerPlanSummary]))
+)]
 async fn get_plans(
     pool: web::Data<PgPool>,
     user: AuthUser,
@@ -100,6 +127,14 @@ async fn get_plans(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{plan_id}",
+    operation_id = "getCourseDesignerPlan",
+    tag = "course-plans",
+    params(("plan_id" = Uuid, Path, description = "Plan id")),
+    responses((status = 200, description = "Plan details", body = CourseDesignerPlanDetails))
+)]
 async fn get_plan(
     plan_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -114,6 +149,15 @@ async fn get_plan(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{plan_id}/schedule/suggestions",
+    operation_id = "createCourseDesignerScheduleSuggestion",
+    tag = "course-plans",
+    params(("plan_id" = Uuid, Path, description = "Plan id")),
+    request_body = CourseDesignerScheduleSuggestionRequest,
+    responses((status = 200, description = "Suggested schedule", body = CourseDesignerScheduleSuggestionResponse))
+)]
 async fn post_schedule_suggestion(
     plan_id: web::Path<Uuid>,
     payload: web::Json<CourseDesignerScheduleSuggestionRequest>,
@@ -134,6 +178,15 @@ async fn post_schedule_suggestion(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    put,
+    path = "/{plan_id}/schedule",
+    operation_id = "saveCourseDesignerSchedule",
+    tag = "course-plans",
+    params(("plan_id" = Uuid, Path, description = "Plan id")),
+    request_body = SaveCourseDesignerScheduleRequest,
+    responses((status = 200, description = "Updated plan details", body = CourseDesignerPlanDetails))
+)]
 async fn put_schedule(
     plan_id: web::Path<Uuid>,
     payload: web::Json<SaveCourseDesignerScheduleRequest>,
@@ -155,6 +208,14 @@ async fn put_schedule(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{plan_id}/schedule/finalize",
+    operation_id = "finalizeCourseDesignerSchedule",
+    tag = "course-plans",
+    params(("plan_id" = Uuid, Path, description = "Plan id")),
+    responses((status = 200, description = "Finalized plan", body = CourseDesignerPlan))
+)]
 async fn post_finalize_schedule(
     plan_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -169,6 +230,18 @@ async fn post_finalize_schedule(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{plan_id}/stages/{stage_id}/tasks",
+    operation_id = "createCourseDesignerStageTask",
+    tag = "course-plans",
+    params(
+        ("plan_id" = Uuid, Path, description = "Plan id"),
+        ("stage_id" = Uuid, Path, description = "Stage id")
+    ),
+    request_body = CreateCourseDesignerStageTaskRequest,
+    responses((status = 200, description = "Created task", body = CourseDesignerPlanStageTask))
+)]
 async fn post_stage_task(
     path: web::Path<(Uuid, Uuid)>,
     payload: web::Json<CreateCourseDesignerStageTaskRequest>,
@@ -191,6 +264,18 @@ async fn post_stage_task(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    patch,
+    path = "/{plan_id}/tasks/{task_id}",
+    operation_id = "updateCourseDesignerStageTask",
+    tag = "course-plans",
+    params(
+        ("plan_id" = Uuid, Path, description = "Plan id"),
+        ("task_id" = Uuid, Path, description = "Task id")
+    ),
+    request_body = UpdateCourseDesignerStageTaskRequest,
+    responses((status = 200, description = "Updated task", body = CourseDesignerPlanStageTask))
+)]
 async fn patch_task(
     path: web::Path<(Uuid, Uuid)>,
     payload: web::Json<UpdateCourseDesignerStageTaskRequest>,
@@ -214,6 +299,17 @@ async fn patch_task(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    delete,
+    path = "/{plan_id}/tasks/{task_id}",
+    operation_id = "deleteCourseDesignerStageTask",
+    tag = "course-plans",
+    params(
+        ("plan_id" = Uuid, Path, description = "Plan id"),
+        ("task_id" = Uuid, Path, description = "Task id")
+    ),
+    responses((status = 204, description = "Task deleted"))
+)]
 async fn delete_task(
     path: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
@@ -228,6 +324,14 @@ async fn delete_task(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{plan_id}/start",
+    operation_id = "startCourseDesignerPlan",
+    tag = "course-plans",
+    params(("plan_id" = Uuid, Path, description = "Plan id")),
+    responses((status = 200, description = "Started plan", body = CourseDesignerPlan))
+)]
 async fn post_start_plan(
     plan_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -252,6 +356,18 @@ fn parse_stage(path_stage: &str) -> Option<CourseDesignerStage> {
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{plan_id}/stages/{stage}/extend",
+    operation_id = "extendCourseDesignerStage",
+    tag = "course-plans",
+    params(
+        ("plan_id" = Uuid, Path, description = "Plan id"),
+        ("stage" = String, Path, description = "Stage name")
+    ),
+    request_body = ExtendStageRequest,
+    responses((status = 200, description = "Updated plan details", body = CourseDesignerPlanDetails))
+)]
 async fn post_extend_stage(
     path: web::Path<(Uuid, String)>,
     payload: web::Json<ExtendStageRequest>,
@@ -280,6 +396,14 @@ async fn post_extend_stage(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/{plan_id}/stages/advance",
+    operation_id = "advanceCourseDesignerStage",
+    tag = "course-plans",
+    params(("plan_id" = Uuid, Path, description = "Plan id")),
+    responses((status = 200, description = "Updated plan details", body = CourseDesignerPlanDetails))
+)]
 async fn post_advance_stage(
     plan_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -294,6 +418,18 @@ async fn post_advance_stage(
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    patch,
+    path = "/{plan_id}/stages/{stage}/workspace",
+    operation_id = "updateCourseDesignerStageWorkspace",
+    tag = "course-plans",
+    params(
+        ("plan_id" = Uuid, Path, description = "Plan id"),
+        ("stage" = String, Path, description = "Stage name")
+    ),
+    request_body = CourseDesignerStageWorkspace,
+    responses((status = 200, description = "Updated plan details", body = CourseDesignerPlanDetails))
+)]
 async fn patch_stage_workspace(
     path: web::Path<(Uuid, String)>,
     payload: web::Json<CourseDesignerStageWorkspace>,

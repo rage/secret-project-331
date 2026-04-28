@@ -15,6 +15,44 @@ export type ClientOptions = {
  */
 export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submitted" | "Completed"
 
+export type AnalysisCourseType = "compulsory" | "elective"
+
+/**
+ * Analysis stage form: course metadata, needs, wishes, market, resources, contributors.
+ */
+export type AnalysisWorkspaceV1 = {
+  contributors_editors?: string | null
+  contributors_instructional_designer?: string | null
+  contributors_subject_matter_experts?: string | null
+  contributors_support_staff?: string | null
+  course_title?: string | null
+  course_type?: null | AnalysisCourseType
+  credits?: number | null
+  degree_programme?: string | null
+  language?: string | null
+  market_results?: string | null
+  mode_asynchronous: boolean
+  mode_synchronous: boolean
+  open_period_all: boolean
+  open_period_i: boolean
+  open_period_ii: boolean
+  open_period_iii: boolean
+  open_period_iv: boolean
+  resources_purchase_budget?: string | null
+  resources_university?: string | null
+  responsible_teachers?: string | null
+  students_demographic_data?: string | null
+  target_group?: string | null
+  wishes_assessment_text?: string | null
+  wishes_content_format_notes?: string | null
+  wishes_content_format_podcast: boolean
+  wishes_content_format_text: boolean
+  wishes_content_format_video: boolean
+  wishes_content_format_xr: boolean
+  wishes_other_suggestions?: string | null
+  wishes_topics?: string | null
+}
+
 export type AnswerRequiringAttentionWithTasks = {
   created_at: string
   data_json?: unknown
@@ -528,6 +566,117 @@ export type CourseCount = {
   count: number
 }
 
+export type CourseDesignerCourseSize = "small" | "medium" | "large"
+
+export type CourseDesignerPlan = {
+  active_stage?: null | CourseDesignerStage
+  created_at: string
+  created_by_user_id: string
+  id: string
+  last_weekly_stage_email_sent_at?: string | null
+  name?: string | null
+  status: CourseDesignerPlanStatus
+  updated_at: string
+}
+
+export type CourseDesignerPlanDetails = {
+  members: Array<CourseDesignerPlanMember>
+  plan: CourseDesignerPlan
+  stages: Array<CourseDesignerPlanStageWithTasks>
+}
+
+export type CourseDesignerPlanMember = {
+  created_at: string
+  id: string
+  updated_at: string
+  user_id: string
+}
+
+export type CourseDesignerPlanStage = {
+  actual_completed_at?: string | null
+  actual_started_at?: string | null
+  created_at: string
+  id: string
+  planned_ends_on: string
+  planned_starts_on: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  updated_at: string
+  workspace_data?: unknown
+}
+
+export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
+
+export type CourseDesignerPlanStageTask = {
+  completed_at?: string | null
+  completed_by_user_id?: string | null
+  course_designer_plan_stage_id: string
+  created_at: string
+  created_by_user_id?: string | null
+  description?: string | null
+  id: string
+  is_auto_generated: boolean
+  is_completed: boolean
+  order_number: number
+  title: string
+  updated_at: string
+}
+
+export type CourseDesignerPlanStageWithTasks = CourseDesignerPlanStage & {
+  tasks: Array<CourseDesignerPlanStageTask>
+}
+
+export type CourseDesignerPlanStatus =
+  | "Draft"
+  | "Scheduling"
+  | "ReadyToStart"
+  | "InProgress"
+  | "Completed"
+  | "Archived"
+
+export type CourseDesignerPlanSummary = {
+  active_stage?: null | CourseDesignerStage
+  created_at: string
+  created_by_user_id: string
+  id: string
+  last_weekly_stage_email_sent_at?: string | null
+  member_count: number
+  name?: string | null
+  stage_count: number
+  status: CourseDesignerPlanStatus
+  updated_at: string
+}
+
+export type CourseDesignerScheduleStageInput = {
+  planned_ends_on: string
+  planned_starts_on: string
+  stage: CourseDesignerStage
+}
+
+export type CourseDesignerScheduleSuggestionRequest = {
+  course_size: CourseDesignerCourseSize
+  starts_on: string
+}
+
+export type CourseDesignerScheduleSuggestionResponse = {
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
+export type CourseDesignerStage =
+  | "Analysis"
+  | "Design"
+  | "Development"
+  | "Implementation"
+  | "Evaluation"
+
+/**
+ * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
+ */
+export type CourseDesignerStageWorkspace = {
+  payload: AnalysisWorkspaceV1
+  schema: "analysis_v1"
+}
+
 export type CourseEnrollmentInfo = {
   course: Course
   course_id: string
@@ -717,6 +866,15 @@ export type CourseUserInfo = {
   first_name?: string | null
   last_name?: string | null
   user_id: string
+}
+
+export type CreateCourseDesignerPlanRequest = {
+  name?: string | null
+}
+
+export type CreateCourseDesignerStageTaskRequest = {
+  description?: string | null
+  title: string
 }
 
 export type CronJobInfo = {
@@ -1081,6 +1239,10 @@ export type ExerciseUserCounts = {
   n_users_with_max_points?: number | null
   n_users_with_some_points?: number | null
   page_order_number: number
+}
+
+export type ExtendStageRequest = {
+  months: number
 }
 
 export type Feedback = {
@@ -1831,6 +1993,11 @@ export type RoleUser = {
   user_id: string
 }
 
+export type SaveCourseDesignerScheduleRequest = {
+  name?: string | null
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
 export type SearchRequest = {
   query: string
 }
@@ -1918,6 +2085,12 @@ export type ThresholdData = {
 }
 
 export type TimeGranularity = "Year" | "Month" | "Day"
+
+export type UpdateCourseDesignerStageTaskRequest = {
+  description?: string | null
+  is_completed?: boolean | null
+  title?: string | null
+}
 
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
@@ -3064,6 +3237,302 @@ export type GetCourseModuleUserCompletionResponses = {
 
 export type GetCourseModuleUserCompletionResponse =
   GetCourseModuleUserCompletionResponses[keyof GetCourseModuleUserCompletionResponses]
+
+export type GetCourseDesignerPlansData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-plans"
+}
+
+export type GetCourseDesignerPlansResponses = {
+  /**
+   * Plans
+   */
+  200: Array<CourseDesignerPlanSummary>
+}
+
+export type GetCourseDesignerPlansResponse =
+  GetCourseDesignerPlansResponses[keyof GetCourseDesignerPlansResponses]
+
+export type CreateCourseDesignerPlanData = {
+  body: CreateCourseDesignerPlanRequest
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-plans"
+}
+
+export type CreateCourseDesignerPlanResponses = {
+  /**
+   * Created plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type CreateCourseDesignerPlanResponse =
+  CreateCourseDesignerPlanResponses[keyof CreateCourseDesignerPlanResponses]
+
+export type GetCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}"
+}
+
+export type GetCourseDesignerPlanResponses = {
+  /**
+   * Plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type GetCourseDesignerPlanResponse =
+  GetCourseDesignerPlanResponses[keyof GetCourseDesignerPlanResponses]
+
+export type SaveCourseDesignerScheduleData = {
+  body: SaveCourseDesignerScheduleRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule"
+}
+
+export type SaveCourseDesignerScheduleResponses = {
+  /**
+   * Updated plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type SaveCourseDesignerScheduleResponse =
+  SaveCourseDesignerScheduleResponses[keyof SaveCourseDesignerScheduleResponses]
+
+export type FinalizeCourseDesignerScheduleData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/finalize"
+}
+
+export type FinalizeCourseDesignerScheduleResponses = {
+  /**
+   * Finalized plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type FinalizeCourseDesignerScheduleResponse =
+  FinalizeCourseDesignerScheduleResponses[keyof FinalizeCourseDesignerScheduleResponses]
+
+export type CreateCourseDesignerScheduleSuggestionData = {
+  body: CourseDesignerScheduleSuggestionRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/suggestions"
+}
+
+export type CreateCourseDesignerScheduleSuggestionResponses = {
+  /**
+   * Suggested schedule
+   */
+  200: CourseDesignerScheduleSuggestionResponse
+}
+
+export type CreateCourseDesignerScheduleSuggestionResponse =
+  CreateCourseDesignerScheduleSuggestionResponses[keyof CreateCourseDesignerScheduleSuggestionResponses]
+
+export type AdvanceCourseDesignerStageData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/advance"
+}
+
+export type AdvanceCourseDesignerStageResponses = {
+  /**
+   * Updated plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type AdvanceCourseDesignerStageResponse =
+  AdvanceCourseDesignerStageResponses[keyof AdvanceCourseDesignerStageResponses]
+
+export type CreateCourseDesignerStageTaskData = {
+  body: CreateCourseDesignerStageTaskRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Stage id
+     */
+    stage_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage_id}/tasks"
+}
+
+export type CreateCourseDesignerStageTaskResponses = {
+  /**
+   * Created task
+   */
+  200: CourseDesignerPlanStageTask
+}
+
+export type CreateCourseDesignerStageTaskResponse =
+  CreateCourseDesignerStageTaskResponses[keyof CreateCourseDesignerStageTaskResponses]
+
+export type ExtendCourseDesignerStageData = {
+  body: ExtendStageRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Stage name
+     */
+    stage: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage}/extend"
+}
+
+export type ExtendCourseDesignerStageResponses = {
+  /**
+   * Updated plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type ExtendCourseDesignerStageResponse =
+  ExtendCourseDesignerStageResponses[keyof ExtendCourseDesignerStageResponses]
+
+export type UpdateCourseDesignerStageWorkspaceData = {
+  body: CourseDesignerStageWorkspace
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Stage name
+     */
+    stage: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage}/workspace"
+}
+
+export type UpdateCourseDesignerStageWorkspaceResponses = {
+  /**
+   * Updated plan details
+   */
+  200: CourseDesignerPlanDetails
+}
+
+export type UpdateCourseDesignerStageWorkspaceResponse =
+  UpdateCourseDesignerStageWorkspaceResponses[keyof UpdateCourseDesignerStageWorkspaceResponses]
+
+export type StartCourseDesignerPlanData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/start"
+}
+
+export type StartCourseDesignerPlanResponses = {
+  /**
+   * Started plan
+   */
+  200: CourseDesignerPlan
+}
+
+export type StartCourseDesignerPlanResponse =
+  StartCourseDesignerPlanResponses[keyof StartCourseDesignerPlanResponses]
+
+export type DeleteCourseDesignerStageTaskData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Task id
+     */
+    task_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}"
+}
+
+export type DeleteCourseDesignerStageTaskResponses = {
+  /**
+   * Task deleted
+   */
+  204: void
+}
+
+export type DeleteCourseDesignerStageTaskResponse =
+  DeleteCourseDesignerStageTaskResponses[keyof DeleteCourseDesignerStageTaskResponses]
+
+export type UpdateCourseDesignerStageTaskData = {
+  body: UpdateCourseDesignerStageTaskRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * Task id
+     */
+    task_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}"
+}
+
+export type UpdateCourseDesignerStageTaskResponses = {
+  /**
+   * Updated task
+   */
+  200: CourseDesignerPlanStageTask
+}
+
+export type UpdateCourseDesignerStageTaskResponse =
+  UpdateCourseDesignerStageTaskResponses[keyof UpdateCourseDesignerStageTaskResponses]
 
 export type CreateCourseData = {
   body: NewCourse

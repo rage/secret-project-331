@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 
 import CoursePlanCard from "./CoursePlanCard"
 
-import { CourseDesignerPlanSummary } from "@/services/backend/courseDesigner"
+import type { CourseDesignerPlanSummary } from "@/generated/api/types.generated"
 
 const listStyles = css`
   display: grid;

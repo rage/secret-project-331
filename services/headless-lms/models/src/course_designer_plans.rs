@@ -2,9 +2,9 @@ use crate::prelude::*;
 use chrono::{Datelike, Duration, NaiveDate};
 use serde_json::{Value, json};
 use sqlx::Row;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "course_designer_stage", rename_all = "snake_case")]
 pub enum CourseDesignerStage {
     Analysis,
@@ -14,8 +14,7 @@ pub enum CourseDesignerStage {
     Evaluation,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "course_designer_plan_status", rename_all = "snake_case")]
 pub enum CourseDesignerPlanStatus {
     Draft,
@@ -26,8 +25,7 @@ pub enum CourseDesignerPlanStatus {
     Archived,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(
     type_name = "course_designer_plan_stage_status",
     rename_all = "snake_case"
@@ -38,8 +36,7 @@ pub enum CourseDesignerPlanStageStatus {
     Completed,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum CourseDesignerCourseSize {
     Small,
@@ -47,8 +44,7 @@ pub enum CourseDesignerCourseSize {
     Large,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow, ToSchema)]
 pub struct CourseDesignerPlan {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -60,8 +56,7 @@ pub struct CourseDesignerPlan {
     pub last_weekly_stage_email_sent_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow, ToSchema)]
 pub struct CourseDesignerPlanSummary {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -75,8 +70,7 @@ pub struct CourseDesignerPlanSummary {
     pub stage_count: i64,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow, ToSchema)]
 pub struct CourseDesignerPlanMember {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -84,8 +78,7 @@ pub struct CourseDesignerPlanMember {
     pub user_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, FromRow)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, FromRow, ToSchema)]
 pub struct CourseDesignerPlanStage {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -99,8 +92,7 @@ pub struct CourseDesignerPlanStage {
     pub workspace_data: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow, ToSchema)]
 pub struct CourseDesignerPlanStageTask {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -116,24 +108,21 @@ pub struct CourseDesignerPlanStageTask {
     pub created_by_user_id: Option<Uuid>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseDesignerPlanStageWithTasks {
     #[serde(flatten)]
     pub stage: CourseDesignerPlanStage,
     pub tasks: Vec<CourseDesignerPlanStageTask>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseDesignerPlanDetails {
     pub plan: CourseDesignerPlan,
     pub members: Vec<CourseDesignerPlanMember>,
     pub stages: Vec<CourseDesignerPlanStageWithTasks>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
 pub struct CourseDesignerScheduleStageInput {
     pub stage: CourseDesignerStage,
     pub planned_starts_on: NaiveDate,
@@ -1444,15 +1433,16 @@ pub async fn update_stage_workspace_for_user(
             None,
         ));
     }
-    let workspace_json =
-        crate::course_designer_analysis_workspace::workspace_to_json(Some(workspace))?
-            .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "Workspace serialization produced no data.".to_string(),
-                    None,
-                )
-            })?;
+    let workspace_json = crate::course_designer_analysis_workspace::workspace_to_json(Some(
+        workspace,
+    ))?
+    .ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Workspace serialization produced no data.".to_string(),
+            None,
+        )
+    })?;
     let updated: Option<Uuid> = sqlx::query_scalar(
         r#"
 UPDATE course_designer_plan_stages s

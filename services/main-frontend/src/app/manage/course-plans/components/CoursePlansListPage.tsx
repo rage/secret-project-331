@@ -5,18 +5,17 @@ import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
-import { coursePlanQueryKeys } from "../coursePlanQueryKeys"
-
 import CoursePlanList from "./CoursePlanList"
 
 import {
-  createCourseDesignerPlan,
-  listCourseDesignerPlans,
-} from "@/services/backend/courseDesigner"
+  createCourseDesignerPlanMutation,
+  getCourseDesignerPlansOptions,
+  getCourseDesignerPlansQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
 
 const containerStyles = css`
@@ -38,17 +37,14 @@ export default function CoursePlansListPage() {
   const router = useRouter()
   const queryClient = useQueryClient()
 
-  const plansQuery = useQuery({
-    queryKey: coursePlanQueryKeys.list(),
-    queryFn: () => listCourseDesignerPlans(),
-  })
+  const plansQuery = useQuery({ ...getCourseDesignerPlansOptions() })
 
-  const createPlanMutation = useToastMutation(
-    () => createCourseDesignerPlan({}),
+  const createPlanMutation = useToastMutationOptions(
+    createCourseDesignerPlanMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: async (plan) => {
-        await queryClient.invalidateQueries({ queryKey: coursePlanQueryKeys.list() })
+        await queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
         router.push(manageCoursePlanRoute(plan.id))
       },
     },
@@ -61,7 +57,7 @@ export default function CoursePlansListPage() {
         <Button
           variant="primary"
           size="medium"
-          onClick={() => createPlanMutation.mutate()}
+          onClick={() => createPlanMutation.mutate({ body: {} })}
           disabled={createPlanMutation.isPending}
         >
           {t("course-plans-new-course-design")}

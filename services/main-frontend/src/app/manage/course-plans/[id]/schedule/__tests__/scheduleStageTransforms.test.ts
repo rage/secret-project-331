@@ -7,7 +7,7 @@ import { addMonthToStage, removeMonthFromStage } from "../scheduleStageTransform
 import {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
-} from "@/services/backend/courseDesigner"
+} from "@/generated/api/types.generated"
 
 const STAGE_ORDER: CourseDesignerStage[] = [
   "Analysis",

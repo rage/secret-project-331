@@ -24,14 +24,11 @@ import {
   getCourseDesignerPlanQueryKey,
   updateCourseDesignerStageWorkspaceMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
-import {
-  ANALYSIS_WORKSPACE_SCHEMA_V1,
-  type AnalysisCourseType,
-  type AnalysisWorkspaceV1,
-  type CourseDesignerStage,
-  defaultAnalysisWorkspaceV1,
-  parseAnalysisWorkspaceFromApi,
-} from "@/services/backend/courseDesigner"
+import type {
+  AnalysisCourseType,
+  AnalysisWorkspaceV1,
+  CourseDesignerStage,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -72,6 +69,9 @@ const ICON_SIZE_SECTION = 14
 const ICON_SIZE_NAV = 14
 const ICON_SIZE_SECTION_BADGE = 18
 
+// eslint-disable-next-line i18next/no-literal-string
+const ANALYSIS_WORKSPACE_SCHEMA_V1 = "analysis_v1" as const
+
 const LANGUAGE_OPTIONS = [
   { key: "en", value: "English" },
   { key: "fi", value: "Finnish" },
@@ -101,6 +101,56 @@ function analysisSectionBodyId(n: AnalysisSectionIndex): string {
 }
 
 type AnalysisWorkspaceFormValues = Omit<AnalysisWorkspaceV1, "open_period_all">
+
+function defaultAnalysisWorkspaceV1(): AnalysisWorkspaceV1 {
+  return {
+    course_title: null,
+    credits: null,
+    language: null,
+    target_group: null,
+    mode_synchronous: false,
+    mode_asynchronous: false,
+    open_period_i: false,
+    open_period_ii: false,
+    open_period_iii: false,
+    open_period_iv: false,
+    open_period_all: false,
+    responsible_teachers: null,
+    degree_programme: null,
+    course_type: null,
+    students_demographic_data: null,
+    wishes_topics: null,
+    wishes_content_format_text: false,
+    wishes_content_format_video: false,
+    wishes_content_format_podcast: false,
+    wishes_content_format_xr: false,
+    wishes_content_format_notes: null,
+    wishes_assessment_text: null,
+    wishes_other_suggestions: null,
+    market_results: null,
+    resources_university: null,
+    resources_purchase_budget: null,
+    contributors_instructional_designer: null,
+    contributors_subject_matter_experts: null,
+    contributors_editors: null,
+    contributors_support_staff: null,
+  }
+}
+
+function parseAnalysisWorkspaceFromApi(raw: unknown | null | undefined): AnalysisWorkspaceV1 {
+  if (raw == null || typeof raw !== "object") {
+    return defaultAnalysisWorkspaceV1()
+  }
+  const value = raw as { schema?: string; payload?: unknown }
+  if (
+    value.schema === ANALYSIS_WORKSPACE_SCHEMA_V1 &&
+    value.payload != null &&
+    typeof value.payload === "object"
+  ) {
+    return { ...defaultAnalysisWorkspaceV1(), ...(value.payload as AnalysisWorkspaceV1) }
+  }
+  return defaultAnalysisWorkspaceV1()
+}
 
 /** Drops `open_period_all` so it is not a registered field (derived on save). */
 function stripOpenPeriodAll(v: AnalysisWorkspaceV1): AnalysisWorkspaceFormValues {
@@ -1156,12 +1206,12 @@ export default function AnalysisWorkspaceForm(props: {
                   },
                   {
                     // eslint-disable-next-line i18next/no-literal-string -- backend enum value
-                    value: "Compulsory",
+                    value: "compulsory",
                     label: t("course-plans-analysis-course-type-compulsory"),
                   },
                   {
                     // eslint-disable-next-line i18next/no-literal-string -- backend enum value
-                    value: "Elective",
+                    value: "elective",
                     label: t("course-plans-analysis-course-type-elective"),
                   },
                 ]}

@@ -6,7 +6,7 @@ import {
   CourseDesignerPlanStage,
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
-} from "@/services/backend/courseDesigner"
+} from "@/generated/api/types.generated"
 
 type StageRangeLike = Pick<
   CourseDesignerPlanStage,

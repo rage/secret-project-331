@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import { CourseDesignerCourseSize } from "@/services/backend/courseDesigner"
+import { CourseDesignerCourseSize } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
 

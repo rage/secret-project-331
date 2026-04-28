@@ -125,7 +125,7 @@ export default function useToastMutation<
             displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
           case "PATCH":
-            displaySuccessNotification(notificationOptions)
+            displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
           case "POST":
             displaySuccessNotification(notificationOptions, successDisplayOptions)

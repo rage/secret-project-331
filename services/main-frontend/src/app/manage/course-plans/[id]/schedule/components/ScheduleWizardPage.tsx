@@ -14,7 +14,7 @@ import NameStep from "./steps/NameStep"
 import ScheduleEditorStep from "./steps/ScheduleEditorStep"
 import SetupStep from "./steps/SetupStep"
 
-import { CourseDesignerStage } from "@/services/backend/courseDesigner"
+import { CourseDesignerStage } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"

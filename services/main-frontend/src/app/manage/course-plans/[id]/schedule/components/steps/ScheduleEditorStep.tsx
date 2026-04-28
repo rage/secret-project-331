@@ -9,7 +9,7 @@ import { SCHEDULE_STAGE_COUNT } from "../../scheduleConstants"
 import { StageCardViewModel } from "../../scheduleMappers"
 import StageCard from "../StageCard"
 
-import { CourseDesignerStage } from "@/services/backend/courseDesigner"
+import { CourseDesignerStage } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 
 const toolbarStyles = css`

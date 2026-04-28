@@ -3,7 +3,7 @@ import { SCHEDULE_STAGE_COUNT } from "./scheduleConstants"
 import {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
-} from "@/services/backend/courseDesigner"
+} from "@/generated/api/types.generated"
 
 export type ScheduleValidationIssue =
   | {

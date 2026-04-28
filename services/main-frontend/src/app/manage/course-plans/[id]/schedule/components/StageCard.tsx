@@ -8,7 +8,7 @@ import { StageMonth } from "../scheduleMappers"
 
 import MonthBlock from "./MonthBlock"
 
-import { CourseDesignerStage } from "@/services/backend/courseDesigner"
+import { CourseDesignerStage } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
 

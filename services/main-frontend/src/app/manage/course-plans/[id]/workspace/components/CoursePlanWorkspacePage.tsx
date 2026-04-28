@@ -378,7 +378,7 @@ export default function CoursePlanWorkspacePage() {
       return
     }
 
-    const nextActiveStage = planQuery.data.plan.active_stage
+    const nextActiveStage = planQuery.data.plan.active_stage ?? null
     const firstAvailableStage = planQuery.data.stages[0]?.stage ?? null
     const hasViewedStage =
       viewedStage != null && planQuery.data.stages.some((stage) => stage.stage === viewedStage)

@@ -5,7 +5,7 @@ import { SCHEDULE_STAGE_ORDER } from "./scheduleConstants"
 import {
   CourseDesignerScheduleStageInput,
   CourseDesignerStage,
-} from "@/services/backend/courseDesigner"
+} from "@/generated/api/types.generated"
 
 const STAGE_ORDER: CourseDesignerStage[] = SCHEDULE_STAGE_ORDER
 

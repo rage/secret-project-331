@@ -296,6 +296,55 @@ pub async fn get_by_completion_id_and_registrar_id(
     Ok(registrations)
 }
 
+pub async fn get_by_registrar_id_and_completion_ids(
+    conn: &mut PgConnection,
+    study_registry_registrar_id: Uuid,
+    completion_ids: &[Uuid],
+) -> ModelResult<Vec<CourseModuleCompletionRegisteredToStudyRegistry>> {
+    let registrations = sqlx::query_as!(
+        CourseModuleCompletionRegisteredToStudyRegistry,
+        r#"
+SELECT *
+FROM course_module_completion_registered_to_study_registries
+WHERE study_registry_registrar_id = $1
+  AND course_module_completion_id = ANY($2)
+  AND deleted_at IS NULL
+        "#,
+        study_registry_registrar_id,
+        completion_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(registrations)
+}
+
+pub async fn cleanup_duplicates_by_registrar_id_and_completion_ids(
+    conn: &mut PgConnection,
+    study_registry_registrar_id: Uuid,
+    completion_ids: &[Uuid],
+    duplicate_registration_ids: &[Uuid],
+) -> ModelResult<i64> {
+    let res = sqlx::query!(
+        r#"
+UPDATE course_module_completion_registered_to_study_registries
+SET deleted_at = NOW()
+WHERE study_registry_registrar_id = $1
+  AND course_module_completion_id = ANY($2)
+  AND id = ANY($3)
+  AND deleted_at IS NULL
+RETURNING id
+        "#,
+        study_registry_registrar_id,
+        completion_ids,
+        duplicate_registration_ids
+    )
+    .fetch_all(conn)
+    .await?;
+
+    Ok(res.len() as i64)
+}
+
 async fn delete_duplicates_for_specific_completions(
     conn: &mut PgConnection,
     completion_ids: &[Uuid],

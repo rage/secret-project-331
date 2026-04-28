@@ -817,6 +817,40 @@ WHERE id = $1;
     Ok(pages)
 }
 
+pub async fn get_front_page_by_chapter_id(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Option<Page>> {
+    let page = sqlx::query_as!(
+        Page,
+        r#"
+SELECT p.id,
+  p.created_at,
+  p.updated_at,
+  p.course_id,
+  p.exam_id,
+  p.chapter_id,
+  p.url_path,
+  p.title,
+  p.deleted_at,
+  p.content,
+  p.order_number,
+  p.copied_from,
+  p.hidden,
+  p.page_language_group_id
+FROM chapters c
+  JOIN pages p ON p.id = c.front_page_id
+WHERE c.id = $1
+  AND c.deleted_at IS NULL
+  AND p.deleted_at IS NULL
+        "#,
+        chapter_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(page)
+}
+
 pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<PageInfo> {
     let res = sqlx::query_as!(
         PageInfo,
@@ -1593,6 +1627,44 @@ RETURNING id,
         peer_or_self_review_questions: history_content.peer_or_self_review_questions,
         organization_id,
     })
+}
+
+pub async fn update_by_id_in_parent_context(
+    conn: &mut PgConnection,
+    page_update: PageUpdateArgs,
+    expected_course_id: Option<Uuid>,
+    expected_exam_id: Option<Uuid>,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<ContentManagementPage> {
+    sqlx::query!(
+        r#"
+SELECT p.id
+FROM pages p
+LEFT JOIN chapters c
+  ON c.id = $4
+WHERE p.id = $1
+  AND p.deleted_at IS NULL
+  AND (p.course_id = $2 OR p.exam_id = $3)
+  AND (
+    $4::uuid IS NULL
+    OR (
+      p.course_id IS NOT NULL
+      AND c.id = $4
+      AND c.course_id = p.course_id
+      AND c.deleted_at IS NULL
+    )
+  )
+        "#,
+        page_update.page_id,
+        expected_course_id,
+        expected_exam_id,
+        page_update.cms_page_update.chapter_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    update_page(conn, page_update, spec_fetcher, fetch_service_info).await
 }
 
 /// Remaps ids from updates to exercises that may have their ids regenerated.
@@ -2416,6 +2488,41 @@ RETURNING *;
         hidden: page.hidden,
         page_language_group_id: page.page_language_group_id,
     })
+}
+
+pub async fn create_for_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    new_page: NewPage,
+    author: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<Page> {
+    if new_page.course_id != Some(course_id) || new_page.exam_id.is_some() {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Page must be created for the expected course".to_string(),
+            None,
+        ));
+    }
+
+    if let Some(chapter_id) = new_page.chapter_id {
+        sqlx::query!(
+            r#"
+SELECT id
+FROM chapters
+WHERE id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+            "#,
+            chapter_id,
+            course_id
+        )
+        .fetch_one(&mut *conn)
+        .await?;
+    }
+
+    insert_page(conn, new_page, author, spec_fetcher, fetch_service_info).await
 }
 
 pub async fn delete_page_and_exercises(
@@ -3326,6 +3433,61 @@ pub async fn restore(
     .await?;
 
     Ok(history_id)
+}
+
+pub async fn restore_from_history_for_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    history_id: Uuid,
+    authorized_source_page_id: Option<Uuid>,
+    expected_course_id: Option<Uuid>,
+    expected_exam_id: Option<Uuid>,
+    author: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<Uuid> {
+    sqlx::query!(
+        r#"
+SELECT p.id
+FROM pages p
+WHERE p.id = $1
+  AND p.deleted_at IS NULL
+  AND (p.course_id = $2 OR p.exam_id = $3)
+        "#,
+        page_id,
+        expected_course_id,
+        expected_exam_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    sqlx::query!(
+        r#"
+SELECT ph.id
+FROM page_history ph
+WHERE ph.id = $1
+  AND ph.deleted_at IS NULL
+  AND (
+    ph.page_id = $2
+    OR ph.page_id = $3
+  )
+        "#,
+        history_id,
+        page_id,
+        authorized_source_page_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    restore(
+        conn,
+        page_id,
+        history_id,
+        author,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await
 }
 
 pub async fn get_organization_id(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Uuid> {

@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT p.id\nFROM pages p\nLEFT JOIN chapters c\n  ON c.id = $4\nWHERE p.id = $1\n  AND p.deleted_at IS NULL\n  AND (p.course_id = $2 OR p.exam_id = $3)\n  AND (\n    $4::uuid IS NULL\n    OR (\n      p.course_id IS NOT NULL\n      AND c.id = $4\n      AND c.course_id = p.course_id\n      AND c.deleted_at IS NULL\n    )\n  )\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "5d51dd8235483cf6283dcd0a2301aea6441716ad0fbf41a5c3faec3bcf4a8463"
+}

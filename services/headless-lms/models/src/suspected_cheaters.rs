@@ -151,6 +151,74 @@ pub async fn approve_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> Mod
     Ok(())
 }
 
+pub async fn get_by_user_id_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<SuspectedCheaters> {
+    let cheater = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+SELECT *
+FROM suspected_cheaters
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL;
+    ",
+        user_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(cheater)
+}
+
+pub async fn archive_by_user_id_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<SuspectedCheaters> {
+    let cheater = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+UPDATE suspected_cheaters
+SET is_archived = TRUE
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        user_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(cheater)
+}
+
+pub async fn approve_by_user_id_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<SuspectedCheaters> {
+    let cheater = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+UPDATE suspected_cheaters
+SET is_archived = FALSE
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        user_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(cheater)
+}
+
 pub async fn get_suspected_cheaters_by_id(
     conn: &mut PgConnection,
     id: Uuid,

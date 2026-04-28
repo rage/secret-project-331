@@ -515,6 +515,126 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
     })
 }
 
+pub async fn upsert_for_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    peer_or_self_review_configuration: &CmsPeerOrSelfReviewConfiguration,
+) -> ModelResult<CmsPeerOrSelfReviewConfiguration> {
+    let input = &peer_or_self_review_configuration.peer_or_self_review_config;
+    if input.course_id != course_id {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Peer review config course does not match expected course".to_string(),
+            None,
+        ));
+    }
+    if peer_or_self_review_configuration
+        .peer_or_self_review_questions
+        .iter()
+        .any(|q| q.peer_or_self_review_config_id != input.id)
+    {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Peer review questions do not belong to the peer review config".to_string(),
+            None,
+        ));
+    }
+
+    let mut tx = conn.begin().await?;
+    let peer_or_self_review_config = sqlx::query_as!(
+        CmsPeerOrSelfReviewConfig,
+        r#"
+INSERT INTO peer_or_self_review_configs (
+    id,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_threshold,
+    processing_strategy,
+    points_are_all_or_nothing,
+    review_instructions,
+    reset_answer_if_zero_points_from_review
+)
+SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+WHERE (
+    $3::uuid IS NULL
+    OR EXISTS (
+      SELECT 1
+      FROM exercises
+      WHERE id = $3
+        AND course_id = $2
+        AND deleted_at IS NULL
+    )
+)
+ON CONFLICT (id) DO UPDATE
+SET course_id = excluded.course_id,
+  exercise_id = excluded.exercise_id,
+  peer_reviews_to_give = excluded.peer_reviews_to_give,
+  peer_reviews_to_receive = excluded.peer_reviews_to_receive,
+  accepting_threshold = excluded.accepting_threshold,
+  processing_strategy = excluded.processing_strategy,
+  points_are_all_or_nothing = excluded.points_are_all_or_nothing,
+  reset_answer_if_zero_points_from_review = excluded.reset_answer_if_zero_points_from_review,
+  review_instructions = excluded.review_instructions,
+  deleted_at = NULL
+WHERE peer_or_self_review_configs.course_id = $2
+RETURNING id,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  processing_strategy AS "processing_strategy:_",
+  points_are_all_or_nothing,
+  review_instructions,
+  reset_answer_if_zero_points_from_review
+        "#,
+        input.id,
+        course_id,
+        input.exercise_id,
+        input.peer_reviews_to_give,
+        input.peer_reviews_to_receive,
+        input.accepting_threshold,
+        input.processing_strategy as _,
+        input.points_are_all_or_nothing,
+        input.review_instructions,
+        input.reset_answer_if_zero_points_from_review,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let previous_peer_or_self_review_question_ids =
+        delete_peer_or_self_review_questions_by_peer_or_self_review_config_ids(
+            &mut tx,
+            &[peer_or_self_review_config.id],
+        )
+        .await?;
+    let peer_or_self_review_questions = upsert_multiple_peer_or_self_review_questions(
+        &mut tx,
+        &peer_or_self_review_configuration
+            .peer_or_self_review_questions
+            .iter()
+            .map(|prq| {
+                let id = if previous_peer_or_self_review_question_ids.contains(&prq.id) {
+                    prq.id
+                } else {
+                    Uuid::new_v4()
+                };
+                CmsPeerOrSelfReviewQuestion { id, ..prq.clone() }
+            })
+            .collect::<Vec<_>>(),
+    )
+    .await?;
+
+    tx.commit().await?;
+
+    Ok(CmsPeerOrSelfReviewConfiguration {
+        peer_or_self_review_config,
+        peer_or_self_review_questions,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

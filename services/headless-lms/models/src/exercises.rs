@@ -272,6 +272,41 @@ WHERE id = $1
     Ok(exercise)
 }
 
+pub async fn get_non_deleted_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
+    let exercise = sqlx::query_as!(
+        Exercise,
+        "
+SELECT *
+FROM exercises
+WHERE id = $1
+  AND deleted_at IS NULL
+",
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exercise)
+}
+
+pub async fn get_non_deleted_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<Exercise>> {
+    let exercises = sqlx::query_as!(
+        Exercise,
+        "
+SELECT *
+FROM exercises
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+",
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(exercises)
+}
+
 pub async fn get_exercise_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercise> {
     let exercise = sqlx::query_as!(Exercise, "SELECT * FROM exercises WHERE id = $1;", id)
         .fetch_one(conn)
@@ -1198,6 +1233,211 @@ WHERE user_exercise_state_id IN (
         let chapter_ids =
             get_chapter_ids_for_exercises_in_course(&mut tx, exercise_ids, course_id).await?;
         // Keep chapters that are still in their initial `not_unlocked_yet` state untouched.
+        user_chapter_locking_statuses::unlock_chapters_for_user(
+            &mut tx,
+            *user_id,
+            course_id,
+            &chapter_ids,
+        )
+        .await?;
+
+        successful_resets.push((*user_id, exercise_ids.to_vec()));
+    }
+    tx.commit().await?;
+    Ok(successful_resets)
+}
+
+pub async fn reset_progress_by_course_id_user_ids_and_exercise_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+    reset_by: Option<Uuid>,
+    reason: Option<String>,
+) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
+    let mut successful_resets = Vec::new();
+    let mut tx = conn.begin().await?;
+    for user_id in user_ids {
+        sqlx::query!(
+            r#"
+UPDATE exercise_slide_submissions
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND course_id = $2
+  AND exercise_id = ANY($3)
+  AND exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE course_id = $2
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE exercise_task_submissions
+SET deleted_at = NOW()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE user_id = $1
+      AND course_id = $2
+      AND exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE peer_review_queue_entries
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND exercise_id = ANY($3)
+  AND exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE course_id = $2
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE exercise_task_gradings
+SET deleted_at = NOW()
+WHERE exercise_task_submission_id IN (
+    SELECT ets.id
+    FROM exercise_task_submissions ets
+      JOIN exercise_slide_submissions ess
+        ON ess.id = ets.exercise_slide_submission_id
+    WHERE ess.user_id = $1
+      AND ess.course_id = $2
+      AND ess.exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE teacher_grading_decisions
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND course_id = $2
+      AND exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_task_states
+SET deleted_at = NOW()
+WHERE user_exercise_slide_state_id IN (
+    SELECT uess.id
+    FROM user_exercise_slide_states uess
+      JOIN user_exercise_states ues ON ues.id = uess.user_exercise_state_id
+    WHERE ues.user_id = $1
+      AND ues.course_id = $2
+      AND ues.exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_slide_states
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE user_id = $1
+      AND course_id = $2
+      AND exercise_id = ANY($3)
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        sqlx::query!(
+            r#"
+UPDATE user_exercise_states
+SET deleted_at = NOW()
+WHERE user_id = $1
+  AND course_id = $2
+  AND exercise_id = ANY($3)
+  AND exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE course_id = $2
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+            "#,
+            user_id,
+            course_id,
+            exercise_ids
+        )
+        .execute(&mut *tx)
+        .await?;
+
+        exercise_reset_logs::log_exercise_reset(
+            &mut tx,
+            reset_by,
+            *user_id,
+            exercise_ids,
+            course_id,
+            reason.clone(),
+        )
+        .await?;
+
+        let chapter_ids =
+            get_chapter_ids_for_exercises_in_course(&mut tx, exercise_ids, course_id).await?;
         user_chapter_locking_statuses::unlock_chapters_for_user(
             &mut tx,
             *user_id,

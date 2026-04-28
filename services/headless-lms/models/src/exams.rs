@@ -22,6 +22,24 @@ pub struct Exam {
     pub grade_manually: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct ExamIdentity {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+    pub organization_id: Uuid,
+    pub name: String,
+    pub instructions: serde_json::Value,
+    pub page_id: Uuid,
+    pub starts_at: Option<DateTime<Utc>>,
+    pub ends_at: Option<DateTime<Utc>>,
+    pub time_minutes: i32,
+    pub minimum_points_treshold: i32,
+    pub language: String,
+    pub grade_manually: bool,
+}
+
 impl Exam {
     /// Whether or not the exam has already started at the specified timestamp. If no start date for
     /// exam is defined, returns the provided default instead.
@@ -53,6 +71,37 @@ pub struct OrgExam {
     pub time_minutes: i32,
     pub organization_id: Uuid,
     pub minimum_points_treshold: i32,
+}
+
+pub async fn get_identity_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExamIdentity> {
+    let exam = sqlx::query_as!(
+        ExamIdentity,
+        r#"
+SELECT exams.id,
+  exams.created_at,
+  exams.updated_at,
+  exams.deleted_at,
+  exams.organization_id,
+  exams.name,
+  exams.instructions,
+  pages.id AS page_id,
+  exams.starts_at,
+  exams.ends_at,
+  exams.time_minutes,
+  exams.minimum_points_treshold,
+  COALESCE(exams.language, 'en-US') AS "language!",
+  exams.grade_manually
+FROM exams
+  JOIN pages ON pages.exam_id = exams.id
+WHERE exams.id = $1
+  AND exams.deleted_at IS NULL
+  AND pages.deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(exam)
 }
 
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
@@ -560,6 +609,157 @@ WHERE user_id IN (
     )
     .execute(conn)
     .await?;
+    Ok(())
+}
+
+pub async fn reset_progress_by_exam_id_and_user_id(
+    conn: &mut PgConnection,
+    exam_id: Uuid,
+    user_id: Uuid,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_slide_submissions
+SET deleted_at = NOW()
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_task_submissions
+SET deleted_at = NOW()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE exam_id = $1
+      AND user_id = $2
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE peer_review_queue_entries
+SET deleted_at = NOW()
+WHERE user_id = $2
+  AND exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE exam_id = $1
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_task_gradings
+SET deleted_at = NOW()
+WHERE exercise_task_submission_id IN (
+    SELECT ets.id
+    FROM exercise_task_submissions ets
+      JOIN exercise_slide_submissions ess
+        ON ess.id = ets.exercise_slide_submission_id
+    WHERE ess.exam_id = $1
+      AND ess.user_id = $2
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE teacher_grading_decisions
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE exam_id = $1
+      AND user_id = $2
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE user_exercise_task_states
+SET deleted_at = NOW()
+WHERE user_exercise_slide_state_id IN (
+    SELECT uess.id
+    FROM user_exercise_slide_states uess
+      JOIN user_exercise_states ues ON ues.id = uess.user_exercise_state_id
+    WHERE ues.exam_id = $1
+      AND ues.user_id = $2
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE user_exercise_slide_states
+SET deleted_at = NOW()
+WHERE user_exercise_state_id IN (
+    SELECT id
+    FROM user_exercise_states
+    WHERE exam_id = $1
+      AND user_id = $2
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE user_exercise_states
+SET deleted_at = NOW()
+WHERE exam_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
     Ok(())
 }
 

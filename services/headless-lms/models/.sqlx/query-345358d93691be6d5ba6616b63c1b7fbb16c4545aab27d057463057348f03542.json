@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT p.id\nFROM pages p\nWHERE p.id = $1\n  AND p.deleted_at IS NULL\n  AND (p.course_id = $2 OR p.exam_id = $3)\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "345358d93691be6d5ba6616b63c1b7fbb16c4545aab27d057463057348f03542"
+}

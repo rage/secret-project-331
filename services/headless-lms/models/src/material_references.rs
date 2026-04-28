@@ -67,6 +67,25 @@ WHERE id = $1;
     Ok(res)
 }
 
+pub async fn get_non_deleted_by_id(
+    conn: &mut PgConnection,
+    reference_id: Uuid,
+) -> ModelResult<MaterialReference> {
+    let res = sqlx::query_as!(
+        MaterialReference,
+        "
+SELECT *
+FROM material_references
+WHERE id = $1
+  AND deleted_at IS NULL;
+    ",
+        reference_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_references_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -106,6 +125,33 @@ WHERE id = $3;
     Ok(())
 }
 
+pub async fn update_by_id_and_course_id(
+    conn: &mut PgConnection,
+    material_reference_id: Uuid,
+    course_id: Uuid,
+    material_reference: NewMaterialReference,
+) -> ModelResult<MaterialReference> {
+    let res = sqlx::query_as!(
+        MaterialReference,
+        "
+UPDATE material_references
+SET reference = $1,
+  citation_key = $2
+WHERE id = $3
+  AND course_id = $4
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        material_reference.reference,
+        material_reference.citation_key,
+        material_reference_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn delete_reference(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     sqlx::query!(
         "
@@ -119,4 +165,27 @@ AND deleted_at IS NULL;
     .execute(conn)
     .await?;
     Ok(())
+}
+
+pub async fn delete_by_id_and_course_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<MaterialReference> {
+    let res = sqlx::query_as!(
+        MaterialReference,
+        "
+UPDATE material_references
+SET deleted_at = now()
+WHERE id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
 }

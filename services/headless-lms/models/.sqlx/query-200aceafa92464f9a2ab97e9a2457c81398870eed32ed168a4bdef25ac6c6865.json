@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE user_exercise_slide_states\nSET deleted_at = NOW()\nWHERE user_exercise_state_id IN (\n    SELECT id\n    FROM user_exercise_states\n    WHERE exam_id = $1\n      AND user_id = $2\n  )\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "200aceafa92464f9a2ab97e9a2457c81398870eed32ed168a4bdef25ac6c6865"
+}

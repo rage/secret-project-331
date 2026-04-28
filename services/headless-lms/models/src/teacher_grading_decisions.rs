@@ -81,6 +81,55 @@ RETURNING id,
     Ok(res)
 }
 
+pub async fn upsert_by_state_id_and_exercise_id(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+    exercise_id: Uuid,
+    action: TeacherDecisionType,
+    score_given: f32,
+    decision_maker_user_id: Option<Uuid>,
+    justification: Option<String>,
+    hidden: bool,
+) -> ModelResult<TeacherGradingDecision> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+INSERT INTO teacher_grading_decisions (
+    user_exercise_state_id,
+    teacher_decision,
+    score_given,
+    user_id,
+    justification,
+    hidden
+)
+SELECT ues.id, $3, $4, $5, $6, $7
+FROM user_exercise_states ues
+WHERE ues.id = $1
+  AND ues.exercise_id = $2
+  AND ues.deleted_at IS NULL
+RETURNING id,
+  user_exercise_state_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden;
+      "#,
+        user_exercise_state_id,
+        exercise_id,
+        action as TeacherDecisionType,
+        score_given,
+        decision_maker_user_id,
+        justification,
+        hidden
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,

@@ -29,7 +29,7 @@ const OrganizationImageWidget: React.FC<
       validateFile(imageFile, ["image"])
 
       return await updateOrganizationImage({
-        body: imageFile.name,
+        body: { file: imageFile },
         bodySerializer: () => {
           const formData = new FormData()
           // eslint-disable-next-line i18next/no-literal-string

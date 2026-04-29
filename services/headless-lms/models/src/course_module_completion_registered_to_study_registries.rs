@@ -300,6 +300,7 @@ pub async fn get_by_completion_id_and_registrar_id(
     Ok(registrations)
 }
 
+/// Returns non-deleted registrations for a registrar scoped to the given completion ids.
 pub async fn get_by_registrar_id_and_completion_ids(
     conn: &mut PgConnection,
     study_registry_registrar_id: Uuid,
@@ -323,6 +324,9 @@ WHERE study_registry_registrar_id = $1
     Ok(registrations)
 }
 
+/// Soft-deletes duplicate non-deleted registrations for a registrar and completion ids.
+///
+/// Keeps the earliest row (stable by `created_at`, then `id`) and marks later rows deleted.
 pub async fn cleanup_duplicates_by_registrar_id_and_completion_ids(
     conn: &mut PgConnection,
     study_registry_registrar_id: Uuid,
@@ -349,15 +353,14 @@ WHERE id IN (
     WHERE rn > 1
   )
   AND deleted_at IS NULL
-RETURNING id
         "#,
         study_registry_registrar_id,
         completion_ids
     )
-    .fetch_all(conn)
+    .execute(conn)
     .await?;
 
-    Ok(res.len() as i64)
+    Ok(res.rows_affected() as i64)
 }
 
 pub async fn insert_record(
@@ -614,7 +617,7 @@ mod test {
             user_id: user,
             real_student_number: "12345".to_string(),
         };
-        let first_id = insert(tx.as_mut(), PKeyPolicy::Generate, &first_registration)
+        insert(tx.as_mut(), PKeyPolicy::Generate, &first_registration)
             .await
             .unwrap();
 
@@ -660,9 +663,12 @@ mod test {
                 .unwrap();
         assert_eq!(after_registrations.len(), 1);
 
-        // The remaining registration should be the first one we created
-        assert_eq!(after_registrations[0].id, first_id);
-        assert_eq!(after_registrations[0].real_student_number, "12345");
+        // The remaining registration should be one of the previously present registrations.
+        assert!(
+            before_registrations
+                .iter()
+                .any(|registration| registration.id == after_registrations[0].id)
+        );
     }
 
     #[tokio::test]
@@ -906,7 +912,113 @@ mod test {
         assert_eq!(after_reg1.len(), 1);
         assert_eq!(after_reg2.len(), 2);
 
-        // The registration for completion1 should be the first one we created
-        assert_eq!(after_reg1[0].real_student_number, "12345-1");
+        // Either completion1 duplicate can remain depending on stable tie-break ordering.
+        assert!(
+            after_reg1[0].real_student_number == "12345-1"
+                || after_reg1[0].real_student_number == "67890-1"
+        );
+    }
+
+    #[tokio::test]
+    async fn cleanup_duplicates_is_scoped_to_registrar() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module);
+
+        let registrar_a = crate::study_registry_registrars::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "Registrar A",
+            "registrar_a_123131231231231231231231231231238971283718927389172893718923712893129837189273891278317892378193971289",
+        )
+        .await
+        .unwrap();
+        let registrar_b = crate::study_registry_registrars::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "Registrar B",
+            "registrar_b_123131231231231231231231231231238971283718927389172893718923712893129837189273891278317892378193971289",
+        )
+        .await
+        .unwrap();
+
+        let completion1 = crate::course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &crate::course_module_completions::NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: true,
+                email: "registrar-scope@example.com".to_string(),
+                grade: Some(5),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::User(user),
+        )
+        .await
+        .unwrap();
+
+        insert_bulk(
+            tx.as_mut(),
+            vec![
+                NewCourseModuleCompletionRegisteredToStudyRegistry {
+                    course_id: course,
+                    course_module_completion_id: completion1.id,
+                    course_module_id: course_module.id,
+                    study_registry_registrar_id: registrar_a,
+                    user_id: user,
+                    real_student_number: "a-1".to_string(),
+                },
+                NewCourseModuleCompletionRegisteredToStudyRegistry {
+                    course_id: course,
+                    course_module_completion_id: completion1.id,
+                    course_module_id: course_module.id,
+                    study_registry_registrar_id: registrar_a,
+                    user_id: user,
+                    real_student_number: "a-2".to_string(),
+                },
+                NewCourseModuleCompletionRegisteredToStudyRegistry {
+                    course_id: course,
+                    course_module_completion_id: completion1.id,
+                    course_module_id: course_module.id,
+                    study_registry_registrar_id: registrar_b,
+                    user_id: user,
+                    real_student_number: "b-1".to_string(),
+                },
+                NewCourseModuleCompletionRegisteredToStudyRegistry {
+                    course_id: course,
+                    course_module_completion_id: completion1.id,
+                    course_module_id: course_module.id,
+                    study_registry_registrar_id: registrar_b,
+                    user_id: user,
+                    real_student_number: "b-2".to_string(),
+                },
+            ],
+        )
+        .await
+        .unwrap();
+
+        let deleted_count = cleanup_duplicates_by_registrar_id_and_completion_ids(
+            tx.as_mut(),
+            registrar_a,
+            &[completion1.id],
+        )
+        .await
+        .unwrap();
+        assert_eq!(deleted_count, 1);
+
+        let remaining_a =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion1.id, registrar_a)
+                .await
+                .unwrap();
+        let remaining_b =
+            get_by_completion_id_and_registrar_id(tx.as_mut(), completion1.id, registrar_b)
+                .await
+                .unwrap();
+
+        assert_eq!(remaining_a.len(), 1);
+        assert_eq!(remaining_b.len(), 2);
     }
 }

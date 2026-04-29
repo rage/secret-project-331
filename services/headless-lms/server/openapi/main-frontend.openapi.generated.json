@@ -73,12 +73,8 @@
                 "required": ["metadata", "file"],
                 "properties": {
                   "file": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32",
-                      "minimum": 0
-                    },
+                    "type": "string",
+                    "format": "binary",
                     "contentMediaType": "application/octet-stream"
                   },
                   "metadata": {
@@ -8069,7 +8065,15 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "type": "string"
+                "type": "object",
+                "required": ["file"],
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary",
+                    "contentMediaType": "application/octet-stream"
+                  }
+                }
               }
             }
           },

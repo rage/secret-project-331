@@ -1637,6 +1637,7 @@ pub async fn update_by_id_in_parent_context(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
+    let mut tx = conn.begin().await?;
     sqlx::query!(
         r#"
 SELECT p.id
@@ -1661,10 +1662,12 @@ WHERE p.id = $1
         expected_exam_id,
         page_update.cms_page_update.chapter_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
 
-    update_page(conn, page_update, spec_fetcher, fetch_service_info).await
+    let updated = update_page(&mut tx, page_update, spec_fetcher, fetch_service_info).await?;
+    tx.commit().await?;
+    Ok(updated)
 }
 
 /// Remaps ids from updates to exercises that may have their ids regenerated.
@@ -2499,15 +2502,16 @@ pub async fn create_for_course_id(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Page> {
     if new_page.course_id != Some(course_id) || new_page.exam_id.is_some() {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Page must be created for the expected course".to_string(),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            "Page must be created for the expected course".to_string()
         ));
     }
 
+    let mut tx = conn.begin().await?;
+
     if let Some(chapter_id) = new_page.chapter_id {
-        let chapter = get_chapter(conn, chapter_id).await?;
+        let chapter = get_chapter(&mut tx, chapter_id).await?;
         if chapter.course_id != course_id {
             return Err(model_err!(
                 PreconditionFailed,
@@ -2517,7 +2521,7 @@ pub async fn create_for_course_id(
     }
 
     if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
-        let chapter = get_chapter(conn, front_page_of_chapter_id).await?;
+        let chapter = get_chapter(&mut tx, front_page_of_chapter_id).await?;
         if chapter.course_id != course_id {
             return Err(model_err!(
                 PreconditionFailed,
@@ -2530,14 +2534,15 @@ pub async fn create_for_course_id(
         (new_page.chapter_id, new_page.front_page_of_chapter_id)
         && chapter_id != front_page_of_chapter_id
     {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Page chapter_id must match front_page_of_chapter_id".to_string(),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            "Page chapter_id must match front_page_of_chapter_id".to_string()
         ));
     }
 
-    insert_page(conn, new_page, author, spec_fetcher, fetch_service_info).await
+    let page = insert_page(&mut tx, new_page, author, spec_fetcher, fetch_service_info).await?;
+    tx.commit().await?;
+    Ok(page)
 }
 
 pub async fn delete_page_and_exercises(
@@ -3462,6 +3467,7 @@ pub async fn restore_from_history_for_page_id(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
     let validated_source_page_id = if let Some(source_page_id) = authorized_source_page_id {
         let source_page = sqlx::query!(
             r#"
@@ -3475,7 +3481,7 @@ WHERE p.id = $1
             expected_course_id,
             expected_exam_id
         )
-        .fetch_optional(&mut *conn)
+        .fetch_optional(&mut *tx)
         .await?;
         source_page.map(|row| row.id)
     } else {
@@ -3494,7 +3500,7 @@ WHERE p.id = $1
         expected_course_id,
         expected_exam_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
 
     sqlx::query!(
@@ -3512,18 +3518,20 @@ WHERE ph.id = $1
         page_id,
         validated_source_page_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
 
-    restore(
-        conn,
+    let restored = restore(
+        &mut tx,
         page_id,
         history_id,
         author,
         spec_fetcher,
         fetch_service_info,
     )
-    .await
+    .await?;
+    tx.commit().await?;
+    Ok(restored)
 }
 
 pub async fn get_organization_id(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Uuid> {

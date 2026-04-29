@@ -621,10 +621,15 @@ pub async fn reset_progress_by_exam_id_and_user_id(
 
     sqlx::query!(
         r#"
-UPDATE exercise_slide_submissions
+UPDATE peer_review_queue_entries
 SET deleted_at = NOW()
-WHERE exam_id = $1
-  AND user_id = $2
+WHERE user_id = $2
+  AND exercise_id IN (
+    SELECT id
+    FROM exercises
+    WHERE exam_id = $1
+      AND deleted_at IS NULL
+  )
   AND deleted_at IS NULL
         "#,
         exam_id,
@@ -642,24 +647,6 @@ WHERE exercise_slide_submission_id IN (
     FROM exercise_slide_submissions
     WHERE exam_id = $1
       AND user_id = $2
-  )
-  AND deleted_at IS NULL
-        "#,
-        exam_id,
-        user_id
-    )
-    .execute(&mut *tx)
-    .await?;
-
-    sqlx::query!(
-        r#"
-UPDATE peer_review_queue_entries
-SET deleted_at = NOW()
-WHERE user_id = $2
-  AND exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE exam_id = $1
       AND deleted_at IS NULL
   )
   AND deleted_at IS NULL
@@ -681,6 +668,8 @@ WHERE exercise_task_submission_id IN (
         ON ess.id = ets.exercise_slide_submission_id
     WHERE ess.exam_id = $1
       AND ess.user_id = $2
+      AND ess.deleted_at IS NULL
+      AND ets.deleted_at IS NULL
   )
   AND deleted_at IS NULL
         "#,
@@ -699,6 +688,7 @@ WHERE user_exercise_state_id IN (
     FROM user_exercise_states
     WHERE exam_id = $1
       AND user_id = $2
+      AND deleted_at IS NULL
   )
   AND deleted_at IS NULL
         "#,
@@ -718,7 +708,23 @@ WHERE user_exercise_slide_state_id IN (
       JOIN user_exercise_states ues ON ues.id = uess.user_exercise_state_id
     WHERE ues.exam_id = $1
       AND ues.user_id = $2
+      AND ues.deleted_at IS NULL
+      AND uess.deleted_at IS NULL
   )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_slide_submissions
+SET deleted_at = NOW()
+WHERE exam_id = $1
+  AND user_id = $2
   AND deleted_at IS NULL
         "#,
         exam_id,

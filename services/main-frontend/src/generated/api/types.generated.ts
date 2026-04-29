@@ -2081,7 +2081,7 @@ export type UploadFilesFromExerciseServiceResponse =
 
 export type UpdateCertificateConfigurationData = {
   body: {
-    file: Array<number>
+    file: Blob | File
     metadata: CertificateConfigurationUpdate
   }
   path?: never
@@ -7066,7 +7066,9 @@ export type DeleteOrganizationImageResponses = {
 }
 
 export type UpdateOrganizationImageData = {
-  body: string
+  body: {
+    file: Blob | File
+  }
   path: {
     /**
      * Organization id

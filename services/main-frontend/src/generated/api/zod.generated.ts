@@ -2526,9 +2526,7 @@ export const zUploadFilesFromExerciseServicePath = z.object({
 export const zUploadFilesFromExerciseServiceResponse = z.record(z.string(), z.string())
 
 export const zUpdateCertificateConfigurationBody = z.object({
-  file: z.array(
-    z.int().gte(0).max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  ),
+  file: z.string(),
   metadata: zCertificateConfigurationUpdate,
 })
 
@@ -4609,7 +4607,9 @@ export const zDeleteOrganizationImagePath = z.object({
   organization_id: z.uuid(),
 })
 
-export const zUpdateOrganizationImageBody = z.string()
+export const zUpdateOrganizationImageBody = z.object({
+  file: z.string(),
+})
 
 export const zUpdateOrganizationImagePath = z.object({
   organization_id: z.uuid(),

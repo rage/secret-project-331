@@ -1287,12 +1287,6 @@ SET deleted_at = NOW()
 WHERE user_id = $1
   AND course_id = $2
   AND exercise_id = ANY($3)
-  AND exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE course_id = $2
-      AND deleted_at IS NULL
-  )
   AND deleted_at IS NULL
             "#,
             user_id,
@@ -1327,17 +1321,10 @@ WHERE exercise_slide_submission_id IN (
 UPDATE peer_review_queue_entries
 SET deleted_at = NOW()
 WHERE user_id = $1
-  AND exercise_id = ANY($3)
-  AND exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE course_id = $2
-      AND deleted_at IS NULL
-  )
+  AND exercise_id = ANY($2)
   AND deleted_at IS NULL
             "#,
             user_id,
-            course_id,
             &validated_exercise_ids
         )
         .execute(&mut *tx)
@@ -1434,12 +1421,6 @@ SET deleted_at = NOW()
 WHERE user_id = $1
   AND course_id = $2
   AND exercise_id = ANY($3)
-  AND exercise_id IN (
-    SELECT id
-    FROM exercises
-    WHERE course_id = $2
-      AND deleted_at IS NULL
-  )
   AND deleted_at IS NULL
             "#,
             user_id,

@@ -69,7 +69,7 @@ pub struct CertificateConfigurationUpdateForm {
 struct CertificateConfigurationUpdateMultipartPayload {
     #[schema(content_media_type = "application/json")]
     metadata: CertificateConfigurationUpdate,
-    #[schema(content_media_type = "application/octet-stream")]
+    #[schema(content_media_type = "application/octet-stream", value_type = String, format = Binary)]
     file: Vec<u8>,
 }
 

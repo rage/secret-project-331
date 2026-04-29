@@ -83,6 +83,10 @@ SET answer_value = $3
     Ok(())
 }
 
+/// Upserts a user's background question answers for allowed question ids only.
+///
+/// Validates that each answer targets a question id contained in
+/// `allowed_question_ids`; rejected answers return a precondition error.
 pub async fn upsert_by_user_id_and_question_ids(
     conn: &mut PgConnection,
     user_id: Uuid,

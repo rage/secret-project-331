@@ -523,9 +523,14 @@ pub async fn reset_exam_progress(
     user: AuthUser,
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
+    let mut tx = conn.begin().await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
-    exams::reset_progress_by_exam_id_and_user_id(&mut conn, *exam_id, user.id).await?;
+    let token = authorize(&mut tx, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    exams::reset_progress_by_exam_id_and_user_id(&mut tx, *exam_id, user.id).await?;
+    exams::update_exam_start_time(&mut tx, *exam_id, user.id, Utc::now()).await?;
+
+    tx.commit().await?;
+
     token.authorized_ok(web::Json(()))
 }
 

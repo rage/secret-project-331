@@ -43,6 +43,13 @@ use utoipa::{OpenApi, ToSchema};
 ))]
 pub(crate) struct MainFrontendOrganizationsApiDoc;
 
+#[allow(dead_code)]
+#[derive(Debug, ToSchema)]
+struct OrganizationImageUploadPayload {
+    #[schema(content_media_type = "application/octet-stream", value_type = String, format = Binary)]
+    file: Vec<u8>,
+}
+
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 */
@@ -279,7 +286,7 @@ BINARY_DATA
     params(
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
-    request_body(content = String, content_type = "multipart/form-data"),
+    request_body(content = inline(OrganizationImageUploadPayload), content_type = "multipart/form-data"),
     responses(
         (status = 200, description = "Updated organization", body = serde_json::Value)
     )
@@ -428,22 +435,47 @@ async fn get_organization(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let db_organization =
         models::organizations::get_organization(&mut conn, *organization_id).await?;
-    if db_organization.deleted_at.is_some() || db_organization.hidden {
-        return Err(ControllerError::new(
-            ControllerErrorType::NotFound,
-            "Organization not found".to_string(),
-            None,
-        ));
+    if db_organization.deleted_at.is_some() {
+        return Err(organization_not_found());
     }
+    let token = if db_organization.hidden {
+        let Some(user) = user else {
+            return Err(organization_not_found());
+        };
+        match authorize(
+            &mut conn,
+            Act::Edit,
+            Some(user.id),
+            Res::Organization(db_organization.id),
+        )
+        .await
+        {
+            Ok(token) => token,
+            Err(err) if matches!(err.error_type(), ControllerErrorType::Forbidden) => {
+                return Err(organization_not_found());
+            }
+            Err(err) => return Err(err),
+        }
+    } else {
+        skip_authorize()
+    };
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
-    let token = skip_authorize();
     token.authorized_ok(web::Json(organization))
+}
+
+fn organization_not_found() -> ControllerError {
+    ControllerError::new(
+        ControllerErrorType::NotFound,
+        "Organization not found".to_string(),
+        None,
+    )
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

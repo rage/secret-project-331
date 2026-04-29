@@ -1048,6 +1048,7 @@
   "placeholder-search-users": "Sök användare...",
   "placeholder-text-reserved-for-course-overview": "Reserverad för kursöversikt",
   "playground-examples": "Lekplats exempel",
+  "playground.websocketNotRegistered": "Playground-websocketen ar inte registrerad.",
   "please-check-the-following-preview-results-before-submitting": "Vänligen kontrollera följande förhandsgranskningsresultat innan du skickar in.",
   "please-log-in-to-answer-exercise": "Vänligen logga in för att svara på denna övning.",
   "please-log-in-to-lock-chapter": "Logga in för att låsa ett kapitel.",

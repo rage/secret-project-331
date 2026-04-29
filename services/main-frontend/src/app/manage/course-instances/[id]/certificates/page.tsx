@@ -77,7 +77,7 @@ const CertificationsPage: React.FC = () => {
     ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
       const overlaySvg = fields.overlaySvg.item(0)
-      const update: UpdateCertificateConfigurationData["body"] = {
+      const metadata: UpdateCertificateConfigurationData["body"]["metadata"] = {
         course_module_id: courseModuleId,
         course_instance_id: courseInstanceId,
         certificate_owner_name_y_pos: fields.ownerNamePosY,
@@ -111,8 +111,8 @@ const CertificationsPage: React.FC = () => {
       const files = [overlaySvg, backgroundSvg].filter((file): file is File => file !== null)
 
       return updateCertificateConfiguration({
-        body: update,
-        bodySerializer: () => createCertificateConfigurationFormData(update, files),
+        body: { metadata, file: [] },
+        bodySerializer: () => createCertificateConfigurationFormData(metadata, files),
       })
     },
     { method: "POST", notify: true },

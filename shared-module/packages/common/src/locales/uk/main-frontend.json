@@ -1056,6 +1056,7 @@
   "placeholder-search-users": "Пошук користувачів...",
   "placeholder-text-reserved-for-course-overview": "Зарезервовано для огляду курсу",
   "playground-examples": "Приклади майданчиків",
+  "playground.websocketNotRegistered": "Playground websocket не зареєстровано.",
   "please-check-the-following-preview-results-before-submitting": "Перед надсиланням перевірте наведені нижче результати попереднього перегляду.",
   "please-log-in-to-answer-exercise": "Будь ласка, увійдіть, щоб відповісти на цю вправу.",
   "please-log-in-to-lock-chapter": "Будь ласка, увійдіть, щоб заблокувати розділ.",

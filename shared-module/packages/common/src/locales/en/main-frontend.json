@@ -1050,6 +1050,7 @@
   "placeholder-search-users": "Search users...",
   "placeholder-text-reserved-for-course-overview": "Reserved for the course overview",
   "playground-examples": "Playground examples",
+  "playground.websocketNotRegistered": "Playground websocket is not registered.",
   "please-check-the-following-preview-results-before-submitting": "Please check the following preview results before submitting.",
   "please-log-in-to-answer-exercise": "Please log in to answer this exercise.",
   "please-log-in-to-lock-chapter": "Please log in to lock a chapter.",

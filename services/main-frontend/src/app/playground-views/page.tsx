@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { isServer, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { BellXmark, CheckCircle, MoveUpDownArrows } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
 import React, { useEffect, useState } from "react"
@@ -165,7 +165,8 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
+const PUBLIC_ADDRESS =
+  typeof window === "undefined" ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
 const IframeViewPlayground: React.FC = () => {
@@ -345,6 +346,7 @@ const IframeViewPlayground: React.FC = () => {
   const [playgroundGradingCallbackClaim, setPlaygroundGradingCallbackClaim] = useState<
     string | null
   >(null)
+  const isPlaygroundWebsocketReady = Boolean(websocketId && playgroundGradingCallbackClaim)
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
@@ -783,7 +785,9 @@ const IframeViewPlayground: React.FC = () => {
                     variant={"primary"}
                     size={"medium"}
                     disabled={
-                      currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
+                      currentStateReceivedFromIframe === null ||
+                      !isPlaygroundWebsocketReady ||
+                      submitAnswerMutation.isPending
                     }
                     onClick={() => {
                       if (!currentStateReceivedFromIframe) {

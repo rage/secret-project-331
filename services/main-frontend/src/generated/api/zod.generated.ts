@@ -1557,6 +1557,37 @@ export const zCertificateConfigurationAndRequirements = z.object({
   requirements: zCertificateAllRequirements,
 })
 
+export const zCertificateConfigurationUpdate = z.object({
+  background_svg_file_name: z.string().nullish(),
+  certificate_date_font_size: z.string().nullish(),
+  certificate_date_text_anchor: zCertificateTextAnchor.nullish(),
+  certificate_date_text_color: z.string().nullish(),
+  certificate_date_x_pos: z.string().nullish(),
+  certificate_date_y_pos: z.string().nullish(),
+  certificate_grade_font_size: z.string().nullish(),
+  certificate_grade_text_anchor: zCertificateTextAnchor.nullish(),
+  certificate_grade_text_color: z.string().nullish(),
+  certificate_grade_x_pos: z.string().nullish(),
+  certificate_grade_y_pos: z.string().nullish(),
+  certificate_locale: z.string().nullish(),
+  certificate_owner_name_font_size: z.string().nullish(),
+  certificate_owner_name_text_anchor: zCertificateTextAnchor.nullish(),
+  certificate_owner_name_text_color: z.string().nullish(),
+  certificate_owner_name_x_pos: z.string().nullish(),
+  certificate_owner_name_y_pos: z.string().nullish(),
+  certificate_validate_url_font_size: z.string().nullish(),
+  certificate_validate_url_text_anchor: zCertificateTextAnchor.nullish(),
+  certificate_validate_url_text_color: z.string().nullish(),
+  certificate_validate_url_x_pos: z.string().nullish(),
+  certificate_validate_url_y_pos: z.string().nullish(),
+  clear_overlay_svg_file: z.boolean(),
+  course_instance_id: z.uuid().nullish(),
+  course_module_id: z.uuid(),
+  overlay_svg_file_name: z.string().nullish(),
+  paper_size: zPaperSize.nullish(),
+  render_certificate_grade: z.boolean(),
+})
+
 export const zPeerOrSelfReviewAnswer = z.union([
   z.object({
     type: z.enum(["no-answer"]),
@@ -2495,34 +2526,10 @@ export const zUploadFilesFromExerciseServicePath = z.object({
 export const zUploadFilesFromExerciseServiceResponse = z.record(z.string(), z.string())
 
 export const zUpdateCertificateConfigurationBody = z.object({
-  background_svg_file_name: z.string().nullish(),
-  certificate_date_font_size: z.string().nullish(),
-  certificate_date_text_anchor: zCertificateTextAnchor.nullish(),
-  certificate_date_text_color: z.string().nullish(),
-  certificate_date_x_pos: z.string().nullish(),
-  certificate_date_y_pos: z.string().nullish(),
-  certificate_grade_font_size: z.string().nullish(),
-  certificate_grade_text_anchor: zCertificateTextAnchor.nullish(),
-  certificate_grade_text_color: z.string().nullish(),
-  certificate_grade_x_pos: z.string().nullish(),
-  certificate_grade_y_pos: z.string().nullish(),
-  certificate_locale: z.string().nullish(),
-  certificate_owner_name_font_size: z.string().nullish(),
-  certificate_owner_name_text_anchor: zCertificateTextAnchor.nullish(),
-  certificate_owner_name_text_color: z.string().nullish(),
-  certificate_owner_name_x_pos: z.string().nullish(),
-  certificate_owner_name_y_pos: z.string().nullish(),
-  certificate_validate_url_font_size: z.string().nullish(),
-  certificate_validate_url_text_anchor: zCertificateTextAnchor.nullish(),
-  certificate_validate_url_text_color: z.string().nullish(),
-  certificate_validate_url_x_pos: z.string().nullish(),
-  certificate_validate_url_y_pos: z.string().nullish(),
-  clear_overlay_svg_file: z.boolean(),
-  course_instance_id: z.uuid().nullish(),
-  course_module_id: z.uuid(),
-  overlay_svg_file_name: z.string().nullish(),
-  paper_size: zPaperSize.nullish(),
-  render_certificate_grade: z.boolean(),
+  file: z.array(
+    z.int().gte(0).max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  ),
+  metadata: zCertificateConfigurationUpdate,
 })
 
 /**

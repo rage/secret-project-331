@@ -1042,6 +1042,7 @@
   "placeholder-search-users": "Søk brukere...",
   "placeholder-text-reserved-for-course-overview": "Reservert for kursoversikt",
   "playground-examples": "Playground eksempler",
+  "playground.websocketNotRegistered": "Playground-websocket er ikke registrert.",
   "please-check-the-following-preview-results-before-submitting": "Vennligst sjekk følgende forhåndsvisningsresultater før innsending.",
   "please-log-in-to-answer-exercise": "Vennligst logg inn for å svare på denne øvelsen.",
   "please-log-in-to-lock-chapter": "Vennligst logg inn for å låse et kapittel.",

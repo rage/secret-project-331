@@ -545,19 +545,19 @@ async fn get_all_exercise_statuses_by_course_instance_id(
     let course_instance =
         models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
 
-    let enrollment = models::course_instance_enrollments::get_by_user_and_course_instance_id(
+    let _enrollment = models::course_instance_enrollments::get_by_user_and_course_instance_id(
         &mut conn,
         user_id,
         course_instance_id,
     )
-    .await?;
-    if enrollment.course_id != course_instance.course_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "User is not enrolled in the requested course instance".to_string(),
-            None,
-        ));
-    }
+    .await
+    .map_err(|err| match err.error_type() {
+        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => controller_err!(
+            Forbidden,
+            "User is not enrolled in the requested course instance".to_string()
+        ),
+        _ => err.into(),
+    })?;
 
     let res = models::exercises::get_all_exercise_statuses_by_user_id_and_course_id(
         &mut conn,
@@ -604,19 +604,19 @@ async fn get_all_get_all_course_module_completions_for_user_by_course_instance_i
     let course_instance =
         models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
 
-    let enrollment = models::course_instance_enrollments::get_by_user_and_course_instance_id(
+    let _enrollment = models::course_instance_enrollments::get_by_user_and_course_instance_id(
         &mut conn,
         user_id,
         course_instance_id,
     )
-    .await?;
-    if enrollment.course_id != course_instance.course_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "User is not enrolled in the requested course instance".to_string(),
-            None,
-        ));
-    }
+    .await
+    .map_err(|err| match err.error_type() {
+        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => controller_err!(
+            Forbidden,
+            "User is not enrolled in the requested course instance".to_string()
+        ),
+        _ => err.into(),
+    })?;
 
     let res = models::course_module_completions::get_all_by_course_id_and_user_id(
         &mut conn,
@@ -663,19 +663,19 @@ async fn get_user_progress_for_course_instance(
     let course_instance =
         models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
 
-    let enrollment = models::course_instance_enrollments::get_by_user_and_course_instance_id(
+    let _enrollment = models::course_instance_enrollments::get_by_user_and_course_instance_id(
         &mut conn,
         user_id,
         course_instance_id,
     )
-    .await?;
-    if enrollment.course_id != course_instance.course_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "User is not enrolled in the requested course instance".to_string(),
-            None,
-        ));
-    }
+    .await
+    .map_err(|err| match err.error_type() {
+        ModelErrorType::RecordNotFound | ModelErrorType::NotFound => controller_err!(
+            Forbidden,
+            "User is not enrolled in the requested course instance".to_string()
+        ),
+        _ => err.into(),
+    })?;
 
     let user_course_progress = models::user_exercise_states::get_user_course_progress(
         &mut conn,

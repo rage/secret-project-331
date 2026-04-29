@@ -522,10 +522,9 @@ pub async fn upsert_for_course_id(
 ) -> ModelResult<CmsPeerOrSelfReviewConfiguration> {
     let input = &peer_or_self_review_configuration.peer_or_self_review_config;
     if input.course_id != course_id {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Peer review config course does not match expected course".to_string(),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            "Peer review config course does not match expected course".to_string()
         ));
     }
     if peer_or_self_review_configuration
@@ -533,10 +532,9 @@ pub async fn upsert_for_course_id(
         .iter()
         .any(|q| q.peer_or_self_review_config_id != input.id)
     {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Peer review questions do not belong to the peer review config".to_string(),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            "Peer review questions do not belong to the peer review config".to_string()
         ));
     }
 
@@ -601,8 +599,14 @@ RETURNING id,
         input.review_instructions,
         input.reset_answer_if_zero_points_from_review,
     )
-    .fetch_one(&mut *tx)
+    .fetch_optional(&mut *tx)
     .await?;
+    let Some(peer_or_self_review_config) = peer_or_self_review_config else {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Peer review config exercise does not belong to the expected course".to_string()
+        ));
+    };
 
     let previous_peer_or_self_review_question_ids =
         delete_peer_or_self_review_questions_by_peer_or_self_review_config_ids(

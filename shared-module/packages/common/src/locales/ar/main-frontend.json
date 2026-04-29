@@ -1050,6 +1050,7 @@
   "placeholder-search-users": "البحث عن المستخدمين...",
   "placeholder-text-reserved-for-course-overview": "محجوز لنظرة عامة على الدورة",
   "playground-examples": "أمثلة الملعب",
+  "playground.websocketNotRegistered": "WebSocket الخاص بساحة اللعب غير مسجل.",
   "please-check-the-following-preview-results-before-submitting": "يرجى التحقق من نتائج المعاينة التالية قبل الإرسال.",
   "please-log-in-to-answer-exercise": "يرجى تسجيل الدخول للإجابة على هذا التمرين.",
   "please-log-in-to-lock-chapter": "يرجى تسجيل الدخول لقفل فصل.",

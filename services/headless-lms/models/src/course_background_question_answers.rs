@@ -118,10 +118,10 @@ ON CONFLICT (
         .await?;
 
         if result.rows_affected() == 0 {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                "Background question is not in the allowed question set".to_string(),
-                None,
+            tx.rollback().await?;
+            return Err(model_err!(
+                PreconditionFailed,
+                "Background question is not in the allowed question set"
             ));
         }
     }

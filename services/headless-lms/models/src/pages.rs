@@ -2507,19 +2507,34 @@ pub async fn create_for_course_id(
     }
 
     if let Some(chapter_id) = new_page.chapter_id {
-        sqlx::query!(
-            r#"
-SELECT id
-FROM chapters
-WHERE id = $1
-  AND course_id = $2
-  AND deleted_at IS NULL
-            "#,
-            chapter_id,
-            course_id
-        )
-        .fetch_one(&mut *conn)
-        .await?;
+        let chapter = get_chapter(conn, chapter_id).await?;
+        if chapter.course_id != course_id {
+            return Err(model_err!(
+                PreconditionFailed,
+                "Chapter must belong to the expected course".to_string()
+            ));
+        }
+    }
+
+    if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
+        let chapter = get_chapter(conn, front_page_of_chapter_id).await?;
+        if chapter.course_id != course_id {
+            return Err(model_err!(
+                PreconditionFailed,
+                "Chapter must belong to the expected course".to_string()
+            ));
+        }
+    }
+
+    if let (Some(chapter_id), Some(front_page_of_chapter_id)) =
+        (new_page.chapter_id, new_page.front_page_of_chapter_id)
+        && chapter_id != front_page_of_chapter_id
+    {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Page chapter_id must match front_page_of_chapter_id".to_string(),
+            None,
+        ));
     }
 
     insert_page(conn, new_page, author, spec_fetcher, fetch_service_info).await
@@ -3447,6 +3462,26 @@ pub async fn restore_from_history_for_page_id(
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<Uuid> {
+    let validated_source_page_id = if let Some(source_page_id) = authorized_source_page_id {
+        let source_page = sqlx::query!(
+            r#"
+SELECT p.id
+FROM pages p
+WHERE p.id = $1
+  AND p.deleted_at IS NULL
+  AND (p.course_id = $2 OR p.exam_id = $3)
+            "#,
+            source_page_id,
+            expected_course_id,
+            expected_exam_id
+        )
+        .fetch_optional(&mut *conn)
+        .await?;
+        source_page.map(|row| row.id)
+    } else {
+        None
+    };
+
     sqlx::query!(
         r#"
 SELECT p.id
@@ -3475,7 +3510,7 @@ WHERE ph.id = $1
         "#,
         history_id,
         page_id,
-        authorized_source_page_id
+        validated_source_page_id
     )
     .fetch_one(&mut *conn)
     .await?;

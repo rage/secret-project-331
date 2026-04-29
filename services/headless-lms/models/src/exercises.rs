@@ -1257,6 +1257,28 @@ pub async fn reset_progress_by_course_id_user_ids_and_exercise_ids(
 ) -> ModelResult<Vec<(Uuid, Vec<Uuid>)>> {
     let mut successful_resets = Vec::new();
     let mut tx = conn.begin().await?;
+    let validated_exercise_ids = sqlx::query!(
+        r#"
+SELECT id
+FROM exercises
+WHERE id = ANY($1)
+  AND course_id = $2
+  AND deleted_at IS NULL
+        "#,
+        exercise_ids,
+        course_id
+    )
+    .fetch_all(&mut *tx)
+    .await?
+    .into_iter()
+    .map(|row| row.id)
+    .collect::<Vec<_>>();
+
+    if validated_exercise_ids.is_empty() {
+        tx.commit().await?;
+        return Ok(successful_resets);
+    }
+
     for user_id in user_ids {
         sqlx::query!(
             r#"
@@ -1275,7 +1297,7 @@ WHERE user_id = $1
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1295,7 +1317,7 @@ WHERE exercise_slide_submission_id IN (
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1316,7 +1338,7 @@ WHERE user_id = $1
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1338,7 +1360,7 @@ WHERE exercise_task_submission_id IN (
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1353,12 +1375,13 @@ WHERE user_exercise_state_id IN (
     WHERE user_id = $1
       AND course_id = $2
       AND exercise_id = ANY($3)
+      AND deleted_at IS NULL
   )
   AND deleted_at IS NULL
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1379,7 +1402,7 @@ WHERE user_exercise_slide_state_id IN (
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1399,7 +1422,7 @@ WHERE user_exercise_state_id IN (
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1421,7 +1444,7 @@ WHERE user_id = $1
             "#,
             user_id,
             course_id,
-            exercise_ids
+            &validated_exercise_ids
         )
         .execute(&mut *tx)
         .await?;
@@ -1430,14 +1453,15 @@ WHERE user_id = $1
             &mut tx,
             reset_by,
             *user_id,
-            exercise_ids,
+            &validated_exercise_ids,
             course_id,
             reason.clone(),
         )
         .await?;
 
         let chapter_ids =
-            get_chapter_ids_for_exercises_in_course(&mut tx, exercise_ids, course_id).await?;
+            get_chapter_ids_for_exercises_in_course(&mut tx, &validated_exercise_ids, course_id)
+                .await?;
         user_chapter_locking_statuses::unlock_chapters_for_user(
             &mut tx,
             *user_id,
@@ -1446,7 +1470,7 @@ WHERE user_id = $1
         )
         .await?;
 
-        successful_resets.push((*user_id, exercise_ids.to_vec()));
+        successful_resets.push((*user_id, validated_exercise_ids.clone()));
     }
     tx.commit().await?;
     Ok(successful_resets)

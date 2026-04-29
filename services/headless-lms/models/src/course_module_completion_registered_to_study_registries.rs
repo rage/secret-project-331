@@ -334,7 +334,7 @@ WITH duplicate_rows AS (
   SELECT id,
     ROW_NUMBER() OVER (
       PARTITION BY study_registry_registrar_id, course_module_completion_id
-      ORDER BY created_at ASC
+      ORDER BY created_at ASC, id ASC
     ) AS rn
   FROM course_module_completion_registered_to_study_registries
   WHERE study_registry_registrar_id = $1

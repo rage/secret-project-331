@@ -1,7 +1,7 @@
 import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
 
 export const createCertificateConfigurationFormData = (
-  metadata: UpdateCertificateConfigurationData["body"],
+  metadata: UpdateCertificateConfigurationData["body"]["metadata"],
   files: ReadonlyArray<File>,
 ): FormData => {
   const formData = new FormData()

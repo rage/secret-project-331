@@ -140,6 +140,37 @@ export type CertificateConfigurationAndRequirements = {
   requirements: CertificateAllRequirements
 }
 
+export type CertificateConfigurationUpdate = {
+  background_svg_file_name?: string | null
+  certificate_date_font_size?: string | null
+  certificate_date_text_anchor?: null | CertificateTextAnchor
+  certificate_date_text_color?: string | null
+  certificate_date_x_pos?: string | null
+  certificate_date_y_pos?: string | null
+  certificate_grade_font_size?: string | null
+  certificate_grade_text_anchor?: null | CertificateTextAnchor
+  certificate_grade_text_color?: string | null
+  certificate_grade_x_pos?: string | null
+  certificate_grade_y_pos?: string | null
+  certificate_locale?: string | null
+  certificate_owner_name_font_size?: string | null
+  certificate_owner_name_text_anchor?: null | CertificateTextAnchor
+  certificate_owner_name_text_color?: string | null
+  certificate_owner_name_x_pos?: string | null
+  certificate_owner_name_y_pos?: string | null
+  certificate_validate_url_font_size?: string | null
+  certificate_validate_url_text_anchor?: null | CertificateTextAnchor
+  certificate_validate_url_text_color?: string | null
+  certificate_validate_url_x_pos?: string | null
+  certificate_validate_url_y_pos?: string | null
+  clear_overlay_svg_file: boolean
+  course_instance_id?: string | null
+  course_module_id: string
+  overlay_svg_file_name?: string | null
+  paper_size?: null | PaperSize
+  render_certificate_grade: boolean
+}
+
 export type CertificateGenerationRequest = {
   certificate_configuration_id: string
   grade?: string | null
@@ -2050,34 +2081,8 @@ export type UploadFilesFromExerciseServiceResponse =
 
 export type UpdateCertificateConfigurationData = {
   body: {
-    background_svg_file_name?: string | null
-    certificate_date_font_size?: string | null
-    certificate_date_text_anchor?: null | CertificateTextAnchor
-    certificate_date_text_color?: string | null
-    certificate_date_x_pos?: string | null
-    certificate_date_y_pos?: string | null
-    certificate_grade_font_size?: string | null
-    certificate_grade_text_anchor?: null | CertificateTextAnchor
-    certificate_grade_text_color?: string | null
-    certificate_grade_x_pos?: string | null
-    certificate_grade_y_pos?: string | null
-    certificate_locale?: string | null
-    certificate_owner_name_font_size?: string | null
-    certificate_owner_name_text_anchor?: null | CertificateTextAnchor
-    certificate_owner_name_text_color?: string | null
-    certificate_owner_name_x_pos?: string | null
-    certificate_owner_name_y_pos?: string | null
-    certificate_validate_url_font_size?: string | null
-    certificate_validate_url_text_anchor?: null | CertificateTextAnchor
-    certificate_validate_url_text_color?: string | null
-    certificate_validate_url_x_pos?: string | null
-    certificate_validate_url_y_pos?: string | null
-    clear_overlay_svg_file: boolean
-    course_instance_id?: string | null
-    course_module_id: string
-    overlay_svg_file_name?: string | null
-    paper_size?: null | PaperSize
-    render_certificate_grade: boolean
+    file: Array<number>
+    metadata: CertificateConfigurationUpdate
   }
   path?: never
   query?: never

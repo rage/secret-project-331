@@ -132,10 +132,9 @@ pub async fn process_edit_proposal(
     let page_proposal =
         proposed_page_edits::get_by_id(&mut conn, proposal.page_proposal_id).await?;
     if page_proposal.page_id != proposal.page_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Proposal does not belong to the requested page".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Proposal does not belong to the requested page".to_string()
         ));
     }
 

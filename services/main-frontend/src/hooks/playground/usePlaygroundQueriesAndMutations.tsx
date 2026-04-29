@@ -2,6 +2,7 @@
 
 import { isServer, useQuery } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
+import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { UseParsedPrivateSpecResult } from "./useParsedPrivateSpec"
@@ -47,6 +48,7 @@ interface UsePlaygroundQueriesArguments {
 }
 
 const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) => {
+  const { t } = useTranslation()
   let exerciseServiceHost = ""
   try {
     const parsedUrl = new URL(args.url)
@@ -186,7 +188,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           throw new Error("Requirements for the mutation not satisfied.")
         }
         if (!websocketId || !playgroundGradingCallbackClaim) {
-          throw new Error("Playground websocket is not registered.")
+          throw new Error(t("playground.websocketNotRegistered"))
         }
         const gradingRequest: GradingRequest = {
           // eslint-disable-next-line i18next/no-literal-string

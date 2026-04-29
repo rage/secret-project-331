@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id\nFROM chapters\nWHERE id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\n            ",
+  "query": "\nSELECT p.id\nFROM pages p\nWHERE p.id = $1\n  AND p.deleted_at IS NULL\n  AND (p.course_id = $2 OR p.exam_id = $3)\n            ",
   "describe": {
     "columns": [
       {
@@ -12,6 +12,7 @@
     "parameters": {
       "Left": [
         "Uuid",
+        "Uuid",
         "Uuid"
       ]
     },
@@ -19,5 +20,5 @@
       false
     ]
   },
-  "hash": "275e2de7ec160c8681678c9d98f1feb13b246bbc154f4e399353bd26a79836db"
+  "hash": "affbc4776bdca4c56a955d16267f962a3a11ffd7c314140de762f3ad4d6f6672"
 }

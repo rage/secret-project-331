@@ -12,7 +12,7 @@ const readBlobAsText = async (blob: Blob): Promise<string> =>
 
 describe("createCertificateConfigurationFormData", () => {
   it("serializes metadata as a JSON blob and preserves uploaded files", async () => {
-    const metadata: UpdateCertificateConfigurationData["body"] = {
+    const metadata: UpdateCertificateConfigurationData["body"]["metadata"] = {
       course_module_id: "d4c8760f-7b84-4eba-91c8-a54de34a22df",
       course_instance_id: "7fb6fa7f-1697-488d-8356-d675ef63de4f",
       certificate_owner_name_y_pos: "70%",

@@ -328,13 +328,21 @@ async fn get_submission_grading(
     user: UserFromTMCAccessToken,
 ) -> ControllerResult<web::Json<api::ExerciseTaskSubmissionStatus>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
+    let submission =
+        models::exercise_task_submissions::get_by_id(&mut conn, *submission_id).await?;
+    let slide_submission = models::exercise_slide_submissions::get_by_id(
         &mut conn,
-        Act::View,
-        Some(user.id),
-        Res::ExerciseTaskSubmission(*submission_id),
+        submission.exercise_slide_submission_id,
     )
     .await?;
+    if slide_submission.user_id != user.id {
+        return Err(ControllerError::new(
+            ControllerErrorType::Unauthorized,
+            "Cannot view another user's submission grading".to_string(),
+            None,
+        ));
+    }
+    let token = skip_authorize();
 
     let grading = models::exercise_task_gradings::get_by_exercise_task_submission_id(
         &mut conn,

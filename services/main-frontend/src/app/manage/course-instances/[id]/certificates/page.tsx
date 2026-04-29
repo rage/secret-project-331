@@ -21,10 +21,7 @@ import {
   setCourseModuleCertificateGeneration,
   updateCertificateConfiguration,
 } from "@/generated/api/sdk.generated"
-import type {
-  CertificateConfigurationUpdate as CertificateConfigurationUpdateRequest,
-  UpdateCertificateConfigurationData,
-} from "@/generated/api/types.generated"
+import type { UpdateCertificateConfigurationData } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -80,7 +77,7 @@ const CertificationsPage: React.FC = () => {
     ({ courseModuleId, courseInstanceId, fields }: UpdateMutationArgs) => {
       const backgroundSvg = fields.backgroundSvg.item(0)
       const overlaySvg = fields.overlaySvg.item(0)
-      const update: CertificateConfigurationUpdateRequest = {
+      const update: UpdateCertificateConfigurationData["body"] = {
         course_module_id: courseModuleId,
         course_instance_id: courseInstanceId,
         certificate_owner_name_y_pos: fields.ownerNamePosY,
@@ -114,10 +111,7 @@ const CertificationsPage: React.FC = () => {
       const files = [overlaySvg, backgroundSvg].filter((file): file is File => file !== null)
 
       return updateCertificateConfiguration({
-        body: {
-          metadata: update,
-          file: files as unknown as UpdateCertificateConfigurationData["body"]["file"],
-        },
+        body: update,
         bodySerializer: () => createCertificateConfigurationFormData(update, files),
       })
     },

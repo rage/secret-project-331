@@ -12,7 +12,10 @@ use models::{
 };
 use utoipa::{OpenApi, ToSchema};
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
+use crate::{
+    domain::authorization::{authorize_access_to_course_material, skip_authorize},
+    prelude::*,
+};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -85,6 +88,19 @@ async fn get_user_progress_for_course_instance_chapter(
 ) -> ControllerResult<web::Json<UserCourseInstanceChapterProgress>> {
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, chapter_id).await?;
+    if chapter.course_id != course_instance.course_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Chapter does not belong to the requested course instance".to_string(),
+            None,
+        ));
+    }
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_instance.course_id)
+            .await?;
     let user_course_instance_chapter_progress =
         models::chapters::get_user_course_instance_chapter_progress(
             &mut conn,
@@ -93,7 +109,6 @@ async fn get_user_progress_for_course_instance_chapter(
             user.id,
         )
         .await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(user_course_instance_chapter_progress))
 }
 
@@ -121,11 +136,22 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
 ) -> ControllerResult<web::Json<Vec<UserCourseChapterExerciseProgress>>> {
     let mut conn = pool.acquire().await?;
     let (course_instance_id, chapter_id) = params.into_inner();
+    let course_instance =
+        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, chapter_id).await?;
+    if chapter.course_id != course_instance.course_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Chapter does not belong to the requested course instance".to_string(),
+            None,
+        ));
+    }
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), course_instance.course_id)
+            .await?;
     let chapter_exercises =
         models::exercises::get_exercises_by_chapter_id(&mut conn, chapter_id).await?;
     let exercise_ids: Vec<Uuid> = chapter_exercises.into_iter().map(|e| e.id).collect();
-    let course_instance =
-        models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
     let user_course_instance_exercise_progress =
         models::user_exercise_states::get_user_course_chapter_exercises_progress(
             &mut conn,
@@ -142,7 +168,6 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
                 exercise_id: i.exercise_id,
             })
             .collect();
-    let token = skip_authorize();
     token.authorized_ok(web::Json(rounded_score_given_instances))
 }
 

@@ -83,8 +83,8 @@ pub async fn enroll(
 
     // enroll if teacher is testing regardless of exams starting time
     if payload.is_teacher_testing {
-        exams::enroll(&mut conn, *exam_id, user.id, payload.is_teacher_testing).await?;
         let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+        exams::enroll(&mut conn, *exam_id, user.id, payload.is_teacher_testing).await?;
         return token.authorized_ok(web::Json(()));
     }
 
@@ -494,8 +494,8 @@ pub async fn update_show_exercise_answers(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let show_answers = payload.show_exercise_answers;
-    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    exams::update_show_exercise_answers(&mut conn, *exam_id, user.id, show_answers).await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -524,15 +524,8 @@ pub async fn reset_exam_progress(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
 
-    let started_at = Utc::now();
-    exams::update_exam_start_time(&mut conn, *exam_id, user.id, started_at).await?;
-
-    models::exercise_slide_submissions::delete_exercise_submissions_with_exam_id_and_user_id(
-        &mut conn, *exam_id, user.id,
-    )
-    .await?;
-
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Exam(*exam_id)).await?;
+    exams::reset_progress_by_exam_id_and_user_id(&mut conn, *exam_id, user.id).await?;
     token.authorized_ok(web::Json(()))
 }
 

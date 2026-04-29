@@ -41,7 +41,8 @@ async fn get_public_chapter_pages(
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let user_id = auth.map(|u| u.id);
-    let token = authorize(&mut conn, Act::View, user_id, Res::Chapter(*chapter_id)).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
     let chapter_pages: Vec<Page> = models::pages::get_course_pages_by_chapter_id_and_visibility(
         &mut conn,
         *chapter_id,
@@ -76,10 +77,27 @@ async fn get_chapters_exercises(
 ) -> ControllerResult<web::Json<Vec<PageWithExercises>>> {
     let mut conn = pool.acquire().await?;
     let user_id = auth.map(|u| u.id);
-    let token = authorize(&mut conn, Act::View, user_id, Res::Chapter(*chapter_id)).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
+    let can_view_hidden_pages = if let Some(user_id) = user_id {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            Some(user_id),
+            Res::Course(chapter.course_id),
+        )
+        .await
+        .is_ok()
+    } else {
+        false
+    };
 
     let chapter_pages_with_exercises =
         models::pages::get_chapters_pages_with_exercises(&mut conn, *chapter_id).await?;
+    let chapter_pages_with_exercises = chapter_pages_with_exercises
+        .into_iter()
+        .filter(|page_with_exercises| can_view_hidden_pages || !page_with_exercises.page.hidden)
+        .collect();
     let chapter_pages_with_exercises = models::pages::filter_course_material_pages_with_exercises(
         &mut conn,
         user_id,
@@ -112,7 +130,8 @@ async fn get_chapters_pages_without_main_frontpage(
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
     let user_id = auth.map(|u| u.id);
-    let token = authorize(&mut conn, Act::View, user_id, Res::Chapter(*chapter_id)).await?;
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
     let chapter_pages =
         models::pages::get_chapters_visible_pages_exclude_main_frontpage(&mut conn, *chapter_id)
             .await?;

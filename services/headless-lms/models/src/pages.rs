@@ -3435,6 +3435,7 @@ pub async fn restore(
     Ok(history_id)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn restore_from_history_for_page_id(
     conn: &mut PgConnection,
     page_id: Uuid,

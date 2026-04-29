@@ -101,6 +101,22 @@ pub async fn set_course(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let exam_identity = exams::get_identity_by_id(&mut conn, *exam_id).await?;
+    let course = models::courses::get_course(&mut conn, exam.course_id).await?;
+    if exam_identity.organization_id != course.organization_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Course does not belong to the same organization as the exam".to_string(),
+            None,
+        ));
+    }
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(exam.course_id),
+    )
+    .await?;
 
     course_exams::upsert(&mut conn, *exam_id, exam.course_id).await?;
 
@@ -132,6 +148,22 @@ pub async fn unset_course(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let exam_identity = exams::get_identity_by_id(&mut conn, *exam_id).await?;
+    let course = models::courses::get_course(&mut conn, exam.course_id).await?;
+    if exam_identity.organization_id != course.organization_id {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "Course does not belong to the same organization as the exam".to_string(),
+            None,
+        ));
+    }
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(exam.course_id),
+    )
+    .await?;
 
     course_exams::delete(&mut conn, *exam_id, exam.course_id).await?;
 

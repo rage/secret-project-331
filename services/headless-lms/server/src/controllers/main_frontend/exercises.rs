@@ -1019,7 +1019,22 @@ pub async fn reset_exercises_for_selected_users(
     )
     .await?;
 
-    // Gets all valid users and their related exercises using the given filters
+    let requested_exercises =
+        models::exercises::get_non_deleted_by_ids(&mut conn, &payload.exercise_ids).await?;
+    if requested_exercises.len() != payload.exercise_ids.len()
+        || requested_exercises
+            .iter()
+            .any(|exercise| exercise.course_id != Some(*course_id))
+    {
+        return Err(ControllerError::new(
+            ControllerErrorType::Forbidden,
+            "All exercises must belong to the requested course".to_string(),
+            None,
+        ));
+    }
+
+    // Gets all valid users and their related exercises using the given filters.
+    // This selects reset candidates, but course ownership is enforced above and in the scoped reset.
     let users_and_exercises = models::exercises::collect_user_ids_and_exercise_ids_for_reset(
         &mut conn,
         &payload.user_ids,
@@ -1030,12 +1045,22 @@ pub async fn reset_exercises_for_selected_users(
     )
     .await?;
 
-    // Resets exercises for selected users and add the resets to a log
-    let reset_results = models::exercises::reset_exercises_for_selected_users(
+    let reset_user_ids: Vec<Uuid> = users_and_exercises
+        .iter()
+        .map(|(user_id, _)| *user_id)
+        .collect();
+    let reset_exercise_ids: Vec<Uuid> = users_and_exercises
+        .iter()
+        .flat_map(|(_, exercise_ids)| exercise_ids.iter().copied())
+        .collect();
+
+    // Resets exercises for selected users and adds the resets to a log, constrained by course id.
+    let reset_results = models::exercises::reset_progress_by_course_id_user_ids_and_exercise_ids(
         &mut conn,
-        &users_and_exercises,
-        Some(user.id),
         *course_id,
+        &reset_user_ids,
+        &reset_exercise_ids,
+        Some(user.id),
         Some("reset-by-staff".to_string()),
     )
     .await?;

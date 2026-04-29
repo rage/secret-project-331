@@ -205,15 +205,19 @@ pub async fn mark_completions_as_registered_to_study_registry(
 
     insert_bulk(&mut tx, new_registrations).await?;
 
-    // We delete duplicates straight away, this way we can still see if the study registry keeps pushing the same completion multiple times
-    // Using a random chance to optimize the performance of the operation
+    // Opportunistically clean up duplicate registrations only inside the
+    // authenticated study registry registrar's namespace. We keep the cleanup
+    // probabilistic to limit write amplification on the hot path while still
+    // gradually converging duplicate rows.
     let mut rng = rand::rng();
-    let delete_all = rng.random_range(0..50) == 0; // 1 in 50 chance
-
-    if delete_all {
-        delete_all_duplicates(&mut tx).await?;
-    } else {
-        delete_duplicates_for_specific_completions(&mut tx, &ids).await?;
+    let should_cleanup = rng.random_range(0..50) == 0;
+    if should_cleanup {
+        cleanup_duplicates_by_registrar_id_and_completion_ids(
+            &mut tx,
+            study_registry_registrar_id,
+            &ids,
+        )
+        .await?;
     }
 
     tx.commit().await?;
@@ -323,82 +327,32 @@ pub async fn cleanup_duplicates_by_registrar_id_and_completion_ids(
     conn: &mut PgConnection,
     study_registry_registrar_id: Uuid,
     completion_ids: &[Uuid],
-    duplicate_registration_ids: &[Uuid],
 ) -> ModelResult<i64> {
     let res = sqlx::query!(
         r#"
+WITH duplicate_rows AS (
+  SELECT id,
+    ROW_NUMBER() OVER (
+      PARTITION BY study_registry_registrar_id, course_module_completion_id
+      ORDER BY created_at ASC
+    ) AS rn
+  FROM course_module_completion_registered_to_study_registries
+  WHERE study_registry_registrar_id = $1
+    AND course_module_completion_id = ANY($2)
+    AND deleted_at IS NULL
+)
 UPDATE course_module_completion_registered_to_study_registries
 SET deleted_at = NOW()
-WHERE study_registry_registrar_id = $1
-  AND course_module_completion_id = ANY($2)
-  AND id = ANY($3)
+WHERE id IN (
+    SELECT id
+    FROM duplicate_rows
+    WHERE rn > 1
+  )
   AND deleted_at IS NULL
 RETURNING id
         "#,
         study_registry_registrar_id,
-        completion_ids,
-        duplicate_registration_ids
-    )
-    .fetch_all(conn)
-    .await?;
-
-    Ok(res.len() as i64)
-}
-
-async fn delete_duplicates_for_specific_completions(
-    conn: &mut PgConnection,
-    completion_ids: &[Uuid],
-) -> ModelResult<i64> {
-    let res = sqlx::query!(
-        r#"
-WITH duplicate_rows AS (
-  SELECT id,
-    ROW_NUMBER() OVER (
-      PARTITION BY course_module_completion_id
-      ORDER BY created_at ASC -- Keep the oldest, delete the rest
-    ) AS rn
-  FROM course_module_completion_registered_to_study_registries
-  WHERE deleted_at IS NULL
-    AND course_module_completion_id = ANY($1)
-)
-UPDATE course_module_completion_registered_to_study_registries
-SET deleted_at = NOW()
-WHERE id IN (
-    SELECT id
-    FROM duplicate_rows
-    WHERE rn > 1
-  )
-RETURNING id
-        "#,
-        completion_ids,
-    )
-    .fetch_all(conn)
-    .await?;
-
-    Ok(res.len() as i64)
-}
-
-async fn delete_all_duplicates(conn: &mut PgConnection) -> ModelResult<i64> {
-    let res = sqlx::query!(
-        r#"
-WITH duplicate_rows AS (
-  SELECT id,
-    ROW_NUMBER() OVER (
-      PARTITION BY course_module_completion_id
-      ORDER BY created_at ASC -- Keep the oldest, delete the rest
-    ) AS rn
-  FROM course_module_completion_registered_to_study_registries
-  WHERE deleted_at IS NULL
-)
-UPDATE course_module_completion_registered_to_study_registries
-SET deleted_at = NOW()
-WHERE id IN (
-    SELECT id
-    FROM duplicate_rows
-    WHERE rn > 1
-  )
-RETURNING id
-        "#
+        completion_ids
     )
     .fetch_all(conn)
     .await?;
@@ -691,10 +645,13 @@ mod test {
                 .unwrap();
         assert_eq!(before_registrations.len(), 3);
 
-        let deleted_count =
-            delete_duplicates_for_specific_completions(tx.as_mut(), &[completion.id])
-                .await
-                .unwrap();
+        let deleted_count = cleanup_duplicates_by_registrar_id_and_completion_ids(
+            tx.as_mut(),
+            registrar_id,
+            &[completion.id],
+        )
+        .await
+        .unwrap();
         assert_eq!(deleted_count, 2); // Should delete 2 out of 3 registrations
 
         let after_registrations =
@@ -795,7 +752,13 @@ mod test {
         assert_eq!(before_reg2.len(), 1);
 
         // Delete duplicate registrations
-        let deleted_count = delete_all_duplicates(tx.as_mut()).await.unwrap();
+        let deleted_count = cleanup_duplicates_by_registrar_id_and_completion_ids(
+            tx.as_mut(),
+            registrar_id,
+            &[completion1.id, completion2.id],
+        )
+        .await
+        .unwrap();
         assert_eq!(deleted_count, 0); // Should delete 0 registrations as there are no duplicates
 
         // Verify both registrations still exist
@@ -922,10 +885,13 @@ mod test {
         assert_eq!(before_reg2.len(), 2);
 
         // Delete duplicate registrations only for completion1
-        let deleted_count =
-            delete_duplicates_for_specific_completions(tx.as_mut(), &[completion1.id])
-                .await
-                .unwrap();
+        let deleted_count = cleanup_duplicates_by_registrar_id_and_completion_ids(
+            tx.as_mut(),
+            registrar_id,
+            &[completion1.id],
+        )
+        .await
+        .unwrap();
         assert_eq!(deleted_count, 1); // Should delete 1 duplicate for completion1
 
         // Verify completion1 now has 1 registration and completion2 still has 2

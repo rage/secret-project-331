@@ -81,6 +81,7 @@ RETURNING id,
     Ok(res)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub async fn upsert_by_state_id_and_exercise_id(
     conn: &mut PgConnection,
     user_exercise_state_id: Uuid,

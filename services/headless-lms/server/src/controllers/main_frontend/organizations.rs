@@ -43,13 +43,6 @@ use utoipa::{OpenApi, ToSchema};
 ))]
 pub(crate) struct MainFrontendOrganizationsApiDoc;
 
-#[allow(dead_code)]
-#[derive(Debug, ToSchema)]
-struct OrganizationImageUploadPayload {
-    #[schema(content_media_type = "application/octet-stream")]
-    file: Vec<u8>,
-}
-
 /**
 GET `/api/v0/main-frontend/organizations` - Returns a list of all organizations.
 */
@@ -286,7 +279,7 @@ BINARY_DATA
     params(
         ("organization_id" = Uuid, Path, description = "Organization id")
     ),
-    request_body(content = inline(OrganizationImageUploadPayload), content_type = "multipart/form-data"),
+    request_body(content = String, content_type = "multipart/form-data"),
     responses(
         (status = 200, description = "Updated organization", body = serde_json::Value)
     )
@@ -439,6 +432,13 @@ async fn get_organization(
     let mut conn = pool.acquire().await?;
     let db_organization =
         models::organizations::get_organization(&mut conn, *organization_id).await?;
+    if db_organization.deleted_at.is_some() || db_organization.hidden {
+        return Err(ControllerError::new(
+            ControllerErrorType::NotFound,
+            "Organization not found".to_string(),
+            None,
+        ));
+    }
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 

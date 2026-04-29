@@ -24,14 +24,6 @@ use models::{
 ))]
 pub(crate) struct MainFrontendCertificatesApiDoc;
 
-#[allow(dead_code)]
-#[derive(Debug, ToSchema)]
-struct CertificateConfigurationUpdateMultipartPayload {
-    metadata: CertificateConfigurationUpdate,
-    #[schema(content_media_type = "application/octet-stream")]
-    file: Vec<Vec<u8>>,
-}
-
 #[derive(Debug, Deserialize, ToSchema)]
 
 pub struct CertificateConfigurationUpdate {
@@ -83,7 +75,7 @@ Updates the certificate configuration for a given module.
     operation_id = "updateCertificateConfiguration",
     tag = "certificates",
     request_body(
-        content = inline(CertificateConfigurationUpdateMultipartPayload),
+        content = inline(CertificateConfigurationUpdate),
         content_type = "multipart/form-data",
         encoding(("metadata" = (content_type = "application/json")))
     ),
@@ -613,18 +605,37 @@ pub async fn update_generated_certificate(
         cert.certificate_configuration_id,
     ).await?;
 
-    let course_module_id = req.course_module_ids.first().ok_or_else(|| {
-        ControllerError::new(
+    if req.course_module_ids.is_empty() {
+        return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            "Certificate has no associated course module",
+            "Certificate has no associated course module".to_string(),
+            None,
+        ));
+    }
+
+    let course_modules =
+        models::course_modules::get_by_ids(&mut conn, &req.course_module_ids).await?;
+    if course_modules.len() != req.course_module_ids.len() {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Certificate has a missing course module requirement".to_string(),
+            None,
+        ));
+    }
+
+    let mut token = None;
+    for course_id in course_modules.iter().map(|module| module.course_id) {
+        token =
+            Some(authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?);
+    }
+
+    let token = token.ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Authorization token was not set".to_string(),
             None,
         )
     })?;
-
-    let course_module = models::course_modules::get_by_id(&mut conn, *course_module_id).await?;
-    let course_id = course_module.course_id;
-
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     let updated = models::generated_certificates::update_certificate(
         &mut conn,

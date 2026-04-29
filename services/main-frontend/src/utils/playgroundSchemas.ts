@@ -52,7 +52,10 @@ export const zPlaygroundViewsMessage = z.discriminatedUnion("tag", [
   }),
   z.object({
     tag: z.literal("Registered"),
-    data: z.string().uuid(),
+    data: z.object({
+      websocket_id: z.string().uuid(),
+      playground_grading_callback_claim: z.string(),
+    }),
   }),
   z.object({
     tag: z.literal("ExerciseTaskGradingResult"),

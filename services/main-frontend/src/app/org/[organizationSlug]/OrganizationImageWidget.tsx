@@ -29,8 +29,12 @@ const OrganizationImageWidget: React.FC<
       validateFile(imageFile, ["image"])
 
       return await updateOrganizationImage({
-        body: {
-          file: imageFile as unknown as number[],
+        body: imageFile.name,
+        bodySerializer: () => {
+          const formData = new FormData()
+          // eslint-disable-next-line i18next/no-literal-string
+          formData.append("file", imageFile)
+          return formData
         },
         path: {
           organization_id: organization.id,

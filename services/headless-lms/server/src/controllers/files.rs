@@ -94,35 +94,23 @@ async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerRe
             )
         })
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid upload path".to_string(),
-            None,
+        return Err(controller_err!(
+            BadRequest,
+            "Invalid upload path".to_string()
         ));
     }
 
-    let base_folder = base_folder.canonicalize().map_err(|_e| {
-        ControllerError::new(
-            ControllerErrorType::NotFound,
-            "File not found".to_string(),
-            None,
-        )
-    })?;
+    let base_folder = base_folder
+        .canonicalize()
+        .map_err(|_e| controller_err!(NotFound, "File not found".to_string()))?;
     let path = base_folder
         .join(requested_path)
         .canonicalize()
-        .map_err(|_e| {
-            ControllerError::new(
-                ControllerErrorType::NotFound,
-                "File not found".to_string(),
-                None,
-            )
-        })?;
+        .map_err(|_e| controller_err!(NotFound, "File not found".to_string()))?;
     if !path.starts_with(&base_folder) {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Invalid upload path".to_string(),
-            None,
+        return Err(controller_err!(
+            BadRequest,
+            "Invalid upload path".to_string()
         ));
     }
 

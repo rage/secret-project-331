@@ -150,10 +150,9 @@ pub async fn get_user_details_by_courses(
         )
         .await?;
         if enrollments.is_empty() && roles.is_empty() {
-            return Err(ControllerError::new(
-                ControllerErrorType::Forbidden,
-                "Target user is not linked to an authorized course".to_string(),
-                None,
+            return Err(controller_err!(
+                Forbidden,
+                "Target user is not linked to an authorized course".to_string()
             ));
         }
     }

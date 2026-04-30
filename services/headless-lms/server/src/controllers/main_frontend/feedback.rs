@@ -38,13 +38,9 @@ pub async fn mark_as_read(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let feedback = feedback::get_by_id(&mut conn, *feedback_id).await?;
-    let course_id = feedback.course_id.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Feedback is not course-scoped".to_string(),
-            None,
-        )
-    })?;
+    let course_id = feedback
+        .course_id
+        .ok_or_else(|| controller_err!(Forbidden, "Feedback is not course-scoped".to_string()))?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
     feedback::set_read_state_by_id_and_course_id(
         &mut conn,

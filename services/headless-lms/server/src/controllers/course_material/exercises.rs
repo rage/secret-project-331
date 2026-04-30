@@ -493,10 +493,9 @@ async fn submit_peer_or_self_review(
     if exercise_slide_submission.exercise_id != exercise.id
         || exercise_slide_submission.course_id != exercise.course_id
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Reviewed submission does not belong to the requested exercise".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Reviewed submission does not belong to the requested exercise".to_string()
         ));
     }
 
@@ -507,10 +506,9 @@ async fn submit_peer_or_self_review(
     )
     .await?;
     if peer_or_self_review_config.id != payload.peer_or_self_review_config_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Peer review configuration does not belong to the requested exercise".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Peer review configuration does not belong to the requested exercise".to_string()
         ));
     }
 

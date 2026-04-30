@@ -26,11 +26,7 @@ use utoipa::OpenApi;
 pub(crate) struct CourseMaterialPagesApiDoc;
 
 fn page_not_found() -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::NotFound,
-        "Page not found".to_string(),
-        None,
-    )
+    controller_err!(NotFound, "Page not found".to_string())
 }
 
 async fn authorize_page_parent_access(
@@ -66,10 +62,9 @@ async fn authorize_page_parent_access(
         Ok((token, visibility))
     } else if let Some(exam_id) = page.exam_id {
         let user_id = user_id.ok_or_else(|| {
-            ControllerError::new(
-                ControllerErrorType::Unauthorized,
-                "Authentication required for exam page".to_string(),
-                None,
+            controller_err!(
+                Unauthorized,
+                "Authentication required for exam page".to_string()
             )
         })?;
         let token = authorize(conn, Act::View, Some(user_id), Res::Exam(exam_id)).await?;

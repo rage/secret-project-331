@@ -252,10 +252,10 @@ impl PlaygroundGradingCallbackClaim {
 
     pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
         validate_hs256_claim::<Self>(token, key).map_err(|err| {
-            ControllerError::new(
-                ControllerErrorType::BadRequest,
+            controller_err!(
+                BadRequest,
                 format!("Invalid playground grading callback claim: {}", err),
-                Some(err.into()),
+                err
             )
         })
     }
@@ -268,10 +268,9 @@ impl FromRequest for PlaygroundGradingCallbackClaim {
     fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
         let try_from_request = move || {
             let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Missing JwtKey in app data - server configuration error".to_string(),
-                    None,
+                controller_err!(
+                    InternalServerError,
+                    "Missing JwtKey in app data - server configuration error".to_string()
                 )
             })?;
             let query_claim = url::form_urlencoded::parse(req.query_string().as_bytes())
@@ -283,10 +282,9 @@ impl FromRequest for PlaygroundGradingCallbackClaim {
                 .and_then(|header| std::str::from_utf8(header.as_bytes()).ok())
                 .map(ToString::to_string);
             let claim = header_claim.or(query_claim).ok_or_else(|| {
-                ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    format!("Missing {PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM}"),
-                    None,
+                controller_err!(
+                    BadRequest,
+                    format!("Missing {PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM}")
                 )
             })?;
             PlaygroundGradingCallbackClaim::validate(&claim, jwt_key)

@@ -108,10 +108,9 @@ async fn get_user_course_module_exercises_by_exercise_type(
         course_instances::get_course_instance(&mut conn, course_instance_id).await?;
     let module = course_modules::get_by_id(&mut conn, course_module_id).await?;
     if module.course_id != course_instance.course_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Course module does not belong to the requested course instance".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Course module does not belong to the requested course instance".to_string()
         ));
     }
     let token =

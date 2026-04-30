@@ -107,11 +107,10 @@ async fn send_message(
         || conversation.chatbot_configuration_id != chatbot_configuration_id
         || conversation.course_id != chatbot_configuration.course_id
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
+        return Err(controller_err!(
+            Forbidden,
             "Conversation does not belong to the authenticated user and chatbot configuration"
-                .to_string(),
-            None,
+                .to_string()
         ));
     }
 

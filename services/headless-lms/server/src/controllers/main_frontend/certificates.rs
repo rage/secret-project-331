@@ -174,10 +174,9 @@ async fn update_certificate_configuration_inner(
     let mut new_overlay_svg_file: Option<(Uuid, String)> = None;
     for file in payload.files {
         let Some(file_name) = file.file_name else {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Missing file name in multipart request".to_string(),
-                None,
+            return Err(controller_err!(
+                BadRequest,
+                "Missing file name in multipart request".to_string()
             ));
         };
         let (file, _temp_path) = file.file.into_parts();
@@ -219,10 +218,9 @@ async fn update_certificate_configuration_inner(
                     Some((id, path.to_str().context("Invalid path")?.to_string()));
             }
             _ => {
-                return Err(ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Invalid field in multipart request".to_string(),
-                    None,
+                return Err(controller_err!(
+                    BadRequest,
+                    "Invalid field in multipart request".to_string()
                 ));
             }
         }
@@ -256,10 +254,9 @@ async fn update_certificate_configuration_inner(
             }
             (None, None) => {
                 // no existing config and no new upload, invalid request
-                return Err(ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Missing background SVG file".to_string(),
-                    None,
+                return Err(controller_err!(
+                    BadRequest,
+                    "Missing background SVG file".to_string()
                 ));
             }
         };
@@ -383,12 +380,8 @@ pub async fn generate_generated_certificate(
         .has_user_completed_all_requirements(&mut conn, user.id)
         .await?
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate."
-                .to_string(),
-            None,
-        ));
+        return Err(controller_err!(BadRequest, "Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate."
+                .to_string()));
     }
     // Skip authorization: each user should be able to generate their own certificate for any module
     let token = skip_authorize();

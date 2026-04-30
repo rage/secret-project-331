@@ -197,10 +197,10 @@ async fn websocket(
         PlaygroundGradingCallbackClaim::expiring_in_1_day(client_id)
             .sign(jwt_key.as_ref())
             .map_err(|err| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
+                controller_err!(
+                    InternalServerError,
                     "Failed to sign playground grading callback claim".to_string(),
-                    Some(err.into()),
+                    err
                 )
             })?;
     // start websocket connection
@@ -233,10 +233,9 @@ async fn receive_grading(
     playground_grading_callback_claim: PlaygroundGradingCallbackClaim,
 ) -> Result<HttpResponse, ControllerError> {
     if playground_grading_callback_claim.websocket_id() != *websocket_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Playground grading callback claim did not match websocket id".to_string(),
-            None,
+        return Err(controller_err!(
+            BadRequest,
+            "Playground grading callback claim did not match websocket id".to_string()
         ));
     }
     // send grading result to the corresponding websocket connection

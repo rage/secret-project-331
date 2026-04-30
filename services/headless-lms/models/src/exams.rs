@@ -410,10 +410,9 @@ pub async fn verify_exam_submission_can_be_made(
     let enrollment = get_enrollment(conn, exam_id, user_id)
         .await?
         .ok_or_else(|| {
-            ModelError::new(
-                ModelErrorType::PreconditionFailed,
-                "User has no enrollment for the exam".to_string(),
-                None,
+            model_err!(
+                PreconditionFailed,
+                "User has no enrollment for the exam".to_string()
             )
         })?;
     let student_has_time =

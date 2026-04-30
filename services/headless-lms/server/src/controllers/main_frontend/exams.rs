@@ -104,10 +104,9 @@ pub async fn set_course(
     let exam_identity = exams::get_identity_by_id(&mut conn, *exam_id).await?;
     let course = models::courses::get_course(&mut conn, exam.course_id).await?;
     if exam_identity.organization_id != course.organization_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Course does not belong to the same organization as the exam".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Course does not belong to the same organization as the exam".to_string()
         ));
     }
     authorize(
@@ -151,10 +150,9 @@ pub async fn unset_course(
     let exam_identity = exams::get_identity_by_id(&mut conn, *exam_id).await?;
     let course = models::courses::get_course(&mut conn, exam.course_id).await?;
     if exam_identity.organization_id != course.organization_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Course does not belong to the same organization as the exam".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Course does not belong to the same organization as the exam".to_string()
         ));
     }
     authorize(

@@ -152,10 +152,9 @@ RETURNING
                 .await?;
                 (None, None)
             } else {
-                return ModelResult::Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "A chatbot conversation message with role 'assistant' has to have either a message or tool calls",
-                    None,
+                return Err(model_err!(
+                    InvalidRequest,
+                    "A chatbot conversation message with role 'assistant' has to have either a message or tool calls"
                 ));
             }
         }
@@ -166,19 +165,17 @@ RETURNING
                         .await?;
                 (Some(o_res.id), Some(o_res))
             } else {
-                return ModelResult::Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "A chatbot conversation message with role 'tool' must have tool output",
-                    None,
+                return Err(model_err!(
+                    InvalidRequest,
+                    "A chatbot conversation message with role 'tool' must have tool output"
                 ));
             }
         }
         MessageRole::User => (None, None),
         MessageRole::System => {
-            return ModelResult::Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Can't save system message to database",
-                None,
+            return Err(model_err!(
+                InvalidRequest,
+                "Can't save system message to database"
             ));
         }
     };

@@ -336,10 +336,9 @@ async fn get_submission_grading(
     )
     .await?;
     if slide_submission.user_id != user.id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Unauthorized,
-            "Cannot view another user's submission grading".to_string(),
-            None,
+        return Err(controller_err!(
+            Unauthorized,
+            "Cannot view another user's submission grading".to_string()
         ));
     }
     let token = skip_authorize();

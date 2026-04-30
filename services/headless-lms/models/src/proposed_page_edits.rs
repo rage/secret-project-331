@@ -73,11 +73,7 @@ pub async fn insert(
     edits: &NewProposedPageEdits,
 ) -> ModelResult<(Uuid, Vec<Uuid>)> {
     if edits.block_edits.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "No block edits".to_string(),
-            None,
-        ));
+        return Err(model_err!(Generic, "No block edits".to_string()));
     }
 
     let mut tx = conn.begin().await?;
@@ -147,11 +143,7 @@ pub async fn create_for_page_id_and_course_id(
     edits: &NewProposedPageEdits,
 ) -> ModelResult<(Uuid, Vec<Uuid>)> {
     if edits.block_edits.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "No block edits".to_string(),
-            None,
-        ));
+        return Err(model_err!(Generic, "No block edits".to_string()));
     }
 
     let mut tx = conn.begin().await?;
@@ -381,10 +373,9 @@ pub async fn process_proposal(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<()> {
     if block_proposals.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "No block proposals to process".to_string(),
-            None,
+        return Err(model_err!(
+            Generic,
+            "No block proposals to process".to_string()
         ));
     }
 
@@ -497,10 +488,9 @@ pub async fn process_by_id_and_page_id(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<()> {
     if block_proposals.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::Generic,
-            "No block proposals to process".to_string(),
-            None,
+        return Err(model_err!(
+            Generic,
+            "No block proposals to process".to_string()
         ));
     }
 
@@ -526,10 +516,9 @@ WHERE ppe.id = $1
     .unwrap_or(0);
 
     if matching_block_count != block_proposal_ids.len() as i64 {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Block proposals do not all belong to the requested page proposal".to_string(),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            "Block proposals do not all belong to the requested page proposal".to_string()
         ));
     }
 

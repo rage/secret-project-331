@@ -39,19 +39,17 @@ async fn create_teacher_grading_decision(
     let student_state =
         models::user_exercise_states::get_by_id(&mut conn, user_exercise_state_id).await?;
     if student_state.exercise_id != exercise_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "User exercise state does not belong to the requested exercise".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "User exercise state does not belong to the requested exercise".to_string()
         ));
     }
     let exercise =
         models::exercises::get_non_deleted_by_id(&mut conn, student_state.exercise_id).await?;
     if exercise.course_id != student_state.course_id || exercise.exam_id != student_state.exam_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "User exercise state does not match the requested exercise context".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "User exercise state does not match the requested exercise context".to_string()
         ));
     }
 

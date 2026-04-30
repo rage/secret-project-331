@@ -92,10 +92,9 @@ async fn get_user_progress_for_course_instance_chapter(
         models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
     let chapter = models::chapters::get_chapter(&mut conn, chapter_id).await?;
     if chapter.course_id != course_instance.course_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Chapter does not belong to the requested course instance".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Chapter does not belong to the requested course instance".to_string()
         ));
     }
     let token =
@@ -140,10 +139,9 @@ async fn get_user_progress_for_course_instance_chapter_exercises(
         models::course_instances::get_course_instance(&mut conn, course_instance_id).await?;
     let chapter = models::chapters::get_chapter(&mut conn, chapter_id).await?;
     if chapter.course_id != course_instance.course_id {
-        return Err(ControllerError::new(
-            ControllerErrorType::Forbidden,
-            "Chapter does not belong to the requested course instance".to_string(),
-            None,
+        return Err(controller_err!(
+            Forbidden,
+            "Chapter does not belong to the requested course instance".to_string()
         ));
     }
     let token =

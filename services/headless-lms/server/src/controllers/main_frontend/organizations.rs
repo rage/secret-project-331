@@ -471,11 +471,7 @@ async fn get_organization(
 }
 
 fn organization_not_found() -> ControllerError {
-    ControllerError::new(
-        ControllerErrorType::NotFound,
-        "Organization not found".to_string(),
-        None,
-    )
+    controller_err!(NotFound, "Organization not found".to_string())
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

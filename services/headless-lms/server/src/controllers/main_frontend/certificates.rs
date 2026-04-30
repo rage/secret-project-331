@@ -69,8 +69,8 @@ pub struct CertificateConfigurationUpdateForm {
 struct CertificateConfigurationUpdateMultipartPayload {
     #[schema(content_media_type = "application/json")]
     metadata: CertificateConfigurationUpdate,
-    #[schema(content_media_type = "application/octet-stream", value_type = String, format = Binary)]
-    file: Vec<u8>,
+    #[schema(content_media_type = "application/octet-stream", value_type = Vec<String>, format = Binary)]
+    file: Vec<Vec<u8>>,
 }
 
 /**
@@ -575,10 +575,9 @@ pub async fn delete_certificate_configuration(
 
     models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
     let token = token.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Authorization token was not set".to_string(),
-            None,
+        controller_err!(
+            InternalServerError,
+            "Authorization token was not set".to_string()
         )
     })?;
     token.authorized_ok(web::Json(true))
@@ -622,10 +621,9 @@ pub async fn update_generated_certificate(
         let course_modules =
             models::course_modules::get_by_ids(&mut conn, &req.course_module_ids).await?;
         if course_modules.len() != req.course_module_ids.len() {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Certificate has a missing course module requirement".to_string(),
-                None,
+            return Err(controller_err!(
+                BadRequest,
+                "Certificate has a missing course module requirement".to_string()
             ));
         }
 
@@ -637,10 +635,9 @@ pub async fn update_generated_certificate(
     }
 
     let token = token.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Authorization token was not set".to_string(),
-            None,
+        controller_err!(
+            InternalServerError,
+            "Authorization token was not set".to_string()
         )
     })?;
 

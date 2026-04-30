@@ -119,7 +119,15 @@ ON CONFLICT (
             allowed_question_ids
         )
         .execute(&mut *tx)
-        .await?;
+        .await;
+
+        let result = match result {
+            Ok(result) => result,
+            Err(err) => {
+                tx.rollback().await?;
+                return Err(err.into());
+            }
+        };
 
         if result.rows_affected() == 0 {
             tx.rollback().await?;

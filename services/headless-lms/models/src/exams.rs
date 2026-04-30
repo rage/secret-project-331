@@ -73,6 +73,7 @@ pub struct OrgExam {
     pub minimum_points_treshold: i32,
 }
 
+/// Returns exam identity metadata for a non-deleted exam id.
 pub async fn get_identity_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ExamIdentity> {
     let exam = sqlx::query_as!(
         ExamIdentity,
@@ -104,6 +105,7 @@ WHERE exams.id = $1
     Ok(exam)
 }
 
+/// Returns exam details for a non-deleted exam id.
 pub async fn get(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exam> {
     let exam = sqlx::query!(
         "
@@ -640,25 +642,6 @@ WHERE user_id = $2
 
     sqlx::query!(
         r#"
-UPDATE exercise_task_submissions
-SET deleted_at = NOW()
-WHERE exercise_slide_submission_id IN (
-    SELECT id
-    FROM exercise_slide_submissions
-    WHERE exam_id = $1
-      AND user_id = $2
-      AND deleted_at IS NULL
-  )
-  AND deleted_at IS NULL
-        "#,
-        exam_id,
-        user_id
-    )
-    .execute(&mut *tx)
-    .await?;
-
-    sqlx::query!(
-        r#"
 UPDATE exercise_task_gradings
 SET deleted_at = NOW()
 WHERE exercise_task_submission_id IN (
@@ -670,6 +653,25 @@ WHERE exercise_task_submission_id IN (
       AND ess.user_id = $2
       AND ess.deleted_at IS NULL
       AND ets.deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
+        "#,
+        exam_id,
+        user_id
+    )
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE exercise_task_submissions
+SET deleted_at = NOW()
+WHERE exercise_slide_submission_id IN (
+    SELECT id
+    FROM exercise_slide_submissions
+    WHERE exam_id = $1
+      AND user_id = $2
+      AND deleted_at IS NULL
   )
   AND deleted_at IS NULL
         "#,

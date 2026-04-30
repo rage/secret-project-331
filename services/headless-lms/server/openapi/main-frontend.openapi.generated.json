@@ -2737,7 +2737,7 @@
           "200": {
             "description": "Joined course id",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string",
                   "format": "uuid"

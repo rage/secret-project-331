@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT ph.id\nFROM page_history ph\nWHERE ph.id = $1\n  AND ph.deleted_at IS NULL\n  AND (\n    ph.page_id = $2\n    OR ph.page_id = $3\n  )\n        ",
+  "query": "\nSELECT p.id\nFROM pages p\nWHERE p.id = $1\n  AND p.deleted_at IS NULL\n  AND (p.course_id = $2 OR p.exam_id = $3)\nFOR UPDATE\n        ",
   "describe": {
     "columns": [
       {
@@ -20,5 +20,5 @@
       false
     ]
   },
-  "hash": "b093e3efbeb69f2fff647b62a8a93d33ae031133674c37fd32ab6258d0bcd3bb"
+  "hash": "00264680b23214b40a9542f0230207e580d05ec2b33a80cda5530d346bffe214"
 }

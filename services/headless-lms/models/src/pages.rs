@@ -1656,6 +1656,7 @@ WHERE p.id = $1
       AND c.deleted_at IS NULL
     )
   )
+ FOR UPDATE OF p
         "#,
         page_update.page_id,
         expected_course_id,
@@ -2520,24 +2521,21 @@ pub async fn create_for_course_id(
         }
     }
 
-    if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
-        let chapter = get_chapter(&mut tx, front_page_of_chapter_id).await?;
+    if new_page.front_page_of_chapter_id.is_some() {
+        let chapter = get_chapter(&mut tx, new_page.front_page_of_chapter_id.unwrap()).await?;
         if chapter.course_id != course_id {
             return Err(model_err!(
                 PreconditionFailed,
                 "Chapter must belong to the expected course".to_string()
             ));
         }
-    }
-
-    if let (Some(chapter_id), Some(front_page_of_chapter_id)) =
-        (new_page.chapter_id, new_page.front_page_of_chapter_id)
-        && chapter_id != front_page_of_chapter_id
-    {
-        return Err(model_err!(
-            PreconditionFailed,
-            "Page chapter_id must match front_page_of_chapter_id".to_string()
-        ));
+        if new_page.chapter_id.is_none() || new_page.chapter_id != new_page.front_page_of_chapter_id
+        {
+            return Err(model_err!(
+                PreconditionFailed,
+                "Page chapter_id must match front_page_of_chapter_id".to_string()
+            ));
+        }
     }
 
     let page = insert_page(&mut tx, new_page, author, spec_fetcher, fetch_service_info).await?;
@@ -3476,6 +3474,7 @@ FROM pages p
 WHERE p.id = $1
   AND p.deleted_at IS NULL
   AND (p.course_id = $2 OR p.exam_id = $3)
+FOR UPDATE
             "#,
             source_page_id,
             expected_course_id,
@@ -3495,6 +3494,7 @@ FROM pages p
 WHERE p.id = $1
   AND p.deleted_at IS NULL
   AND (p.course_id = $2 OR p.exam_id = $3)
+FOR UPDATE
         "#,
         page_id,
         expected_course_id,
@@ -3513,6 +3513,7 @@ WHERE ph.id = $1
     ph.page_id = $2
     OR ph.page_id = $3
   )
+FOR UPDATE
         "#,
         history_id,
         page_id,

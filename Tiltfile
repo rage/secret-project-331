@@ -233,6 +233,19 @@ local_resource(
 )
 
 cmd_button(
+    name="rebuild",
+    argv=[
+        "sh",
+        "-ec",
+        "for resource in %s; do tilt trigger \"$resource\"; done"
+        % " ".join(WEB_WORKLOADS + OTHER_HEADLESS_LMS_WORKLOADS),
+    ],
+    location=location.NAV,
+    icon_name="refresh",
+    text="Rebuild",
+)
+
+cmd_button(
     name="switch-to-dev-mode",
     argv=["sh", "-ec", switch_mode_cmd("dev")],
     location=location.NAV,

@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+export TILT_KIND_CONTEXT="${TILT_KIND_CONTEXT:-kind-kind}"
+
+BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
+RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$BASEDIR/..")
+run_command cd "$RELATIVE_PATH" || exit
+
+disallow_running_as_root
+ensure_program_in_path "tilt"
+ensure_program_in_path "kubectl"
+ensure_program_in_path "kind"
+ensure_program_in_path "kustomize"
+ensure_common_programs_in_path
+ensure_tmc_langs_cli_downloaded
+
+run_command pnpm run postinstall
+
+make_sure_skaffold_local_env_patch_files_exists
+
+echo ""
+echo -e "${BLUE}Info: We're now doing a full production build of the project. Since this is a production build with all optimizations enabled, this will be resource-intensive."
+echo -e "${BOLD}Info: File edits will be shown as pending in Tilt. Trigger the resource manually in Tilt or restart bin/test-tilt to run a new build.${RESET_EVERYTHING}${BLUE}"
+echo -e "Info: This avoids repeatedly starting production builds in the background while you're coding."
+echo -e "Info: If you want builds to trigger every time you save a file, run ${BOLD}bin/dev-tilt${RESET_EVERYTHING}${BLUE} instead."
+echo -e "$RESET_EVERYTHING"
+echo ""
+
+trap 'run_command tilt down --context "$TILT_KIND_CONTEXT" -- --mode test' EXIT
+
+run_command tilt up --stream --context "$TILT_KIND_CONTEXT" -- --mode test "$@"

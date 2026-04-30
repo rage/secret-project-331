@@ -1,5 +1,9 @@
+load("ext://uibutton", "cmd_button", "location")
+
 config.define_string("mode", usage="Required. One of: dev, test.")
-config.define_string_list("resources", args=True, usage="Optional Tilt resources to run.")
+config.define_string_list(
+    "resources", args=True, usage="Optional Tilt resources to run."
+)
 
 cfg = config.parse()
 mode = cfg.get("mode", "")
@@ -12,15 +16,19 @@ config.set_enabled_resources(requested_resources)
 
 kind_context = os.environ.get("TILT_KIND_CONTEXT", "kind-kind")
 if not kind_context.startswith("kind-"):
-    fail("This local Tilt experiment must run against Kind. Use --context kind-kind or another kind-* context.")
+    fail(
+        "This local Tilt experiment must run against Kind. Use --context kind-kind or another kind-* context."
+    )
 
 allow_k8s_contexts(kind_context)
 update_settings(max_parallel_updates=6)
 
+MODE_RESOURCE = "mode-controls"
 WAIT_FOR_INGRESS = "wait-for-ingress"
 SUPPORT_RESOURCE = "support"
 INGRESS_NGINX_DEPLOY_URL = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/kind/deploy.yaml"
 PROJECT_DOMAIN = "project-331.local"
+
 NODE_SERVICES = [
     "cms",
     "main-frontend",
@@ -28,6 +36,33 @@ NODE_SERVICES = [
     "quizzes",
     "tmc",
 ]
+
+WEB_WORKLOADS = [
+    "headless-lms",
+    "cms",
+    "main-frontend",
+    "example-exercise",
+    "quizzes",
+    "tmc",
+]
+
+OTHER_HEADLESS_LMS_WORKLOADS = [
+    "chatbot-syncer",
+    "email-deliver",
+    "mailchimp-syncer",
+    "regrader",
+    "service-info-fetcher",
+    "calculate-page-visit-stats",
+    "ended-exams-processor",
+    "open-university-registration-link-fetcher",
+    "peer-review-updater",
+    "sync-tmc-users",
+    "headless-lms-run-migrations",
+]
+
+COMMON_TRIGGER_RESOURCES = (
+    WEB_WORKLOADS + OTHER_HEADLESS_LMS_WORKLOADS + ["postgres", "redis"]
+)
 
 NODE_DOCKER_IGNORE = [
     ".env",
@@ -75,73 +110,160 @@ HEADLESS_LMS_REBUILD_FILES = [
     "utils/Cargo.toml",
 ]
 
-NODE_REBUILD_DEPS = ["services/%s/%s" % (service, path) for service in NODE_SERVICES for path in NODE_REBUILD_FILES]
-HEADLESS_LMS_REBUILD_DEPS = ["services/headless-lms/%s" % path for path in HEADLESS_LMS_REBUILD_FILES]
+NODE_REBUILD_DEPS = [
+    "services/%s/%s" % (service, path)
+    for service in NODE_SERVICES
+    for path in NODE_REBUILD_FILES
+]
+HEADLESS_LMS_REBUILD_DEPS = [
+    "services/headless-lms/%s" % path for path in HEADLESS_LMS_REBUILD_FILES
+]
 
 WARM_ROUTE_DEPS = (
-    ["bin/warm-routes"] +
-    ["services/%s/src" % service for service in NODE_SERVICES] +
-    NODE_REBUILD_DEPS +
-    HEADLESS_LMS_REBUILD_DEPS +
-    [
+    ["bin/warm-routes"]
+    + ["services/%s/src" % service for service in NODE_SERVICES]
+    + NODE_REBUILD_DEPS
+    + HEADLESS_LMS_REBUILD_DEPS
+    + [
         "services/headless-lms/models/src",
         "services/headless-lms/server/src",
     ]
 )
 
 
+def shell_join(argv):
+    return " ".join([shlex.quote(x) for x in argv])
+
+
+def requested_resources_for_mode(target_mode):
+    filtered_resources = []
+    for resource in requested_resources:
+        if target_mode == "test" and resource == "warm-routes":
+            continue
+        filtered_resources.append(resource)
+    return filtered_resources
+
+
+def trigger_resources_for_mode(target_mode):
+    filtered_resources = requested_resources_for_mode(target_mode)
+    if filtered_resources:
+        return filtered_resources
+    resources = list(COMMON_TRIGGER_RESOURCES)
+    if target_mode == "dev":
+        resources.append("warm-routes")
+    return resources
+
+
+def tilt_args_argv(target_mode):
+    return (
+        ["tilt", "args"]
+        + requested_resources_for_mode(target_mode)
+        + ["--", "--mode", target_mode]
+    )
+
+
+def switch_mode_cmd(target_mode):
+    return shell_join(tilt_args_argv(target_mode))
+
+
+def mode_resource_cmd():
+    base_cmd = 'printf "\\n==============================\\nACTIVE MODE: %%s\\n==============================\\n" "%s"' % mode.upper()
+    for resource in trigger_resources_for_mode(mode):
+        base_cmd += " && " + shell_join(["tilt", "trigger", resource])
+    return base_cmd
+
+
 def kubectl(args):
     return "kubectl --context=%s %s" % (kind_context, args)
 
 
-KIND_NODE_IP_CMD = kubectl("get nodes -o jsonpath='{.items[0].status.addresses[?(@.type==\"InternalIP\")].address}'")
+KIND_NODE_IP_CMD = kubectl(
+    "get nodes -o jsonpath='{.items[0].status.addresses[?(@.type==\"InternalIP\")].address}'"
+)
 
 WAIT_FOR_INGRESS_CMD = (
-    "set -e; " +
-    "if ! " + kubectl("-n ingress-nginx get deployment ingress-nginx-controller >/dev/null 2>&1") + "; then " +
-    "echo 'Installing ingress-nginx for Kind.'; " +
-    kubectl("apply -f %s" % INGRESS_NGINX_DEPLOY_URL) + "; " +
-    "fi; " +
-    "echo 'Configuring ingress-nginx to allow this project ingress annotations.'; " +
-    kubectl("-n ingress-nginx patch configmap ingress-nginx-controller --type merge -p '{\"data\":{\"allow-snippet-annotations\":\"true\",\"annotations-risk-level\":\"Critical\"}}'") + "; " +
-    "echo 'Waiting for the ingress to be ready.' && " +
-    "echo '> kubectl --context=%s wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller' && " +
-    kubectl("wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller --timeout=120s") + "; " +
-    "KIND_NODE_IP=$(" + KIND_NODE_IP_CMD + "); " +
-    "echo \"Kind ingress is reachable at http://" + PROJECT_DOMAIN + "/ when /etc/hosts contains: $KIND_NODE_IP " + PROJECT_DOMAIN + "\"; " +
-    "echo 'Removing ingress-nginx admission webhook for local Kind development.'; " +
-    kubectl("delete validatingwebhookconfiguration ingress-nginx-admission --ignore-not-found")
+    "set -e; "
+    + "if ! "
+    + kubectl(
+        "-n ingress-nginx get deployment ingress-nginx-controller >/dev/null 2>&1"
+    )
+    + "; then "
+    + "echo 'Installing ingress-nginx for Kind.'; "
+    + kubectl("apply -f %s" % INGRESS_NGINX_DEPLOY_URL)
+    + "; "
+    + "fi; "
+    + "echo 'Configuring ingress-nginx to allow this project ingress annotations.'; "
+    + kubectl(
+        '-n ingress-nginx patch configmap ingress-nginx-controller --type merge -p \'{"data":{"allow-snippet-annotations":"true","annotations-risk-level":"Critical"}}\''
+    )
+    + "; "
+    + "echo 'Waiting for the ingress to be ready.' && "
+    + "echo '> kubectl --context=%s wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller' && "
+    + kubectl(
+        "wait --namespace ingress-nginx --for=condition=available deployment/ingress-nginx-controller --timeout=120s"
+    )
+    + "; "
+    + "KIND_NODE_IP=$("
+    + KIND_NODE_IP_CMD
+    + "); "
+    + 'echo "Kind ingress is reachable at http://'
+    + PROJECT_DOMAIN
+    + "/ when /etc/hosts contains: $KIND_NODE_IP "
+    + PROJECT_DOMAIN
+    + '"; '
+    + "echo 'Removing ingress-nginx admission webhook for local Kind development.'; "
+    + kubectl(
+        "delete validatingwebhookconfiguration ingress-nginx-admission --ignore-not-found"
+    )
 ) % kind_context
+
+local_resource(
+    MODE_RESOURCE,
+    cmd=mode_resource_cmd(),
+    auto_init=True,
+    trigger_mode=TRIGGER_MODE_AUTO,
+    labels=["meta"],
+)
+
+cmd_button(
+    name="switch-to-dev-mode",
+    argv=["sh", "-ec", switch_mode_cmd("dev")],
+    location=location.NAV,
+    icon_name="code",
+    text="Dev%s" % (" ✓" if mode == "dev" else ""),
+)
+
+cmd_button(
+    name="switch-to-test-mode",
+    argv=["sh", "-ec", switch_mode_cmd("test")],
+    location=location.NAV,
+    icon_name="science",
+    text="Test%s" % (" ✓" if mode == "test" else ""),
+)
+
+cmd_button(
+    name="switch-to-dev-mode-inline",
+    resource=MODE_RESOURCE,
+    argv=["sh", "-ec", switch_mode_cmd("dev")],
+    icon_name="code",
+    text="Switch to dev%s" % (" (active)" if mode == "dev" else ""),
+)
+
+cmd_button(
+    name="switch-to-test-mode-inline",
+    resource=MODE_RESOURCE,
+    argv=["sh", "-ec", switch_mode_cmd("test")],
+    icon_name="science",
+    text="Switch to test%s" % (" (active)" if mode == "test" else ""),
+)
 
 local_resource(
     WAIT_FOR_INGRESS,
     cmd=WAIT_FOR_INGRESS_CMD,
     trigger_mode=TRIGGER_MODE_AUTO,
     labels=["bootstrap"],
+    resource_deps=[MODE_RESOURCE],
 )
-
-WEB_WORKLOADS = [
-    "headless-lms",
-    "cms",
-    "main-frontend",
-    "example-exercise",
-    "quizzes",
-    "tmc",
-]
-
-OTHER_HEADLESS_LMS_WORKLOADS = [
-    "chatbot-syncer",
-    "email-deliver",
-    "mailchimp-syncer",
-    "regrader",
-    "service-info-fetcher",
-    "calculate-page-visit-stats",
-    "ended-exams-processor",
-    "open-university-registration-link-fetcher",
-    "peer-review-updater",
-    "sync-tmc-users",
-    "headless-lms-run-migrations",
-]
 
 BASE_SUPPORT_OBJECTS = [
     "headless-lms-inspector:serviceaccount",
@@ -185,10 +307,14 @@ def configure_support_resource(objects):
 
 def configure_k8s_resources():
     for workload in WEB_WORKLOADS:
-        k8s_resource(workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["web"])
+        k8s_resource(
+            workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["web"]
+        )
 
     for workload in OTHER_HEADLESS_LMS_WORKLOADS:
-        k8s_resource(workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["worker"])
+        k8s_resource(
+            workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["worker"]
+        )
 
     k8s_resource(
         workload="postgres",
@@ -225,12 +351,36 @@ def docker_ignore_for_service(service):
 
 
 TEST_IMAGES = [
-    ("eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim:latest", "headless-lms", "Dockerfile.production.slim.dockerfile"),
-    ("eu.gcr.io/moocfi-public/secret-project-cms-production-slim:latest", "cms", "Dockerfile.production.slim.dockerfile"),
-    ("eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim:latest", "main-frontend", "Dockerfile.production.slim.dockerfile"),
-    ("eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim:latest", "example-exercise", "Dockerfile.production.slim.dockerfile"),
-    ("eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim:latest", "quizzes", "Dockerfile.production.slim.dockerfile"),
-    ("eu.gcr.io/moocfi-public/secret-project-tmc-production-slim:latest", "tmc", "Dockerfile.production.slim.dockerfile"),
+    (
+        "eu.gcr.io/moocfi-public/secret-project-headless-lms-production-slim:latest",
+        "headless-lms",
+        "Dockerfile.production.slim.dockerfile",
+    ),
+    (
+        "eu.gcr.io/moocfi-public/secret-project-cms-production-slim:latest",
+        "cms",
+        "Dockerfile.production.slim.dockerfile",
+    ),
+    (
+        "eu.gcr.io/moocfi-public/secret-project-main-frontend-production-slim:latest",
+        "main-frontend",
+        "Dockerfile.production.slim.dockerfile",
+    ),
+    (
+        "eu.gcr.io/moocfi-public/secret-project-example-exercise-production-slim:latest",
+        "example-exercise",
+        "Dockerfile.production.slim.dockerfile",
+    ),
+    (
+        "eu.gcr.io/moocfi-public/secret-project-quizzes-production-slim:latest",
+        "quizzes",
+        "Dockerfile.production.slim.dockerfile",
+    ),
+    (
+        "eu.gcr.io/moocfi-public/secret-project-tmc-production-slim:latest",
+        "tmc",
+        "Dockerfile.production.slim.dockerfile",
+    ),
 ]
 
 
@@ -248,7 +398,9 @@ if mode == "dev":
     k8s_yaml(kustomize("kubernetes/dev"))
     configure_support_resource(BASE_SUPPORT_OBJECTS + DEV_SUPPORT_OBJECTS)
 
-    headless_lms_live_update = [fall_back_on(path) for path in HEADLESS_LMS_REBUILD_DEPS] + [
+    headless_lms_live_update = [
+        fall_back_on(path) for path in HEADLESS_LMS_REBUILD_DEPS
+    ] + [
         headless_lms_sync("base/src"),
         headless_lms_sync("certificates/src"),
         headless_lms_sync("chatbot/src"),
@@ -265,14 +417,16 @@ if mode == "dev":
 
     dev_images = [
         ("headless-lms", "headless-lms", "Dockerfile", headless_lms_live_update),
-    ] + [(service, service, "Dockerfile", node_live_update(service)) for service in NODE_SERVICES]
+    ] + [
+        (service, service, "Dockerfile", node_live_update(service))
+        for service in NODE_SERVICES
+    ]
 
     for image, service, dockerfile, live_update_steps in dev_images:
         build_image(image, service, dockerfile, live_update_steps)
 
     configure_k8s_resources()
 
-    # resource_deps only orders the startup run; deps make warm-routes rerun on relevant source changes.
     local_resource(
         "warm-routes",
         cmd="bin/warm-routes || true",

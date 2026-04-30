@@ -26,6 +26,7 @@ update_settings(max_parallel_updates=6)
 MODE_RESOURCE = "mode-controls"
 WAIT_FOR_INGRESS = "wait-for-ingress"
 SUPPORT_RESOURCE = "support"
+SETUP_LABEL = "setup"
 INGRESS_NGINX_DEPLOY_URL = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/kind/deploy.yaml"
 PROJECT_DOMAIN = "project-331.local"
 
@@ -167,7 +168,10 @@ def switch_mode_cmd(target_mode):
 
 
 def mode_resource_cmd():
-    base_cmd = 'printf "\\n==============================\\nACTIVE MODE: %%s\\n==============================\\n" "%s"' % mode.upper()
+    base_cmd = (
+        'printf "\\n==============================\\nACTIVE MODE: %%s\\n==============================\\n" "%s"'
+        % mode.upper()
+    )
     for resource in trigger_resources_for_mode(mode):
         base_cmd += " && " + shell_join(["tilt", "trigger", resource])
     return base_cmd
@@ -222,7 +226,7 @@ local_resource(
     cmd=mode_resource_cmd(),
     auto_init=True,
     trigger_mode=TRIGGER_MODE_AUTO,
-    labels=["meta"],
+    labels=[SETUP_LABEL],
 )
 
 cmd_button(
@@ -261,7 +265,7 @@ local_resource(
     WAIT_FOR_INGRESS,
     cmd=WAIT_FOR_INGRESS_CMD,
     trigger_mode=TRIGGER_MODE_AUTO,
-    labels=["bootstrap"],
+    labels=[SETUP_LABEL],
     resource_deps=[MODE_RESOURCE],
 )
 
@@ -301,7 +305,7 @@ def configure_support_resource(objects):
         new_name=SUPPORT_RESOURCE,
         resource_deps=[WAIT_FOR_INGRESS],
         pod_readiness="ignore",
-        labels=["support"],
+        labels=[SETUP_LABEL],
     )
 
 

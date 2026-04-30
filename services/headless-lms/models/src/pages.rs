@@ -2501,8 +2501,8 @@ pub async fn create_for_course_id(
         }
     }
 
-    if new_page.front_page_of_chapter_id.is_some() {
-        let chapter = get_chapter(&mut tx, new_page.front_page_of_chapter_id.unwrap()).await?;
+    if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
+        let chapter = get_chapter(&mut tx, front_page_of_chapter_id).await?;
         if chapter.course_id != course_id {
             return Err(model_err!(
                 PreconditionFailed,

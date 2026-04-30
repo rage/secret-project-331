@@ -21,6 +21,73 @@ WAIT_FOR_INGRESS = "wait-for-ingress"
 SUPPORT_RESOURCE = "support"
 INGRESS_NGINX_DEPLOY_URL = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/kind/deploy.yaml"
 PROJECT_DOMAIN = "project-331.local"
+NODE_SERVICES = [
+    "cms",
+    "main-frontend",
+    "example-exercise",
+    "quizzes",
+    "tmc",
+]
+
+NODE_DOCKER_IGNORE = [
+    ".env",
+    ".next",
+    ".turbo",
+    ".vscode",
+    "coverage",
+    "node_modules",
+    "playwright-report",
+    "test-results",
+    "tsconfig.tsbuildinfo",
+]
+
+HEADLESS_LMS_DOCKER_IGNORE = [
+    ".env",
+    "dbdoc",
+    "models/.env",
+    "requests.rest",
+    "server/generated-docs",
+    "target",
+    "**/target",
+    "uploads",
+]
+
+NODE_REBUILD_FILES = [
+    "Dockerfile",
+    "next.config.js",
+    "package.json",
+    "pnpm-lock.yaml",
+    "pnpm-workspace.yaml",
+]
+
+HEADLESS_LMS_REBUILD_FILES = [
+    "Cargo.lock",
+    "Cargo.toml",
+    "Dockerfile",
+    "base/Cargo.toml",
+    "certificates/Cargo.toml",
+    "chatbot/Cargo.toml",
+    "doc-macro/Cargo.toml",
+    "entrypoint/Cargo.toml",
+    "langs-api/Cargo.toml",
+    "models/Cargo.toml",
+    "server/Cargo.toml",
+    "utils/Cargo.toml",
+]
+
+NODE_REBUILD_DEPS = ["services/%s/%s" % (service, path) for service in NODE_SERVICES for path in NODE_REBUILD_FILES]
+HEADLESS_LMS_REBUILD_DEPS = ["services/headless-lms/%s" % path for path in HEADLESS_LMS_REBUILD_FILES]
+
+WARM_ROUTE_DEPS = (
+    ["bin/warm-routes"] +
+    ["services/%s/src" % service for service in NODE_SERVICES] +
+    NODE_REBUILD_DEPS +
+    HEADLESS_LMS_REBUILD_DEPS +
+    [
+        "services/headless-lms/models/src",
+        "services/headless-lms/server/src",
+    ]
+)
 
 
 def kubectl(args):
@@ -50,6 +117,7 @@ local_resource(
     WAIT_FOR_INGRESS,
     cmd=WAIT_FOR_INGRESS_CMD,
     trigger_mode=TRIGGER_MODE_AUTO,
+    labels=["bootstrap"],
 )
 
 WEB_WORKLOADS = [
@@ -111,33 +179,49 @@ def configure_support_resource(objects):
         new_name=SUPPORT_RESOURCE,
         resource_deps=[WAIT_FOR_INGRESS],
         pod_readiness="ignore",
+        labels=["support"],
     )
 
 
 def configure_k8s_resources():
-    for workload in WEB_WORKLOADS + OTHER_HEADLESS_LMS_WORKLOADS:
-        k8s_resource(workload=workload, resource_deps=[SUPPORT_RESOURCE])
+    for workload in WEB_WORKLOADS:
+        k8s_resource(workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["web"])
+
+    for workload in OTHER_HEADLESS_LMS_WORKLOADS:
+        k8s_resource(workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["worker"])
 
     k8s_resource(
         workload="postgres",
         port_forwards="54328:5432",
         resource_deps=[SUPPORT_RESOURCE],
+        labels=["data"],
     )
     k8s_resource(
         workload="redis",
         port_forwards="63798:6379",
         resource_deps=[SUPPORT_RESOURCE],
+        labels=["data"],
     )
 
 
+def node_rebuild_deps(service):
+    return ["services/%s/%s" % (service, path) for path in NODE_REBUILD_FILES]
+
+
 def node_live_update(service):
-    return [
+    return [fall_back_on(path) for path in node_rebuild_deps(service)] + [
         sync("services/%s/src" % service, "/app/src"),
     ]
 
 
 def headless_lms_sync(path):
     return sync("services/headless-lms/%s" % path, "/app/%s" % path)
+
+
+def docker_ignore_for_service(service):
+    if service == "headless-lms":
+        return HEADLESS_LMS_DOCKER_IGNORE
+    return NODE_DOCKER_IGNORE
 
 
 TEST_IMAGES = [
@@ -155,6 +239,7 @@ def build_image(image, service, dockerfile, live_update_steps):
         image,
         "services/%s" % service,
         dockerfile="services/%s/%s" % (service, dockerfile),
+        ignore=docker_ignore_for_service(service),
         live_update=live_update_steps,
     )
 
@@ -163,7 +248,7 @@ if mode == "dev":
     k8s_yaml(kustomize("kubernetes/dev"))
     configure_support_resource(BASE_SUPPORT_OBJECTS + DEV_SUPPORT_OBJECTS)
 
-    headless_lms_live_update = [
+    headless_lms_live_update = [fall_back_on(path) for path in HEADLESS_LMS_REBUILD_DEPS] + [
         headless_lms_sync("base/src"),
         headless_lms_sync("certificates/src"),
         headless_lms_sync("chatbot/src"),
@@ -180,23 +265,21 @@ if mode == "dev":
 
     dev_images = [
         ("headless-lms", "headless-lms", "Dockerfile", headless_lms_live_update),
-        ("cms", "cms", "Dockerfile", node_live_update("cms")),
-        ("main-frontend", "main-frontend", "Dockerfile", node_live_update("main-frontend")),
-        ("example-exercise", "example-exercise", "Dockerfile", node_live_update("example-exercise")),
-        ("quizzes", "quizzes", "Dockerfile", node_live_update("quizzes")),
-        ("tmc", "tmc", "Dockerfile", node_live_update("tmc")),
-    ]
+    ] + [(service, service, "Dockerfile", node_live_update(service)) for service in NODE_SERVICES]
 
     for image, service, dockerfile, live_update_steps in dev_images:
         build_image(image, service, dockerfile, live_update_steps)
 
     configure_k8s_resources()
 
+    # resource_deps only orders the startup run; deps make warm-routes rerun on relevant source changes.
     local_resource(
         "warm-routes",
         cmd="bin/warm-routes || true",
+        deps=WARM_ROUTE_DEPS,
         resource_deps=WEB_WORKLOADS,
         trigger_mode=TRIGGER_MODE_AUTO,
+        labels=["warmup"],
     )
 
 if mode == "test":

@@ -1,6 +1,6 @@
 load("ext://uibutton", "cmd_button", "location")
 
-config.define_string("mode", usage="Required. One of: dev, test.")
+config.define_string("mode", usage="Required. One of: dev, test, only-db.")
 config.define_string_list(
     "resources", args=True, usage="Optional Tilt resources to run."
 )
@@ -9,8 +9,8 @@ cfg = config.parse()
 mode = cfg.get("mode", "")
 requested_resources = cfg.get("resources", [])
 
-if mode not in ["dev", "test"]:
-    fail("Tiltfile requires --mode dev or --mode test.")
+if mode not in ["dev", "test", "only-db"]:
+    fail("Tiltfile requires --mode dev, --mode test, or --mode only-db.")
 
 config.set_enabled_resources(requested_resources)
 
@@ -26,7 +26,8 @@ update_settings(max_parallel_updates=6)
 MODE_RESOURCE = "mode-controls"
 WAIT_FOR_INGRESS = "wait-for-ingress"
 SUPPORT_RESOURCE = "support"
-SETUP_LABEL = "setup"
+DATA_INFRA_RESOURCE = "data-infra"
+SETUP_LABEL = "infra"
 INGRESS_NGINX_DEPLOY_URL = "https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.15.1/deploy/static/provider/kind/deploy.yaml"
 PROJECT_DOMAIN = "project-331.local"
 
@@ -149,6 +150,8 @@ def trigger_resources_for_mode(target_mode):
     filtered_resources = requested_resources_for_mode(target_mode)
     if filtered_resources:
         return filtered_resources
+    if target_mode == "only-db":
+        return ["data-infra", "postgres", "redis"]
     resources = list(COMMON_TRIGGER_RESOURCES)
     if target_mode == "dev":
         resources.append("warm-routes")
@@ -261,13 +264,30 @@ cmd_button(
     text="Switch to test%s" % (" (active)" if mode == "test" else ""),
 )
 
-local_resource(
-    WAIT_FOR_INGRESS,
-    cmd=WAIT_FOR_INGRESS_CMD,
-    trigger_mode=TRIGGER_MODE_AUTO,
-    labels=[SETUP_LABEL],
-    resource_deps=[MODE_RESOURCE],
+cmd_button(
+    name="switch-to-only-db-mode",
+    argv=["sh", "-ec", switch_mode_cmd("only-db")],
+    location=location.NAV,
+    icon_name="storage",
+    text="Only-DB%s" % (" ✓" if mode == "only-db" else ""),
 )
+
+cmd_button(
+    name="switch-to-only-db-mode-inline",
+    resource=MODE_RESOURCE,
+    argv=["sh", "-ec", switch_mode_cmd("only-db")],
+    icon_name="storage",
+    text="Switch to only-db%s" % (" (active)" if mode == "only-db" else ""),
+)
+
+if mode in ["dev", "test"]:
+    local_resource(
+        WAIT_FOR_INGRESS,
+        cmd=WAIT_FOR_INGRESS_CMD,
+        trigger_mode=TRIGGER_MODE_AUTO,
+        labels=[SETUP_LABEL],
+        resource_deps=[MODE_RESOURCE],
+    )
 
 BASE_SUPPORT_OBJECTS = [
     "headless-lms-inspector:serviceaccount",
@@ -276,17 +296,20 @@ BASE_SUPPORT_OBJECTS = [
     "tmc-role:role",
     "headless-lms-readonly-binding:rolebinding",
     "tmc-role:rolebinding",
-    "postgres-pv:persistentvolume",
-    "redis-pv:persistentvolume",
-    "postgres-pvc:persistentvolumeclaim",
-    "redis-pvc:persistentvolumeclaim",
-    "postgres-configuration:configmap",
-    "redis-configuration:configmap",
     "headless-lms-secrets:secret",
-    "postgres-credentials:secret",
     "access-ingress-internally:service:ingress-nginx",
     "project-331-ingress:ingress",
     "project-331-other-domains:ingress",
+]
+
+DATA_INFRA_OBJECTS = [
+    "postgres-pv:persistentvolume",
+    "postgres-pvc:persistentvolumeclaim",
+    "postgres-configuration:configmap",
+    "postgres-credentials:secret",
+    "redis-pv:persistentvolume",
+    "redis-pvc:persistentvolumeclaim",
+    "redis-configuration:configmap",
 ]
 
 DEV_SUPPORT_OBJECTS = [
@@ -309,6 +332,14 @@ def configure_support_resource(objects):
     )
 
 
+def configure_data_infra_resource():
+    k8s_resource(
+        objects=DATA_INFRA_OBJECTS,
+        new_name=DATA_INFRA_RESOURCE,
+        labels=["data"],
+    )
+
+
 def configure_k8s_resources():
     for workload in WEB_WORKLOADS:
         k8s_resource(
@@ -317,19 +348,19 @@ def configure_k8s_resources():
 
     for workload in OTHER_HEADLESS_LMS_WORKLOADS:
         k8s_resource(
-            workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["worker"]
+            workload=workload, resource_deps=[SUPPORT_RESOURCE], labels=["workers"]
         )
 
     k8s_resource(
         workload="postgres",
         port_forwards="54328:5432",
-        resource_deps=[SUPPORT_RESOURCE],
+        resource_deps=[DATA_INFRA_RESOURCE],
         labels=["data"],
     )
     k8s_resource(
         workload="redis",
         port_forwards="63798:6379",
-        resource_deps=[SUPPORT_RESOURCE],
+        resource_deps=[DATA_INFRA_RESOURCE],
         labels=["data"],
     )
 
@@ -401,6 +432,7 @@ def build_image(image, service, dockerfile, live_update_steps):
 if mode == "dev":
     k8s_yaml(kustomize("kubernetes/dev"))
     configure_support_resource(BASE_SUPPORT_OBJECTS + DEV_SUPPORT_OBJECTS)
+    configure_data_infra_resource()
 
     headless_lms_live_update = [
         fall_back_on(path) for path in HEADLESS_LMS_REBUILD_DEPS
@@ -437,15 +469,32 @@ if mode == "dev":
         deps=WARM_ROUTE_DEPS,
         resource_deps=WEB_WORKLOADS,
         trigger_mode=TRIGGER_MODE_AUTO,
-        labels=["warmup"],
+        labels=[SETUP_LABEL],
     )
 
 if mode == "test":
     trigger_mode(TRIGGER_MODE_MANUAL)
     k8s_yaml(kustomize("kubernetes/test"))
     configure_support_resource(BASE_SUPPORT_OBJECTS + TEST_SUPPORT_OBJECTS)
+    configure_data_infra_resource()
 
     for image, service, dockerfile in TEST_IMAGES:
         build_image(image, service, dockerfile, [])
 
     configure_k8s_resources()
+
+if mode == "only-db":
+    k8s_yaml(kustomize("kubernetes/only-db"))
+    configure_data_infra_resource()
+    k8s_resource(
+        workload="postgres",
+        port_forwards="54328:5432",
+        resource_deps=["data-infra"],
+        labels=["data"],
+    )
+    k8s_resource(
+        workload="redis",
+        port_forwards="63798:6379",
+        resource_deps=["data-infra"],
+        labels=["data"],
+    )

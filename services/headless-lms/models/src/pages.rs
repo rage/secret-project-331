@@ -1313,13 +1313,12 @@ impl CmsPageUpdate {
             .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
 
         if let Some((exercise_id, _)) = exercise_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+            return Err(model_err!(
+                PreconditionFailedWithCMSAnchorBlockId {
                     id: exercise_id,
                     description: "Exercise must have at least one slide.",
                 },
-                "Exercise must have at least one slide.",
-                None,
+                "Exercise must have at least one slide.".to_string()
             ));
         }
 
@@ -1334,13 +1333,12 @@ impl CmsPageUpdate {
             }
         }
         if let Some((slide_id, _)) = slide_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+            return Err(model_err!(
+                PreconditionFailedWithCMSAnchorBlockId {
                     id: slide_id,
                     description: "Exercise slide must have at least one task.",
                 },
-                "Exercise slide must have at least one task.",
-                None,
+                "Exercise slide must have at least one task.".to_string()
             ));
         }
         Ok(())
@@ -2269,13 +2267,12 @@ async fn fetch_derived_spec(
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
                 .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    model_err!(
+                        PreconditionFailedWithCMSAnchorBlockId {
                             id: cms_block_id,
                             description: "Missing exercise type for exercise task.",
                         },
-                        "Missing exercise type for exercise task.",
-                        None,
+                        "Missing exercise type for exercise task.".to_string()
                     )
                 })?
                 .clone();
@@ -2769,6 +2766,8 @@ WHERE p.order_number = (
     WHERE pa.order_number > $1
       AND pa.deleted_at IS NULL
       AND pa.hidden IS DISTINCT FROM $4
+      AND pa.course_id = p.course_id
+      AND pa.chapter_id IS NOT DISTINCT FROM p.chapter_id
   )
   AND p.course_id = $2
   AND c.chapter_number = $3
@@ -2951,6 +2950,8 @@ WHERE p.order_number = (
     WHERE pa.order_number < $1
       AND pa.deleted_at IS NULL
       AND pa.hidden IS DISTINCT FROM $4
+      AND pa.course_id = p.course_id
+      AND pa.chapter_id IS NOT DISTINCT FROM p.chapter_id
   )
   AND p.course_id = $2
   AND c.chapter_number = $3

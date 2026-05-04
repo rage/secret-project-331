@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  p.id as page_id,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.order_number = (\n    SELECT MIN(pa.order_number)\n    FROM pages pa\n    WHERE pa.order_number > $1\n      AND pa.deleted_at IS NULL\n  )\n  AND p.course_id = $2\n  AND c.chapter_number = $3\n  AND p.deleted_at IS NULL;\n        ",
+  "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  c.chapter_number as chapter_number,\n  p.id as page_id,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.order_number = (\n    SELECT MAX(pa.order_number)\n    FROM pages pa\n    WHERE pa.order_number < $1\n      AND pa.deleted_at IS NULL\n      AND pa.hidden IS DISTINCT FROM $4\n  )\n  AND p.course_id = $2\n  AND c.chapter_number = $3\n  AND p.deleted_at IS NULL\n  AND p.hidden IS DISTINCT FROM $4;\n        ",
   "describe": {
     "columns": [
       {
@@ -15,13 +15,13 @@
       },
       {
         "ordinal": 2,
-        "name": "page_id",
-        "type_info": "Uuid"
+        "name": "chapter_number",
+        "type_info": "Int4"
       },
       {
         "ordinal": 3,
-        "name": "chapter_number",
-        "type_info": "Int4"
+        "name": "page_id",
+        "type_info": "Uuid"
       },
       {
         "ordinal": 4,
@@ -43,7 +43,8 @@
       "Left": [
         "Int4",
         "Uuid",
-        "Int4"
+        "Int4",
+        "Bool"
       ]
     },
     "nullable": [
@@ -56,5 +57,5 @@
       true
     ]
   },
-  "hash": "43c40724758cfae808036b4d917c0278a30c17faadec53ec43d97c9f01f1551f"
+  "hash": "a93a2ce24f05348d778545602eefdc62a53dca6e39e9d4fe25bae5f9f67bef83"
 }

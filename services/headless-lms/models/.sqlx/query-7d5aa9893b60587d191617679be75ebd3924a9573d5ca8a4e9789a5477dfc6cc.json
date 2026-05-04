@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  p.id as page_id,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM chapters c\n  INNER JOIN pages p on c.id = p.chapter_id\nWHERE c.chapter_number = (\n    SELECT MIN(ca.chapter_number)\n    FROM chapters ca\n    WHERE ca.chapter_number > $1\n      AND ca.deleted_at IS NULL\n  )\n  AND c.course_id = $2\n  AND p.deleted_at IS NULL\nORDER BY p.order_number\nLIMIT 1;\n        ",
+  "query": "\nSELECT p.url_path as url_path,\n  p.title as title,\n  p.id as page_id,\n  c.chapter_number as chapter_number,\n  c.id as chapter_id,\n  c.opens_at as chapter_opens_at,\n  c.front_page_id as chapter_front_page_id\nFROM pages p\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE p.order_number = (\n    SELECT MIN(pa.order_number)\n    FROM pages pa\n    WHERE pa.order_number > $1\n      AND pa.deleted_at IS NULL\n      AND pa.hidden IS DISTINCT FROM $4\n  )\n  AND p.course_id = $2\n  AND c.chapter_number = $3\n  AND p.deleted_at IS NULL\n  AND p.hidden IS DISTINCT FROM $4;\n        ",
   "describe": {
     "columns": [
       {
@@ -42,7 +42,9 @@
     "parameters": {
       "Left": [
         "Int4",
-        "Uuid"
+        "Uuid",
+        "Int4",
+        "Bool"
       ]
     },
     "nullable": [
@@ -55,5 +57,5 @@
       true
     ]
   },
-  "hash": "70e6ff26e3d7640f22ecdf62170020d22c8359c84dd2415b66d6308e147f02c7"
+  "hash": "7d5aa9893b60587d191617679be75ebd3924a9573d5ca8a4e9789a5477dfc6cc"
 }

@@ -109,11 +109,19 @@ pub async fn update_citation_message_ids(
     let res = sqlx::query_as!(
         ChatbotConversationMessageCitation,
         r#"
-UPDATE chatbot_conversation_messages_citations SET conversation_message_id = $1
-WHERE conversation_message_id IN
-(SELECT id FROM chatbot_conversation_message_tool_outputs
-WHERE response_id = $2
-AND deleted_at IS NULL)
+UPDATE chatbot_conversation_messages_citations
+SET conversation_message_id = $1
+WHERE conversation_message_id IN (
+    SELECT id
+    FROM chatbot_conversation_messages
+    WHERE id IN (
+        SELECT conversation_message_id
+        FROM chatbot_conversation_message_tool_outputs
+        WHERE response_id = $2
+          AND deleted_at IS NULL
+      )
+      AND deleted_at IS NULL
+  )
 RETURNING *
         "#,
         conversation_message_id,

@@ -72,12 +72,12 @@ impl CourseMaterialDocument {
 /// as chatbot_conversation_message_citations into the database
 pub async fn chatbot_cited_documents_to_citations(
     conn: &mut PgConnection,
-    mut get_urls: Vec<Url>,
+    mut document_urls: Vec<Url>,
     api_key: &str,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
 ) -> anyhow::Result<()> {
-    for (idx, url) in get_urls.iter_mut().enumerate() {
+    for (idx, url) in document_urls.iter_mut().enumerate() {
         let document = get_course_material_document(url, api_key).await?;
         let citation_number = (idx) as i32;
         save_document(
@@ -89,7 +89,6 @@ pub async fn chatbot_cited_documents_to_citations(
         )
         .await?;
     }
-
     Ok(())
 }
 
@@ -154,5 +153,7 @@ async fn save_document(
             citation_number,
         )
         .await?;
-    Ok(chatbot_conversation_messages_citations::insert(conn, citation).await?)
+    let res = chatbot_conversation_messages_citations::insert(conn, citation).await?;
+
+    Ok(res)
 }

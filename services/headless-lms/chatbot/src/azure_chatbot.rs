@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 use std::pin::Pin;
-use std::string;
 use std::sync::{
     Arc,
     atomic::{self, AtomicBool},
@@ -711,7 +710,6 @@ pub async fn process_output_item(
 
             let conversation_message = chatbot_conversation_messages::insert(conn, message).await?;
 
-            // wrong message id
             chatbot_cited_documents_to_citations(
                 conn,
                 get_urls,

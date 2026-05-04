@@ -627,6 +627,7 @@ WHERE id = $1
     CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PageVisibility {
     Any,
     Public,
@@ -2518,6 +2519,11 @@ pub async fn create_for_course_id(
         }
     }
 
+    let mut new_page = new_page;
+    if new_page.content.is_empty() {
+        new_page.content = vec![GutenbergBlock::hero_section(new_page.title.trim(), "")];
+    }
+
     let page = insert_page(&mut tx, new_page, author, spec_fetcher, fetch_service_info).await?;
     tx.commit().await?;
     Ok(page)
@@ -2692,14 +2698,16 @@ WHERE page_id IN (
 pub async fn get_next_page(
     conn: &mut PgConnection,
     page_id: Uuid,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
     let page_metadata = get_current_page_metadata(conn, page_id).await?;
-    let next_page = get_next_page_by_order_number(conn, &page_metadata).await?;
+    let next_page = get_next_page_by_order_number(conn, &page_metadata, visibility).await?;
 
     match next_page {
         Some(next_page) => Ok(Some(next_page)),
         None => {
-            let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
+            let first_page =
+                get_next_page_by_chapter_number(conn, &page_metadata, visibility).await?;
             Ok(first_page)
         }
     }
@@ -2740,10 +2748,12 @@ WHERE p.id = $1;
 async fn get_next_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let next_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path as url_path,
   p.title as title,
   p.id as page_id,
@@ -2758,14 +2768,17 @@ WHERE p.order_number = (
     FROM pages pa
     WHERE pa.order_number > $1
       AND pa.deleted_at IS NULL
+      AND pa.hidden IS DISTINCT FROM $4
   )
   AND p.course_id = $2
   AND c.chapter_number = $3
-  AND p.deleted_at IS NULL;
-        ",
+  AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $4;
+        "#,
         current_page_metadata.order_number,
         current_page_metadata.course_id,
-        current_page_metadata.chapter_number
+        current_page_metadata.chapter_number,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;
@@ -2776,10 +2789,12 @@ WHERE p.order_number = (
 async fn get_next_page_by_chapter_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let next_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path as url_path,
   p.title as title,
   p.id as page_id,
@@ -2797,11 +2812,13 @@ WHERE c.chapter_number = (
   )
   AND c.course_id = $2
   AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $3
 ORDER BY p.order_number
 LIMIT 1;
-        ",
+        "#,
         current_page_metadata.chapter_number,
-        current_page_metadata.course_id
+        current_page_metadata.course_id,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;
@@ -2834,10 +2851,11 @@ where p.chapter_id = $1
 pub async fn get_page_navigation_data(
     conn: &mut PgConnection,
     page_id: Uuid,
+    visibility: PageVisibility,
 ) -> ModelResult<PageNavigationInformation> {
-    let previous_page_data = get_previous_page(conn, page_id).await?;
+    let previous_page_data = get_previous_page(conn, page_id, visibility).await?;
 
-    let next_page_data = get_next_page(conn, page_id).await?;
+    let next_page_data = get_next_page(conn, page_id, visibility).await?;
 
     let chapter_front_page = get_chapter_front_page_by_page_id(conn, page_id).await?;
     // This may be different from the chapter of the previous page and the chapter of the next page so we need to fetch it to be sure.
@@ -2880,14 +2898,16 @@ pub async fn get_page_navigation_data(
 pub async fn get_previous_page(
     conn: &mut PgConnection,
     page_id: Uuid,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
     let page_metadata = get_current_page_metadata(conn, page_id).await?;
-    let previous_page = get_previous_page_by_order_number(conn, &page_metadata).await?;
+    let previous_page = get_previous_page_by_order_number(conn, &page_metadata, visibility).await?;
 
     match previous_page {
         Some(previous_page) => Ok(Some(previous_page)),
         None => {
-            let first_page = get_previous_page_by_chapter_number(conn, &page_metadata).await?;
+            let first_page =
+                get_previous_page_by_chapter_number(conn, &page_metadata, visibility).await?;
             Ok(first_page)
         }
     }
@@ -2910,10 +2930,12 @@ pub async fn get_chapter_front_page_by_page_id(
 async fn get_previous_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let previous_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
@@ -2928,14 +2950,17 @@ WHERE p.order_number = (
     FROM pages pa
     WHERE pa.order_number < $1
       AND pa.deleted_at IS NULL
+      AND pa.hidden IS DISTINCT FROM $4
   )
   AND p.course_id = $2
   AND c.chapter_number = $3
-  AND p.deleted_at IS NULL;
-        ",
+  AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $4;
+        "#,
         current_page_metadata.order_number,
         current_page_metadata.course_id,
-        current_page_metadata.chapter_number
+        current_page_metadata.chapter_number,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;
@@ -2946,10 +2971,12 @@ WHERE p.order_number = (
 async fn get_previous_page_by_chapter_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let previous_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path AS url_path,
   p.title AS title,
   p.id AS page_id,
@@ -2967,11 +2994,13 @@ WHERE c.chapter_number = (
   )
   AND c.course_id = $2
   AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $3
 ORDER BY p.order_number DESC
 LIMIT 1;
-        ",
+        "#,
         current_page_metadata.chapter_number,
-        current_page_metadata.course_id
+        current_page_metadata.course_id,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;

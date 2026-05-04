@@ -79,41 +79,18 @@ async fn filter_navigation_by_visibility(
     mut navigation: PageNavigationInformation,
     visibility: PageVisibility,
 ) -> Result<PageNavigationInformation, ControllerError> {
-    let page_ids = [
-        navigation.chapter_front_page.as_ref(),
-        navigation.next_page.as_ref(),
-        navigation.previous_page.as_ref(),
-    ]
-    .into_iter()
-    .flatten()
-    .map(|page| page.page_id)
-    .collect::<Vec<_>>();
-    let visible_page_ids = models::pages::get_by_ids_and_visibility(conn, &page_ids, visibility)
-        .await?
-        .into_iter()
-        .map(|page| page.id)
-        .collect::<HashSet<_>>();
+    let Some(chapter_front) = navigation.chapter_front_page.as_ref() else {
+        return Ok(navigation);
+    };
+    let visible_page_ids =
+        models::pages::get_by_ids_and_visibility(conn, &[chapter_front.page_id], visibility)
+            .await?
+            .into_iter()
+            .map(|page| page.id)
+            .collect::<HashSet<_>>();
 
-    if navigation
-        .chapter_front_page
-        .as_ref()
-        .is_some_and(|page| !visible_page_ids.contains(&page.page_id))
-    {
+    if !visible_page_ids.contains(&chapter_front.page_id) {
         navigation.chapter_front_page = None;
-    }
-    if navigation
-        .next_page
-        .as_ref()
-        .is_some_and(|page| !visible_page_ids.contains(&page.page_id))
-    {
-        navigation.next_page = None;
-    }
-    if navigation
-        .previous_page
-        .as_ref()
-        .is_some_and(|page| !visible_page_ids.contains(&page.page_id))
-    {
-        navigation.previous_page = None;
     }
 
     Ok(navigation)
@@ -220,7 +197,7 @@ async fn get_page_navigation(
     let current_page = models::pages::get_page(&mut conn, *page_id).await?;
     let (token, visibility) =
         authorize_page_parent_access(&mut conn, user_id, &current_page).await?;
-    let res = models::pages::get_page_navigation_data(&mut conn, *page_id).await?;
+    let res = models::pages::get_page_navigation_data(&mut conn, *page_id, visibility).await?;
     let res = filter_navigation_by_visibility(&mut conn, res, visibility).await?;
 
     token.authorized_ok(web::Json(res))

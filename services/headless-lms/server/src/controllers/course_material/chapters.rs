@@ -43,6 +43,15 @@ async fn get_public_chapter_pages(
     let user_id = auth.map(|u| u.id);
     let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
     let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
+    if !models::chapters::is_open(&mut conn, *chapter_id).await? {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            user_id,
+            Res::Course(chapter.course_id),
+        )
+        .await?;
+    }
     let chapter_pages: Vec<Page> = models::pages::get_course_pages_by_chapter_id_and_visibility(
         &mut conn,
         *chapter_id,
@@ -79,6 +88,15 @@ async fn get_chapters_exercises(
     let user_id = auth.map(|u| u.id);
     let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
     let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
+    if !models::chapters::is_open(&mut conn, *chapter_id).await? {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            user_id,
+            Res::Course(chapter.course_id),
+        )
+        .await?;
+    }
     let can_view_hidden_pages = if let Some(user_id) = user_id {
         authorize(
             &mut conn,
@@ -132,6 +150,15 @@ async fn get_chapters_pages_without_main_frontpage(
     let user_id = auth.map(|u| u.id);
     let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
     let token = authorize_access_to_course_material(&mut conn, user_id, chapter.course_id).await?;
+    if !models::chapters::is_open(&mut conn, *chapter_id).await? {
+        authorize(
+            &mut conn,
+            Act::ViewMaterial,
+            user_id,
+            Res::Course(chapter.course_id),
+        )
+        .await?;
+    }
     let chapter_pages =
         models::pages::get_chapters_visible_pages_exclude_main_frontpage(&mut conn, *chapter_id)
             .await?;

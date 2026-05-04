@@ -5,6 +5,7 @@ use models::{
     page_history::HistoryChangeReason,
     pages::{
         CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
+        PageVisibility,
     },
 };
 
@@ -182,7 +183,8 @@ async fn get_page_navigation(
 ) -> ControllerResult<web::Json<PageNavigationInformation>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let res = models::pages::get_page_navigation_data(&mut conn, *page_id).await?;
+    let res =
+        models::pages::get_page_navigation_data(&mut conn, *page_id, PageVisibility::Any).await?;
 
     token.authorized_ok(web::Json(res))
 }

@@ -1,0 +1,75 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  title,\n  content,\n  created_at,\n  history_change_reason as \"history_change_reason: HistoryChangeReason\",\n  restored_from_id,\n  author_user_id,\n  page_id\nFROM page_history\nWHERE id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "content",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 3,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "history_change_reason: HistoryChangeReason",
+        "type_info": {
+          "Custom": {
+            "name": "history_change_reason",
+            "kind": {
+              "Enum": [
+                "page-saved",
+                "history-restored",
+                "page-deleted"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "restored_from_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "author_user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "page_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "3913a0fbc91520dd0695114d5d62ffed78bd5bc0c33cc57a9dd642d46a79f684"
+}

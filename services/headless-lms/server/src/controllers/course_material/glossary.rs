@@ -28,8 +28,22 @@ async fn update(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::glossary::update(&mut conn, *acronym_id, &update.term, &update.definition).await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let term = models::glossary::get_term_by_id(&mut conn, *acronym_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(term.course_id),
+    )
+    .await?;
+    models::glossary::update_term_by_id_and_course_id(
+        &mut conn,
+        *acronym_id,
+        term.course_id,
+        &update.term,
+        &update.definition,
+    )
+    .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
@@ -52,8 +66,16 @@ async fn delete(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    models::glossary::delete(&mut conn, *acronym_id).await?;
-    let token = authorize(&mut conn, Act::View, Some(user.id), Res::AnyCourse).await?;
+    let term = models::glossary::get_term_by_id(&mut conn, *acronym_id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(term.course_id),
+    )
+    .await?;
+    models::glossary::delete_term_by_id_and_course_id(&mut conn, *acronym_id, term.course_id)
+        .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

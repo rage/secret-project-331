@@ -647,6 +647,80 @@ WHERE user_id IN (
     Ok(res)
 }
 
+pub async fn get_by_user_ids_and_exercise_id(
+    conn: &mut PgConnection,
+    user_ids: &[Uuid],
+    exercise_id: Uuid,
+) -> ModelResult<Vec<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT id,
+  user_id,
+  exercise_id,
+  course_id,
+  exam_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  grading_progress AS "grading_progress: _",
+  activity_progress AS "activity_progress: _",
+  reviewing_stage AS "reviewing_stage: _",
+  selected_exercise_slide_id
+FROM user_exercise_states
+WHERE user_id = ANY($1)
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+        "#,
+        user_ids,
+        exercise_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id_and_user_ids_and_exercise_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<UserExerciseState>> {
+    let res = sqlx::query_as!(
+        UserExerciseState,
+        r#"
+SELECT ues.id,
+  ues.user_id,
+  ues.exercise_id,
+  ues.course_id,
+  ues.exam_id,
+  ues.created_at,
+  ues.updated_at,
+  ues.deleted_at,
+  ues.score_given,
+  ues.grading_progress AS "grading_progress: _",
+  ues.activity_progress AS "activity_progress: _",
+  ues.reviewing_stage AS "reviewing_stage: _",
+  ues.selected_exercise_slide_id
+FROM user_exercise_states ues
+  JOIN exercises e ON e.id = ues.exercise_id
+WHERE ues.course_id = $1
+  AND e.course_id = $1
+  AND ues.user_id = ANY($2)
+  AND ues.exercise_id = ANY($3)
+  AND ues.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+        "#,
+        course_id,
+        user_ids,
+        exercise_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExerciseState> {
     let res = sqlx::query_as!(
         UserExerciseState,
@@ -673,6 +747,28 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+pub async fn recalculate_by_id_and_exercise_id(
+    conn: &mut PgConnection,
+    state_id: Uuid,
+    exercise_id: Uuid,
+) -> ModelResult<UserExerciseState> {
+    sqlx::query!(
+        r#"
+SELECT id
+FROM user_exercise_states
+WHERE id = $1
+  AND exercise_id = $2
+  AND deleted_at IS NULL
+        "#,
+        state_id,
+        exercise_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    crate::library::user_exercise_state_updater::update_user_exercise_state(conn, state_id).await
 }
 
 pub async fn get_by_ids(

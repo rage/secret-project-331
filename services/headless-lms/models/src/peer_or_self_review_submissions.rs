@@ -60,6 +60,81 @@ RETURNING id
     Ok(res.id)
 }
 
+#[allow(clippy::too_many_arguments)]
+pub async fn insert_for_submission_context(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    reviewer_user_id: Uuid,
+    receiver_user_id: Uuid,
+    exercise_id: Uuid,
+    course_id: Uuid,
+    peer_or_self_review_config_id: Uuid,
+    exercise_slide_submission_id: Uuid,
+    reviewer_user_exercise_state_id: Uuid,
+    receiver_user_exercise_state_id: Uuid,
+) -> ModelResult<PeerOrSelfReviewSubmission> {
+    let res = sqlx::query_as!(
+        PeerOrSelfReviewSubmission,
+        r#"
+INSERT INTO peer_or_self_review_submissions (
+    id,
+    user_id,
+    exercise_id,
+    course_id,
+    peer_or_self_review_config_id,
+    exercise_slide_submission_id
+)
+SELECT
+    $1,
+    reviewer_state.user_id,
+    exercise.id,
+    exercise.course_id,
+    config.id,
+    receiver_submission.id
+FROM exercises exercise
+  JOIN peer_or_self_review_configs config
+    ON config.id = $5
+   AND config.course_id = $4
+   AND (config.exercise_id = exercise.id OR config.exercise_id IS NULL)
+   AND config.deleted_at IS NULL
+  JOIN exercise_slide_submissions receiver_submission
+    ON receiver_submission.id = $6
+   AND receiver_submission.exercise_id = exercise.id
+   AND receiver_submission.course_id = $4
+   AND receiver_submission.user_id = $3
+   AND receiver_submission.deleted_at IS NULL
+  JOIN user_exercise_states reviewer_state
+    ON reviewer_state.id = $7
+   AND reviewer_state.user_id = $2
+   AND reviewer_state.exercise_id = exercise.id
+   AND reviewer_state.course_id = $4
+   AND reviewer_state.deleted_at IS NULL
+  JOIN user_exercise_states receiver_state
+    ON receiver_state.id = $8
+   AND receiver_state.user_id = $3
+   AND receiver_state.exercise_id = exercise.id
+   AND receiver_state.course_id = $4
+   AND receiver_state.deleted_at IS NULL
+WHERE exercise.id = $9
+  AND exercise.course_id = $4
+  AND exercise.deleted_at IS NULL
+RETURNING *
+        "#,
+        pkey_policy.into_uuid(),
+        reviewer_user_id,
+        receiver_user_id,
+        course_id,
+        peer_or_self_review_config_id,
+        exercise_slide_submission_id,
+        reviewer_user_exercise_state_id,
+        receiver_user_exercise_state_id,
+        exercise_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_id(
     conn: &mut PgConnection,
     id: Uuid,

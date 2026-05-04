@@ -28,10 +28,20 @@ pub async fn enroll(
     .await?;
 
     if !background_question_answers.is_empty() {
-        crate::course_background_question_answers::upsert_backround_question_answers(
+        let allowed_questions =
+            crate::course_background_questions::get_background_questions_for_course_instance(
+                &mut tx, &instance,
+            )
+            .await?;
+        let allowed_question_ids = allowed_questions
+            .iter()
+            .map(|question| question.id)
+            .collect::<Vec<_>>();
+        crate::course_background_question_answers::upsert_by_user_id_and_question_ids(
             &mut tx,
             user_id,
             background_question_answers,
+            &allowed_question_ids,
         )
         .await?;
     }

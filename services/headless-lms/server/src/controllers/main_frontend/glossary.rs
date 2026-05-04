@@ -30,9 +30,22 @@ pub(crate) async fn update(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    glossary::update(&mut conn, *id, &update.term, &update.definition).await?;
-
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let term = glossary::get_term_by_id(&mut conn, *id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(term.course_id),
+    )
+    .await?;
+    glossary::update_term_by_id_and_course_id(
+        &mut conn,
+        *id,
+        term.course_id,
+        &update.term,
+        &update.definition,
+    )
+    .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 
@@ -57,9 +70,15 @@ pub(crate) async fn delete(
     user: AuthUser,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
-    glossary::delete(&mut conn, *id).await?;
-
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
+    let term = glossary::get_term_by_id(&mut conn, *id).await?;
+    let token = authorize(
+        &mut conn,
+        Act::Teach,
+        Some(user.id),
+        Res::Course(term.course_id),
+    )
+    .await?;
+    glossary::delete_term_by_id_and_course_id(&mut conn, *id, term.course_id).await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

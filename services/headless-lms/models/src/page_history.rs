@@ -110,6 +110,29 @@ WHERE page_history.id = $1
     })
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PageHistory> {
+    let res = sqlx::query_as!(
+        PageHistory,
+        r#"
+SELECT id,
+  title,
+  content,
+  created_at,
+  history_change_reason as "history_change_reason: HistoryChangeReason",
+  restored_from_id,
+  author_user_id,
+  page_id
+FROM page_history
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn history(
     conn: &mut PgConnection,
     page_id: Uuid,

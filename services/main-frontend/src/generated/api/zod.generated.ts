@@ -1183,6 +1183,10 @@ export const zJobInfo = z.object({
     .nullish(),
 })
 
+export const zJoinCourseWithJoinCodePayload = z.object({
+  join_code: z.string(),
+})
+
 export const zManualCompletionPreviewUser = z.object({
   first_name: z.string().nullish(),
   grade: z
@@ -2522,14 +2526,7 @@ export const zUploadFilesFromExerciseServicePath = z.object({
 export const zUploadFilesFromExerciseServiceResponse = z.record(z.string(), z.string())
 
 export const zUpdateCertificateConfigurationBody = z.object({
-  file: z.array(
-    z.array(
-      z
-        .int()
-        .gte(0)
-        .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-    ),
-  ),
+  file: z.string(),
   metadata: zCertificateConfigurationUpdate,
 })
 
@@ -3230,6 +3227,8 @@ export const zCreateCourseGlossaryTermPath = z.object({
  * Created glossary term id
  */
 export const zCreateCourseGlossaryTermResponse = z.uuid()
+
+export const zJoinCourseWithJoinCodeBody = zJoinCourseWithJoinCodePayload
 
 export const zJoinCourseWithJoinCodePath = z.object({
   course_id: z.uuid(),
@@ -4609,9 +4608,7 @@ export const zDeleteOrganizationImagePath = z.object({
 })
 
 export const zUpdateOrganizationImageBody = z.object({
-  file: z.array(
-    z.int().gte(0).max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  ),
+  file: z.string(),
 })
 
 export const zUpdateOrganizationImagePath = z.object({

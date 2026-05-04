@@ -231,6 +231,7 @@ crate::define_err_macro!(
     util_err,
     UtilError,
     UtilErrorType,
+    UtilErrorType,
     "Create a UtilError with less boilerplate."
 );
 

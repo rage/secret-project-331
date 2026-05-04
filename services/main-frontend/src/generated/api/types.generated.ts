@@ -1194,6 +1194,10 @@ export type JobInfo = {
   succeeded?: number | null
 }
 
+export type JoinCourseWithJoinCodePayload = {
+  join_code: string
+}
+
 export type ManualCompletionPreview = {
   already_completed_users: Array<ManualCompletionPreviewUser>
   first_time_completing_users: Array<ManualCompletionPreviewUser>
@@ -2077,7 +2081,7 @@ export type UploadFilesFromExerciseServiceResponse =
 
 export type UpdateCertificateConfigurationData = {
   body: {
-    file: Array<Array<number>>
+    file: Blob | File
     metadata: CertificateConfigurationUpdate
   }
   path?: never
@@ -3755,7 +3759,7 @@ export type CreateCourseGlossaryTermResponse =
   CreateCourseGlossaryTermResponses[keyof CreateCourseGlossaryTermResponses]
 
 export type JoinCourseWithJoinCodeData = {
-  body?: never
+  body: JoinCourseWithJoinCodePayload
   path: {
     /**
      * Course id
@@ -7063,7 +7067,7 @@ export type DeleteOrganizationImageResponses = {
 
 export type UpdateOrganizationImageData = {
   body: {
-    file: Array<number>
+    file: Blob | File
   }
   path: {
     /**

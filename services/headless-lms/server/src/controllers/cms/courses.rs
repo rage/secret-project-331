@@ -201,10 +201,7 @@ async fn put_course_default_peer_or_self_review_configuration(
     let mut config = payload.0;
     normalize_cms_peer_or_self_review_questions(&mut config.peer_or_self_review_questions);
     let cms_peer_or_self_review_configuration =
-        peer_or_self_review_configs::upsert_course_default_cms_peer_review_and_questions(
-            &mut conn, &config,
-        )
-        .await?;
+        peer_or_self_review_configs::upsert_for_course_id(&mut conn, *course_id, &config).await?;
     token.authorized_ok(web::Json(cms_peer_or_self_review_configuration))
 }
 
@@ -457,7 +454,7 @@ async fn get_partners_block(
 ) -> ControllerResult<web::Json<PartnersBlock>> {
     let course_id = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let token = skip_authorize();
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     // Check if the course exists in the partners_blocks table
     let course_exists = models::partner_block::check_if_course_exists(&mut conn, course_id).await?;

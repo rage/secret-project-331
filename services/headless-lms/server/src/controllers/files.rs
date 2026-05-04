@@ -6,7 +6,10 @@ use super::helpers::file_uploading;
 pub use crate::domain::{authorization::AuthorizationToken, models_requests::UploadClaim};
 use crate::prelude::*;
 use actix_files::NamedFile;
-use std::{collections::HashMap, path::Path};
+use std::{
+    collections::HashMap,
+    path::{Component, Path},
+};
 use tokio::fs::read;
 use utoipa::OpenApi;
 
@@ -82,7 +85,34 @@ async fn serve_upload(req: HttpRequest, pool: web::Data<PgPool>) -> ControllerRe
     // TODO: replace this whole function with the actix_files::Files service once it works with the used actix version.
     let base_folder = Path::new("uploads");
     let relative_path = req.match_info().query("tail");
-    let path = base_folder.join(relative_path);
+    let requested_path = Path::new(relative_path);
+    if requested_path.is_absolute()
+        || requested_path.components().any(|component| {
+            matches!(
+                component,
+                Component::ParentDir | Component::RootDir | Component::Prefix(_)
+            )
+        })
+    {
+        return Err(controller_err!(
+            BadRequest,
+            "Invalid upload path".to_string()
+        ));
+    }
+
+    let base_folder = base_folder
+        .canonicalize()
+        .map_err(|_e| controller_err!(NotFound, "File not found".to_string()))?;
+    let path = base_folder
+        .join(requested_path)
+        .canonicalize()
+        .map_err(|_e| controller_err!(NotFound, "File not found".to_string()))?;
+    if !path.starts_with(&base_folder) {
+        return Err(controller_err!(
+            BadRequest,
+            "Invalid upload path".to_string()
+        ));
+    }
 
     let named_file = NamedFile::open(path).map_err(|_e| {
         ControllerError::new(

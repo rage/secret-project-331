@@ -310,6 +310,23 @@ WHERE id = $1
     Ok(res.into())
 }
 
+pub async fn get_by_ids(conn: &mut PgConnection, ids: &[Uuid]) -> ModelResult<Vec<CourseModule>> {
+    let res = sqlx::query_as!(
+        CourseModulesSchema,
+        "
+SELECT *
+FROM course_modules
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        ",
+        ids,
+    )
+    .map(|x| x.into())
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

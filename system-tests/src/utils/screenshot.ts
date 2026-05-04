@@ -15,11 +15,11 @@ import {
   scrollToObservedYCoordinate,
 } from "./imageMetadataTools"
 import { hideToasts } from "./notificationUtils"
+import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
 
 import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
   SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
-  SPINNER_CLASS,
 } from "@/shared-module/common/utils/constants"
 
 // Same regex as Playwright uses to sanitize the filenames so that we can access those same files.
@@ -118,21 +118,10 @@ export default async function expectScreenshotsToMatchSnapshots({
       await page.waitForLoadState()
 
       if (!dontWaitForSpinnersToDisappear) {
-        // Make sure there are no accidental loading spinners still visible on the page
-        try {
-          await page.waitForTimeout(100)
-          for (let i = 0; i < 2; i++) {
-            const spinnerLocators = await page.locator(`.${SPINNER_CLASS}`).all()
-            await Promise.all(
-              spinnerLocators.map((locator) => locator.waitFor({ state: "detached" })),
-            )
-          }
-        } catch (e) {
-          console.warn(`Spinner did not disappear before taking a screenshot: ${e}`)
-          throw new Error(
-            `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
-          )
-        }
+        await waitForSpinnersToDisappear(
+          page,
+          `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
+        )
       }
 
       const originalViewPort = page.viewportSize()

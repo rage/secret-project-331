@@ -38,6 +38,7 @@
   "archived": "Arkivert",
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Er du sikker på at du vil tilbakestille fremgangen til alle studenter på dette kurset? Dette vil slette deres innleveringer, poeng, fullføringer, gitte vurderinger og mer. Merk at denne funksjonen er ment for bruk når du tester kurset og ikke har reelle studenter som gjennomfører kurset enda.",
   "are-you-sure-you-want-to-reset-your-own-progress-on-the-course": "Er du sikker på at du vil tilbakestille din egen fremgang på kurset? Dette vil slette dine innleveringer, poeng, fullføringer, gitte vurderinger og mer.",
+  "aria-label-breadcrumb": "Navigasjonssti",
   "aria-label-primary-navigation": "Hoved",
   "aria-label-top-bar": "Topp bar",
   "at-the-form-field-fill-in-your-email-address": "I skjema feltet 'Din e-postadresse på MOOC kurset' <1>fyll inn: <2>{{email}}</2></1>",

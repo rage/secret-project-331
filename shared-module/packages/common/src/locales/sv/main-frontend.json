@@ -38,6 +38,7 @@
   "archived": "Raderade fuskare",
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Är du säker på att du vill återställa framstegen för alla studenter i denna kurs? Detta kommer att radera deras inlämningar, poäng, slutföranden, givna kamratgranskningar och mer. Observera att denna funktion är avsedd att användas endast när du testar kursen och inte har riktiga studenter som genomför kursen ännu.",
   "are-you-sure-you-want-to-reset-your-own-progress-on-the-course": "Är du säker på att du vill återställa dina egna framsteg i kursen? Detta kommer att radera dina inlämningar, poäng, slutföranden, givna kamratgranskningar och mer.",
+  "aria-label-breadcrumb": "Brödsmula",
   "aria-label-primary-navigation": "Primär",
   "aria-label-top-bar": "Topplista",
   "at-the-form-field-fill-in-your-email-address": "I formulärfältet 'Din e-postadress på MOOC-kursen' <1>fyll i: <2>{{email}}</2></1>",

@@ -6,12 +6,18 @@ import { Console } from "console"
 import { Page } from "playwright"
 import { Writable } from "stream"
 
+import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
+
 export default async function accessibilityCheck(
   page: Page,
   contextName: string,
   axeSkip?: string[],
 ): Promise<void> {
   await test.step(`Accessibility checks (${contextName})`, async () => {
+    await waitForSpinnersToDisappear(
+      page,
+      "A spinner was still visible when running the accessibility check.",
+    )
     // collect console.logs with all the console.group groupings
     const outputStream = new StoringStream()
     const customConsole = new Console(outputStream)

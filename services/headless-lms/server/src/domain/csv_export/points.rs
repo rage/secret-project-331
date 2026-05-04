@@ -2,14 +2,17 @@ use anyhow::{Context, Result};
 use bytes::Bytes;
 
 use futures::TryStreamExt;
-use headless_lms_models::{chapters, course_instances, exercises, user_exercise_states};
+use headless_lms_models::{chapters, course_instances, exercises, user_exercise_states, users};
 
 use async_trait::async_trait;
 
 use crate::domain::csv_export::CsvWriter;
 
 use sqlx::PgConnection;
-use std::{collections::HashMap, io::Write};
+use std::{
+    collections::{HashMap, HashSet},
+    io::Write,
+};
 use tokio::sync::mpsc::UnboundedSender;
 
 use uuid::Uuid;
@@ -70,10 +73,19 @@ where
     let headers = IntoIterator::into_iter(["user_id".to_string()])
         .chain(chapters.into_iter().map(|c| c.chapter_number.to_string()));
 
+    let enrolled_user_ids: HashSet<Uuid> =
+        users::get_users_by_course_instance_enrollment(conn, course_instance_id)
+            .await?
+            .into_iter()
+            .map(|user| user.id)
+            .collect();
     let mut stream = user_exercise_states::stream_course_points(conn, course_instance.course_id);
 
     let writer = CsvWriter::new_with_initialized_headers(writer, headers).await?;
     while let Some(next) = stream.try_next().await? {
+        if !enrolled_user_ids.contains(&next.user_id) {
+            continue;
+        }
         let mut csv_row = vec!["0".to_string(); header_count];
         csv_row[0] = next.user_id.to_string();
         for points in next.points_for_each_chapter {

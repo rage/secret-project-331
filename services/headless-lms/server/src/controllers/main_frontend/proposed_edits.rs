@@ -129,9 +129,26 @@ pub async fn process_edit_proposal(
     let mut conn = pool.acquire().await?;
     let proposal = proposal.into_inner();
 
-    proposed_page_edits::process_proposal(
+    let page_proposal =
+        proposed_page_edits::get_by_id(&mut conn, proposal.page_proposal_id).await?;
+    if page_proposal.page_id != proposal.page_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Proposal does not belong to the requested page".to_string()
+        ));
+    }
+
+    let token = authorize(
         &mut conn,
-        proposal.page_id,
+        Act::Edit,
+        Some(user.id),
+        Res::Page(page_proposal.page_id),
+    )
+    .await?;
+
+    proposed_page_edits::process_by_id_and_page_id(
+        &mut conn,
+        page_proposal.page_id,
         proposal.page_proposal_id,
         proposal.block_proposals,
         user.id,
@@ -144,13 +161,6 @@ pub async fn process_edit_proposal(
     )
     .await?;
 
-    let token = authorize(
-        &mut conn,
-        Act::Edit,
-        Some(user.id),
-        Res::Page(proposal.page_id),
-    )
-    .await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

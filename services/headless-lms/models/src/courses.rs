@@ -550,6 +550,53 @@ WHERE id = $1;
     Ok(course)
 }
 
+pub async fn get_by_id_and_join_code(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    join_code: &str,
+) -> ModelResult<Course> {
+    let course = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only,
+  join_code,
+  ask_marketing_consent,
+  flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id,
+  chapter_locking_enabled
+FROM courses
+WHERE id = $1
+  AND join_code = $2
+  AND deleted_at IS NULL;
+    "#,
+        course_id,
+        join_code,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course)
+}
+
 pub async fn get_course_breadcrumb_info(
     conn: &mut PgConnection,
     course_id: Uuid,

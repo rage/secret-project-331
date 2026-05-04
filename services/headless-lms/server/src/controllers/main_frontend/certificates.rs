@@ -24,14 +24,6 @@ use models::{
 ))]
 pub(crate) struct MainFrontendCertificatesApiDoc;
 
-#[allow(dead_code)]
-#[derive(Debug, ToSchema)]
-struct CertificateConfigurationUpdateMultipartPayload {
-    metadata: CertificateConfigurationUpdate,
-    #[schema(content_media_type = "application/octet-stream")]
-    file: Vec<Vec<u8>>,
-}
-
 #[derive(Debug, Deserialize, ToSchema)]
 
 pub struct CertificateConfigurationUpdate {
@@ -70,6 +62,15 @@ pub struct CertificateConfigurationUpdateForm {
     metadata: actix_multipart::form::json::Json<CertificateConfigurationUpdate>,
     #[multipart(rename = "file")]
     files: Vec<TempFile>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, ToSchema)]
+struct CertificateConfigurationUpdateMultipartPayload {
+    #[schema(content_media_type = "application/json")]
+    metadata: CertificateConfigurationUpdate,
+    #[schema(content_media_type = "application/octet-stream", value_type = Vec<String>, format = Binary)]
+    file: Vec<Vec<u8>>,
 }
 
 /**
@@ -173,10 +174,9 @@ async fn update_certificate_configuration_inner(
     let mut new_overlay_svg_file: Option<(Uuid, String)> = None;
     for file in payload.files {
         let Some(file_name) = file.file_name else {
-            return Err(ControllerError::new(
-                ControllerErrorType::BadRequest,
-                "Missing file name in multipart request".to_string(),
-                None,
+            return Err(controller_err!(
+                BadRequest,
+                "Missing file name in multipart request".to_string()
             ));
         };
         let (file, _temp_path) = file.file.into_parts();
@@ -218,10 +218,9 @@ async fn update_certificate_configuration_inner(
                     Some((id, path.to_str().context("Invalid path")?.to_string()));
             }
             _ => {
-                return Err(ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Invalid field in multipart request".to_string(),
-                    None,
+                return Err(controller_err!(
+                    BadRequest,
+                    "Invalid field in multipart request".to_string()
                 ));
             }
         }
@@ -255,10 +254,9 @@ async fn update_certificate_configuration_inner(
             }
             (None, None) => {
                 // no existing config and no new upload, invalid request
-                return Err(ControllerError::new(
-                    ControllerErrorType::BadRequest,
-                    "Missing background SVG file".to_string(),
-                    None,
+                return Err(controller_err!(
+                    BadRequest,
+                    "Missing background SVG file".to_string()
                 ));
             }
         };
@@ -382,12 +380,8 @@ pub async fn generate_generated_certificate(
         .has_user_completed_all_requirements(&mut conn, user.id)
         .await?
     {
-        return Err(ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate."
-                .to_string(),
-            None,
-        ));
+        return Err(controller_err!(BadRequest, "Cannot generate certificate; user has not completed all the requirements to be eligible for this certificate."
+                .to_string()));
     }
     // Skip authorization: each user should be able to generate their own certificate for any module
     let token = skip_authorize();
@@ -574,10 +568,9 @@ pub async fn delete_certificate_configuration(
 
     models::certificate_configurations::delete(&mut conn, *configuration_id).await?;
     let token = token.ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::InternalServerError,
-            "Authorization token was not set".to_string(),
-            None,
+        controller_err!(
+            InternalServerError,
+            "Authorization token was not set".to_string()
         )
     })?;
     token.authorized_ok(web::Json(true))
@@ -613,18 +606,33 @@ pub async fn update_generated_certificate(
         cert.certificate_configuration_id,
     ).await?;
 
-    let course_module_id = req.course_module_ids.first().ok_or_else(|| {
-        ControllerError::new(
-            ControllerErrorType::BadRequest,
-            "Certificate has no associated course module",
-            None,
+    let mut token = None;
+    if req.course_module_ids.is_empty() {
+        token =
+            Some(authorize(&mut conn, Act::Teach, Some(user.id), Res::GlobalPermissions).await?);
+    } else {
+        let course_modules =
+            models::course_modules::get_by_ids(&mut conn, &req.course_module_ids).await?;
+        if course_modules.len() != req.course_module_ids.len() {
+            return Err(controller_err!(
+                BadRequest,
+                "Certificate has a missing course module requirement".to_string()
+            ));
+        }
+
+        for course_id in course_modules.iter().map(|module| module.course_id) {
+            token = Some(
+                authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?,
+            );
+        }
+    }
+
+    let token = token.ok_or_else(|| {
+        controller_err!(
+            InternalServerError,
+            "Authorization token was not set".to_string()
         )
     })?;
-
-    let course_module = models::course_modules::get_by_id(&mut conn, *course_module_id).await?;
-    let course_id = course_module.course_id;
-
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     let updated = models::generated_certificates::update_certificate(
         &mut conn,

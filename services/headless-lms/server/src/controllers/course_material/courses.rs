@@ -99,10 +99,12 @@ GET `/api/v0/course-material/courses/:course_id` - Get course.
 async fn get_course(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<CourseMaterialCourse>> {
     let mut conn = pool.acquire().await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, auth.map(|u| u.id), *course_id).await?;
     let course = models::courses::get_course(&mut conn, *course_id).await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(course.into()))
 }
 
@@ -474,15 +476,15 @@ async fn get_public_course_pages(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
+    let user_id = auth.map(|u| u.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let pages: Vec<Page> = models::pages::get_all_by_course_id_and_visibility(
         &mut conn,
         *course_id,
         PageVisibility::Public,
     )
     .await?;
-    let pages =
-        models::pages::filter_course_material_pages(&mut conn, auth.map(|u| u.id), pages).await?;
-    let token = skip_authorize();
+    let pages = models::pages::filter_course_material_pages(&mut conn, user_id, pages).await?;
     token.authorized_ok(web::Json(pages))
 }
 
@@ -528,12 +530,13 @@ async fn get_chapters(
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<ChaptersWithStatus>> {
     let mut conn = pool.acquire().await?;
+    let user_id = user.as_ref().map(|u| u.id);
     let is_previewable = OptionFuture::from(user.map(|u| {
         authorize(&mut conn, Act::Teach, Some(u.id), Res::Course(*course_id)).map(|r| r.ok())
     }))
     .await
     .is_some();
-    let token = skip_authorize();
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let exercise_deadline_overrides =
         models::chapters::exercise_deadline_overrides_by_chapter_for_course(&mut conn, *course_id)
@@ -673,11 +676,13 @@ async fn search_pages_with_phrase(
     course_id: web::Path<Uuid>,
     payload: web::Json<SearchRequest>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, auth.map(|u| u.id), *course_id).await?;
     let res =
         models::pages::get_page_search_results_for_phrase(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -717,11 +722,13 @@ async fn search_pages_with_words(
     course_id: web::Path<Uuid>,
     payload: web::Json<SearchRequest>,
     pool: web::Data<PgPool>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<PageSearchResult>>> {
     let mut conn = pool.acquire().await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, auth.map(|u| u.id), *course_id).await?;
     let res =
         models::pages::get_page_search_results_for_words(&mut conn, *course_id, &payload).await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(res))
 }
 
@@ -813,15 +820,18 @@ async fn propose_edit(
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let course = courses::get_course_by_slug(&mut conn, course_slug.as_str()).await?;
-    let (id, _) = proposed_page_edits::insert(
+    let edits = edits.into_inner();
+    let token =
+        authorize_access_to_course_material(&mut conn, user.as_ref().map(|u| u.id), course.id)
+            .await?;
+    let (id, _) = proposed_page_edits::create_for_page_id_and_course_id(
         &mut conn,
         PKeyPolicy::Generate,
         course.id,
         user.map(|u| u.id),
-        &edits.into_inner(),
+        &edits,
     )
     .await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(id))
 }
 
@@ -841,10 +851,12 @@ async fn propose_edit(
 async fn glossary(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
+    auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Term>>> {
     let mut conn = pool.acquire().await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, auth.map(|u| u.id), *course_id).await?;
     let glossary = models::glossary::fetch_for_course(&mut conn, *course_id).await?;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(glossary))
 }
 
@@ -897,15 +909,15 @@ async fn get_public_top_level_pages(
     auth: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Vec<Page>>> {
     let mut conn = pool.acquire().await?;
+    let user_id = auth.map(|u| u.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
     let page = models::pages::get_course_top_level_pages_by_course_id_and_visibility(
         &mut conn,
         *course_id,
         PageVisibility::Public,
     )
     .await?;
-    let page =
-        models::pages::filter_course_material_pages(&mut conn, auth.map(|u| u.id), page).await?;
-    let token = skip_authorize();
+    let page = models::pages::filter_course_material_pages(&mut conn, user_id, page).await?;
     token.authorized_ok(web::Json(page))
 }
 
@@ -1010,6 +1022,8 @@ async fn get_page_by_course_id_and_language_group(
 ) -> ControllerResult<web::Json<Page>> {
     let mut conn = pool.acquire().await?;
     let (course_id, page_language_group_id) = info.into_inner();
+    let user_id = auth.map(|u| u.id);
+    let token = authorize_access_to_course_material(&mut conn, user_id, course_id).await?;
 
     let page: Page = models::pages::get_page_by_course_id_and_language_group(
         &mut conn,
@@ -1017,9 +1031,7 @@ async fn get_page_by_course_id_and_language_group(
         page_language_group_id,
     )
     .await?;
-    let page =
-        models::pages::filter_course_material_page(&mut conn, auth.map(|u| u.id), page).await?;
-    let token = skip_authorize();
+    let page = models::pages::filter_course_material_page(&mut conn, user_id, page).await?;
     token.authorized_ok(web::Json(page))
 }
 
@@ -1229,9 +1241,15 @@ async fn upsert_course_research_form_answer(
     let user_id = Some(user.id);
 
     let token = authorize_access_to_course_material(&mut conn, user_id, *course_id).await?;
-    let answer = payload;
-    let res =
-        models::research_forms::upsert_research_form_anwser(&mut conn, *course_id, &answer).await?;
+    let answer = payload.into_inner();
+    let res = models::research_forms::upsert_answer_for_user_id_and_question_id(
+        &mut conn,
+        user.id,
+        *course_id,
+        answer.research_form_question_id,
+        answer.research_consent,
+    )
+    .await?;
 
     token.authorized_ok(web::Json(res))
 }

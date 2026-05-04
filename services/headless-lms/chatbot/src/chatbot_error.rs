@@ -210,6 +210,7 @@ headless_lms_utils::define_err_macro!(
     chatbot_err,
     ChatbotError,
     ChatbotErrorType,
+    ChatbotErrorType,
     "Create a ChatbotError with less boilerplate."
 );
 

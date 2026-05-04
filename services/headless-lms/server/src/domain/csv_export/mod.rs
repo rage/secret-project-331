@@ -255,7 +255,7 @@ mod test {
     use std::{collections::HashMap, io::Cursor};
 
     use headless_lms_models::{
-        exercise_slides,
+        course_instance_enrollments, exercise_slides,
         exercise_task_gradings::ExerciseTaskGradingResult,
         exercise_tasks::{self, NewExerciseTask},
         exercises::{self, GradingProgress},
@@ -291,6 +291,14 @@ mod test {
         )
         .await
         .unwrap();
+
+        course_instance_enrollments::insert(tx.as_mut(), user, course, instance.id)
+            .await
+            .unwrap();
+        course_instance_enrollments::insert(tx.as_mut(), u2, course, instance.id)
+            .await
+            .unwrap();
+
         let c2 = chapters::insert(
             tx.as_mut(),
             PKeyPolicy::Generate,

@@ -381,6 +381,13 @@ pub async fn seed_organization_uh_cs(
     .await?;
     roles::insert(
         &mut conn,
+        language_teacher_user_id,
+        UserRole::Teacher,
+        RoleDomain::Organization(uh_cs_organization_id),
+    )
+    .await?;
+    roles::insert(
+        &mut conn,
         course_or_exam_creator_user_id,
         UserRole::CourseOrExamCreator,
         RoleDomain::Organization(uh_cs_organization_id),

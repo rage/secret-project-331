@@ -1,6 +1,19 @@
 import { QueryClient } from "@tanstack/react-query"
+import { ZodError } from "zod"
 
 import { isAppApiError } from "../errors/AppApiError"
+
+const normalizeIssuePath = (path: unknown): string | undefined => {
+  if (typeof path === "string") {
+    return path
+  }
+  if (Array.isArray(path)) {
+    return path
+      .filter((segment) => typeof segment === "string" || typeof segment === "number")
+      .join(".")
+  }
+  return undefined
+}
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,7 +29,45 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: (failureCount, error) => {
-        console.warn(`Query failed (attempt ${failureCount + 1})`)
+        if (error instanceof ZodError) {
+          const normalizedIssues = error.issues.map((issue) => {
+            const expected = "expected" in issue ? issue.expected : undefined
+            const received = "received" in issue ? issue.received : undefined
+            const format = "format" in issue ? issue.format : undefined
+            return {
+              path: normalizeIssuePath(issue.path),
+              code: issue.code,
+              message: issue.message,
+              expected,
+              received,
+              format,
+            }
+          })
+          console.warn(`Query failed (attempt ${failureCount + 1})`, {
+            kind: "zod_validation_error",
+            issues: normalizedIssues,
+            error,
+          })
+          return false
+        }
+        if (isAppApiError(error)) {
+          console.warn(`Query failed (attempt ${failureCount + 1})`, {
+            status: error.status,
+            kind: error.kind,
+            type: error.type,
+            messageKey: error.messageKey,
+            userMessage: error.userMessage,
+            detail: error.detail,
+            issues: error.issues,
+            metadata: error.metadata,
+            url: error.url,
+            method: error.method,
+            rawText: error.rawText,
+            error,
+          })
+        } else {
+          console.warn(`Query failed (attempt ${failureCount + 1})`, error)
+        }
         // Don't want to retry any client errors (4XX) -- it just gives the impression of slowness.
 
         const statusCode: number | undefined = isAppApiError(error)

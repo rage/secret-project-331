@@ -8,6 +8,8 @@ import {
 } from "../AppApiError"
 import { normalizeErrorForDisplay } from "../normalizeErrorForDisplay"
 
+const t = ((key: string) => key) as never
+
 describe("AppApiError", () => {
   test("extracts request id and retry-after from headers", () => {
     const headers = new Headers({
@@ -64,7 +66,7 @@ describe("AppApiError", () => {
       retryAfterSeconds: 30,
       code: "TOO_MANY_REQUESTS",
     })
-    const normalized = normalizeErrorForDisplay(err)
+    const normalized = normalizeErrorForDisplay(err, t)
     expect(normalized.category).toBe("rate_limit")
     expect(normalized.requestId).toBe("req-2")
     expect(normalized.retryAfterSeconds).toBe(30)
@@ -78,7 +80,7 @@ describe("AppApiError", () => {
       messageKey: "chapter_not_open_yet",
       title: "Chapter is not open yet.",
     })
-    const normalized = normalizeErrorForDisplay(err)
+    const normalized = normalizeErrorForDisplay(err, t)
     expect(normalized.category).toBe("auth")
     expect(normalized.messageKey).toBe("chapter_not_open_yet")
   })
@@ -91,7 +93,7 @@ describe("AppApiError", () => {
       messageKey: "authentication_required_for_exam_exercise",
       title: "User must be authenticated to view exam exercises",
     })
-    const normalized = normalizeErrorForDisplay(err)
+    const normalized = normalizeErrorForDisplay(err, t)
     expect(normalized.category).toBe("auth")
     expect(normalized.messageKey).toBe("authentication_required_for_exam_exercise")
   })
@@ -105,7 +107,7 @@ describe("AppApiError", () => {
       messageKey: "validation_error",
       title: "Validation failed",
     })
-    const normalized = normalizeErrorForDisplay(err)
+    const normalized = normalizeErrorForDisplay(err, t)
     expect(normalized.type).toBe("validation_error")
     expect(normalized.code).toBe("FORM_VALIDATION_FAILED")
     expect(normalized.messageKey).toBe("validation_error")

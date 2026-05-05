@@ -20,13 +20,16 @@ const t = ((key: string, options?: { defaultValue?: string }): string =>
 
 describe("resolveErrorDisplayCopy", () => {
   test("prefers localized issue-code message over generic message_key message", () => {
-    const view = normalizeErrorForDisplay({
-      type: "validation_error",
-      message_key: "validation_error_with_metadata",
-      message: "Non-localized backend message",
-      errors: [{ path: "exercise_type", code: "missing_exercise_type", message: "raw" }],
-      metadata: { block_id: "block-1" },
-    })
+    const view = normalizeErrorForDisplay(
+      {
+        type: "validation_error",
+        message_key: "validation_error_with_metadata",
+        message: "Non-localized backend message",
+        errors: [{ path: "exercise_type", code: "missing_exercise_type", message: "raw" }],
+        metadata: { block_id: "block-1" },
+      },
+      t,
+    )
 
     const resolved = resolveErrorDisplayCopy(view, t)
 
@@ -35,12 +38,15 @@ describe("resolveErrorDisplayCopy", () => {
   })
 
   test("falls back to generic message_key message when issue code translation is missing", () => {
-    const view = normalizeErrorForDisplay({
-      type: "validation_error",
-      message_key: "validation_error_with_metadata",
-      message: "Non-localized backend message",
-      errors: [{ path: "exercise_type", code: "some_other_issue", message: "raw" }],
-    })
+    const view = normalizeErrorForDisplay(
+      {
+        type: "validation_error",
+        message_key: "validation_error_with_metadata",
+        message: "Non-localized backend message",
+        errors: [{ path: "exercise_type", code: "some_other_issue", message: "raw" }],
+      },
+      t,
+    )
 
     const resolved = resolveErrorDisplayCopy(view, t)
 
@@ -49,12 +55,15 @@ describe("resolveErrorDisplayCopy", () => {
   })
 
   test("uses localized copy for chapter_not_open_yet message key", () => {
-    const view = normalizeErrorForDisplay({
-      type: "unauthorized",
-      message_key: "chapter_not_open_yet",
-      message: "Chapter is not open yet.",
-      errors: [],
-    })
+    const view = normalizeErrorForDisplay(
+      {
+        type: "unauthorized",
+        message_key: "chapter_not_open_yet",
+        message: "Chapter is not open yet.",
+        errors: [],
+      },
+      t,
+    )
 
     const resolved = resolveErrorDisplayCopy(view, t)
 
@@ -63,12 +72,15 @@ describe("resolveErrorDisplayCopy", () => {
   })
 
   test("uses localized copy for authentication_required_for_exam_exercise message key", () => {
-    const view = normalizeErrorForDisplay({
-      type: "unauthorized",
-      message_key: "authentication_required_for_exam_exercise",
-      message: "User must be authenticated to view exam exercises",
-      errors: [],
-    })
+    const view = normalizeErrorForDisplay(
+      {
+        type: "unauthorized",
+        message_key: "authentication_required_for_exam_exercise",
+        message: "User must be authenticated to view exam exercises",
+        errors: [],
+      },
+      t,
+    )
 
     const resolved = resolveErrorDisplayCopy(view, t)
 

@@ -13,10 +13,12 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
-use headless_lms_models::cms_ai::ParagraphSuggestionAction;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
+};
+use headless_lms_models::{
+    chatbot_configurations_models::ModelType, cms_ai::ParagraphSuggestionAction,
 };
 use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 
@@ -233,14 +235,16 @@ pub async fn generate_paragraph_suggestions(
         },
     };
 
-    let (params, max_output_tokens) = if task_lm.thinking {
+    let (params, max_output_tokens) = if (task_lm.model_type == ModelType::GPTHardThinking)
+        | (task_lm.model_type == ModelType::GPTThinking)
+    {
         (
-            LLMRequestParams::Thinking(ThinkingParams { reasoning: None }),
+            LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),
             Some(4000),
         )
     } else {
         (
-            LLMRequestParams::NonThinking(NonThinkingParams {
+            LLMRequestParams::GPTNonThinking(NonThinkingParams {
                 temperature: None,
                 top_p: None,
                 frequency_penalty: None,

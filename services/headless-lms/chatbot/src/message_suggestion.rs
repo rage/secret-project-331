@@ -15,6 +15,7 @@ use crate::{
 };
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
+    chatbot_configurations_models::ModelType,
     chatbot_conversation_message_messages::MessageRole,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
@@ -102,14 +103,16 @@ pub async fn generate_suggested_messages(
         },
     };
 
-    let (params, max_output_tokens) = if task_lm.thinking {
+    let (params, max_output_tokens) = if (task_lm.model_type == ModelType::GPTHardThinking)
+        | (task_lm.model_type == ModelType::GPTThinking)
+    {
         (
-            LLMRequestParams::Thinking(ThinkingParams { reasoning: None }),
+            LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),
             Some(7000),
         )
     } else {
         (
-            LLMRequestParams::NonThinking(NonThinkingParams {
+            LLMRequestParams::GPTNonThinking(NonThinkingParams {
                 temperature: None,
                 top_p: None,
                 frequency_penalty: None,
@@ -173,6 +176,7 @@ fn create_conversation_from_msgs(
     mut used_tokens: i32,
     token_budget: i32,
 ) -> ChatbotResult<String> {
+    println!("{:?}", conversation_messages);
     conversation_messages
         .to_vec()
         .sort_by_key(|el| el.order_number);
@@ -183,6 +187,8 @@ fn create_conversation_from_msgs(
             _ => None,
         })
         .collect();
+    println!("{:?}", conversation);
+
     let conv_len = conversation.len();
     // calculate how many messages to include in the conversation context
     let cutoff = conversation

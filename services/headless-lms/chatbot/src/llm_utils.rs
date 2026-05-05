@@ -1,10 +1,15 @@
 use crate::{
-    azure_chatbot::{ChatResponse, InputItem, LLMRequest, OutputItem, ReasoningOutput},
+    azure_chatbot::{
+        ChatResponse, InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams,
+        OutputItem, Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
+    },
     chatbot_error::ChatbotResult,
     prelude::*,
 };
 use core::default::Default;
 use headless_lms_models::{
+    chatbot_configurations::{ChatbotConfiguration, ReasoningEffortLevel},
+    chatbot_configurations_models::ModelType,
     chatbot_conversation_message_messages::{ChatbotConversationMessageMessage, MessageRole},
     chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning,
     chatbot_conversation_message_tool_calls::{ChatbotConversationMessageToolCall, ToolKind},
@@ -725,6 +730,51 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
         ));
     };
     Ok(res)
+}
+
+pub fn get_params_for_model(
+    model_type: &ModelType,
+    configuration: &ChatbotConfiguration,
+) -> LLMRequestParams {
+    match model_type {
+        ModelType::GPTNonThinking => LLMRequestParams::GPTNonThinking(NonThinkingParams {
+            temperature: Some(configuration.temperature),
+            top_p: Some(configuration.top_p),
+            frequency_penalty: Some(configuration.frequency_penalty),
+            presence_penalty: Some(configuration.presence_penalty),
+        }),
+        ModelType::GPTHardThinking => {
+            // make sure the effort value is valid for the model type
+            let effort = if configuration.reasoning_effort == ReasoningEffortLevel::Minimal {
+                ReasoningEffortLevel::Low
+            } else {
+                configuration.reasoning_effort
+            };
+            LLMRequestParams::GPTThinking(ThinkingParams {
+                reasoning: Some(Reasoning {
+                    effort,
+                    summary: Some(SummaryType::Detailed),
+                }),
+            })
+        }
+        ModelType::GPTThinking => {
+            // make sure the effort value is valid for the model type
+            let effort = if configuration.reasoning_effort == ReasoningEffortLevel::None {
+                ReasoningEffortLevel::Minimal
+            } else if configuration.reasoning_effort == ReasoningEffortLevel::Xhigh {
+                ReasoningEffortLevel::High
+            } else {
+                configuration.reasoning_effort
+            };
+            LLMRequestParams::GPTThinking(ThinkingParams {
+                reasoning: Some(Reasoning {
+                    effort,
+                    summary: Some(SummaryType::Detailed),
+                }),
+            })
+        }
+        ModelType::Mistral => LLMRequestParams::Mistral(MistralParams { test: true }),
+    }
 }
 
 #[cfg(test)]

@@ -298,7 +298,6 @@ export interface ChatbotConfiguration {
   enabled_to_students: boolean
   chatbot_name: string
   model_id: string
-  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
@@ -325,7 +324,6 @@ export interface NewChatbotConf {
   enabled_to_students: boolean
   chatbot_name: string
   model_id: string
-  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
@@ -350,7 +348,7 @@ export interface NewChatbotConf {
 
 export type VerbosityLevel = "low" | "medium" | "high"
 
-export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
 export interface ChatbotConfigurationModel {
   id: string
@@ -358,10 +356,12 @@ export interface ChatbotConfigurationModel {
   updated_at: string
   deleted_at: string | null
   model: string
-  thinking: boolean
+  model_type: ModelType
   default_model: boolean
   context_size: number
 }
+
+export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "Mistral"
 
 export interface ChatbotConversationMessage {
   id: string

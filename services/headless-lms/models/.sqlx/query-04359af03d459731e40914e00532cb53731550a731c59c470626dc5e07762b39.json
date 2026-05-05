@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    thinking_model,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    max_output_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\",\n    initial_suggested_messages\nFROM chatbot_configurations\nWHERE course_id = $1\nAND deleted_at IS NULL\n",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    max_output_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\",\n    initial_suggested_messages\nFROM chatbot_configurations\nWHERE maintain_azure_search_index = true\nAND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -45,91 +45,86 @@
       },
       {
         "ordinal": 8,
-        "name": "thinking_model",
-        "type_info": "Bool"
-      },
-      {
-        "ordinal": 9,
         "name": "prompt",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 10,
+        "ordinal": 9,
         "name": "initial_message",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 11,
+        "ordinal": 10,
         "name": "weekly_tokens_per_user",
         "type_info": "Int4"
       },
       {
-        "ordinal": 12,
+        "ordinal": 11,
         "name": "daily_tokens_per_user",
         "type_info": "Int4"
       },
       {
-        "ordinal": 13,
+        "ordinal": 12,
         "name": "temperature",
         "type_info": "Float4"
       },
       {
-        "ordinal": 14,
+        "ordinal": 13,
         "name": "top_p",
         "type_info": "Float4"
       },
       {
-        "ordinal": 15,
+        "ordinal": 14,
         "name": "frequency_penalty",
         "type_info": "Float4"
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "presence_penalty",
         "type_info": "Float4"
       },
       {
-        "ordinal": 17,
+        "ordinal": 16,
         "name": "max_output_tokens",
         "type_info": "Int4"
       },
       {
-        "ordinal": 18,
+        "ordinal": 17,
         "name": "use_azure_search",
         "type_info": "Bool"
       },
       {
-        "ordinal": 19,
+        "ordinal": 18,
         "name": "maintain_azure_search_index",
         "type_info": "Bool"
       },
       {
-        "ordinal": 20,
+        "ordinal": 19,
         "name": "hide_citations",
         "type_info": "Bool"
       },
       {
-        "ordinal": 21,
+        "ordinal": 20,
         "name": "use_semantic_reranking",
         "type_info": "Bool"
       },
       {
-        "ordinal": 22,
+        "ordinal": 21,
         "name": "use_tools",
         "type_info": "Bool"
       },
       {
-        "ordinal": 23,
+        "ordinal": 22,
         "name": "default_chatbot",
         "type_info": "Bool"
       },
       {
-        "ordinal": 24,
+        "ordinal": 23,
         "name": "suggest_next_messages",
         "type_info": "Bool"
       },
       {
-        "ordinal": 25,
+        "ordinal": 24,
         "name": "verbosity: VerbosityLevel",
         "type_info": {
           "Custom": {
@@ -145,32 +140,32 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 25,
         "name": "reasoning_effort: ReasoningEffortLevel",
         "type_info": {
           "Custom": {
             "name": "reasoning_effort_level",
             "kind": {
               "Enum": [
+                "none",
                 "minimal",
                 "low",
                 "medium",
-                "high"
+                "high",
+                "xhigh"
               ]
             }
           }
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 26,
         "name": "initial_suggested_messages",
         "type_info": "VarcharArray"
       }
     ],
     "parameters": {
-      "Left": [
-        "Uuid"
-      ]
+      "Left": []
     },
     "nullable": [
       false,
@@ -199,9 +194,8 @@
       false,
       false,
       false,
-      false,
       true
     ]
   },
-  "hash": "53bc4791ac2963aa75e739fd94349e56fb302aafd6d8500d80e725826c3d48e1"
+  "hash": "04359af03d459731e40914e00532cb53731550a731c59c470626dc5e07762b39"
 }

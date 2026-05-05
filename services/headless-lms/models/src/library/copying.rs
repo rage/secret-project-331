@@ -1173,7 +1173,6 @@ INSERT INTO chatbot_configurations (
     default_chatbot,
     enabled_to_students,
     model_id,
-    thinking_model,
     use_tools
   )
 SELECT
@@ -1196,7 +1195,6 @@ SELECT
   default_chatbot,
   enabled_to_students,
   model_id,
-  thinking_model,
   use_tools
 FROM chatbot_configurations
 WHERE course_id = $2

@@ -1093,6 +1093,8 @@
   "reasoning-effort-low": "Low",
   "reasoning-effort-medium": "Medium",
   "reasoning-effort-minimal": "Minimal",
+  "reasoning-effort-none": "No reasoning",
+  "reasoning-effort-xhigh": "Extra high",
   "received-enough-peer-reviews": "Received enough peer reviews",
   "received-number-data": "Received number data",
   "received-reviews": "Received reviews",

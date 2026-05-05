@@ -913,8 +913,9 @@ pub async fn parse_and_stream_to_user<'a>(
 
             match event_type.as_str() {
                 "response.completed" | "response.incomplete" => {response_received = true;},
-    /*                 "response.output_text.delta" => println!("stream"),
-                "response.output_item.done" => println!("check out what came, like cited documents?"), */
+                // todo: react corectly
+                "response.output_text.delta" => println!("stream"),
+                "response.output_item.done" => println!("check out what came, like cited documents?"),
                 "response.function_call_arguments.delta" | "response.output_item.added" => println!("ERROR, function call or output item not expected: {:?}", event_type),
                 "response.error" => {},
                 _ => continue,

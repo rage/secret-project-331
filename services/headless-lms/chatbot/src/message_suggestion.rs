@@ -176,7 +176,7 @@ fn create_conversation_from_msgs(
     mut used_tokens: i32,
     token_budget: i32,
 ) -> ChatbotResult<String> {
-    println!("{:?}", conversation_messages);
+    // todo empty messages?
     conversation_messages
         .to_vec()
         .sort_by_key(|el| el.order_number);
@@ -187,7 +187,6 @@ fn create_conversation_from_msgs(
             _ => None,
         })
         .collect();
-    println!("{:?}", conversation);
 
     let conv_len = conversation.len();
     // calculate how many messages to include in the conversation context

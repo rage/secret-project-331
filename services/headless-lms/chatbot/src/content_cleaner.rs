@@ -7,6 +7,7 @@ use crate::llm_utils::{
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
+use headless_lms_models::chatbot_configurations_models::ModelType;
 use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
@@ -333,10 +334,12 @@ async fn process_block_chunk(
     task_lm: &TaskLMSpec,
 ) -> ChatbotResult<String> {
     let input = prepare_llm_messages(chunk, system_message)?;
-    let params = if task_lm.thinking {
-        LLMRequestParams::Thinking(ThinkingParams { reasoning: None })
+    let params = if (task_lm.model_type == ModelType::GPTHardThinking)
+        | (task_lm.model_type == ModelType::GPTThinking)
+    {
+        LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None })
     } else {
-        LLMRequestParams::NonThinking(NonThinkingParams {
+        LLMRequestParams::GPTNonThinking(NonThinkingParams {
             temperature: Some(REQUEST_TEMPERATURE),
             top_p: None,
             frequency_penalty: None,

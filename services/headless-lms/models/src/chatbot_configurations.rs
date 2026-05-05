@@ -5,10 +5,12 @@ use crate::prelude::*;
 #[sqlx(type_name = "reasoning_effort_level", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum ReasoningEffortLevel {
+    None,
     Minimal,
     Low,
     Medium,
     High,
+    Xhigh,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
@@ -32,7 +34,6 @@ pub struct ChatbotConfiguration {
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model_id: Uuid,
-    pub thinking_model: bool,
     pub prompt: String,
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
@@ -65,7 +66,6 @@ impl Default for ChatbotConfiguration {
             enabled_to_students: false,
             chatbot_name: Default::default(),
             model_id: Uuid::nil(),
-            thinking_model: false,
             prompt: Default::default(),
             initial_message: Default::default(),
             weekly_tokens_per_user: 20000 * 5,
@@ -96,7 +96,6 @@ pub struct NewChatbotConf {
     pub enabled_to_students: bool,
     pub chatbot_name: String,
     pub model_id: Uuid,
-    pub thinking_model: bool,
     pub prompt: String,
     pub initial_message: String,
     pub weekly_tokens_per_user: i32,
@@ -127,7 +126,6 @@ impl Default for NewChatbotConf {
             enabled_to_students: chatbot_conf.enabled_to_students,
             chatbot_name: chatbot_conf.chatbot_name,
             model_id: chatbot_conf.model_id,
-            thinking_model: chatbot_conf.thinking_model,
             prompt: chatbot_conf.prompt,
             initial_message: chatbot_conf.initial_message,
             weekly_tokens_per_user: chatbot_conf.weekly_tokens_per_user,
@@ -165,7 +163,6 @@ SELECT
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -211,7 +208,6 @@ INSERT INTO chatbot_configurations (
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -231,7 +227,7 @@ INSERT INTO chatbot_configurations (
     suggest_next_messages,
     initial_suggested_messages
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)
 RETURNING
     id,
     created_at,
@@ -241,7 +237,6 @@ RETURNING
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -267,7 +262,6 @@ RETURNING
         input.enabled_to_students,
         input.chatbot_name,
         input.model_id,
-        input.thinking_model,
         input.prompt,
         input.initial_message,
         input.weekly_tokens_per_user,
@@ -319,13 +313,12 @@ SET
     use_semantic_reranking = $15,
     default_chatbot = $16,
     model_id = $17,
-    thinking_model = $18,
-    verbosity = $19,
-    reasoning_effort = $20,
-    use_tools = $21,
-    suggest_next_messages = $22,
-    initial_suggested_messages = $23
-WHERE id = $24
+    verbosity = $18,
+    reasoning_effort = $19,
+    use_tools = $20,
+    suggest_next_messages = $21,
+    initial_suggested_messages = $22
+WHERE id = $23
     AND deleted_at IS NULL
 RETURNING
     id,
@@ -336,7 +329,6 @@ RETURNING
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -374,7 +366,6 @@ RETURNING
         input.use_semantic_reranking,
         input.default_chatbot,
         input.model_id,
-        input.thinking_model,
         input.verbosity as VerbosityLevel,
         input.reasoning_effort as ReasoningEffortLevel,
         input.use_tools,
@@ -418,7 +409,6 @@ SELECT
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -465,7 +455,6 @@ SELECT
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -513,7 +502,6 @@ SELECT
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,
@@ -581,7 +569,6 @@ RETURNING
     enabled_to_students,
     chatbot_name,
     model_id,
-    thinking_model,
     prompt,
     initial_message,
     weekly_tokens_per_user,

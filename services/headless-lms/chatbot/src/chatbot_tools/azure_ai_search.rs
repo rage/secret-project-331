@@ -89,7 +89,7 @@ pub fn get_azure_ai_search_tool_definition(
                     deployment_name: search_config.vectorizer_deployment_id.clone(),
                 },
                 in_scope: false,
-                top_k: 15,
+                top_k: 5,
                 strictness: 3,
                 filter: Some(SearchFilter::eq("course_id", course_id.to_string()).to_odata()?),
                 fields_mapping: FieldsMapping {

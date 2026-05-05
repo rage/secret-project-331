@@ -36,7 +36,8 @@ use crate::chatbot_tools::{
 };
 use crate::citations::chatbot_cited_documents_to_citations;
 use crate::llm_utils::{
-    APIInputMessage, APIOutputMessage, MessageContent, estimate_tokens, make_streaming_llm_request,
+    APIInputMessage, APIOutputMessage, MessageContent, estimate_tokens, get_params_for_model,
+    make_streaming_llm_request,
 };
 
 use crate::prelude::*;
@@ -226,10 +227,17 @@ pub struct NonThinkingParams {
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
+pub struct MistralParams {
+    // todo
+    pub test: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 #[serde(untagged)]
 pub enum LLMRequestParams {
-    Thinking(ThinkingParams),
-    NonThinking(NonThinkingParams),
+    GPTThinking(ThinkingParams),
+    GPTNonThinking(NonThinkingParams),
+    Mistral(MistralParams),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -395,21 +403,7 @@ impl LLMRequest {
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
-        let params = if configuration.thinking_model {
-            LLMRequestParams::Thinking(ThinkingParams {
-                reasoning: Some(Reasoning {
-                    effort: configuration.reasoning_effort,
-                    summary: Some(SummaryType::Detailed),
-                }),
-            })
-        } else {
-            LLMRequestParams::NonThinking(NonThinkingParams {
-                temperature: Some(configuration.temperature),
-                top_p: Some(configuration.top_p),
-                frequency_penalty: Some(configuration.frequency_penalty),
-                presence_penalty: Some(configuration.presence_penalty),
-            })
-        };
+        let params = get_params_for_model(&model.model_type, &configuration);
 
         Ok((
             Self {
@@ -908,7 +902,6 @@ pub async fn parse_and_stream_to_user<'a>(
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
             let line = val?;
-            println!("🐈🐈🐈🐈🐈🐈{:?}", line);
             if line.starts_with("event: ") {
                 event_type = line.trim_start_matches("event: ").to_string();
                 continue;
@@ -920,9 +913,10 @@ pub async fn parse_and_stream_to_user<'a>(
 
             match event_type.as_str() {
                 "response.completed" | "response.incomplete" => {response_received = true;},
-                "response.output_text.delta" => println!("stream"),
-                "response.output_item.done" => println!("check out what came, like cited documents?"),
-                "response.function_call_arguments.delta" => println!("ERROR, function call not expected: {:?}", event_type),
+    /*                 "response.output_text.delta" => println!("stream"),
+                "response.output_item.done" => println!("check out what came, like cited documents?"), */
+                "response.function_call_arguments.delta" | "response.output_item.added" => println!("ERROR, function call or output item not expected: {:?}", event_type),
+                "response.error" => {},
                 _ => continue,
             };
 

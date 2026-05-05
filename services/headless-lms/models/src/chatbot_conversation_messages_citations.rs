@@ -101,6 +101,10 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
+/// Sets the correct conversation_message_id to citations. The correct id is the
+/// id of the chatbot text message that uses the citations. Update the citations
+/// that currently connected to a conversation_message that contains tool output
+/// and has the same response_id.
 pub async fn update_citation_message_ids(
     conn: &mut PgConnection,
     response_id: String,
@@ -129,6 +133,5 @@ RETURNING *
     )
     .fetch_all(conn)
     .await?;
-
     Ok(res)
 }

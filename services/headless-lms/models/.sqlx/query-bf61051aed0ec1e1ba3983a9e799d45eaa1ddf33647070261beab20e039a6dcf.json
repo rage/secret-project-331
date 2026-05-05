@@ -1,0 +1,76 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    model,\n    model_type as \"model_type: ModelType\",\n    default_model,\n    context_size\nFROM chatbot_configurations_models\nWHERE id = (\n    SELECT model_id FROM chatbot_configurations WHERE id = $1\n)\nAND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "model",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "model_type: ModelType",
+        "type_info": {
+          "Custom": {
+            "name": "model_type",
+            "kind": {
+              "Enum": [
+                "gpt-thinking",
+                "gpt-non-thinking",
+                "gpt-hard-thinking",
+                "mistral"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "default_model",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 7,
+        "name": "context_size",
+        "type_info": "Int4"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "bf61051aed0ec1e1ba3983a9e799d45eaa1ddf33647070261beab20e039a6dcf"
+}

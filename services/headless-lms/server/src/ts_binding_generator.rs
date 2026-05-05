@@ -70,6 +70,7 @@ fn models(target: &mut File) {
         chatbot_configurations::VerbosityLevel,
         chatbot_configurations::ReasoningEffortLevel,
         chatbot_configurations_models::ChatbotConfigurationModel,
+        chatbot_configurations_models::ModelType,
         chatbot_conversation_messages::ChatbotConversationMessage,
         chatbot_conversation_messages::Message,
         chatbot_conversation_message_messages::MessageRole,

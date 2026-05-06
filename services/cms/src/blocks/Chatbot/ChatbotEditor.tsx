@@ -3,19 +3,19 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockEditProps } from "@wordpress/blocks"
 import React, { useContext } from "react"
-import { useTranslation } from "react-i18next"
 
 import PageContext from "../../contexts/PageContext"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 
 import { ChatbotBlockAttributes } from "."
 
-import { fetchNondefaultChatbotConfigurationsForCourse } from "@/services/backend/courses"
+import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorAndLoadingWrapper from "@/shared-module/common/components/ErrorAndLoadingWrapper"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = [""]
 
@@ -27,12 +27,18 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
   const { t } = useTranslation()
   const courseId = useContext(PageContext)?.page.course_id
 
-  const chatbotConfigurations = useQuery({
-    queryKey: ["courses", courseId, "nondefault-chatbot-configurations"],
-    queryFn: () =>
-      fetchNondefaultChatbotConfigurationsForCourse(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const chatbotConfigurations = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseNondefaultChatbotConfigurationsOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
   const chatbotConfigurationSelectOptions: { label: string; value: string }[] = [
     ...(chatbotConfigurations.data?.map((c) => ({ label: c.chatbot_name, value: c.id })) ?? []),
   ]

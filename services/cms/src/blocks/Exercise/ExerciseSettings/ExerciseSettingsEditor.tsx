@@ -4,19 +4,19 @@ import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { InnerBlocks } from "@wordpress/block-editor"
 import { useContext } from "react"
-import { useTranslation } from "react-i18next"
 
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import ExerciseBlockContext from "../../../contexts/ExerciseBlockContext"
 import PageContext from "../../../contexts/PageContext"
-import { fetchCourseById } from "../../../services/backend/courses"
 
+import { getCmsCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ALLOWED_NESTED_BLOCKS = ["core/image", "core/paragraph", "core/list", "moocfi/latex"]
 
@@ -25,11 +25,18 @@ const ExerciseSettingsEditor = () => {
   const courseId = useContext(PageContext)?.page.course_id
   const { attributes, setAttributes } = useContext(ExerciseBlockContext)
 
-  const courseQuery = useQuery({
-    queryKey: ["course", courseId],
-    queryFn: () => fetchCourseById(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
-  })
+  const courseQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      isReady: (courseId): courseId is string => Boolean(courseId),
+      build: (courseId) =>
+        getCmsCourseOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
   const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
 
   if (!attributes) {

@@ -1,4 +1,5 @@
 use futures::future::OptionFuture;
+use utoipa::ToSchema;
 
 use crate::{
     chatbot_conversation_messages::ChatbotConversationMessage,
@@ -6,8 +7,8 @@ use crate::{
     chatbot_conversation_suggested_messages::ChatbotConversationSuggestedMessage, prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ChatbotConversation {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -18,8 +19,8 @@ pub struct ChatbotConversation {
     pub chatbot_configuration_id: Uuid,
 }
 
-#[derive(Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 /** Should contain all information required to display the chatbot to the user. */
 pub struct ChatbotConversationInfo {
     pub current_conversation: Option<ChatbotConversation>,
@@ -45,6 +46,56 @@ RETURNING *
         input.course_id,
         input.user_id,
         input.chatbot_configuration_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn create_for_user_and_configuration(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+INSERT INTO chatbot_conversations (
+    id,
+    course_id,
+    user_id,
+    chatbot_configuration_id
+)
+SELECT
+    $1,
+    chatbot_configurations.course_id,
+    $2,
+    chatbot_configurations.id
+FROM chatbot_configurations
+WHERE chatbot_configurations.id = $3
+  AND chatbot_configurations.deleted_at IS NULL
+RETURNING *
+        "#,
+        pkey_policy.into_uuid(),
+        user_id,
+        chatbot_configuration_id
     )
     .fetch_one(conn)
     .await?;

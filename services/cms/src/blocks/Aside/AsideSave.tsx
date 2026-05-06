@@ -1,9 +1,10 @@
 "use client"
 
 import { InnerBlocks } from "@wordpress/block-editor"
-import { BlockSaveProps } from "@wordpress/blocks"
 
 import { AsideComponentProps } from "."
+
+import type { BlockSaveProps } from "@/utils/Gutenberg/types"
 
 const AsideSave = (_props: BlockSaveProps<AsideComponentProps>): JSX.Element => {
   return (

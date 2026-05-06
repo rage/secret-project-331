@@ -2,9 +2,10 @@ use crate::{
     exercises::Exercise, prelude::*,
     user_course_exercise_service_variables::UserCourseExerciseServiceVariable,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CustomViewExerciseTaskGrading {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -14,16 +15,16 @@ pub struct CustomViewExerciseTaskGrading {
     pub feedback_text: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CustomViewExerciseTaskSpec {
     pub id: Uuid,
     pub public_spec: Option<serde_json::Value>,
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, ToSchema)]
+
 pub struct CustomViewExerciseTaskSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -34,16 +35,16 @@ pub struct CustomViewExerciseTaskSubmission {
     pub data_json: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CustomViewExerciseSubmissions {
     pub exercise_tasks: CustomViewExerciseTasks,
     pub exercises: Vec<Exercise>,
     pub user_variables: Vec<UserCourseExerciseServiceVariable>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CustomViewExerciseTasks {
     pub exercise_tasks: Vec<CustomViewExerciseTaskSpec>,
     pub task_submissions: Vec<CustomViewExerciseTaskSubmission>,

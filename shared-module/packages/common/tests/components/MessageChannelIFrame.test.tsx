@@ -75,9 +75,12 @@ describe("MessageChannelIFrame", () => {
       </I18nextProvider>,
     )
     await waitFor(() => res.container.querySelector("iframe"))
-    expect(res.container.querySelector("iframe")?.src).toBe(
-      "http://example.com/example-iframe-page",
+    const iframe = res.container.querySelector<HTMLIFrameElement>(
+      'iframe[data-testid="message-channel-iframe"]',
     )
+    expect(iframe?.src).toBe("http://example.com/example-iframe-page")
+    expect(iframe?.getAttribute("data-state-sent")).toBe("true")
+    expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
   })
 
   describe("basic connection flow", () => {
@@ -621,7 +624,7 @@ describe("MessageChannelIFrame", () => {
   })
 
   describe("origin verification", () => {
-    it("accepts messages from null origin (sandboxed iframe)", async () => {
+    it("accepts messages from null origin (opaque sandboxed origin)", async () => {
       const mockChannel = createMockMessageChannel()
 
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
@@ -658,7 +661,7 @@ describe("MessageChannelIFrame", () => {
       expect(mockContentWindow.postMessage).toHaveBeenCalled()
     })
 
-    it("accepts messages from window.location.origin (non-sandboxed)", async () => {
+    it("accepts messages from window.location.origin (same-origin embed)", async () => {
       const mockChannel = createMockMessageChannel()
 
       window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
@@ -686,6 +689,43 @@ describe("MessageChannelIFrame", () => {
       const event = createMockMessageEvent("ready", {
         source: mockContentWindow as unknown as Window,
         origin: window.location.origin,
+      })
+
+      act(() => {
+        messageListeners.forEach((listener) => listener(event))
+      })
+
+      expect(mockContentWindow.postMessage).toHaveBeenCalled()
+    })
+
+    it("accepts messages from iframe src origin (cross-origin embed with allow-same-origin)", async () => {
+      const mockChannel = createMockMessageChannel()
+
+      window.MessageChannel = jest.fn().mockReturnValue(mockChannel)
+
+      const { container } = render(
+        <I18nextProvider i18n={i18nTest}>
+          <MessageChannelIFrame
+            url="http://example.com/test"
+            postThisStateToIFrame={null}
+            onMessageFromIframe={jest.fn()}
+            title="test"
+          />
+        </I18nextProvider>,
+      )
+
+      const iframe = await waitFor(() => container.querySelector("iframe"))
+      const mockContentWindow = {
+        postMessage: jest.fn(),
+      }
+      Object.defineProperty(iframe, "contentWindow", {
+        value: mockContentWindow,
+        writable: true,
+      })
+
+      const event = createMockMessageEvent("ready", {
+        source: mockContentWindow as unknown as Window,
+        origin: "http://example.com",
       })
 
       act(() => {
@@ -813,6 +853,16 @@ describe("MessageChannelIFrame", () => {
 
       expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(1)
 
+      act(() => {
+        if (mockChannel.port1.onmessage) {
+          mockChannel.port1.onmessage({
+            data: { message: "height-changed", data: 500 },
+          } as MessageEvent)
+        }
+      })
+
+      expect(iframe?.getAttribute("data-iframe-height")).toBe("500")
+
       rerender(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
@@ -834,6 +884,8 @@ describe("MessageChannelIFrame", () => {
       })
 
       expect(mockContentWindow.postMessage).toHaveBeenCalledTimes(2)
+      expect(iframe?.getAttribute("data-state-sent")).toBe("false")
+      expect(iframe?.getAttribute("data-iframe-height")).toBe("0")
     })
   })
 
@@ -946,7 +998,7 @@ describe("MessageChannelIFrame", () => {
         data: { public_spec: {}, previous_submission: null },
       }
 
-      render(
+      const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
             url="http://example.com/test"
@@ -964,6 +1016,11 @@ describe("MessageChannelIFrame", () => {
             ...stateToPost,
           }),
         )
+      })
+
+      await waitFor(() => {
+        const iframe = container.querySelector("iframe")
+        expect(iframe?.getAttribute("data-state-sent")).toBe("true")
       })
     })
 

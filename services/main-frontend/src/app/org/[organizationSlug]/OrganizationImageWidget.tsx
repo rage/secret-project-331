@@ -5,10 +5,11 @@ import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import UploadImageForm from "@/components/forms/UploadImageForm"
-import { removeOrganizationImage, setOrganizationImage } from "@/services/backend/organizations"
-import { Organization } from "@/shared-module/common/bindings"
+import { deleteOrganizationImage, updateOrganizationImage } from "@/generated/api/sdk.generated"
+import type { Organization } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import { validateFile } from "@/shared-module/common/utils/files"
 
 export interface OrganizationImageControlsProps {
   organization: Organization
@@ -23,7 +24,23 @@ const OrganizationImageWidget: React.FC<
   const [error, setError] = useState<unknown>()
 
   const uploadImageMutation = useToastMutation(
-    (imageFile: File) => setOrganizationImage(organization.id, imageFile),
+    async (imageFile: File) => {
+      // eslint-disable-next-line i18next/no-literal-string
+      validateFile(imageFile, ["image"])
+
+      return await updateOrganizationImage({
+        body: { file: imageFile },
+        bodySerializer: () => {
+          const formData = new FormData()
+          // eslint-disable-next-line i18next/no-literal-string
+          formData.append("file", imageFile)
+          return formData
+        },
+        path: {
+          organization_id: organization.id,
+        },
+      })
+    },
     {
       notify: true,
       method: "POST",
@@ -44,7 +61,11 @@ const OrganizationImageWidget: React.FC<
   const handleRemove = async () => {
     setAllowRemove(false)
     try {
-      await removeOrganizationImage(organization.id)
+      await deleteOrganizationImage({
+        path: {
+          organization_id: organization.id,
+        },
+      })
       onOrganizationUpdated()
       setError(undefined)
     } catch (e) {

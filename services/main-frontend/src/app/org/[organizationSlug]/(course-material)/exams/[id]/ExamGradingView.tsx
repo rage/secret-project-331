@@ -3,7 +3,7 @@
 import { css } from "@emotion/css"
 import { useTranslation } from "react-i18next"
 
-import type { ExamData } from "@/shared-module/common/bindings"
+import type { ExamData } from "@/generated/course-material-api/types.generated"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 
 export interface ExamGradingViewProps {

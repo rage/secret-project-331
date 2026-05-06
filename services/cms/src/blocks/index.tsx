@@ -1,7 +1,6 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import Aside from "./Aside"
 import AsideWithImage from "./AsideWithImage"
@@ -49,6 +48,8 @@ import TableBox from "./TableBox"
 import TerminologyBlock from "./Terminology"
 import TopLevelPage from "./TopLevelPage"
 import UnsupportedBlock from "./UnsupportedBlock"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 /**
  * List of custom blocks to be passed on to Gutenberg.

@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchGlossary } from "@/services/course-material/backend"
+import { getCourseMaterialGlossary } from "@/generated/course-material-api/sdk.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -20,7 +20,12 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
 
   const glossary = useQuery({
     queryKey: [`glossary-${courseId}`],
-    queryFn: () => fetchGlossary(courseId),
+    queryFn: () =>
+      getCourseMaterialGlossary({
+        path: {
+          course_id: courseId,
+        },
+      }),
   })
 
   if (glossary.isError) {

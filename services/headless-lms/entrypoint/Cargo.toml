@@ -16,8 +16,12 @@ headless-lms-server = { path = "../server" }
 actix-web = "4.13.0"
 # Flexible concrete Error type built on std::error::Error
 anyhow = "1.0.102"
+# A JSON serialization file format
+serde_json = "1.0.149"
 # Combinators and utilities for working with Futures, Streams, Sinks, and the AsyncRead and AsyncWrite traits.
 futures-util = "0.3.32"
+# Code-first OpenAPI generation from Rust types and handlers
+utoipa = { version = "5.4.0", features = ["chrono", "uuid"] }
 # A runtime for writing reliable network applications without compromising speed.
 tokio.workspace = true
 

@@ -5,6 +5,7 @@ use crate::{llm_utils::build_llm_headers, prelude::*};
 use headless_lms_models::chatbot_conversation_messages_citations::{
     self, ChatbotConversationMessageCitation,
 };
+use headless_lms_utils::strings::truncate_utf8_at_boundary;
 use headless_lms_utils::url_encoding::url_decode;
 use reqwest::Response;
 use serde::{Deserialize, Serialize};
@@ -32,7 +33,7 @@ impl CourseMaterialDocument {
         let content = if self.chunk.len() < 255 {
             self.chunk.clone()
         } else {
-            self.chunk[0..255].to_string()
+            truncate_utf8_at_boundary(&self.chunk, 255).to_string()
         };
 
         // The title and URL come from Azure Blob Storage metadata, which was URL-encoded

@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
+
 pub struct NewFeedback {
     pub feedback_given: String,
     pub selected_text: Option<String>,
@@ -9,12 +10,27 @@ pub struct NewFeedback {
     pub page_id: Uuid,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct FeedbackBlock {
     pub id: Uuid,
     pub text: Option<String>,
     pub order_number: Option<i32>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct FeedbackRow {
+    pub id: Uuid,
+    pub user_id: Option<Uuid>,
+    pub course_id: Option<Uuid>,
+    pub exam_id: Option<Uuid>,
+    pub page_id: Option<Uuid>,
+    pub feedback_given: String,
+    pub selected_text: Option<String>,
+    pub marked_as_read: bool,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 pub async fn insert(
@@ -80,8 +96,69 @@ WHERE id = $2
     Ok(())
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<FeedbackRow> {
+    let res = sqlx::query_as!(
+        FeedbackRow,
+        r#"
+SELECT id,
+  user_id,
+  course_id,
+  exam_id,
+  page_id,
+  feedback_given,
+  selected_text,
+  marked_as_read,
+  created_at,
+  updated_at,
+  deleted_at
+FROM feedback
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn set_read_state_by_id_and_course_id(
+    conn: &mut PgConnection,
+    id: Uuid,
+    course_id: Uuid,
+    read: bool,
+) -> ModelResult<FeedbackRow> {
+    let res = sqlx::query_as!(
+        FeedbackRow,
+        r#"
+UPDATE feedback
+SET marked_as_read = $3
+WHERE id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+RETURNING id,
+  user_id,
+  course_id,
+  exam_id,
+  page_id,
+  feedback_given,
+  selected_text,
+  marked_as_read,
+  created_at,
+  updated_at,
+  deleted_at
+        "#,
+        id,
+        course_id,
+        read
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct Feedback {
     pub id: Uuid,
     pub user_id: Option<Uuid>,
@@ -177,8 +254,8 @@ FROM (
     Ok(res)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct FeedbackCount {
     pub read: u32,
     pub unread: u32,

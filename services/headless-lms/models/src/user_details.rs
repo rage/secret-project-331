@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use futures::Stream;
+use utoipa::ToSchema;
 
 use crate::{prelude::*, users::User};
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+
 pub struct UserDetail {
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -101,7 +102,8 @@ pub async fn search_for_user_details_by_email(
 SELECT *
 FROM user_details
 WHERE lower(email::text) LIKE '%' || lower($1) || '%'
-LIMIT 1000;
+ORDER BY similarity(lower(email::text), lower($1)) DESC
+LIMIT 100;
 ",
         email.trim(),
     )
@@ -110,6 +112,8 @@ LIMIT 1000;
     Ok(res)
 }
 
+/// Searches user_details by partial match on the generated `search_helper` column so the
+/// `user_details_search_helper_gist` trigram index can serve the `LIKE '%x%'` predicate.
 pub async fn search_for_user_details_by_other_details(
     conn: &mut PgConnection,
     search: &str,
@@ -119,8 +123,9 @@ pub async fn search_for_user_details_by_other_details(
         "
 SELECT *
 FROM user_details
-WHERE lower(search_helper::text) LIKE '%' || lower($1) || '%'
-LIMIT 1000;
+WHERE search_helper LIKE '%' || lower($1) || '%'
+ORDER BY similarity(search_helper, lower($1)) DESC
+LIMIT 100;
 ",
         search.trim(),
     )
@@ -137,6 +142,10 @@ pub async fn search_for_user_details_fuzzy_match(
     // To combat this, we omit the email domain from the fuzzy match
     let search = search.split('@').next().unwrap_or(search);
 
+    // ORDER BY dist only — no secondary tiebreaker. Adding one (e.g. user_id)
+    // would prevent the GiST trigram index from serving the distance ordering,
+    // forcing a full table scan+sort. Ties at exactly equal float distances are
+    // rare enough in practice that non-determinism in the LIMIT 100 is acceptable.
     let res = sqlx::query_as!(
         UserDetail,
         "
@@ -151,9 +160,9 @@ SELECT user_id,
   email_communication_consent
 FROM (
     SELECT *,
-      LOWER($1) <<->search_helper AS dist
+      LOWER($1) <<-> search_helper AS dist
     FROM user_details
-    ORDER BY dist, LENGTH(search_helper)
+    ORDER BY dist
     LIMIT 100
   ) search
 WHERE dist < 0.7;

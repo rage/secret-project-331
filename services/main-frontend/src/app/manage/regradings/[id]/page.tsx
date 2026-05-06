@@ -8,7 +8,7 @@ import type React from "react"
 import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import { fetchRegradingInfo } from "@/services/backend/regradings"
+import { getRegradingInfoOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ProgressBar from "@/shared-module/common/components/CourseProgress/ProgressBar"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -22,13 +22,14 @@ const ViewRegradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
 
   const query = useQuery({
-    queryKey: [`regrading`, id],
-    queryFn: () => fetchRegradingInfo(id),
+    ...getRegradingInfoOptions({
+      path: {
+        regrading_id: id,
+      },
+    }),
     refetchInterval: (query) => {
-      if (
-        !query.state.data ||
-        query.state.data.regrading.total_grading_progress === "FullyGraded"
-      ) {
+      const data = query.state.data
+      if (!data || data.regrading.total_grading_progress === "FullyGraded") {
         return false
       }
       return 3000
@@ -53,7 +54,8 @@ const ViewRegradingPage: React.FC = () => {
     )
   }
 
-  const nRegradingsReady = query.data.submission_infos.filter(
+  const data = query.data
+  const nRegradingsReady = data.submission_infos.filter(
     (i) => i.grading_after_regrading?.grading_progress === "FullyGraded",
   ).length
 
@@ -70,45 +72,43 @@ const ViewRegradingPage: React.FC = () => {
       >
         <p>
           <b>created_at</b>:{" "}
-          {query.data.regrading.created_at ? dateToString(query.data.regrading.created_at) : "null"}
+          {data.regrading.created_at ? dateToString(data.regrading.created_at) : "null"}
         </p>
         <p>
           <b>updated_at</b>:{" "}
-          {query.data.regrading.updated_at ? dateToString(query.data.regrading.updated_at) : "null"}
+          {data.regrading.updated_at ? dateToString(data.regrading.updated_at) : "null"}
         </p>
         <p>
           <b>regrading_started_at</b>:{" "}
-          {query.data.regrading.regrading_started_at
-            ? dateToString(query.data.regrading.regrading_started_at)
+          {data.regrading.regrading_started_at
+            ? dateToString(data.regrading.regrading_started_at)
             : "null"}
         </p>
         <p>
           <b>regrading_completed_at</b>:{" "}
-          {query.data.regrading.regrading_completed_at
-            ? dateToString(query.data.regrading.regrading_completed_at)
+          {data.regrading.regrading_completed_at
+            ? dateToString(data.regrading.regrading_completed_at)
             : "null"}
         </p>
         <p>
           <b>total_grading_progress</b>:{" "}
-          {query.data.regrading.total_grading_progress
-            ? query.data.regrading.total_grading_progress
-            : "null"}
+          {data.regrading.total_grading_progress ? data.regrading.total_grading_progress : "null"}
         </p>
         <p>
           <b>user_points_update_strategy</b>:{" "}
-          {query.data.regrading.user_points_update_strategy
-            ? query.data.regrading.user_points_update_strategy
+          {data.regrading.user_points_update_strategy
+            ? data.regrading.user_points_update_strategy
             : "null"}
         </p>
         <p>
-          <b>user_id</b>: {query.data.regrading.user_id ? query.data.regrading.user_id : "null"}
+          <b>user_id</b>: {data.regrading.user_id ? data.regrading.user_id : "null"}
         </p>
       </div>
       <ProgressBar
         label={t("label-submissions-regraded")}
         variant={"bar"}
         exercisesAttempted={nRegradingsReady}
-        exercisesTotal={query.data.submission_infos.length}
+        exercisesTotal={data.submission_infos.length}
       />
       <div
         className={css`
@@ -139,7 +139,7 @@ const ViewRegradingPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {query.data.submission_infos.map((si) => (
+            {data.submission_infos.map((si) => (
               <FullWidthTableRow key={si.exercise_task_submission_id}>
                 <td>{si.exercise_task_submission_id}</td>
                 <td>
@@ -168,7 +168,7 @@ const ViewRegradingPage: React.FC = () => {
           </tbody>
         </FullWidthTable>
       </div>
-      <DebugModal data={query.data} />
+      <DebugModal data={data} />
     </div>
   )
 }

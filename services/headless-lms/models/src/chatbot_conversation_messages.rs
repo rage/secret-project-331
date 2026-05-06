@@ -1,3 +1,5 @@
+use utoipa::ToSchema;
+
 use crate::{
     chatbot_conversation_message_messages::{self, ChatbotConversationMessageMessage},
     chatbot_conversation_message_reasoning::{self, ChatbotConversationMessageReasoning},
@@ -16,8 +18,7 @@ pub struct ChatbotConversationMessageRow {
     pub order_number: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(untagged)]
 pub enum Message {
     Text(ChatbotConversationMessageMessage),
@@ -26,8 +27,7 @@ pub enum Message {
     Reasoning(ChatbotConversationMessageReasoning),
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 pub struct ChatbotConversationMessage {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -122,6 +122,85 @@ RETURNING *
     Ok(res)
 }
 
+// todo
+pub async fn insert_for_conversation_user_and_configuration(
+    conn: &mut PgConnection,
+    input: ChatbotConversationMessage,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<ChatbotConversationMessage> {
+    let mut tx = conn.begin().await?;
+
+    sqlx::query!(
+        r#"
+SELECT id
+FROM chatbot_conversations
+WHERE id = $1
+  AND user_id = $2
+  AND chatbot_configuration_id = $3
+  AND deleted_at IS NULL
+        "#,
+        input.conversation_id,
+        user_id,
+        chatbot_configuration_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let msg = sqlx::query_as!(
+        ChatbotConversationMessageRow,
+        r#"
+INSERT INTO chatbot_conversation_messages (
+    conversation_id,
+    order_number
+)
+VALUES (
+    $1,
+    COALESCE((
+      SELECT order_number
+      FROM chatbot_conversation_messages
+      WHERE conversation_id = $1
+        AND deleted_at IS NULL
+      ORDER BY order_number DESC
+      LIMIT 1
+    ), 0) + 1
+)
+RETURNING *
+        "#,
+        input.conversation_id,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let inner = match input.message {
+        Message::Text(message) => {
+            let res =
+                chatbot_conversation_message_messages::insert(&mut *tx, message, msg.id).await?;
+            Message::Text(res)
+        }
+        Message::ToolCall(tool_call) => {
+            let res = chatbot_conversation_message_tool_calls::insert(&mut *tx, tool_call, msg.id)
+                .await?;
+            Message::ToolCall(res)
+        }
+        Message::ToolOutput(tool_output) => {
+            let res =
+                chatbot_conversation_message_tool_outputs::insert(&mut *tx, tool_output, msg.id)
+                    .await?;
+            Message::ToolOutput(res)
+        }
+        Message::Reasoning(reasoning) => {
+            let res =
+                chatbot_conversation_message_reasoning::insert(&mut *tx, reasoning, msg.id).await?;
+            Message::Reasoning(res)
+        }
+    };
+
+    let res = ChatbotConversationMessage::from_row(msg, inner);
+    tx.commit().await?;
+    Ok(res)
+}
+
 pub async fn get_by_conversation_id(
     conn: &mut PgConnection,
     conversation_id: Uuid,
@@ -146,7 +225,7 @@ AND deleted_at IS NULL
     .fetch_all(&mut *tx)
     .await?;
     // Should have the same order as in the conversation.
-    msgs.sort_by(|a, b| a.order_number.cmp(&b.order_number));
+    msgs.sort_by_key(|a| a.order_number);
     let mut res = vec![];
     for m in msgs {
         let msg = message_row_to_message(&mut tx, m).await?;

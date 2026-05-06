@@ -1,3 +1,4 @@
+/* eslint-disable playwright/prefer-locator */
 import { test } from "@playwright/test"
 
 import { showNextToastsInfinitely, showToastsNormally } from "../../utils/notificationUtils"
@@ -11,7 +12,10 @@ test("Success notifications work", async ({ page, headless }, testInfo) => {
     "http://project-331.local/manage/courses/7f36cf71-c2d2-41fc-b2ae-bbbcafab0ea5/pages",
   )
 
-  await page.click(`button:text("Edit page"):right-of(:text("In the second chapter..."))`)
+  await page
+    .getByRole("row", { name: /In the second chapter\.\.\./ })
+    .getByRole("button", { name: "Edit page" })
+    .click()
   await page.fill('input[label="Title"]', "New title")
 
   await showNextToastsInfinitely(page)

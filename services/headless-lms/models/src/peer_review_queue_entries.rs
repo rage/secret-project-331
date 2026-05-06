@@ -5,9 +5,10 @@ use crate::{
     teacher_grading_decisions,
     user_exercise_states::{self, ReviewingStage},
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct PeerReviewQueueEntry {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

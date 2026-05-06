@@ -4,11 +4,14 @@ import { OldQuiz } from "../../../../types/oldQuizTypes"
 import { ModelSolutionQuiz } from "../../../../types/quizTypes/modelSolutionSpec"
 import { PrivateSpecQuizItemClosedEndedQuestion } from "../../../../types/quizTypes/privateSpec"
 
-import { isSpecRequest } from "@/shared-module/common/bindings.guard"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isOldQuiz } from "@/util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"
+import { isSpecRequest } from "@/utils/exerciseServiceApi"
 
-export async function POST(request: Request): Promise<Response> {
+const SERVICE = "quizzes"
+
+async function postImpl(request: Request): Promise<Response> {
   try {
     let body
     try {
@@ -60,6 +63,11 @@ export async function POST(request: Request): Promise<Response> {
     }
   }
 }
+
+export const POST = wrapRouteHandler(postImpl, {
+  service: SERVICE,
+  operation: "POST /model-solution",
+})
 
 function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
   if (!isSpecRequest(body)) {

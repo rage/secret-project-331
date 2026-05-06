@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { format } from "date-fns"
-import type { EChartsOption } from "echarts/types/src/export/option"
+import type { EChartsOption, TooltipComponentFormatterCallbackParams } from "echarts"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,7 @@ import { DEFAULT_CHART_HEIGHT, InstructionBox } from "./CourseStatsPage"
 import Echarts from "./Echarts"
 import StatsHeader from "./StatsHeader"
 
-import { CountResult } from "@/shared-module/common/bindings"
+import { CountResult } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import DatePickerField from "@/shared-module/common/components/InputFields/DatePickerField"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
@@ -93,8 +93,10 @@ const LineChart: React.FC<LineChartProps> = ({
     tooltip: {
       // eslint-disable-next-line i18next/no-literal-string
       trigger: "axis" as const,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      formatter: (params: any) => {
+      formatter: (params: TooltipComponentFormatterCallbackParams) => {
+        if (!Array.isArray(params) || !params[0]) {
+          return ""
+        }
         const dataIndex = params[0].dataIndex as number
         const period = data?.[dataIndex].period
         const value = data?.[dataIndex].count

@@ -23,6 +23,9 @@ export interface AudioDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -37,6 +40,9 @@ export interface BlockDeprecated1Attributes {
     [k: string]: unknown
   }
   lock?: {
+    [k: string]: unknown
+  }
+  style?: {
     [k: string]: unknown
   }
   metadata?: {
@@ -55,6 +61,9 @@ export interface BlockDeprecated2Attributes {
   lock?: {
     [k: string]: unknown
   }
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -67,18 +76,24 @@ export interface ButtonDeprecated10Attributes {
   url?: string
   title?: string
   text?: string
-  align: string
+  linkTarget?: string
+  rel?: string
+  placeholder?: string
+  borderRadius?: number
   backgroundColor?: string
   textColor?: string
   customBackgroundColor?: string
   customTextColor?: string
-  linkTarget?: string
-  rel?: string
-  placeholder?: string
+  customGradient?: string
+  gradient?: string
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -96,10 +111,16 @@ export interface ButtonDeprecated11Attributes {
   textColor?: string
   customBackgroundColor?: string
   customTextColor?: string
+  linkTarget?: string
+  rel?: string
+  placeholder?: string
   lock?: {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -112,13 +133,18 @@ export interface ButtonDeprecated12Attributes {
   url?: string
   title?: string
   text?: string
-  color?: string
-  textColor?: string
   align: string
+  backgroundColor?: string
+  textColor?: string
+  customBackgroundColor?: string
+  customTextColor?: string
   lock?: {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -138,6 +164,31 @@ export interface ButtonDeprecated13Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
+    [k: string]: unknown
+  }
+}
+
+/**
+ * @deprecated
+ */
+export interface ButtonDeprecated14Attributes {
+  url?: string
+  title?: string
+  text?: string
+  color?: string
+  textColor?: string
+  align: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -149,7 +200,6 @@ export interface ButtonDeprecated13Attributes {
 export interface ButtonDeprecated1Attributes {
   tagName: "a" | "button"
   type: string
-  textAlign?: string
   url?: string
   title?: string
   text?: StringWithHTML
@@ -161,7 +211,6 @@ export interface ButtonDeprecated1Attributes {
   gradient?: string
   width?: number
   borderColor?: string
-  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
@@ -215,9 +264,12 @@ export interface ButtonDeprecated2Attributes {
  * @deprecated
  */
 export interface ButtonDeprecated3Attributes {
+  tagName: "a" | "button"
+  type: string
+  textAlign?: string
   url?: string
   title?: string
-  text?: string
+  text?: StringWithHTML
   linkTarget?: string
   rel?: string
   placeholder?: string
@@ -225,6 +277,7 @@ export interface ButtonDeprecated3Attributes {
   textColor?: string
   gradient?: string
   width?: number
+  borderColor?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
@@ -311,13 +364,9 @@ export interface ButtonDeprecated6Attributes {
   linkTarget?: string
   rel?: string
   placeholder?: string
-  borderRadius?: number
   backgroundColor?: string
   textColor?: string
   gradient?: string
-  style?: {
-    [k: string]: unknown
-  }
   width?: number
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
@@ -325,6 +374,11 @@ export interface ButtonDeprecated6Attributes {
   }
   anchor?: string
   className?: string
+  fontFamily?: string
+  fontSize?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -376,10 +430,12 @@ export interface ButtonDeprecated8Attributes {
   style?: {
     [k: string]: unknown
   }
+  width?: number
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
   metadata?: {
     [k: string]: unknown
@@ -399,10 +455,10 @@ export interface ButtonDeprecated9Attributes {
   borderRadius?: number
   backgroundColor?: string
   textColor?: string
-  customBackgroundColor?: string
-  customTextColor?: string
-  customGradient?: string
   gradient?: string
+  style?: {
+    [k: string]: unknown
+  }
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
@@ -443,6 +499,9 @@ export interface ButtonsDeprecated2Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -458,6 +517,9 @@ export interface ColumnDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -476,6 +538,9 @@ export interface ColumnsDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -490,6 +555,9 @@ export interface ColumnsDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -504,6 +572,9 @@ export interface ColumnsDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -524,6 +595,9 @@ export interface EmbedDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -544,6 +618,9 @@ export interface EmbedDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -569,6 +646,9 @@ export interface FileDeprecated1Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -594,6 +674,9 @@ export interface FileDeprecated2Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -618,6 +701,9 @@ export interface FileDeprecated3Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -718,6 +804,9 @@ export interface HeadingDeprecated4Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -738,6 +827,9 @@ export interface HeadingDeprecated5Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -758,6 +850,9 @@ export interface HeadingDeprecated6Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -922,6 +1017,9 @@ export interface ImageDeprecated5Attributes {
   }
   anchor?: string
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -944,6 +1042,9 @@ export interface ImageDeprecated6Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -965,6 +1066,9 @@ export interface ImageDeprecated7Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -986,6 +1090,9 @@ export interface ImageDeprecated8Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1146,6 +1253,9 @@ export interface ParagraphDeprecated2Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1170,6 +1280,9 @@ export interface ParagraphDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1194,6 +1307,9 @@ export interface ParagraphDeprecated4Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1219,6 +1335,9 @@ export interface ParagraphDeprecated5Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1240,6 +1359,9 @@ export interface ParagraphDeprecated6Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1340,6 +1462,9 @@ export interface PullquoteDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1359,6 +1484,9 @@ export interface PullquoteDeprecated4Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1378,6 +1506,9 @@ export interface PullquoteDeprecated5Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1398,6 +1529,9 @@ export interface PullquoteDeprecated6Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1460,6 +1594,9 @@ export interface QuoteDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1509,6 +1646,9 @@ export interface SeparatorDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1524,6 +1664,9 @@ export interface SpacerDeprecated1Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }
@@ -1588,6 +1731,9 @@ export interface VerseDeprecated3Attributes {
     [k: string]: unknown
   }
   className?: string
+  style?: {
+    [k: string]: unknown
+  }
   metadata?: {
     [k: string]: unknown
   }

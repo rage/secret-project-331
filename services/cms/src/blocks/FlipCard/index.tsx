@@ -1,12 +1,12 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import FlipCardEditor from "./FlipCardEditor"
 import FlipCardSave from "./FlipCardSave"
 
 import { MOOCFI_CATEGORY_SLUG } from "@/utils/Gutenberg/modifyGutenbergCategories"
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface FlipCardAttributes {
   size: string

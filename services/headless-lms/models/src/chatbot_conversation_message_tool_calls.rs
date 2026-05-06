@@ -1,9 +1,9 @@
 use serde_json::Value;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "tool_kind", rename_all = "kebab-case")]
 #[serde(rename_all = "snake_case")]
 pub enum ToolKind {
@@ -11,8 +11,7 @@ pub enum ToolKind {
     AzureAiSearch,
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 pub struct ChatbotConversationMessageToolCall {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

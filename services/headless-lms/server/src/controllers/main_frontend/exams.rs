@@ -15,6 +15,7 @@ use models::{
     library::user_exercise_state_updater,
     teacher_grading_decisions,
 };
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{
     domain::csv_export::{
@@ -24,9 +25,37 @@ use crate::{
     prelude::*,
 };
 
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_exam,
+    set_course,
+    unset_course,
+    export_points,
+    export_submissions,
+    edit_exam,
+    duplicate_exam,
+    get_exercise_slide_submissions_and_user_exercise_states_with_exam_id,
+    get_exercise_slide_submissions_and_user_exercise_states_with_exercise_id,
+    release_grades,
+    get_exercises_with_exam_id
+))]
+pub(crate) struct MainFrontendExamsApiDoc;
+
 /**
 GET `/api/v0/main-frontend/exams/:id
 */
+#[utoipa::path(
+    get,
+    path = "/{id}",
+    operation_id = "getExam",
+    tag = "exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam", body = Exam)
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn get_exam(
     pool: web::Data<PgPool>,
@@ -41,8 +70,8 @@ pub async fn get_exam(
     token.authorized_ok(web::Json(exam))
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct ExamCourseInfo {
     course_id: Uuid,
 }
@@ -50,6 +79,19 @@ pub struct ExamCourseInfo {
 /**
 POST `/api/v0/main-frontend/exams/:id/set`
 */
+#[utoipa::path(
+    post,
+    path = "/{id}/set",
+    operation_id = "setExamCourse",
+    tag = "exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = ExamCourseInfo,
+    responses(
+        (status = 200, description = "Course set for exam")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn set_course(
     pool: web::Data<PgPool>,
@@ -59,6 +101,21 @@ pub async fn set_course(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let exam_identity = exams::get_identity_by_id(&mut conn, *exam_id).await?;
+    let course = models::courses::get_course(&mut conn, exam.course_id).await?;
+    if exam_identity.organization_id != course.organization_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Course does not belong to the same organization as the exam".to_string()
+        ));
+    }
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(exam.course_id),
+    )
+    .await?;
 
     course_exams::upsert(&mut conn, *exam_id, exam.course_id).await?;
 
@@ -68,6 +125,19 @@ pub async fn set_course(
 /**
 POST `/api/v0/main-frontend/exams/:id/unset`
 */
+#[utoipa::path(
+    post,
+    path = "/{id}/unset",
+    operation_id = "unsetExamCourse",
+    tag = "exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = ExamCourseInfo,
+    responses(
+        (status = 200, description = "Course unset from exam")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn unset_course(
     pool: web::Data<PgPool>,
@@ -77,6 +147,21 @@ pub async fn unset_course(
 ) -> ControllerResult<web::Json<()>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
+    let exam_identity = exams::get_identity_by_id(&mut conn, *exam_id).await?;
+    let course = models::courses::get_course(&mut conn, exam.course_id).await?;
+    if exam_identity.organization_id != course.organization_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Course does not belong to the same organization as the exam".to_string()
+        ));
+    }
+    authorize(
+        &mut conn,
+        Act::Edit,
+        Some(user.id),
+        Res::Course(exam.course_id),
+    )
+    .await?;
 
     course_exams::delete(&mut conn, *exam_id, exam.course_id).await?;
 
@@ -86,6 +171,18 @@ pub async fn unset_course(
 /**
 GET `/api/v0/main-frontend/exams/:id/export-points`
 */
+#[utoipa::path(
+    get,
+    path = "/{id}/export-points",
+    operation_id = "exportExamPointsCsv",
+    tag = "exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam points CSV export", body = String, content_type = "text/csv")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn export_points(
     exam_id: web::Path<Uuid>,
@@ -113,6 +210,18 @@ pub async fn export_points(
 /**
 GET `/api/v0/main-frontend/exams/:id/export-submissions`
 */
+#[utoipa::path(
+    get,
+    path = "/{id}/export-submissions",
+    operation_id = "exportExamSubmissionsCsv",
+    tag = "exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam submissions CSV export", body = String, content_type = "text/csv")
+    )
+)]
 #[instrument(skip(pool))]
 pub async fn export_submissions(
     exam_id: web::Path<Uuid>,
@@ -140,6 +249,19 @@ pub async fn export_submissions(
 /**
  * POST `/api/v0/cms/exams/:exam_id/duplicate` - duplicates existing exam.
  */
+#[utoipa::path(
+    post,
+    path = "/{id}/duplicate",
+    operation_id = "duplicateExam",
+    tag = "exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = NewExam,
+    responses(
+        (status = 200, description = "Exam duplicated", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 async fn duplicate_exam(
     pool: web::Data<PgPool>,
@@ -175,6 +297,19 @@ async fn duplicate_exam(
 /**
 POST `/api/v0/main-frontend/organizations/{organization_id}/edit-exam` - edits an exam.
 */
+#[utoipa::path(
+    post,
+    path = "/{id}/edit-exam",
+    operation_id = "editExam",
+    tag = "exams",
+    params(
+        ("id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = NewExam,
+    responses(
+        (status = 200, description = "Exam edited")
+    )
+)]
 #[instrument(skip(pool))]
 async fn edit_exam(
     pool: web::Data<PgPool>,
@@ -198,6 +333,20 @@ async fn edit_exam(
 /**
 GET `/api/v0/main-frontend/exam/:exercise_id/submissions-with-exercise_id` - Returns all the exercise submissions and user exercise states with exercise_id.
  */
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/submissions-with-exercise-id",
+    operation_id = "getExamSubmissionsWithExerciseId",
+    tag = "exams",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("page" = Option<u32>, Query, description = "Page number"),
+        ("limit" = Option<u32>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Exercise submissions with exercise id", body = ExerciseSlideSubmissionAndUserExerciseStateList)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_exercise_slide_submissions_and_user_exercise_states_with_exercise_id(
     pool: web::Data<PgPool>,
@@ -238,6 +387,20 @@ async fn get_exercise_slide_submissions_and_user_exercise_states_with_exercise_i
 /**
 GET `/api/v0/main-frontend/exam/:exam_id/submissions-with-exam-id` - Returns all the exercise submissions and user exercise states with exam_id.
  */
+#[utoipa::path(
+    get,
+    path = "/{exam_id}/submissions-with-exam-id",
+    operation_id = "getExamSubmissionsWithExamId",
+    tag = "exams",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id"),
+        ("page" = Option<u32>, Query, description = "Page number"),
+        ("limit" = Option<u32>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Exercise submissions with exam id", body = Vec<Vec<ExerciseSlideSubmissionAndUserExerciseState>>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_exercise_slide_submissions_and_user_exercise_states_with_exam_id(
     pool: web::Data<PgPool>,
@@ -271,6 +434,18 @@ async fn get_exercise_slide_submissions_and_user_exercise_states_with_exam_id(
 /**
 GET `/api/v0/main-frontend/exam/:exam_id/exam-exercises` - Returns all the exercises with exam_id.
  */
+#[utoipa::path(
+    get,
+    path = "/{exam_id}/exam-exercises",
+    operation_id = "getExamExercises",
+    tag = "exams",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id")
+    ),
+    responses(
+        (status = 200, description = "Exam exercises", body = Vec<Exercise>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_exercises_with_exam_id(
     pool: web::Data<PgPool>,
@@ -288,6 +463,19 @@ async fn get_exercises_with_exam_id(
 /**
 POST `/api/v0/main-frontend/exam/:exam_id/release-grades` - Publishes grading results of an exam by updating user_exercise_states according to teacher_grading_decisons and changes teacher_grading_decisions hidden field to false. Takes teacher grading decision ids as input.
  */
+#[utoipa::path(
+    post,
+    path = "/{exam_id}/release-grades",
+    operation_id = "releaseExamGrades",
+    tag = "exams",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id")
+    ),
+    request_body = Vec<Uuid>,
+    responses(
+        (status = 200, description = "Exam grades released")
+    )
+)]
 #[instrument(skip(pool))]
 async fn release_grades(
     pool: web::Data<PgPool>,

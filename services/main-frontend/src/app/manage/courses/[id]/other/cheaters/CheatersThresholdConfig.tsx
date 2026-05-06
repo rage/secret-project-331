@@ -7,35 +7,53 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
-  deleteThresholdForModule,
-  fetchCourseStructure,
-  getAllThresholds,
-  postThresholdForModule,
-} from "@/services/backend/courses"
-import { CourseModule, ThresholdData } from "@/shared-module/common/bindings"
+  createCourseModuleThresholdMutation,
+  deleteCourseModuleThresholdMutation,
+  getCourseThresholdsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseModule } from "@/generated/api/types.generated"
+import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { isArray } from "@/shared-module/common/utils/fetching"
+import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface CheatersThresholdConfigProps {
   courseId: string
 }
 
+interface Threshold {
+  id: string
+  course_module_id: string
+  duration_seconds: number
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+}
+
+const isThreshold = (data: unknown): data is Threshold =>
+  typeof data === "object" &&
+  data !== null &&
+  "course_module_id" in data &&
+  "duration_seconds" in data
+
 /** Renders threshold configuration UI for the cheaters section. */
 export default function CheatersThresholdConfig({ courseId }: CheatersThresholdConfigProps) {
   const { t } = useTranslation()
 
-  const courseStructureQuery = useQuery({
-    queryKey: [`course-structure-${courseId}`],
-    queryFn: () => fetchCourseStructure(courseId),
-  })
+  const courseStructureQuery = useCourseStructure(courseId)
 
   const thresholdsQuery = useQuery({
-    queryKey: [`course-thresholds-${courseId}`],
-    queryFn: () => getAllThresholds(courseId),
+    ...getCourseThresholdsOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+    select: (data) => validateGeneratedData(data, isArray(isThreshold)),
   })
 
   const savedThresholds = useMemo(() => {
@@ -64,22 +82,30 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
 
   const handleUpdateThreshold = async (moduleId: string, durationHours: number | undefined) => {
     if (durationHours === undefined) {
-      return deleteThresholdForModuleMutation.mutate(moduleId)
+      return deleteThresholdForModuleMutation.mutate({
+        path: {
+          course_module_id: moduleId,
+        },
+      })
     }
     const convertedDuration = durationHours * 3600
     const threshold = { duration_seconds: convertedDuration }
-    return postThresholdForModuleMutation.mutate({ moduleId, threshold })
+    return postThresholdForModuleMutation.mutate({
+      path: {
+        course_module_id: moduleId,
+      },
+      body: threshold,
+    })
   }
 
-  const postThresholdForModuleMutation = useToastMutation(
-    ({ moduleId, threshold }: { moduleId: string; threshold: ThresholdData }) =>
-      postThresholdForModule(moduleId, threshold),
+  const postThresholdForModuleMutation = useToastMutationOptions(
+    createCourseModuleThresholdMutation(),
     { notify: true, successMessage: t("threshold-added-successfully"), method: "POST" },
     { onSuccess: () => thresholdsQuery.refetch() },
   )
 
-  const deleteThresholdForModuleMutation = useToastMutation(
-    (moduleId: string) => deleteThresholdForModule(moduleId),
+  const deleteThresholdForModuleMutation = useToastMutationOptions(
+    deleteCourseModuleThresholdMutation(),
     { notify: true, successMessage: t("threshold-removed-successfully"), method: "DELETE" },
     { onSuccess: () => thresholdsQuery.refetch() },
   )

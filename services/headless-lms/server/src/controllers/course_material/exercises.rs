@@ -22,9 +22,22 @@ use models::{
     },
     user_chapter_locking_statuses, user_exercise_states,
 };
+use utoipa::OpenApi;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_exercise,
+    get_peer_review_for_exercise,
+    get_peer_reviews_received,
+    post_submission,
+    start_peer_or_self_review,
+    submit_peer_or_self_review,
+    post_flag_answer_in_peer_review
+))]
+pub(crate) struct CourseMaterialExercisesApiDoc;
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, utoipa::ToSchema)]
+
 pub struct CourseMaterialPeerOrSelfReviewDataWithToken {
     pub course_material_peer_or_self_review_data: CourseMaterialPeerOrSelfReviewData,
     pub token: Option<String>,
@@ -37,6 +50,18 @@ relevant context so that doing the exercise is possible based on the response.
 This endpoint does not expose exercise's private spec because it would
 expose the correct answers to the user.
 */
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}",
+    operation_id = "getCourseMaterialExercise",
+    tag = "course-material-exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "Course material exercise", body = CourseMaterialExercise)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_exercise(
     pool: web::Data<PgPool>,
@@ -58,7 +83,9 @@ async fn get_exercise(
     if let Some(exam_id) = course_material_exercise.exercise.exam_id {
         let user_id_for_exam = user_id.ok_or_else(|| {
             ControllerError::new(
-                ControllerErrorType::Unauthorized,
+                ControllerErrorType::UnauthorizedWithReason(
+                    crate::domain::error::UnauthorizedReason::AuthenticationRequiredForExamExercise,
+                ),
                 "User must be authenticated to view exam exercises".to_string(),
                 None,
             )
@@ -118,6 +145,22 @@ GET `/api/v0/course-material/exercises/:exercise_id/peer-review` - Get peer revi
 
 This request will fail if the user is not in the peer review stage yet because the information included in the peer review often exposes the correct solution to the exercise.
 */
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/peer-review",
+    operation_id = "fetchPeerOrSelfReviewDataByExerciseId",
+    tag = "course-material-exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Peer or self review data",
+            body = CourseMaterialPeerOrSelfReviewDataWithToken
+        )
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_peer_review_for_exercise(
     pool: web::Data<PgPool>,
@@ -150,7 +193,7 @@ async fn get_peer_review_for_exercise(
                         .peer_or_self_review_config
                         .id,
                 )
-                .sign(&jwt_key),
+                .sign(&jwt_key)?,
             )
         } else {
             None
@@ -166,6 +209,19 @@ async fn get_peer_review_for_exercise(
 /**
 GET `/api/v0/course-material/exercises/:exercise_id/peer-review-received` - Get peer review recieved from other student for an exercise. This includes peer review submitted and the question asociated with it.
 */
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/exercise-slide-submission/{exercise_slide_submission_id}/peer-or-self-reviews-received",
+    operation_id = "fetchPeerReviewDataReceivedByExerciseId",
+    tag = "course-material-exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("exercise_slide_submission_id" = Uuid, Path, description = "Exercise slide submission id")
+    ),
+    responses(
+        (status = 200, description = "Peer reviews received", body = PeerOrSelfReviewsReceived)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_peer_reviews_received(
     pool: web::Data<PgPool>,
@@ -205,6 +261,23 @@ Content-Type: application/json
 }
 ```
 */
+#[utoipa::path(
+    post,
+    path = "/{exercise_id}/submissions",
+    operation_id = "postSubmission",
+    tag = "course-material-exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    request_body = StudentExerciseSlideSubmission,
+    responses(
+        (
+            status = 200,
+            description = "Submission result",
+            body = StudentExerciseSlideSubmissionResult
+        )
+    )
+)]
 #[instrument(skip(pool))]
 async fn post_submission(
     pool: web::Data<PgPool>,
@@ -270,6 +343,18 @@ async fn post_submission(
  * This operation is only valid for exercises marked for peer reviews. No further submissions will be
  * accepted after posting to this endpoint.
  */
+#[utoipa::path(
+    post,
+    path = "/{exercise_id}/peer-or-self-reviews/start",
+    operation_id = "postStartPeerOrSelfReview",
+    tag = "course-material-exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "Peer or self review started", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 async fn start_peer_or_self_review(
     pool: web::Data<PgPool>,
@@ -331,6 +416,19 @@ async fn start_peer_or_self_review(
  * POST `/api/v0/course-material/exercises/:exercise_id/peer-or-self-reviews - Post a peer review or a self review for an
  * exercise submission.
  */
+#[utoipa::path(
+    post,
+    path = "/{exercise_id}/peer-or-self-reviews",
+    operation_id = "postPeerOrSelfReviewSubmission",
+    tag = "course-material-exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    request_body = CourseMaterialPeerOrSelfReviewSubmission,
+    responses(
+        (status = 200, description = "Peer or self review submitted", body = bool)
+    )
+)]
 #[instrument(skip(pool))]
 async fn submit_peer_or_self_review(
     pool: web::Data<PgPool>,
@@ -340,7 +438,8 @@ async fn submit_peer_or_self_review(
     jwt_key: web::Data<JwtKey>,
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
+    let payload = payload.into_inner();
+    let exercise = models::exercises::get_non_deleted_by_id(&mut conn, *exercise_id).await?;
 
     if let Some(chapter_id) = exercise.chapter_id {
         let course_id = models::chapters::get_course_id(&mut conn, chapter_id).await?;
@@ -391,6 +490,27 @@ async fn submit_peer_or_self_review(
             payload.exercise_slide_submission_id,
         )
         .await?;
+    if exercise_slide_submission.exercise_id != exercise.id
+        || exercise_slide_submission.course_id != exercise.course_id
+    {
+        return Err(controller_err!(
+            Forbidden,
+            "Reviewed submission does not belong to the requested exercise".to_string()
+        ));
+    }
+
+    let peer_or_self_review_config = peer_or_self_review_configs::get_by_exercise_or_course_id(
+        &mut conn,
+        &exercise,
+        exercise.get_course_id()?,
+    )
+    .await?;
+    if peer_or_self_review_config.id != payload.peer_or_self_review_config_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Peer review configuration does not belong to the requested exercise".to_string()
+        ));
+    }
 
     if let Some(receiver_course_id) = exercise_slide_submission.course_id {
         let receiver_user_exercise_state = user_exercise_states::get_user_exercise_state_if_exists(
@@ -404,13 +524,13 @@ async fn submit_peer_or_self_review(
             let mut tx = conn.begin().await?;
 
             models::library::peer_or_self_reviewing::create_peer_or_self_review_submission_for_user(
-            &mut tx,
-            &exercise,
-            giver_user_exercise_state,
-            receiver_user_exercise_state,
-            payload.0,
-        )
-        .await?;
+                &mut tx,
+                &exercise,
+                giver_user_exercise_state,
+                receiver_user_exercise_state,
+                payload,
+            )
+            .await?;
 
             // Get updater receiver state after possible update above
             let updated_receiver_state = user_exercise_states::get_user_exercise_state_if_exists(
@@ -427,14 +547,6 @@ async fn submit_peer_or_self_review(
                     None,
                 )
             })?;
-
-            let peer_or_self_review_config =
-                peer_or_self_review_configs::get_by_exercise_or_course_id(
-                    &mut tx,
-                    &exercise,
-                    exercise.get_course_id()?,
-                )
-                .await?;
 
             let _ = models::library::peer_or_self_reviewing::reset_exercise_if_needed_if_zero_points_from_review(
                 &mut tx,
@@ -473,6 +585,19 @@ async fn submit_peer_or_self_review(
 /**
  * POST `/api/v0/course-material/exercises/:exercise_id/flag-peer-review-answer - Post a report of an answer in peer review made by a student
  */
+#[utoipa::path(
+    post,
+    path = "/{exercise_id}/flag-peer-review-answer",
+    operation_id = "postFlagAnswerInPeerReview",
+    tag = "course-material-exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    request_body = NewFlaggedAnswerWithToken,
+    responses(
+        (status = 200, description = "Created flagged answer", body = FlaggedAnswer)
+    )
+)]
 #[instrument(skip(pool))]
 async fn post_flag_answer_in_peer_review(
     pool: web::Data<PgPool>,

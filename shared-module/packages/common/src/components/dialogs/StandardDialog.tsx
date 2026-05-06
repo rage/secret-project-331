@@ -22,6 +22,7 @@ interface StandardDialogProps {
   backgroundColor?: string
   actionButtons?: React.ReactNode
   disableContentScroll?: boolean
+  preventBackgroundScroll?: boolean
   leftAlignTitle?: boolean
   closeable?: boolean
   "data-testid"?: string
@@ -46,6 +47,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
   backgroundColor,
   actionButtons,
   disableContentScroll = false,
+  preventBackgroundScroll = true,
   leftAlignTitle = false,
   closeable = true,
   "data-testid": dataTestId,
@@ -73,6 +75,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
       role="dialog"
       aria-labelledby={titleId}
       disableContentScroll={disableContentScroll}
+      preventBackgroundScroll={preventBackgroundScroll}
       closeable={closeable}
       data-testid={dataTestId}
       isDismissable={isDismissable}
@@ -84,7 +87,8 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         className={css`
           display: flex;
           flex-direction: column;
-          height: 100%;
+          flex: 1;
+          min-height: 0;
           position: relative;
           ${backgroundColor && `background-color: ${backgroundColor};`}
           &:focus {
@@ -169,6 +173,7 @@ const StandardDialog: React.FC<StandardDialogProps> = ({
         <div
           className={css`
             flex: 1;
+            min-height: 0;
             ${!noPadding && `padding: 1rem 2rem;`}
             ${!disableContentScroll && "overflow-y: auto;"}
           `}

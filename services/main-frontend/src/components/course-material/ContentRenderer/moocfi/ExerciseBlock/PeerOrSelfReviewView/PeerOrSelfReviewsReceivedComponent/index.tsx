@@ -11,7 +11,8 @@ import { useTranslation } from "react-i18next"
 
 import ReceivedPeerOrSelfReview from "./ReceivedPeerOrSelfReview"
 
-import { fetchPeerReviewDataReceivedByExerciseId } from "@/services/course-material/backend"
+import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -116,8 +117,13 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
   const userInfo = useUserInfo()
 
   const peerOrSelfReviewsReceivedQuery = useQuery({
-    queryKey: [`exercise-${id}-exercise-slide-submission-${submissionId}-peer-reviews-received`],
-    queryFn: () => fetchPeerReviewDataReceivedByExerciseId(id, submissionId),
+    ...fetchPeerReviewDataReceivedByExerciseIdOptions({
+      path: {
+        exercise_id: id,
+        exercise_slide_submission_id: submissionId,
+      },
+    }),
+    select: (data): PeerOrSelfReviewsReceivedData => data,
   })
 
   const data = useMemo(() => {

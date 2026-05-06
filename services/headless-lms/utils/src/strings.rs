@@ -31,6 +31,18 @@ pub fn is_ietf_language_code_like(string: &str) -> bool {
     IETF_LANGUAGE_CODE_REGEX.is_match(string)
 }
 
+/// Truncates UTF-8 text to a max byte length at a valid char boundary.
+pub fn truncate_utf8_at_boundary(s: &str, max_bytes: usize) -> &str {
+    if s.len() <= max_bytes {
+        return s;
+    }
+    let mut idx = max_bytes;
+    while idx > 0 && !s.is_char_boundary(idx) {
+        idx -= 1;
+    }
+    &s[..idx]
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -49,5 +61,30 @@ mod test {
         assert!(is_ietf_language_code_like("eng"));
         assert!(is_ietf_language_code_like("en-US"));
         assert!(is_ietf_language_code_like("in-Cans-CA"));
+    }
+
+    #[test]
+    fn truncate_utf8_at_boundary_returns_original_when_short() {
+        let input = "heillä";
+        let result = truncate_utf8_at_boundary(input, 255);
+        assert_eq!(result, input);
+    }
+
+    #[test]
+    fn truncate_utf8_at_boundary_handles_finnish_characters() {
+        let input = format!("{}äz", "a".repeat(254));
+        let result = truncate_utf8_at_boundary(&input, 255);
+        assert_eq!(result.as_bytes().len(), 254);
+        assert!(result.is_char_boundary(result.len()));
+        assert_eq!(result, "a".repeat(254));
+    }
+
+    #[test]
+    fn truncate_utf8_at_boundary_handles_emoji() {
+        let input = format!("{}😀z", "a".repeat(254));
+        let result = truncate_utf8_at_boundary(&input, 255);
+        assert_eq!(result.as_bytes().len(), 254);
+        assert!(result.is_char_boundary(result.len()));
+        assert_eq!(result, "a".repeat(254));
     }
 }

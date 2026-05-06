@@ -1,7 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Reviewer,
@@ -68,8 +68,7 @@ impl Role {
     }
 }
 
-#[derive(Debug, Clone, Copy, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Clone, Copy, Deserialize, ToSchema)]
 #[serde(tag = "tag", content = "id")]
 pub enum RoleDomain {
     Global,
@@ -79,16 +78,16 @@ pub enum RoleDomain {
     Exam(Uuid),
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct RoleInfo {
     pub email: String,
     pub role: UserRole,
     pub domain: RoleDomain,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct RoleUser {
     pub user_id: Uuid,
     pub first_name: Option<String>,
@@ -397,6 +396,34 @@ WHERE user_id = $1
 AND roles.deleted_at IS NULL
 "#,
         user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(roles)
+}
+
+pub async fn get_by_user_id_and_course_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<Role>> {
+    let roles = sqlx::query_as!(
+        Role,
+        r#"
+SELECT is_global,
+  organization_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  role AS "role: UserRole",
+  user_id
+FROM roles
+WHERE user_id = $1
+  AND course_id = ANY($2)
+  AND deleted_at IS NULL
+"#,
+        user_id,
+        course_ids
     )
     .fetch_all(conn)
     .await?;

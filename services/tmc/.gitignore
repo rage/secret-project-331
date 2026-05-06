@@ -12,6 +12,9 @@
 /.next/
 /out/
 
+# Pyodide self-hosted assets are generated from the npm package at build/dev time.
+/public/pyodide/
+
 # production
 /build
 

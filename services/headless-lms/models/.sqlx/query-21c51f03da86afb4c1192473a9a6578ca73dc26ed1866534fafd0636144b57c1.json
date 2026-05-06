@@ -1,0 +1,61 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE glossary\nSET term = $1,\n  definition = $2\nWHERE id = $3\n  AND course_id = $4\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "term",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "definition",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "course_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Text",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "21c51f03da86afb4c1192473a9a6578ca73dc26ed1866534fafd0636144b57c1"
+}

@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CertificateFont {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -13,7 +13,7 @@ pub struct CertificateFont {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewCertificateFont {
     pub file_path: String,
     pub file_upload_id: Uuid,

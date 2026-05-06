@@ -2,6 +2,7 @@
 
 import styled from "@emotion/styled"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
+import { ReactNode } from "react"
 import toast from "react-hot-toast"
 import { useTranslation } from "react-i18next"
 
@@ -15,6 +16,10 @@ interface SuccessNotificationProps {
   header?: string
   message?: string
   toastId?: string
+  icon?: ReactNode
+  headerColor?: string
+  closeHoverBackgroundColor?: string
+  deleteVariant?: boolean
 }
 
 const Content = styled.div`
@@ -44,7 +49,7 @@ const IconWrapper = styled.div`
   }
 `
 
-const CloseIconWrapper = styled.div`
+const CloseIconWrapper = styled.div<{ hoverBackgroundColor: string }>`
   display: none;
   ${respondToOrLarger.xs} {
     display: block;
@@ -55,7 +60,7 @@ const CloseIconWrapper = styled.div`
       opacity: 0.7;
     }
     &:hover {
-      background: ${baseTheme.colors.gray[300]};
+      background: ${({ hoverBackgroundColor }) => hoverBackgroundColor};
       cursor: pointer;
     }
   }
@@ -71,11 +76,11 @@ const TextWrapper = styled.div`
   }
 `
 
-const SuccessHeader = styled.div`
+const SuccessHeader = styled.div<{ color: string }>`
   ${respondToOrLarger.xs} {
     font-size: 1.25rem;
   }
-  color: ${baseTheme.colors.green[600]};
+  color: ${({ color }) => color};
   line-height: 18px;
 `
 
@@ -94,14 +99,30 @@ const SuccessNotification = (props: SuccessNotificationProps) => {
     <NotificationWrapper data-testid="toast-notification">
       <Content>
         <IconWrapper>
-          <CheckCircle color={baseTheme.colors.green[600]} size={20} />
+          {props.icon ?? <CheckCircle color={baseTheme.colors.green[600]} size={20} />}
         </IconWrapper>
-        <TextWrapper role="alert">
-          <SuccessHeader>{props.header ?? t("default-toast-success-title")}</SuccessHeader>
-          <SuccessMessage>{props.message ?? t("default-toast-success-message")}</SuccessMessage>
+        <TextWrapper role="alert" data-testid="toast-notification-success">
+          <SuccessHeader
+            color={props.headerColor ?? baseTheme.colors.green[600]}
+            data-testid="toast-notification-success-title"
+          >
+            {props.header ??
+              t(props.deleteVariant ? "default-toast-delete-title" : "default-toast-success-title")}
+          </SuccessHeader>
+          <SuccessMessage data-testid="toast-notification-success-message">
+            {props.message ??
+              t(
+                props.deleteVariant
+                  ? "default-toast-delete-message"
+                  : "default-toast-success-message",
+              )}
+          </SuccessMessage>
         </TextWrapper>
         {props.toastId && (
-          <CloseIconWrapper onClick={() => toast.remove(props.toastId)}>
+          <CloseIconWrapper
+            hoverBackgroundColor={props.closeHoverBackgroundColor ?? baseTheme.colors.gray[300]}
+            onClick={() => toast.remove(props.toastId)}
+          >
             <CloseIcon />
           </CloseIconWrapper>
         )}

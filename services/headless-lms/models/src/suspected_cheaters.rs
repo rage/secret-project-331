@@ -1,8 +1,9 @@
 use crate::course_modules;
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct SuspectedCheaters {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -15,21 +16,21 @@ pub struct SuspectedCheaters {
     pub is_archived: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ThresholdData {
     pub duration_seconds: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct DeletedSuspectedCheater {
     pub id: i32,
     pub count: i32,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct Threshold {
     pub id: Uuid,
     pub course_module_id: Uuid,
@@ -148,6 +149,74 @@ pub async fn approve_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> Mod
     .execute(conn)
     .await?;
     Ok(())
+}
+
+pub async fn get_by_user_id_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<SuspectedCheaters> {
+    let cheater = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+SELECT *
+FROM suspected_cheaters
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL;
+    ",
+        user_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(cheater)
+}
+
+pub async fn archive_by_user_id_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<SuspectedCheaters> {
+    let cheater = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+UPDATE suspected_cheaters
+SET is_archived = TRUE
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        user_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(cheater)
+}
+
+pub async fn approve_by_user_id_and_course_id(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<SuspectedCheaters> {
+    let cheater = sqlx::query_as!(
+        SuspectedCheaters,
+        "
+UPDATE suspected_cheaters
+SET is_archived = FALSE
+WHERE user_id = $1
+  AND course_id = $2
+  AND deleted_at IS NULL
+RETURNING *
+        ",
+        user_id,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(cheater)
 }
 
 pub async fn get_suspected_cheaters_by_id(

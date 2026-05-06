@@ -70,12 +70,12 @@ import TableBox from "./moocfi/TableBox"
 import TerminologyBlock from "./moocfi/TerminologyBlock"
 import TopLevelPageBlock from "./moocfi/TopLevelPagesBlock/index"
 
-import { Block } from "@/services/course-material/backend"
 import { BreakFromCenteredDisabledContext } from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { linkWithExtraIconClass } from "@/shared-module/common/styles/constants"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Block } from "@/types/courseMaterialBlock"
 import {
   COURSE_MATERIAL_DEFAULT_BLOCK_MARGIN_REM,
   courseMaterialBlockClass,

@@ -7,14 +7,13 @@ import { diffWords } from "diff"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { usePageInfo } from "@/hooks/usePageInfo"
 import {
-  BlockProposal,
-  BlockProposalAction,
-  BlockProposalInfo,
-  PageProposal,
-} from "@/shared-module/common/bindings"
-import { isEditedBlockStillExistsData } from "@/shared-module/common/bindings.guard"
+  type BlockProposal,
+  type BlockProposalAction,
+  type BlockProposalInfo,
+  type PageProposal,
+} from "@/generated/api/types.generated"
+import { usePageInfo } from "@/hooks/usePageInfo"
 import Button from "@/shared-module/common/components/Button"
 import DiffFormatter from "@/shared-module/common/components/DiffFormatter"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
@@ -44,6 +43,12 @@ const ProposalExplanation = styled.p`
   border-left: 3px solid #6c757d;
   border-radius: 0 4px 4px 0;
 `
+
+type EditedBlockStillExistsProposal = Extract<BlockProposal, { type: "edited-block-still-exists" }>
+
+const isEditedBlockStillExistsData = (
+  block: BlockProposal,
+): block is EditedBlockStillExistsProposal => block.type === "edited-block-still-exists"
 
 /**
  * Return true when the student's proposal exactly matches the text that will
@@ -152,7 +157,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             defaultValue={block.accept_preview ?? undefined}
             onChangeByValue={(newValue) =>
               setBlockActions((ba) => {
-                if (block.accept_preview !== null) {
+                if (block.accept_preview != null) {
                   // eslint-disable-next-line i18next/no-literal-string
                   ba.set(block.id, { tag: "Accept", data: newValue })
                 }
@@ -180,7 +185,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
-                  if (block.accept_preview !== null) {
+                  if (block.accept_preview != null) {
                     // eslint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
@@ -201,7 +206,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                   return new Set(eb)
                 })
                 setBlockActions((ba) => {
-                  if (block.accept_preview !== null) {
+                  if (block.accept_preview != null) {
                     // eslint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }

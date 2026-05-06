@@ -1,7 +1,6 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration, BlockEditProps } from "@wordpress/blocks"
 import { ComponentType, useEffect } from "react"
 import { v4 } from "uuid"
 
@@ -9,6 +8,8 @@ import { MOOCFI_CATEGORY_SLUG } from "../../../utils/Gutenberg/modifyGutenbergCa
 
 import ExerciseTaskEditor, { ExerciseTaskAttributes } from "./ExerciseTaskEditor"
 import ExerciseTaskSave from "./ExerciseTaskSave"
+
+import type { BlockConfiguration, BlockEditProps } from "@/utils/Gutenberg/types"
 
 const ExerciseTaskConfiguration: BlockConfiguration<ExerciseTaskAttributes> = {
   title: "ExerciseTask",

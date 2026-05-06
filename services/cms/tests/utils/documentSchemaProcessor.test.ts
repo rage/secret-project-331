@@ -9,7 +9,7 @@ import {
   UnnormalizedDocument,
 } from "../../src/utils/documentSchemaProcessor"
 
-import { CmsPageUpdate } from "@/shared-module/common/bindings"
+import { CmsPageUpdate } from "@/generated/api"
 
 const exampleCMSPageUpdate: CmsPageUpdate = {
   content: [

@@ -3,9 +3,9 @@ use blake3::Hash;
 use git2::{
     CertificateCheckStatus, Cred, FetchOptions, RemoteCallbacks, Repository, build::RepoBuilder,
 };
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{exercise_repositories, repository_exercises};
 use headless_lms_utils::{
-    ApplicationConfiguration,
     file_store::{self, FileStore},
     folder_checksum,
 };

@@ -19,9 +19,13 @@ const initI18n = (defaultNS: string): typeof i18n => {
           // this does webpack code splitting, so that we only load the language and the namespace we need
           const resources = await import(`../locales/${language}/${namespace}.json`)
           callback(null, resources)
-        } catch (error) {
-          // @ts-expect-error: checks for existance of the field
-          if (error.code === "MODULE_NOT_FOUND") {
+        } catch (error: unknown) {
+          if (
+            error !== null &&
+            typeof error === "object" &&
+            "code" in error &&
+            (error as { code: string }).code === "MODULE_NOT_FOUND"
+          ) {
             callback(null, {})
             return
           }

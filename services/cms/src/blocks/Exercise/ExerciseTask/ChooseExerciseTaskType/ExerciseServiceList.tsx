@@ -1,14 +1,14 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useTranslation } from "react-i18next"
 
 import useAllExerciseServices from "../../../../hooks/useAllExerciseServices"
 
-import { ExerciseServiceIframeRenderingInfo } from "@/shared-module/common/bindings"
+import { ExerciseServiceIframeRenderingInfo } from "@/generated/api"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 interface Props {
   onChooseItem: (task: ExerciseServiceIframeRenderingInfo) => void

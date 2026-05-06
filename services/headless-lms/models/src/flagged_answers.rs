@@ -3,9 +3,10 @@ use crate::{
     prelude::*,
     user_exercise_states::{self, ReviewingStage},
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct FlaggedAnswer {
     pub id: Uuid,
     pub submission_id: Uuid,
@@ -18,8 +19,7 @@ pub struct FlaggedAnswer {
     pub deleted_at: Option<DateTime<Utc>>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "report_reason")]
 pub enum ReportReason {
     #[sqlx(rename = "flagging-reason-spam")]
@@ -31,7 +31,7 @@ pub enum ReportReason {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewFlaggedAnswer {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,
@@ -40,8 +40,8 @@ pub struct NewFlaggedAnswer {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewFlaggedAnswerWithToken {
     pub submission_id: Uuid,
     pub flagged_user: Option<Uuid>,

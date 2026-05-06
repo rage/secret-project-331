@@ -1,12 +1,13 @@
 import { matchSpecifiedCitationNumberRegex, REMOVE_CITATIONS_REGEX } from "./chatbotCitationRegexes"
 
 import { renumberFilterCitations } from "@/components/course-material/chatbot/shared/MessageBubble"
-import { ChatbotConversationInfo } from "@/shared-module/common/bindings"
+import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
 import { isChatbotConversationMessageMessage } from "@/shared-module/common/bindings.guard"
+import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
-  let messages = info.current_conversation_messages
-  if (messages === null || messages.length === 0) {
+  const messages = info.current_conversation_messages
+  if (!messages || messages.length === 0) {
     throw new Error("Couldn't create a chatbot conversation transcript. The conversation is empty.")
   }
   const citations = info.current_conversation_message_citations ?? []
@@ -23,11 +24,12 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   let citationList = "________________________________________________________\n\nReferences\n\n"
 
   let transcript = messages
-    ?.map((m) => {
-      if (m.message === null) {
+    .map((m) => {
+      const originalMessage = m.message
+      if (originalMessage == null) {
         return ""
       }
-      let msg = m.message
+      let msg = originalMessage
 
       if (!isChatbotConversationMessageMessage(msg)) {
         // don't put tool messages or reasoning in the transcript
@@ -70,7 +72,9 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
             // add to it the last cit number from the prev message, so that
             // the numbers are unique across the whole transcript.
             if (isChatbotConversationMessageMessage(msg)) {
-              let newCitNumber = citationNumberingMap.get(cit.citation_number) + latestCitNumber
+              let newCitNumber =
+                assertNotNullOrUndefined(citationNumberingMap.get(cit.citation_number)) +
+                latestCitNumber
               let re = matchSpecifiedCitationNumberRegex(cit.citation_number)
               msg.text = msg.text.replaceAll(re, `[doc${newCitNumber}]`)
               citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`

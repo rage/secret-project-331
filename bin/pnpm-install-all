@@ -26,5 +26,8 @@ run_command bash -c 'cd system-tests && pnpm install --frozen-lockfile'
 echo "Installing dependencies for shared-module-common..."
 run_command bash -c 'cd shared-module/packages/common && pnpm install --frozen-lockfile'
 
+echo "Installing dependencies for shared-module-components..."
+run_command bash -c 'cd shared-module/packages/components && pnpm install --frozen-lockfile'
+
 
 echo "finished"

@@ -1,8 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockEditProps } from "@wordpress/blocks"
-import { useTranslation } from "react-i18next"
 
 import useAllExerciseServices from "../../hooks/useAllExerciseServices"
 import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
@@ -13,6 +11,8 @@ import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const ExerciseCustomViewEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExerciseCustomViewAttributes>>

@@ -6,6 +6,7 @@ use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
+    chatbot_error::chatbot_err,
     chatbot_tools::{
         azure_ai_search::AzureAISearchToolDefinition, course_progress::CourseProgressTool,
     },
@@ -149,10 +150,9 @@ pub async fn get_chatbot_tool(
     let tool = match fn_name {
         "course_progress" => CourseProgressTool::new(conn, "".to_string(), user_context).await?,
         _ => {
-            return Err(ChatbotError::new(
-                ChatbotErrorType::InvalidToolName,
-                "Incorrect or unknown function name".to_string(),
-                None,
+            return Err(chatbot_err!(
+                InvalidToolName,
+                "Incorrect or unknown function name".to_string()
             ));
         }
     };

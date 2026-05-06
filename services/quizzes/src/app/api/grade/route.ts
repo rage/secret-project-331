@@ -8,9 +8,10 @@ import { submissionFeedback } from "../../../grading/feedback"
 import { gradeAnswers } from "../../../grading/grading"
 import { handlePrivateSpecMigration, handleUserAnswerMigration } from "../../../grading/utils"
 
-import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import { ExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
 type QuizzesGradingRequest = GradingRequest<PrivateSpecQuiz, UserAnswer>
 
@@ -49,47 +50,39 @@ function handleGradingRequest(body: unknown): ExerciseTaskGradingResult {
 /**
  * Handle grading requests
  */
-export async function POST(req: Request) {
+const SERVICE = "quizzes"
+
+async function postImpl(req: Request) {
+  let body: unknown
   try {
-    const body = await req.json()
+    body = await req.json()
+  } catch {
+    return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
+  }
+  try {
     const result = handleGradingRequest(body)
     return NextResponse.json(result, { status: 200 })
-  } catch (e) {
-    console.error("Grading request failed:", e)
-    if (e instanceof Error) {
-      return NextResponse.json(
-        {
-          error_name: e.name,
-          error_message: e.message,
-          error_stack: e.stack,
-        },
-        { status: 500 },
-      )
-    }
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error"
+    return NextResponse.json({ error_message: message }, { status: 500 })
   }
 }
 
-export async function GET() {
+function notFound() {
   return NextResponse.json({ message: "Not found" }, { status: 404 })
 }
 
-export async function PUT() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function PATCH() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function DELETE() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function OPTIONS() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-export async function HEAD() {
+export const POST = wrapRouteHandler(postImpl, { service: SERVICE, operation: "POST /grade" })
+export const GET = wrapRouteHandler(notFound, { service: SERVICE, operation: "GET /grade" })
+export const PUT = wrapRouteHandler(notFound, { service: SERVICE, operation: "PUT /grade" })
+export const PATCH = wrapRouteHandler(notFound, { service: SERVICE, operation: "PATCH /grade" })
+export const DELETE = wrapRouteHandler(notFound, { service: SERVICE, operation: "DELETE /grade" })
+export const OPTIONS = wrapRouteHandler(notFound, { service: SERVICE, operation: "OPTIONS /grade" })
+function headNotFound() {
   return new Response(null, { status: 404 })
 }
+
+export const HEAD = wrapRouteHandler(headNotFound, {
+  service: SERVICE,
+  operation: "HEAD /grade",
+})

@@ -6,7 +6,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
-import { fetchOrganization } from "@/services/backend/organizations"
+import { getOrganizationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
 export default function OrganizationLayout({ children }: { children: React.ReactNode }) {
@@ -14,8 +14,11 @@ export default function OrganizationLayout({ children }: { children: React.React
   const { t } = useTranslation()
 
   const orgQuery = useQuery({
-    queryKey: ["organization", id],
-    queryFn: () => fetchOrganization(id),
+    ...getOrganizationOptions({
+      path: {
+        organization_id: id,
+      },
+    }),
   })
 
   const crumbs = useMemo(

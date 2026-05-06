@@ -1,10 +1,11 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import ChatbotEditor from "./ChatbotEditor"
 import ChatbotSave from "./ChatbotSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface ChatbotBlockAttributes {
   chatbotConfigurationId: string | undefined

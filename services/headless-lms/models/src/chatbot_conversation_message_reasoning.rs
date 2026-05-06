@@ -1,7 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 pub struct ChatbotConversationMessageReasoning {
     pub id: Uuid,
     pub chatbot_conversation_message_id: Uuid,

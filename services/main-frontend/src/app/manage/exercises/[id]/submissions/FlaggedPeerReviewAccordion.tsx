@@ -5,7 +5,7 @@ import styled from "@emotion/styled"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { FlaggedAnswer } from "@/shared-module/common/bindings"
+import type { FlaggedAnswer } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import { baseTheme } from "@/shared-module/common/styles"
 

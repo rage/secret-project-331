@@ -4,8 +4,11 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchPageChapterAndCourse } from "@/services/course-material/backend"
-import { Page } from "@/shared-module/common/bindings"
+import { getCourseMaterialPageChapterAndCourseInformation } from "@/generated/course-material-api/sdk.generated"
+import type {
+  Page,
+  PageChapterAndCourseInformation,
+} from "@/generated/course-material-api/types.generated"
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -24,11 +27,15 @@ const CourseMaterialPageBreadcrumbs: React.FC<
   const { t } = useTranslation()
   const data = useQuery({
     queryKey: [`page-chapter-and-course-${page?.id}`, page, page?.id],
-    queryFn: () => {
+    queryFn: async (): Promise<PageChapterAndCourseInformation | null> => {
       if (!page) {
         return null
       }
-      return fetchPageChapterAndCourse(page.id)
+      return getCourseMaterialPageChapterAndCourseInformation({
+        path: {
+          current_page_id: page.id,
+        },
+      })
     },
     enabled: !!page && !isCourseFrontPage,
   })

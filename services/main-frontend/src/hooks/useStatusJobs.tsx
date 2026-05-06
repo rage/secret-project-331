@@ -2,14 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query"
 
-import { fetchJobs } from "../services/backend/status"
-
-import { JobInfo } from "@/shared-module/common/bindings"
+import { getStatusJobsOptions } from "@/generated/api/@tanstack/react-query.generated"
 
 export const useStatusJobs = () => {
-  return useQuery<JobInfo[]>({
-    queryKey: ["status", "jobs"],
-    queryFn: () => fetchJobs(),
+  return useQuery({
+    ...getStatusJobsOptions(),
     refetchInterval: 10000,
   })
 }

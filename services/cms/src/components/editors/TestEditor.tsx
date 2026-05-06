@@ -1,12 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useReducer, useState } from "react"
-import { useTranslation } from "react-i18next"
 
 import { blockTypeMapForPages, blockTypeMapForTopLevelPages } from "../../blocks"
-import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import { supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import { modifyBlocks } from "../../utils/Gutenberg/modifyBlocks"
 import SerializeGutenbergModal from "../SerializeGutenbergModal"
@@ -17,6 +15,8 @@ import BreakFromCentered from "@/shared-module/common/components/Centering/Break
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const GutenbergEditor = dynamicImport(() => import("./GutenbergEditor"))
 
@@ -98,7 +98,6 @@ const TestEditor: React.FC = () => {
           onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
           customBlocks={blockTypeMapForTopLevelPages}
           allowedBlocks={supportedCoreBlocks}
-          allowedBlockVariations={allowedBlockVariants}
           mediaUpload={() => {}}
           inspectorButtons={saveAndReset}
           needToRunMigrationsAndValidations={false}

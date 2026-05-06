@@ -4,7 +4,7 @@ import { keyframes } from "@emotion/react"
 import styled from "@emotion/styled"
 
 import { baseTheme } from "../styles"
-import { SPINNER_CLASS } from "../utils/constants"
+import { LOADING_SPINNER_TEST_ID } from "../utils/constants"
 
 export interface SpinnerProps {
   variant?: "large" | "medium" | "small" | "placeholder"
@@ -65,7 +65,7 @@ const StyledSpinner = styled.div<SpinnerProps>`
 `
 
 const Spinner = (props: SpinnerProps) => {
-  return <StyledSpinner className={SPINNER_CLASS} {...props}></StyledSpinner>
+  return <StyledSpinner data-testid={LOADING_SPINNER_TEST_ID} {...props}></StyledSpinner>
 }
 
 export default Spinner

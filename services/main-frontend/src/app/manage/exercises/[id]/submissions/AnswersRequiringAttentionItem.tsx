@@ -15,12 +15,12 @@ import {
   ExerciseCardPointsBadge,
   ExerciseCardWrapper,
 } from "@/components/exercise-card"
-import { createTeacherGradingDecision } from "@/services/backend/teacher-grading-decisions"
-import {
+import { createTeacherGradingDecisionMutation } from "@/generated/api/@tanstack/react-query.generated"
+import type {
   AnswerRequiringAttentionWithTasks,
   NewTeacherGradingDecision,
-} from "@/shared-module/common/bindings"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+} from "@/generated/api/types.generated"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { dateToString } from "@/shared-module/common/utils/time"
@@ -41,18 +41,16 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
   const { t } = useTranslation()
   const [updatedPoints, setUpdatedPoints] = useState<number | null>(null)
 
-  const submitMutation = useToastMutation(
-    (update: NewTeacherGradingDecision) => {
-      return createTeacherGradingDecision(update)
-    },
+  const submitMutation = useToastMutationOptions(
+    createTeacherGradingDecisionMutation(),
     {
       notify: true,
-      method: "PUT",
+      method: "POST",
     },
     {
       onSuccess: (data) => {
         if (data) {
-          setUpdatedPoints(data.score_given)
+          setUpdatedPoints(data.score_given ?? null)
         } else {
           // In case that teacher used reject and reset
           refetch()
@@ -62,7 +60,9 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
   )
   const handleGradingDecisionSubmit = useCallback(
     async (decision: NewTeacherGradingDecision) => {
-      submitMutation.mutate(decision)
+      submitMutation.mutate({
+        body: decision,
+      })
       // Not refetching here because we want to just gray out the item so that if the user has misclicked, they can still see the item and correct their mistake.
     },
     [submitMutation],
@@ -81,7 +81,6 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
       >
         <ExerciseCardWrapper>
           <ExerciseCardHeader
-            backgroundColor={baseTheme.colors.blue[600]}
             title={
               <h2
                 className={css`
@@ -110,7 +109,9 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
             rightContent={
               <ExerciseCardPointsBadge
                 score={
-                  updatedPoints === null ? answerRequiringAttention.score_given : updatedPoints
+                  updatedPoints === null
+                    ? (answerRequiringAttention.score_given ?? null)
+                    : updatedPoints
                 }
                 maxScore={exerciseMaxPoints}
               />
@@ -141,7 +142,7 @@ const AnswersRequiringAttentionItem: React.FC<Props> = ({
               .slice()
               .sort((a, b) => a.order_number - b.order_number)
               .map((task) => (
-                <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+                <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} throttled />
               ))}
             <div
               className={css`

@@ -10,11 +10,14 @@ import ContentRenderer from "../ContentRenderer"
 
 import { CheckboxContext } from "@/contexts/course-material/CheckboxContext"
 import {
-  Block,
-  fetchResearchFormQuestionsWithCourseId,
-  postResearchFormUserAnswer,
-} from "@/services/course-material/backend"
-import { ResearchForm, ResearchFormQuestionAnswer } from "@/shared-module/common/bindings"
+  getCourseMaterialResearchConsentFormQuestions,
+  postCourseMaterialResearchConsentFormAnswer,
+} from "@/generated/course-material-api/sdk.generated"
+import type {
+  ResearchForm,
+  ResearchFormQuestion,
+  ResearchFormQuestionAnswer,
+} from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -22,6 +25,7 @@ import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { currentCourseIdAtom } from "@/state/course-material/selectors"
+import { Block } from "@/types/courseMaterialBlock"
 
 interface ResearchConsentFormProps {
   onClose: () => void
@@ -49,8 +53,14 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
 
   const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
   const getResearchFormQuestions = useQuery({
-    queryKey: [`courses-${courseId}-research-consent-form-questions`],
-    queryFn: () => fetchResearchFormQuestionsWithCourseId(assertNotNullOrUndefined(courseId)),
+    queryKey: ["course-material-research-consent-form-questions", courseId],
+    queryFn: async (): Promise<ResearchFormQuestion[]> =>
+      getCourseMaterialResearchConsentFormQuestions({
+        path: {
+          course_id: assertNotNullOrUndefined(courseId),
+        },
+      }),
+    enabled: courseId !== null,
   })
 
   // Adds all checkbox ids and false as default answer to questionIdsAndAnswers
@@ -77,12 +87,16 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
 
   const mutation = useToastMutation(
     (answer: UserAnswer) =>
-      postResearchFormUserAnswer(
-        assertNotNullOrUndefined(courseId),
-        assertNotNullOrUndefined(userId),
-        answer.questionId,
-        answer.answer,
-      ),
+      postCourseMaterialResearchConsentFormAnswer({
+        body: {
+          research_consent: answer.answer,
+          research_form_question_id: answer.questionId,
+          user_id: assertNotNullOrUndefined(userId),
+        },
+        path: {
+          course_id: assertNotNullOrUndefined(courseId),
+        },
+      }),
     {
       notify: true,
       method: "POST",
@@ -111,6 +125,9 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
             display: flex;
             line-height: 22px;
             padding: 16px 20px 16px 20px;
+            flex: 1;
+            min-height: 0;
+            overflow-y: auto;
           `}
         >
           <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
@@ -126,6 +143,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
             display: flex;
             justify-content: flex-end;
             align-items: center;
+            flex-shrink: 0;
             padding: 16px 20px;
             height: 72px;
             border: ${baseTheme.colors.clear[700]};

@@ -4,17 +4,15 @@ import React, { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { deleteTerm, updateTerm } from "@/services/backend/glossary"
+import {
+  deleteGlossaryTermMutation,
+  updateGlossaryTermMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-
-interface GlossaryTerm {
-  id: string
-  term: string
-  definition: string
-}
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface UpdateTermForm {
   updatedTerm: string
@@ -52,8 +50,8 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
     })
   }, [term, reset])
 
-  const updateMutation = useToastMutation(
-    (data: UpdateTermForm) => updateTerm(term.id, data.updatedTerm, data.updatedDefinition),
+  const updateMutation = useToastMutationOptions(
+    updateGlossaryTermMutation(),
     {
       notify: true,
       method: "PUT",
@@ -66,8 +64,8 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
     },
   )
 
-  const deleteMutation = useToastMutation(
-    () => deleteTerm(term.id),
+  const deleteMutation = useToastMutationOptions(
+    deleteGlossaryTermMutation(),
     {
       notify: true,
       method: "DELETE",
@@ -76,7 +74,15 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
   )
 
   const onUpdate = (data: UpdateTermForm) => {
-    updateMutation.mutate(data)
+    updateMutation.mutate({
+      body: {
+        definition: data.updatedDefinition,
+        term: data.updatedTerm,
+      },
+      path: {
+        term_id: term.id,
+      },
+    })
   }
 
   return (
@@ -126,7 +132,13 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
           <Button
             variant="tertiary"
             size="medium"
-            onClick={() => deleteMutation.mutate()}
+            onClick={() =>
+              deleteMutation.mutate({
+                path: {
+                  term_id: term.id,
+                },
+              })
+            }
             disabled={deleteMutation.isPending}
           >
             {t("button-text-delete")}

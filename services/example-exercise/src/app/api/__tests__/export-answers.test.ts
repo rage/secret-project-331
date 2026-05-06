@@ -2,9 +2,7 @@ import assert from "node:assert/strict"
 import test from "node:test"
 
 test("export-answers exports grading and answer metadata", async () => {
-  const importedRouteModule = await import("../export-answers/route.ts")
-  const routeModule = importedRouteModule.default ?? importedRouteModule
-  const { POST } = routeModule
+  const { POST } = await import("../export-answers/route")
   const response = await POST(
     new Request("http://localhost/api/export-answers", {
       method: "POST",
@@ -49,9 +47,7 @@ test("export-answers exports grading and answer metadata", async () => {
 })
 
 test("export-answers handles unknown selected options", async () => {
-  const importedRouteModule = await import("../export-answers/route.ts")
-  const routeModule = importedRouteModule.default ?? importedRouteModule
-  const { POST } = routeModule
+  const { POST } = await import("../export-answers/route")
   const response = await POST(
     new Request("http://localhost/api/export-answers", {
       method: "POST",
@@ -89,9 +85,7 @@ test("export-answers handles unknown selected options", async () => {
 })
 
 test("export-answers fails with invalid payload", async () => {
-  const importedRouteModule = await import("../export-answers/route.ts")
-  const routeModule = importedRouteModule.default ?? importedRouteModule
-  const { POST } = routeModule
+  const { POST } = await import("../export-answers/route")
   const response = await POST(
     new Request("http://localhost/api/export-answers", {
       method: "POST",

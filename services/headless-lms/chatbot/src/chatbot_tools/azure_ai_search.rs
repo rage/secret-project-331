@@ -1,7 +1,7 @@
 use crate::{
     azure_chatbot::CONTENT_FIELD_SEPARATOR, prelude::ChatbotResult, search_filter::SearchFilter,
 };
-use headless_lms_utils::ApplicationConfiguration;
+use headless_lms_base::config::ApplicationConfiguration;
 use serde::{Deserialize, Serialize};
 use url::Url;
 use uuid::Uuid;

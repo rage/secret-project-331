@@ -23,6 +23,10 @@ const SYNC_TARGETS = [
     source: "common",
     destinations: ALL_SERVICES_TARGETS,
   },
+  {
+    source: "components",
+    destinations: ALL_SERVICES_TARGETS,
+  },
 ]
 
 const DEBUG = false

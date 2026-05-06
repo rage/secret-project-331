@@ -5,9 +5,8 @@ Contains error and result types for all the util functions.
 use std::fmt::Display;
 
 use backtrace::Backtrace;
+use headless_lms_base::error::backend_error::BackendError;
 use tracing_error::SpanTrace;
-
-use super::backend_error::BackendError;
 
 /**
 Used as the result types for all utils.
@@ -211,8 +210,8 @@ impl From<serde_json::Error> for UtilError {
     }
 }
 
-impl From<cloud_storage::Error> for UtilError {
-    fn from(source: cloud_storage::Error) -> Self {
+impl From<google_cloud_storage::Error> for UtilError {
+    fn from(source: google_cloud_storage::Error) -> Self {
         UtilError::new(
             UtilErrorType::CloudStorage,
             source.to_string(),
@@ -224,5 +223,118 @@ impl From<cloud_storage::Error> for UtilError {
 impl From<anyhow::Error> for UtilError {
     fn from(err: anyhow::Error) -> UtilError {
         Self::new(UtilErrorType::Other, err.to_string(), Some(err))
+    }
+}
+
+// Generate error creation macros for UtilError
+crate::define_err_macro!(
+    util_err,
+    UtilError,
+    UtilErrorType,
+    UtilErrorType,
+    "Create a UtilError with less boilerplate."
+);
+
+/// Helper function for `.map_err()` chains to wrap any error as UtilError.
+///
+/// This function creates a closure that converts any error into a `UtilError`
+/// with the specified error type and message, including the original error as the source.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .map_err(|e| UtilError::new(UtilErrorType::Other, e.to_string(), Some(e.into())))?
+///
+/// // You can write:
+/// .map_err(as_util_error(UtilErrorType::Other, "Failed to process".to_string()))?
+/// ```
+pub fn as_util_error<E>(
+    error_type: UtilErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce(E) -> UtilError
+where
+    E: Into<anyhow::Error>,
+{
+    let msg = message.into();
+    move |e| UtilError::new(error_type, msg, Some(e.into()))
+}
+
+/// Helper function for `.ok_or_else()` to create UtilError on None.
+///
+/// This function creates a closure that generates a `UtilError` with the
+/// specified error type and message when called.
+///
+/// # Examples
+///
+/// ```ignore
+/// // Instead of:
+/// .ok_or_else(|| UtilError::new(UtilErrorType::Other, "Item not found".to_string(), None))
+///
+/// // You can write:
+/// .ok_or_else(missing_util_error(UtilErrorType::Other, "Item not found".to_string()))
+/// ```
+pub fn missing_util_error(
+    error_type: UtilErrorType,
+    message: impl Into<String>,
+) -> impl FnOnce() -> UtilError {
+    let msg = message.into();
+    move || UtilError::new(error_type, msg, None)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_util_err_macro_without_source() {
+        let err = util_err!(Other, "Test error message".to_string());
+        assert_eq!(err.message(), "Test error message");
+        assert!(matches!(err.error_type(), UtilErrorType::Other));
+    }
+
+    #[test]
+    fn test_util_err_macro_with_source() {
+        let source_err = std::io::Error::new(std::io::ErrorKind::NotFound, "file not found");
+        let err = util_err!(TokioIo, "Wrapped error".to_string(), source_err);
+        assert_eq!(err.message(), "Wrapped error");
+    }
+
+    #[test]
+    fn test_as_util_error_helper() {
+        let result: Result<(), std::io::Error> = Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            "test error",
+        ));
+        let util_result = result.map_err(as_util_error(
+            UtilErrorType::TokioIo,
+            "Failed to read file".to_string(),
+        ));
+
+        assert!(util_result.is_err());
+        let err = util_result.unwrap_err();
+        assert_eq!(err.message(), "Failed to read file");
+        assert!(matches!(err.error_type(), UtilErrorType::TokioIo));
+    }
+
+    #[test]
+    fn test_missing_util_error_helper() {
+        let option: Option<String> = None;
+        let result = option.ok_or_else(missing_util_error(
+            UtilErrorType::Other,
+            "Item not found".to_string(),
+        ));
+
+        assert!(result.is_err());
+        let err = result.unwrap_err();
+        assert_eq!(err.message(), "Item not found");
+        assert!(matches!(err.error_type(), UtilErrorType::Other));
+    }
+
+    #[test]
+    fn test_util_err_with_format() {
+        let path = "/tmp/test.txt";
+        let err = util_err!(Other, format!("Failed to process file: {}", path));
+        assert_eq!(err.message(), "Failed to process file: /tmp/test.txt");
     }
 }

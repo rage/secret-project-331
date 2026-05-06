@@ -11,6 +11,7 @@ use bytes::Bytes;
 use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
 use futures::{Stream, StreamExt, TryStreamExt};
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_message_messages::{
     ChatbotConversationMessageMessage, MessageRole,
@@ -18,7 +19,6 @@ use headless_lms_models::chatbot_conversation_message_messages::{
 use headless_lms_models::chatbot_conversation_messages::{
     self, ChatbotConversationMessage, Message,
 };
-use headless_lms_utils::ApplicationConfiguration;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -592,10 +592,9 @@ pub async fn make_request_and_stream<'a>(
 
                     let response_output = serde_json::from_str::<ResponseOutput>(json_str)
                         .map_err(|e| ChatbotError::from(e))?;
-                    let item = response_output.item.ok_or(ChatbotError::new(
-                        ChatbotErrorType::DeserializationError,
-                        "Expected response ouput item",
-                        None,
+                    let item = response_output.item.ok_or(chatbot_err!(
+                        DeserializationError,
+                        "Expected response ouput item"
                     ))?;
                     process_output_item(conn, item, conversation_id, app_config).await?;
                     output_item_incoming = false;
@@ -606,10 +605,9 @@ pub async fn make_request_and_stream<'a>(
 
                     let response_output = serde_json::from_str::<ResponseOutput>(json_str)
                         .map_err(|e| ChatbotError::from(e))?;
-                    let res = response_output.response.ok_or(ChatbotError::new(
-                        ChatbotErrorType::DeserializationError,
-                        "Expected response onject",
-                        None,
+                    let res = response_output.response.ok_or(chatbot_err!(
+                        DeserializationError,
+                        "Expected response onject"
                     ))?;
                     response_id = res.id;
                     response_created_incoming = false;
@@ -683,10 +681,9 @@ pub async fn process_output_item(
             {
                 &search_config.search_api_key
             } else {
-                return ChatbotResult::Err(ChatbotError::new(
-                    ChatbotErrorType::Other,
-                    "Azure search configuration not found, cannot process Azure AI search output item.".to_string(),
-                    None,
+                return ChatbotResult::Err(chatbot_err!(
+                    Other,
+                    "Azure search configuration not found, cannot process Azure AI search output item.".to_string()
                 ));
             };
             let get_urls = search_output.get_urls.to_owned();
@@ -715,28 +712,25 @@ pub async fn process_output_item(
         }
         OutputItem::Message { .. } => {
             // this chunk has a text message and should be streamed!
-            Err(ChatbotError::new(
-                ChatbotErrorType::StreamingError,
-                "Unexpected message output item, it should have been streamed.".to_string(),
-                None,
+            Err(chatbot_err!(
+                StreamingError,
+                "Unexpected message output item, it should have been streamed.".to_string()
             ))
         }
         OutputItem::FunctionCall { .. } => {
             // this chunk has tool call data andit should already be saved!!
-            Err(ChatbotError::new(
-                ChatbotErrorType::StreamingError,
-                "Unexpected function call output item, it should have been processed.".to_string(),
-                None,
+            Err(chatbot_err!(
+                StreamingError,
+                "Unexpected function call output item, it should have been processed.".to_string()
             ))
         }
         OutputItem::FunctionCallOutput { .. } => {
             // this chunk has tool output data
             // we shouldn't be receiving it from the LLM!
             // tool output is created by us!
-            Err(ChatbotError::new(
-                ChatbotErrorType::StreamingError,
-                "Unexpected function call output item, this shouldn't happen.".to_string(),
-                None,
+            Err(chatbot_err!(
+                StreamingError,
+                "Unexpected function call output item, this shouldn't happen.".to_string()
             ))
         }
     }
@@ -755,7 +749,7 @@ pub async fn parse_tool<'a>(
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
     let mut event_type = "".to_string();
-    let mut response_received: bool;
+    let mut response_received: bool = false;
 
     trace!("Parsing tool calls...");
 
@@ -835,10 +829,9 @@ pub async fn parse_tool<'a>(
                         serde_json::to_value(arguments)?,
                     ));
                 }
-                OutputItem::Message { .. } => Err(ChatbotError::new(
-                    ChatbotErrorType::StreamingError,
-                    "Error: unexpected message item !!!".to_string(),
-                    None,
+                OutputItem::Message { .. } => Err(chatbot_err!(
+                    StreamingError,
+                    "Error: unexpected message item !!!".to_string()
                 ))?,
                 _ => {
                     // save this chunk's data
@@ -952,7 +945,7 @@ pub async fn parse_and_stream_to_user<'a>(
 
             if error_incoming {
                 if let Some(response) = &response_output.response && let Some(error) = &response.error {
-                    Err(ChatbotError::new(ChatbotErrorType::StreamingError, format!("Error received from the API: {}.", error), None))?
+                    Err(chatbot_err!(StreamingError, format!("Error received from the API: {}.", error)))?
                 };
             };
 
@@ -967,7 +960,7 @@ pub async fn parse_and_stream_to_user<'a>(
             if let Some(item) = &response_output.item {
                 match item {
                     OutputItem::Message { .. } => continue,
-                    OutputItem::FunctionCall { .. } => Err(ChatbotError::new(ChatbotErrorType::StreamingError, "Error: unexpected function call after / during a text response.".to_string(), None))?,
+                    OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
                     _ => {
                         let mut conn = pool.acquire().await?;
                         process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;

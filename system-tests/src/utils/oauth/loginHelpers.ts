@@ -2,7 +2,7 @@ import { Page } from "@playwright/test"
 
 import { ensureRedirectServer } from "./redirectServer"
 
-import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import { hideToasts } from "@/utils/notificationUtils"
 
 async function submitConsentIfVisible(page: Page): Promise<void> {
   const consentDialog = page.getByTestId("research-consent-dialog")
@@ -10,9 +10,19 @@ async function submitConsentIfVisible(page: Page): Promise<void> {
     return
   }
   await page.getByLabel(/I want to participate in the educational research/).click()
-  await waitForSuccessNotification(page, async () => {
-    await page.getByRole("button", { name: "Save" }).click()
-  })
+  await hideToasts(page)
+  await page.getByRole("button", { name: "Save" }).click()
+  await Promise.race([
+    page
+      .getByTestId("toast-notification")
+      .getByText(/Operation successful!?/)
+      .first()
+      .waitFor(),
+    page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
+      timeout: 10000,
+      waitUntil: "domcontentloaded",
+    }),
+  ])
   await page.waitForURL(/\/authorize|\/oauth_authorize_scopes|\/callback/, {
     timeout: 10000,
     waitUntil: "domcontentloaded",

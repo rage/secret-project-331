@@ -1,3 +1,6 @@
+import { TFunction } from "i18next"
+import { ZodError } from "zod"
+
 import { AppApiError, isAppApiError } from "./AppApiError"
 
 export type ErrorCategory =
@@ -17,6 +20,7 @@ export type ErrorSeverity = "info" | "warning" | "error"
 export type BackendMessageKey =
   | "internal_error"
   | "validation_error"
+  | "response_validation_error"
   | "validation_error_with_metadata"
   | "not_found"
   | "unauthorized"
@@ -37,6 +41,7 @@ export interface ErrorViewTechnicalDetails {
   stack?: string | null
   method?: string | null
   url?: string | null
+  raw?: unknown
 }
 
 export interface ErrorViewModel {
@@ -65,6 +70,7 @@ function isBackendMessageKey(value: unknown): value is BackendMessageKey {
   return (
     value === "internal_error" ||
     value === "validation_error" ||
+    value === "response_validation_error" ||
     value === "validation_error_with_metadata" ||
     value === "not_found" ||
     value === "unauthorized" ||
@@ -134,6 +140,20 @@ function isSimplifiedPayload(value: unknown): value is SimplifiedPayload {
   )
 }
 
+function joinIssuePath(path: unknown): string | undefined {
+  if (typeof path === "string") {
+    return path
+  }
+  if (Array.isArray(path)) {
+    return path
+      .filter((segment): segment is string | number => {
+        return typeof segment === "string" || typeof segment === "number"
+      })
+      .join(".")
+  }
+  return undefined
+}
+
 function parseIssues(value: unknown): ErrorViewIssue[] {
   if (!Array.isArray(value)) {
     return []
@@ -145,11 +165,52 @@ function parseIssues(value: unknown): ErrorViewIssue[] {
     return [
       {
         message: v.message,
-        path: typeof v.path === "string" ? v.path : undefined,
+        path: joinIssuePath(v.path),
         code: typeof v.code === "string" ? v.code : undefined,
       },
     ]
   })
+}
+
+type ZodIssue = ZodError["issues"][number]
+
+function summarizeZodIssue(issue: ZodIssue, t: TFunction): string {
+  if (issue.code === "invalid_type" && "expected" in issue && "received" in issue) {
+    return t("error-zod-issue.invalid_type", {
+      expected: String(issue.expected),
+      received: String(issue.received),
+    })
+  }
+  if (issue.code === "invalid_format") {
+    if ("format" in issue && issue.format) {
+      return t("error-zod-issue.invalid_format", {
+        format: String(issue.format),
+      })
+    }
+    if ("pattern" in issue && issue.pattern) {
+      return t("error-zod-issue.invalid_format_pattern", {
+        pattern: String(issue.pattern),
+      })
+    }
+  }
+  if (issue.code === "too_big" && "maximum" in issue && "inclusive" in issue) {
+    return t("error-zod-issue.too_big", {
+      comparator: issue.inclusive ? "<=" : "<",
+      maximum: String(issue.maximum),
+    })
+  }
+  if (issue.code === "too_small" && "minimum" in issue && "inclusive" in issue) {
+    return t("error-zod-issue.too_small", {
+      comparator: issue.inclusive ? ">=" : ">",
+      minimum: String(issue.minimum),
+    })
+  }
+  if (issue.code === "unrecognized_keys" && "keys" in issue && Array.isArray(issue.keys)) {
+    return t("error-zod-issue.unrecognized_keys", {
+      keys: issue.keys.join(", "),
+    })
+  }
+  return issue.message
 }
 
 function isLegacyBackendError(value: unknown): value is LegacyErrorResponse {
@@ -165,7 +226,7 @@ function isAggregateLike(value: unknown): value is { message?: unknown; errors?:
   return isRecord(value) && value.name === "AggregateError" && Array.isArray(value.errors)
 }
 
-function normalizePayload(payload: SimplifiedPayload): ErrorViewModel {
+function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewModel {
   const messageKey = isBackendMessageKey(payload.message_key) ? payload.message_key : null
   const type = typeof payload.type === "string" ? payload.type : null
   const message = typeof payload.message === "string" ? payload.message : null
@@ -174,7 +235,9 @@ function normalizePayload(payload: SimplifiedPayload): ErrorViewModel {
   const category: ErrorCategory =
     messageKey === "rate_limited"
       ? "rate_limit"
-      : messageKey === "validation_error" || messageKey === "validation_error_with_metadata"
+      : messageKey === "validation_error" ||
+          messageKey === "validation_error_with_metadata" ||
+          messageKey === "response_validation_error"
         ? "validation"
         : messageKey === "unauthorized" ||
             messageKey === "chapter_not_open_yet" ||
@@ -188,7 +251,7 @@ function normalizePayload(payload: SimplifiedPayload): ErrorViewModel {
   return {
     category,
     severity: severityFromCategory(category),
-    title: message ?? type ?? "Request failed",
+    title: message ?? type ?? t("error-request-failed" as never),
     message,
     requestId: null,
     status: null,
@@ -204,7 +267,7 @@ function normalizePayload(payload: SimplifiedPayload): ErrorViewModel {
   }
 }
 
-function normalizeAppApiError(error: AppApiError): ErrorViewModel {
+function normalizeAppApiError(error: AppApiError, t: TFunction): ErrorViewModel {
   const messageKey = isBackendMessageKey(error.messageKey) ? error.messageKey : null
   const category =
     error.kind === "abort"
@@ -220,7 +283,7 @@ function normalizeAppApiError(error: AppApiError): ErrorViewModel {
   return {
     category,
     severity: severityFromCategory(category),
-    title: error.message || "Request failed",
+    title: error.message || t("error-request-failed" as never),
     message: error.userMessage ?? error.detail ?? null,
     requestId: error.requestId,
     status: error.status,
@@ -240,9 +303,9 @@ function normalizeAppApiError(error: AppApiError): ErrorViewModel {
   }
 }
 
-export function normalizeErrorForDisplay(error: unknown): ErrorViewModel {
+export function normalizeErrorForDisplay(error: unknown, t: TFunction): ErrorViewModel {
   if (isAppApiError(error)) {
-    return normalizeAppApiError(error)
+    return normalizeAppApiError(error, t)
   }
   if (isLegacyBackendError(error)) {
     const data = isRecord(error.data) ? error.data : null
@@ -267,35 +330,43 @@ export function normalizeErrorForDisplay(error: unknown): ErrorViewModel {
     }
   }
   if (isSimplifiedPayload(error)) {
-    return normalizePayload(error)
+    return normalizePayload(error, t)
   }
 
   if (isRecord(error) && error.error === "too_many_requests") {
-    return normalizePayload({
-      type: "rate_limit",
-      message_key: "rate_limited",
-      message: "Too many requests. Please try again later.",
-      errors: [],
-    })
+    return normalizePayload(
+      {
+        type: "rate_limit",
+        message_key: "rate_limited",
+        message: t("error-too-many-requests" as never),
+        errors: [],
+      },
+      t,
+    )
   }
 
   if (isRecord(error) && typeof error.error === "string") {
-    return normalizePayload({
-      type: "oauth_error",
-      message_key: "oauth_error",
-      message: typeof error.error_description === "string" ? error.error_description : error.error,
-      errors: [],
-    })
+    return normalizePayload(
+      {
+        type: "oauth_error",
+        message_key: "oauth_error",
+        message:
+          typeof error.error_description === "string" ? error.error_description : error.error,
+        errors: [],
+      },
+      t,
+    )
   }
 
   if (isAggregateLike(error)) {
     const first = error.errors?.[0]
-    const firstNormalized = first ? normalizeErrorForDisplay(first) : null
+    const firstNormalized = first ? normalizeErrorForDisplay(first, t) : null
     return {
       category: firstNormalized?.category ?? "client",
       severity: firstNormalized?.severity ?? "error",
       title:
-        (typeof error.message === "string" ? error.message : null) || "Multiple errors occurred",
+        (typeof error.message === "string" ? error.message : null) ||
+        t("error-multiple-errors-occurred" as never),
       message: firstNormalized?.message ?? null,
       requestId: firstNormalized?.requestId ?? null,
       status: firstNormalized?.status ?? null,
@@ -311,22 +382,27 @@ export function normalizeErrorForDisplay(error: unknown): ErrorViewModel {
     }
   }
 
-  if (isRecord(error) && error.name === "ZodError" && Array.isArray(error.issues)) {
+  if (error instanceof ZodError) {
+    const issues: ErrorViewIssue[] = error.issues.map((issue) => ({
+      message: summarizeZodIssue(issue, t),
+      path: joinIssuePath(issue.path),
+      code: typeof issue.code === "string" ? issue.code : undefined,
+    }))
     return {
       category: "validation",
       severity: "error",
-      title: "Invalid input",
+      title: t("error-message-key.response_validation_error.title"),
       message: null,
       requestId: null,
       status: 422,
-      messageKey: "validation_error",
-      type: "validation_error",
+      messageKey: "response_validation_error",
+      type: "response_validation_error",
       code: null,
       retryable: false,
       retryAfterSeconds: null,
-      issues: parseIssues(error.issues),
+      issues,
       blockId: null,
-      technicalDetails: null,
+      technicalDetails: { raw: error.issues },
       raw: error,
     }
   }
@@ -335,7 +411,7 @@ export function normalizeErrorForDisplay(error: unknown): ErrorViewModel {
     return {
       category: "abort",
       severity: "info",
-      title: "Request was cancelled",
+      title: t("error-request-cancelled" as never),
       message: error.message || null,
       requestId: null,
       status: null,
@@ -356,7 +432,7 @@ export function normalizeErrorForDisplay(error: unknown): ErrorViewModel {
     return {
       category: isTimeout ? "timeout" : "client",
       severity: "error",
-      title: error.message || "Unexpected error",
+      title: error.message || t("error-unexpected-error" as never),
       message: null,
       requestId: null,
       status: null,

@@ -71,7 +71,9 @@
     }
   },
   "error-part-of-page-has-crashed-error": "Частина сторінки аварійно завершила роботу: {{error}}",
+  "error-status": "Статус: {{status}}",
   "error-title": "Помилка",
+  "error-type": "Тип: {{type}}",
   "essay": "Есе",
   "faq": "FAQ",
   "fileField.chooseFile": "Вибрати файл",

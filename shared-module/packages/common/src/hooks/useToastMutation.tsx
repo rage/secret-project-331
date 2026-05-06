@@ -151,7 +151,7 @@ export default function useToastMutation<
         toast.remove()
         let errorMessage = notificationOptions.errorMessage
         if (!errorMessage) {
-          const view = normalizeErrorForDisplay(error)
+          const view = normalizeErrorForDisplay(error, t)
           const localizedCopy = resolveErrorDisplayCopy(view, t)
           errorMessage = localizedCopy.message ?? localizedCopy.title
         }

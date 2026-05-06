@@ -96,6 +96,10 @@
       "message": "Please wait and try again.",
       "title": "Too many requests"
     },
+    "response_validation_error": {
+      "message": "The server responded successfully, but the data was not in the expected format.",
+      "title": "Could not display data"
+    },
     "unauthorized": {
       "message": "Please sign in and try again.",
       "title": "Unauthorized"
@@ -109,10 +113,28 @@
       "title": "Invalid input"
     }
   },
+  "error-multiple-errors-occurred": "Multiple errors occurred",
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
+  "error-request-cancelled": "Request was cancelled",
+  "error-request-failed": "Request failed",
   "error-request-id": "Request ID: {{requestId}}",
   "error-retry-after": "Retry after: {{seconds}}s",
+  "error-source-method": "Method: {{method}}",
+  "error-source-url": "URL: {{url}}",
+  "error-status": "Status: {{status}}",
   "error-title": "Error",
+  "error-too-many-requests": "Too many requests. Please try again later.",
+  "error-type": "Type: {{type}}",
+  "error-unexpected-error": "Unexpected error",
+  "error-zod-issue": {
+    "invalid_format": "Expected {{format}}",
+    "invalid_format_pattern": "Expected format matching {{pattern}}",
+    "invalid_type": "Expected {{expected}}, received {{received}}",
+    "too_big": "Must be {{comparator}} {{maximum}}",
+    "too_small": "Must be {{comparator}} {{minimum}}",
+    "unrecognized_keys": "Unrecognized keys: {{keys}}"
+  },
+  "error-zod-issue-prefix": "Validation issue at",
   "essay": "Essay",
   "exercise-iframe-reload-exhausted-message": "Automatic reload attempts were exhausted. You can try reloading the exercise manually.",
   "exercise-iframe-reload-exhausted-reload-button": "Reload exercise",

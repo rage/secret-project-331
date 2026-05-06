@@ -1178,8 +1178,8 @@ export default function AnalysisWorkspaceForm(props: {
               name="responsible_teachers"
               control={control}
               rules={nullIfEmpty}
-              label={t("course-plans-analysis-field-responsible-teachers")}
-              description={t("course-plans-analysis-description-responsible-teachers")}
+              label={t("course-plans-analysis-field-teachers-in-charge")}
+              description={t("course-plans-analysis-description-teachers-in-charge")}
               rows={ROWS_SHORT}
             />
             <div className={twoColGridStyles}>

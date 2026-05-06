@@ -18,7 +18,7 @@ const formatErrorMessage = (
   error: unknown,
   t: TFunction,
 ): { boldPart: string; normalPart: string; details: string[]; originalMessage: string } => {
-  const normalized = normalizeErrorForDisplay(error)
+  const normalized = normalizeErrorForDisplay(error, t)
   const details: string[] = []
   if (normalized.status !== null) {
     details.push(t("error-status", { status: normalized.status }))

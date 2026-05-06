@@ -57,7 +57,7 @@ pub async fn seed_accessibility_course(
             ModuleBuilder::new().order(0).chapter(
                 ChapterBuilder::new(1, "Chapter 1")
                     .fixed_ids(
-                        cx.v5(b"a1b2c3d4-e5f6-7890-abcd-ef1234567890"),
+                        cx.v5(b"1799a6d1-c1b1-4f51-a92f-e832554fc924"),
                         cx.v5(b"b2c3d4e5-f6a7-8901-bcde-f12345678901"),
                     )
                     .page(
@@ -145,7 +145,7 @@ pub async fn seed_accessibility_course(
                                         attributes! {},
                                         vec![GutenbergBlock::paragraph("Back side content")],
                                     )
-                                    .with_id(cx.v5(b"a1b2c3d4-e5f6-7890-abcd-ef1234567890")),
+                                    .with_id(cx.v5(b"6a4cb66f-f636-4fcb-a264-8ec9f5f4a8b0")),
                                 ],
                             )
                             .with_id(cx.v5(b"12345678-1234-5678-9012-123456789abc")),

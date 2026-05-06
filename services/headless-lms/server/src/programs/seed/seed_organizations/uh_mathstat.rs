@@ -452,7 +452,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _accessibility_course_id = seed_accessibility_course(
-        Uuid::parse_str("f1a2b3c4-d5e6-7890-abcd-ef1234567890")?,
+        Uuid::parse_str("883c8ed0-08db-4cd1-a0a4-5cc79c69bdfe")?,
         "Accessibility course",
         "accessibility-course",
         uh_data.clone(),
@@ -460,7 +460,7 @@ pub async fn seed_organization_uh_mathstat(
     .await?;
 
     let _lock_chapter_course_id = seed_lock_chapter_course(
-        Uuid::parse_str("a1b2c3d4-e5f6-7890-abcd-ef1234567890")?,
+        Uuid::parse_str("1799a6d1-c1b1-4f51-a92f-e832554fc924")?,
         "Lock Chapter Test Course",
         "lock-chapter-test-course",
         uh_data.clone(),

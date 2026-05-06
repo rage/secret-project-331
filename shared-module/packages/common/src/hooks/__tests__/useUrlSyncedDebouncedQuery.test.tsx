@@ -100,4 +100,30 @@ describe("useUrlSyncedDebouncedQuery", () => {
     expect(result.current.queryValue).toBe("bob")
     expect(mockNavigation.replace).not.toHaveBeenCalled()
   })
+
+  it("does not overwrite in-progress input when the URL update lands late", () => {
+    const { result, rerender } = renderDebouncedQueryHook()
+
+    act(() => {
+      result.current.setInputValue("alice")
+    })
+
+    act(() => {
+      jest.advanceTimersByTime(250)
+    })
+
+    expect(result.current.queryValue).toBe("alice")
+    expect(mockNavigation.replace).toHaveBeenLastCalledWith("/manage/search-users?search=alice")
+
+    act(() => {
+      result.current.setInputValue("alicex")
+    })
+
+    act(() => {
+      mockNavigation.search = "search=alice"
+      rerender()
+    })
+
+    expect(result.current.inputValue).toBe("alicex")
+  })
 })

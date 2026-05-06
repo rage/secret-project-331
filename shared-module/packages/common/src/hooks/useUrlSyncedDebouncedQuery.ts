@@ -27,6 +27,7 @@ const useUrlSyncedDebouncedQuery = ({
   const urlInputValue = searchParams.get(paramName) ?? ""
   const urlQueryValue = urlInputValue.trim()
   const previousUrlInputValueRef = useRef({ paramName, value: urlInputValue })
+  const pendingUrlInputValueRef = useRef<{ paramName: string; value: string } | null>(null)
   const urlInputValueChanged =
     previousUrlInputValueRef.current.paramName !== paramName ||
     previousUrlInputValueRef.current.value !== urlInputValue
@@ -41,9 +42,21 @@ const useUrlSyncedDebouncedQuery = ({
     if (!urlInputValueChanged) {
       return
     }
+
+    const pending =
+      pendingUrlInputValueRef.current?.paramName === paramName &&
+      pendingUrlInputValueRef.current.value === urlInputValue
+
     previousUrlInputValueRef.current = { paramName, value: urlInputValue }
-    setInputValue(urlInputValue)
     setQueryValue(urlQueryValue)
+
+    if (pending) {
+      pendingUrlInputValueRef.current = null
+      return
+    }
+
+    pendingUrlInputValueRef.current = null
+    setInputValue(urlInputValue)
   }, [paramName, urlInputValue, urlInputValueChanged, urlQueryValue])
 
   useEffect(() => {
@@ -74,6 +87,7 @@ const useUrlSyncedDebouncedQuery = ({
       return
     }
     const newUrl = `${pathname}${nextQuery ? `?${nextQuery}` : ""}`
+    pendingUrlInputValueRef.current = { paramName, value: queryValue }
     router.replace(newUrl)
   }, [paramName, pathname, queryValue, router, searchParams, urlInputValueChanged])
 

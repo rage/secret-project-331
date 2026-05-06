@@ -1,0 +1,78 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO peer_or_self_review_submissions (\n    id,\n    user_id,\n    exercise_id,\n    course_id,\n    peer_or_self_review_config_id,\n    exercise_slide_submission_id\n)\nSELECT\n    $1,\n    reviewer_state.user_id,\n    exercise.id,\n    exercise.course_id,\n    config.id,\n    receiver_submission.id\nFROM exercises exercise\n  JOIN peer_or_self_review_configs config\n    ON config.id = $5\n   AND config.course_id = $4\n   AND (config.exercise_id = exercise.id OR config.exercise_id IS NULL)\n   AND config.deleted_at IS NULL\n  JOIN exercise_slide_submissions receiver_submission\n    ON receiver_submission.id = $6\n   AND receiver_submission.exercise_id = exercise.id\n   AND receiver_submission.course_id = $4\n   AND receiver_submission.user_id = $3\n   AND receiver_submission.deleted_at IS NULL\n  JOIN user_exercise_states reviewer_state\n    ON reviewer_state.id = $7\n   AND reviewer_state.user_id = $2\n   AND reviewer_state.exercise_id = exercise.id\n   AND reviewer_state.course_id = $4\n   AND reviewer_state.deleted_at IS NULL\n  JOIN user_exercise_states receiver_state\n    ON receiver_state.id = $8\n   AND receiver_state.user_id = $3\n   AND receiver_state.exercise_id = exercise.id\n   AND receiver_state.course_id = $4\n   AND receiver_state.deleted_at IS NULL\nWHERE exercise.id = $9\n  AND exercise.course_id = $4\n  AND exercise.deleted_at IS NULL\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "exercise_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "peer_or_self_review_config_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 7,
+        "name": "exercise_slide_submission_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 8,
+        "name": "course_id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "d232db01a81548a00453120eef5b49133d4b17080a6a7ce6afa191021db2f890"
+}

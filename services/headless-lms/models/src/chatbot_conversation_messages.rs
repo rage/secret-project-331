@@ -152,6 +152,129 @@ RETURNING
                 .await?;
                 (None, None)
             } else {
+                return Err(model_err!(
+                    InvalidRequest,
+                    "A chatbot conversation message with role 'assistant' has to have either a message or tool calls"
+                ));
+            }
+        }
+        MessageRole::Tool => {
+            if let Some(output) = input.tool_output {
+                let o_res =
+                    chatbot_conversation_message_tool_outputs::insert(&mut tx, output, msg.id)
+                        .await?;
+                (Some(o_res.id), Some(o_res))
+            } else {
+                return Err(model_err!(
+                    InvalidRequest,
+                    "A chatbot conversation message with role 'tool' must have tool output"
+                ));
+            }
+        }
+        MessageRole::User => (None, None),
+        MessageRole::System => {
+            return Err(model_err!(
+                InvalidRequest,
+                "Can't save system message to database"
+            ));
+        }
+    };
+
+    // Update the message to contain the tool_output_id if it was created
+    if tool_output_id.is_some() {
+        sqlx::query_as!(
+            ChatbotConversationMessageRow,
+            r#"
+UPDATE chatbot_conversation_messages
+SET tool_output_id = $1
+WHERE id = $2
+            "#,
+            tool_output_id,
+            msg.id,
+        )
+        .execute(&mut *tx)
+        .await?;
+    }
+
+    let res = ChatbotConversationMessage::from_row(msg, tool_output, input.tool_call_fields);
+    tx.commit().await?;
+    Ok(res)
+}
+
+pub async fn insert_for_conversation_user_and_configuration(
+    conn: &mut PgConnection,
+    input: ChatbotConversationMessage,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<ChatbotConversationMessage> {
+    let mut tx = conn.begin().await?;
+
+    sqlx::query!(
+        r#"
+SELECT id
+FROM chatbot_conversations
+WHERE id = $1
+  AND user_id = $2
+  AND chatbot_configuration_id = $3
+  AND deleted_at IS NULL
+        "#,
+        input.conversation_id,
+        user_id,
+        chatbot_configuration_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let msg = sqlx::query_as!(
+        ChatbotConversationMessageRow,
+        r#"
+INSERT INTO chatbot_conversation_messages (
+    conversation_id,
+    message,
+    message_role,
+    message_is_complete,
+    used_tokens,
+    order_number,
+    tool_output_id
+)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING
+    id,
+    created_at,
+    updated_at,
+    deleted_at,
+    conversation_id,
+    message,
+    message_role as "message_role: MessageRole",
+    message_is_complete,
+    used_tokens,
+    order_number,
+    tool_output_id
+        "#,
+        input.conversation_id,
+        input.message,
+        input.message_role as MessageRole,
+        input.message_is_complete,
+        input.used_tokens,
+        input.order_number,
+        None::<Uuid>,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let (tool_output_id, tool_output) = match msg.message_role {
+        MessageRole::Assistant => {
+            if msg.message.is_some() {
+                (None, None)
+            } else if !input.tool_call_fields.is_empty() {
+                chatbot_conversation_message_tool_calls::insert_batch(
+                    &mut tx,
+                    input.tool_call_fields.to_owned(),
+                    msg.id,
+                )
+                .await?;
+                (None, None)
+            } else {
                 return ModelResult::Err(ModelError::new(
                     ModelErrorType::InvalidRequest,
                     "A chatbot conversation message with role 'assistant' has to have either a message or tool calls",
@@ -183,7 +306,6 @@ RETURNING
         }
     };
 
-    // Update the message to contain the tool_output_id if it was created
     if tool_output_id.is_some() {
         sqlx::query_as!(
             ChatbotConversationMessageRow,

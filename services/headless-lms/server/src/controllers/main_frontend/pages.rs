@@ -3,6 +3,7 @@
 use std::sync::Arc;
 
 use models::{
+    CourseOrExamId,
     page_history::PageHistory,
     pages::{HistoryRestoreData, NewPage, Page, PageDetailsUpdate, PageInfo},
 };
@@ -88,8 +89,9 @@ async fn post_new_page(
     })?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    let page = models::pages::insert_new_content_page(
+    let page = models::pages::create_for_course_id(
         &mut conn,
+        course_id,
         new_page,
         user.id,
         models_requests::make_spec_fetcher(
@@ -226,10 +228,19 @@ async fn restore(
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Page(*page_id)).await?;
-    let res = models::pages::restore(
+    let page = models::pages::get_page(&mut conn, *page_id).await?;
+    let (expected_course_id, expected_exam_id) =
+        match CourseOrExamId::from_course_and_exam_ids(page.course_id, page.exam_id)? {
+            CourseOrExamId::Course(course_id) => (Some(course_id), None),
+            CourseOrExamId::Exam(exam_id) => (None, Some(exam_id)),
+        };
+    let res = models::pages::restore_from_history_for_page_id(
         &mut conn,
         *page_id,
         restore_data.history_id,
+        None,
+        expected_course_id,
+        expected_exam_id,
         user.id,
         models_requests::make_spec_fetcher(
             app_conf.base_url.clone(),

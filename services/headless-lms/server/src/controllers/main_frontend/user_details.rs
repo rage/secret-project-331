@@ -97,6 +97,7 @@ pub async fn get_user_details_by_courses(
 
     // Check if the user has permission to view user details through any of the provided courses
     let mut token = None;
+    let mut authorized_course_ids = Vec::new();
 
     if payload.course_ids.is_empty() {
         // One can view the details though global permissions even though they have not started any course yet
@@ -119,8 +120,10 @@ pub async fn get_user_details_by_courses(
             )
             .await
             {
-                token = Some(auth_token);
-                break;
+                if token.is_none() {
+                    token = Some(auth_token);
+                }
+                authorized_course_ids.push(*course_id);
             }
         }
     }
@@ -132,6 +135,27 @@ pub async fn get_user_details_by_courses(
             None,
         )
     })?;
+
+    if !payload.course_ids.is_empty() {
+        let enrollments = models::course_instance_enrollments::get_by_user_id_and_course_ids(
+            &mut conn,
+            payload.user_id,
+            &authorized_course_ids,
+        )
+        .await?;
+        let roles = models::roles::get_by_user_id_and_course_ids(
+            &mut conn,
+            payload.user_id,
+            &authorized_course_ids,
+        )
+        .await?;
+        if enrollments.is_empty() && roles.is_empty() {
+            return Err(controller_err!(
+                Forbidden,
+                "Target user is not linked to an authorized course".to_string()
+            ));
+        }
+    }
 
     // If we have permission, get the user details without course restriction
     let res = models::user_details::get_user_details_by_user_id(&mut conn, payload.user_id).await?;

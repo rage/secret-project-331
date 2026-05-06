@@ -5,6 +5,7 @@ use models::{
     page_history::HistoryChangeReason,
     pages::{
         CmsPageUpdate, ContentManagementPage, PageInfo, PageNavigationInformation, PageUpdateArgs,
+        PageVisibility,
     },
 };
 
@@ -133,7 +134,11 @@ async fn update_page(
     let cms_page_update = payload.0;
     let course_or_exam_id = models::pages::get_course_and_exam_id(&mut conn, *page_id).await?;
     let is_exam_page = matches!(course_or_exam_id, CourseOrExamId::Exam(_));
-    let saved = models::pages::update_page(
+    let (expected_course_id, expected_exam_id) = match course_or_exam_id {
+        CourseOrExamId::Course(course_id) => (Some(course_id), None),
+        CourseOrExamId::Exam(exam_id) => (None, Some(exam_id)),
+    };
+    let saved = models::pages::update_by_id_in_parent_context(
         &mut conn,
         PageUpdateArgs {
             page_id: *page_id,
@@ -143,6 +148,8 @@ async fn update_page(
             history_change_reason: HistoryChangeReason::PageSaved,
             is_exam_page,
         },
+        expected_course_id,
+        expected_exam_id,
         models_requests::make_spec_fetcher(
             app_conf.base_url.clone(),
             request_id.0,
@@ -176,7 +183,8 @@ async fn get_page_navigation(
 ) -> ControllerResult<web::Json<PageNavigationInformation>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let res = models::pages::get_page_navigation_data(&mut conn, *page_id).await?;
+    let res =
+        models::pages::get_page_navigation_data(&mut conn, *page_id, PageVisibility::Any).await?;
 
     token.authorized_ok(web::Json(res))
 }

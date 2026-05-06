@@ -885,6 +885,7 @@ headless_lms_utils::define_err_macro!(
     controller_err,
     ControllerError,
     ControllerErrorType,
+    ControllerErrorType,
     "Create a ControllerError with less boilerplate."
 );
 
@@ -956,6 +957,20 @@ mod tests {
     }
 
     #[test]
+    fn test_controller_err_macro_tuple_variant_with_source() {
+        let source_err = std::io::Error::other("source");
+        let err = controller_err!(
+            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "Wrapped error".to_string(),
+            source_err
+        );
+        assert!(matches!(
+            err.error_type(),
+            ControllerErrorType::UnauthorizedWithReason(_)
+        ));
+    }
+
+    #[test]
     fn test_as_controller_error_helper() {
         let result: Result<(), std::io::Error> = Err(std::io::Error::new(
             std::io::ErrorKind::NotFound,
@@ -1000,10 +1015,13 @@ mod tests {
         let _ = controller_err!(BadRequest, "test".to_string());
         let _ = controller_err!(NotFound, "test".to_string());
         let _ = controller_err!(Unauthorized, "test".to_string());
-        let _ = ControllerError::new(
-            ControllerErrorType::UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
-            "test".to_string(),
-            None,
+        let _ = controller_err!(
+            UnauthorizedWithReason(UnauthorizedReason::ChapterNotOpenYet),
+            "test".to_string()
+        );
+        let _ = controller_err!(
+            BadRequestWithData(ErrorMetadata::BlockId(Uuid::nil())),
+            "test".to_string()
         );
         let _ = controller_err!(Forbidden, "test".to_string());
     }

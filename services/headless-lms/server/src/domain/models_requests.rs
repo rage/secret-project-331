@@ -32,6 +32,7 @@ use super::error::{ControllerError, ControllerErrorType};
 // keep in sync with the shared-module constants
 const EXERCISE_SERVICE_GRADING_UPDATE_CLAIM_HEADER: &str = "exercise-service-grading-update-claim";
 const EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER: &str = "exercise-service-upload-claim";
+pub const PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM: &str = "playground-grading-callback-claim";
 
 /// A type for caching the spec fetching (only for the seed)
 type SpecCache = HashMap<(String, String, Option<String>), serde_json::Value>;
@@ -218,6 +219,75 @@ impl FromRequest for GradingUpdateClaim {
             })?;
             let claim = GradingUpdateClaim::validate(header, jwt_key)?;
             Result::<_, Self::Error>::Ok(claim)
+        };
+        ready(try_from_request())
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PlaygroundGradingCallbackClaim {
+    websocket_id: Uuid,
+    exp: usize,
+    iat: usize,
+}
+
+impl PlaygroundGradingCallbackClaim {
+    pub fn websocket_id(&self) -> Uuid {
+        self.websocket_id
+    }
+
+    pub fn expiring_in_1_day(websocket_id: Uuid) -> Self {
+        let now = Utc::now().timestamp().max(0) as usize;
+        let exp = (Utc::now().timestamp() + Duration::days(1).num_seconds()).max(0) as usize;
+        Self {
+            websocket_id,
+            exp,
+            iat: now,
+        }
+    }
+
+    pub fn sign(self, key: &JwtKey) -> Result<String, jsonwebtoken::errors::Error> {
+        sign_hs256_claim(&self, key)
+    }
+
+    pub fn validate(token: &str, key: &JwtKey) -> Result<Self, ControllerError> {
+        validate_hs256_claim::<Self>(token, key).map_err(|err| {
+            controller_err!(
+                BadRequest,
+                format!("Invalid playground grading callback claim: {}", err),
+                err
+            )
+        })
+    }
+}
+
+impl FromRequest for PlaygroundGradingCallbackClaim {
+    type Error = ControllerError;
+    type Future = Ready<Result<Self, Self::Error>>;
+
+    fn from_request(req: &HttpRequest, _payload: &mut Payload) -> Self::Future {
+        let try_from_request = move || {
+            let jwt_key = req.app_data::<web::Data<JwtKey>>().ok_or_else(|| {
+                controller_err!(
+                    InternalServerError,
+                    "Missing JwtKey in app data - server configuration error".to_string()
+                )
+            })?;
+            let query_claim = url::form_urlencoded::parse(req.query_string().as_bytes())
+                .find(|(key, _)| key == PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM)
+                .map(|(_, value)| value.into_owned());
+            let header_claim = req
+                .headers()
+                .get(PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM)
+                .and_then(|header| std::str::from_utf8(header.as_bytes()).ok())
+                .map(ToString::to_string);
+            let claim = header_claim.or(query_claim).ok_or_else(|| {
+                controller_err!(
+                    BadRequest,
+                    format!("Missing {PLAYGROUND_GRADING_CALLBACK_CLAIM_PARAM}")
+                )
+            })?;
+            PlaygroundGradingCallbackClaim::validate(&claim, jwt_key)
         };
         ready(try_from_request())
     }

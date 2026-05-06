@@ -203,7 +203,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   }
   const saveAndReset = (
     <div>
-      {pageInfo.data && (
+      {pageInfo.data && pageInfo.data.organization_slug && pageInfo.data.course_slug && (
         <a
           className={css`
             display: block;

@@ -30,7 +30,7 @@ async fn authorize_role_management(
         RoleDomain::CourseInstance(id) => {
             authorize(conn, action, Some(user_id), Res::CourseInstance(id)).await?
         }
-        RoleDomain::Exam(id) => authorize(conn, Act::Edit, Some(user_id), Res::Exam(id)).await?,
+        RoleDomain::Exam(id) => authorize(conn, action, Some(user_id), Res::Exam(id)).await?,
     };
 
     token.authorized_ok(())

@@ -2564,6 +2564,10 @@ export const joinCourseWithJoinCode = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/join-course-with-join-code",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**

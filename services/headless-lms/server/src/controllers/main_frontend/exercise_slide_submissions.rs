@@ -1,7 +1,6 @@
 use crate::{domain::models_requests, prelude::*};
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
-    exercises::get_exercise_by_id,
     teacher_grading_decisions::{
         NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision,
     },
@@ -130,17 +129,34 @@ async fn add_teacher_grading(
     let manual_points = payload.manual_points;
     let justification = &payload.justification;
     let mut conn = pool.acquire().await?;
+
+    let student_state =
+        models::user_exercise_states::get_by_id(&mut conn, user_exercise_state_id).await?;
+    if student_state.exercise_id != exercise_id {
+        return Err(controller_err!(
+            Forbidden,
+            "User exercise state does not belong to the requested exercise".to_string()
+        ));
+    }
+    let exercise =
+        models::exercises::get_non_deleted_by_id(&mut conn, student_state.exercise_id).await?;
+    if exercise.course_id != student_state.course_id || exercise.exam_id != student_state.exam_id {
+        return Err(controller_err!(
+            Forbidden,
+            "User exercise state does not match the requested exercise context".to_string()
+        ));
+    }
+
     let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
-        Res::Exercise(exercise_id),
+        Res::Exercise(student_state.exercise_id),
     )
     .await?;
 
     let points_given;
     if *action == TeacherDecisionType::CustomPoints {
-        let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
         let max_points = exercise.score_maximum as f32;
 
         points_given = manual_points.unwrap_or(0.0);
@@ -165,11 +181,10 @@ async fn add_teacher_grading(
         &action, points_given
     );
 
-    let mut tx = conn.begin().await?;
-
-    let _res = models::teacher_grading_decisions::add_teacher_grading_decision(
-        &mut tx,
+    let res = models::teacher_grading_decisions::upsert_by_state_id_and_exercise_id(
+        &mut conn,
         user_exercise_state_id,
+        student_state.exercise_id,
         *action,
         points_given,
         Some(user.id),
@@ -178,9 +193,7 @@ async fn add_teacher_grading(
     )
     .await?;
 
-    tx.commit().await?;
-
-    token.authorized_ok(web::Json(_res))
+    token.authorized_ok(web::Json(res))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

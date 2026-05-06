@@ -402,6 +402,34 @@ AND roles.deleted_at IS NULL
     Ok(roles)
 }
 
+pub async fn get_by_user_id_and_course_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<Role>> {
+    let roles = sqlx::query_as!(
+        Role,
+        r#"
+SELECT is_global,
+  organization_id,
+  course_id,
+  course_instance_id,
+  exam_id,
+  role AS "role: UserRole",
+  user_id
+FROM roles
+WHERE user_id = $1
+  AND course_id = ANY($2)
+  AND deleted_at IS NULL
+"#,
+        user_id,
+        course_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(roles)
+}
+
 /// Gets all roles related to a specific course.
 /// This includes:
 /// - Global roles

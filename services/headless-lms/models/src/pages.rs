@@ -627,6 +627,7 @@ WHERE id = $1
     CourseOrExamId::from_course_and_exam_ids(res.course_id, res.exam_id)
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum PageVisibility {
     Any,
     Public,
@@ -817,6 +818,40 @@ WHERE id = $1;
     Ok(pages)
 }
 
+pub async fn get_front_page_by_chapter_id(
+    conn: &mut PgConnection,
+    chapter_id: Uuid,
+) -> ModelResult<Option<Page>> {
+    let page = sqlx::query_as!(
+        Page,
+        r#"
+SELECT p.id,
+  p.created_at,
+  p.updated_at,
+  p.course_id,
+  p.exam_id,
+  p.chapter_id,
+  p.url_path,
+  p.title,
+  p.deleted_at,
+  p.content,
+  p.order_number,
+  p.copied_from,
+  p.hidden,
+  p.page_language_group_id
+FROM chapters c
+  JOIN pages p ON p.id = c.front_page_id
+WHERE c.id = $1
+  AND c.deleted_at IS NULL
+  AND p.deleted_at IS NULL
+        "#,
+        chapter_id
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(page)
+}
+
 pub async fn get_page_info(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<PageInfo> {
     let res = sqlx::query_as!(
         PageInfo,
@@ -918,11 +953,7 @@ pub async fn get_page_with_user_data_by_path(
         }
     }
 
-    Err(ModelError::new(
-        ModelErrorType::NotFound,
-        "Page not found".to_string(),
-        None,
-    ))
+    Err(model_err!(NotFound, "Page not found".to_string()))
 }
 
 pub async fn try_to_find_redirected_page(
@@ -1273,23 +1304,21 @@ impl CmsPageUpdate {
                     e.insert(true);
                     Ok((x.id, false))
                 } else {
-                    Err(ModelError::new(
-                        ModelErrorType::PreconditionFailed,
-                        "Exercide ids in slides don't match.".to_string(),
-                        None,
+                    Err(model_err!(
+                        PreconditionFailed,
+                        "Exercide ids in slides don't match.".to_string()
                     ))
                 }
             })
             .collect::<ModelResult<HashMap<Uuid, bool>>>()?;
 
         if let Some((exercise_id, _)) = exercise_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+            return Err(model_err!(
+                PreconditionFailedWithCMSAnchorBlockId {
                     id: exercise_id,
                     description: "Exercise must have at least one slide.",
                 },
-                "Exercise must have at least one slide.".to_string(),
-                None,
+                "Exercise must have at least one slide.".to_string()
             ));
         }
 
@@ -1297,21 +1326,19 @@ impl CmsPageUpdate {
             if let hash_map::Entry::Occupied(mut e) = slide_ids.entry(task.exercise_slide_id) {
                 e.insert(true);
             } else {
-                return Err(ModelError::new(
-                    ModelErrorType::PreconditionFailed,
-                    "Exercise slide ids in tasks don't match.".to_string(),
-                    None,
+                return Err(model_err!(
+                    PreconditionFailed,
+                    "Exercise slide ids in tasks don't match.".to_string()
                 ));
             }
         }
         if let Some((slide_id, _)) = slide_ids.into_iter().find(|(_, x)| !x) {
-            return Err(ModelError::new(
-                ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+            return Err(model_err!(
+                PreconditionFailedWithCMSAnchorBlockId {
                     id: slide_id,
                     description: "Exercise slide must have at least one task.",
                 },
-                "Exercise slide must have at least one task.".to_string(),
-                None,
+                "Exercise slide must have at least one task.".to_string()
             ));
         }
         Ok(())
@@ -1351,9 +1378,7 @@ pub async fn update_page(
         && cms_page_update.chapter_id.is_none()
         && contains_blocks_not_allowed_in_top_level_pages(&content)
     {
-        return Err(ModelError::new(
-               ModelErrorType::Generic , "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string(), None
-            ));
+        return Err(model_err!(Generic, "Top level non-exam pages cannot contain exercises, exercise tasks or list of exercises in the chapter".to_string()));
     }
 
     let mut tx = conn.begin().await?;
@@ -1595,6 +1620,48 @@ RETURNING id,
     })
 }
 
+pub async fn update_by_id_in_parent_context(
+    conn: &mut PgConnection,
+    page_update: PageUpdateArgs,
+    expected_course_id: Option<Uuid>,
+    expected_exam_id: Option<Uuid>,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<ContentManagementPage> {
+    let mut tx = conn.begin().await?;
+    sqlx::query!(
+        r#"
+SELECT p.id
+FROM pages p
+LEFT JOIN chapters c
+  ON c.id = $4
+WHERE p.id = $1
+  AND p.deleted_at IS NULL
+  AND (p.course_id = $2 OR p.exam_id = $3)
+  AND (
+    $4::uuid IS NULL
+    OR (
+      p.course_id IS NOT NULL
+      AND c.id = $4
+      AND c.course_id = p.course_id
+      AND c.deleted_at IS NULL
+    )
+  )
+ FOR UPDATE OF p
+        "#,
+        page_update.page_id,
+        expected_course_id,
+        expected_exam_id,
+        page_update.cms_page_update.chapter_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let updated = update_page(&mut tx, page_update, spec_fetcher, fetch_service_info).await?;
+    tx.commit().await?;
+    Ok(updated)
+}
+
 /// Remaps ids from updates to exercises that may have their ids regenerated.
 async fn upsert_exercises(
     conn: &mut PgConnection,
@@ -1737,10 +1804,9 @@ async fn upsert_exercise_slides(
         let safe_for_db_exercise_id = remapped_exercises
             .get(&slide_update.exercise_id)
             .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "Illegal exercise id for exercise slide.".to_string(),
-                    None,
+                model_err!(
+                    InvalidRequest,
+                    "Illegal exercise id for exercise slide.".to_string()
                 )
             })?
             .id;
@@ -1845,10 +1911,9 @@ async fn upsert_exercise_tasks(
         let safe_for_db_exercise_slide_id = remapped_slides
             .get(&task_update.exercise_slide_id)
             .ok_or_else(|| {
-                ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "Illegal exercise slide id for exercise task.".to_string(),
-                    None,
+                model_err!(
+                    InvalidRequest,
+                    "Illegal exercise slide id for exercise task.".to_string()
                 )
             })?
             .id;
@@ -1964,10 +2029,9 @@ pub async fn upsert_peer_or_self_review_configs(
         });
 
         if let Some(illegal_exercise_id) = illegal_exercise_id {
-            return Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Illegal exercise id {:?}", illegal_exercise_id),
-                None,
+            return Err(model_err!(
+                InvalidRequest,
+                format!("Illegal exercise id {:?}", illegal_exercise_id)
             ));
         }
 
@@ -2025,11 +2089,7 @@ WHERE id IN (
             let old_id = new_peer_or_self_review_config_id_to_old_id
                 .get(&pr.id)
                 .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::Generic,
-                        "Inserted peer reviews not found".to_string(),
-                        None,
-                    )
+                    model_err!(Generic, "Inserted peer reviews not found".to_string())
                 })?;
             remapped_peer_reviews.insert(*old_id, pr);
         }
@@ -2071,10 +2131,9 @@ pub async fn upsert_peer_or_self_review_questions(
                     .get(&prq.peer_or_self_review_config_id)
                     .map(|r| (prq, r.id))
                     .ok_or_else(|| {
-                        ModelError::new(
-                            ModelErrorType::Generic,
-                            "No peer review found for peer review questions".to_string(),
-                            None,
+                        model_err!(
+                            Generic,
+                            "No peer review found for peer review questions".to_string()
                         )
                     })
             })
@@ -2154,11 +2213,7 @@ WHERE id IN (
             let old_id = new_peer_or_self_review_question_id_to_old_id
                 .get(&prq.id)
                 .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::Generic,
-                        "Inserted peer reviews not found".to_string(),
-                        None,
-                    )
+                    model_err!(Generic, "Inserted peer reviews not found".to_string())
                 })?;
             remapped_peer_or_self_review_questions.insert(*old_id, prq);
         }
@@ -2212,13 +2267,12 @@ async fn fetch_derived_spec(
             let url = urls_by_exercise_type
                 .get(&task_update.exercise_type)
                 .ok_or_else(|| {
-                    ModelError::new(
-                        ModelErrorType::PreconditionFailedWithCMSAnchorBlockId {
+                    model_err!(
+                        PreconditionFailedWithCMSAnchorBlockId {
                             id: cms_block_id,
                             description: "Missing exercise type for exercise task.",
                         },
-                        "Missing exercise type for exercise task.".to_string(),
-                        None,
+                        "Missing exercise type for exercise task.".to_string()
                     )
                 })?
                 .clone();
@@ -2418,6 +2472,60 @@ RETURNING *;
     })
 }
 
+pub async fn create_for_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    new_page: NewPage,
+    author: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<Page> {
+    if new_page.course_id != Some(course_id) || new_page.exam_id.is_some() {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Page must be created for the expected course".to_string()
+        ));
+    }
+
+    let mut tx = conn.begin().await?;
+
+    if let Some(chapter_id) = new_page.chapter_id {
+        let chapter = get_chapter(&mut tx, chapter_id).await?;
+        if chapter.course_id != course_id {
+            return Err(model_err!(
+                PreconditionFailed,
+                "Chapter must belong to the expected course".to_string()
+            ));
+        }
+    }
+
+    if let Some(front_page_of_chapter_id) = new_page.front_page_of_chapter_id {
+        let chapter = get_chapter(&mut tx, front_page_of_chapter_id).await?;
+        if chapter.course_id != course_id {
+            return Err(model_err!(
+                PreconditionFailed,
+                "Chapter must belong to the expected course".to_string()
+            ));
+        }
+        if new_page.chapter_id.is_none() || new_page.chapter_id != new_page.front_page_of_chapter_id
+        {
+            return Err(model_err!(
+                PreconditionFailed,
+                "Page chapter_id must match front_page_of_chapter_id".to_string()
+            ));
+        }
+    }
+
+    let mut new_page = new_page;
+    if new_page.content.is_empty() {
+        new_page.content = vec![GutenbergBlock::hero_section(new_page.title.trim(), "")];
+    }
+
+    let page = insert_page(&mut tx, new_page, author, spec_fetcher, fetch_service_info).await?;
+    tx.commit().await?;
+    Ok(page)
+}
+
 pub async fn delete_page_and_exercises(
     conn: &mut PgConnection,
     page_id: Uuid,
@@ -2587,14 +2695,16 @@ WHERE page_id IN (
 pub async fn get_next_page(
     conn: &mut PgConnection,
     page_id: Uuid,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
     let page_metadata = get_current_page_metadata(conn, page_id).await?;
-    let next_page = get_next_page_by_order_number(conn, &page_metadata).await?;
+    let next_page = get_next_page_by_order_number(conn, &page_metadata, visibility).await?;
 
     match next_page {
         Some(next_page) => Ok(Some(next_page)),
         None => {
-            let first_page = get_next_page_by_chapter_number(conn, &page_metadata).await?;
+            let first_page =
+                get_next_page_by_chapter_number(conn, &page_metadata, visibility).await?;
             Ok(first_page)
         }
     }
@@ -2623,10 +2733,9 @@ WHERE p.id = $1;
     .await?;
 
     if page_metadata.chapter_number.is_none() {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Page is not related to any chapter".to_string(),
-            None,
+        return Err(model_err!(
+            InvalidRequest,
+            "Page is not related to any chapter".to_string()
         ));
     }
 
@@ -2636,10 +2745,12 @@ WHERE p.id = $1;
 async fn get_next_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let next_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path as url_path,
   p.title as title,
   p.id as page_id,
@@ -2654,14 +2765,19 @@ WHERE p.order_number = (
     FROM pages pa
     WHERE pa.order_number > $1
       AND pa.deleted_at IS NULL
+      AND pa.hidden IS DISTINCT FROM $4
+      AND pa.course_id = p.course_id
+      AND pa.chapter_id IS NOT DISTINCT FROM p.chapter_id
   )
   AND p.course_id = $2
   AND c.chapter_number = $3
-  AND p.deleted_at IS NULL;
-        ",
+  AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $4;
+        "#,
         current_page_metadata.order_number,
         current_page_metadata.course_id,
-        current_page_metadata.chapter_number
+        current_page_metadata.chapter_number,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;
@@ -2672,10 +2788,12 @@ WHERE p.order_number = (
 async fn get_next_page_by_chapter_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let next_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path as url_path,
   p.title as title,
   p.id as page_id,
@@ -2693,11 +2811,13 @@ WHERE c.chapter_number = (
   )
   AND c.course_id = $2
   AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $3
 ORDER BY p.order_number
 LIMIT 1;
-        ",
+        "#,
         current_page_metadata.chapter_number,
-        current_page_metadata.course_id
+        current_page_metadata.course_id,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;
@@ -2730,10 +2850,11 @@ where p.chapter_id = $1
 pub async fn get_page_navigation_data(
     conn: &mut PgConnection,
     page_id: Uuid,
+    visibility: PageVisibility,
 ) -> ModelResult<PageNavigationInformation> {
-    let previous_page_data = get_previous_page(conn, page_id).await?;
+    let previous_page_data = get_previous_page(conn, page_id, visibility).await?;
 
-    let next_page_data = get_next_page(conn, page_id).await?;
+    let next_page_data = get_next_page(conn, page_id, visibility).await?;
 
     let chapter_front_page = get_chapter_front_page_by_page_id(conn, page_id).await?;
     // This may be different from the chapter of the previous page and the chapter of the next page so we need to fetch it to be sure.
@@ -2759,10 +2880,9 @@ pub async fn get_page_navigation_data(
                     chapter_front_page_id: Some(front_page.id),
                 })
             } else {
-                Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "Chapter front page chapter not found".to_string(),
-                    None,
+                Err(model_err!(
+                    InvalidRequest,
+                    "Chapter front page chapter not found".to_string()
                 ))
             }
         })
@@ -2777,14 +2897,16 @@ pub async fn get_page_navigation_data(
 pub async fn get_previous_page(
     conn: &mut PgConnection,
     page_id: Uuid,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
     let page_metadata = get_current_page_metadata(conn, page_id).await?;
-    let previous_page = get_previous_page_by_order_number(conn, &page_metadata).await?;
+    let previous_page = get_previous_page_by_order_number(conn, &page_metadata, visibility).await?;
 
     match previous_page {
         Some(previous_page) => Ok(Some(previous_page)),
         None => {
-            let first_page = get_previous_page_by_chapter_number(conn, &page_metadata).await?;
+            let first_page =
+                get_previous_page_by_chapter_number(conn, &page_metadata, visibility).await?;
             Ok(first_page)
         }
     }
@@ -2807,10 +2929,12 @@ pub async fn get_chapter_front_page_by_page_id(
 async fn get_previous_page_by_order_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let previous_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path as url_path,
   p.title as title,
   c.chapter_number as chapter_number,
@@ -2825,14 +2949,19 @@ WHERE p.order_number = (
     FROM pages pa
     WHERE pa.order_number < $1
       AND pa.deleted_at IS NULL
+      AND pa.hidden IS DISTINCT FROM $4
+      AND pa.course_id = p.course_id
+      AND pa.chapter_id IS NOT DISTINCT FROM p.chapter_id
   )
   AND p.course_id = $2
   AND c.chapter_number = $3
-  AND p.deleted_at IS NULL;
-        ",
+  AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $4;
+        "#,
         current_page_metadata.order_number,
         current_page_metadata.course_id,
-        current_page_metadata.chapter_number
+        current_page_metadata.chapter_number,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;
@@ -2843,10 +2972,12 @@ WHERE p.order_number = (
 async fn get_previous_page_by_chapter_number(
     conn: &mut PgConnection,
     current_page_metadata: &PageMetadata,
+    visibility: PageVisibility,
 ) -> ModelResult<Option<PageRoutingData>> {
+    let inverse_visibility_filter = visibility.get_inverse_visibility_filter();
     let previous_page = sqlx::query_as!(
         PageRoutingData,
-        "
+        r#"
 SELECT p.url_path AS url_path,
   p.title AS title,
   p.id AS page_id,
@@ -2864,11 +2995,13 @@ WHERE c.chapter_number = (
   )
   AND c.course_id = $2
   AND p.deleted_at IS NULL
+  AND p.hidden IS DISTINCT FROM $3
 ORDER BY p.order_number DESC
 LIMIT 1;
-        ",
+        "#,
         current_page_metadata.chapter_number,
-        current_page_metadata.course_id
+        current_page_metadata.course_id,
+        inverse_visibility_filter,
     )
     .fetch_optional(conn)
     .await?;
@@ -3328,6 +3461,88 @@ pub async fn restore(
     Ok(history_id)
 }
 
+#[allow(clippy::too_many_arguments)]
+pub async fn restore_from_history_for_page_id(
+    conn: &mut PgConnection,
+    page_id: Uuid,
+    history_id: Uuid,
+    authorized_source_page_id: Option<Uuid>,
+    expected_course_id: Option<Uuid>,
+    expected_exam_id: Option<Uuid>,
+    author: Uuid,
+    spec_fetcher: impl SpecFetcher,
+    fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
+) -> ModelResult<Uuid> {
+    let mut tx = conn.begin().await?;
+    let validated_source_page_id = if let Some(source_page_id) = authorized_source_page_id {
+        let source_page = sqlx::query!(
+            r#"
+SELECT p.id
+FROM pages p
+WHERE p.id = $1
+  AND p.deleted_at IS NULL
+  AND (p.course_id = $2 OR p.exam_id = $3)
+FOR UPDATE
+            "#,
+            source_page_id,
+            expected_course_id,
+            expected_exam_id
+        )
+        .fetch_optional(&mut *tx)
+        .await?;
+        source_page.map(|row| row.id)
+    } else {
+        None
+    };
+
+    sqlx::query!(
+        r#"
+SELECT p.id
+FROM pages p
+WHERE p.id = $1
+  AND p.deleted_at IS NULL
+  AND (p.course_id = $2 OR p.exam_id = $3)
+FOR UPDATE
+        "#,
+        page_id,
+        expected_course_id,
+        expected_exam_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+SELECT ph.id
+FROM page_history ph
+WHERE ph.id = $1
+  AND ph.deleted_at IS NULL
+  AND (
+    ph.page_id = $2
+    OR ph.page_id = $3
+  )
+FOR UPDATE
+        "#,
+        history_id,
+        page_id,
+        validated_source_page_id
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let restored = restore(
+        &mut tx,
+        page_id,
+        history_id,
+        author,
+        spec_fetcher,
+        fetch_service_info,
+    )
+    .await?;
+    tx.commit().await?;
+    Ok(restored)
+}
+
 pub async fn get_organization_id(conn: &mut PgConnection, page_id: Uuid) -> ModelResult<Uuid> {
     let res = sqlx::query!(
         "
@@ -3510,26 +3725,23 @@ WHERE course_id = $1
                                 .execute(&mut *tx)
                                 .await?;
                             } else {
-                                return Err(ModelError::new(
-                                    ModelErrorType::InvalidRequest,
-                                    "New chapter not found".to_string(),
-                                    None,
+                                return Err(model_err!(
+                                    InvalidRequest,
+                                    "New chapter not found".to_string()
                                 ));
                             }
                         } else {
-                            return Err(ModelError::new(
-                                ModelErrorType::InvalidRequest,
-                                "Old chapter not found".to_string(),
-                                None,
+                            return Err(model_err!(
+                                InvalidRequest,
+                                "Old chapter not found".to_string()
                             ));
                         }
                     } else {
                         // Moving page from a chapter to a top level page
-                        return Err(ModelError::new(
-                            ModelErrorType::InvalidRequest,
+                        return Err(model_err!(
+                            InvalidRequest,
                             "Making a chapter page a top level page is not supported yet"
-                                .to_string(),
-                            None,
+                                .to_string()
                         ));
                     }
                 } else {
@@ -3538,18 +3750,16 @@ WHERE course_id = $1
                         matching_db_page.chapter_id, page.chapter_id
                     );
                     // Moving page from the top level to a chapter
-                    return Err(ModelError::new(
-                        ModelErrorType::InvalidRequest,
-                        "Moving a top level page to a chapter is not supported yet".to_string(),
-                        None,
+                    return Err(model_err!(
+                        InvalidRequest,
+                        "Moving a top level page to a chapter is not supported yet".to_string()
                     ));
                 }
             }
         } else {
-            return Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                format!("Page {} does exist in course {}", page.id, course_id),
-                None,
+            return Err(model_err!(
+                InvalidRequest,
+                format!("Page {} does exist in course {}", page.id, course_id)
             ));
         }
     }
@@ -3664,17 +3874,15 @@ pub async fn reorder_chapters(
                     .await?;
                 }
             } else {
-                return Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "New chapter not found".to_string(),
-                    None,
+                return Err(model_err!(
+                    InvalidRequest,
+                    "New chapter not found".to_string()
                 ));
             }
         } else {
-            return Err(ModelError::new(
-                ModelErrorType::InvalidRequest,
-                "Matching DB chapters not found".to_string(),
-                None,
+            return Err(model_err!(
+                InvalidRequest,
+                "Matching DB chapters not found".to_string()
             ));
         }
     }

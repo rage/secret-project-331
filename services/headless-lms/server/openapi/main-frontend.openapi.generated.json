@@ -73,15 +73,8 @@
                 "required": ["metadata", "file"],
                 "properties": {
                   "file": {
-                    "type": "array",
-                    "items": {
-                      "type": "array",
-                      "items": {
-                        "type": "integer",
-                        "format": "int32",
-                        "minimum": 0
-                      }
-                    },
+                    "type": "string",
+                    "format": "binary",
                     "contentMediaType": "application/octet-stream"
                   },
                   "metadata": {
@@ -3206,11 +3199,21 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCourseWithJoinCodePayload"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
             "description": "Joined course id",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "string",
                   "format": "uuid"
@@ -8542,12 +8545,8 @@
                 "required": ["file"],
                 "properties": {
                   "file": {
-                    "type": "array",
-                    "items": {
-                      "type": "integer",
-                      "format": "int32",
-                      "minimum": 0
-                    },
+                    "type": "string",
+                    "format": "binary",
                     "contentMediaType": "application/octet-stream"
                   }
                 }
@@ -14899,6 +14898,15 @@
           "succeeded": {
             "type": ["integer", "null"],
             "format": "int32"
+          }
+        }
+      },
+      "JoinCourseWithJoinCodePayload": {
+        "type": "object",
+        "required": ["join_code"],
+        "properties": {
+          "join_code": {
+            "type": "string"
           }
         }
       },

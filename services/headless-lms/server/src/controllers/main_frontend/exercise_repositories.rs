@@ -103,16 +103,10 @@ GET `/api/v0/main-frontend/exercise-repositories/course/:id`
 async fn get_for_course(
     pool: web::Data<PgPool>,
     course_id: web::Path<Uuid>,
-    user: Option<AuthUser>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseRepository>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        user.map(|u| u.id),
-        Res::Course(*course_id),
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let repos = models::exercise_repositories::get_for_course_or_exam(
         &mut conn,
         CourseOrExamId::Course(*course_id),
@@ -140,16 +134,10 @@ GET `/api/v0/main-frontend/exercise-repositories/exam/:id`
 async fn get_for_exam(
     pool: web::Data<PgPool>,
     exam_id: web::Path<Uuid>,
-    user: Option<AuthUser>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<ExerciseRepository>>> {
     let mut conn = pool.acquire().await?;
-    let token = authorize(
-        &mut conn,
-        Act::View,
-        user.map(|u| u.id),
-        Res::Exam(*exam_id),
-    )
-    .await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Exam(*exam_id)).await?;
     let repos = models::exercise_repositories::get_for_course_or_exam(
         &mut conn,
         CourseOrExamId::Exam(*exam_id),

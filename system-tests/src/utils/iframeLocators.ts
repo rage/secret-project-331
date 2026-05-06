@@ -1,5 +1,7 @@
 import { expect } from "@playwright/test"
 import { Locator, Page } from "playwright"
+
+import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 /**
  * Helper function to help interacting with exercise service iframes in the tests.
  * @param page Current page in the test
@@ -107,7 +109,7 @@ export async function waitForMessageChannelIframesToBeReady(page: Page, minHeigh
       }
       const spinnerCount = await page
         .frameLocator(`:nth-match(iframe[data-testid="message-channel-iframe"], ${index + 1})`)
-        .getByTestId("spinner")
+        .getByTestId(LOADING_SPINNER_TEST_ID)
         .count()
       if (spinnerCount > 0) {
         throw new Error(`MessageChannelIFrame ${index + 1} still has a spinner`)

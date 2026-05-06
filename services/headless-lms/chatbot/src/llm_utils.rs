@@ -9,7 +9,7 @@ use crate::{
 use core::default::Default;
 use headless_lms_models::{
     chatbot_configurations::{ChatbotConfiguration, ReasoningEffortLevel},
-    chatbot_configurations_models::ModelType,
+    chatbot_configurations_models::{ChatbotConfigurationModel, ModelType},
     chatbot_conversation_message_messages::{ChatbotConversationMessageMessage, MessageRole},
     chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning,
     chatbot_conversation_message_tool_calls::{ChatbotConversationMessageToolCall, ToolKind},
@@ -21,9 +21,6 @@ use reqwest::Response;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, error, instrument, trace, warn};
-
-// API version for Azure OpenAI calls
-pub const LLM_API_VERSION: &str = "2024-10-21";
 
 /// Common message structure used for LLM API requests
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -101,23 +98,21 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
 
     fn try_from(message: ChatbotConversationMessage) -> Result<Self, Self::Error> {
         let res = match message.message {
-            Message::Text(text_message) => {
-                match text_message.message_role {
-                    MessageRole::User | MessageRole::Assistant => APIInputMessage {
-                        message_type: InputItem::Message {
-                            role: text_message.message_role,
-                            content: MessageContent::Text(text_message.text),
-                        },
+            Message::Text(text_message) => match text_message.message_role {
+                MessageRole::User | MessageRole::Assistant => APIInputMessage {
+                    message_type: InputItem::Message {
+                        role: text_message.message_role,
+                        content: MessageContent::Text(text_message.text),
                     },
-                    _ => {
-                        return Err(ChatbotError::new(
-                            ChatbotErrorType::Other,
-                            "IDK what to do with system and developer role messages",
-                            None,
-                        ));
-                    } // todo
+                },
+                _ => {
+                    return Err(ChatbotError::new(
+                        ChatbotErrorType::InvalidMessageShape,
+                        "A 'role: system' or 'role: developer' type text-variant ChatbotConversationMessage shouldn't be saved into the database.",
+                        None,
+                    ));
                 }
-            }
+            },
             Message::ToolCall(tool_call) => match tool_call.tool_kind {
                 ToolKind::Function => APIInputMessage {
                     message_type: InputItem::FunctionCall {
@@ -154,14 +149,7 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                     "Reasoning input items not allowed.",
                     None,
                 ));
-            } //TODO TODO
-              /* {
-                  return Err(ChatbotError::new(
-                      ChatbotErrorType::InvalidMessageShape,
-                      "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
-                      None,
-                  ));
-              } */
+            }
         };
         Result::Ok(res)
     }
@@ -317,34 +305,33 @@ impl APIOutputMessage {
 
 impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
     type Error = ChatbotError;
+
     fn try_from(message: ChatbotConversationMessage) -> ChatbotResult<Self> {
         let res = match message.message {
-            Message::Text(text_message) => {
-                match text_message.message_role {
-                    MessageRole::User | MessageRole::Assistant => APIOutputMessage {
-                        message_type: OutputItem::Message {
-                            role: text_message.message_role,
-                            content: MessageContent::Text(text_message.text),
-                            response_id: if text_message.message_role == MessageRole::User {
-                                "".to_string()
-                            } else {
-                                text_message.response_id.ok_or(ChatbotError::new(
+            Message::Text(text_message) => match text_message.message_role {
+                MessageRole::User | MessageRole::Assistant => APIOutputMessage {
+                    message_type: OutputItem::Message {
+                        role: text_message.message_role,
+                        content: MessageContent::Text(text_message.text),
+                        response_id: if text_message.message_role == MessageRole::User {
+                            "".to_string()
+                        } else {
+                            text_message.response_id.ok_or(ChatbotError::new(
                                     ChatbotErrorType::Other,
                                     "Can't convert ChatbotConversationMessage into APIOutputMessage: a role='assistant' message should have a response_id, but it's missing",
                                     None,
                                 ))?
-                            },
                         },
                     },
-                    _ => {
-                        return Err(ChatbotError::new(
-                            ChatbotErrorType::Other,
-                            "IDK what to do with system and developer role messages",
-                            None,
-                        ));
-                    } // todo
+                },
+                _ => {
+                    return Err(ChatbotError::new(
+                        ChatbotErrorType::InvalidMessageShape,
+                        "A 'role: system' or 'role: developer' type text-variant ChatbotConversationMessage shouldn't be saved into the database.",
+                        None,
+                    ));
                 }
-            }
+            },
             Message::ToolCall(tool_call) => match tool_call.tool_kind {
                 ToolKind::Function => APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
@@ -397,14 +384,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                         },
                     }
                 }
-            } //TODO TODO
-              /* {
-                  return Err(ChatbotError::new(
-                      ChatbotErrorType::InvalidMessageShape,
-                      "A 'role: system' type ChatbotConversationMessage cannot be saved into the database.",
-                      None,
-                  ));
-              } */
+            }
         };
         Result::Ok(res)
     }
@@ -636,11 +616,6 @@ pub async fn make_streaming_llm_request(
         anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
     })?;
 
-    trace!(
-        "🧶🧶🧶🧶🧶🧶🧶🧶Base request: {:?}",
-        serde_json::to_string(&chat_request)
-    );
-
     let request = AzureCompletionRequest {
         base: chat_request,
         stream: true,
@@ -733,10 +708,21 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
 }
 
 pub fn get_params_for_model(
-    model_type: &ModelType,
+    model: &ChatbotConfigurationModel,
     configuration: &ChatbotConfiguration,
 ) -> LLMRequestParams {
-    match model_type {
+    match model.model.as_str() {
+        "gpt-5.2-chat" => {
+            return LLMRequestParams::GPTThinking(ThinkingParams {
+                reasoning: Some(Reasoning {
+                    effort: ReasoningEffortLevel::Medium,
+                    summary: Some(SummaryType::Detailed),
+                }),
+            });
+        }
+        _ => {}
+    }
+    match model.model_type {
         ModelType::GPTNonThinking => LLMRequestParams::GPTNonThinking(NonThinkingParams {
             temperature: Some(configuration.temperature),
             top_p: Some(configuration.top_p),

@@ -223,32 +223,3 @@ RETURNING
     .await?;
     Ok(res)
 }
-
-/* pub async fn delete_all_by_chatbot_conversation_message_id(
-    conn: &mut PgConnection,
-    msg_id: Uuid,
-) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
-    let res = sqlx::query_as!(
-        ChatbotConversationMessageToolCall,
-        r#"
-UPDATE chatbot_conversation_message_tool_calls
-SET deleted_at = NOW()
-WHERE chatbot_conversation_message_id = $1
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    kind as "kind: ToolKind"
-        "#,
-        msg_id
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
- */

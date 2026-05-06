@@ -84,6 +84,7 @@ pub enum ContentFilterSource {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Response {
     pub id: String,
+    pub error: Option<String>,
 }
 
 /// Incomplete response received from LLM API
@@ -403,7 +404,7 @@ impl LLMRequest {
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
-        let params = get_params_for_model(&model.model_type, &configuration);
+        let params = get_params_for_model(&model, &configuration);
 
         Ok((
             Self {
@@ -583,8 +584,6 @@ pub async fn make_request_and_stream<'a>(
                 ));
             }
             Some(Result::Ok(line)) => {
-                println!("🐈🐈🐈🐈🐈🐈🐈🐈{:?}", line);
-                // todo save the response_id!
                 if line.starts_with("event: ") {
                     event_type = line.trim_start_matches("event: ").to_string();
                     trace!("Event: {event_type}");
@@ -628,7 +627,6 @@ pub async fn make_request_and_stream<'a>(
                         continue;
                     }
                     "response.output_item.done" => {
-                        println!("Doing stuff");
                         output_item_incoming = true;
                         pinned_lines.next().await;
                         continue;
@@ -757,7 +755,7 @@ pub async fn parse_tool<'a>(
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
     let mut event_type = "".to_string();
-    let mut response_received = false;
+    let mut response_received: bool;
 
     trace!("Parsing tool calls...");
 
@@ -774,8 +772,12 @@ pub async fn parse_tool<'a>(
             "response.completed" => {
                 response_received = true;
             }
-            "response.output_text.delta" => println!("ERROR"),
-            "response.output_item.done" => println!("tool call received?!!!"),
+            "response.output_text.delta" => {
+                return Err(anyhow::anyhow!(
+                    "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
+                ));
+            }
+            "response.error" => {}
             _ => continue,
         };
 
@@ -898,6 +900,7 @@ pub async fn parse_and_stream_to_user<'a>(
 
     let mut event_type = "".to_string();
     let mut response_received = false;
+    let mut error_incoming: bool = false;
 
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
@@ -913,11 +916,13 @@ pub async fn parse_and_stream_to_user<'a>(
 
             match event_type.as_str() {
                 "response.completed" | "response.incomplete" => {response_received = true;},
+                "response.output_text.delta" => {
+                    // streaming
+                    continue;
+                },
+                "response.function_call_arguments.delta" => error!("ERROR, function call received but can't be processed while streaming to user."),
                 // todo: react corectly
-                "response.output_text.delta" => println!("stream"),
-                "response.output_item.done" => println!("check out what came, like cited documents?"),
-                "response.function_call_arguments.delta" | "response.output_item.added" => println!("ERROR, function call or output item not expected: {:?}", event_type),
-                "response.error" => {},
+                "response.error" => {error_incoming = true;},
                 _ => continue,
             };
 
@@ -945,6 +950,11 @@ pub async fn parse_and_stream_to_user<'a>(
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
 
+            if error_incoming {
+                if let Some(response) = &response_output.response && let Some(error) = &response.error {
+                    Err(ChatbotError::new(ChatbotErrorType::StreamingError, format!("Error received from the API: {}.", error), None))?
+                };
+            };
 
             if let Some(delta) = &response_output.delta {
                 full_response_text.push(delta.to_owned());
@@ -999,7 +1009,6 @@ pub async fn send_chat_request_and_parse_stream(
             app_config,
         )
         .await?;
-    print!("🐈🐈🐈🐈🐈🐈🐈{:?}", serde_json::to_string(&chat_request));
 
     let mut max_iterations_left = 15;
 

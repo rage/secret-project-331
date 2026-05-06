@@ -356,10 +356,6 @@ async fn process_block_chunk(
         text: None,
     };
     info!(
-        "!!!!!!!!!!!!!!!!!!!!!!!!{:?}",
-        serde_json::to_string(&llm_base_request)
-    );
-    info!(
         "Processing chunk of approximately {} tokens",
         estimate_tokens(chunk)
     );

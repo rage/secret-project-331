@@ -180,7 +180,7 @@ async fn current_conversation_info(
         && let Some(current_conversation_messages) = &res.current_conversation_messages
         && let Some(last_message) = current_conversation_messages.last()
     {
-        let initial_suggested_messages = if last_message.order_number == 0 {
+        let initial_suggested_messages = if last_message.order_number == 1 {
             // for the first message, get initial_suggested_messages
             let initial_suggested_messages = chatbot_configuration
                 .initial_suggested_messages

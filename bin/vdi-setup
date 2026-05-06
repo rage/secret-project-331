@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+
 banner="########### MOOC-VDI setup ###########"
 
 # Check if /data exists
@@ -13,7 +14,6 @@ echo "/data exists"
 original_user="$(logname)"
 original_home="/home/$original_user"
 
-
 # Run as root
 if [ "$EUID" -ne 0 ]; then
   echo "ERROR: Please run as root"
@@ -24,7 +24,7 @@ echo "Running as root"
 
 # Create folder /data/$original_user
 if [ ! -d "/data/$original_user" ]; then
-  mkdir "/data/$original_user"
+  mkdir -p "/data/$original_user"
 fi
 
 echo "/data/$original_user exists"
@@ -41,10 +41,10 @@ fi
 
 echo "/data/$original_user/Code/secret-project-331 exists"
 
-bashrc_addition=$(cat <<-END
+bashrc_addition=$(cat <<END
 
 $banner
-if [ "\$(hostname)" = "$(hostname)"  ] ; then
+if [ "\$(hostname)" = "$(hostname)" ]; then
     echo "Switching home dir to a local disk for performance."
     export HOME=/data/$original_user
     source /data/$original_user/.profile
@@ -60,104 +60,163 @@ END
 echo "$bashrc_addition" > /tmp/bashrc_addition
 chmod a+r /tmp/bashrc_addition
 
-script_to_run_as_original_user=$(cat <<-END
+script_to_run_as_original_user=$(cat <<END
 #!/bin/bash
 set -euo pipefail
 bashrc_addition=\$(cat /tmp/bashrc_addition)
 echo "bashrc_addition: \$bashrc_addition"
 echo "Running as $original_user"
-# If .bashrc doesn't exist, create it
+
 if [ ! -f "$original_home/.bashrc" ]; then
   touch "$original_home/.bashrc"
 fi
 
-# check if banner in .bashrc
 if grep -q "$banner" "$original_home/.bashrc"; then
-  echo "Vdi snippet alredy exists in $original_home/.bashrc"
+  echo "Vdi snippet already exists in $original_home/.bashrc"
 else
-    echo "Vdi snippet not found in $original_home/.bashrc"
-    echo "Adding banner to $original_home/.bashrc"
-    echo "\$bashrc_addition" >> "$original_home/.bashrc"
+  echo "Vdi snippet not found in $original_home/.bashrc"
+  echo "Adding banner to $original_home/.bashrc"
+  echo "\$bashrc_addition" >> "$original_home/.bashrc"
 fi
-
 END
 )
-
-
 
 echo "--------------------------------------------------------"
 echo "$script_to_run_as_original_user"
 echo "--------------------------------------------------------"
 
-echo "Running script"
-
+echo "Running script as $original_user"
 sudo -u "$original_user" bash -c "$script_to_run_as_original_user"
 
 rm /tmp/bashrc_addition
 
 export HOME="/data/$original_user"
 
-# Installing packages
+# Base packages
+apt-get update
+apt-get install -y \
+  postgresql-client \
+  bc \
+  jq \
+  rsync \
+  moreutils \
+  libssl-dev \
+  pkg-config \
+  earlyoom \
+  zram-tools \
+  ca-certificates \
+  curl \
+  git
+
 # Install pnpm using standalone script (no npm required)
-if ! command -v pnpm; then
-  curl -fsSL https://get.pnpm.io/install.sh | sh -
+if ! command -v pnpm >/dev/null 2>&1; then
+  sudo -u "$original_user" env HOME="/data/$original_user" sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
   echo "Installed pnpm"
 fi
 
-# Install postgres-cli and earlyoom from apt
-sudo apt-get update
-sudo apt-get install -y postgresql-client bc jq rsync moreutils libssl-dev pkg-config earlyoom
+# Add Docker's official GPG key
+install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+chmod a+r /etc/apt/keyrings/docker.asc
 
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
+# Add the repository to Apt sources
 echo \
   "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+  > /etc/apt/sources.list.d/docker.list
+
+apt-get update
 
 # Install docker
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# add current user to docker group
-sudo usermod -aG docker "$original_user"
+# Add current user to docker group
+usermod -aG docker "$original_user"
 
-# If rust not installed, install it
-if ! command -v rustc; then
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+# If rust not installed, install it for the original user
+if ! sudo -u "$original_user" env HOME="/data/$original_user" bash -lc 'command -v rustc >/dev/null 2>&1'; then
+  sudo -u "$original_user" env HOME="/data/$original_user" bash -lc 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
   echo "Installed rust"
 fi
 
-fish -c "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
+# Install fisher for fish
+sudo -u "$original_user" env HOME="/data/$original_user" fish -c \
+  "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
 
 echo "Fish setup complete"
 
-# Change docker data dir /data/original_user/docker
+# Configure Docker data dir to /data/$original_user/docker
 systemctl stop docker
+
 if [ ! -d "/data/$original_user/docker" ]; then
-  mkdir "/data/$original_user/docker"
+  mkdir -p "/data/$original_user/docker"
 fi
-# Update docker config
-new_docker_config=$(cat <<-END
+
+cat > /etc/docker/daemon.json <<END
 {
   "data-root": "/data/$original_user/docker"
 }
 END
-)
-echo "$new_docker_config" > /etc/docker/daemon.json
+
 systemctl start docker
 
-# Clone the repository
+# Configure zram as preferred swap, keep existing disk swap as fallback
+cat > /etc/default/zramswap <<'END'
+ALGO=lz4
+PERCENT=25
+PRIORITY=100
+END
+
+systemctl enable --now zramswap.service
+systemctl restart zramswap.service
+
+echo "Configured zram swap"
+swapon --show
+echo
+zramctl || true
+echo
+
+# Configure earlyoom
+# - prefer killing rustc / next-server / node / chromium
+# - avoid critical services
+# - SIGTERM when mem <= 8% and free swap <= 26%
+# - SIGKILL when mem <= 4% and free swap <= 13%
+cat > /etc/default/earlyoom <<'END'
+EARLYOOM_ARGS="-r 60 -m 8 -s 26 --prefer (^|/)(rustc|next-server|node|nodejs|chromium)$ --avoid (^|/)(init|systemd|systemd-journald|systemd-logind|dbus-daemon|sshd|Xorg|containerd|dockerd|kubelet)$"
+END
+
+systemctl enable earlyoom
+systemctl reset-failed earlyoom || true
+systemctl daemon-reload
+systemctl restart earlyoom
+
+echo "Configured earlyoom"
+systemctl status earlyoom --no-pager || true
+echo
+
+# Clone the repository if it is not already there
 repository="https://github.com/rage/secret-project-331.git"
 clone_path="/data/$original_user/Code/secret-project-331"
-git clone "$repository" "$clone_path"
-echo "Cloned the secret project repository to $clone_path"
 
-chown -R "$original_user" "/data/$original_user"
+if [ -d "$clone_path/.git" ]; then
+  echo "Repository already cloned at $clone_path"
+else
+  rm -rf "$clone_path"
+  sudo -u "$original_user" env HOME="/data/$original_user" git clone "$repository" "$clone_path"
+  echo "Cloned the secret project repository to $clone_path"
+fi
+
+chown -R "$original_user:$original_user" "/data/$original_user"
 echo "Fixed permissions in /data/$original_user"
+
+echo
+echo "Setup complete."
+echo
+echo "Swap status:"
+swapon --show || true
+echo
+echo "zram status:"
+zramctl || true
+echo
+echo "earlyoom process:"
+pgrep -a earlyoom || true

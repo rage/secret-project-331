@@ -84,11 +84,26 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     getCoreRowModel: getCoreRowModel(),
   })
 
-  if (searchByEmailQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={searchByEmailQuery.error} />
+  if (
+    searchByEmailQuery.isError ||
+    searchByOtherDetailsQuery.isError ||
+    searchFuzzyMatchQuery.isError
+  ) {
+    return (
+      <ErrorBanner
+        variant="readOnly"
+        error={
+          searchByEmailQuery.error ?? searchByOtherDetailsQuery.error ?? searchFuzzyMatchQuery.error
+        }
+      />
+    )
   }
 
-  if (searchByEmailQuery.isFetching) {
+  if (
+    searchByEmailQuery.isPending ||
+    searchByOtherDetailsQuery.isPending ||
+    searchFuzzyMatchQuery.isPending
+  ) {
     return <Spinner variant="medium" />
   }
 

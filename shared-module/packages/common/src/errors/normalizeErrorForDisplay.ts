@@ -235,7 +235,9 @@ function normalizePayload(payload: SimplifiedPayload, t: TFunction): ErrorViewMo
   const category: ErrorCategory =
     messageKey === "rate_limited"
       ? "rate_limit"
-      : messageKey === "validation_error" || messageKey === "validation_error_with_metadata"
+      : messageKey === "validation_error" ||
+          messageKey === "validation_error_with_metadata" ||
+          messageKey === "response_validation_error"
         ? "validation"
         : messageKey === "unauthorized" ||
             messageKey === "chapter_not_open_yet" ||

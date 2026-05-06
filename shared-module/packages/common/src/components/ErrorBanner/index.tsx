@@ -53,8 +53,12 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
             <ul>
               {parsed.issues.map((issue, index) => (
                 <li key={`${issue.path ?? "issue"}-${index}`}>
-                  {parsed.messageKey === "response_validation_error" && issue.path
-                    ? `${t("error-zod-issue-prefix")} ${issue.path}: ${issue.message}`
+                  {parsed.messageKey === "response_validation_error"
+                    ? t("error-zod-issue-prefix", {
+                        path: issue.path ?? "",
+                        message: issue.message,
+                        defaultValue: "Validation issue at {{path}}: {{message}}",
+                      })
                     : `${issue.path ? `${issue.path}: ` : ""}${issue.message}`}
                 </li>
               ))}

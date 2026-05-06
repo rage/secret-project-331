@@ -41,9 +41,15 @@ fi
 
 echo "/data/$original_user/Code/secret-project-331 exists"
 
+chown -R "$original_user:$original_user" "/data/$original_user"
+echo "Fixed initial permissions in /data/$original_user"
+
 bashrc_addition=$(cat <<END
 
 $banner
+# NOTE: In if [ "\$(hostname)" = "\$(hostname)" ]; the right-hand hostname expression is expanded at install time.
+# If the VDI hostname changes later, this condition stops matching and HOME redirection no longer applies.
+# This hardcoding is intentional for initial setup.
 if [ "\$(hostname)" = "$(hostname)" ]; then
     echo "Switching home dir to a local disk for performance."
     export HOME=/data/$original_user
@@ -59,9 +65,10 @@ END
 
 echo "$bashrc_addition" > /tmp/bashrc_addition
 chmod a+r /tmp/bashrc_addition
+tmp_script_file="$(mktemp)"
+trap 'rm -f /tmp/bashrc_addition "$tmp_script_file"' EXIT INT TERM
 
-script_to_run_as_original_user=$(cat <<END
-#!/bin/bash
+cat > "$tmp_script_file" <<END
 set -euo pipefail
 bashrc_addition=\$(cat /tmp/bashrc_addition)
 echo "bashrc_addition: \$bashrc_addition"
@@ -79,16 +86,14 @@ else
   echo "\$bashrc_addition" >> "$original_home/.bashrc"
 fi
 END
-)
+chmod +x "$tmp_script_file"
 
 echo "--------------------------------------------------------"
-echo "$script_to_run_as_original_user"
+cat "$tmp_script_file"
 echo "--------------------------------------------------------"
 
 echo "Running script as $original_user"
-sudo -u "$original_user" bash -c "$script_to_run_as_original_user"
-
-rm /tmp/bashrc_addition
+sudo -u "$original_user" bash "$tmp_script_file"
 
 export HOME="/data/$original_user"
 

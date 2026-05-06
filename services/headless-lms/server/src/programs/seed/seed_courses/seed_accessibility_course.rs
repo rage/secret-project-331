@@ -145,7 +145,7 @@ pub async fn seed_accessibility_course(
                                         attributes! {},
                                         vec![GutenbergBlock::paragraph("Back side content")],
                                     )
-                                    .with_id(cx.v5(b"1799a6d1-c1b1-4f51-a92f-e832554fc924")),
+                                    .with_id(cx.v5(b"6a4cb66f-f636-4fcb-a264-8ec9f5f4a8b0")),
                                 ],
                             )
                             .with_id(cx.v5(b"12345678-1234-5678-9012-123456789abc")),

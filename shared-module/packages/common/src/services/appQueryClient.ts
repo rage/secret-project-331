@@ -4,12 +4,17 @@ import { ZodError } from "zod"
 import { isAppApiError } from "../errors/AppApiError"
 
 const normalizeIssuePath = (path: unknown): string | undefined => {
-  if (typeof path === "string") {
-    return path
-  }
   if (Array.isArray(path)) {
     return path
-      .filter((segment) => typeof segment === "string" || typeof segment === "number")
+      .map((segment) => {
+        if (segment === null || segment === undefined) {
+          return String(segment)
+        }
+        if (typeof segment === "symbol") {
+          return segment.toString()
+        }
+        return String(segment)
+      })
       .join(".")
   }
   return undefined
@@ -29,6 +34,8 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
       refetchOnReconnect: false,
       retry: (failureCount, error) => {
+        let logPayload: unknown = error
+        let shouldStopRetrying = false
         if (error instanceof ZodError) {
           const normalizedIssues = error.issues.map((issue) => {
             const expected = "expected" in issue ? issue.expected : undefined
@@ -43,30 +50,33 @@ export const queryClient = new QueryClient({
               format,
             }
           })
-          console.warn(`Query failed (attempt ${failureCount + 1})`, {
+          logPayload = {
             kind: "zod_validation_error",
             issues: normalizedIssues,
-            error,
-          })
-          return false
+          }
+          shouldStopRetrying = true
         }
-        if (isAppApiError(error)) {
-          console.warn(`Query failed (attempt ${failureCount + 1})`, {
+        if (!shouldStopRetrying && isAppApiError(error)) {
+          logPayload = {
+            kind: "app_api_error",
             status: error.status,
-            kind: error.kind,
             type: error.type,
             messageKey: error.messageKey,
             userMessage: error.userMessage,
             detail: error.detail,
             issues: error.issues,
             metadata: error.metadata,
-            url: error.url,
             method: error.method,
+            url: error.url,
             rawText: error.rawText,
             error,
-          })
-        } else {
-          console.warn(`Query failed (attempt ${failureCount + 1})`, error)
+          }
+        } else if (!shouldStopRetrying) {
+          logPayload = { kind: "unknown_error", error }
+        }
+        console.warn(`Query failed (attempt ${failureCount + 1})`, logPayload)
+        if (shouldStopRetrying) {
+          return false
         }
         // Don't want to retry any client errors (4XX) -- it just gives the impression of slowness.
 

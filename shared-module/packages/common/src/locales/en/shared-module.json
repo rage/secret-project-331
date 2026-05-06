@@ -119,8 +119,10 @@
   "error-retry-after": "Retry after: {{seconds}}s",
   "error-source-method": "Method: {{method}}",
   "error-source-url": "URL: {{url}}",
+  "error-status": "Status: {{status}}",
   "error-title": "Error",
   "error-too-many-requests": "Too many requests. Please try again later.",
+  "error-type": "Type: {{type}}",
   "error-unexpected-error": "Unexpected error",
   "error-zod-issue": {
     "invalid_format": "Expected {{format}}",

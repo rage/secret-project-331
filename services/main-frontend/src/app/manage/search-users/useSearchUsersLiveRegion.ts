@@ -45,6 +45,7 @@ const useSearchUsersLiveRegion = ({
     if (searchQueryChanged) {
       previousSearchQueryRef.current = searchQuery
       hasSettledForCurrentQueryRef.current = false
+      lastAnnouncedMessageRef.current = ""
     }
 
     let nextMessage = ""

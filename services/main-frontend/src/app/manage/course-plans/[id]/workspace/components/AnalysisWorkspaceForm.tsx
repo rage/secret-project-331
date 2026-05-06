@@ -36,7 +36,6 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   Checkbox,
   ComboBox,
-  emptyStringToNull,
   nullIfEmpty,
   Select,
   stringToNumberOrNull,
@@ -860,8 +859,6 @@ export default function AnalysisWorkspaceForm(props: {
   const { control, handleSubmit, reset, setValue, getValues, watch, trigger } = form
   const { isDirty } = useFormState({ control })
   const creditsFieldRules = useMemo(() => buildCreditsFieldRules(t), [t])
-  const languageWatch = useWatch({ control, name: FIELD_LANGUAGE })
-
   useEffect(() => {
     isDirtyRef.current = isDirty
   }, [isDirty])
@@ -1144,12 +1141,8 @@ export default function AnalysisWorkspaceForm(props: {
                 label={t("course-plans-analysis-field-language")}
                 description={t("course-plans-analysis-description-language")}
                 items={LANGUAGE_OPTIONS}
-                allowsCustomValue
+                isEditable={false}
                 placeholder={t("course-plans-analysis-language-placeholder")}
-                inputValue={languageWatch ?? ""}
-                onInputChange={(raw) => {
-                  setValue(FIELD_LANGUAGE, emptyStringToNull(raw), { shouldDirty: true })
-                }}
               >
                 {(item) => t(`course-plans-analysis-lang-${item.key}`)}
               </ComboBox>

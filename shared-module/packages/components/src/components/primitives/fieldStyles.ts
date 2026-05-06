@@ -601,7 +601,24 @@ function makeFloatingInsetPaddingTopCss(s: SizeValues): string {
 /** Combobox input: vertical padding follows inset label band via parent data-floated. */
 export function resolveComboBoxInputCss(fieldSize: FieldSize): string {
   const s = sizeValues[fieldSize]
-  return cx(inputResetCss, inputWithFloatingLabelCss, makeFloatingInsetPaddingTopCss(s))
+  const comboTriggerSlotWidth = "2.5rem"
+  const comboTopFloat = fieldSize === "md" ? "1.55rem" : s.inputPaddingTopFloated
+  const comboBottomFloat = fieldSize === "md" ? "0.45rem" : s.inputPaddingBottomFloated
+
+  return cx(
+    inputBaseCss,
+    css`
+      min-height: ${s.controlHeight};
+      border-radius: ${s.borderRadius};
+      padding: ${s.inputPaddingYRest} calc(${s.inputPaddingX} + ${comboTriggerSlotWidth})
+        ${s.inputPaddingYRest} ${s.inputPaddingX};
+
+      [data-field-control][data-floated="true"] & {
+        padding-top: ${comboTopFloat};
+        padding-bottom: ${comboBottomFloat};
+      }
+    `,
+  )
 }
 
 /** Segmented date/time field shell: same top padding as ComboBox; bottom padding from control surface. */

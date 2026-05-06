@@ -90,12 +90,16 @@ export const listBoxEmptyStateCss = css`
 `
 
 export const comboTriggerButtonCss = css`
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
+  width: 2rem;
+  height: 2rem;
   padding: 0;
   border: 0;
   background: transparent;

@@ -19,7 +19,6 @@ import {
   fieldRootCss,
   type FieldSize,
   resolveComboBoxInputCss,
-  resolveControlSurfaceCss,
   resolveFieldLabelCss,
   resolveMessageCss,
 } from "./primitives/fieldStyles"
@@ -28,10 +27,25 @@ import { comboChevronCss, comboTriggerButtonCss } from "./primitives/selectStyle
 
 const comboBoxRootCss = css`
   position: relative;
+
+  &[data-open="false"] {
+    cursor: pointer;
+  }
+
+  &[data-open="false"] input,
+  &[data-open="false"] button {
+    cursor: pointer;
+  }
 `
 
 type ComboBoxRender<T> = (item: T) => React.ReactNode
 export type ComboBoxKey = string | number
+
+const comboBoxInputReadonlyCss = css`
+  caret-color: transparent;
+  user-select: none;
+  cursor: pointer;
+`
 
 /**
  * Filterable combobox with optional custom text (`allowsCustomValue`).
@@ -62,6 +76,7 @@ export type ComboBoxProps<
   inputValue?: string
   onInputChange?: (value: string) => void
   allowsCustomValue?: boolean
+  isEditable?: boolean
   emptyState?: React.ReactNode
   id?: string
   onFocus?: React.FocusEventHandler<HTMLInputElement>
@@ -96,6 +111,7 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
     inputValue: inputValueProp,
     onInputChange: onInputChangeProp,
     allowsCustomValue = false,
+    isEditable = true,
     emptyState,
     className,
     isDisabled = false,
@@ -215,6 +231,19 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
   const isFloated = isFocused || hasValue
 
   const mergedInputProps = mergeProps(inputProps, {
+    onMouseDown: (event: React.MouseEvent<HTMLInputElement>) => {
+      if (!state.isOpen && !isDisabled && !isReadOnly) {
+        event.preventDefault()
+        inputRef.current?.focus()
+        state.open()
+      }
+      inputProps.onMouseDown?.(event)
+    },
+    onBeforeInput: (event: React.FormEvent<HTMLInputElement>) => {
+      if (!isEditable) {
+        event.preventDefault()
+      }
+    },
     onFocus: (event: React.FocusEvent<HTMLInputElement>) => {
       setIsFocused(true)
       inputProps.onFocus?.(event)
@@ -226,7 +255,15 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
       onBlur?.(event)
       field.onBlur()
     },
-    onKeyDown,
+    onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => {
+      const isTextEditKey =
+        event.key.length === 1 || event.key === "Backspace" || event.key === "Delete"
+      if (!isEditable && isTextEditKey) {
+        event.preventDefault()
+        return
+      }
+      onKeyDown?.(event)
+    },
     onKeyUp,
   })
 
@@ -237,12 +274,9 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
   return (
     <div className={cx(fieldRootCss, className)}>
       <div
-        className={cx(
-          fieldControlCss,
-          resolveControlSurfaceCss(fieldSize, isFloated),
-          comboBoxRootCss,
-        )}
+        className={cx(fieldControlCss, comboBoxRootCss)}
         data-field-control="true"
+        data-open={state.isOpen ? "true" : "false"}
         data-disabled={isDisabled ? "true" : "false"}
         data-invalid={hookIsInvalid ? "true" : "false"}
         data-readonly={isReadOnly ? "true" : "false"}
@@ -253,7 +287,10 @@ export function ComboBox<TItem, TField extends FieldValues, N extends Path<TFiel
         <input
           {...mergedInputProps}
           ref={composeRefs(inputRef, field.ref)}
-          className={resolveComboBoxInputCss(fieldSize)}
+          className={cx(
+            resolveComboBoxInputCss(fieldSize),
+            !isEditable && comboBoxInputReadonlyCss,
+          )}
         />
         <label {...labelProps} className={resolveFieldLabelCss(fieldSize)}>
           {label}

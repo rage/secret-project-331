@@ -123,6 +123,7 @@ export const choiceIndicatorCss = css`
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
+  line-height: 0;
   width: 20px;
   height: 20px;
   border: 1px solid var(--field-border);
@@ -179,7 +180,9 @@ export const radioStandaloneNativeIndicatorCss = css`
 `
 
 export const choiceMarkCss = css`
-  display: block;
+  position: absolute;
+  left: 50%;
+  top: 50%;
   opacity: 0;
   transition: opacity 0.18s ease;
 `
@@ -193,7 +196,7 @@ export const checkboxMarkCss = css`
   height: 6px;
   border-left: 2px solid currentColor;
   border-bottom: 2px solid currentColor;
-  transform: rotate(-45deg) translateY(-1px);
+  transform: translate(-50%, -70%) rotate(-45deg);
 `
 
 export const indeterminateMarkCss = css`
@@ -201,6 +204,7 @@ export const indeterminateMarkCss = css`
   height: 2px;
   border-radius: 999px;
   background: currentColor;
+  transform: translate(-50%, -50%);
 `
 
 export const radioMarkCss = css`
@@ -208,6 +212,7 @@ export const radioMarkCss = css`
   height: 8px;
   border-radius: 999px;
   background: currentColor;
+  transform: translate(-50%, -50%);
 `
 
 export function resolveCheckableSizeCss(fieldSize: FieldSize) {

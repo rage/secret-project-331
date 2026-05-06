@@ -147,8 +147,6 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
     },
   })
 
-  const showCheck = isSelected && !isIndeterminate
-
   return (
     <FieldShell
       className={cx(checkableRootCss, className)}
@@ -178,12 +176,20 @@ export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
           data-invalid={isInvalid ? "true" : "false"}
           data-selected={isSelected ? "true" : "false"}
         >
-          {showCheck ? (
-            <span className={cx(choiceMarkCss, choiceMarkVisibleCss, checkboxMarkCss)} />
-          ) : null}
-          {isIndeterminate ? (
-            <span className={cx(choiceMarkCss, choiceMarkVisibleCss, indeterminateMarkCss)} />
-          ) : null}
+          <span
+            className={cx(
+              choiceMarkCss,
+              checkboxMarkCss,
+              isSelected && !isIndeterminate && choiceMarkVisibleCss,
+            )}
+          />
+          <span
+            className={cx(
+              choiceMarkCss,
+              indeterminateMarkCss,
+              isIndeterminate && choiceMarkVisibleCss,
+            )}
+          />
         </span>
         <span className={checkableContentCss}>
           <span className={checkableLabelCss}>{label}</span>

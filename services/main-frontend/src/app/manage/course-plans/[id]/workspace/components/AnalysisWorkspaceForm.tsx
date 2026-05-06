@@ -463,6 +463,7 @@ const checkboxRowStyles = css`
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4, 1rem);
+  margin-top: 1rem;
 `
 
 const openPeriodAllRowStyles = css`

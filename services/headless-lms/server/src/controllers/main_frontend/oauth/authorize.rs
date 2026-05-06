@@ -18,6 +18,12 @@ use models::{
 };
 use sqlx::PgPool;
 use std::collections::HashSet;
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(authorize_get_doc, authorize_post_doc))]
+#[allow(dead_code)]
+pub(crate) struct MainFrontendOauthAuthorizeApiDoc;
 
 #[derive(Debug, Clone, Copy, Default)]
 struct PromptFlags {
@@ -88,7 +94,7 @@ pub async fn authorize(
     pool: web::Data<PgPool>,
     OAuthValidated(query): OAuthValidated<AuthorizeQuery>,
     user: Option<AuthUser>,
-    app_conf: web::Data<headless_lms_utils::ApplicationConfiguration>,
+    app_conf: web::Data<headless_lms_base::config::ApplicationConfiguration>,
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let server_token = skip_authorize();
@@ -226,6 +232,46 @@ pub async fn authorize(
     )
 }
 
+#[utoipa::path(
+    get,
+    path = "/authorize",
+    operation_id = "authorizeOauthGet",
+    tag = "oauth",
+    params(
+        ("response_type" = Option<String>, Query, description = "OAuth response type"),
+        ("client_id" = Option<String>, Query, description = "OAuth client id"),
+        ("redirect_uri" = Option<String>, Query, description = "Redirect URI"),
+        ("scope" = Option<String>, Query, description = "Requested scopes"),
+        ("state" = Option<String>, Query, description = "OAuth state"),
+        ("nonce" = Option<String>, Query, description = "OpenID Connect nonce"),
+        ("code_challenge" = Option<String>, Query, description = "PKCE code challenge"),
+        ("code_challenge_method" = Option<String>, Query, description = "PKCE code challenge method"),
+        ("prompt" = Option<String>, Query, description = "Prompt behavior"),
+        ("request" = Option<String>, Query, description = "Unsupported request object")
+    ),
+    responses(
+        (status = 302, description = "Redirect to login, consent, or client redirect URI")
+    )
+)]
+#[allow(dead_code)]
+pub(crate) fn authorize_get_doc() {}
+
+#[utoipa::path(
+    post,
+    path = "/authorize",
+    operation_id = "authorizeOauthPost",
+    tag = "oauth",
+    request_body(
+        content = serde_json::Value,
+        content_type = "application/x-www-form-urlencoded"
+    ),
+    responses(
+        (status = 302, description = "Redirect to login, consent, or client redirect URI")
+    )
+)]
+#[allow(dead_code)]
+pub(crate) fn authorize_post_doc() {}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::resource("/authorize")
@@ -234,6 +280,7 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
                 per_hour: Some(500),
                 per_day: Some(2000),
                 per_month: None,
+                ..Default::default()
             }))
             .route(web::get().to(authorize))
             .route(web::post().to(authorize)),

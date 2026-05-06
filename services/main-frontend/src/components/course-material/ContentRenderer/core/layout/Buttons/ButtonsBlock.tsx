@@ -76,7 +76,6 @@ const ButtonsBlock: React.FC<
       textColor,
       // title
       url,
-      width,
       className,
     } = button.attributes as ButtonAttributes & { className?: string }
 
@@ -93,9 +92,6 @@ const ButtonsBlock: React.FC<
         rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
         href={url}
         target={linkTarget}
-        className={css`
-          ${width && `width: ${width}%;`}
-        `}
       >
         <Button
           className={css`
@@ -106,7 +102,6 @@ const ButtonsBlock: React.FC<
               textColor,
             )} !important;`}
             ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
-            ${width && `width: calc(100% - ${1 - width / 100}rem);`}
             margin: 0.5rem 0rem;
             margin-right: 0.5rem;
           `}

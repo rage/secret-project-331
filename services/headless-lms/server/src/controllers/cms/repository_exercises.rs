@@ -1,7 +1,24 @@
 use crate::prelude::*;
 use models::repository_exercises::{self, RepositoryExercise};
+use utoipa::OpenApi;
+
+#[derive(OpenApi)]
+#[openapi(paths(get_for_course))]
+pub(crate) struct CmsRepositoryExercisesApiDoc;
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{course_id}",
+    operation_id = "getCmsRepositoryExercisesForCourse",
+    tag = "cms_repository_exercises",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Repository exercises for course", body = Vec<RepositoryExercise>)
+    )
+)]
 pub async fn get_for_course(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,

@@ -1,7 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "model_type", rename_all = "kebab-case")]
 pub enum ModelType {
     GPTThinking,
@@ -9,8 +9,8 @@ pub enum ModelType {
     GPTHardThinking,
     Mistral,
 }
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct ChatbotConfigurationModel {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

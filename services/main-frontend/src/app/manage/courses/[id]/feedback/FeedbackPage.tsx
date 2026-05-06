@@ -6,8 +6,7 @@ import React from "react"
 
 import FeedbackView from "./FeedbackView"
 
-import { fetchFeedback, markAsRead } from "@/services/backend/feedback"
-import { Feedback } from "@/shared-module/common/bindings"
+import { getCourseFeedbackOptions } from "@/generated/api/@tanstack/react-query.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -30,15 +29,17 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const limit = paginationInfo.limit
   const getFeedbackList = useQuery({
-    queryKey: [`feedback-list-${courseId}-${read}-${page}-${limit}`],
-    queryFn: () => fetchFeedback(courseId, read, page, limit),
+    ...getCourseFeedbackOptions({
+      path: {
+        course_id: courseId,
+      },
+      query: {
+        read,
+        page,
+        limit,
+      },
+    }),
   })
-
-  async function handleMarkAsRead(feedback: Feedback) {
-    await markAsRead(feedback.id, !feedback.marked_as_read)
-    await getFeedbackList.refetch()
-    await onChange()
-  }
 
   if (getFeedbackList.isError) {
     return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
@@ -69,8 +70,9 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
         <li key={f.id}>
           <FeedbackView
             feedback={f}
-            setRead={() => {
-              handleMarkAsRead(f)
+            setRead={async () => {
+              await getFeedbackList.refetch()
+              await onChange()
             }}
           />
         </li>

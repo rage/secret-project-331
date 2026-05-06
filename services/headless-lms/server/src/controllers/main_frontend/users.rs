@@ -7,19 +7,49 @@ use models::{
     user_research_consents::UserResearchConsent, users::User,
 };
 use secrecy::SecretString;
+use utoipa::{OpenApi, ToSchema};
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_user,
+    get_course_enrollments_for_user,
+    post_user_consents,
+    get_research_consent_by_user_id,
+    get_all_research_form_answers_with_user_id,
+    get_my_courses,
+    get_user_reset_exercise_logs,
+    send_reset_password_email,
+    reset_password_token_status,
+    reset_user_password,
+    change_user_password
+))]
+pub(crate) struct MainFrontendUsersApiDoc;
 
 /**
 GET `/api/v0/main-frontend/users/:id`
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{user_id}",
+    operation_id = "getUser",
+    tag = "users",
+    params(
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "User", body = serde_json::Value)
+    )
+)]
 pub async fn get_user(
     user_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    auth_user: AuthUser,
 ) -> ControllerResult<web::Json<User>> {
     let mut conn = pool.acquire().await?;
     let user = models::users::get_by_id(&mut conn, *user_id).await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(*user_id), Res::AnyCourse).await?;
+    let token = authorize(&mut conn, Act::Teach, Some(auth_user.id), Res::AnyCourse).await?;
     token.authorized_ok(web::Json(user))
 }
 
@@ -27,6 +57,18 @@ pub async fn get_user(
 GET `/api/v0/main-frontend/users/:id/course-enrollments`
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{user_id}/course-enrollments",
+    operation_id = "getUserCourseEnrollments",
+    tag = "users",
+    params(
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "User course enrollments", body = CourseEnrollmentsInfo)
+    )
+)]
 pub async fn get_course_enrollments_for_user(
     user_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -47,8 +89,8 @@ pub async fn get_course_enrollments_for_user(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, ToSchema)]
+
 pub struct ConsentData {
     pub consent: bool,
 }
@@ -57,6 +99,16 @@ pub struct ConsentData {
 POST `/api/v0/main-frontend/users/user-research-consents` - Adds a research consent for a student.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/user-research-consents",
+    operation_id = "createUserResearchConsent",
+    tag = "users",
+    request_body = ConsentData,
+    responses(
+        (status = 200, description = "User research consent", body = UserResearchConsent)
+    )
+)]
 pub async fn post_user_consents(
     payload: web::Json<ConsentData>,
     user: AuthUser,
@@ -79,6 +131,15 @@ pub async fn post_user_consents(
 GET `/api/v0/main-frontend/users/get-user-research-consent` - Gets users research consent.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/get-user-research-consent",
+    operation_id = "getUserResearchConsent",
+    tag = "users",
+    responses(
+        (status = 200, description = "User research consent", body = UserResearchConsent)
+    )
+)]
 pub async fn get_research_consent_by_user_id(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -96,6 +157,15 @@ pub async fn get_research_consent_by_user_id(
 GET `/api/v0/main-frontend/users/get-user-research-consents` - Gets all users research consents for a course specific research form.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/user-research-form-question-answers",
+    operation_id = "getUserResearchFormQuestionAnswers",
+    tag = "users",
+    responses(
+        (status = 200, description = "Research form answers for user", body = [ResearchFormQuestionAnswer])
+    )
+)]
 async fn get_all_research_form_answers_with_user_id(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -114,6 +184,15 @@ async fn get_all_research_form_answers_with_user_id(
 GET `/api/v0/main-frontend/users/my-courses` - Gets all the courses the user has either started or gotten a permission to.
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/my-courses",
+    operation_id = "getMyCourses",
+    tag = "users",
+    responses(
+        (status = 200, description = "Courses for authenticated user", body = [Course])
+    )
+)]
 async fn get_my_courses(
     user: AuthUser,
     pool: web::Data<PgPool>,
@@ -144,6 +223,18 @@ async fn get_my_courses(
 GET `/api/v0/main-frontend/users/:id/user-reset-exercise-logs` - Get all logs of reset exercises for a user
 */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{user_id}/user-reset-exercise-logs",
+    operation_id = "getUserResetExerciseLogs",
+    tag = "users",
+    params(
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "User reset exercise logs", body = [ExerciseResetLog])
+    )
+)]
 pub async fn get_user_reset_exercise_logs(
     user_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -163,14 +254,24 @@ pub async fn get_user_reset_exercise_logs(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct EmailData {
     pub email: String,
     pub language: String,
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/send-reset-password-email",
+    operation_id = "sendResetPasswordEmail",
+    tag = "users",
+    request_body = EmailData,
+    responses(
+        (status = 200, description = "Reset password email accepted", body = bool)
+    )
+)]
 pub async fn send_reset_password_email(
     pool: web::Data<PgPool>,
     payload: web::Json<EmailData>,
@@ -232,12 +333,22 @@ pub async fn send_reset_password_email(
     token.authorized_ok(web::Json(true))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
 pub struct ResetPasswordTokenPayload {
     pub token: String,
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/reset-password-token-status",
+    operation_id = "getResetPasswordTokenStatus",
+    tag = "users",
+    request_body = ResetPasswordTokenPayload,
+    responses(
+        (status = 200, description = "Reset password token validity", body = bool)
+    )
+)]
 pub async fn reset_password_token_status(
     pool: web::Data<PgPool>,
     payload: web::Json<ResetPasswordTokenPayload>,
@@ -256,14 +367,24 @@ pub async fn reset_password_token_status(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ResetPasswordData {
     pub token: String,
     pub new_password: String,
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/reset-password",
+    operation_id = "resetUserPassword",
+    tag = "users",
+    request_body = ResetPasswordData,
+    responses(
+        (status = 200, description = "Password reset status", body = bool)
+    )
+)]
 pub async fn reset_user_password(
     pool: web::Data<PgPool>,
     payload: web::Json<ResetPasswordData>,
@@ -289,14 +410,24 @@ pub async fn reset_user_password(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ChangePasswordData {
     pub old_password: String,
     pub new_password: String,
 }
 
 #[instrument(skip(pool))]
+#[utoipa::path(
+    post,
+    path = "/change-password",
+    operation_id = "changeUserPassword",
+    tag = "users",
+    request_body = ChangePasswordData,
+    responses(
+        (status = 200, description = "Password change status", body = bool)
+    )
+)]
 pub async fn change_user_password(
     pool: web::Data<PgPool>,
     payload: web::Json<ChangePasswordData>,

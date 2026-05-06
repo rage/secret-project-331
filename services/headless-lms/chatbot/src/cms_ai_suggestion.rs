@@ -6,6 +6,7 @@ use crate::{
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         ThinkingParams,
     },
+    chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
@@ -13,14 +14,12 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
-    application_task_default_language_models::TaskLMSpec,
-    chatbot_conversation_message_messages::MessageRole,
+    application_task_default_language_models::TaskLMSpec, chatbot_configurations_models::ModelType,
+    chatbot_conversation_message_messages::MessageRole, cms_ai::ParagraphSuggestionAction,
 };
-use headless_lms_models::{
-    chatbot_configurations_models::ModelType, cms_ai::ParagraphSuggestionAction,
-};
-use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 
 /// Structured LLM response for CMS paragraph suggestions.
 #[derive(serde::Deserialize)]
@@ -214,10 +213,9 @@ pub async fn generate_paragraph_suggestions(
         calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
 
     if used_tokens > token_budget {
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "Input paragraph is too long for the CMS AI suggestion context window.".to_string(),
-            None,
+        return Err(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "Input paragraph is too long for the CMS AI suggestion context window.".to_string()
         ));
     }
 
@@ -290,19 +288,17 @@ pub async fn generate_paragraph_suggestions(
     let completion_content: &String = &parse_text_completion(completion)?;
     let response: CmsParagraphSuggestionResponse = serde_json::from_str(completion_content)
         .map_err(|_| {
-            ChatbotError::new(
-                ChatbotErrorType::ChatbotMessageSuggestError,
+            chatbot_err!(
+                ChatbotMessageSuggestError,
                 "The CMS paragraph suggestion LLM returned an incorrectly formatted response."
-                    .to_string(),
-                None,
+                    .to_string()
             )
         })?;
 
     if response.suggestions.is_empty() {
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "The CMS paragraph suggestion LLM returned an empty suggestions list.".to_string(),
-            None,
+        return Err(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "The CMS paragraph suggestion LLM returned an empty suggestions list.".to_string()
         ));
     }
 

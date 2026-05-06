@@ -1,5 +1,6 @@
 use std::{env, error::Error, sync::Arc, time::Duration};
 
+use crate::config::program_config::ProgramConfig;
 use crate::domain::models_requests::{self, JwtKey};
 use headless_lms_models as models;
 use models::library::regrading;
@@ -11,11 +12,11 @@ Starts a thread that will periodically send regrading submissions to the corresp
 pub async fn main() -> anyhow::Result<()> {
     // TODO: Audit that the environment access only happens in single-threaded code.
     unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     crate::setup_tracing()?;
-    let db_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
-    let jwt_key = Arc::new(JwtKey::try_from_env().expect("Could not initialise JwtKey"));
+    let db_url = ProgramConfig::database_url_with_default();
+    let jwt_password = ProgramConfig::required("JWT_PASSWORD")?;
+    let jwt_key = Arc::new(JwtKey::new(&jwt_password)?);
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));
     let mut ticks = 60;

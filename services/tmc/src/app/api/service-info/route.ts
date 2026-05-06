@@ -1,12 +1,11 @@
-import { NextResponse } from "next/server"
-
-import { ClientErrorResponse } from "@/lib"
-import { ExerciseServiceInfoApi } from "@/shared-module/common/bindings"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import basePath from "@/shared-module/common/utils/base-path"
+import { jsonOk } from "@/util/apiResponse"
+import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 
-export function GET() {
+function getImpl() {
   const prefix = basePath()
-  return NextResponse.json<ExerciseServiceInfoApi>({
+  return jsonOk<ExerciseServiceInfoApi>({
     service_name: "TMC",
     user_interface_iframe_path: `${prefix}/iframe`,
     grade_endpoint_path: `${prefix}/api/grade`,
@@ -15,13 +14,4 @@ export function GET() {
   })
 }
 
-function methodNotFound() {
-  return NextResponse.json<ClientErrorResponse>({ message: "Not found" }, { status: 404 })
-}
-
-export const HEAD = methodNotFound
-export const POST = methodNotFound
-export const PUT = methodNotFound
-export const PATCH = methodNotFound
-export const DELETE = methodNotFound
-export const OPTIONS = methodNotFound
+export const GET = wrapRouteHandler(getImpl, { service: "tmc", operation: "GET /service-info" })

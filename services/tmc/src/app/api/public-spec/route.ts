@@ -1,182 +1,177 @@
-import axios from "axios"
 import FormData from "form-data"
-import * as fs from "fs"
-import { NextResponse } from "next/server"
+import * as nodeFs from "fs"
+import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
-import { ClientErrorResponse, downloadStream } from "@/lib"
-import { RepositoryExercise, SpecRequest } from "@/shared-module/common/bindings"
+import { downloadStream } from "@/lib"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/common/utils/exerciseServices"
-import { isObjectMap } from "@/shared-module/common/utils/fetching"
+import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
+import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
   compressProject,
   extractProject,
   getExercisePackagingConfiguration,
   prepareStub,
 } from "@/tmc/langs"
+import { badRequest, jsonOk } from "@/util/apiResponse"
+import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
+import { createScopedLogger } from "@/util/logger"
 import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
 
 export const runtime = "nodejs"
 
-export async function POST(request: Request): Promise<Response> {
+async function postImpl(request: Request): Promise<Response> {
+  let body: unknown
   try {
-    const specRequest = (await request.json()) as SpecRequest
-    const requestId = specRequest.request_id.slice(0, 4)
-
-    let uploadClaim: string | null = null
-    const uploadClaimHeader = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
-    if (typeof uploadClaimHeader === "string") {
-      uploadClaim = uploadClaimHeader
-    }
-
-    return await processPublicSpec(requestId, specRequest, uploadClaim)
-  } catch (err) {
-    return internalServerError("----", "Error while processing request", err)
+    body = await request.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
   }
+  if (!isSpecRequest(body)) {
+    return badRequest("Invalid spec request")
+  }
+  const specRequest = body
+  const requestId = specRequest.request_id.slice(0, 4)
+
+  const uploadClaim = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
+
+  return await processPublicSpec(requestId, specRequest, uploadClaim)
 }
+
+export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /public-spec" })
 
 async function processPublicSpec(
   requestId: string,
   specRequest: SpecRequest,
   uploadClaim: string | null,
 ): Promise<Response> {
+  const { log, debug } = createScopedLogger("public-spec", requestId)
+  const tempPaths: string[] = []
   try {
-    log(requestId, "Processing public spec")
+    log("Processing public spec")
 
     const { private_spec, upload_url } = specRequest
     const privateSpec = private_spec as PrivateSpec | null
     if (privateSpec === null) {
-      return badRequest(requestId, "Private spec cannot be null")
+      return badRequest("Private spec cannot be null")
     }
     if (upload_url === null) {
-      return badRequest(requestId, "Missing upload URL")
+      return badRequest("Missing upload URL")
     }
 
-    debug(requestId, "preparing stub dir")
-    const stubDir = await prepareStubDir(requestId, privateSpec.repository_exercise.download_url)
+    debug("preparing stub dir")
+    const { stubDir, templateDir, paths } = await prepareStubDir(
+      privateSpec.repository_exercise.download_url,
+      log,
+    )
+    tempPaths.push(...paths)
     let publicSpec: PublicSpec
-    debug(requestId, "uploading public spec")
-    publicSpec = await uploadPublicSpec(
+    debug("uploading public spec")
+    const { spec, paths: uploadPaths } = await uploadPublicSpec(
       privateSpec.type,
-      requestId,
+      log,
+      debug,
       stubDir,
       privateSpec.repository_exercise,
       upload_url,
       uploadClaim,
     )
-    return ok(publicSpec)
-  } catch (err) {
-    return internalServerError(requestId, "Error while processing the public spec", err)
+    tempPaths.push(...uploadPaths)
+    publicSpec = spec
+    if (privateSpec.type === "browser") {
+      const browserTestResult = await buildBrowserTestScript(templateDir)
+      if ("script" in browserTestResult) {
+        publicSpec = {
+          ...publicSpec,
+          browser_test: { runtime: "python", script: browserTestResult.script },
+        }
+      } else {
+        debug("browser test script not generated:", browserTestResult.error)
+        publicSpec = {
+          ...publicSpec,
+          browser_test: { runtime: "python", script: "", error: browserTestResult.error },
+        }
+      }
+    }
+    return jsonOk(publicSpec)
+  } finally {
+    await Promise.allSettled(
+      tempPaths.map((p) => fsPromises.rm(p, { recursive: true, force: true })),
+    )
   }
 }
 
-const prepareStubDir = async (requestId: string, downloadUrl: string): Promise<string> => {
+const prepareStubDir = async (
+  downloadUrl: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+): Promise<{ stubDir: string; templateDir: string; paths: string[] }> => {
   const templateArchive = temporaryFile()
   await downloadStream(downloadUrl, templateArchive)
 
   const templateDir = temporaryDirectory()
-  debug("extracting template to", templateDir)
-  await extractProject(templateArchive, templateDir, makeLog(requestId))
+  log("extracting template to " + templateDir)
+  await extractProject(templateArchive, templateDir, log)
 
   const stubDir = temporaryDirectory()
-  debug("preparing stub to", stubDir)
-  await prepareStub(templateDir, stubDir, makeLog(requestId))
-  return stubDir
+  log("preparing stub to " + stubDir)
+  await prepareStub(templateDir, stubDir, log)
+
+  return { stubDir, templateDir, paths: [templateArchive, templateDir, stubDir] }
 }
 
 const uploadPublicSpec = async (
   type: "browser" | "editor",
-  requestId: string,
+  log: (message: string, ...optionalParams: unknown[]) => void,
+  debug: (message: string, ...optionalParams: unknown[]) => void,
   stubDir: string,
   exercise: RepositoryExercise,
   uploadUrl: string,
   uploadClaim: string | null,
-): Promise<PublicSpec> => {
-  log(requestId, "editor exercise")
+): Promise<{ spec: PublicSpec; paths: string[] }> => {
+  log("editor exercise")
   const stubArchive = temporaryFile()
-  debug(requestId, "compressing stub to", stubArchive)
-  const checksum = await compressProject(stubDir, stubArchive, "zstd", true, makeLog(requestId))
+  debug("compressing stub to", stubArchive)
+  const checksum = await compressProject(stubDir, stubArchive, "zstd", true, log)
 
-  debug(requestId, "uploading stub to", uploadUrl)
-  const form = new FormData()
   const archiveName = buildArchiveName(exercise)
-  form.append(archiveName, fs.createReadStream(stubArchive))
+  debug("uploading stub", "archiveName:", archiveName)
+  const form = new FormData()
+  form.append(archiveName, nodeFs.createReadStream(stubArchive))
   const headers: Record<string, string> = {}
   if (uploadClaim) {
     headers[EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER] = uploadClaim
   }
-  const res = await axios.post(uploadUrl, form, {
-    headers,
+  const res = await fetch(uploadUrl, {
+    method: "POST",
+    headers: { ...headers, ...form.getHeaders() },
+    body: form as unknown as RequestInit["body"],
   })
-  if (isObjectMap<string>(res.data)) {
-    const config = await getExercisePackagingConfiguration(stubDir, makeLog(requestId))
-    const archiveDownloadPath = res.data[archiveName]
+  if (!res.ok) {
+    throw new Error(`Upload failed: ${res.status} ${res.statusText}`)
+  }
+  const resData: unknown = await res.json()
+  if (
+    isObjectMap(isString)(resData) &&
+    Object.prototype.hasOwnProperty.call(resData, archiveName) &&
+    typeof resData[archiveName] === "string" &&
+    resData[archiveName].length > 0
+  ) {
+    const config = await getExercisePackagingConfiguration(stubDir, log)
+    const stub_download_url = resData[archiveName]
     return {
-      type,
-      archive_name: archiveName,
-      stub_download_url: archiveDownloadPath,
-      checksum,
-      student_file_paths: config.student_file_paths,
+      spec: {
+        type,
+        archive_name: archiveName,
+        stub_download_url,
+        checksum,
+        student_file_paths: config.student_file_paths,
+      },
+      paths: [stubArchive],
     }
-  } else {
-    throw new Error(`Unexpected response data: ${JSON.stringify(res.data)}`)
   }
-}
-
-// response helpers
-
-const ok = (publicSpec: PublicSpec): Response => {
-  return NextResponse.json(publicSpec, { status: 200 })
-}
-
-const badRequest = (requestId: string, contextMessage: string, error?: unknown): Response => {
-  return errorResponse(requestId, 400, contextMessage, error)
-}
-
-const internalServerError = (
-  requestId: string,
-  contextMessage: string,
-  error?: unknown,
-): Response => {
-  return errorResponse(requestId, 500, contextMessage, error)
-}
-
-const errorResponse = (
-  requestId: string,
-  statusCode: number,
-  contextMessage: string,
-  err?: unknown,
-): Response => {
-  let message
-  if (err instanceof Error) {
-    message = `${contextMessage}: ${err.message}`
-  } else if (typeof err === "string") {
-    message = `${contextMessage}: ${err}`
-  } else if (err === undefined) {
-    message = contextMessage
-  } else {
-    // unexpected type
-    message = `${contextMessage}: ${JSON.stringify(err, undefined, 2)}`
-  }
-  error(requestId, message)
-  return NextResponse.json({ message } as ClientErrorResponse, { status: statusCode })
-}
-
-// logging helpers
-
-const log = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
-  console.log(`[public-spec/${requestId}]`, message, ...optionalParams)
-}
-
-const debug = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
-  console.debug(`[public-spec/${requestId}]`, message, ...optionalParams)
-}
-
-const error = (requestId: string, message: string, ...optionalParams: unknown[]): void => {
-  console.error(`[public-spec/${requestId}]`, message, ...optionalParams)
-}
-
-const makeLog = (requestId: string): ((message: string, ...optionalParams: unknown[]) => void) => {
-  return (message, optionalParams) => log(requestId, message, optionalParams)
+  throw new Error(
+    `Unexpected response data: missing or invalid archive key "${archiveName}" — ${JSON.stringify(resData)}`,
+  )
 }

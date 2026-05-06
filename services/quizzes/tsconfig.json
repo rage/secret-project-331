@@ -9,7 +9,7 @@
     "jsx": "react-jsx",
     "lib": ["dom", "es2017", "ES6"],
     "typeRoots": ["types", "./shared-module/packages/common/src/types", "./node_modules/@types"],
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
     "strict": true,

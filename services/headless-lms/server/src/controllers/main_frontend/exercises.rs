@@ -2,7 +2,6 @@
 
 use std::collections::{HashMap, HashSet};
 
-use chrono::Utc;
 use futures::future;
 use serde_json::Value;
 use url::Url;
@@ -14,20 +13,35 @@ use models::{
     exercise_task_gradings::ExerciseTaskGrading, exercise_tasks::ExerciseTask,
     library::grading::AnswersRequiringAttention,
 };
+use utoipa::{OpenApi, ToSchema};
 
 use crate::{domain::models_requests, prelude::*};
 
 const EXERCISE_SERVICE_CSV_EXPORT_BATCH_SIZE: usize = 1000;
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_exercise,
+    get_exercise_submissions,
+    get_exercise_submissions_for_user,
+    get_exercise_csv_export_task_options,
+    export_exercise_task_definitions_csv,
+    export_exercise_task_answers_csv,
+    get_exercise_answers_requiring_attention,
+    get_exercises_by_course_id,
+    reset_exercises_for_selected_users
+))]
+pub(crate) struct MainFrontendExercisesApiDoc;
+
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExerciseSubmissions {
     pub data: Vec<ExerciseSlideSubmission>,
     pub total_pages: u32,
 }
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct ExerciseCsvExportTaskOption {
     pub exercise_task_id: Uuid,
     pub exercise_type: String,
@@ -39,6 +53,8 @@ pub struct ExerciseCsvExportTaskOption {
 #[derive(Debug, Deserialize)]
 pub struct ExerciseCsvExportQuery {
     pub exercise_task_id: Uuid,
+    #[serde(default)]
+    pub only_latest_per_user: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -325,6 +341,18 @@ fn csv_writer_into_bytes(writer: csv::Writer<Vec<u8>>) -> Result<Vec<u8>, Contro
 GET `/api/v0/main-frontend/exercises/:exercise_id` - Returns a single exercise.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}",
+    operation_id = "getExercise",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "Exercise", body = Exercise)
+    )
+)]
 async fn get_exercise(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -353,6 +381,20 @@ async fn get_exercise(
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions` - Returns an exercise's submissions.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/submissions",
+    operation_id = "getExerciseSubmissions",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Exercise submissions", body = ExerciseSubmissions)
+    )
+)]
 async fn get_exercise_submissions(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -394,6 +436,19 @@ async fn get_exercise_submissions(
 GET `/api/v0/main-frontend/exercises/:exercise_id/submissions/user/:user_id` - Returns an exercise's submissions for a user.
  */
 #[instrument(skip(pool, user))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/submissions/user/{user_id}",
+    operation_id = "getExerciseSubmissionsForUser",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("user_id" = Uuid, Path, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "Exercise submissions for user", body = [ExerciseSlideSubmission])
+    )
+)]
 async fn get_exercise_submissions_for_user(
     pool: web::Data<PgPool>,
     ids: web::Path<(Uuid, Uuid)>,
@@ -430,6 +485,18 @@ async fn get_exercise_submissions_for_user(
 GET `/api/v0/main-frontend/exercises/:exercise_id/csv-export-task-options` - Returns available exercise tasks and CSV export support flags for each task's exercise service.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/csv-export-task-options",
+    operation_id = "getExerciseCsvExportTaskOptions",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id")
+    ),
+    responses(
+        (status = 200, description = "Exercise CSV export task options", body = [ExerciseCsvExportTaskOption])
+    )
+)]
 async fn get_exercise_csv_export_task_options(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -498,6 +565,20 @@ async fn get_exercise_csv_export_task_options(
 GET `/api/v0/main-frontend/exercises/:exercise_id/export-definitions-csv` - Exports one exercise task definition as CSV using the task's exercise service.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/export-definitions-csv",
+    operation_id = "exportExerciseDefinitionsCsv",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("exercise_task_id" = Uuid, Query, description = "Exercise task id"),
+        ("only_latest_per_user" = Option<bool>, Query, description = "Only include latest submission per user")
+    ),
+    responses(
+        (status = 200, description = "Exercise definitions CSV", body = String, content_type = "text/csv")
+    )
+)]
 async fn export_exercise_task_definitions_csv(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -514,7 +595,6 @@ async fn export_exercise_task_definitions_csv(
         }
     };
 
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let tasks =
         models::exercise_tasks::get_exercise_tasks_by_exercise_id(&mut conn, *exercise_id).await?;
     let selected_task = get_selected_task(&tasks, query.exercise_task_id)?;
@@ -577,10 +657,8 @@ async fn export_exercise_task_definitions_csv(
 
     let csv_bytes = csv_writer_into_bytes(writer)?;
     let content_disposition = format!(
-        "attachment; filename=\"Exercise: {} - Definition task {} {}.csv\"",
-        exercise.name,
-        selected_task.order_number + 1,
-        Utc::now().format("%Y-%m-%d")
+        "attachment; filename=\"exercise-{}-definitions-{}.csv\"",
+        *exercise_id, selected_task.id
     );
 
     token.authorized_ok(
@@ -595,6 +673,20 @@ async fn export_exercise_task_definitions_csv(
 GET `/api/v0/main-frontend/exercises/:exercise_id/export-answers-csv` - Exports all answers for one exercise task as CSV using the task's exercise service.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/export-answers-csv",
+    operation_id = "exportExerciseAnswersCsv",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("exercise_task_id" = Uuid, Query, description = "Exercise task id"),
+        ("only_latest_per_user" = Option<bool>, Query, description = "Only include latest submission per user")
+    ),
+    responses(
+        (status = 200, description = "Exercise answers CSV", body = String, content_type = "text/csv")
+    )
+)]
 async fn export_exercise_task_answers_csv(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -611,7 +703,6 @@ async fn export_exercise_task_answers_csv(
         }
     };
 
-    let exercise = models::exercises::get_by_id(&mut conn, *exercise_id).await?;
     let tasks =
         models::exercise_tasks::get_exercise_tasks_by_exercise_id(&mut conn, *exercise_id).await?;
     let selected_task = get_selected_task(&tasks, query.exercise_task_id)?;
@@ -622,12 +713,21 @@ async fn export_exercise_task_answers_csv(
         get_csv_export_endpoint_path(&service_info.csv_export_answers_endpoint_path, "answers")?;
     let endpoint_url = build_service_endpoint_url(&exercise_service, &endpoint_path)?;
 
-    let export_data = models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task(
-        &mut conn,
-        *exercise_id,
-        selected_task.id,
-    )
-    .await?;
+    let export_data = if query.only_latest_per_user {
+        models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task_latest_per_user(
+            &mut conn,
+            *exercise_id,
+            selected_task.id,
+        )
+        .await?
+    } else {
+        models::exercise_task_submissions::get_csv_export_data_by_exercise_and_task(
+            &mut conn,
+            *exercise_id,
+            selected_task.id,
+        )
+        .await?
+    };
     let submission_ids = export_data
         .iter()
         .map(|submission| submission.exercise_task_submission_id)
@@ -784,10 +884,8 @@ async fn export_exercise_task_answers_csv(
 
     let csv_bytes = csv_writer_into_bytes(writer)?;
     let content_disposition = format!(
-        "attachment; filename=\"Exercise: {} - Answers task {} {}.csv\"",
-        exercise.name,
-        selected_task.order_number + 1,
-        Utc::now().format("%Y-%m-%d")
+        "attachment; filename=\"exercise-{}-answers-{}.csv\"",
+        *exercise_id, selected_task.id
     );
 
     token.authorized_ok(
@@ -802,6 +900,20 @@ async fn export_exercise_task_answers_csv(
 GET `/api/v0/main-frontend/exercises/:exercise_id/answers-requiring-attention` - Returns an exercise's answers requiring attention.
  */
 #[instrument(skip(pool))]
+#[utoipa::path(
+    get,
+    path = "/{exercise_id}/answers-requiring-attention",
+    operation_id = "getExerciseAnswersRequiringAttention",
+    tag = "exercises",
+    params(
+        ("exercise_id" = Uuid, Path, description = "Exercise id"),
+        ("page" = Option<i64>, Query, description = "Page number"),
+        ("limit" = Option<i64>, Query, description = "Page size")
+    ),
+    responses(
+        (status = 200, description = "Answers requiring attention", body = AnswersRequiringAttention)
+    )
+)]
 async fn get_exercise_answers_requiring_attention(
     pool: web::Data<PgPool>,
     exercise_id: web::Path<Uuid>,
@@ -831,6 +943,18 @@ async fn get_exercise_answers_requiring_attention(
 /**
 GET `/api/v0/main-frontend/exercises/:course_id/exercises-by-course-id` - Returns all exercises for a course with course_id
  */
+#[utoipa::path(
+    get,
+    path = "/{course_id}/exercises-by-course-id",
+    operation_id = "getExercisesByCourseId",
+    tag = "exercises",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Exercises by course id", body = [Exercise])
+    )
+)]
 pub async fn get_exercises_by_course_id(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -854,7 +978,7 @@ pub async fn get_exercises_by_course_id(
     token.authorized_ok(web::Json(exercises))
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, ToSchema)]
 pub struct ResetExercisesPayload {
     pub user_ids: Vec<Uuid>,
     pub exercise_ids: Vec<Uuid>,
@@ -866,6 +990,19 @@ pub struct ResetExercisesPayload {
 /**
 POST `/api/v0/main-frontend/exercises/:course_id/reset-exercises-for-selected-users` - Resets all selected exercises for selected users and then logs the resets to exercise_reset_logs table
  */
+#[utoipa::path(
+    post,
+    path = "/{course_id}/reset-exercises-for-selected-users",
+    operation_id = "resetExercisesForSelectedUsers",
+    tag = "exercises",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = ResetExercisesPayload,
+    responses(
+        (status = 200, description = "Number of successful resets", body = i32)
+    )
+)]
 pub async fn reset_exercises_for_selected_users(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
@@ -882,7 +1019,21 @@ pub async fn reset_exercises_for_selected_users(
     )
     .await?;
 
-    // Gets all valid users and their related exercises using the given filters
+    let requested_exercises =
+        models::exercises::get_non_deleted_by_ids(&mut conn, &payload.exercise_ids).await?;
+    if requested_exercises.len() != payload.exercise_ids.len()
+        || requested_exercises
+            .iter()
+            .any(|exercise| exercise.course_id != Some(*course_id))
+    {
+        return Err(controller_err!(
+            Forbidden,
+            "All exercises must belong to the requested course".to_string()
+        ));
+    }
+
+    // Gets all valid users and their related exercises using the given filters.
+    // This selects reset candidates, but course ownership is enforced above and in the scoped reset.
     let users_and_exercises = models::exercises::collect_user_ids_and_exercise_ids_for_reset(
         &mut conn,
         &payload.user_ids,
@@ -893,7 +1044,7 @@ pub async fn reset_exercises_for_selected_users(
     )
     .await?;
 
-    // Resets exercises for selected users and add the resets to a log
+    // Resets grouped user-exercise pairs to avoid cross-user cross-product resets.
     let reset_results = models::exercises::reset_exercises_for_selected_users(
         &mut conn,
         &users_and_exercises,

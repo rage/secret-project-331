@@ -22,6 +22,7 @@ use std::{
 
 #[derive(Clone, Debug, Default)]
 pub struct RateLimitConfig {
+    pub per_second: Option<u64>,
     pub per_minute: Option<u64>,
     pub per_hour: Option<u64>,
     pub per_day: Option<u64>,
@@ -37,6 +38,7 @@ struct EndpointLimiters {
     day: Option<Arc<Limiter>>,
     hour: Option<Arc<Limiter>>,
     minute: Option<Arc<Limiter>>,
+    second: Option<Arc<Limiter>>,
 }
 
 impl EndpointLimiters {
@@ -52,6 +54,9 @@ impl EndpointLimiters {
             minute: cfg
                 .per_minute
                 .and_then(|n| build_limiter(n, Quota::per_minute)),
+            second: cfg
+                .per_second
+                .and_then(|n| build_limiter(n, Quota::per_second)),
         }
     }
 
@@ -61,10 +66,15 @@ impl EndpointLimiters {
             .chain(self.day.iter())
             .chain(self.hour.iter())
             .chain(self.minute.iter())
+            .chain(self.second.iter())
     }
 
     fn is_empty(&self) -> bool {
-        self.minute.is_none() && self.hour.is_none() && self.day.is_none() && self.month.is_none()
+        self.second.is_none()
+            && self.minute.is_none()
+            && self.hour.is_none()
+            && self.day.is_none()
+            && self.month.is_none()
     }
 }
 
@@ -89,6 +99,24 @@ pub struct RateLimit {
 }
 
 impl RateLimit {
+    /// Global `/api/v0` limits aligned with nginx ingress `limit-rps` and `limit-rpm`; relaxed when `TEST_MODE` is set.
+    pub fn global_api_rate_limit_config(test_mode: bool) -> RateLimitConfig {
+        if test_mode {
+            RateLimitConfig {
+                per_second: Some(10000),
+                per_minute: Some(200000),
+                ..Default::default()
+            }
+        } else {
+            RateLimitConfig {
+                per_second: Some(20),
+                per_minute: Some(1000),
+                per_hour: Some(10000),
+                ..Default::default()
+            }
+        }
+    }
+
     pub fn new(cfg: RateLimitConfig) -> Self {
         Self {
             limiters: Arc::new(EndpointLimiters::from_config(&cfg)),
@@ -173,9 +201,7 @@ where
             let resp = HttpResponse::build(StatusCode::TOO_MANY_REQUESTS)
                 .insert_header((header::RETRY_AFTER, secs.to_string()))
                 .content_type("application/json")
-                .body(format!(
-                    r#"{{"error":"too_many_requests","retry_after_seconds":{secs}}}"#
-                ));
+                .body(r#"{"type":"rate_limit","message_key":"rate_limited","message":"Too many requests. Please try again later."}"#.to_string());
             return Box::pin(async move { Ok(req.into_response(resp).map_into_right_body()) });
         }
 
@@ -223,7 +249,21 @@ mod tests {
             per_hour,
             per_day,
             per_month,
+            ..Default::default()
         })
+    }
+
+    #[actix_web::test]
+    async fn global_api_rate_limit_config_uses_test_mode_argument() {
+        let test_cfg = RateLimit::global_api_rate_limit_config(true);
+        assert_eq!(test_cfg.per_second, Some(10000));
+        assert_eq!(test_cfg.per_minute, Some(200000));
+        assert_eq!(test_cfg.per_hour, None);
+
+        let production_cfg = RateLimit::global_api_rate_limit_config(false);
+        assert_eq!(production_cfg.per_second, Some(20));
+        assert_eq!(production_cfg.per_minute, Some(1000));
+        assert_eq!(production_cfg.per_hour, Some(10000));
     }
 
     async fn call_get<S>(
@@ -373,13 +413,11 @@ mod tests {
 
         let bytes = test::read_body(blocked).await;
         let body = std::str::from_utf8(&bytes).unwrap();
-        assert!(
-            body.contains(r#""error":"too_many_requests""#),
-            "body={body}"
-        );
+        assert!(body.contains(r#""type":"rate_limit""#), "body={body}");
         let v: serde_json::Value = serde_json::from_str(body).unwrap();
-        assert_eq!(v["error"], "too_many_requests");
-        assert!(v["retry_after_seconds"].as_u64().is_some());
+        assert_eq!(v["type"], "rate_limit");
+        assert_eq!(v["message_key"], "rate_limited");
+        assert!(v.get("retry_after").is_none());
     }
 
     #[actix_web::test]

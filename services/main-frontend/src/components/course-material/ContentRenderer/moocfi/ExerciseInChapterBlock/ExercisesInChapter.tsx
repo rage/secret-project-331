@@ -6,7 +6,7 @@ import React from "react"
 
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
-import { fetchChaptersPagesWithExercises } from "@/services/course-material/backend"
+import { getCourseMaterialChapterPagesWithExercisesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 
@@ -14,8 +14,11 @@ const ExercisesInChapter: React.FC<
   React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
 > = ({ chapterId, courseInstanceId }) => {
   const getChaptersPagesWithExercises = useQuery({
-    queryKey: [`chapter-${chapterId}-pages-with-exercises`],
-    queryFn: () => fetchChaptersPagesWithExercises(chapterId),
+    ...getCourseMaterialChapterPagesWithExercisesOptions({
+      path: {
+        chapter_id: chapterId,
+      },
+    }),
   })
   const params = useParams<{ organizationSlug: string; courseSlug: string }>()
   const courseSlug = params?.courseSlug

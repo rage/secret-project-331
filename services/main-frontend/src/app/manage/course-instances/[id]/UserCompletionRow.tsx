@@ -6,10 +6,10 @@ import React, { JSX } from "react"
 import { useTranslation } from "react-i18next"
 
 import { FullWidthTableRow } from "@/components/tables/FullWidthTable"
-import {
+import type {
   CourseModule,
   CourseModuleCompletionWithRegistrationInfo,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api/types.generated"
 
 export interface UserCompletionRowProps {
   sortedCourseModules: Array<CourseModule>

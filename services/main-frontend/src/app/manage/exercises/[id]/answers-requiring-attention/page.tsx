@@ -9,9 +9,9 @@ import { useTranslation } from "react-i18next"
 import AnswersRequiringAttentionList from "../submissions/AnswersRequiringAttentionList"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
-import { fetchAnswersRequiringAttention } from "@/services/backend/answers-requiring-attention"
 import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
@@ -20,6 +20,9 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+
+const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
+const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50
 
 const ExerciseTitle = ({ children }: { children: React.ReactNode }) => (
   <h5
@@ -41,7 +44,7 @@ const SubmissionsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const exerciseQuery = useExerciseQuery(id)
-  const paginationInfo = usePaginationInfo()
+  const paginationInfo = usePaginationInfo(ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT)
   const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
 
   const crumbs = useMemo(
@@ -71,12 +74,15 @@ const SubmissionsPage: React.FC = () => {
   }, [courseStructure.data, exerciseQuery.data])
 
   const answersQuery = useQuery({
-    queryKey: [
-      `exercises-${id}-answers-requiring-attention`,
-      paginationInfo.page,
-      paginationInfo.limit,
-    ],
-    queryFn: () => fetchAnswersRequiringAttention(id, paginationInfo.page, paginationInfo.limit),
+    ...getExerciseAnswersRequiringAttentionOptions({
+      path: {
+        exercise_id: id,
+      },
+      query: {
+        page: paginationInfo.page,
+        limit: paginationInfo.limit,
+      },
+    }),
   })
 
   if (courseStructure.isLoading) {
@@ -131,7 +137,11 @@ const SubmissionsPage: React.FC = () => {
             courseId={exerciseQuery.data?.course_id ?? null}
             refetch={answersQuery.refetch}
           />
-          <Pagination totalPages={answersQuery.data?.total_pages} paginationInfo={paginationInfo} />
+          <Pagination
+            totalPages={answersQuery.data?.total_pages}
+            paginationInfo={paginationInfo}
+            itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
+          />
         </AccordionProvider>
       )}
     </div>

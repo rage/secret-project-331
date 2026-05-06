@@ -11,6 +11,7 @@ import playwright from "eslint-plugin-playwright"
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import react from "eslint-plugin-react"
 import reactHooks from "eslint-plugin-react-hooks"
+import storybook from "eslint-plugin-storybook"
 import globals from "globals"
 
 const DETECT_CSS_REGEX = /:.*;/
@@ -37,11 +38,16 @@ const baseIgnorePatterns = [
   "**/playwright-report/**",
   "**/storybook-static/**",
   "**/services/main-frontend/public/monaco-editor/**",
+  "**/services/tmc/public/pyodide/**",
+  "**/services/main-frontend/src/generated/**",
+  "**/services/cms/src/generated/**",
+  "**/shared-module/packages/common/src/generated/**",
   "**/.venv/**",
   "**/generated-docs/**",
   "**/GutenbergBlockAttributes.ts",
   "**/*.guard.ts",
   "**/DeprecatedGutenbergBlockAttributes.ts",
+  "**/*.generated.*",
 ]
 
 const getIgnorePatterns = (prefix = "") =>
@@ -179,6 +185,10 @@ const config = [
         {
           paths: [
             {
+              name: "axios",
+              message: "Use fetch or generated @hey-api/client-fetch clients instead of axios.",
+            },
+            {
               name: "@emotion/react",
               importNames: ["css"],
               message: 'Use "@emotion/css" instead.',
@@ -214,7 +224,7 @@ const config = [
     },
   },
   {
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.cjs"],
     rules: {
       "@typescript-eslint/no-require-imports": "off",
     },
@@ -425,6 +435,8 @@ const config = [
       "**/*.test.tsx",
       "**/*.test.ts",
       "storybook/**/*",
+      "**/*.stories.*",
+      "**/*.story.*",
       "shared-module/packages/create-exercise-service/**/*",
     ],
     rules: { "i18next/no-literal-string": "off" },
@@ -486,6 +498,7 @@ const config = [
       "@typescript-eslint/triple-slash-reference": "off",
     },
   },
+  ...storybook.configs["flat/recommended"],
 ]
 
 export default config

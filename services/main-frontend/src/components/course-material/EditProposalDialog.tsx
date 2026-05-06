@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next"
 
 import { FEEDBACK_DIALOG_CONTENT_ID } from "./SelectionListener"
 
-import { postProposedEdits } from "@/services/course-material/backend"
-import { NewProposedBlockEdit } from "@/shared-module/common/bindings"
+import { postCourseMaterialProposedEdits } from "@/generated/course-material-api/sdk.generated"
+import type { NewProposedBlockEdit } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
@@ -50,7 +50,12 @@ const EditProposalDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId
 
   const mutation = useToastMutation(
     (block_edits: NewProposedBlockEdit[]) => {
-      return postProposedEdits(courseId, { page_id: pageId, block_edits })
+      return postCourseMaterialProposedEdits({
+        body: { page_id: pageId, block_edits },
+        path: {
+          course_id: courseId,
+        },
+      })
     },
     {
       notify: true,

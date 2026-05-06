@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct TeacherGradingDecision {
     pub id: Uuid,
     pub user_exercise_state_id: Uuid,
@@ -16,8 +17,7 @@ pub struct TeacherGradingDecision {
     pub hidden: Option<bool>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "teacher_decision_type", rename_all = "kebab-case")]
 pub enum TeacherDecisionType {
     FullPoints,
@@ -27,8 +27,8 @@ pub enum TeacherDecisionType {
     RejectAndReset,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewTeacherGradingDecision {
     pub user_exercise_state_id: Uuid,
     pub exercise_id: Uuid,
@@ -70,6 +70,56 @@ RETURNING id,
   hidden;
       "#,
         user_exercise_state_id,
+        action as TeacherDecisionType,
+        score_given,
+        decision_maker_user_id,
+        justification,
+        hidden
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+#[allow(clippy::too_many_arguments)]
+pub async fn upsert_by_state_id_and_exercise_id(
+    conn: &mut PgConnection,
+    user_exercise_state_id: Uuid,
+    exercise_id: Uuid,
+    action: TeacherDecisionType,
+    score_given: f32,
+    decision_maker_user_id: Option<Uuid>,
+    justification: Option<String>,
+    hidden: bool,
+) -> ModelResult<TeacherGradingDecision> {
+    let res = sqlx::query_as!(
+        TeacherGradingDecision,
+        r#"
+INSERT INTO teacher_grading_decisions (
+    user_exercise_state_id,
+    teacher_decision,
+    score_given,
+    user_id,
+    justification,
+    hidden
+)
+SELECT ues.id, $3, $4, $5, $6, $7
+FROM user_exercise_states ues
+WHERE ues.id = $1
+  AND ues.exercise_id = $2
+  AND ues.deleted_at IS NULL
+RETURNING id,
+  user_exercise_state_id,
+  created_at,
+  updated_at,
+  deleted_at,
+  score_given,
+  teacher_decision AS "teacher_decision: _",
+  justification,
+  hidden;
+      "#,
+        user_exercise_state_id,
+        exercise_id,
         action as TeacherDecisionType,
         score_given,
         decision_maker_user_id,

@@ -12,8 +12,8 @@ import EditReferenceDialog from "./EditReferenceDialog"
 import NewReferenceDialog from "./NewReferenceDialog"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
-import { fetchCourseReferences } from "@/services/backend/courses"
-import { MaterialReference } from "@/shared-module/common/bindings"
+import { getCourseReferencesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { MaterialReference } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
@@ -38,8 +38,11 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
   const [showEditReferenceModal, setShowEditReferenceModal] = useState(false)
   const [reference, setReference] = useState<MaterialReference | null>(null)
   const getCourseReferences = useQuery({
-    queryKey: [`course-${courseId}-references`],
-    queryFn: () => fetchCourseReferences(courseId),
+    ...getCourseReferencesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
   })
 
   return (

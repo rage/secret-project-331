@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 
 import ChapterGridCard from "./ChapterGridCard"
 
-import { ChapterWithStatus } from "@/shared-module/common/bindings"
+import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { cardMaxWidth } from "@/shared-module/common/styles/constants"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { stringToRandomNumber } from "@/shared-module/common/utils/strings"

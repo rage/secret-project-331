@@ -6,8 +6,8 @@ import { parseISO } from "date-fns"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchHistoryForPage } from "@/services/backend/pages"
-import { PageHistory } from "@/shared-module/common/bindings"
+import { getPageHistoryOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { PageHistory } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -32,8 +32,15 @@ const HistoryPage: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const { t } = useTranslation()
   const getPageHistory = useQuery({
-    queryKey: [`page-history-${pageId}-${page}-${limit}`],
-    queryFn: () => fetchHistoryForPage(pageId, page, limit),
+    ...getPageHistoryOptions({
+      path: {
+        page_id: pageId,
+      },
+      query: {
+        page,
+        limit,
+      },
+    }),
   })
 
   if (getPageHistory.isError) {

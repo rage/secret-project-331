@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use futures::{Stream, future::BoxFuture};
 use serde_json::Value;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId,
@@ -16,8 +17,8 @@ use crate::{
     prelude::*,
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseTaskSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -31,8 +32,8 @@ pub struct ExerciseTaskSubmission {
     pub metadata: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerOrSelfReviewsReceived {
     pub peer_or_self_review_questions: Vec<PeerOrSelfReviewQuestion>,
     pub peer_or_self_review_question_submissions: Vec<PeerOrSelfReviewQuestionSubmission>,
@@ -40,7 +41,7 @@ pub struct PeerOrSelfReviewsReceived {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct SubmissionData {
     pub exercise_id: Uuid,
     pub course_id: Uuid,
@@ -54,7 +55,7 @@ pub struct SubmissionData {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExportedSubmission {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -66,7 +67,7 @@ pub struct ExportedSubmission {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct ExportedCourseSubmission {
     pub exercise_slide_submission_id: Uuid,
     pub id: Uuid,
@@ -219,6 +220,49 @@ SELECT ets.exercise_slide_submission_id,
   ets.data_json AS answer
 FROM exercise_task_submissions ets
   JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+WHERE ess.exercise_id = $1
+  AND ets.exercise_task_id = $2
+  AND ess.deleted_at IS NULL
+  AND ets.deleted_at IS NULL
+ORDER BY ets.created_at ASC
+        "#,
+        exercise_id,
+        exercise_task_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
+/// Fetches CSV-exportable rows for the latest submission per user only, ordered by submitted_at.
+pub async fn get_csv_export_data_by_exercise_and_task_latest_per_user(
+    conn: &mut PgConnection,
+    exercise_id: Uuid,
+    exercise_task_id: Uuid,
+) -> ModelResult<Vec<ExerciseTaskSubmissionCsvExportData>> {
+    let submissions = sqlx::query_as!(
+        ExerciseTaskSubmissionCsvExportData,
+        r#"
+WITH latest AS (
+  SELECT DISTINCT ON (ess.user_id) ets.id AS exercise_task_submission_id
+  FROM exercise_task_submissions ets
+  JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+  WHERE ess.exercise_id = $1
+    AND ets.exercise_task_id = $2
+    AND ess.deleted_at IS NULL
+    AND ets.deleted_at IS NULL
+  ORDER BY ess.user_id, ets.created_at DESC
+)
+SELECT ets.exercise_slide_submission_id,
+  ets.id AS exercise_task_submission_id,
+  ets.exercise_task_id,
+  ess.exercise_id,
+  ess.user_id,
+  ets.created_at AS submitted_at,
+  ets.data_json AS answer
+FROM exercise_task_submissions ets
+JOIN exercise_slide_submissions ess ON ets.exercise_slide_submission_id = ess.id
+JOIN latest ON latest.exercise_task_submission_id = ets.id
 WHERE ess.exercise_id = $1
   AND ets.exercise_task_id = $2
   AND ess.deleted_at IS NULL

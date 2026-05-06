@@ -3,8 +3,9 @@
 /* eslint-disable i18next/no-literal-string */
 import { useQuery, UseQueryResult } from "@tanstack/react-query"
 
-import { ActionOnResource } from "../bindings"
-import { authorizeMultiple } from "../services/backend/auth"
+import { ActionOnResource } from "../authApiTypes"
+import { postAuthAuthorizeMultiple } from "../generated/auth-api/sdk.generated"
+import "../init/registerAuthApiClients"
 
 /**
  * Can be used to authorize multiple actions at once. Use this only for optimization purposes. If you wish to authorize only one action, use `OnlyRenderIfPermissions` instead.
@@ -24,7 +25,7 @@ export default function useAuthorizeMultiple(
   const res = useQuery({
     queryKey: [key, requests],
     queryFn: () => {
-      return authorizeMultiple(requests)
+      return postAuthAuthorizeMultiple({ body: requests })
     },
     gcTime: 15 * 60 * 1000,
     enabled: requests.length > 0,

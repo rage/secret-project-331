@@ -2,12 +2,14 @@
 
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import React, { ComponentType, useContext, useEffect, useState } from "react"
+import React, { ComponentType, useContext, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "../components/ErrorBanner"
 import Spinner from "../components/Spinner"
-import { loggedIn } from "../services/backend/auth"
+import { clearPendingErrorReports } from "../errors/reportErrorOccurrence"
+import { getAuthLoggedInOptions } from "../generated/auth-api/@tanstack/react-query.generated"
+import "../init/registerAuthApiClients"
 
 export interface LoginState {
   isLoading: boolean
@@ -29,7 +31,15 @@ export default LoginStateContext
 
 export const LoginStateContextProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [loginState, setLoginState] = useState(defaultLoginState)
-  const isLoggedIn = useQuery({ queryKey: [`logged-in`], queryFn: loggedIn })
+  const isLoggedIn = useQuery(getAuthLoggedInOptions())
+  const prevSignedIn = useRef<boolean | null | undefined>(undefined)
+
+  useEffect(() => {
+    if (prevSignedIn.current === true && isLoggedIn.data === false) {
+      clearPendingErrorReports()
+    }
+    prevSignedIn.current = isLoggedIn.data
+  }, [isLoggedIn.data])
 
   useEffect(() => {
     setLoginState((prev) => ({

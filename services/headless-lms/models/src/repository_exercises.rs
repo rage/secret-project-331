@@ -1,9 +1,8 @@
 use crate::prelude::*;
-#[cfg(feature = "ts_rs")]
-use ts_rs::TS;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, ToSchema)]
+
 pub struct RepositoryExercise {
     pub id: Uuid,
     pub repository_id: Uuid,

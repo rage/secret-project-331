@@ -2,9 +2,10 @@ use crate::{
     course_instances::CourseInstance, course_module_completions::CourseModuleCompletion,
     courses::Course, prelude::*, user_course_settings::UserCourseSettings,
 };
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseInstanceEnrollment {
     pub user_id: Uuid,
     pub course_id: Uuid,
@@ -15,7 +16,7 @@ pub struct CourseInstanceEnrollment {
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct CourseInstanceEnrollmentsInfo {
     pub course_instance_enrollments: Vec<CourseInstanceEnrollment>,
     pub course_instances: Vec<CourseInstance>,
@@ -24,8 +25,8 @@ pub struct CourseInstanceEnrollmentsInfo {
     pub course_module_completions: Vec<CourseModuleCompletion>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseEnrollmentInfo {
     pub course_id: Uuid,
     pub course: Course,
@@ -36,8 +37,8 @@ pub struct CourseEnrollmentInfo {
     pub is_current: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseEnrollmentsInfo {
     pub course_enrollments: Vec<CourseEnrollmentInfo>,
 }
@@ -145,6 +146,28 @@ WHERE user_id = $1
   AND deleted_at IS NULL
         ",
         user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_user_id_and_course_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<CourseInstanceEnrollment>> {
+    let res = sqlx::query_as!(
+        CourseInstanceEnrollment,
+        "
+SELECT *
+FROM course_instance_enrollments
+WHERE user_id = $1
+  AND course_id = ANY($2)
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        course_ids
     )
     .fetch_all(conn)
     .await?;

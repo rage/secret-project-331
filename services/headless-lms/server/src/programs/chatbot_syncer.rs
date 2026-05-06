@@ -5,13 +5,15 @@ use std::{
 };
 
 use chrono::Utc;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 use sqlx::{PgConnection, PgPool};
 use url::Url;
 use uuid::Uuid;
 
+use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_chatbot::{
     azure_blob_storage::AzureBlobClient,
     azure_datasources::{create_azure_datasource, does_azure_datasource_exist},
@@ -26,11 +28,9 @@ use headless_lms_chatbot::{
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
     chapters::DatabaseChapter,
-    page_history::PageHistory,
     pages::{Page, PageVisibility},
 };
 use headless_lms_utils::{
-    ApplicationConfiguration,
     document_schema_processor::{GutenbergBlock, remove_sensitive_attributes},
     url_encoding::url_encode,
 };
@@ -98,15 +98,14 @@ struct SyncerConfig {
 }
 
 async fn initialize_configuration() -> anyhow::Result<SyncerConfig> {
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
-
-    let base_url = Url::parse(&env::var("BASE_URL").expect("BASE_URL must be defined"))
-        .expect("BASE_URL must be a valid URL");
+    let database_url = ProgramConfig::database_url_with_default();
+    let base_url_raw = ProgramConfig::required("BASE_URL")?;
+    let base_url =
+        Url::parse(&base_url_raw).map_err(|e| anyhow::anyhow!("invalid BASE_URL: {}", e))?;
 
     let name = base_url
         .host_str()
-        .expect("BASE_URL must have a host")
+        .ok_or_else(|| anyhow::anyhow!("BASE_URL must have a host"))?
         .replace(".", "-");
 
     let app_configuration = ApplicationConfiguration::try_from_env()?;
@@ -160,8 +159,8 @@ async fn sync_pages(
         )
         .await?;
 
-    let latest_histories =
-        headless_lms_models::page_history::get_latest_history_entries_for_pages_by_course_ids(
+    let latest_history_ids =
+        headless_lms_models::page_history::get_latest_page_history_ids_by_course_ids(
             conn,
             &course_ids,
         )
@@ -202,9 +201,11 @@ async fn sync_pages(
                     return false;
                 }
 
-                let is_outdated = latest_histories
+                let is_outdated = latest_history_ids
                     .get(&status.page_id)
-                    .is_some_and(|history| status.synced_page_revision_id != Some(history.id));
+                    .is_some_and(|history_id| {
+                        status.synced_page_revision_id != Some(*history_id)
+                    });
 
                 if !is_outdated {
                     return false;
@@ -266,7 +267,7 @@ async fn sync_pages(
                 blob_client,
                 &base_url,
                 &config.app_configuration,
-                &latest_histories,
+                &latest_history_ids,
             )
             .await?;
         } else {
@@ -335,7 +336,7 @@ async fn sync_pages_batch(
     blob_client: &AzureBlobClient,
     base_url: &Url,
     app_config: &ApplicationConfiguration,
-    latest_histories: &HashMap<Uuid, PageHistory>,
+    latest_history_ids: &HashMap<Uuid, Uuid>,
 ) -> anyhow::Result<()> {
     let course_id = pages
         .first()
@@ -475,9 +476,9 @@ async fn sync_pages_batch(
                     page.id, db_err
                 );
             }
-        } else if let Some(history_id) = latest_histories.get(&page.id) {
+        } else if let Some(history_id) = latest_history_ids.get(&page.id) {
             let mut page_revision_map = HashMap::new();
-            page_revision_map.insert(page.id, history_id.id);
+            page_revision_map.insert(page.id, *history_id);
             if let Err(e) =
                 headless_lms_models::chatbot_page_sync_statuses::update_page_revision_ids(
                     conn,

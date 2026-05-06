@@ -4,6 +4,7 @@ use chrono::NaiveDate;
 use futures::future::BoxFuture;
 use rand::prelude::SliceRandom;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     CourseOrExamId,
@@ -19,7 +20,7 @@ use crate::{
 };
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct AnswerRequiringAttention {
     pub id: Uuid,
     pub user_id: Uuid,
@@ -33,7 +34,7 @@ pub struct AnswerRequiringAttention {
     pub exercise_id: Uuid,
 }
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+
 pub struct NewExerciseSlideSubmission {
     pub exercise_slide_id: Uuid,
     pub course_id: Option<Uuid>,
@@ -43,8 +44,8 @@ pub struct NewExerciseSlideSubmission {
     pub user_points_update_strategy: UserPointsUpdateStrategy,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmission {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -71,8 +72,8 @@ impl ExerciseSlideSubmission {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseAnswersInCourseRequiringAttentionCount {
     pub id: Uuid,
     pub name: String,
@@ -82,31 +83,31 @@ pub struct ExerciseAnswersInCourseRequiringAttentionCount {
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionCount {
     pub date: Option<NaiveDate>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionCountByExercise {
     pub exercise_id: Uuid,
     pub count: Option<i32>,
     pub exercise_name: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionCountByWeekAndHour {
     pub isodow: Option<i32>,
     pub hour: Option<i32>,
     pub count: Option<i32>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionInfo {
     pub tasks: Vec<CourseMaterialExerciseTask>,
     pub exercise: Exercise,
@@ -114,8 +115,8 @@ pub struct ExerciseSlideSubmissionInfo {
     pub user_exercise_state: Option<UserExerciseState>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionAndUserExerciseState {
     pub exercise: Exercise,
     pub exercise_slide_submission: ExerciseSlideSubmission,
@@ -124,8 +125,8 @@ pub struct ExerciseSlideSubmissionAndUserExerciseState {
     pub user_exam_enrollment: ExamEnrollment,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct ExerciseSlideSubmissionAndUserExerciseStateList {
     pub data: Vec<ExerciseSlideSubmissionAndUserExerciseState>,
     pub total_pages: u32,
@@ -238,6 +239,44 @@ WHERE id = $1
     .fetch_one(conn)
     .await?;
     Ok(exercise_slide_submission)
+}
+
+pub async fn get_by_course_id_and_user_ids_and_exercise_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT ess.id,
+  ess.created_at,
+  ess.updated_at,
+  ess.deleted_at,
+  ess.exercise_slide_id,
+  ess.course_id,
+  ess.exam_id,
+  ess.exercise_id,
+  ess.user_id,
+  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.flag_count
+FROM exercise_slide_submissions ess
+  JOIN exercises e ON e.id = ess.exercise_id
+WHERE ess.course_id = $1
+  AND e.course_id = $1
+  AND ess.user_id = ANY($2)
+  AND ess.exercise_id = ANY($3)
+  AND ess.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+        "#,
+        course_id,
+        user_ids,
+        exercise_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
 }
 
 /// Returns a map of exercise_slide_submission id -> user_id for the given submission ids.

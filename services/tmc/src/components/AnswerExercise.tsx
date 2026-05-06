@@ -8,6 +8,7 @@ import AnswerEditorExercise from "./AnswerEditorExercise"
 
 import { UploadResultMessage } from "@/shared-module/common/exercise-service-protocol-types"
 import { RunResult } from "@/tmc/cli"
+import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import { ExerciseIframeState, PublicSpec, UserAnswer } from "@/util/stateInterfaces"
 
 interface Props {
@@ -17,6 +18,7 @@ interface Props {
   testRequestResponse: RunResult | null
   sendFileUploadMessage: (filename: string, file: File) => void
   fileUploadResponse: UploadResultMessage | null
+  grading?: ExerciseTaskGradingResult | null
 }
 
 const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
@@ -26,6 +28,7 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
   testRequestResponse,
   sendFileUploadMessage,
   fileUploadResponse,
+  grading,
 }) => {
   // student exercise view
   if (userAnswer.type === "browser") {
@@ -35,6 +38,8 @@ const AnswerExercise: React.FC<React.PropsWithChildren<Props>> = ({
         initialState={userAnswer.files}
         testRequestResponse={testRequestResponse}
         setState={setState}
+        grading={grading}
+        readOnly={grading != null}
       />
     )
   } else if (userAnswer.type === "editor") {

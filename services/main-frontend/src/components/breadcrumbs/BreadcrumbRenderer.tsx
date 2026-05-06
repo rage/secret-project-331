@@ -4,17 +4,18 @@ import { css, cx } from "@emotion/css"
 import { useAtomValue } from "jotai"
 import { useRef } from "react"
 import { useBreadcrumbItem, useBreadcrumbs } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import { breadcrumbCrumbsAtom, type Crumb } from "./breadcrumbAtoms"
 
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 
 const MARKER = "›"
-const ARIA_LABEL_BREADCRUMB = "Breadcrumb"
-const ARIA_LABEL_LOADING = "Loading"
 const ARIA_CURRENT_PAGE = "page"
 
 function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean }) {
+  const { t } = useTranslation()
   const ref = useRef<HTMLAnchorElement>(null)
   const label = crumb.isLoading ? "" : crumb.label
   const href = crumb.isLoading ? undefined : (crumb.href ?? undefined)
@@ -23,7 +24,12 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
   if (crumb.isLoading) {
     return (
       <li className={breadcrumbItem}>
-        <span className={cx(breadcrumbText, skeletonLoader)} aria-label={ARIA_LABEL_LOADING} />
+        <span
+          className={cx(breadcrumbText, skeletonLoader)}
+          data-testid={LOADING_SPINNER_TEST_ID}
+          role="status"
+          aria-label={t("loading")}
+        />
         {!isCurrent && (
           <span className={breadcrumbArrow} aria-hidden="true">
             {MARKER}
@@ -64,8 +70,9 @@ function BreadcrumbItem({ crumb, isCurrent }: { crumb: Crumb; isCurrent: boolean
 }
 
 export default function BreadcrumbRenderer() {
+  const { t } = useTranslation()
   const items = useAtomValue(breadcrumbCrumbsAtom)
-  const { navProps } = useBreadcrumbs({ "aria-label": ARIA_LABEL_BREADCRUMB })
+  const { navProps } = useBreadcrumbs({ "aria-label": t("aria-label-breadcrumb") })
 
   if (!items.length) {
     return null

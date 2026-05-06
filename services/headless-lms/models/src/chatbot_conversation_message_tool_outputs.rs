@@ -1,7 +1,7 @@
 use crate::{chatbot_conversation_message_tool_calls::ToolKind, prelude::*};
+use utoipa::ToSchema;
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
 pub struct ChatbotConversationMessageToolOutput {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

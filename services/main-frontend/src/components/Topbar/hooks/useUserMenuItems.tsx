@@ -1,12 +1,12 @@
 "use client"
 
-import { useQueryClient } from "@tanstack/react-query"
 import { ReactElement, useContext, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { logout } from "@/shared-module/common/services/backend/auth"
+import useLogout from "@/shared-module/common/hooks/useLogout"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { userSettingsRoute } from "@/shared-module/common/utils/routes"
 
 export interface UserMenuItem {
@@ -46,7 +46,7 @@ export function useUserMenuItems({
 }: UseUserMenuItemsProps = {}): UseUserMenuItemsResult {
   const { t } = useTranslation()
   const loginStateContext = useContext(LoginStateContext)
-  const queryClient = useQueryClient()
+  const { logout } = useLogout()
   const userDetails = useUserDetails()
 
   const displayName = useMemo(() => {
@@ -96,11 +96,6 @@ export function useUserMenuItems({
 
   const submitLogout = async () => {
     await logout()
-    queryClient.removeQueries()
-    await loginStateContext.refresh()
-    setTimeout(() => {
-      queryClient.refetchQueries()
-    }, 100)
     onMenuClose?.()
   }
 

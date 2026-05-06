@@ -3,10 +3,10 @@
 import EssayPeerOrSelfReviewQuestion from "./EssayPeerOrSelfReviewQuestion"
 import ScalePeerOrSelfReviewQuestion from "./ScalePeerOrSelfReviewQuestion"
 
-import {
+import type {
   CourseMaterialPeerOrSelfReviewQuestionAnswer,
   PeerOrSelfReviewQuestion,
-} from "@/shared-module/common/bindings"
+} from "@/generated/course-material-api/types.generated"
 
 export interface PeerOrSelfReviewQuestionProps {
   peerOrSelfReviewQuestion: PeerOrSelfReviewQuestion

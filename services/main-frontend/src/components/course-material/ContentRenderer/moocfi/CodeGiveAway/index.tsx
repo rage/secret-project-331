@@ -1,7 +1,7 @@
 "use client"
 
 import styled from "@emotion/styled"
-import { useQuery } from "@tanstack/react-query"
+import { skipToken, useQuery } from "@tanstack/react-query"
 import { useContext } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -10,14 +10,15 @@ import { BlockRendererProps } from "../.."
 import ClaimCode from "./ClaimCode"
 
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
-import { getCodeGiveawayStatus } from "@/services/course-material/backend"
+import { getCodeGiveawayStatus } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 interface CodeGiveawayBlockProps {
   code_giveaway_id: string | undefined | null
 }
+
+const CODE_GIVEAWAY_STATUS_QUERY_KEY = "codeGiveawayStatus"
 
 const Wrapper = styled.div`
   border: 1px solid #ccc;
@@ -34,9 +35,16 @@ const CodeGiveawayBlock: React.FC<
   const codeGiveawayId = props.data.attributes.code_giveaway_id
 
   const codeGiveawayStatusQuery = useQuery({
-    queryKey: ["fetchCodeGiveawayStatus", codeGiveawayId],
-    queryFn: () => getCodeGiveawayStatus(assertNotNullOrUndefined(codeGiveawayId)),
-    enabled: Boolean(!!codeGiveawayId && loginContext.signedIn),
+    queryKey: [CODE_GIVEAWAY_STATUS_QUERY_KEY, codeGiveawayId] as const,
+    queryFn: codeGiveawayId
+      ? () =>
+          getCodeGiveawayStatus({
+            path: {
+              id: codeGiveawayId,
+            },
+          })
+      : skipToken,
+    enabled: Boolean(codeGiveawayId && loginContext.signedIn),
   })
 
   if (!codeGiveawayId) {

@@ -1,7 +1,7 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "reasoning_effort_level", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum ReasoningEffortLevel {
@@ -13,8 +13,7 @@ pub enum ReasoningEffortLevel {
     Xhigh,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type, ToSchema)]
 #[sqlx(type_name = "verbosity_level", rename_all = "snake_case")]
 #[serde(rename_all = "snake_case")]
 pub enum VerbosityLevel {
@@ -23,8 +22,7 @@ pub enum VerbosityLevel {
     High,
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
 pub struct ChatbotConfiguration {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -89,8 +87,8 @@ impl Default for ChatbotConfiguration {
     }
 }
 
-#[derive(Clone, PartialEq, Deserialize, Serialize, Debug)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Clone, PartialEq, Deserialize, Serialize, Debug, ToSchema)]
+
 pub struct NewChatbotConf {
     pub course_id: Uuid,
     pub enabled_to_students: bool,

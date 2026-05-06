@@ -1,12 +1,11 @@
+const path = require("path")
+
 const externallyEmbeddableIFrameResponseHeaders =
   require("./src/shared-module/common/utils/responseHeaders").externallyEmbeddableIFrameResponseHeaders
 const svgoConfig = require("./src/shared-module/common/utils/svgoConfig")
 
 /** @type {import('next').NextConfig} */
 const config = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   async headers() {
     return [
       {
@@ -16,7 +15,7 @@ const config = {
     ]
   },
   output: "standalone",
-  outputFileTracingRoot: ".",
+  outputFileTracingRoot: path.resolve(__dirname),
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/i,

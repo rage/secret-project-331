@@ -1,23 +1,6 @@
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::env;
-use std::error::Error;
 use tokio::sync::Mutex;
-use tracing_error::ErrorLayer;
-use tracing_log::LogTracer;
-use tracing_subscriber::{EnvFilter, layer::SubscriberExt};
-
-pub fn setup_tracing() -> Result<(), Box<dyn Error>> {
-    let subscriber = tracing_subscriber::Registry::default()
-        .with(
-            tracing_subscriber::fmt::layer()
-                .event_format(tracing_subscriber::fmt::format().compact()),
-        )
-        .with(ErrorLayer::default())
-        .with(EnvFilter::try_from_default_env().unwrap_or_else(|_| EnvFilter::new("info")));
-    tracing::subscriber::set_global_default(subscriber)?;
-    LogTracer::init()?;
-    Ok(())
-}
 
 // tried storing PgPool here but that caused strange errors
 static DB_URL: Mutex<Option<String>> = Mutex::const_new(None);
@@ -30,10 +13,10 @@ async fn get_or_init_db() -> String {
     }
 
     // initialize logging and db
-    dotenv::dotenv().ok();
+    dotenvy::dotenv().ok();
     let db = env::var("DATABASE_URL")
         .unwrap_or_else(|_| "postgres://headless-lms@localhost:54328/headless_lms_dev".to_string());
-    let _ = setup_tracing();
+    let _ = headless_lms_base::tracing::setup_tracing();
 
     // store initialized pool and return connection
     guard.replace(db.clone());

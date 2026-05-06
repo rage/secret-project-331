@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
-use headless_lms_utils::{ApplicationConfiguration, file_store::FileStore};
+use headless_lms_utils::file_store::FileStore;
+use utoipa::ToSchema;
 
 use crate::prelude::*;
 
@@ -17,8 +18,8 @@ pub struct DatabaseOrganization {
     pub hidden: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct Organization {
     pub id: Uuid,
     pub slug: String,

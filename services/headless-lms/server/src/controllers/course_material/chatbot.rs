@@ -13,14 +13,36 @@ use headless_lms_models::chatbot_conversations::{
 };
 use headless_lms_models::{chatbot_configurations, courses};
 use rand::seq::IndexedRandom;
+use utoipa::OpenApi;
 
-use crate::prelude::*;
+use crate::{domain::authorization::authorize_access_to_course_material, prelude::*};
+
+#[derive(OpenApi)]
+#[openapi(paths(
+    get_default_chatbot_configuration_for_course,
+    send_message,
+    new_conversation,
+    current_conversation_info
+))]
+pub(crate) struct CourseMaterialChatbotApiDoc;
 
 /**
 GET `/api/v0/course-material/course-modules/chatbot/default-for-course/:course-id`
 
 Returns the default chatbot configuration id for a course if the default chatbot is enabled to students.
 */
+#[utoipa::path(
+    get,
+    path = "/default-for-course/{course_id}",
+    operation_id = "getDefaultChatbotConfigurationForCourse",
+    tag = "course-material-chatbot",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Default chatbot configuration id", body = Option<Uuid>)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_default_chatbot_configuration_for_course(
     pool: web::Data<PgPool>,
@@ -46,6 +68,23 @@ POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:c
 
 Sends a new chat message to the chatbot.
 */
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/conversations/{conversation_id}/send-message",
+    operation_id = "sendChatbotMessage",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id"),
+        ("conversation_id" = Uuid, Path, description = "Conversation id")
+    ),
+    request_body(
+        content = String,
+        content_type = "application/json"
+    ),
+    responses(
+        (status = 200, description = "Chatbot response stream", body = String)
+    )
+)]
 #[instrument(skip(pool, app_conf))]
 async fn send_message(
     pool: web::Data<PgPool>,
@@ -58,17 +97,35 @@ async fn send_message(
     let chatbot_configuration_id = params.0;
     let conversation_id = params.1;
     let mut conn = pool.acquire().await?;
-    let mut tx: sqlx::Transaction<Postgres> = conn.begin().await?;
-    let course_id = chatbot_configurations::get_by_id(&mut tx, chatbot_configuration_id)
+    let chatbot_configuration =
+        chatbot_configurations::get_by_id(&mut conn, chatbot_configuration_id).await?;
+    let token = authorize_access_to_course_material(
+        &mut conn,
+        Some(user.id),
+        chatbot_configuration.course_id,
+    )
+    .await?;
+    let conversation = chatbot_conversations::get_by_id(&mut conn, conversation_id).await?;
+    if conversation.user_id != user.id
+        || conversation.chatbot_configuration_id != chatbot_configuration_id
+        || conversation.course_id != chatbot_configuration.course_id
+    {
+        return Err(controller_err!(
+            Forbidden,
+            "Conversation does not belong to the authenticated user and chatbot configuration"
+                .to_string()
+        ));
+    }
+
+    let course_name = courses::get_course(&mut conn, chatbot_configuration.course_id)
         .await?
-        .course_id;
-    let course_name = courses::get_course(&mut tx, course_id).await?.name;
+        .name;
     let chatbot_user = ChatbotUserContext {
         user_id: user.id.to_owned(),
-        course_id,
+        course_id: chatbot_configuration.course_id,
         course_name,
     };
-    let token = skip_authorize();
+    let mut tx = conn.begin().await?;
 
     let response_stream = send_chat_request_and_parse_stream(
         &mut tx,
@@ -96,55 +153,62 @@ POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/c
 
 Sends a new chat message to the chatbot.
 */
+#[utoipa::path(
+    post,
+    path = "/{chatbot_configuration_id}/conversations/new",
+    operation_id = "newChatbotConversation",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (status = 200, description = "Created chatbot conversation", body = ChatbotConversation)
+    )
+)]
 #[instrument(skip(pool))]
 async fn new_conversation(
     pool: web::Data<PgPool>,
     user: AuthUser,
     params: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<ChatbotConversation>> {
-    let token = skip_authorize();
-
     let mut conn = pool.acquire().await?;
-    let mut tx = conn.begin().await?;
 
-    let configuration = models::chatbot_configurations::get_by_id(&mut tx, *params).await?;
+    let configuration = models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), configuration.course_id)
+            .await?;
 
-    let conversation = models::chatbot_conversations::insert(
-        &mut tx,
-        ChatbotConversation {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            course_id: configuration.course_id,
-            user_id: user.id,
-            chatbot_configuration_id: configuration.id,
-        },
+    let conversation = models::chatbot_conversations::create_for_user_and_configuration(
+        &mut conn,
+        PKeyPolicy::Generate,
+        user.id,
+        configuration.id,
     )
     .await?;
 
-    let _first_message = models::chatbot_conversation_messages::insert(
-        &mut tx,
-        models::chatbot_conversation_messages::ChatbotConversationMessage {
-            id: Uuid::new_v4(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            deleted_at: None,
-            conversation_id: conversation.id,
-            order_number: 0,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                text: configuration.initial_message.clone(),
-                message_role: MessageRole::Assistant,
-                message_is_complete: true,
-                used_tokens: estimate_tokens(&configuration.initial_message),
-                response_id: Some("initial-message".to_string()),
-                ..Default::default()
-            }),
-        },
-    )
-    .await?;
-
-    tx.commit().await?;
+    let _first_message =
+        models::chatbot_conversation_messages::insert_for_conversation_user_and_configuration(
+            &mut conn,
+            models::chatbot_conversation_messages::ChatbotConversationMessage {
+                id: Uuid::new_v4(),
+                created_at: Utc::now(),
+                updated_at: Utc::now(),
+                deleted_at: None,
+                conversation_id: conversation.id,
+                order_number: 0,
+                message: Message::Text(ChatbotConversationMessageMessage {
+                    text: configuration.initial_message.clone(),
+                    message_role: MessageRole::Assistant,
+                    message_is_complete: true,
+                    used_tokens: estimate_tokens(&configuration.initial_message),
+                    response_id: Some("initial-message".to_string()),
+                    ..Default::default()
+                }),
+            },
+            user.id,
+            configuration.id,
+        )
+        .await?;
 
     token.authorized_ok(web::Json(conversation))
 }
@@ -154,6 +218,22 @@ POST `/api/v0/course-material/course-modules/chatbot/:chatbot_configuration_id/c
 
 Returns the current conversation for the user.
 */
+#[utoipa::path(
+    get,
+    path = "/{chatbot_configuration_id}/conversations/current",
+    operation_id = "getChatbotCurrentConversationInfo",
+    tag = "course-material-chatbot",
+    params(
+        ("chatbot_configuration_id" = Uuid, Path, description = "Chatbot configuration id")
+    ),
+    responses(
+        (
+            status = 200,
+            description = "Current chatbot conversation info",
+            body = ChatbotConversationInfo
+        )
+    )
+)]
 #[instrument(skip(pool, app_conf))]
 async fn current_conversation_info(
     pool: web::Data<PgPool>,
@@ -161,11 +241,15 @@ async fn current_conversation_info(
     app_conf: web::Data<ApplicationConfiguration>,
     params: web::Path<Uuid>,
 ) -> ControllerResult<web::Json<ChatbotConversationInfo>> {
-    let token = skip_authorize();
-
     let mut conn = pool.acquire().await?;
     let chatbot_configuration =
         models::chatbot_configurations::get_by_id(&mut conn, *params).await?;
+    let token = authorize_access_to_course_material(
+        &mut conn,
+        Some(user.id),
+        chatbot_configuration.course_id,
+    )
+    .await?;
     let res = chatbot_conversations::get_current_conversation_info(
         &mut conn,
         user.id,

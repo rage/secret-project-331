@@ -5,7 +5,7 @@ import managePageOrderReducer, {
   ManagePageOrderState,
 } from "../managePageOrderReducer"
 
-import { Chapter, Course, CourseStructure, Page } from "@/shared-module/common/bindings"
+import type { Chapter, Course, CourseStructure, Page } from "@/generated/api/types.generated"
 
 const createPage = (overrides: Partial<Page>): Page => ({
   id: "default-page-id",

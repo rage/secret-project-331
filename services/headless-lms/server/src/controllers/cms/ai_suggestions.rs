@@ -1,27 +1,28 @@
 //! Controllers for requests starting with `/api/v0/cms/ai-suggestions`.
 use headless_lms_models::application_task_default_language_models::{self, ApplicationTask};
 use headless_lms_models::cms_ai::ParagraphSuggestionAction;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ParagraphSuggestionMeta {
     pub tone: Option<String>,
     pub language: Option<String>,
     pub setting_type: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ParagraphSuggestionContext {
     pub page_id: Option<Uuid>,
     pub course_id: Option<Uuid>,
     pub locale: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+
 pub struct ParagraphSuggestionRequest {
     pub action: ParagraphSuggestionAction,
     pub content: String,
@@ -30,11 +31,15 @@ pub struct ParagraphSuggestionRequest {
     pub context: Option<ParagraphSuggestionContext>,
 }
 
-#[derive(Serialize, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Serialize, Deserialize, ToSchema)]
+
 pub struct ParagraphSuggestionResponse {
     pub suggestions: Vec<String>,
 }
+
+#[derive(OpenApi)]
+#[openapi(paths(suggest_paragraph))]
+pub(crate) struct CmsAiSuggestionsApiDoc;
 
 /**
 POST `/api/v0/cms/ai-suggestions/paragraph` - Generate AI suggestions for a CMS paragraph.
@@ -44,6 +49,16 @@ to the referenced page when `context.page_id` is provided, otherwise it falls ba
 to requiring a teaching role for some course via `Res::AnyCourse`.
 */
 #[instrument(skip(pool, app_conf))]
+#[utoipa::path(
+    post,
+    path = "/paragraph",
+    operation_id = "requestParagraphSuggestions",
+    tag = "cms_ai_suggestions",
+    request_body = ParagraphSuggestionRequest,
+    responses(
+        (status = 200, description = "Generated paragraph suggestions", body = ParagraphSuggestionResponse)
+    )
+)]
 async fn suggest_paragraph(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,

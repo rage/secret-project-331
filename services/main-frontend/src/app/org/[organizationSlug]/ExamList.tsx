@@ -10,7 +10,7 @@ import { CardList } from "./CardListStyles"
 import ExamListItem from "./ExamListItem"
 
 import NewExamDialog from "@/app/manage/exams/NewExamDialog"
-import { fetchOrganizationExams } from "@/services/backend/exams"
+import { getOrganizationExamsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -32,15 +32,11 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
   const [showEnded, setShowEnded] = useState(false)
 
   const getOrgExams = useQuery({
-    queryKey: ["organization-exams", organizationId],
-    queryFn: () => {
-      if (organizationId) {
-        return fetchOrganizationExams(organizationId)
-      } else {
-        return Promise.reject(new Error("Organization ID undefined"))
-      }
-    },
-    enabled: !!organizationId,
+    ...getOrganizationExamsOptions({
+      path: {
+        organization_id: organizationId,
+      },
+    }),
   })
 
   const loginStateContext = useContext(LoginStateContext)

@@ -1,12 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { BlockInstance } from "@wordpress/blocks"
 import React, { useEffect, useState } from "react"
 
-import mediaUploadBuilder from "../../services/backend/media/mediaUpload"
+import mediaUploadBuilder from "../../services/mediaUpload"
 
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 interface PeerReviewAdditionalInstructionsEditorProps {
   content: BlockInstance[]

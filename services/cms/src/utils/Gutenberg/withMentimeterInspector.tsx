@@ -5,10 +5,10 @@ import { InspectorControls } from "@wordpress/block-editor"
 import { PanelBody, TextControl } from "@wordpress/components"
 import { createHigherOrderComponent } from "@wordpress/compose"
 import { Fragment } from "@wordpress/element"
-import { useTranslation } from "react-i18next"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { updateQueryStringParameter } from "@/shared-module/common/utils/urlManipulation"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 // https://developer.wordpress.org/block-editor/reference-guides/filters/block-filters/#editor-blockedit
 const withMentimeterInspector = createHigherOrderComponent((BlockEdit) => {

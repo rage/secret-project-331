@@ -2,9 +2,8 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { isServer, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { BellXmark, CheckCircle, MoveUpDownArrows } from "@vectopus/atlas-icons-react"
-import axios from "axios"
 import _ from "lodash"
 import React, { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -15,13 +14,10 @@ import PlaygroundExerciseEditorIframe from "./PlaygroundExerciseEditorIframe"
 import PlaygroundExerciseIframe from "./PlaygroundExerciseIframe"
 import PlaygroundViewSubmissionIframe from "./PlaygroundViewSubmissionIframe"
 
-import {
-  ExerciseServiceInfoApi,
-  ExerciseTaskGradingResult,
-  PlaygroundViewsMessage,
-  SpecRequest,
-} from "@/shared-module/common/bindings"
-import { isExerciseServiceInfoApi } from "@/shared-module/common/bindings.guard"
+import type {
+  GetPlaygroundViewsWebsocketData,
+  ReceivePlaygroundGradingData,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
@@ -42,6 +38,15 @@ import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
+import {
+  ExerciseServiceInfoApi,
+  ExerciseTaskGradingResult,
+  parseExerciseServiceInfoApi,
+  parseExerciseTaskGradingResult,
+  parsePlaygroundViewsMessage,
+  SpecRequest,
+} from "@/utils/playgroundSchemas"
 
 interface PlaygroundFields {
   url: string
@@ -58,6 +63,22 @@ const Area = styled.div`
 
 const FULL_WIDTH = "100vw"
 const HALF_WIDTH = "50vw"
+const PLAYGROUND_VIEWS_WEBSOCKET_PATH: GetPlaygroundViewsWebsocketData["url"] =
+  "/api/v0/main-frontend/playground-views/ws"
+const PLAYGROUND_VIEWS_GRADING_PATH: ReceivePlaygroundGradingData["url"] =
+  "/api/v0/main-frontend/playground-views/grading/{websocket_id}"
+
+async function readJsonResponse(res: Response): Promise<unknown> {
+  const text = await res.text()
+  if (!text) {
+    return null
+  }
+  try {
+    return JSON.parse(text) as unknown
+  } catch {
+    return text
+  }
+}
 
 const StyledPre = styled.pre<{ fullWidth: boolean }>`
   background-color: rgba(218, 230, 229, 0.4);
@@ -144,8 +165,8 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
-const WEBSOCKET_ADDRESS = PUBLIC_ADDRESS?.replace("http://", "ws://").replace("https://", "wss://")
+const PUBLIC_ADDRESS =
+  typeof window === "undefined" ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
 const IframeViewPlayground: React.FC = () => {
@@ -211,12 +232,16 @@ const IframeViewPlayground: React.FC = () => {
   const serviceInfoQuery = useQuery({
     queryKey: [`iframe-view-playground-service-info-${url}`],
     queryFn: async (): Promise<ExerciseServiceInfoApi> => {
-      const res = await axios.get(url)
-      return res.data
+      const res = await fetch(url)
+      if (!res.ok) {
+        throw new Error(`Failed to load service info (${res.status})`)
+      }
+      const data = await readJsonResponse(res)
+      return parseExerciseServiceInfoApi(data)
     },
   })
 
-  const isValidServiceInfo = isExerciseServiceInfoApi(serviceInfoQuery.data)
+  const isValidServiceInfo = serviceInfoQuery.isSuccess
 
   useEffect(() => {
     if (isValidServiceInfo) {
@@ -225,13 +250,13 @@ const IframeViewPlayground: React.FC = () => {
   }, [isValidServiceInfo, url])
 
   const publicSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-public-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
       isValidServiceInfo,
       privateSpecValidJson,
       privateSpecParsed,
       exerciseServiceHost,
+      serviceInfoQuery.data?.public_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
@@ -242,11 +267,18 @@ const IframeViewPlayground: React.FC = () => {
         private_spec: privateSpecParsed,
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
-      const res = await axios.post(
+      const res = await fetch(
         `${exerciseServiceHost}${serviceInfoQuery.data.public_spec_endpoint_path}`,
-        payload,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
       )
-      return res.data
+      if (!res.ok) {
+        throw new Error(`Failed to load public spec (${res.status})`)
+      }
+      return readJsonResponse(res)
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -273,18 +305,33 @@ const IframeViewPlayground: React.FC = () => {
         if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
           throw new Error("Requirements for the mutation not satisfied.")
         }
+        if (!websocketId || !playgroundGradingCallbackClaim) {
+          throw new Error("Playground websocket is not registered.")
+        }
         const gradingRequest: GradingRequest = {
           // eslint-disable-next-line i18next/no-literal-string
-          grading_update_url: `${PUBLIC_ADDRESS}/api/v0/main-frontend/playground-views/grading/${websocketId}`,
+          grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
+            websocket_id: websocketId,
+          })}?playground-grading-callback-claim=${encodeURIComponent(
+            playgroundGradingCallbackClaim,
+          )}`,
           exercise_spec: privateSpecParsed,
           submission_data: param.data,
         }
         setUserAnswer(param.data)
-        const res = await axios.post(
+        const res = await fetch(
           `${exerciseServiceHost}${serviceInfoQuery.data.grade_endpoint_path}`,
-          gradingRequest,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(gradingRequest),
+          },
         )
-        return res.data
+        if (!res.ok) {
+          throw new Error(`Grading request failed (${res.status})`)
+        }
+        const gradingJson = await readJsonResponse(res)
+        return parseExerciseTaskGradingResult(gradingJson)
       } else if (param.type === "fromWebsocket") {
         return param.data
       } else {
@@ -296,21 +343,25 @@ const IframeViewPlayground: React.FC = () => {
 
   const [websocket, setWebsocket] = useState<WebSocket | null>(null)
   const [websocketId, setWebsocketId] = useState<string | null>(null)
+  const [playgroundGradingCallbackClaim, setPlaygroundGradingCallbackClaim] = useState<
+    string | null
+  >(null)
+  const isPlaygroundWebsocketReady = Boolean(websocketId && playgroundGradingCallbackClaim)
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
-      // eslint-disable-next-line i18next/no-literal-string
-      setWebsocket(new WebSocket(`${WEBSOCKET_ADDRESS}/api/v0/main-frontend/playground-views/ws`))
+      setWebsocket(new WebSocket(buildGeneratedWebSocketUrl(PLAYGROUND_VIEWS_WEBSOCKET_PATH)))
       return
     }
     const ws = websocket
     ws.onmessage = (ev) => {
-      const msg = JSON.parse(ev.data) as PlaygroundViewsMessage
+      const msg = parsePlaygroundViewsMessage(JSON.parse(ev.data))
       if (msg.tag == "TimedOut") {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {
         console.info("Registered websocket", msg.data)
-        setWebsocketId(msg.data)
+        setWebsocketId(msg.data.websocket_id)
+        setPlaygroundGradingCallbackClaim(msg.data.playground_grading_callback_claim)
       } else if (msg.tag == "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
       } else {
@@ -326,13 +377,13 @@ const IframeViewPlayground: React.FC = () => {
   }, [websocket, submitAnswerMutation])
 
   const modelSolutionSpecQuery = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: [
       `iframe-view-playground-model-solution-spec-${url}-${serviceInfoQuery.data}-${privateSpec}`,
       isValidServiceInfo,
       privateSpecValidJson,
       privateSpecParsed,
       exerciseServiceHost,
+      serviceInfoQuery.data?.model_solution_spec_endpoint_path,
     ],
     queryFn: async (): Promise<unknown> => {
       if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
@@ -344,11 +395,18 @@ const IframeViewPlayground: React.FC = () => {
 
         upload_url: `${PUBLIC_ADDRESS}/api/v0/files/playground`,
       }
-      const res = await axios.post(
+      const res = await fetch(
         `${exerciseServiceHost}${serviceInfoQuery.data.model_solution_spec_endpoint_path}`,
-        payload,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
       )
-      return res.data
+      if (!res.ok) {
+        throw new Error(`Failed to load model solution spec (${res.status})`)
+      }
+      return readJsonResponse(res)
     },
     enabled:
       serviceInfoQuery.isSuccess &&
@@ -727,7 +785,9 @@ const IframeViewPlayground: React.FC = () => {
                     variant={"primary"}
                     size={"medium"}
                     disabled={
-                      currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
+                      currentStateReceivedFromIframe === null ||
+                      !isPlaygroundWebsocketReady ||
+                      submitAnswerMutation.isPending
                     }
                     onClick={() => {
                       if (!currentStateReceivedFromIframe) {

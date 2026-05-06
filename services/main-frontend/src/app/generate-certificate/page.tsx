@@ -6,13 +6,18 @@ import { useRouter } from "next/navigation"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { fetchCertificate, generateCertificate } from "@/services/backend/certificates"
+import { generateCertificateMutation as generateCertificateMutationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
-  fetchCourseModule,
-  fetchUserCourseModuleCompletion,
-} from "@/services/backend/course-modules"
-import { getCourse } from "@/services/backend/courses"
-import { Course, CourseModule } from "@/shared-module/common/bindings"
+  getCertificateByConfigurationId,
+  getCourse as getCourseFromApi,
+  getCourseModule,
+  getCourseModuleCompletion,
+} from "@/generated/api/sdk.generated"
+import type {
+  Course,
+  GeneratedCertificate,
+  CourseModule as GeneratedCourseModule,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
@@ -20,9 +25,10 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ModuleCertificate: React.FC = () => {
@@ -34,23 +40,36 @@ const ModuleCertificate: React.FC = () => {
   const moduleId = useQueryParameter("module")
   const userInfo = useUserInfo()
   const [nameOnCertificate, setNameOnCertificate] = useState("")
+  const existingCertificateQuery = useQuery({
+    queryKey: ["getCertificateByConfigurationId", certificateConfigurationId],
+    queryFn: (): Promise<GeneratedCertificate | null> =>
+      getCertificateByConfigurationId({
+        path: {
+          certificate_configuration_id: assertNotNullOrUndefined(certificateConfigurationId),
+        },
+      }),
+    enabled: certificateConfigurationId !== null,
+  })
+
   useEffect(() => {
-    if (!certificateConfigurationId) {
+    if (!existingCertificateQuery.data) {
       return
     }
-    fetchCertificate(certificateConfigurationId).then((certificate) => {
-      if (certificate !== null) {
-        // found existing certificate, redirect
-        // eslint-disable-next-line i18next/no-literal-string
-        router.replace(`/certificates/validate/${certificate.verification_id}`)
-      }
-    })
-  }, [certificateConfigurationId, router])
+    router.replace(certificateValidateRoute(existingCertificateQuery.data.verification_id))
+  }, [existingCertificateQuery.data, router])
   const courseAndModule = useQuery({
     queryKey: ["course-module", moduleId],
     queryFn: async () => {
-      const courseModule = await fetchCourseModule(assertNotNullOrUndefined(moduleId))
-      const course = await getCourse(courseModule.course_id)
+      const courseModule = await getCourseModule({
+        path: {
+          course_module_id: assertNotNullOrUndefined(moduleId),
+        },
+      })
+      const course = await getCourseFromApi({
+        path: {
+          course_id: courseModule.course_id,
+        },
+      })
       return { module: courseModule, course }
     },
     enabled: !!moduleId,
@@ -67,8 +86,19 @@ const ModuleCertificate: React.FC = () => {
   const userGrade = useQuery({
     queryKey: [`${moduleId}-course-module-completion`, moduleId],
     queryFn: async () => {
-      const courseModule = await fetchUserCourseModuleCompletion(assertNotNullOrUndefined(moduleId))
-      const course = await getCourse(courseModule.course_id)
+      const courseModule = await getCourseModuleCompletion({
+        path: {
+          course_module_id: assertNotNullOrUndefined(moduleId),
+        },
+      })
+      if (!courseModule) {
+        throw new Error("Course module completion not found")
+      }
+      const course = await getCourseFromApi({
+        path: {
+          course_id: courseModule.course_id,
+        },
+      })
       return { module: courseModule, course }
     },
     enabled: !!moduleId,
@@ -86,10 +116,8 @@ const ModuleCertificate: React.FC = () => {
     }
   }, [userGrade.data?.module])
 
-  const generateCertificateMutation = useToastMutation(
-    () => {
-      return generateCertificate(certificateConfigurationId, nameOnCertificate, grade)
-    },
+  const generateCertificateMutation = useToastMutationOptions(
+    generateCertificateMutationOptions(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
@@ -126,7 +154,15 @@ const ModuleCertificate: React.FC = () => {
               if (
                 await confirm(t("certificate-generation-confirmation", { name: nameOnCertificate }))
               ) {
-                generateCertificateMutation.mutate()
+                generateCertificateMutation.mutate({
+                  body: {
+                    certificate_configuration_id: assertNotNullOrUndefined(
+                      certificateConfigurationId,
+                    ),
+                    name_on_certificate: nameOnCertificate,
+                    grade,
+                  },
+                })
               }
             }}
           >
@@ -141,7 +177,7 @@ const ModuleCertificate: React.FC = () => {
 function getHeaderContent(
   t: TFunction,
   courseAndModule: UseQueryResult<{
-    module: CourseModule
+    module: GeneratedCourseModule
     course: Course
   }>,
   moduleId: string | null | undefined,

@@ -30,7 +30,6 @@ import useResearchConsentForm from "@/hooks/course-material/useResearchConsentFo
 import useResearchConsentFormAnswers from "@/hooks/course-material/useResearchConsentFormAnswers"
 import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import AudioSpeaker from "@/img/course-material/audio-player/audio-speaker.svg"
-import { Block } from "@/services/course-material/backend"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -39,6 +38,7 @@ import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBound
 import { courseMaterialAtom } from "@/state/course-material"
 import { isMaterialPageAtom, refetchViewAtom } from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
+import { Block } from "@/types/courseMaterialBlock"
 
 interface Props {
   onRefresh: () => void

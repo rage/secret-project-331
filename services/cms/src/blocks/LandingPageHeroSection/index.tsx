@@ -1,12 +1,13 @@
 "use client"
 
 /* eslint-disable i18next/no-literal-string */
-import { BlockConfiguration } from "@wordpress/blocks"
 
 import { MOOCFI_CATEGORY_SLUG } from "../../utils/Gutenberg/modifyGutenbergCategories"
 
 import LandingPageHeroSectionEditor from "./LandingPageHeroSectionEditor"
 import LandingPageHeroSectionSave from "./LandingPageHeroSectionSave"
+
+import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 export interface LandingPageHeroSectionAttributes {
   title: string

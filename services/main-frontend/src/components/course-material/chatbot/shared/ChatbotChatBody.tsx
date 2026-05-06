@@ -15,7 +15,10 @@ import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
-import { ChatbotConversationMessageCitation } from "@/shared-module/common/bindings"
+import type {
+  ChatbotConversationMessage,
+  ChatbotConversationMessageCitation,
+} from "@/generated/course-material-api/types.generated"
 import { isChatbotConversationMessageMessage } from "@/shared-module/common/bindings.guard"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -59,7 +62,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   ])
 
   const messages = useMemo(() => {
-    const messages = [
+    const messages: ChatbotConversationMessage[] = [
       ...(currentConversationInfo.data?.current_conversation_messages?.filter(
         (m) =>
           isChatbotConversationMessageMessage(m.message) && m.message.message_role !== "system",
@@ -242,7 +245,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>
-      {error && <ErrorDisplay error={error} />}
+      {error != null ? <ErrorDisplay error={error} /> : null}
       <div
         className={css`
           display: flex;

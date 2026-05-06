@@ -1,16 +1,32 @@
 use crate::{domain::models_requests, prelude::*};
 use headless_lms_models::exercise_slide_submissions::ExerciseSlideSubmissionInfo;
 use models::{
-    exercises::get_exercise_by_id,
     teacher_grading_decisions::{
         NewTeacherGradingDecision, TeacherDecisionType, TeacherGradingDecision,
     },
     user_exercise_states::UserExerciseState,
 };
+use utoipa::{OpenApi, ToSchema};
+
+#[derive(OpenApi)]
+#[openapi(paths(get_submission_info, get_user_exercise_state_info, add_teacher_grading))]
+pub(crate) struct MainFrontendExerciseSlideSubmissionsApiDoc;
 
 /**
 GET `/api/v0/main-frontend/exercise-slide-submissions/{submission_id}/info"`- Returns data necessary for rendering a submission.
 */
+#[utoipa::path(
+    get,
+    path = "/{submission_id}/info",
+    operation_id = "getExerciseSlideSubmissionInfo",
+    tag = "exercise_slide_submissions",
+    params(
+        ("submission_id" = Uuid, Path, description = "Exercise slide submission id")
+    ),
+    responses(
+        (status = 200, description = "Exercise slide submission info", body = ExerciseSlideSubmissionInfo)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_submission_info(
     submission_id: web::Path<Uuid>,
@@ -44,8 +60,8 @@ async fn get_submission_info(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Deserialize)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Deserialize, ToSchema)]
+
 pub struct ExerciseStateIds {
     exercise_id: Uuid,
     user_id: Uuid,
@@ -53,6 +69,20 @@ pub struct ExerciseStateIds {
 /**
 GET `/api/v0/main-frontend/exercise-slide-submissions/{exam_id}/{exercise_id}/{user_id}/user-exercise-state-info`-
 */
+#[utoipa::path(
+    get,
+    path = "/{exam_id}/user-exercise-state-info",
+    operation_id = "getExamUserExerciseStateInfo",
+    tag = "exercise_slide_submissions",
+    params(
+        ("exam_id" = Uuid, Path, description = "Exam id"),
+        ("exercise_id" = Uuid, Query, description = "Exercise id"),
+        ("user_id" = Uuid, Query, description = "User id")
+    ),
+    responses(
+        (status = 200, description = "User exercise state for the exam submission", body = UserExerciseState)
+    )
+)]
 #[instrument(skip(pool))]
 async fn get_user_exercise_state_info(
     exam_id: web::Path<Uuid>,
@@ -77,6 +107,16 @@ async fn get_user_exercise_state_info(
 /**
 PUT `/api/v0/main-frontend/exercise-slide-submissions/add_teacher_grading"` - Adds a new teacher grading decision, without updating user exercise state
 */
+#[utoipa::path(
+    put,
+    path = "/add-teacher-grading-for-exam-submission",
+    operation_id = "addTeacherGradingForExamSubmission",
+    tag = "exercise_slide_submissions",
+    request_body = NewTeacherGradingDecision,
+    responses(
+        (status = 200, description = "Created teacher grading decision", body = TeacherGradingDecision)
+    )
+)]
 #[instrument(skip(pool))]
 async fn add_teacher_grading(
     payload: web::Json<NewTeacherGradingDecision>,
@@ -89,17 +129,34 @@ async fn add_teacher_grading(
     let manual_points = payload.manual_points;
     let justification = &payload.justification;
     let mut conn = pool.acquire().await?;
+
+    let student_state =
+        models::user_exercise_states::get_by_id(&mut conn, user_exercise_state_id).await?;
+    if student_state.exercise_id != exercise_id {
+        return Err(controller_err!(
+            Forbidden,
+            "User exercise state does not belong to the requested exercise".to_string()
+        ));
+    }
+    let exercise =
+        models::exercises::get_non_deleted_by_id(&mut conn, student_state.exercise_id).await?;
+    if exercise.course_id != student_state.course_id || exercise.exam_id != student_state.exam_id {
+        return Err(controller_err!(
+            Forbidden,
+            "User exercise state does not match the requested exercise context".to_string()
+        ));
+    }
+
     let token = authorize(
         &mut conn,
         Act::Edit,
         Some(user.id),
-        Res::Exercise(exercise_id),
+        Res::Exercise(student_state.exercise_id),
     )
     .await?;
 
     let points_given;
     if *action == TeacherDecisionType::CustomPoints {
-        let exercise = get_exercise_by_id(&mut conn, exercise_id).await?;
         let max_points = exercise.score_maximum as f32;
 
         points_given = manual_points.unwrap_or(0.0);
@@ -124,11 +181,10 @@ async fn add_teacher_grading(
         &action, points_given
     );
 
-    let mut tx = conn.begin().await?;
-
-    let _res = models::teacher_grading_decisions::add_teacher_grading_decision(
-        &mut tx,
+    let res = models::teacher_grading_decisions::upsert_by_state_id_and_exercise_id(
+        &mut conn,
         user_exercise_state_id,
+        student_state.exercise_id,
         *action,
         points_given,
         Some(user.id),
@@ -137,9 +193,7 @@ async fn add_teacher_grading(
     )
     .await?;
 
-    tx.commit().await?;
-
-    token.authorized_ok(web::Json(_res))
+    token.authorized_ok(web::Json(res))
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {

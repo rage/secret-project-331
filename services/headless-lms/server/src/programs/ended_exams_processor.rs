@@ -3,11 +3,12 @@ use std::{
     env,
 };
 
+use crate::config::program_config::ProgramConfig;
 use crate::setup_tracing;
 use chrono::{Duration, Utc};
-use dotenv::dotenv;
+use dotenvy::dotenv;
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{self as models, ModelError, ModelErrorType};
-use headless_lms_utils::prelude::BackendError;
 use sqlx::{Connection, PgConnection, PgPool};
 use uuid::Uuid;
 
@@ -16,8 +17,7 @@ pub async fn main() -> anyhow::Result<()> {
     unsafe { env::set_var("RUST_LOG", "info,actix_web=info,sqlx=warn") };
     dotenv().ok();
     setup_tracing()?;
-    let database_url = env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://localhost/headless_lms_dev".to_string());
+    let database_url = ProgramConfig::database_url_with_default();
     let db_pool = PgPool::connect(&database_url).await?;
     let mut conn = db_pool.acquire().await?;
     process_ended_exams(&mut conn).await?;

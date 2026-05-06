@@ -1,6 +1,5 @@
-use headless_lms_utils::{
-    ApplicationConfiguration, file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME,
-};
+use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
+use utoipa::ToSchema;
 
 use crate::{
     chapters::{Chapter, course_chapters},
@@ -15,8 +14,8 @@ pub struct CourseInfo {
     pub is_draft: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct CourseCount {
     pub count: u32,
 }
@@ -26,8 +25,8 @@ pub struct CourseContextData {
     pub is_test_mode: bool,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct Course {
     pub id: Uuid,
     pub slug: String,
@@ -58,8 +57,8 @@ pub struct Course {
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialCourse {
     pub id: Uuid,
     pub slug: String,
@@ -110,8 +109,8 @@ impl From<Course> for CourseMaterialCourse {
 }
 
 /** All the necessary info that can be used to switch the user's browser to a different language version of the course. */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseLanguageVersionNavigationInfo {
     pub course_language_group_id: Uuid,
     pub course_id: Uuid,
@@ -142,8 +141,8 @@ impl CourseLanguageVersionNavigationInfo {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseBreadcrumbInfo {
     pub course_id: Uuid,
     pub course_name: String,
@@ -153,8 +152,8 @@ pub struct CourseBreadcrumbInfo {
 }
 
 /// Represents the subset of page fields that are required to create a new course.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct NewCourse {
     pub name: String,
     pub slug: String,
@@ -233,8 +232,8 @@ RETURNING id
     Ok(res.id)
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseStructure {
     pub course: Course,
     pub pages: Vec<Page>,
@@ -551,6 +550,53 @@ WHERE id = $1;
     Ok(course)
 }
 
+pub async fn get_by_id_and_join_code(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    join_code: &str,
+) -> ModelResult<Course> {
+    let course = sqlx::query_as!(
+        Course,
+        r#"
+SELECT id,
+  name,
+  created_at,
+  updated_at,
+  organization_id,
+  deleted_at,
+  slug,
+  content_search_language::text,
+  language_code,
+  copied_from,
+  course_language_group_id,
+  description,
+  is_draft,
+  is_test_mode,
+  can_add_chatbot,
+  is_unlisted,
+  base_module_completion_requires_n_submodule_completions,
+  is_joinable_by_code_only,
+  join_code,
+  ask_marketing_consent,
+  flagged_answers_threshold,
+  flagged_answers_skip_manual_review_and_allow_retry,
+  closed_at,
+  closed_additional_message,
+  closed_course_successor_id,
+  chapter_locking_enabled
+FROM courses
+WHERE id = $1
+  AND join_code = $2
+  AND deleted_at IS NULL;
+    "#,
+        course_id,
+        join_code,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course)
+}
+
 pub async fn get_course_breadcrumb_info(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -707,8 +753,8 @@ WHERE organization_id = $1
     })
 }
 // Represents the subset of page fields that one is allowed to update in a course
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default, ToSchema)]
+
 pub struct CourseUpdate {
     pub name: String,
     pub description: Option<String>,

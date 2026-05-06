@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::{
     exercise_service_info::ExerciseServiceInfoApi,
@@ -14,8 +15,8 @@ use crate::{
     user_exercise_states::{self, ReviewingStage},
 };
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct PeerOrSelfReviewConfig {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -34,8 +35,8 @@ pub struct PeerOrSelfReviewConfig {
 }
 
 /// Like `PeerOrSelfReviewConfig` but only the fields it's fine to show to all users.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CourseMaterialPeerOrSelfReviewConfig {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -44,8 +45,8 @@ pub struct CourseMaterialPeerOrSelfReviewConfig {
     pub peer_reviews_to_receive: i32,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPeerOrSelfReviewConfig {
     pub id: Uuid,
     pub course_id: Uuid,
@@ -59,8 +60,8 @@ pub struct CmsPeerOrSelfReviewConfig {
     pub review_instructions: Option<serde_json::Value>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
 pub struct CmsPeerOrSelfReviewConfiguration {
     pub peer_or_self_review_config: CmsPeerOrSelfReviewConfig,
     pub peer_or_self_review_questions: Vec<CmsPeerOrSelfReviewQuestion>,
@@ -71,8 +72,7 @@ Determines how we will treat the answer being peer reviewed once it has received
 
 Some strategies compare the overall received peer review likert answer (1-5) average to peer_reviews.accepting threshold.
 */
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(
     type_name = "peer_review_processing_strategy",
     rename_all = "snake_case"
@@ -508,6 +508,130 @@ pub async fn upsert_course_default_cms_peer_review_and_questions(
             .collect::<Vec<_>>(),
     )
     .await?;
+
+    Ok(CmsPeerOrSelfReviewConfiguration {
+        peer_or_self_review_config,
+        peer_or_self_review_questions,
+    })
+}
+
+pub async fn upsert_for_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    peer_or_self_review_configuration: &CmsPeerOrSelfReviewConfiguration,
+) -> ModelResult<CmsPeerOrSelfReviewConfiguration> {
+    let input = &peer_or_self_review_configuration.peer_or_self_review_config;
+    if input.course_id != course_id {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Peer review config course does not match expected course".to_string()
+        ));
+    }
+    if peer_or_self_review_configuration
+        .peer_or_self_review_questions
+        .iter()
+        .any(|q| q.peer_or_self_review_config_id != input.id)
+    {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Peer review questions do not belong to the peer review config".to_string()
+        ));
+    }
+
+    let mut tx = conn.begin().await?;
+    let peer_or_self_review_config = sqlx::query_as!(
+        CmsPeerOrSelfReviewConfig,
+        r#"
+INSERT INTO peer_or_self_review_configs (
+    id,
+    course_id,
+    exercise_id,
+    peer_reviews_to_give,
+    peer_reviews_to_receive,
+    accepting_threshold,
+    processing_strategy,
+    points_are_all_or_nothing,
+    review_instructions,
+    reset_answer_if_zero_points_from_review
+)
+SELECT $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+WHERE (
+    $3::uuid IS NULL
+    OR EXISTS (
+      SELECT 1
+      FROM exercises
+      WHERE id = $3
+        AND course_id = $2
+        AND deleted_at IS NULL
+    )
+)
+ON CONFLICT (id) DO UPDATE
+SET course_id = excluded.course_id,
+  exercise_id = excluded.exercise_id,
+  peer_reviews_to_give = excluded.peer_reviews_to_give,
+  peer_reviews_to_receive = excluded.peer_reviews_to_receive,
+  accepting_threshold = excluded.accepting_threshold,
+  processing_strategy = excluded.processing_strategy,
+  points_are_all_or_nothing = excluded.points_are_all_or_nothing,
+  reset_answer_if_zero_points_from_review = excluded.reset_answer_if_zero_points_from_review,
+  review_instructions = excluded.review_instructions,
+  deleted_at = NULL
+WHERE peer_or_self_review_configs.course_id = $2
+RETURNING id,
+  course_id,
+  exercise_id,
+  peer_reviews_to_give,
+  peer_reviews_to_receive,
+  accepting_threshold,
+  processing_strategy AS "processing_strategy:_",
+  points_are_all_or_nothing,
+  review_instructions,
+  reset_answer_if_zero_points_from_review
+        "#,
+        input.id,
+        course_id,
+        input.exercise_id,
+        input.peer_reviews_to_give,
+        input.peer_reviews_to_receive,
+        input.accepting_threshold,
+        input.processing_strategy as _,
+        input.points_are_all_or_nothing,
+        input.review_instructions,
+        input.reset_answer_if_zero_points_from_review,
+    )
+    .fetch_optional(&mut *tx)
+    .await?;
+    let Some(peer_or_self_review_config) = peer_or_self_review_config else {
+        return Err(model_err!(
+            PreconditionFailed,
+            "Peer review config exercise does not belong to the expected course".to_string()
+        ));
+    };
+
+    let previous_peer_or_self_review_question_ids =
+        delete_peer_or_self_review_questions_by_peer_or_self_review_config_ids(
+            &mut tx,
+            &[peer_or_self_review_config.id],
+        )
+        .await?;
+    let peer_or_self_review_questions = upsert_multiple_peer_or_self_review_questions(
+        &mut tx,
+        &peer_or_self_review_configuration
+            .peer_or_self_review_questions
+            .iter()
+            .map(|prq| {
+                let id = if previous_peer_or_self_review_question_ids.contains(&prq.id) {
+                    prq.id
+                } else {
+                    Uuid::new_v4()
+                };
+                CmsPeerOrSelfReviewQuestion { id, ..prq.clone() }
+            })
+            .collect::<Vec<_>>(),
+    )
+    .await?;
+
+    tx.commit().await?;
 
     Ok(CmsPeerOrSelfReviewConfiguration {
         peer_or_self_review_config,

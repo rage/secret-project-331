@@ -4,8 +4,8 @@ import { useTranslation } from "react-i18next"
 
 import NewCourseInstanceForm from "./NewCourseInstanceForm"
 
-import { newCourseInstance } from "@/services/backend/courses"
-import { CourseInstanceForm } from "@/shared-module/common/bindings"
+import { createCourseInstance } from "@/generated/api/sdk.generated"
+import type { CourseInstanceForm } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -23,7 +23,12 @@ const NewCourseInstanceDialog: React.FC<
   const { t } = useTranslation()
   const mutation = useToastMutation(
     async (form: CourseInstanceForm) => {
-      await newCourseInstance(courseId, form)
+      await createCourseInstance({
+        body: form,
+        path: {
+          course_id: courseId,
+        },
+      })
     },
     {
       notify: true,

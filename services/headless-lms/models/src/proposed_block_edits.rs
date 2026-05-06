@@ -1,7 +1,8 @@
 use crate::prelude::*;
+use utoipa::ToSchema;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct NewProposedBlockEdit {
     pub block_id: Uuid,
     pub block_attribute: String,
@@ -9,8 +10,21 @@ pub struct NewProposedBlockEdit {
     pub changed_text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, sqlx::Type)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct ProposedBlockEdit {
+    pub id: Uuid,
+    pub proposal_id: Uuid,
+    pub block_id: Uuid,
+    pub block_attribute: String,
+    pub original_text: String,
+    pub changed_text: String,
+    pub status: ProposalStatus,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "proposal_status", rename_all = "lowercase")]
 pub enum ProposalStatus {
     Pending,
@@ -18,8 +32,8 @@ pub enum ProposalStatus {
     Rejected,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct EditedBlockStillExistsData {
     pub id: Uuid,
     pub block_id: Uuid,
@@ -30,8 +44,8 @@ pub struct EditedBlockStillExistsData {
     pub accept_preview: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct EditedBlockNoLongerExistsData {
     pub id: Uuid,
     pub block_id: Uuid,
@@ -40,25 +54,51 @@ pub struct EditedBlockNoLongerExistsData {
     pub status: ProposalStatus,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[serde(tag = "type", rename_all = "kebab-case")]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
 pub enum BlockProposal {
     EditedBlockStillExists(EditedBlockStillExistsData),
     EditedBlockNoLongerExists(EditedBlockNoLongerExistsData),
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+
 pub struct BlockProposalInfo {
     pub id: Uuid,
     pub action: BlockProposalAction,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq)]
-#[cfg_attr(feature = "ts_rs", derive(TS))]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 #[serde(tag = "tag", content = "data")]
 pub enum BlockProposalAction {
     Accept(String),
     Reject,
+}
+
+pub async fn get_by_ids(
+    conn: &mut PgConnection,
+    ids: &[Uuid],
+) -> ModelResult<Vec<ProposedBlockEdit>> {
+    let res = sqlx::query_as!(
+        ProposedBlockEdit,
+        r#"
+SELECT id,
+  proposal_id,
+  block_id,
+  block_attribute,
+  original_text,
+  changed_text,
+  status AS "status: ProposalStatus",
+  created_at,
+  updated_at,
+  deleted_at
+FROM proposed_block_edits
+WHERE id = ANY($1)
+  AND deleted_at IS NULL
+        "#,
+        ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
 }

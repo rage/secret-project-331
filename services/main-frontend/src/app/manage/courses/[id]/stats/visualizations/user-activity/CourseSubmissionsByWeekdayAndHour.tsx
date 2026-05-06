@@ -10,8 +10,8 @@ import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
-import { fetchCourseWeekdayHourSubmissionCounts } from "@/services/backend/courses"
-import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/shared-module/common/bindings"
+import { getCourseWeekdayHourSubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/generated/api/types.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -57,12 +57,16 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
 > = ({ courseId }) => {
   const { t } = useTranslation()
   const getCourseWeekdayHourSubmissionCount = useQuery({
-    queryKey: [`course-submissions-by-weekday-and-hour-${courseId}`],
-    queryFn: () => fetchCourseWeekdayHourSubmissionCounts(courseId),
+    ...getCourseWeekdayHourSubmissionCountsOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
     select: (data) => {
-      const dataByWeekDay = makeSureAllDaysHaveEntries(groupBy(data, (o) => o.isodow))
-      const maxValue = max(data.map((o) => o.count)) || 10000
-      return { apiData: data, dataByWeekDay, maxValue }
+      const validData = data
+      const dataByWeekDay = makeSureAllDaysHaveEntries(groupBy(validData, (o) => o.isodow))
+      const maxValue = max(validData.map((o) => o.count)) || 10000
+      return { apiData: validData, dataByWeekDay, maxValue }
     },
   })
 

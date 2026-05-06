@@ -1,6 +1,6 @@
-import { ExerciseTaskGradingResult, RepositoryExercise, UserInfo } from "./bindings"
 import { GradingRequest, GradingResult } from "./exercise-service-protocol-types-2"
 import { isSetStateMessage } from "./exercise-service-protocol-types.guard"
+import { ExerciseTaskGradingResult, RepositoryExercise, UserInfo } from "./exerciseServiceTypes"
 
 /**
  * from: IFrame

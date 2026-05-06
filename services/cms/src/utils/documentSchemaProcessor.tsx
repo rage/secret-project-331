@@ -2,7 +2,6 @@
 
 /* eslint-disable i18next/no-literal-string */
 
-import { BlockInstance } from "@wordpress/blocks"
 import { v4, v5 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
@@ -17,7 +16,8 @@ import {
   CmsPageExerciseTask,
   CmsPageUpdate,
   CmsPeerOrSelfReviewConfig,
-} from "@/shared-module/common/bindings"
+} from "@/generated/api"
+import type { BlockInstance } from "@/utils/Gutenberg/types"
 
 /**
  * Only id is allowed in normalized exercises. This is because:
@@ -277,7 +277,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     content: contentBlocks,
     title: input.title,
     urlPath: input.url_path,
-    chapterId: input.chapter_id,
+    chapterId: input.chapter_id ?? null,
   }
 
   return res

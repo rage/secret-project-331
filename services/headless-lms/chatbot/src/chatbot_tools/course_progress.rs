@@ -1,20 +1,20 @@
 use std::collections::HashMap;
 
-use headless_lms_models::{
-    course_modules::{CompletionPolicy, CourseModule},
-    user_exercise_states::UserCourseProgress,
-};
-use headless_lms_utils::prelude::BackendError;
-use sqlx::PgConnection;
-
 use crate::{
     azure_chatbot::ChatbotUserContext,
+    chatbot_error::chatbot_err,
     chatbot_tools::{
         AzureLLMFunctionToolDefinition, ChatbotTool, LLMToolParamType, LLMToolParams, LLMToolType,
         ToolProperties,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
+use headless_lms_base::prelude_base_and_re_exports::BackendError;
+use headless_lms_models::{
+    course_modules::{CompletionPolicy, CourseModule},
+    user_exercise_states::UserCourseProgress,
+};
+use sqlx::PgConnection;
 
 pub type CourseProgressTool = ToolProperties<CourseProgressState, CourseProgressArguments>;
 
@@ -303,7 +303,7 @@ fn progress_info(
                     requires_exam,
                 })
             } else {
-                Err(ChatbotError::new(ChatbotErrorType::Other, format!("There was an error fetching the user's course progress information. Couldn't find course module {} of course {}.", u.course_module_name, course_name), None))
+                Err(chatbot_err!(Other, format!("There was an error fetching the user's course progress information. Couldn't find course module {} of course {}.", u.course_module_name, course_name)))
             }
         })
         .collect::<ChatbotResult<Vec<CourseProgressInfo>>>()

@@ -1,33 +1,44 @@
 "use client"
 
-import { useQuery, UseQueryResult } from "@tanstack/react-query"
-
-import { fetchCourseInstances } from "../services/backend/courses"
+import { useQuery, UseQueryOptions, UseQueryResult } from "@tanstack/react-query"
 
 import { HookQueryOptions } from "."
 
-import { CourseInstance } from "@/shared-module/common/bindings"
+import {
+  getCourseInstancesOptions,
+  getCourseInstancesQueryKey,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { CourseInstance } from "@/generated/api/types.generated"
 import { queryClient } from "@/shared-module/common/services/appQueryClient"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-
-const getCourseInstancesQueryKey = (courseId: string | null) => [
-  // eslint-disable-next-line i18next/no-literal-string
-  `course-course-instances`,
-  courseId,
-]
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export const invalidateCourseInstances = (courseId: string) => {
-  queryClient.invalidateQueries({ queryKey: getCourseInstancesQueryKey(courseId) })
+  queryClient.invalidateQueries({
+    queryKey: getCourseInstancesQueryKey({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  })
 }
 
 const useCourseInstancesQuery = (
   courseId: string | null,
   options: HookQueryOptions<CourseInstance[]> = {},
 ): UseQueryResult<CourseInstance[], Error> => {
+  const generatedOptions = optionalGeneratedQueryOptions({
+    value: courseId,
+    isReady: (courseId): courseId is string => Boolean(courseId),
+    build: (courseId) =>
+      getCourseInstancesOptions({
+        path: {
+          course_id: courseId,
+        },
+      }),
+  })
+
   return useQuery({
-    queryKey: getCourseInstancesQueryKey(courseId),
-    queryFn: () => fetchCourseInstances(assertNotNullOrUndefined(courseId)),
-    enabled: !!courseId,
+    ...(generatedOptions as UseQueryOptions<CourseInstance[], Error, CourseInstance[]>),
     ...options,
   })
 }

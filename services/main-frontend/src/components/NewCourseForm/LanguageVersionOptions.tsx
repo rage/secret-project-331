@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 
 import { FieldContainer, FormFields } from "."
 
-import { Course } from "@/shared-module/common/bindings"
+import type { Course } from "@/generated/api/types.generated"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 

@@ -2,11 +2,18 @@ import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
+import type {
+  ChatbotConversation,
+  ChatbotConversationInfo,
+  SendChatbotMessageData,
+} from "@/generated/course-material-api/types.generated"
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
 import useCurrentConversationInfo from "@/hooks/course-material/chatbot/useCurrentConversationInfo"
-import { sendChatbotMessage } from "@/services/course-material/backend"
-import { ChatbotConversation, ChatbotConversationInfo } from "@/shared-module/common/bindings"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+
+const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
+  "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message"
 
 export interface MessageState {
   optimisticMessage: string | null
@@ -36,7 +43,7 @@ export interface ChatbotStateAndData {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newMessage: string
   setNewMessage: React.Dispatch<React.SetStateAction<string>>
-  error: Error | null
+  error: unknown | null
   messageState: MessageState
   dispatch: (action: MessageAction) => void
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
@@ -55,7 +62,7 @@ const useChatbotStateAndData = (
 ) => {
   const { t } = useTranslation()
   const [newMessage, setNewMessage] = useState("")
-  const [error, setError] = useState<Error | null>(null)
+  const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
@@ -80,11 +87,21 @@ const useChatbotStateAndData = (
       const message = messageToSend.trim()
       dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
       setNewMessage("")
-      const stream = await sendChatbotMessage(
-        chatbotConfigurationId,
-        currentConversationInfo.data.current_conversation.id,
-        message,
-      )
+      const stream = await courseMaterialClient.post<
+        ReadableStream<Uint8Array>,
+        unknown,
+        true,
+        "data"
+      >({
+        body: message,
+        parseAs: "stream",
+        path: {
+          chatbot_configuration_id: chatbotConfigurationId,
+          conversation_id: currentConversationInfo.data.current_conversation.id,
+        },
+        responseStyle: "data",
+        url: SEND_CHATBOT_MESSAGE_PATH,
+      })
       const reader = stream.getReader()
 
       let done = false
@@ -120,13 +137,8 @@ const useChatbotStateAndData = (
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {
-        if (error instanceof Error) {
-          setError(error)
-          dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
-        } else {
-          console.error(`Failed to send chat message: ${error}`)
-          setError(new Error("Unknown error occurred"))
-        }
+        setError(error)
+        dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
         await currentConversationInfo.refetch()
       },
     },

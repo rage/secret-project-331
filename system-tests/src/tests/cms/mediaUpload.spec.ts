@@ -1,4 +1,5 @@
 import {
+  expect,
   PlaywrightTestArgs,
   PlaywrightTestOptions,
   PlaywrightWorkerArgs,
@@ -36,30 +37,35 @@ test.describe("Uploading media as admin", () => {
 
     await page.getByText("Pages").click()
 
-    await page.click(
-      `button:text("Edit page"):right-of(:text("Welcome to Introduction to Everything"))`,
-    )
+    await page
+      .getByRole("row", { name: /Welcome to Introduction to Everything/ })
+      .getByRole("button", { name: "Edit page" })
+      .click()
 
     await page.locator(`[aria-label="Add default block"]`).click()
     await page
       .locator(`[aria-label="Empty block; start writing or type forward slash to choose a block"]`)
       .type(`/image`)
 
-    await page.click('text="Image"')
+    await page.locator('text="Image"').click()
 
     // Upload file with fileChooser
     const [fileChooser] = await Promise.all([
       page.waitForEvent("filechooser"),
-      page.click('button:has-text("Upload")'),
+      page.locator('button:has-text("Upload")').click(),
     ])
     await fileChooser.setFiles("src/fixtures/media/welcome_exercise_decorations.png")
 
-    await page.getByText("Replace").click()
+    const uploadedImageLink = page.getByRole("link", { name: "Add alt" }).first()
+    await expect(uploadedImageLink).toBeVisible()
+    await expect(uploadedImageLink).toHaveAttribute("href", /\/images\/.+\.png$/)
+    const href = await uploadedImageLink.getAttribute("href")
+    expect(href).not.toBeNull()
 
-    const [newPage] = await Promise.all([
-      page.waitForEvent("popup"),
-      page.locator("a[href$='.png']").nth(1).click(),
-    ])
+    const newPage = await page.context().newPage()
+    await newPage.goto(new URL(String(href), page.url()).toString(), {
+      waitUntil: "domcontentloaded",
+    })
 
     await expectScreenshotsToMatchSnapshots({
       axeSkip: [

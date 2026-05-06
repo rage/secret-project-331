@@ -14,8 +14,12 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import {
+  postAuthDeleteUserAccount,
+  postAuthSendEmailCode,
+} from "@/shared-module/common/generated/auth-api/sdk.generated"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { deleteUserAccount, sendEmailCode } from "@/shared-module/common/services/backend/auth"
+import "@/shared-module/common/init/registerAuthApiClients"
 import { accountDeletedRoute } from "@/shared-module/common/utils/routes"
 
 interface DeleteUserAccountProps {
@@ -39,7 +43,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
   const sendEmailCodeMutation = useToastMutation(
     async (password: string) => {
-      const result = await sendEmailCode(email, password, i18n.language)
+      const result = await postAuthSendEmailCode({
+        body: { email, password, language: i18n.language },
+      })
       setCredentialsError(!result)
       return result
     },
@@ -59,7 +65,9 @@ const DeleteUserAccountForm: React.FC<DeleteUserAccountProps> = ({ email }) => {
 
   const deleteAccountMutation = useToastMutation(
     async (code: string) => {
-      const result = await deleteUserAccount(code)
+      const result = await postAuthDeleteUserAccount({
+        body: { code },
+      })
       setCredentialsError(!result)
       return result
     },

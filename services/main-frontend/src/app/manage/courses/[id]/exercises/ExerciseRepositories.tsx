@@ -1,6 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
+import type { UseQueryResult } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -8,40 +9,44 @@ import AddExerciseRepositoryForm from "./AddExerciseRepositoryForm"
 import EditExerciseRepositoryForm from "./EditExerciseRepositoryForm"
 
 import {
-  deleteExerciseRepository,
-  getExerciseRepositories,
-} from "@/services/backend/exercise-repositories"
+  deleteExerciseRepositoryMutation as deleteExerciseRepositoryMutationOptions,
+  getExerciseRepositoriesForCourseOptions,
+  getExerciseRepositoriesForExamOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import type { ExerciseRepository } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 
 interface Props {
   courseId: string | null
   examId: string | null
 }
 
-const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
+interface ExerciseRepositoriesContentProps extends Props {
+  exerciseRepositories: UseQueryResult<ExerciseRepository[], Error>
+}
+
+const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = ({
+  courseId,
+  examId,
+  exerciseRepositories,
+}) => {
   const { t } = useTranslation()
 
   const [addingRepo, setAddingRepo] = useState(false)
   const [editingRepo, setEditingRepo] = useState<string | null>(null)
-  const exerciseRepositories = useQuery({
-    queryKey: ["manage-exercise-repositories", courseId, examId],
-    queryFn: async () => {
-      return await getExerciseRepositories(courseId, examId)
-    },
-  })
 
   useEffect(() => {
     setAddingRepo(false)
   }, [exerciseRepositories.data])
 
-  const deleteMutation = useToastMutation(
-    deleteExerciseRepository,
+  const deleteMutation = useToastMutationOptions(
+    deleteExerciseRepositoryMutationOptions(),
     {
       notify: true,
-      method: "POST",
+      method: "DELETE",
       successMessage: t("exercise-repositories-deleted"),
     },
     {
@@ -106,7 +111,13 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
                   setEditingRepo(null)
                 }}
                 onCancel={() => setEditingRepo(null)}
-                onDelete={() => deleteMutation.mutate(er.id)}
+                onDelete={() =>
+                  deleteMutation.mutate({
+                    path: {
+                      id: er.id,
+                    },
+                  })
+                }
               />
             ) : (
               <>
@@ -136,6 +147,60 @@ const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
       </ul>
     </>
   )
+}
+
+const CourseExerciseRepositories: React.FC<{ courseId: string; examId: string | null }> = ({
+  courseId,
+  examId,
+}) => {
+  const exerciseRepositories = useQuery(
+    getExerciseRepositoriesForCourseOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  )
+
+  return (
+    <ExerciseRepositoriesContent
+      courseId={courseId}
+      examId={examId}
+      exerciseRepositories={exerciseRepositories}
+    />
+  )
+}
+
+const ExamExerciseRepositories: React.FC<{ courseId: string | null; examId: string }> = ({
+  courseId,
+  examId,
+}) => {
+  const exerciseRepositories = useQuery(
+    getExerciseRepositoriesForExamOptions({
+      path: {
+        exam_id: examId,
+      },
+    }),
+  )
+
+  return (
+    <ExerciseRepositoriesContent
+      courseId={courseId}
+      examId={examId}
+      exerciseRepositories={exerciseRepositories}
+    />
+  )
+}
+
+const ExerciseRepositories: React.FC<Props> = ({ courseId, examId }) => {
+  if (courseId) {
+    return <CourseExerciseRepositories courseId={courseId} examId={examId} />
+  }
+
+  if (examId) {
+    return <ExamExerciseRepositories courseId={courseId} examId={examId} />
+  }
+
+  return null
 }
 
 export default ExerciseRepositories

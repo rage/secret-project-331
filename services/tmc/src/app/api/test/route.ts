@@ -1,9 +1,11 @@
-import { NextResponse } from "next/server"
 import { v4 } from "uuid"
 
 import { testRuns } from "./testRuns"
 
-import { ClientErrorResponse } from "@/lib"
+import { reportErrorOccurrence } from "@/shared-module/common/errors/reportErrorOccurrence"
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { RunResult } from "@/tmc/cli"
+import { badRequest, jsonOk } from "@/util/apiResponse"
 import { ExerciseFile } from "@/util/stateInterfaces"
 import { runTests } from "@/util/test"
 
@@ -23,71 +25,108 @@ export type TestRequestResult = {
   id: string
 }
 
-export async function POST(req: Request): Promise<Response> {
+function errorRunResult(err: unknown): RunResult {
+  return {
+    status: "GENERIC_ERROR",
+    testResults: [],
+    logs: { error: err instanceof Error ? err.message : String(err) },
+  }
+}
+
+function reportBackgroundFailure(err: unknown, request: Request): void {
+  const message = err instanceof Error ? err.message : String(err)
+  const stack = err instanceof Error ? err.stack : null
+  let path: string | null = null
   try {
-    if (req.method !== "POST") {
-      return badRequest("Wrong method")
-    }
-
-    const body = (await req.json()) as TestRequest
-
-    const testRunId = v4()
-    testRuns.set(testRunId, null)
-    const templateDownloadUrl = body.templateDownloadUrl
-    if (body.type === "browser") {
-      runTests(templateDownloadUrl, {
-        type: "browser",
-        files: body.files,
-      }).then((rr) => testRuns.set(testRunId, rr))
-      return ok({ id: testRunId })
-    } else if (body.type === "editor") {
-      runTests(templateDownloadUrl, {
-        type: "editor",
-        archiveDownloadUrl: body.archiveDownloadUrl,
-      }).then((rr) => testRuns.set(testRunId, rr))
-      return ok({ id: testRunId })
-    } else {
-      throw new Error("Invalid type")
-    }
-  } catch (err) {
-    return internalServerError("Error while processing request", err)
+    path = new URL(request.url).pathname
+  } catch {
+    path = null
   }
+  void reportErrorOccurrence(
+    {
+      service: "tmc",
+      error_source: "backend",
+      message,
+      stack_trace: stack,
+      path,
+      details: {
+        kind: "tmc-background-test-run",
+        operation: "tmc.background-test-run",
+        method: request.method,
+        url: path,
+      },
+    },
+    {
+      requestContext: {
+        headers: request.headers,
+        url: request.url,
+      },
+    },
+  )
 }
 
-// response helpers
-
-const ok = (testRequestResult: TestRequestResult): NextResponse => {
-  return NextResponse.json(testRequestResult, { status: 200 })
-}
-
-const badRequest = (contextMessage: string, error?: unknown): NextResponse => {
-  return errorResponse(400, contextMessage, error)
-}
-
-const internalServerError = (contextMessage: string, err?: unknown): NextResponse => {
-  return errorResponse(500, contextMessage, err)
-}
-
-const errorResponse = (statusCode: number, contextMessage: string, err?: unknown): NextResponse => {
-  let message
-  let stack = undefined
-  if (err instanceof Error) {
-    message = `${contextMessage}: ${err.message}`
-    stack = err.stack
-  } else if (typeof err === "string") {
-    message = `${contextMessage}: ${err}`
-  } else if (err === undefined) {
-    message = contextMessage
-  } else {
-    // unexpected type
-    message = `${contextMessage}: ${JSON.stringify(err, undefined, 2)}`
+function isValidTestRequest(body: unknown): body is TestRequest {
+  if (
+    body === null ||
+    typeof body !== "object" ||
+    !("type" in body) ||
+    !("templateDownloadUrl" in body)
+  ) {
+    return false
   }
-  error(message, stack)
-  return NextResponse.json<ClientErrorResponse>({ message }, { status: statusCode })
+  const b = body as TestRequest
+  if (typeof b.templateDownloadUrl !== "string") {
+    return false
+  }
+  if (b.type === "browser") {
+    return (
+      Array.isArray(b.files) &&
+      b.files.every(
+        (f): f is { filepath: string; contents: string } =>
+          typeof f === "object" &&
+          f !== null &&
+          "filepath" in f &&
+          "contents" in f &&
+          typeof f.filepath === "string" &&
+          typeof f.contents === "string",
+      )
+    )
+  }
+  if (b.type === "editor") {
+    return typeof (b as { archiveDownloadUrl?: unknown }).archiveDownloadUrl === "string"
+  }
+  return false
 }
 
-// logging helpers
+async function postImpl(req: Request): Promise<Response> {
+  let body: unknown
+  try {
+    body = await req.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
+  }
+  if (!isValidTestRequest(body)) {
+    return badRequest("Invalid test request")
+  }
 
-const error = (message: string, ...optionalParams: unknown[]): void => {
-  console.error(`[test]`, message, ...optionalParams)
+  const testRunId = v4()
+  testRuns.set(testRunId, null)
+  const templateDownloadUrl = body.templateDownloadUrl
+  const options =
+    body.type === "browser"
+      ? { type: "browser" as const, files: body.files }
+      : { type: "editor" as const, archiveDownloadUrl: body.archiveDownloadUrl }
+
+  runTests(templateDownloadUrl, options)
+    .then((rr) => testRuns.set(testRunId, rr))
+    .catch((err) => {
+      testRuns.set(testRunId, errorRunResult(err))
+      reportBackgroundFailure(err, req)
+    })
+    .catch((err) => {
+      reportBackgroundFailure(err, req)
+    })
+  return jsonOk<TestRequestResult>({ id: testRunId })
 }
+
+export const POST = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /test" })

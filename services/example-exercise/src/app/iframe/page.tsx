@@ -7,12 +7,12 @@ import { useTranslation } from "react-i18next"
 import { ExerciseFeedback } from "../api/grade/route"
 
 import Renderer from "@/components/Renderer"
-import { ExerciseTaskGradingResult } from "@/shared-module/common/bindings"
 import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
 import { forgivingIsSetStateMessage } from "@/shared-module/common/exercise-service-protocol-types"
 import { isSetLanguageMessage } from "@/shared-module/common/exercise-service-protocol-types.guard"
 import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
 
 export interface SubmissionData {

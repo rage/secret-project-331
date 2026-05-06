@@ -6,6 +6,7 @@ use crate::{
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         ThinkingParams,
     },
+    chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
@@ -13,13 +14,14 @@ use crate::{
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
+use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_configurations_models::ModelType,
     chatbot_conversation_message_messages::MessageRole,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
-use headless_lms_utils::{ApplicationConfiguration, prelude::BackendError};
 use rand::seq::IndexedRandom;
 
 /// Shape of the structured LLM output response, defined by the JSONSchema in
@@ -77,7 +79,11 @@ pub async fn generate_suggested_messages(
         // if there are initial suggested messages, then include <=5 of them as examples
         + &(if let Some(ism) = initial_suggested_messages {
             let mut rng = rand::rng();
-            let examples = ism.choose_multiple(&mut rng, 5).cloned().collect::<Vec<String>>().join(" ");
+            let examples = ism
+                .sample(&mut rng, 5)
+                .cloned()
+                .collect::<Vec<String>>()
+                .join(" ");
             format!("Example suggested messages: {}\n\n", examples)} else {"".to_string()})
         + &(if let Some(c_d) = course_desc {format!("Description for course: {}\n\n", c_d)} else {"".to_string()})
         + "The conversation so far:\n";
@@ -158,11 +164,10 @@ pub async fn generate_suggested_messages(
     let completion_content: &String = &parse_text_completion(completion)?;
     let suggestions: ChatbotNextMessageSuggestionResponse =
         serde_json::from_str(completion_content).map_err(|_| {
-            ChatbotError::new(
-                ChatbotErrorType::ChatbotMessageSuggestError,
+            chatbot_err!(
+                ChatbotMessageSuggestError,
                 "The message suggestion LLM returned an incorrectly formatted response."
-                    .to_string(),
-                None,
+                    .to_string()
             )
         })?;
 
@@ -221,10 +226,9 @@ fn create_conversation_from_msgs(
         })
         // select the minimum index i.e. oldest message to include
         .min()
-        .ok_or(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "Failed to create context for message suggestion LLM, there were no conversation messages or none of them fit into the context.",
-            None,
+        .ok_or(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "Failed to create context for message suggestion LLM, there were no conversation messages or none of them fit into the context."
         ))?;
     // cut off messages older than order_n from the conversation to keep context short
     let conversation = conversation[cutoff..]
@@ -235,10 +239,9 @@ fn create_conversation_from_msgs(
     if conversation.trim().is_empty() {
         // this happens only if the conversation contains only ChatbotConversationMessages
         // that have no message property, which should never happen in practice
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "Failed to create context for message suggestion LLM, there were no conversation messages or no content in any messages. There should be some messages before messages are suggested.",
-            None,
+        return Err(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "Failed to create context for message suggestion LLM, there were no conversation messages or no content in any messages. There should be some messages before messages are suggested."
         ));
     };
 

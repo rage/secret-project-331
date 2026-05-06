@@ -7,6 +7,7 @@ use crate::{
     prelude::*,
 };
 use core::default::Default;
+use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     chatbot_configurations::{ChatbotConfiguration, ReasoningEffortLevel},
     chatbot_configurations_models::{ChatbotConfigurationModel, ModelType},
@@ -16,7 +17,6 @@ use headless_lms_models::{
     chatbot_conversation_message_tool_outputs::ChatbotConversationMessageToolOutput,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };
-use headless_lms_utils::ApplicationConfiguration;
 use reqwest::Response;
 use reqwest::header::HeaderMap;
 use serde::{Deserialize, Serialize};
@@ -84,11 +84,9 @@ impl TryFrom<APIOutputMessage> for APIInputMessage {
             } => Ok(APIInputMessage {
                 message_type: InputItem::FunctionCallOutput { call_id, output },
             }),
-            OutputItem::Reasoning { .. } => Err(ChatbotError::new(
-                ChatbotErrorType::Other,
-                "Reasoning input items not allowed.",
-                None,
-            )),
+            OutputItem::Reasoning { .. } => {
+                Err(chatbot_err!(Other, "Reasoning input items not allowed."))
+            }
         }
     }
 }
@@ -106,10 +104,9 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                     },
                 },
                 _ => {
-                    return Err(ChatbotError::new(
-                        ChatbotErrorType::InvalidMessageShape,
-                        "A 'role: system' or 'role: developer' type text-variant ChatbotConversationMessage shouldn't be saved into the database.",
-                        None,
+                    return Err(chatbot_err!(
+                        InvalidMessageShape,
+                        "A 'role: system' or 'role: developer' type text-variant ChatbotConversationMessage shouldn't be saved into the database."
                     ));
                 }
             },
@@ -144,11 +141,7 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                 },
             },
             Message::Reasoning(..) => {
-                return Err(ChatbotError::new(
-                    ChatbotErrorType::Other,
-                    "Reasoning input items not allowed.",
-                    None,
-                ));
+                return Err(chatbot_err!(Other, "Reasoning input items not allowed."));
             }
         };
         Result::Ok(res)
@@ -316,19 +309,17 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                         response_id: if text_message.message_role == MessageRole::User {
                             "".to_string()
                         } else {
-                            text_message.response_id.ok_or(ChatbotError::new(
-                                    ChatbotErrorType::Other,
-                                    "Can't convert ChatbotConversationMessage into APIOutputMessage: a role='assistant' message should have a response_id, but it's missing",
-                                    None,
+                            text_message.response_id.ok_or(chatbot_err!(
+                                    Other,
+                                    "Can't convert ChatbotConversationMessage into APIOutputMessage: a role='assistant' message should have a response_id, but it's missing"
                                 ))?
                         },
                     },
                 },
                 _ => {
-                    return Err(ChatbotError::new(
-                        ChatbotErrorType::InvalidMessageShape,
-                        "A 'role: system' or 'role: developer' type text-variant ChatbotConversationMessage shouldn't be saved into the database.",
-                        None,
+                    return Err(chatbot_err!(
+                        InvalidMessageShape,
+                        "A 'role: system' or 'role: developer' type text-variant ChatbotConversationMessage shouldn't be saved into the database."
                     ));
                 }
             },
@@ -416,10 +407,9 @@ impl TryFrom<APIOutputMessage> for ChatbotConversationMessageToolOutput {
                 response_id,
                 ..Default::default()
             }),
-            _ => Err(ChatbotError::new(
-                ChatbotErrorType::Other,
-                "Can't convert APIMessage to ChatbotConversationMessageToolOutput: APIMessage type is not OutputItem::FunctionCallOutput",
-                None,
+            _ => Err(chatbot_err!(
+                Other,
+                "Can't convert APIMessage to ChatbotConversationMessageToolOutput: APIMessage type is not OutputItem::FunctionCallOutput"
             )),
         }
     }
@@ -693,15 +683,14 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
         .into_iter()
         .map(|x| match x.message_type {
             OutputItem::Message {  content , ..} => Ok(content.get_content_text()),
-            _ =>  Err(ChatbotError::new( ChatbotErrorType::InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.", None)),
+            _ =>  Err(chatbot_err!( InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.")),
         })
         .collect::<ChatbotResult<Vec<String>>>()?
         .join("");
     if res.is_empty() {
-        return Err(ChatbotError::new(
-            ChatbotErrorType::InvalidMessageShape,
-            "No content returned from LLM",
-            None,
+        return Err(chatbot_err!(
+            InvalidMessageShape,
+            "No content returned from LLM"
         ));
     };
     Ok(res)

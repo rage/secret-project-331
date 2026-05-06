@@ -1,9 +1,12 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* eslint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 
 import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
 
 import accessibilityCheck from "./accessibilityCheck"
-import { scrollLocatorsParentIframeToViewIfNeeded } from "./iframeLocators"
+import {
+  scrollLocatorsParentIframeToViewIfNeeded,
+  waitForMessageChannelIframesToBeReady,
+} from "./iframeLocators"
 import {
   ensureImageHasBeenOptimized,
   imageSavedPageYCoordinate,
@@ -12,11 +15,11 @@ import {
   scrollToObservedYCoordinate,
 } from "./imageMetadataTools"
 import { hideToasts } from "./notificationUtils"
+import waitForSpinnersToDisappear from "./waitForSpinnersToDisappear"
 
 import {
   HIDE_TEXT_IN_SYSTEM_TESTS_EVENT,
   SHOW_TEXT_IN_SYSTEM_TESTS_EVENT,
-  SPINNER_CLASS,
 } from "@/shared-module/common/utils/constants"
 
 // Same regex as Playwright uses to sanitize the filenames so that we can access those same files.
@@ -55,6 +58,8 @@ interface ExpectScreenshotsToMatchSnapshotsPropsCommon {
   scrollToYCoordinate?: number | ViewPortDict
   /** True by default. See the react component HideTextInSystemTests and the hook useShouldHideStuffFromSystemTestScreenshots on how to use this. */
   replaceSomePartsWithPlaceholders?: boolean
+  /** True by default. Waits until MessageChannelIFrame instances have received state and set a reasonable height. */
+  waitForMessageChannelIframeReadiness?: boolean
   testInfo: TestInfo
 }
 
@@ -86,6 +91,7 @@ export default async function expectScreenshotsToMatchSnapshots({
   skipMobile = false,
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders = true,
+  waitForMessageChannelIframeReadiness = true,
   screenshotTarget,
   testInfo,
 }: ExpectScreenshotsToMatchSnapshotsProps): Promise<void> {
@@ -112,21 +118,10 @@ export default async function expectScreenshotsToMatchSnapshots({
       await page.waitForLoadState()
 
       if (!dontWaitForSpinnersToDisappear) {
-        // Make sure there are no accidental loading spinners still visible on the page
-        try {
-          await page.waitForTimeout(100)
-          for (let i = 0; i < 2; i++) {
-            const spinnerLocators = await page.locator(`.${SPINNER_CLASS}`).all()
-            await Promise.all(
-              spinnerLocators.map((locator) => locator.waitFor({ state: "detached" })),
-            )
-          }
-        } catch (e) {
-          console.warn(`Spinner did not disappear before taking a screenshot: ${e}`)
-          throw new Error(
-            `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
-          )
-        }
+        await waitForSpinnersToDisappear(
+          page,
+          `A spinner was still visible when taking a screenshot. If this is expected, pass dontWaitForSpinnersToDisappear: true to expectScreenshotsToMatchSnapshots.`,
+        )
       }
 
       const originalViewPort = page.viewportSize()
@@ -166,6 +161,7 @@ export default async function expectScreenshotsToMatchSnapshots({
             axeSkip,
             scrollToYCoordinate,
             replaceSomePartsWithPlaceholders,
+            waitForMessageChannelIframeReadiness,
             useCoordinatesFromTheBottomForSavingYCoordinates,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             screenshotTarget: screenshotTarget as any,
@@ -183,6 +179,7 @@ export default async function expectScreenshotsToMatchSnapshots({
           axeSkip,
           scrollToYCoordinate,
           replaceSomePartsWithPlaceholders,
+          waitForMessageChannelIframeReadiness,
           useCoordinatesFromTheBottomForSavingYCoordinates,
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           screenshotTarget: screenshotTarget as any,
@@ -228,6 +225,7 @@ async function snapshotWithViewPort({
   axeSkip,
   scrollToYCoordinate,
   replaceSomePartsWithPlaceholders,
+  waitForMessageChannelIframeReadiness,
   screenshotTarget,
   useCoordinatesFromTheBottomForSavingYCoordinates,
 }: SnapshotWithViewPortProps) {
@@ -245,6 +243,9 @@ async function snapshotWithViewPort({
   }
 
   await page.setViewportSize(viewPorts[viewPortName])
+  if (waitForMessageChannelIframeReadiness) {
+    await waitForMessageChannelIframesToBeReady(page)
+  }
   if (waitForTheseToBeVisibleAndStable) {
     await waitToBeStable(waitForTheseToBeVisibleAndStable)
   }

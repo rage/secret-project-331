@@ -1,6 +1,6 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useMemo, useState } from "react"
 import { useForm } from "react-hook-form"
@@ -15,209 +15,313 @@ import { Button, Select } from "@/shared-module/components"
 
 const NODE_COLUMN_WIDTH = 28
 const SPINE_OFFSET = 13
-const CONTENT_OFFSET = NODE_COLUMN_WIDTH + 12
 
 const overviewContentWrapperStyles = css`
-  max-width: 67rem;
-  margin: 0 auto;
   width: 100%;
-`
-
-const overviewContentStyles = css`
+  padding: 0.2rem 0.3rem 0.4rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1.5rem;
+
+  @media (max-width: 640px) {
+    padding: 0.1rem 0 0.25rem;
+  }
 `
 
-const heroBlockStyles = css`
-  padding: 0.5rem 0 0.4rem 0;
-  border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+const summaryCardStyles = css`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1.25rem 2rem;
+  align-items: center;
+  padding: 1.1rem 1.25rem;
+  background: ${baseTheme.colors.green[25]};
+  border: 1px solid ${baseTheme.colors.green[100]};
+  border-radius: 10px;
+  box-shadow: 0 1px 0 ${baseTheme.colors.green[100]};
+
+  @media (max-width: 540px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+  }
 `
 
-const heroSublabelStyles = css`
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: ${baseTheme.colors.gray[500]};
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  margin: 0 0 0.2rem 0;
+const summaryCardNeutralStyles = css`
+  background: ${baseTheme.colors.gray[50]};
+  border: 1px solid ${baseTheme.colors.gray[100]};
+  box-shadow: none;
 `
 
-const heroPhaseNameStyles = css`
-  font-size: 1.1rem;
+const summaryEyebrowStyles = css`
+  font-size: 0.7rem;
   font-weight: 600;
-  color: ${baseTheme.colors.gray[900]};
-  margin: 0 0 0.25rem 0;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: ${baseTheme.colors.gray[500]};
+  margin: 0 0 0.35rem 0;
 `
 
-const heroStatusLineStyles = css`
+const summaryPhaseNameStyles = css`
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[700]};
+  margin: 0;
+  line-height: 1.2;
+`
+
+const summaryStatusLineStyles = css`
   font-size: 0.9rem;
+  color: ${baseTheme.colors.gray[500]};
+  margin: 0.45rem 0 0 0;
+`
+
+const summaryNoActiveTextStyles = css`
+  font-size: 0.95rem;
   color: ${baseTheme.colors.gray[600]};
   margin: 0;
+  line-height: 1.45;
 `
 
-const noActiveHeroStyles = css`
-  font-size: 0.9rem;
-  color: ${baseTheme.colors.gray[500]};
-  margin: 0;
-`
-
-const overviewStageListStyles = css`
-  position: relative;
+const summaryProgressBlockStyles = css`
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin-bottom: 0.75rem;
-  padding: 20px 0;
+  align-items: flex-end;
+  gap: 0.4rem;
+  min-width: 12rem;
+
+  @media (max-width: 540px) {
+    align-items: stretch;
+    min-width: 0;
+  }
+`
+
+const summaryProgressLabelStyles = css`
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: ${baseTheme.colors.gray[500]};
+`
+
+const summaryProgressTrackStyles = css`
+  width: 12rem;
+  height: 6px;
+  background: ${baseTheme.colors.gray[100]};
+  border-radius: 999px;
+  overflow: hidden;
+
+  @media (max-width: 540px) {
+    width: 100%;
+  }
+`
+
+const summaryProgressFillStyles = (percent: number) => css`
+  display: block;
+  width: ${Math.max(0, Math.min(100, percent))}%;
+  height: 100%;
+  background: ${baseTheme.colors.green[600]};
+  border-radius: inherit;
+  transition: width 250ms ease;
+`
+
+const summaryProgressMetaStyles = css`
+  font-size: 0.8rem;
+  color: ${baseTheme.colors.gray[500]};
+`
+
+const timelineSectionStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+`
+
+const timelineListStyles = css`
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+
   &::before {
     content: "";
     position: absolute;
     left: ${SPINE_OFFSET}px;
-    top: 20px;
-    bottom: 20px;
+    top: 1.4rem;
+    bottom: 1.4rem;
     width: 2px;
-    background: #e5e7eb;
+    background: ${baseTheme.colors.gray[100]};
   }
 `
 
-const overviewStageRowStyles = css`
+const timelineRowStyles = css`
   position: relative;
-  display: flex;
-  align-items: flex-start;
-  font-size: 0.9rem;
-  color: ${baseTheme.colors.gray[600]};
-  padding: 0.4rem 0 0.4rem ${CONTENT_OFFSET}px;
-  min-height: 2.5rem;
+  display: grid;
+  grid-template-columns: ${NODE_COLUMN_WIDTH}px minmax(0, 1fr);
+  column-gap: 0.85rem;
+  align-items: start;
+  padding: 0.6rem 0.85rem 0.6rem 0;
+  border-radius: 8px;
 `
 
-const overviewStageRowCurrentStyles = css`
-  background: ${baseTheme.colors.green[50]};
-  color: ${baseTheme.colors.gray[800]};
-  margin-left: -${CONTENT_OFFSET}px;
-  padding-left: ${CONTENT_OFFSET}px;
-  padding-top: 0.6rem;
-  padding-bottom: 0.6rem;
-  border-radius: 6px;
-  min-height: 2.75rem;
+const timelineRowCurrentStyles = css`
+  background: ${baseTheme.colors.green[25]};
+  border: 1px solid ${baseTheme.colors.green[100]};
+  padding-left: 0.35rem;
+  padding-right: 0.8rem;
 `
 
-const overviewNodeColumnStyles = css`
-  position: absolute;
-  left: 0;
-  width: ${NODE_COLUMN_WIDTH}px;
-  top: 0;
-  bottom: 0;
+const timelineNodeColumnStyles = css`
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 1.5rem;
 `
 
-const overviewNodeCurrentStyles = css`
-  width: 12px;
-  height: 12px;
+const timelineNodeCurrentStyles = css`
+  width: 14px;
+  height: 14px;
   border-radius: 999px;
   background: ${baseTheme.colors.green[600]};
-  box-shadow: 0 0 0 2px ${baseTheme.colors.green[100]};
-  flex-shrink: 0;
+  box-shadow:
+    0 0 0 3px ${baseTheme.colors.green[100]},
+    0 0 0 5px ${baseTheme.colors.green[25]};
 `
 
-const overviewNodePlannedStyles = css`
-  width: 9px;
-  height: 9px;
+const timelineNodePlannedStyles = css`
+  width: 10px;
+  height: 10px;
   border-radius: 999px;
-  border: 2px solid ${baseTheme.colors.gray[300]};
-  background: transparent;
-  flex-shrink: 0;
+  border: 2px solid ${baseTheme.colors.gray[200]};
+  background: ${baseTheme.colors.primary[100]};
 `
 
-const overviewNodeCompletedStyles = css`
-  color: ${baseTheme.colors.gray[500]};
-  flex-shrink: 0;
+const timelineNodeCompletedStyles = css`
   display: flex;
   align-items: center;
   justify-content: center;
+  color: ${baseTheme.colors.green[600]};
+  background: ${baseTheme.colors.primary[100]};
+  border-radius: 999px;
 `
 
-const overviewStageContentStyles = css`
+const timelineRowContentStyles = css`
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
+  min-width: 0;
+`
+
+const timelineRowHeaderStyles = css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+`
+
+const timelineStageNameStyles = css`
+  font-weight: 500;
+  color: ${baseTheme.colors.gray[600]};
+  font-size: 0.95rem;
+`
+
+const timelineStageNameCurrentStyles = css`
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[700]};
+  font-size: 1rem;
+`
+
+const timelineStageDateStyles = css`
+  font-size: 0.8rem;
+  color: ${baseTheme.colors.gray[400]};
+`
+
+const timelineStageDateCurrentStyles = css`
+  color: ${baseTheme.colors.gray[500]};
+`
+
+const statusPillBaseStyles = css`
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+`
+
+const statusPillInProgressStyles = css`
+  background: ${baseTheme.colors.green[100]};
+  color: ${baseTheme.colors.green[700]};
+`
+
+const statusPillCompletedStyles = css`
+  background: ${baseTheme.colors.gray[75]};
+  color: ${baseTheme.colors.gray[500]};
+`
+
+const statusPillPlannedStyles = css`
+  background: ${baseTheme.colors.clear[100]};
+  color: ${baseTheme.colors.gray[500]};
+`
+
+const actionBarStyles = css`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid ${baseTheme.colors.gray[100]};
+  flex-wrap: wrap;
+`
+
+const actionBarHelperTextStyles = css`
+  font-size: 0.85rem;
+  color: ${baseTheme.colors.gray[500]};
+  margin: 0;
   flex: 1;
   min-width: 0;
 `
 
-const overviewStageNameStyles = css`
-  font-weight: 500;
-`
-
-const overviewStageNameCurrentStyles = css`
-  font-weight: 600;
-  color: ${baseTheme.colors.gray[900]};
-`
-
-const overviewStageMetaStackStyles = css`
+const adjustDialogContentStyles = css`
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 1.25rem;
 `
 
-const overviewStageDateStyles = css`
-  font-size: 0.78rem;
-  color: ${baseTheme.colors.gray[500]};
-`
-
-const overviewStageTaskProgressStyles = css`
-  font-size: 0.75rem;
-  color: ${baseTheme.colors.gray[500]};
-  margin-top: 0.15rem;
-`
-
-const overviewStatusPillStyles = css`
-  align-self: flex-start;
-  border-radius: 999px;
-  padding: 0.15rem 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-`
-
-const overviewStatusInProgressStyles = css`
-  background: ${baseTheme.colors.green[25]};
-  color: ${baseTheme.colors.green[700]};
-`
-
-const overviewStatusCompletedStyles = css`
-  background: ${baseTheme.colors.gray[100]};
-  color: ${baseTheme.colors.gray[700]};
-`
-
-const overviewStatusPlannedStyles = css`
-  background: ${baseTheme.colors.clear[100]};
+const adjustDescriptionStyles = css`
+  margin: 0;
+  font-size: 0.95rem;
   color: ${baseTheme.colors.gray[600]};
+  line-height: 1.5;
 `
 
-const overviewActionsStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 0.6rem;
-  margin-top: 0;
-  padding-top: 0.5rem;
-`
-
-const overviewActionsPrimaryStyles = css`
-  flex-shrink: 0;
+const adjustPreviewCardStyles = css`
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  padding: 0.9rem 1rem;
+  background: ${baseTheme.colors.gray[50]};
+  border: 1px solid ${baseTheme.colors.gray[100]};
+  border-radius: 8px;
 `
 
-const overviewActionsSecondaryStyles = css`
+const adjustPreviewBodyStyles = css`
+  margin: 0;
+  font-size: 0.9rem;
+  color: ${baseTheme.colors.gray[600]};
+  line-height: 1.5;
+
+  & + & {
+    margin-top: 0.55rem;
+    padding-top: 0.55rem;
+    border-top: 1px dashed ${baseTheme.colors.gray[100]};
+  }
+`
+
+const adjustDialogFooterStyles = css`
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
 `
 
 export interface OverviewStage {
@@ -313,6 +417,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
       year: "numeric",
     })
 
+  /** Formats an ISO date string as localized month and year. */
   const formatMonthYear = (isoDate: string): string => formatMonthYearFromDate(new Date(isoDate))
 
   /** Adds a month offset to a Date while preserving other fields. */
@@ -351,6 +456,11 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
 
   const canAdjustSchedule = activeStage != null && activeStageData != null
 
+  const showTaskProgressInSummary = activeStage != null && activeStageTaskTotal > 0
+  const taskProgressPercent = showTaskProgressInSummary
+    ? (activeStageTaskCompleted / activeStageTaskTotal) * 100
+    : 0
+
   if (!isOpen) {
     return null
   }
@@ -367,6 +477,27 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
           })
       : null
 
+  const renderStatusPill = (status: string) => {
+    const pillVariantClass =
+      status === "InProgress"
+        ? statusPillInProgressStyles
+        : status === "Completed"
+          ? statusPillCompletedStyles
+          : statusPillPlannedStyles
+
+    return (
+      <span className={cx(statusPillBaseStyles, pillVariantClass)}>
+        {t(
+          status === "InProgress"
+            ? "course-plans-status-in-progress"
+            : status === "Completed"
+              ? "course-plans-status-completed"
+              : "course-plans-status-planned",
+        )}
+      </span>
+    )
+  }
+
   return (
     <StandardDialog
       open={isOpen}
@@ -377,22 +508,52 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
       isDismissable
     >
       <div className={overviewContentWrapperStyles}>
-        <div className={overviewContentStyles}>
-          <div className={heroBlockStyles}>
+        <section
+          className={cx(summaryCardStyles, !activeStage && summaryCardNeutralStyles)}
+          aria-labelledby="course-plan-overview-summary-eyebrow"
+        >
+          <div>
+            <p id="course-plan-overview-summary-eyebrow" className={summaryEyebrowStyles}>
+              {t("course-plans-overview-current-phase-label")}
+            </p>
             {activeStage ? (
               <>
-                <p className={heroSublabelStyles}>
-                  {t("course-plans-overview-current-phase-label")}
-                </p>
-                <h2 className={heroPhaseNameStyles}>{stageLabel(activeStage)}</h2>
-                {statusLine && <p className={heroStatusLineStyles}>{statusLine}</p>}
+                <p className={summaryPhaseNameStyles}>{stageLabel(activeStage)}</p>
+                {statusLine && <p className={summaryStatusLineStyles}>{statusLine}</p>}
               </>
             ) : (
-              <p className={noActiveHeroStyles}>{t("course-plans-overview-subtitle-no-active")}</p>
+              <p className={summaryNoActiveTextStyles}>
+                {t("course-plans-overview-subtitle-no-active")}
+              </p>
             )}
           </div>
 
-          <div className={overviewStageListStyles}>
+          {showTaskProgressInSummary && (
+            <div className={summaryProgressBlockStyles}>
+              <span className={summaryProgressLabelStyles}>
+                {t("course-plans-overview-course-progress")}
+              </span>
+              <span
+                className={summaryProgressTrackStyles}
+                role="progressbar"
+                aria-valuenow={activeStageTaskCompleted}
+                aria-valuemin={0}
+                aria-valuemax={activeStageTaskTotal}
+              >
+                <span className={summaryProgressFillStyles(taskProgressPercent)} />
+              </span>
+              <span className={summaryProgressMetaStyles}>
+                {t("course-plans-overview-phase-tasks-progress", {
+                  completed: activeStageTaskCompleted,
+                  total: activeStageTaskTotal,
+                })}
+              </span>
+            </div>
+          )}
+        </section>
+
+        <section className={timelineSectionStyles} aria-label={planName}>
+          <ol className={timelineListStyles}>
             {SCHEDULE_STAGE_ORDER.map((stageEnum) => {
               const stageData = stages.find((s) => s.stage === stageEnum)
               if (!stageData) {
@@ -400,107 +561,86 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
               }
               const isCurrent = activeStage === stageEnum
               const isCompleted = stageData.status === "Completed"
-              const showTaskProgress = isCurrent && activeStageTaskTotal > 0
 
               return (
-                <div
+                <li
                   key={stageData.id}
-                  className={`${overviewStageRowStyles} ${isCurrent ? overviewStageRowCurrentStyles : ""}`}
+                  className={cx(timelineRowStyles, isCurrent && timelineRowCurrentStyles)}
+                  aria-current={isCurrent ? "step" : undefined}
                 >
-                  <div className={overviewNodeColumnStyles} aria-hidden>
+                  <span className={timelineNodeColumnStyles} aria-hidden="true">
                     {isCompleted ? (
-                      <span className={overviewNodeCompletedStyles}>
-                        <CheckCircle size={12} />
+                      <span className={timelineNodeCompletedStyles}>
+                        <CheckCircle size={16} />
                       </span>
                     ) : isCurrent ? (
-                      <span className={overviewNodeCurrentStyles} />
+                      <span className={timelineNodeCurrentStyles} />
                     ) : (
-                      <span className={overviewNodePlannedStyles} />
+                      <span className={timelineNodePlannedStyles} />
                     )}
-                  </div>
-                  <div className={overviewStageContentStyles}>
-                    <span
-                      className={`${overviewStageNameStyles} ${isCurrent ? overviewStageNameCurrentStyles : ""}`}
-                    >
-                      {stageLabel(stageEnum)}
-                    </span>
-                    <div className={overviewStageMetaStackStyles}>
-                      <span className={overviewStageDateStyles}>
-                        {t("course-plans-overview-stage-dates", {
-                          startsOn: formatMonthYear(stageData.planned_starts_on),
-                          endsOn: formatMonthYear(stageData.planned_ends_on),
-                        })}
-                      </span>
+                  </span>
+                  <div className={timelineRowContentStyles}>
+                    <div className={timelineRowHeaderStyles}>
                       <span
-                        className={`${overviewStatusPillStyles} ${
-                          stageData.status === "InProgress"
-                            ? overviewStatusInProgressStyles
-                            : stageData.status === "Completed"
-                              ? overviewStatusCompletedStyles
-                              : overviewStatusPlannedStyles
-                        }`}
+                        className={
+                          isCurrent ? timelineStageNameCurrentStyles : timelineStageNameStyles
+                        }
                       >
-                        {t(
-                          stageData.status === "InProgress"
-                            ? "course-plans-status-in-progress"
-                            : stageData.status === "Completed"
-                              ? "course-plans-status-completed"
-                              : "course-plans-status-planned",
-                        )}
+                        {stageLabel(stageEnum)}
                       </span>
+                      {renderStatusPill(stageData.status)}
                     </div>
-                    {showTaskProgress && (
-                      <p className={overviewStageTaskProgressStyles}>
-                        {t("course-plans-overview-phase-tasks-progress", {
-                          completed: activeStageTaskCompleted,
-                          total: activeStageTaskTotal,
-                        })}
-                      </p>
-                    )}
+                    <span
+                      className={cx(
+                        timelineStageDateStyles,
+                        isCurrent && timelineStageDateCurrentStyles,
+                      )}
+                    >
+                      {t("course-plans-overview-stage-dates", {
+                        startsOn: formatMonthYear(stageData.planned_starts_on),
+                        endsOn: formatMonthYear(stageData.planned_ends_on),
+                      })}
+                    </span>
                   </div>
-                </div>
+                </li>
               )
             })}
-          </div>
+          </ol>
+        </section>
 
-          <div className={overviewActionsStyles}>
-            {canActOnCurrentStage ? (
-              <>
-                <div className={overviewActionsPrimaryStyles}>
-                  <Button
-                    variant="primary"
-                    size="small"
-                    onClick={onAdvanceStage}
-                    disabled={isAdvancePending}
-                  >
-                    {nextStageLabel
-                      ? t("course-plans-overview-complete-phase-move-to", {
-                          stage: nextStageLabel,
-                        })
-                      : t("course-plans-overview-complete-final-phase")}
-                  </Button>
-                </div>
-                {canAdjustSchedule && (
-                  <div className={overviewActionsSecondaryStyles}>
-                    <Button
-                      variant="secondary"
-                      size="small"
-                      onClick={() => {
-                        setExtendMonths(1)
-                        setValue("extendMonths", "1")
-                        setIsAdjustDialogOpen(true)
-                      }}
-                      disabled={isExtendPending || isAdvancePending}
-                    >
-                      {t("course-plans-overview-adjust-schedule")}
-                    </Button>
-                  </div>
-                )}
-              </>
-            ) : (
-              <span>{t("course-plans-overview-no-actions")}</span>
-            )}
-          </div>
+        <div className={actionBarStyles}>
+          {canActOnCurrentStage ? (
+            <>
+              {canAdjustSchedule && (
+                <Button
+                  variant="secondary"
+                  size="medium"
+                  onClick={() => {
+                    setExtendMonths(1)
+                    setValue("extendMonths", "1")
+                    setIsAdjustDialogOpen(true)
+                  }}
+                  disabled={isExtendPending || isAdvancePending}
+                >
+                  {t("course-plans-overview-adjust-schedule")}
+                </Button>
+              )}
+              <Button
+                variant="primary"
+                size="medium"
+                onClick={onAdvanceStage}
+                disabled={isAdvancePending}
+              >
+                {nextStageLabel
+                  ? t("course-plans-overview-complete-phase-move-to", {
+                      stage: nextStageLabel,
+                    })
+                  : t("course-plans-overview-complete-final-phase")}
+              </Button>
+            </>
+          ) : (
+            <p className={actionBarHelperTextStyles}>{t("course-plans-overview-no-actions")}</p>
+          )}
         </div>
       </div>
 
@@ -512,18 +652,8 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
           isDismissable
           leftAlignTitle
         >
-          <div
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 1rem;
-            `}
-          >
-            <p
-              className={css`
-                font-size: 0.9rem;
-              `}
-            >
+          <div className={adjustDialogContentStyles}>
+            <p className={adjustDescriptionStyles}>
               {t("course-plans-adjust-schedule-description", {
                 phase: activeStage ? stageLabel(activeStage) : "",
               })}
@@ -538,44 +668,33 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
               options={extendMonthsOptions}
             />
 
-            {currentPhaseEndLabel && newPhaseEndLabel && (
-              <p
-                className={css`
-                  font-size: 0.85rem;
-                `}
-              >
-                {t("course-plans-adjust-schedule-phase-dates", {
-                  currentEnd: currentPhaseEndLabel,
-                  newEnd: newPhaseEndLabel,
-                })}
-              </p>
+            {((currentPhaseEndLabel && newPhaseEndLabel) ||
+              (currentPlanEndLabel && newPlanEndLabel)) && (
+              <div className={adjustPreviewCardStyles}>
+                {currentPhaseEndLabel && newPhaseEndLabel && (
+                  <p className={adjustPreviewBodyStyles}>
+                    {t("course-plans-adjust-schedule-phase-dates", {
+                      currentEnd: currentPhaseEndLabel,
+                      newEnd: newPhaseEndLabel,
+                    })}
+                  </p>
+                )}
+                {currentPlanEndLabel && newPlanEndLabel && (
+                  <p className={adjustPreviewBodyStyles}>
+                    {t("course-plans-adjust-schedule-plan-dates", {
+                      delayMonths: extendMonths,
+                      currentPlanEnd: currentPlanEndLabel,
+                      newPlanEnd: newPlanEndLabel,
+                    })}
+                  </p>
+                )}
+              </div>
             )}
 
-            {currentPlanEndLabel && newPlanEndLabel && (
-              <p
-                className={css`
-                  font-size: 0.85rem;
-                `}
-              >
-                {t("course-plans-adjust-schedule-plan-dates", {
-                  delayMonths: extendMonths,
-                  currentPlanEnd: currentPlanEndLabel,
-                  newPlanEnd: newPlanEndLabel,
-                })}
-              </p>
-            )}
-
-            <div
-              className={css`
-                display: flex;
-                justify-content: flex-end;
-                gap: 0.75rem;
-                margin-top: 0.5rem;
-              `}
-            >
+            <div className={adjustDialogFooterStyles}>
               <Button
                 variant="secondary"
-                size="small"
+                size="medium"
                 onClick={() => setIsAdjustDialogOpen(false)}
                 disabled={isExtendPending || isAdvancePending}
               >
@@ -583,7 +702,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
               </Button>
               <Button
                 variant="primary"
-                size="small"
+                size="medium"
                 onClick={() => {
                   onExtendCurrentStage(extendMonths)
                   setIsAdjustDialogOpen(false)

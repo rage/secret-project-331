@@ -95,7 +95,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     getCoreRowModel: getCoreRowModel(),
   })
 
-  const progressIndicator = (
+  const progressIndicator = isAnyFetching ? (
     <div
       className={css`
         display: flex;
@@ -105,9 +105,9 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
       `}
     >
       <span>{t("search-users-progress", { completed: completedSearchCount })}</span>
-      {isAnyFetching && <Spinner variant="small" disableMargin />}
+      <Spinner variant="small" disableMargin />
     </div>
-  )
+  ) : null
 
   if (data.length === 0) {
     return (

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
+import type { TFunction } from "i18next"
 import { useParams } from "next/navigation"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -21,6 +22,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -258,6 +260,134 @@ const emptyStateStyles = css`
   font-style: italic;
 `
 
+const stageContextNoticeStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.85rem 1rem;
+  margin: 0 0 1rem 0;
+  border-radius: 10px;
+  background: ${baseTheme.colors.gray[50]};
+  border: 1px solid ${baseTheme.colors.gray[200]};
+  border-left: 3px solid ${baseTheme.colors.gray[300]};
+`
+
+const stageContextNoticeFutureStyles = css`
+  background: ${baseTheme.colors.primary[100]};
+  border-color: ${baseTheme.colors.gray[200]};
+  border-left-color: ${baseTheme.colors.green[400]};
+`
+
+const stageContextEyebrowStyles = css`
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: ${baseTheme.colors.gray[500]};
+  margin: 0;
+`
+
+const stageContextTitleStyles = css`
+  font-size: 1rem;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[800]};
+  margin: 0;
+`
+
+const stageContextBodyStyles = css`
+  font-size: 0.9rem;
+  color: ${baseTheme.colors.gray[600]};
+  margin: 0;
+  line-height: 1.5;
+`
+
+const stageContextActionRowStyles = css`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+`
+
+const stageContextActionButtonStyles = css`
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${baseTheme.colors.green[700]};
+  cursor: pointer;
+  text-decoration: underline;
+
+  &:hover,
+  &:focus-visible {
+    color: ${baseTheme.colors.green[800]};
+    outline: none;
+  }
+
+  &:focus-visible {
+    text-decoration-thickness: 2px;
+  }
+`
+
+const welcomeDialogBodyStyles = css`
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  font-size: 0.95rem;
+  color: ${baseTheme.colors.gray[700]};
+  line-height: 1.55;
+`
+
+const welcomeDialogIntroStyles = css`
+  margin: 0;
+  font-size: 1rem;
+  color: ${baseTheme.colors.gray[800]};
+`
+
+const welcomeDialogBriefStyles = css`
+  margin: 0;
+  color: ${baseTheme.colors.gray[600]};
+`
+
+const welcomeDialogGoalsHeadingStyles = css`
+  margin: 0.25rem 0 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: ${baseTheme.colors.gray[800]};
+`
+
+const welcomeDialogGoalsListStyles = css`
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+`
+
+const welcomeDialogGoalItemStyles = css`
+  position: relative;
+  padding-left: 1.5rem;
+  color: ${baseTheme.colors.gray[700]};
+
+  &::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: ${baseTheme.colors.green[600]};
+    font-weight: 700;
+  }
+`
+
+const welcomeDialogHintStyles = css`
+  margin: 0;
+  font-size: 0.85rem;
+  color: ${baseTheme.colors.gray[500]};
+`
+
 type StageLabelTranslationKey =
   | "course-plans-stage-analysis"
   | "course-plans-stage-design"
@@ -295,15 +425,83 @@ function daysBetween(from: string, to: string): number {
   return Math.ceil(diff / (1000 * 60 * 60 * 24))
 }
 
+/** Returns localized key-goal bullet labels for the given stage, or [] when none. */
+function buildStageDescriptionItems(stage: CourseDesignerStage | null, t: TFunction): string[] {
+  switch (stage) {
+    case "Analysis":
+      return [
+        t("course-plans-stage-description-analysis-1"),
+        t("course-plans-stage-description-analysis-2"),
+        t("course-plans-stage-description-analysis-3"),
+        t("course-plans-stage-description-analysis-4"),
+        t("course-plans-stage-description-analysis-5"),
+      ]
+    case "Design":
+      return [
+        t("course-plans-stage-description-design-1"),
+        t("course-plans-stage-description-design-2"),
+        t("course-plans-stage-description-design-3"),
+        t("course-plans-stage-description-design-4"),
+        t("course-plans-stage-description-design-5"),
+      ]
+    case "Development":
+      return [
+        t("course-plans-stage-description-development-1"),
+        t("course-plans-stage-description-development-2"),
+      ]
+    case "Implementation":
+      return [
+        t("course-plans-stage-description-implementation-1"),
+        t("course-plans-stage-description-implementation-2"),
+        t("course-plans-stage-description-implementation-3"),
+      ]
+    case "Evaluation":
+      return [
+        t("course-plans-stage-description-evaluation-1"),
+        t("course-plans-stage-description-evaluation-2"),
+      ]
+    default:
+      return []
+  }
+}
+
+/* eslint-disable i18next/no-literal-string -- internal state discriminants, not user-facing copy */
+type StageRelation = "current" | "past" | "future" | "noActive" | "none"
+
+/** Computes the relation of the selected stage to the active stage for messaging context. */
+function computeStageRelation(
+  selected: CourseDesignerStage | null,
+  active: CourseDesignerStage | null,
+): StageRelation {
+  if (!selected) {
+    return "none"
+  }
+  if (!active) {
+    return "noActive"
+  }
+  if (selected === active) {
+    return "current"
+  }
+  const selectedIndex = SCHEDULE_STAGE_ORDER.indexOf(selected)
+  const activeIndex = SCHEDULE_STAGE_ORDER.indexOf(active)
+  if (selectedIndex < 0 || activeIndex < 0) {
+    return "none"
+  }
+  return selectedIndex < activeIndex ? "past" : "future"
+}
+/* eslint-enable i18next/no-literal-string */
+
 export default function CoursePlanWorkspacePage() {
   const { t, i18n } = useTranslation()
   const params = useParams<{ id: string }>()
   const planId = params.id ?? ""
   const queryClient = useQueryClient()
+  const { alert: showDialogAlert } = useDialog()
   const [isOverviewOpen, setIsOverviewOpen] = useState(false)
   const [viewedStage, setViewedStage] = useState<CourseDesignerStage | null>(null)
   const [analysisWorkspaceDirty, setAnalysisWorkspaceDirty] = useState(false)
   const previousActiveStageRef = useRef<CourseDesignerStage | null>(null)
+  const welcomedStageRef = useRef<string | null>(null)
 
   const planQuery = useQuery(
     getCourseDesignerPlanOptions({
@@ -350,6 +548,79 @@ export default function CoursePlanWorkspacePage() {
     },
     [analysisWorkspaceDirty, viewedStage, t],
   )
+
+  /** Advances the plan to the next stage and shows a welcome dialog summarizing the new phase. */
+  const handleAdvanceStage = useCallback(async () => {
+    const previousStage = planQuery.data?.plan.active_stage ?? null
+    let result
+    try {
+      result = await advanceMutation.mutateAsync({
+        path: { plan_id: planId },
+      })
+    } catch {
+      return
+    }
+
+    setIsOverviewOpen(false)
+
+    const nextStage = result.plan.active_stage ?? null
+    // eslint-disable-next-line i18next/no-literal-string -- internal sentinel value, not user-facing copy
+    const transitionKey = nextStage ?? "completed"
+    if (welcomedStageRef.current === transitionKey) {
+      return
+    }
+    welcomedStageRef.current = transitionKey
+
+    if (nextStage) {
+      const goalItems = buildStageDescriptionItems(nextStage, t)
+      const stageName = stageLabel(nextStage)
+      const previousStageName = previousStage ? stageLabel(previousStage) : null
+      const briefKey = STAGE_BRIEF_KEYS[nextStage]
+      const dialogBody = (
+        <div className={welcomeDialogBodyStyles}>
+          <p className={welcomeDialogIntroStyles}>
+            {previousStageName
+              ? t("course-plans-welcome-dialog-intro", {
+                  stage: stageName,
+                  previousStage: previousStageName,
+                })
+              : t("course-plans-welcome-dialog-intro-no-previous", { stage: stageName })}
+          </p>
+          <p className={welcomeDialogBriefStyles}>{t(briefKey)}</p>
+          {goalItems.length > 0 && (
+            <>
+              <p className={welcomeDialogGoalsHeadingStyles}>
+                {t("course-plans-welcome-dialog-goals-heading")}
+              </p>
+              <ul className={welcomeDialogGoalsListStyles}>
+                {goalItems.map((item, index) => (
+                  <li key={`${nextStage}-goal-${index}`} className={welcomeDialogGoalItemStyles}>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <p className={welcomeDialogHintStyles}>
+            {t("course-plans-welcome-dialog-timeline-hint")}
+          </p>
+        </div>
+      )
+      await showDialogAlert(
+        dialogBody,
+        t("course-plans-welcome-dialog-title", { stage: stageName }),
+      )
+      return
+    }
+
+    const dialogBody = (
+      <div className={welcomeDialogBodyStyles}>
+        <p className={welcomeDialogIntroStyles}>{t("course-plans-welcome-dialog-final-intro")}</p>
+        <p className={welcomeDialogBriefStyles}>{t("course-plans-welcome-dialog-final-body")}</p>
+      </div>
+    )
+    await showDialogAlert(dialogBody, t("course-plans-welcome-dialog-final-title"))
+  }, [advanceMutation, planId, planQuery.data, showDialogAlert, stageLabel, t])
 
   useEffect(() => {
     if (viewedStage !== "Analysis") {
@@ -481,40 +752,10 @@ export default function CoursePlanWorkspacePage() {
                   />
                 ) : null
 
-              const stageDescriptionItems =
-                viewedStage === "Analysis"
-                  ? [
-                      t("course-plans-stage-description-analysis-1"),
-                      t("course-plans-stage-description-analysis-2"),
-                      t("course-plans-stage-description-analysis-3"),
-                      t("course-plans-stage-description-analysis-4"),
-                      t("course-plans-stage-description-analysis-5"),
-                    ]
-                  : viewedStage === "Design"
-                    ? [
-                        t("course-plans-stage-description-design-1"),
-                        t("course-plans-stage-description-design-2"),
-                        t("course-plans-stage-description-design-3"),
-                        t("course-plans-stage-description-design-4"),
-                        t("course-plans-stage-description-design-5"),
-                      ]
-                    : viewedStage === "Development"
-                      ? [
-                          t("course-plans-stage-description-development-1"),
-                          t("course-plans-stage-description-development-2"),
-                        ]
-                      : viewedStage === "Implementation"
-                        ? [
-                            t("course-plans-stage-description-implementation-1"),
-                            t("course-plans-stage-description-implementation-2"),
-                            t("course-plans-stage-description-implementation-3"),
-                          ]
-                        : viewedStage === "Evaluation"
-                          ? [
-                              t("course-plans-stage-description-evaluation-1"),
-                              t("course-plans-stage-description-evaluation-2"),
-                            ]
-                          : []
+              const stageDescriptionItems = buildStageDescriptionItems(viewedStage, t)
+              const stageRelation = computeStageRelation(viewedStage, currentStage ?? null)
+              const activeStageNameForCopy = currentStage ? stageLabel(currentStage) : ""
+              const viewedStageNameForCopy = viewedStage ? stageLabel(viewedStage) : ""
 
               const keyGoalsContent =
                 viewedStage && stageDescriptionItems.length > 0
@@ -555,13 +796,9 @@ export default function CoursePlanWorkspacePage() {
                         },
                       })
                     }
-                    onAdvanceStage={() =>
-                      advanceMutation.mutate({
-                        path: {
-                          plan_id: planId,
-                        },
-                      })
-                    }
+                    onAdvanceStage={() => {
+                      void handleAdvanceStage()
+                    }}
                     isExtendPending={extendMutation.isPending}
                     isAdvancePending={advanceMutation.isPending}
                     timeRemainingText={timeRemainingText}
@@ -597,6 +834,72 @@ export default function CoursePlanWorkspacePage() {
                           ? stageLabel(viewedStage)
                           : t("course-plans-instructions-heading")}
                       </h2>
+                      {stageRelation === "past" && (
+                        <aside
+                          className={stageContextNoticeStyles}
+                          aria-label={t("course-plans-stage-context-aria-label")}
+                        >
+                          <p className={stageContextEyebrowStyles}>
+                            {t("course-plans-stage-context-past-eyebrow")}
+                          </p>
+                          <p className={stageContextTitleStyles}>
+                            {t("course-plans-stage-context-past-title", {
+                              selectedStage: viewedStageNameForCopy,
+                            })}
+                          </p>
+                          <p className={stageContextBodyStyles}>
+                            {t("course-plans-stage-context-past-body", {
+                              activeStage: activeStageNameForCopy,
+                            })}
+                          </p>
+                          {currentStage && (
+                            <div className={stageContextActionRowStyles}>
+                              <button
+                                type="button"
+                                className={stageContextActionButtonStyles}
+                                onClick={() => handleSelectedStageChange(currentStage)}
+                              >
+                                {t("course-plans-stage-context-go-to-active", {
+                                  activeStage: activeStageNameForCopy,
+                                })}
+                              </button>
+                            </div>
+                          )}
+                        </aside>
+                      )}
+                      {stageRelation === "future" && (
+                        <aside
+                          className={`${stageContextNoticeStyles} ${stageContextNoticeFutureStyles}`}
+                          aria-label={t("course-plans-stage-context-aria-label")}
+                        >
+                          <p className={stageContextEyebrowStyles}>
+                            {t("course-plans-stage-context-future-eyebrow")}
+                          </p>
+                          <p className={stageContextTitleStyles}>
+                            {t("course-plans-stage-context-future-title", {
+                              selectedStage: viewedStageNameForCopy,
+                            })}
+                          </p>
+                          <p className={stageContextBodyStyles}>
+                            {t("course-plans-stage-context-future-body", {
+                              activeStage: activeStageNameForCopy,
+                            })}
+                          </p>
+                          {currentStage && (
+                            <div className={stageContextActionRowStyles}>
+                              <button
+                                type="button"
+                                className={stageContextActionButtonStyles}
+                                onClick={() => handleSelectedStageChange(currentStage)}
+                              >
+                                {t("course-plans-stage-context-go-to-active", {
+                                  activeStage: activeStageNameForCopy,
+                                })}
+                              </button>
+                            </div>
+                          )}
+                        </aside>
+                      )}
                     </div>
 
                     <section

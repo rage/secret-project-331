@@ -1,11 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useEffect, useMemo } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { CourseDesignerCourseSize } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import { baseTheme } from "@/shared-module/common/styles"
+import { Button, Select, YearMonthField } from "@/shared-module/components"
 
 const toolbarStyles = css`
   display: flex;
@@ -18,30 +19,8 @@ const fieldStyles = css`
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-
-  label {
-    font-weight: 600;
-    color: ${baseTheme.colors.gray[700]};
-    font-size: 0.9rem;
-    margin-bottom: 0.15rem;
-  }
-
-  input[type="month"],
-  select {
-    padding: 0.65rem 0.85rem;
-    border-radius: 10px;
-    border: 1px solid ${baseTheme.colors.gray[300]};
-    font-size: 1rem;
-    transition:
-      border-color 0.2s,
-      box-shadow 0.2s;
-
-    :focus {
-      outline: none;
-      border-color: ${baseTheme.colors.green[500]};
-      box-shadow: 0 0 0 3px ${baseTheme.colors.green[100]};
-    }
-  }
+  flex: 1 1 16rem;
+  min-width: min(100%, 16rem);
 `
 
 const wizardNavStyles = css`
@@ -71,6 +50,48 @@ export default function SetupStep({
   onContinue,
 }: SetupStepProps) {
   const { t } = useTranslation()
+  const { control, setValue, watch } = useForm<{
+    courseSize: CourseDesignerCourseSize
+    startsOnMonth: string
+  }>({
+    defaultValues: {
+      courseSize,
+      startsOnMonth,
+    },
+  })
+
+  const courseSizeOptions = useMemo(
+    () => [
+      // eslint-disable-next-line i18next/no-literal-string
+      { value: "small", label: t("course-plans-course-size-small") },
+      // eslint-disable-next-line i18next/no-literal-string
+      { value: "medium", label: t("course-plans-course-size-medium") },
+      // eslint-disable-next-line i18next/no-literal-string
+      { value: "large", label: t("course-plans-course-size-large") },
+    ],
+    [t],
+  )
+
+  useEffect(() => {
+    setValue("courseSize", courseSize)
+  }, [courseSize, setValue])
+
+  useEffect(() => {
+    setValue("startsOnMonth", startsOnMonth)
+  }, [startsOnMonth, setValue])
+
+  useEffect(() => {
+    const subscription = watch((values, meta) => {
+      if (meta.name === "courseSize" && values.courseSize) {
+        onCourseSizeChange(values.courseSize)
+      }
+      if (meta.name === "startsOnMonth") {
+        onStartsOnMonthChange(values.startsOnMonth ?? "")
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [onCourseSizeChange, onStartsOnMonthChange, watch])
 
   return (
     <>
@@ -78,25 +99,23 @@ export default function SetupStep({
 
       <div className={toolbarStyles}>
         <div className={fieldStyles}>
-          <label htmlFor="course-size">{t("course-plans-course-size-label")}</label>
-          <select
+          <Select
             id="course-size"
-            value={courseSize}
-            onChange={(event) => onCourseSizeChange(event.target.value as CourseDesignerCourseSize)}
-          >
-            <option value="small">{t("course-plans-course-size-small")}</option>
-            <option value="medium">{t("course-plans-course-size-medium")}</option>
-            <option value="large">{t("course-plans-course-size-large")}</option>
-          </select>
+            // eslint-disable-next-line i18next/no-literal-string
+            name="courseSize"
+            control={control}
+            label={t("course-plans-course-size-label")}
+            options={courseSizeOptions}
+          />
         </div>
 
         <div className={fieldStyles}>
-          <label htmlFor="starts-on-month">{t("course-plans-wizard-starts-on-month-label")}</label>
-          <input
+          <YearMonthField
             id="starts-on-month"
-            type="month"
-            value={startsOnMonth}
-            onChange={(event) => onStartsOnMonthChange(event.target.value)}
+            // eslint-disable-next-line i18next/no-literal-string
+            name="startsOnMonth"
+            control={control}
+            label={t("course-plans-wizard-starts-on-month-label")}
           />
         </div>
       </div>

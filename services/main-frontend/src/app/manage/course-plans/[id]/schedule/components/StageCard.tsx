@@ -9,8 +9,8 @@ import { StageMonth } from "../scheduleMappers"
 import MonthBlock from "./MonthBlock"
 
 import { CourseDesignerStage } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button } from "@/shared-module/components"
 
 const stageCardStyles = css`
   border: 1px solid ${baseTheme.colors.gray[200]};

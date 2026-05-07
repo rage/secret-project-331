@@ -2,16 +2,16 @@
 
 import { css } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
-import React, { useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
 
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, Select } from "@/shared-module/components"
 
 const NODE_COLUMN_WIDTH = 28
 const SPINE_OFFSET = 13
@@ -270,6 +270,39 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   const { t, i18n } = useTranslation()
   const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false)
   const [extendMonths, setExtendMonths] = useState(1)
+  const { control, setValue, watch } = useForm<{ extendMonths: string }>({
+    defaultValues: { extendMonths: String(extendMonths) },
+  })
+
+  const extendMonthsOptions = useMemo(
+    () =>
+      Array.from({ length: 6 }, (_item, index) => {
+        const months = index + 1
+        return {
+          value: String(months),
+          label: t("course-plans-adjust-schedule-month-option", { count: months }),
+        }
+      }),
+    [t],
+  )
+
+  useEffect(() => {
+    setValue("extendMonths", String(extendMonths))
+  }, [extendMonths, setValue])
+
+  useEffect(() => {
+    const subscription = watch((values, meta) => {
+      if (meta.name !== "extendMonths") {
+        return
+      }
+      const next = Number(values.extendMonths)
+      if (!Number.isNaN(next) && next > 0) {
+        setExtendMonths(next)
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   /** Formats a Date as localized month and year. */
   const formatMonthYearFromDate = (date: Date): string =>
@@ -454,6 +487,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
                       size="small"
                       onClick={() => {
                         setExtendMonths(1)
+                        setValue("extendMonths", "1")
                         setIsAdjustDialogOpen(true)
                       }}
                       disabled={isExtendPending || isAdvancePending}
@@ -495,18 +529,13 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
               })}
             </p>
 
-            <SelectField
+            <Select
               id="course-plan-adjust-schedule-months"
+              // eslint-disable-next-line i18next/no-literal-string
+              name="extendMonths"
+              control={control}
               label={t("course-plans-adjust-schedule-months-label")}
-              defaultValue="1"
-              onChangeByValue={(value) => setExtendMonths(Number(value))}
-              options={Array.from({ length: 6 }, (_item, index) => {
-                const months = index + 1
-                return {
-                  value: String(months),
-                  label: t("course-plans-adjust-schedule-month-option", { count: months }),
-                }
-              })}
+              options={extendMonthsOptions}
             />
 
             {currentPhaseEndLabel && newPhaseEndLabel && (

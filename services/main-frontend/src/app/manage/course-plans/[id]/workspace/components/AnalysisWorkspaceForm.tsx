@@ -29,11 +29,11 @@ import type {
   AnalysisWorkspaceV1,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
+  Button,
   Checkbox,
   ComboBox,
   nullIfEmpty,

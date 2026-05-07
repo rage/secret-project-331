@@ -21,13 +21,11 @@ import {
   startCourseDesignerPlanMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { Button, QueryResult } from "@/shared-module/components"
 
 const pageRootStyles = css`
   padding: 2rem 0 3rem 0;
@@ -400,315 +398,309 @@ export default function CoursePlanWorkspacePage() {
 
     previousActiveStageRef.current = nextActiveStage
   }, [planQuery.data, viewedStage])
-
-  if (planQuery.isError) {
-    return (
-      <div className={pageRootStyles}>
-        <div className={workspaceShellStyles}>
-          <ErrorBanner variant="readOnly" error={planQuery.error} />
-        </div>
-      </div>
-    )
-  }
-
-  if (planQuery.isLoading || !planQuery.data) {
-    return (
-      <div className={pageRootStyles}>
-        <div className={workspaceShellStyles}>
-          <Spinner variant="medium" />
-        </div>
-      </div>
-    )
-  }
-
-  const { plan, stages } = planQuery.data
-
-  if (plan.status === "ReadyToStart" && !plan.active_stage) {
-    return (
-      <div className={pageRootStyles}>
-        <div className={workspaceShellStyles}>
-          <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
-          <div className={cardStyles}>
-            <p>{t("course-plans-status-ready-to-start")}</p>
-            <Button
-              variant="primary"
-              size="medium"
-              onClick={() =>
-                startMutation.mutate({
-                  path: {
-                    plan_id: planId,
-                  },
-                })
-              }
-              disabled={startMutation.isPending}
-            >
-              {t("course-plans-start-plan")}
-            </Button>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const currentStage = plan.active_stage ?? null
-  const currentStageData = currentStage ? stages.find((s) => s.stage === currentStage) : null
-
-  const viewedStageData =
-    viewedStage != null ? (stages.find((stage) => stage.stage === viewedStage) ?? null) : null
-
-  const today = new Date().toISOString().slice(0, 10)
-  let timeRemainingText: string | null = null
-  let timeRemainingShort: string | null = null
-  if (currentStageData) {
-    const days = daysBetween(today, currentStageData.planned_ends_on)
-    if (days > 0) {
-      const months = Math.floor(days / 30)
-      const remainingDays = days % 30
-      timeRemainingText = t("course-plans-time-remaining-summary", {
-        months,
-        days: remainingDays,
-      })
-      timeRemainingShort =
-        days <= 31 ? t("course-plans-days-left", { count: days }) : timeRemainingText
-    } else if (days < 0) {
-      timeRemainingText = t("course-plans-time-remaining-overdue", {
-        count: -days,
-        stage: stageLabel(currentStageData.stage),
-      })
-      timeRemainingShort = timeRemainingText
-    }
-  }
-
-  const lastEditedText = plan.updated_at
-    ? t("course-plans-last-edited", {
-        time: new Date(plan.updated_at).toLocaleDateString(undefined, {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }),
-      })
-    : null
-
-  const currentPhaseEndDateFormatted =
-    currentStageData?.planned_ends_on != null
-      ? new Date(currentStageData.planned_ends_on).toLocaleDateString(i18n.language, {
-          // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
-          month: "long",
-          // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
-          year: "numeric",
-        })
-      : null
-
-  const activeStageTaskCompleted =
-    currentStageData?.tasks != null
-      ? currentStageData.tasks.filter((task) => task.is_completed).length
-      : 0
-  const activeStageTaskTotal = currentStageData?.tasks != null ? currentStageData.tasks.length : 0
-  const currentStageIndex = currentStage ? SCHEDULE_STAGE_ORDER.indexOf(currentStage) : -1
-  const nextStage =
-    currentStageIndex >= 0 && currentStageIndex < SCHEDULE_STAGE_ORDER.length - 1
-      ? SCHEDULE_STAGE_ORDER[currentStageIndex + 1]
-      : null
-  const nextStageLabel = nextStage ? stageLabel(nextStage) : null
-
-  const canAct =
-    plan.status === "InProgress" &&
-    currentStage &&
-    currentStageData &&
-    currentStageData.status !== "Completed"
-
-  const currentStageSection =
-    viewedStageData && viewedStage ? (
-      <WorkspaceStageSection
-        key={viewedStageData.id}
-        planId={planId}
-        stage={viewedStageData}
-        stageLabel={stageLabel(viewedStage)}
-        isActive={viewedStage === currentStage}
-        showStageTitle={false}
-        onInvalidate={() =>
-          void queryClient.invalidateQueries({
-            queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-          })
-        }
-      />
-    ) : null
-
-  const stageDescriptionItems =
-    viewedStage === "Analysis"
-      ? [
-          t("course-plans-stage-description-analysis-1"),
-          t("course-plans-stage-description-analysis-2"),
-          t("course-plans-stage-description-analysis-3"),
-          t("course-plans-stage-description-analysis-4"),
-          t("course-plans-stage-description-analysis-5"),
-        ]
-      : viewedStage === "Design"
-        ? [
-            t("course-plans-stage-description-design-1"),
-            t("course-plans-stage-description-design-2"),
-            t("course-plans-stage-description-design-3"),
-            t("course-plans-stage-description-design-4"),
-            t("course-plans-stage-description-design-5"),
-          ]
-        : viewedStage === "Development"
-          ? [
-              t("course-plans-stage-description-development-1"),
-              t("course-plans-stage-description-development-2"),
-            ]
-          : viewedStage === "Implementation"
-            ? [
-                t("course-plans-stage-description-implementation-1"),
-                t("course-plans-stage-description-implementation-2"),
-                t("course-plans-stage-description-implementation-3"),
-              ]
-            : viewedStage === "Evaluation"
-              ? [
-                  t("course-plans-stage-description-evaluation-1"),
-                  t("course-plans-stage-description-evaluation-2"),
-                ]
-              : []
-
-  const keyGoalsContent =
-    viewedStage && stageDescriptionItems.length > 0
-      ? stageDescriptionItems.map((line, index) => (
-          <li key={`${viewedStage}-${index}`} className={keyGoalItemStyles}>
-            {line}
-          </li>
-        ))
-      : [
-          <li key="generic-1" className={keyGoalItemStyles}>
-            {t("course-plans-key-goal-1")}
-          </li>,
-          <li key="generic-2" className={keyGoalItemStyles}>
-            {t("course-plans-key-goal-2")}
-          </li>,
-          <li key="generic-3" className={keyGoalItemStyles}>
-            {t("course-plans-key-goal-3")}
-          </li>,
-        ]
-
   return (
     <BreakFromCentered sidebar={false}>
       <div className={pageRootStyles}>
-        <PlanOverviewPanel
-          isOpen={isOverviewOpen}
-          onClose={() => setIsOverviewOpen(false)}
-          planName={plan.name ?? t("course-plans-untitled-plan")}
-          stages={stages}
-          activeStage={currentStage ?? null}
-          stageLabel={stageLabel}
-          canActOnCurrentStage={Boolean(canAct)}
-          onExtendCurrentStage={(months) =>
-            currentStage &&
-            extendMutation.mutate({
-              body: { months },
-              path: {
-                plan_id: planId,
-                stage: currentStage.toLowerCase(),
-              },
-            })
-          }
-          onAdvanceStage={() =>
-            advanceMutation.mutate({
-              path: {
-                plan_id: planId,
-              },
-            })
-          }
-          isExtendPending={extendMutation.isPending}
-          isAdvancePending={advanceMutation.isPending}
-          timeRemainingText={timeRemainingText}
-          timeRemainingShort={timeRemainingShort}
-          currentPhaseEndDateFormatted={currentPhaseEndDateFormatted}
-          activeStageTaskCompleted={activeStageTaskCompleted}
-          activeStageTaskTotal={activeStageTaskTotal}
-          nextStageLabel={nextStageLabel}
-        />
-
         <div className={workspaceShellStyles}>
-          <div className={headerRowStyles}>
-            <div className={headerBlockStyles}>
-              <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
-              {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
-            </div>
-          </div>
+          <QueryResult query={planQuery}>
+            {({ plan, stages }) => {
+              if (plan.status === "ReadyToStart" && !plan.active_stage) {
+                return (
+                  <>
+                    <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
+                    <div className={cardStyles}>
+                      <p>{t("course-plans-status-ready-to-start")}</p>
+                      <Button
+                        variant="primary"
+                        size="medium"
+                        onClick={() =>
+                          startMutation.mutate({
+                            path: {
+                              plan_id: planId,
+                            },
+                          })
+                        }
+                        disabled={startMutation.isPending}
+                      >
+                        {t("course-plans-start-plan")}
+                      </Button>
+                    </div>
+                  </>
+                )
+              }
 
-          <StageTimelineTabStrip
-            stages={stages}
-            activeStage={currentStage ?? null}
-            selectedStage={viewedStage}
-            onSelectedStageChange={handleSelectedStageChange}
-            stageLabel={stageLabel}
-            onOpenOverview={() => setIsOverviewOpen(true)}
-            currentStageLabel={currentStage ? stageLabel(currentStage) : null}
-            panelClassName={workspaceGridStyles}
-          >
-            <div className={headerAreaStyles}>
-              <h2 className={currentStageTitleStyles}>
-                {viewedStage ? stageLabel(viewedStage) : t("course-plans-instructions-heading")}
-              </h2>
-            </div>
+              const currentStage = plan.active_stage ?? null
+              const currentStageData = currentStage
+                ? stages.find((s) => s.stage === currentStage)
+                : null
 
-            <section
-              className={`${cardStyles} ${instructionsAreaStyles}`}
-              aria-label={t("course-plans-instructions-aria-label")}
-            >
-              <h3 className={instructionsSectionTitleStyles}>
-                {t("course-plans-instructions-heading")}
-              </h3>
-              <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
-              <p className={aboutTextStyles}>
-                {viewedStage
-                  ? t(STAGE_BRIEF_KEYS[viewedStage])
-                  : t("course-plans-instructions-placeholder")}
-              </p>
-              <p className={keyGoalsHeadingStyles}>{t("course-plans-key-goals")}</p>
-              <ul className={keyGoalsListStyles}>{keyGoalsContent}</ul>
-            </section>
+              const viewedStageData =
+                viewedStage != null
+                  ? (stages.find((stage) => stage.stage === viewedStage) ?? null)
+                  : null
 
-            <section
-              className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
-              aria-label={t("course-plans-tasks-aria-label")}
-            >
-              <h3 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h3>
-              {currentStageSection ?? (
-                <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
-              )}
-            </section>
+              const today = new Date().toISOString().slice(0, 10)
+              let timeRemainingText: string | null = null
+              let timeRemainingShort: string | null = null
+              if (currentStageData) {
+                const days = daysBetween(today, currentStageData.planned_ends_on)
+                if (days > 0) {
+                  const months = Math.floor(days / 30)
+                  const remainingDays = days % 30
+                  timeRemainingText = t("course-plans-time-remaining-summary", {
+                    months,
+                    days: remainingDays,
+                  })
+                  timeRemainingShort =
+                    days <= 31 ? t("course-plans-days-left", { count: days }) : timeRemainingText
+                } else if (days < 0) {
+                  timeRemainingText = t("course-plans-time-remaining-overdue", {
+                    count: -days,
+                    stage: stageLabel(currentStageData.stage),
+                  })
+                  timeRemainingShort = timeRemainingText
+                }
+              }
 
-            <section
-              className={`${cardStyles} ${workspaceAreaStyles} ${workspaceCardStyles}`}
-              aria-label={t("course-plans-workspace-aria-label")}
-            >
-              <h3 className={sectionTitleStyles}>{t("course-plans-workspace-heading")}</h3>
-              <p className={aboutTextStyles}>
-                {viewedStage === "Analysis"
-                  ? t("course-plans-workspace-description")
-                  : t("course-plans-workspace-description-other-stages")}
-              </p>
-              {viewedStage === "Analysis" && viewedStageData ? (
-                <AnalysisWorkspaceForm
-                  planId={planId}
-                  workspaceData={viewedStageData.workspace_data}
-                  onDirtyChange={setAnalysisWorkspaceDirty}
-                />
-              ) : null}
-            </section>
+              const lastEditedText = plan.updated_at
+                ? t("course-plans-last-edited", {
+                    time: new Date(plan.updated_at).toLocaleDateString(undefined, {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    }),
+                  })
+                : null
 
-            <section
-              className={`${cardStyles} ${chatbotAreaStyles} ${chatbotCardStyles}`}
-              aria-label={t("course-plans-assistant-aria-label")}
-            >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <h3 className={sectionTitleStyles}>Assistant</h3>
-              {/* eslint-disable-next-line i18next/no-literal-string */}
-              <p className={aboutTextStyles}>
-                A course design assistant chatbot will appear here to help you with tasks and
-                questions about each stage.
-              </p>
-            </section>
-          </StageTimelineTabStrip>
+              const currentPhaseEndDateFormatted =
+                currentStageData?.planned_ends_on != null
+                  ? new Date(currentStageData.planned_ends_on).toLocaleDateString(i18n.language, {
+                      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+                      month: "long",
+                      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+                      year: "numeric",
+                    })
+                  : null
+
+              const activeStageTaskCompleted =
+                currentStageData?.tasks != null
+                  ? currentStageData.tasks.filter((task) => task.is_completed).length
+                  : 0
+              const activeStageTaskTotal =
+                currentStageData?.tasks != null ? currentStageData.tasks.length : 0
+              const currentStageIndex = currentStage
+                ? SCHEDULE_STAGE_ORDER.indexOf(currentStage)
+                : -1
+              const nextStage =
+                currentStageIndex >= 0 && currentStageIndex < SCHEDULE_STAGE_ORDER.length - 1
+                  ? SCHEDULE_STAGE_ORDER[currentStageIndex + 1]
+                  : null
+              const nextStageLabel = nextStage ? stageLabel(nextStage) : null
+
+              const canAct =
+                plan.status === "InProgress" &&
+                currentStage &&
+                currentStageData &&
+                currentStageData.status !== "Completed"
+
+              const currentStageSection =
+                viewedStageData && viewedStage ? (
+                  <WorkspaceStageSection
+                    key={viewedStageData.id}
+                    planId={planId}
+                    stage={viewedStageData}
+                    stageLabel={stageLabel(viewedStage)}
+                    isActive={viewedStage === currentStage}
+                    showStageTitle={false}
+                    onInvalidate={() =>
+                      void queryClient.invalidateQueries({
+                        queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
+                      })
+                    }
+                  />
+                ) : null
+
+              const stageDescriptionItems =
+                viewedStage === "Analysis"
+                  ? [
+                      t("course-plans-stage-description-analysis-1"),
+                      t("course-plans-stage-description-analysis-2"),
+                      t("course-plans-stage-description-analysis-3"),
+                      t("course-plans-stage-description-analysis-4"),
+                      t("course-plans-stage-description-analysis-5"),
+                    ]
+                  : viewedStage === "Design"
+                    ? [
+                        t("course-plans-stage-description-design-1"),
+                        t("course-plans-stage-description-design-2"),
+                        t("course-plans-stage-description-design-3"),
+                        t("course-plans-stage-description-design-4"),
+                        t("course-plans-stage-description-design-5"),
+                      ]
+                    : viewedStage === "Development"
+                      ? [
+                          t("course-plans-stage-description-development-1"),
+                          t("course-plans-stage-description-development-2"),
+                        ]
+                      : viewedStage === "Implementation"
+                        ? [
+                            t("course-plans-stage-description-implementation-1"),
+                            t("course-plans-stage-description-implementation-2"),
+                            t("course-plans-stage-description-implementation-3"),
+                          ]
+                        : viewedStage === "Evaluation"
+                          ? [
+                              t("course-plans-stage-description-evaluation-1"),
+                              t("course-plans-stage-description-evaluation-2"),
+                            ]
+                          : []
+
+              const keyGoalsContent =
+                viewedStage && stageDescriptionItems.length > 0
+                  ? stageDescriptionItems.map((line, index) => (
+                      <li key={`${viewedStage}-${index}`} className={keyGoalItemStyles}>
+                        {line}
+                      </li>
+                    ))
+                  : [
+                      <li key="generic-1" className={keyGoalItemStyles}>
+                        {t("course-plans-key-goal-1")}
+                      </li>,
+                      <li key="generic-2" className={keyGoalItemStyles}>
+                        {t("course-plans-key-goal-2")}
+                      </li>,
+                      <li key="generic-3" className={keyGoalItemStyles}>
+                        {t("course-plans-key-goal-3")}
+                      </li>,
+                    ]
+
+              return (
+                <>
+                  <PlanOverviewPanel
+                    isOpen={isOverviewOpen}
+                    onClose={() => setIsOverviewOpen(false)}
+                    planName={plan.name ?? t("course-plans-untitled-plan")}
+                    stages={stages}
+                    activeStage={currentStage ?? null}
+                    stageLabel={stageLabel}
+                    canActOnCurrentStage={Boolean(canAct)}
+                    onExtendCurrentStage={(months) =>
+                      currentStage &&
+                      extendMutation.mutate({
+                        body: { months },
+                        path: {
+                          plan_id: planId,
+                          stage: currentStage.toLowerCase(),
+                        },
+                      })
+                    }
+                    onAdvanceStage={() =>
+                      advanceMutation.mutate({
+                        path: {
+                          plan_id: planId,
+                        },
+                      })
+                    }
+                    isExtendPending={extendMutation.isPending}
+                    isAdvancePending={advanceMutation.isPending}
+                    timeRemainingText={timeRemainingText}
+                    timeRemainingShort={timeRemainingShort}
+                    currentPhaseEndDateFormatted={currentPhaseEndDateFormatted}
+                    activeStageTaskCompleted={activeStageTaskCompleted}
+                    activeStageTaskTotal={activeStageTaskTotal}
+                    nextStageLabel={nextStageLabel}
+                  />
+
+                  <div className={headerRowStyles}>
+                    <div className={headerBlockStyles}>
+                      <h1 className={titleStyles}>
+                        {plan.name ?? t("course-plans-untitled-plan")}
+                      </h1>
+                      {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
+                    </div>
+                  </div>
+
+                  <StageTimelineTabStrip
+                    stages={stages}
+                    activeStage={currentStage ?? null}
+                    selectedStage={viewedStage}
+                    onSelectedStageChange={handleSelectedStageChange}
+                    stageLabel={stageLabel}
+                    onOpenOverview={() => setIsOverviewOpen(true)}
+                    currentStageLabel={currentStage ? stageLabel(currentStage) : null}
+                    panelClassName={workspaceGridStyles}
+                  >
+                    <div className={headerAreaStyles}>
+                      <h2 className={currentStageTitleStyles}>
+                        {viewedStage
+                          ? stageLabel(viewedStage)
+                          : t("course-plans-instructions-heading")}
+                      </h2>
+                    </div>
+
+                    <section
+                      className={`${cardStyles} ${instructionsAreaStyles}`}
+                      aria-label={t("course-plans-instructions-aria-label")}
+                    >
+                      <h3 className={instructionsSectionTitleStyles}>
+                        {t("course-plans-instructions-heading")}
+                      </h3>
+                      <p className={aboutHeadingStyles}>{t("course-plans-about-this-phase")}</p>
+                      <p className={aboutTextStyles}>
+                        {viewedStage
+                          ? t(STAGE_BRIEF_KEYS[viewedStage])
+                          : t("course-plans-instructions-placeholder")}
+                      </p>
+                      <p className={keyGoalsHeadingStyles}>{t("course-plans-key-goals")}</p>
+                      <ul className={keyGoalsListStyles}>{keyGoalsContent}</ul>
+                    </section>
+
+                    <section
+                      className={`${cardStyles} ${tasksAreaStyles} ${tasksCardStyles}`}
+                      aria-label={t("course-plans-tasks-aria-label")}
+                    >
+                      <h3 className={sectionTitleStyles}>{t("course-plans-tasks-heading")}</h3>
+                      {currentStageSection ?? (
+                        <p className={emptyStateStyles}>{t("course-plans-no-active-stage")}</p>
+                      )}
+                    </section>
+
+                    <section
+                      className={`${cardStyles} ${workspaceAreaStyles} ${workspaceCardStyles}`}
+                      aria-label={t("course-plans-workspace-aria-label")}
+                    >
+                      <h3 className={sectionTitleStyles}>{t("course-plans-workspace-heading")}</h3>
+                      <p className={aboutTextStyles}>
+                        {viewedStage === "Analysis"
+                          ? t("course-plans-workspace-description")
+                          : t("course-plans-workspace-description-other-stages")}
+                      </p>
+                      {viewedStage === "Analysis" && viewedStageData ? (
+                        <AnalysisWorkspaceForm
+                          planId={planId}
+                          workspaceData={viewedStageData.workspace_data}
+                          onDirtyChange={setAnalysisWorkspaceDirty}
+                        />
+                      ) : null}
+                    </section>
+
+                    <section
+                      className={`${cardStyles} ${chatbotAreaStyles} ${chatbotCardStyles}`}
+                      aria-label={t("course-plans-assistant-aria-label")}
+                    >
+                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      <h3 className={sectionTitleStyles}>Assistant</h3>
+                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      <p className={aboutTextStyles}>
+                        A course design assistant chatbot will appear here to help you with tasks
+                        and questions about each stage.
+                      </p>
+                    </section>
+                  </StageTimelineTabStrip>
+                </>
+              )
+            }}
+          </QueryResult>
         </div>
       </div>
     </BreakFromCentered>

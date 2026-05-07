@@ -10,7 +10,7 @@ import { StageCardViewModel } from "../../scheduleMappers"
 import StageCard from "../StageCard"
 
 import { CourseDesignerStage } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
+import { Button } from "@/shared-module/components"
 
 const toolbarStyles = css`
   display: flex;

@@ -26,8 +26,9 @@ export function ChooserGridSection({
   pager?: React.ReactNode
 }) {
   const labelId = useId()
-  const selectedIndex = options.findIndex((option) => option.isSelected)
-  const defaultIndex = selectedIndex >= 0 ? selectedIndex : 0
+  const firstEnabledIndex = options.findIndex((option) => !option.isDisabled)
+  const selectedIndex = options.findIndex((option) => option.isSelected && !option.isDisabled)
+  const defaultIndex = selectedIndex >= 0 ? selectedIndex : Math.max(0, firstEnabledIndex)
 
   return (
     <div className={chooserSectionCss}>
@@ -51,7 +52,7 @@ export function ChooserGridSection({
               option.isSelected ? chooserGridOptionSelectedCss : undefined,
             )}
             data-selected={option.isSelected ? "true" : "false"}
-            disabled={isDisabled}
+            disabled={isDisabled || option.isDisabled}
             tabIndex={index === defaultIndex ? 0 : -1}
             type="button"
             onClick={option.onSelect}

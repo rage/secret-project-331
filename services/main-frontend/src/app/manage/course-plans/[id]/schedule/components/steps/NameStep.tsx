@@ -1,38 +1,17 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useEffect } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import Button from "@/shared-module/common/components/Button"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, TextField } from "@/shared-module/components"
 
 const fieldStyles = css`
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-
-  label {
-    font-weight: 600;
-    color: ${baseTheme.colors.gray[700]};
-    font-size: 0.9rem;
-    margin-bottom: 0.15rem;
-  }
-
-  input[type="text"] {
-    padding: 0.65rem 0.85rem;
-    border-radius: 10px;
-    border: 1px solid ${baseTheme.colors.gray[300]};
-    font-size: 1rem;
-    transition:
-      border-color 0.2s,
-      box-shadow 0.2s;
-
-    :focus {
-      outline: none;
-      border-color: ${baseTheme.colors.green[500]};
-      box-shadow: 0 0 0 3px ${baseTheme.colors.green[100]};
-    }
-  }
 `
 
 const hintStyles = css`
@@ -56,18 +35,35 @@ interface NameStepProps {
 
 export default function NameStep({ planName, onPlanNameChange, onContinue }: NameStepProps) {
   const { t } = useTranslation()
+  const { control, setValue, watch } = useForm<{ planName: string }>({
+    defaultValues: { planName },
+  })
+
+  useEffect(() => {
+    setValue("planName", planName)
+  }, [planName, setValue])
+
+  useEffect(() => {
+    const subscription = watch((values, meta) => {
+      if (meta.name === "planName") {
+        onPlanNameChange(values.planName ?? "")
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [onPlanNameChange, watch])
 
   return (
     <>
       <h2>{t("course-plans-wizard-step-name")}</h2>
 
       <div className={fieldStyles}>
-        <label htmlFor="course-plan-name">{t("course-plans-plan-name-label")}</label>
-        <input
+        <TextField
           id="course-plan-name"
-          type="text"
-          value={planName}
-          onChange={(event) => onPlanNameChange(event.target.value)}
+          // eslint-disable-next-line i18next/no-literal-string
+          name="planName"
+          control={control}
+          label={t("course-plans-plan-name-label")}
           placeholder={t("course-plans-untitled-plan")}
         />
       </div>

@@ -15,10 +15,9 @@ import ScheduleEditorStep from "./steps/ScheduleEditorStep"
 import SetupStep from "./steps/SetupStep"
 
 import { CourseDesignerStage } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { manageCoursePlanWorkspaceRoute } from "@/shared-module/common/utils/routes"
+import { QueryResult } from "@/shared-module/components"
 
 const containerStyles = css`
   max-width: 1100px;
@@ -125,86 +124,82 @@ export default function ScheduleWizardPage() {
       reduceMotion ? { opacity: 0 } : { x: dir === 1 ? -40 : 40, opacity: 0 },
   }
 
-  if (controller.planQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={controller.planQuery.error} />
-  }
-
-  if (controller.planQuery.isLoading || !controller.planQuery.data) {
-    return <Spinner variant="medium" />
-  }
-
   return (
-    <div className={containerStyles}>
-      <h1 className={titleStyles}>{t("course-plans-schedule-title")}</h1>
+    <QueryResult query={controller.planQuery}>
+      {() => (
+        <div className={containerStyles}>
+          <h1 className={titleStyles}>{t("course-plans-schedule-title")}</h1>
 
-      <ScheduleWizardProgress step={controller.ui.step} />
+          <ScheduleWizardProgress step={controller.ui.step} />
 
-      {/* eslint-disable i18next/no-literal-string -- Motion API uses literal mode/variant names */}
-      <AnimatePresence mode="wait" custom={controller.ui.wizardDirection}>
-        <motion.div
-          key={stepTransitionDirection(controller.ui.step)}
-          custom={controller.ui.wizardDirection}
-          variants={stepVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={stepTransition}
-          className={cx(sectionStyles, wizardStepCardStyles)}
-          layout={!reduceMotion}
-        >
-          {controller.ui.step === "name" && (
-            <NameStep
-              planName={controller.ui.planName}
-              onPlanNameChange={controller.actions.setPlanName}
-              onContinue={() => controller.actions.goToStep("setup")}
-            />
-          )}
+          {/* eslint-disable i18next/no-literal-string -- Motion API uses literal mode/variant names */}
+          <AnimatePresence mode="wait" custom={controller.ui.wizardDirection}>
+            <motion.div
+              key={stepTransitionDirection(controller.ui.step)}
+              custom={controller.ui.wizardDirection}
+              variants={stepVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              transition={stepTransition}
+              className={cx(sectionStyles, wizardStepCardStyles)}
+              layout={!reduceMotion}
+            >
+              {controller.ui.step === "name" && (
+                <NameStep
+                  planName={controller.ui.planName}
+                  onPlanNameChange={controller.actions.setPlanName}
+                  onContinue={() => controller.actions.goToStep("setup")}
+                />
+              )}
 
-          {controller.ui.step === "setup" && (
-            <SetupStep
-              courseSize={controller.ui.courseSize}
-              startsOnMonth={controller.ui.startsOnMonth}
-              isGeneratingSuggestion={controller.status.isGeneratingSuggestion}
-              onCourseSizeChange={controller.actions.setCourseSize}
-              onStartsOnMonthChange={controller.actions.setStartsOnMonth}
-              onBack={() => controller.actions.goToStep("name")}
-              onContinue={() => {
-                void controller.actions.generateSuggestion({ goToScheduleStep: true })
-              }}
-            />
-          )}
+              {controller.ui.step === "setup" && (
+                <SetupStep
+                  courseSize={controller.ui.courseSize}
+                  startsOnMonth={controller.ui.startsOnMonth}
+                  isGeneratingSuggestion={controller.status.isGeneratingSuggestion}
+                  onCourseSizeChange={controller.actions.setCourseSize}
+                  onStartsOnMonthChange={controller.actions.setStartsOnMonth}
+                  onBack={() => controller.actions.goToStep("name")}
+                  onContinue={() => {
+                    void controller.actions.generateSuggestion({ goToScheduleStep: true })
+                  }}
+                />
+              )}
 
-          {controller.ui.step === "schedule" && (
-            <ScheduleEditorStep
-              draftStageCount={controller.ui.draftStageCount}
-              stageCards={controller.ui.stageCards}
-              stageLabel={stageLabel}
-              validationError={validationError}
-              startsOnMonth={controller.ui.startsOnMonth}
-              reduceMotion={reduceMotion}
-              isGeneratingSuggestion={controller.status.isGeneratingSuggestion}
-              isSaving={controller.status.isSaving}
-              isFinalizing={controller.status.isFinalizing}
-              onResetSuggestion={() => {
-                void controller.actions.generateSuggestion()
-              }}
-              onAddMonth={controller.actions.addMonth}
-              onRemoveMonth={controller.actions.removeMonth}
-              onBack={() => controller.actions.goToStep("setup")}
-              onSave={() => {
-                void controller.actions.saveDraft()
-              }}
-              onFinalize={async () => {
-                const ok = await controller.actions.finalizeDraft()
-                if (ok) {
-                  router.push(manageCoursePlanWorkspaceRoute(planId))
-                }
-              }}
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
-      {/* eslint-enable i18next/no-literal-string */}
-    </div>
+              {controller.ui.step === "schedule" && (
+                <ScheduleEditorStep
+                  draftStageCount={controller.ui.draftStageCount}
+                  stageCards={controller.ui.stageCards}
+                  stageLabel={stageLabel}
+                  validationError={validationError}
+                  startsOnMonth={controller.ui.startsOnMonth}
+                  reduceMotion={reduceMotion}
+                  isGeneratingSuggestion={controller.status.isGeneratingSuggestion}
+                  isSaving={controller.status.isSaving}
+                  isFinalizing={controller.status.isFinalizing}
+                  onResetSuggestion={() => {
+                    void controller.actions.generateSuggestion()
+                  }}
+                  onAddMonth={controller.actions.addMonth}
+                  onRemoveMonth={controller.actions.removeMonth}
+                  onBack={() => controller.actions.goToStep("setup")}
+                  onSave={() => {
+                    void controller.actions.saveDraft()
+                  }}
+                  onFinalize={async () => {
+                    const ok = await controller.actions.finalizeDraft()
+                    if (ok) {
+                      router.push(manageCoursePlanWorkspaceRoute(planId))
+                    }
+                  }}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+          {/* eslint-enable i18next/no-literal-string */}
+        </div>
+      )}
+    </QueryResult>
   )
 }

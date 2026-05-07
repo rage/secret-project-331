@@ -12,11 +12,9 @@ import {
   getCourseDesignerPlansOptions,
   getCourseDesignerPlansQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
-import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
+import { Button, QueryResult } from "@/shared-module/components"
 
 const containerStyles = css`
   max-width: 1000px;
@@ -64,10 +62,7 @@ export default function CoursePlansListPage() {
         </Button>
       </div>
 
-      {plansQuery.isError && <ErrorBanner variant="readOnly" error={plansQuery.error} />}
-      {plansQuery.isLoading && <Spinner variant="medium" />}
-
-      {plansQuery.isSuccess && <CoursePlanList plans={plansQuery.data} />}
+      <QueryResult query={plansQuery}>{(plans) => <CoursePlanList plans={plans} />}</QueryResult>
     </div>
   )
 }

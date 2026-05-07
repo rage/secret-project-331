@@ -28,6 +28,8 @@ export { TextField } from "./components/TextField"
 export type { TextFieldProps } from "./components/TextField"
 export { TimeField } from "./components/TimeField"
 export type { TimeFieldProps } from "./components/TimeField"
+export { YearMonthField } from "./components/YearMonthField"
+export type { YearMonthFieldProps } from "./components/YearMonthField"
 export type ButtonRef = HTMLButtonElement
 export type LinkRef = HTMLAnchorElement
 export type RadioRef = HTMLInputElement

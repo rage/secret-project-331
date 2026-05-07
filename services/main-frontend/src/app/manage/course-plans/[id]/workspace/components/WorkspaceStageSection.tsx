@@ -2,7 +2,8 @@
 
 import { css, cx } from "@emotion/css"
 import { Trash } from "@vectopus/atlas-icons-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,10 +15,9 @@ import type {
   CourseDesignerPlanStageTask,
   CourseDesignerPlanStageWithTasks,
 } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
+import { Button, Checkbox } from "@/shared-module/components"
 
 const cardStyles = css`
   background: white;
@@ -407,14 +407,35 @@ function WorkspaceTaskRow({
   isDeleting,
 }: WorkspaceTaskRowProps) {
   const { t } = useTranslation()
+  const { control, setValue, watch } = useForm<{ isCompleted: boolean }>({
+    defaultValues: { isCompleted: task.is_completed },
+  })
+
+  useEffect(() => {
+    setValue("isCompleted", task.is_completed)
+  }, [setValue, task.is_completed])
+
+  useEffect(() => {
+    const subscription = watch((values, meta) => {
+      if (meta.name !== "isCompleted") {
+        return
+      }
+      if (values.isCompleted !== task.is_completed) {
+        onToggle(Boolean(values.isCompleted))
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [onToggle, task.is_completed, watch])
+
   return (
     <li className={`${taskRowStyles} ${taskRowWithHoverStyles}`}>
-      <CheckBox
-        aria-label={task.title}
-        checked={task.is_completed}
+      <Checkbox
+        // eslint-disable-next-line i18next/no-literal-string
+        name="isCompleted"
+        control={control}
         label=""
-        onChange={(e) => onToggle(e.target.checked)}
-        disabled={isUpdating}
+        aria-label={task.title}
+        isDisabled={isUpdating}
         className={taskRowCheckboxWrapperStyles}
       />
       <span

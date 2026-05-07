@@ -82,7 +82,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   function Button(props, forwardedRef) {
     const {
       variant = "primary",
-      size = "md",
+      size = "medium",
       icon,
       iconPosition = "start",
       isLoading = false,

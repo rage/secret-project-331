@@ -5,13 +5,13 @@ import { useParams, useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 import { getCourseDesignerPlanOptions } from "@/generated/api/@tanstack/react-query.generated"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import {
   manageCoursePlanScheduleRoute,
   manageCoursePlanWorkspaceRoute,
 } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 function CoursePlanHubRedirect() {
@@ -50,10 +50,7 @@ function CoursePlanHubRedirect() {
     }
   }, [planQuery.data, planId, router])
 
-  if (planQuery.isLoading || planQuery.isError) {
-    return <Spinner variant="medium" />
-  }
-  return <Spinner variant="medium" />
+  return <QueryResult query={planQuery}>{() => null}</QueryResult>
 }
 
 export default withErrorBoundary(withSignedIn(CoursePlanHubRedirect))

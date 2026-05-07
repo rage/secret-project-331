@@ -134,7 +134,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       cx(
         styledAsButtonResolved
           ? resolveButtonRootCss({
-              size: (styledAsButtonResolved ? size : undefined) ?? "md",
+              size: (styledAsButtonResolved ? size : undefined) ?? "medium",
               variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
             })
           : undefined,

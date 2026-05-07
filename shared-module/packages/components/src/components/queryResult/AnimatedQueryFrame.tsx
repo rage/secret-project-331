@@ -83,15 +83,17 @@ export type AnimatedQueryFrameProps<E> = {
 /** Default blocking-error UI with retry. */
 export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
   const { t } = useTranslation()
+  const tr = (key: string, options?: unknown) =>
+    t(key as never, options as never) as unknown as string
 
   return (
     <div className={blockingErrorCss} role="alert">
       <div className={errorStackCss}>
         <p className={errorTextCss}>
-          {t("queryResult.errorMessage", { message: getErrorMessage(error) })}
+          {tr("queryResult.errorMessage", { message: getErrorMessage(error) })}
         </p>
-        <Button type="button" variant="secondary" size="sm" onPress={retry}>
-          {t("queryResult.retry")}
+        <Button type="button" variant="secondary" size="small" onPress={retry}>
+          {tr("queryResult.retry")}
         </Button>
       </div>
     </div>
@@ -101,14 +103,16 @@ export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
 /** Inline stale-error notice with retry (content still renders below). */
 export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   const { t } = useTranslation()
+  const tr = (key: string, options?: unknown) =>
+    t(key as never, options as never) as unknown as string
 
   return (
     <div className={errorStackCss}>
       <div className={staleStatusCss} role="status">
-        {t("queryResult.errorMessage", { message: getErrorMessage(error) })}
+        {tr("queryResult.errorMessage", { message: getErrorMessage(error) })}
       </div>
-      <Button type="button" variant="tertiary" size="sm" onPress={retry}>
-        {t("queryResult.retry")}
+      <Button type="button" variant="tertiary" size="small" onPress={retry}>
+        {tr("queryResult.retry")}
       </Button>
     </div>
   )
@@ -130,6 +134,8 @@ export function AnimatedQueryFrame<E>({
   renderStaleError,
 }: AnimatedQueryFrameProps<E>) {
   const { t } = useTranslation()
+  const tr = (key: string, options?: unknown) =>
+    t(key as never, options as never) as unknown as string
   const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
@@ -142,7 +148,7 @@ export function AnimatedQueryFrame<E>({
   }
 
   if (initialLoading) {
-    const loadingLabel = t("queryResult.loading")
+    const loadingLabel = tr("queryResult.loading")
     return (
       <section
         className={wrapperCss}
@@ -198,7 +204,7 @@ export function AnimatedQueryFrame<E>({
         <div
           role="status"
           aria-live="polite"
-          aria-label={t("queryResult.refreshing")}
+          aria-label={tr("queryResult.refreshing")}
           data-testid="query-refreshing-status"
         />
       ) : null}

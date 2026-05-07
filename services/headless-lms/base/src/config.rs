@@ -35,13 +35,12 @@ impl ApplicationConfiguration {
     /// Attempts to create an ApplicationConfiguration from environment variables.
     pub fn try_from_env() -> anyhow::Result<Self> {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
-        let test_mode = env::var("TEST_MODE").is_ok();
-        let development_uuid_login = env::var("DEVELOPMENT_UUID_LOGIN").is_ok();
-        let enable_admin_email_verification = env::var("ENABLE_ADMIN_EMAIL_VERIFICATION")
-            .map(|v| v.parse::<bool>().unwrap_or(false))
-            .unwrap_or(false);
+        let test_mode = bool_env_false_by_default("TEST_MODE");
+        let development_uuid_login = bool_env_false_by_default("DEVELOPMENT_UUID_LOGIN");
+        let enable_admin_email_verification =
+            bool_env_false_by_default("ENABLE_ADMIN_EMAIL_VERIFICATION");
         let test_chatbot = test_mode
-            && (env::var("USE_MOCK_AZURE_CONFIGURATION").is_ok_and(|v| v.as_str() != "false")
+            && (bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
                 || env::var("AZURE_CHATBOT_API_KEY").is_err());
 
         let azure_configuration = if test_chatbot {

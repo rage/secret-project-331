@@ -549,8 +549,6 @@ import type {
   SetExamCourseResponses,
   SoftDeleteOrganizationData,
   SoftDeleteOrganizationResponses,
-  StartCourseDesignerPlanData,
-  StartCourseDesignerPlanResponses,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponses,
   TeacherSetStudentChapterStatusData,
@@ -828,7 +826,6 @@ import {
   zSetCourseChatbotAsDefaultResponse,
   zSetCourseChatbotAsNonDefaultResponse,
   zSetCourseModuleCertificateGenerationResponse,
-  zStartCourseDesignerPlanResponse,
   zTeacherLockStudentChapterResponse,
   zTeacherSetStudentChapterStatusResponse,
   zTeacherUnlockStudentChapterResponse,
@@ -1923,16 +1920,6 @@ export const updateCourseDesignerStageWorkspace = <ThrowOnError extends boolean 
       "Content-Type": "application/json",
       ...options.headers,
     },
-  })
-
-export const startCourseDesignerPlan = <ThrowOnError extends boolean = true>(
-  options: Options<StartCourseDesignerPlanData, ThrowOnError>,
-) =>
-  (options.client ?? client).post<StartCourseDesignerPlanResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zStartCourseDesignerPlanResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/main-frontend/course-plans/{plan_id}/start",
-    ...options,
   })
 
 export const deleteCourseDesignerStageTask = <ThrowOnError extends boolean = true>(

@@ -38,7 +38,6 @@
               "Enum": [
                 "draft",
                 "scheduling",
-                "ready_to_start",
                 "in_progress",
                 "completed",
                 "archived"

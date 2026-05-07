@@ -281,7 +281,6 @@ import {
   setCourseModuleCertificateGeneration,
   setExamCourse,
   softDeleteOrganization,
-  startCourseDesignerPlan,
   teacherLockStudentChapter,
   teacherSetStudentChapterStatus,
   teacherUnlockStudentChapter,
@@ -798,8 +797,6 @@ import type {
   SetCourseModuleCertificateGenerationResponse,
   SetExamCourseData,
   SoftDeleteOrganizationData,
-  StartCourseDesignerPlanData,
-  StartCourseDesignerPlanResponse,
   TeacherLockStudentChapterData,
   TeacherLockStudentChapterResponse,
   TeacherSetStudentChapterStatusData,
@@ -2376,28 +2373,6 @@ export const updateCourseDesignerStageWorkspaceMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await updateCourseDesignerStageWorkspace({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-export const startCourseDesignerPlanMutation = (
-  options?: Partial<Options<StartCourseDesignerPlanData>>,
-): UseMutationOptions<
-  StartCourseDesignerPlanResponse,
-  DefaultError,
-  Options<StartCourseDesignerPlanData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    StartCourseDesignerPlanResponse,
-    DefaultError,
-    Options<StartCourseDesignerPlanData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await startCourseDesignerPlan({
         ...options,
         ...fnOptions,
         throwOnError: true,

@@ -25,7 +25,6 @@ use crate::prelude::*;
     post_stage_task,
     patch_task,
     delete_task,
-    post_start_plan,
     post_extend_stage,
     post_advance_stage,
     patch_stage_workspace
@@ -323,27 +322,6 @@ async fn delete_task(
     token.authorized_ok(HttpResponse::NoContent().finish())
 }
 
-#[instrument(skip(pool))]
-#[utoipa::path(
-    post,
-    path = "/{plan_id}/start",
-    operation_id = "startCourseDesignerPlan",
-    tag = "course-plans",
-    params(("plan_id" = Uuid, Path, description = "Plan id")),
-    responses((status = 200, description = "Started plan", body = CourseDesignerPlan))
-)]
-async fn post_start_plan(
-    plan_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<CourseDesignerPlan>> {
-    let mut conn = pool.acquire().await?;
-    let plan =
-        models::course_designer_plans::start_plan_for_user(&mut conn, *plan_id, user.id).await?;
-    let token = skip_authorize();
-    token.authorized_ok(web::Json(plan))
-}
-
 fn parse_stage(path_stage: &str) -> Option<CourseDesignerStage> {
     match path_stage.to_lowercase().as_str() {
         "analysis" => Some(CourseDesignerStage::Analysis),
@@ -470,7 +448,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{plan_id}/schedule/finalize",
             web::post().to(post_finalize_schedule),
         )
-        .route("/{plan_id}/start", web::post().to(post_start_plan))
         .route(
             "/{plan_id}/stages/advance",
             web::post().to(post_advance_stage),

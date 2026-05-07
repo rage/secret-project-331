@@ -19,7 +19,6 @@ pub enum CourseDesignerStage {
 pub enum CourseDesignerPlanStatus {
     Draft,
     Scheduling,
-    ReadyToStart,
     InProgress,
     Completed,
     Archived,
@@ -618,12 +617,7 @@ WHERE course_designer_plan_id = $1
     .fetch_one(&mut *tx)
     .await?;
 
-    // Keep finalized plans finalized when the schedule is re-saved (including no-op saves).
-    let updated_status = if matches!(locked_plan.status, CourseDesignerPlanStatus::ReadyToStart) {
-        locked_plan.status
-    } else {
-        CourseDesignerPlanStatus::Scheduling
-    };
+    let updated_status = CourseDesignerPlanStatus::Scheduling;
 
     let updated_plan: CourseDesignerPlan = sqlx::query_as!(
         CourseDesignerPlan,
@@ -920,82 +914,6 @@ WHERE t.course_designer_plan_stage_id = s.id AND s.course_designer_plan_id = $1
         ));
     }
     Ok(())
-}
-
-pub async fn start_plan_for_user(
-    conn: &mut PgConnection,
-    plan_id: Uuid,
-    user_id: Uuid,
-) -> ModelResult<CourseDesignerPlan> {
-    let mut tx = conn.begin().await?;
-    let plan: CourseDesignerPlan = sqlx::query_as!(
-        CourseDesignerPlan,
-        r#"
-SELECT
-  p.id,
-  p.created_at,
-  p.updated_at,
-  p.created_by_user_id,
-  p.name,
-  p.status AS "status: CourseDesignerPlanStatus",
-  p.active_stage AS "active_stage: CourseDesignerStage",
-  p.last_weekly_stage_email_sent_at
-FROM course_designer_plans p
-JOIN course_designer_plan_members m ON m.course_designer_plan_id = p.id
-  AND m.user_id = $2 AND m.deleted_at IS NULL
-WHERE p.id = $1 AND p.deleted_at IS NULL
-FOR UPDATE
-"#,
-        plan_id,
-        user_id
-    )
-    .fetch_one(&mut *tx)
-    .await?;
-    if plan.status != CourseDesignerPlanStatus::ReadyToStart {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Plan can only be started when status is ready_to_start.".to_string(),
-            None,
-        ));
-    }
-    let first_stage = CourseDesignerStage::Analysis;
-    let now = Utc::now();
-    sqlx::query!(
-        r#"
-UPDATE course_designer_plans
-SET status = $2, active_stage = $3
-WHERE id = $1 AND deleted_at IS NULL
-"#,
-        plan_id,
-        CourseDesignerPlanStatus::InProgress as CourseDesignerPlanStatus,
-        first_stage as CourseDesignerStage
-    )
-    .execute(&mut *tx)
-    .await?;
-    sqlx::query!(
-        r#"
-UPDATE course_designer_plan_stages
-SET status = $2, actual_started_at = $3
-WHERE course_designer_plan_id = $1 AND stage = $4 AND deleted_at IS NULL
-"#,
-        plan_id,
-        CourseDesignerPlanStageStatus::InProgress as CourseDesignerPlanStageStatus,
-        now,
-        first_stage as CourseDesignerStage
-    )
-    .execute(&mut *tx)
-    .await?;
-    insert_plan_event(
-        &mut tx,
-        plan_id,
-        Some(user_id),
-        "plan_started",
-        Some(first_stage),
-        json!({}),
-    )
-    .await?;
-    tx.commit().await?;
-    get_plan_for_user(conn, plan_id, user_id).await
 }
 
 pub async fn extend_stage_for_user(
@@ -1351,27 +1269,34 @@ WHERE course_designer_plan_id = $1
         ));
     }
 
-    let finalized_plan: CourseDesignerPlan = sqlx::query_as!(
-        CourseDesignerPlan,
+    let first_stage = CourseDesignerStage::Analysis;
+    let now = Utc::now();
+
+    sqlx::query!(
         r#"
 UPDATE course_designer_plans
-SET status = $2
-WHERE id = $1
-  AND deleted_at IS NULL
-RETURNING
-  id,
-  created_at,
-  updated_at,
-  created_by_user_id,
-  name,
-  status AS "status: CourseDesignerPlanStatus",
-  active_stage AS "active_stage: CourseDesignerStage",
-  last_weekly_stage_email_sent_at
+SET status = $2, active_stage = $3
+WHERE id = $1 AND deleted_at IS NULL
 "#,
         plan_id,
-        CourseDesignerPlanStatus::ReadyToStart as CourseDesignerPlanStatus
+        CourseDesignerPlanStatus::InProgress as CourseDesignerPlanStatus,
+        first_stage as CourseDesignerStage
     )
-    .fetch_one(&mut *tx)
+    .execute(&mut *tx)
+    .await?;
+
+    sqlx::query!(
+        r#"
+UPDATE course_designer_plan_stages
+SET status = $2, actual_started_at = $3
+WHERE course_designer_plan_id = $1 AND stage = $4 AND deleted_at IS NULL
+"#,
+        plan_id,
+        CourseDesignerPlanStageStatus::InProgress as CourseDesignerPlanStageStatus,
+        now,
+        first_stage as CourseDesignerStage
+    )
+    .execute(&mut *tx)
     .await?;
 
     let schedule_snapshot = sqlx::query_as::<_, CourseDesignerPlanStage>(
@@ -1410,13 +1335,13 @@ ORDER BY
         plan_id,
         Some(user_id),
         "schedule_finalized",
-        None,
-        json!({ "stages": schedule_snapshot }),
+        Some(first_stage),
+        json!({ "stages": schedule_snapshot, "active_stage": first_stage, "activated_at": now }),
     )
     .await?;
 
     tx.commit().await?;
-    Ok(finalized_plan)
+    get_plan_for_user(conn, plan_id, user_id).await
 }
 
 pub async fn update_stage_workspace_for_user(
@@ -1443,7 +1368,7 @@ pub async fn update_stage_workspace_for_user(
             None,
         )
     })?;
-    let updated: Option<Uuid> = sqlx::query_scalar(
+    let updated: Option<Uuid> = sqlx::query_scalar!(
         r#"
 UPDATE course_designer_plan_stages s
 SET workspace_data = $3
@@ -1456,11 +1381,11 @@ WHERE s.course_designer_plan_id = $1
   AND m.deleted_at IS NULL
 RETURNING s.id
 "#,
+        plan_id,
+        stage as CourseDesignerStage,
+        workspace_json,
+        user_id
     )
-    .bind(plan_id)
-    .bind(stage)
-    .bind(workspace_json)
-    .bind(user_id)
     .fetch_optional(&mut *conn)
     .await?;
     if updated.is_none() {

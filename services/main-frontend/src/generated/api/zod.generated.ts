@@ -506,7 +506,6 @@ export const zCourseDesignerPlanStageTask = z.object({
 export const zCourseDesignerPlanStatus = z.enum([
   "Draft",
   "Scheduling",
-  "ReadyToStart",
   "InProgress",
   "Completed",
   "Archived",
@@ -2723,7 +2722,7 @@ export const zUploadFilesFromExerciseServicePath = z.object({
 export const zUploadFilesFromExerciseServiceResponse = z.record(z.string(), z.string())
 
 export const zUpdateCertificateConfigurationBody = z.object({
-  file: z.string(),
+  file: z.array(z.string()),
   metadata: zCertificateConfigurationUpdate,
 })
 
@@ -3227,15 +3226,6 @@ export const zUpdateCourseDesignerStageWorkspacePath = z.object({
  * Updated plan details
  */
 export const zUpdateCourseDesignerStageWorkspaceResponse = zCourseDesignerPlanDetails
-
-export const zStartCourseDesignerPlanPath = z.object({
-  plan_id: z.uuid(),
-})
-
-/**
- * Started plan
- */
-export const zStartCourseDesignerPlanResponse = zCourseDesignerPlan
 
 export const zDeleteCourseDesignerStageTaskPath = z.object({
   plan_id: z.uuid(),

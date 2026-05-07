@@ -597,7 +597,6 @@ export type CourseDesignerStageWorkspace = {
 export type CourseDesignerPlanStatus =
   | "Draft"
   | "Scheduling"
-  | "ReadyToStart"
   | "InProgress"
   | "Completed"
   | "Archived"

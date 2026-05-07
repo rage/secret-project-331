@@ -629,7 +629,6 @@ export type CourseDesignerPlanStageWithTasks = CourseDesignerPlanStage & {
 export type CourseDesignerPlanStatus =
   | "Draft"
   | "Scheduling"
-  | "ReadyToStart"
   | "InProgress"
   | "Completed"
   | "Archived"
@@ -2254,7 +2253,7 @@ export type UploadFilesFromExerciseServiceResponse =
 
 export type UpdateCertificateConfigurationData = {
   body: {
-    file: Blob | File
+    file: Array<Blob | File>
     metadata: CertificateConfigurationUpdate
   }
   path?: never
@@ -3463,28 +3462,6 @@ export type UpdateCourseDesignerStageWorkspaceResponses = {
 
 export type UpdateCourseDesignerStageWorkspaceResponse =
   UpdateCourseDesignerStageWorkspaceResponses[keyof UpdateCourseDesignerStageWorkspaceResponses]
-
-export type StartCourseDesignerPlanData = {
-  body?: never
-  path: {
-    /**
-     * Plan id
-     */
-    plan_id: string
-  }
-  query?: never
-  url: "/api/v0/main-frontend/course-plans/{plan_id}/start"
-}
-
-export type StartCourseDesignerPlanResponses = {
-  /**
-   * Started plan
-   */
-  200: CourseDesignerPlan
-}
-
-export type StartCourseDesignerPlanResponse =
-  StartCourseDesignerPlanResponses[keyof StartCourseDesignerPlanResponses]
 
 export type DeleteCourseDesignerStageTaskData = {
   body?: never

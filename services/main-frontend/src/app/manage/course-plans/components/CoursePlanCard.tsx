@@ -45,8 +45,6 @@ export default function CoursePlanCard({ plan }: CoursePlanCardProps) {
         return t("course-plans-status-draft")
       case "Scheduling":
         return t("course-plans-status-scheduling")
-      case "ReadyToStart":
-        return t("course-plans-status-ready-to-start")
       case "InProgress":
         return t("course-plans-status-in-progress")
       case "Completed":

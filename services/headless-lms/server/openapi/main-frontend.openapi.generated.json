@@ -73,8 +73,11 @@
                 "required": ["metadata", "file"],
                 "properties": {
                   "file": {
-                    "type": "string",
-                    "format": "binary",
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
                     "contentMediaType": "application/octet-stream"
                   },
                   "metadata": {
@@ -2021,36 +2024,6 @@
         }
       }
     },
-    "/api/v0/main-frontend/course-plans/{plan_id}/start": {
-      "post": {
-        "tags": ["course-plans"],
-        "operationId": "startCourseDesignerPlan",
-        "parameters": [
-          {
-            "name": "plan_id",
-            "in": "path",
-            "description": "Plan id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Started plan",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CourseDesignerPlan"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}": {
       "delete": {
         "tags": ["course-plans"],
@@ -3213,7 +3186,7 @@
           "200": {
             "description": "Joined course id",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "type": "string",
                   "format": "uuid"
@@ -12564,7 +12537,7 @@
       },
       "CourseDesignerPlanStatus": {
         "type": "string",
-        "enum": ["Draft", "Scheduling", "ReadyToStart", "InProgress", "Completed", "Archived"]
+        "enum": ["Draft", "Scheduling", "InProgress", "Completed", "Archived"]
       },
       "CourseDesignerPlanSummary": {
         "type": "object",

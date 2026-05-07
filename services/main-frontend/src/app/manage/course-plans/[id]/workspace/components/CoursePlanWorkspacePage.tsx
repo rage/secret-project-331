@@ -18,14 +18,13 @@ import {
   extendCourseDesignerStageMutation,
   getCourseDesignerPlanOptions,
   getCourseDesignerPlanQueryKey,
-  startCourseDesignerPlanMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-import { Button, QueryResult } from "@/shared-module/components"
+import { QueryResult } from "@/shared-module/components"
 
 const pageRootStyles = css`
   padding: 2rem 0 3rem 0;
@@ -315,18 +314,6 @@ export default function CoursePlanWorkspacePage() {
     }),
   )
 
-  const startMutation = useToastMutationOptions(
-    startCourseDesignerPlanMutation(),
-    { notify: true, method: "POST" },
-    {
-      onSuccess: () => {
-        void queryClient.invalidateQueries({
-          queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
-        })
-      },
-    },
-  )
-
   const extendMutation = useToastMutationOptions(
     extendCourseDesignerStageMutation(),
     { notify: true, method: "POST" },
@@ -404,31 +391,6 @@ export default function CoursePlanWorkspacePage() {
         <div className={workspaceShellStyles}>
           <QueryResult query={planQuery}>
             {({ plan, stages }) => {
-              if (plan.status === "ReadyToStart" && !plan.active_stage) {
-                return (
-                  <>
-                    <h1 className={titleStyles}>{plan.name ?? t("course-plans-untitled-plan")}</h1>
-                    <div className={cardStyles}>
-                      <p>{t("course-plans-status-ready-to-start")}</p>
-                      <Button
-                        variant="primary"
-                        size="medium"
-                        onClick={() =>
-                          startMutation.mutate({
-                            path: {
-                              plan_id: planId,
-                            },
-                          })
-                        }
-                        disabled={startMutation.isPending}
-                      >
-                        {t("course-plans-start-plan")}
-                      </Button>
-                    </div>
-                  </>
-                )
-              }
-
               const currentStage = plan.active_stage ?? null
               const currentStageData = currentStage
                 ? stages.find((s) => s.stage === currentStage)

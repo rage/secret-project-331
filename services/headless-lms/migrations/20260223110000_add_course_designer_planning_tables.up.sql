@@ -10,7 +10,6 @@ COMMENT ON TYPE course_designer_stage IS 'Fixed stage identifiers for the hardco
 CREATE TYPE course_designer_plan_status AS ENUM (
   'draft',
   'scheduling',
-  'ready_to_start',
   'in_progress',
   'completed',
   'archived'

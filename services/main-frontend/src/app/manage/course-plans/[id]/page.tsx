@@ -41,11 +41,7 @@ function CoursePlanHubRedirect() {
       router.replace(manageCoursePlanScheduleRoute(planId))
       return
     }
-    if (
-      plan.status === "ReadyToStart" ||
-      plan.status === "InProgress" ||
-      plan.status === "Completed"
-    ) {
+    if (plan.status === "InProgress" || plan.status === "Completed") {
       router.replace(manageCoursePlanWorkspaceRoute(planId))
     }
   }, [planQuery.data, planId, router])

@@ -1,1 +1,0 @@
-DROP INDEX IF EXISTS suspected_cheaters_user_course_not_deleted_idx;

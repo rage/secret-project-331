@@ -1,3 +1,5 @@
+DROP INDEX IF EXISTS suspected_cheaters_user_course_not_deleted_idx;
+
 CREATE INDEX IF NOT EXISTS user_details_search_helper_gist ON user_details USING gist (search_helper gist_trgm_ops);
 
 DROP INDEX IF EXISTS user_details_name_search_helper_gist;

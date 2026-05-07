@@ -96,23 +96,23 @@ RETURNING *
     let inner = match input.message {
         Message::Text(message) => {
             let res =
-                chatbot_conversation_message_messages::insert(&mut *tx, message, msg.id).await?;
+                chatbot_conversation_message_messages::insert(&mut tx, message, msg.id).await?;
             Message::Text(res)
         }
         Message::ToolCall(tool_call) => {
-            let res = chatbot_conversation_message_tool_calls::insert(&mut *tx, tool_call, msg.id)
-                .await?;
+            let res =
+                chatbot_conversation_message_tool_calls::insert(&mut tx, tool_call, msg.id).await?;
             Message::ToolCall(res)
         }
         Message::ToolOutput(tool_output) => {
             let res =
-                chatbot_conversation_message_tool_outputs::insert(&mut *tx, tool_output, msg.id)
+                chatbot_conversation_message_tool_outputs::insert(&mut tx, tool_output, msg.id)
                     .await?;
             Message::ToolOutput(res)
         }
         Message::Reasoning(reasoning) => {
             let res =
-                chatbot_conversation_message_reasoning::insert(&mut *tx, reasoning, msg.id).await?;
+                chatbot_conversation_message_reasoning::insert(&mut tx, reasoning, msg.id).await?;
             Message::Reasoning(res)
         }
     };
@@ -175,23 +175,23 @@ RETURNING *
     let inner = match input.message {
         Message::Text(message) => {
             let res =
-                chatbot_conversation_message_messages::insert(&mut *tx, message, msg.id).await?;
+                chatbot_conversation_message_messages::insert(&mut tx, message, msg.id).await?;
             Message::Text(res)
         }
         Message::ToolCall(tool_call) => {
-            let res = chatbot_conversation_message_tool_calls::insert(&mut *tx, tool_call, msg.id)
-                .await?;
+            let res =
+                chatbot_conversation_message_tool_calls::insert(&mut tx, tool_call, msg.id).await?;
             Message::ToolCall(res)
         }
         Message::ToolOutput(tool_output) => {
             let res =
-                chatbot_conversation_message_tool_outputs::insert(&mut *tx, tool_output, msg.id)
+                chatbot_conversation_message_tool_outputs::insert(&mut tx, tool_output, msg.id)
                     .await?;
             Message::ToolOutput(res)
         }
         Message::Reasoning(reasoning) => {
             let res =
-                chatbot_conversation_message_reasoning::insert(&mut *tx, reasoning, msg.id).await?;
+                chatbot_conversation_message_reasoning::insert(&mut tx, reasoning, msg.id).await?;
             Message::Reasoning(res)
         }
     };
@@ -252,7 +252,7 @@ RETURNING *
     .await?;
 
     // delete the child
-    let child = delete_message_fields(&mut *tx, row.id).await?;
+    let child = delete_message_fields(&mut tx, row.id).await?;
 
     let res = ChatbotConversationMessage::from_row(row, child);
     tx.commit().await?;
@@ -283,7 +283,7 @@ RETURNING *
 
     // update the parent
     let child = chatbot_conversation_message_messages::update(
-        &mut *tx,
+        &mut tx,
         row.id,
         text,
         message_is_complete,

@@ -38,6 +38,10 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
   const completedSearchCount = searchQueries.filter((query) => !query.isFetching).length
   const isAnyFetching = completedSearchCount < SEARCH_QUERY_COUNT
   const firstError = searchQueries.find((query) => query.isError)?.error
+  const errorBanner =
+    firstError !== undefined && firstError !== null ? (
+      <ErrorBanner variant="readOnly" error={firstError} />
+    ) : null
 
   const [data, userIdsFromFuzzyMatch] = useMemo(() => {
     let res: UserDetail[] = []
@@ -108,7 +112,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
   if (data.length === 0) {
     return (
       <div>
-        {firstError && <ErrorBanner variant="readOnly" error={firstError} />}
+        {errorBanner}
         {progressIndicator}
         {isAnyFetching ? <Spinner variant="medium" /> : <p>{t("text-no-results")}</p>}
       </div>
@@ -117,7 +121,7 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
 
   return (
     <div>
-      {firstError && <ErrorBanner variant="readOnly" error={firstError} />}
+      {errorBanner}
       {progressIndicator}
       <div
         className={css`

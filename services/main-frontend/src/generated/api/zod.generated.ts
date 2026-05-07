@@ -253,6 +253,7 @@ export const zCohortActivity = z.object({
 export const zCompletionGridRow = z.object({
   grade: z.string(),
   module: z.string().nullish(),
+  needs_to_be_reviewed: z.boolean(),
   status: z.string(),
   student: z.string(),
 })
@@ -526,6 +527,7 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
     .nullish(),
+  needs_to_be_reviewed: z.boolean(),
   passed: z.boolean(),
   prerequisite_modules_completed: z.boolean(),
   registered: z.boolean(),
@@ -2218,6 +2220,10 @@ export const zCourseEnrollmentInfo = z.object({
   course_id: z.uuid(),
   course_instances: z.array(zCourseInstance),
   course_module_completions: z.array(zCourseModuleCompletion),
+  course_module_completions_needing_review: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   first_enrolled_at: z.iso.datetime(),
   is_current: z.boolean(),
   user_course_settings: zUserCourseSettings.nullish(),
@@ -2526,7 +2532,7 @@ export const zUploadFilesFromExerciseServicePath = z.object({
 export const zUploadFilesFromExerciseServiceResponse = z.record(z.string(), z.string())
 
 export const zUpdateCertificateConfigurationBody = z.object({
-  file: z.string(),
+  file: z.array(z.string()),
   metadata: zCertificateConfigurationUpdate,
 })
 

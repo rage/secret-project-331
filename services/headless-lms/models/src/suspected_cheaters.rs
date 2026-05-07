@@ -1,5 +1,5 @@
-use crate::course_modules;
 use crate::prelude::*;
+use crate::{course_module_completions, course_modules};
 use utoipa::ToSchema;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -46,8 +46,8 @@ pub async fn insert(
     course_id: Uuid,
     total_duration_seconds: Option<i32>,
     total_points: i32,
-) -> ModelResult<()> {
-    sqlx::query!(
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
         "
     INSERT INTO suspected_cheaters (
       user_id,
@@ -56,15 +56,20 @@ pub async fn insert(
       course_id
     )
     VALUES ($1, $2, $3, $4)
+    ON CONFLICT (user_id, course_id) WHERE deleted_at IS NULL
+    DO UPDATE SET
+      total_duration_seconds = EXCLUDED.total_duration_seconds,
+      total_points = EXCLUDED.total_points
+    RETURNING is_archived
       ",
         user_id,
         total_duration_seconds,
         total_points,
         course_id
     )
-    .execute(conn)
+    .fetch_one(&mut *conn)
     .await?;
-    Ok(())
+    Ok(!res.is_archived)
 }
 
 pub async fn insert_thresholds(
@@ -191,7 +196,11 @@ RETURNING *
         user_id,
         course_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *conn)
+    .await?;
+    course_module_completions::update_needs_to_be_reviewed_by_course_and_user_ids(
+        conn, course_id, user_id, false,
+    )
     .await?;
     Ok(cheater)
 }

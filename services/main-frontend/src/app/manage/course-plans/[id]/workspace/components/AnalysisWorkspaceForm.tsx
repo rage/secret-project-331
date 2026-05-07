@@ -5,7 +5,6 @@ import { useQueryClient } from "@tanstack/react-query"
 import {
   AccountsGroupPeople,
   ArrowDown,
-  CheckCircle,
   Coins,
   Document,
   Pencil,
@@ -29,6 +28,7 @@ import type {
   AnalysisWorkspaceV1,
   CourseDesignerStage,
 } from "@/generated/api/types.generated"
+import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -65,7 +65,6 @@ const ROWS_STANDARD = 3
 const ROWS_LONG = 5
 const ROWS_SHORT = 2
 const ICON_SIZE_SECTION = 14
-const ICON_SIZE_NAV = 14
 const ICON_SIZE_SECTION_BADGE = 18
 
 // eslint-disable-next-line i18next/no-literal-string
@@ -181,160 +180,75 @@ function buildCreditsFieldRules(t: TFunction) {
   }
 }
 
-function isFilled(v: unknown): boolean {
-  if (v == null) {
-    return false
-  }
-  if (typeof v === "boolean") {
-    return v
-  }
-  if (typeof v === "string") {
-    return v.trim() !== ""
-  }
-  if (typeof v === "number") {
-    return Number.isFinite(v)
-  }
-  return false
-}
-
-function computeSectionCompletion(v: AnalysisWorkspaceFormValues): boolean[] {
-  const s1 =
-    isFilled(v.course_title) ||
-    v.credits != null ||
-    isFilled(v.language) ||
-    isFilled(v.target_group) ||
-    v.mode_synchronous ||
-    v.mode_asynchronous ||
-    v.open_period_i ||
-    v.open_period_ii ||
-    v.open_period_iii ||
-    v.open_period_iv ||
-    isFilled(v.responsible_teachers) ||
-    isFilled(v.degree_programme) ||
-    v.course_type != null
-  const s2 = isFilled(v.students_demographic_data)
-  const s3 =
-    isFilled(v.wishes_topics) ||
-    v.wishes_content_format_text ||
-    v.wishes_content_format_video ||
-    v.wishes_content_format_podcast ||
-    v.wishes_content_format_xr ||
-    isFilled(v.wishes_content_format_notes) ||
-    isFilled(v.wishes_assessment_text) ||
-    isFilled(v.wishes_other_suggestions)
-  const s4 = isFilled(v.market_results)
-  const s5 = isFilled(v.resources_university) || isFilled(v.resources_purchase_budget)
-  const s6 =
-    isFilled(v.contributors_instructional_designer) ||
-    isFilled(v.contributors_subject_matter_experts) ||
-    isFilled(v.contributors_editors) ||
-    isFilled(v.contributors_support_staff)
-  return [s1, s2, s3, s4, s5, s6]
-}
-
 const formRootStyles = css`
   display: flex;
   flex-direction: column;
   gap: 1rem;
 `
 
-const stickyMergedBarStyles = css`
+const stickyToolbarStyles = css`
   position: sticky;
   top: 0;
   z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding: 0.5rem 0;
+  padding: 0.9rem 1rem 1rem;
   margin: 0 0 0.5rem 0;
   background: ${baseTheme.colors.clear[100]};
-  border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+  border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+
+  ${respondToOrLarger.md} {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  ${respondToOrLarger.lg} {
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+  }
 `
 
-const stickyBarRow1Styles = css`
+const toolbarRowStyles = css`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem 0.75rem;
+  gap: 0.75rem 2rem;
   width: 100%;
 `
 
-const statusLeftStyles = css`
+const stickyNavStyles = css`
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.75rem;
+  gap: 0.4rem 1.1rem;
+  flex: 1 1 auto;
   min-width: 0;
-`
-
-const progressSummaryStyles = css`
-  font-size: 0.8rem;
-  color: ${baseTheme.colors.gray[500]};
-  white-space: nowrap;
-`
-
-const saveStatusStyles = css`
-  font-size: 0.875rem;
-  color: ${baseTheme.colors.gray[600]};
-  min-height: 1.25rem;
-`
-
-const saveStatusErrorStyles = css`
-  color: ${baseTheme.colors.crimson[700]};
-`
-
-const saveHintStyles = css`
-  font-size: 0.75rem;
-  color: ${baseTheme.colors.gray[500]};
-  max-width: 12rem;
-  line-height: 1.35;
-`
-
-const saveRowStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-`
-
-const stickyNavRowStyles = css`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 0.65rem;
-  padding-top: 0.35rem;
-  border-top: 1px solid ${baseTheme.colors.gray[100]};
-  width: 100%;
 `
 
 const sectionNavLinkStyles = css`
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  color: ${baseTheme.colors.green[700]};
+  color: ${baseTheme.colors.gray[700]};
   text-decoration: none;
-  padding: 0.15rem 0.35rem;
-  border-radius: 0.25rem;
+  padding: 0.35rem 0.1rem;
+  border-bottom: 2px solid transparent;
 
   &:hover {
-    text-decoration: underline;
+    color: ${baseTheme.colors.gray[900]};
+    border-bottom-color: ${baseTheme.colors.gray[300]};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${baseTheme.colors.green[500]};
+    outline-offset: 2px;
+    border-radius: 0.2rem;
   }
 `
 
 const sectionNavLinkActiveStyles = css`
-  font-weight: 700;
-  background: ${baseTheme.colors.gray[100]};
-`
-
-const navIncompleteDotStyles = css`
-  display: inline-block;
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: ${baseTheme.colors.gray[300]};
-  flex-shrink: 0;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[900]};
+  border-bottom-color: ${baseTheme.colors.green[600]};
 `
 
 const sectionCardStyles = css`
@@ -849,8 +763,6 @@ export default function AnalysisWorkspaceForm(props: {
     ) as Record<number, boolean>
   })
   const [activeSection, setActiveSection] = useState(1)
-  const [autosaveError, setAutosaveError] = useState(false)
-  const [showSavedStatus, setShowSavedStatus] = useState(false)
   const isDirtyRef = useRef(false)
 
   const form = useForm<AnalysisWorkspaceFormValues>({
@@ -867,12 +779,6 @@ export default function AnalysisWorkspaceForm(props: {
   useEffect(() => {
     onDirtyChange?.(isDirty)
   }, [isDirty, onDirtyChange])
-
-  useEffect(() => {
-    if (isDirty) {
-      setShowSavedStatus(false)
-    }
-  }, [isDirty])
 
   useEffect(() => {
     reset(stripOpenPeriodAll(parseAnalysisWorkspaceFromApi(workspaceData)))
@@ -895,8 +801,6 @@ export default function AnalysisWorkspaceForm(props: {
   const handleSaveSuccess = useCallback(
     async (saved: AnalysisWorkspaceV1) => {
       reset(stripOpenPeriodAll(saved))
-      setAutosaveError(false)
-      setShowSavedStatus(true)
       await queryClient.invalidateQueries({
         queryKey: getCourseDesignerPlanQueryKey({ path: { plan_id: planId } }),
       })
@@ -913,7 +817,9 @@ export default function AnalysisWorkspaceForm(props: {
         await handleSaveSuccess(variables.body.payload)
       },
       onError: () => {
-        setAutosaveError(true)
+        showErrorNotification({
+          message: t("course-plans-analysis-save-status-error"),
+        })
       },
     },
   )
@@ -932,25 +838,17 @@ export default function AnalysisWorkspaceForm(props: {
     },
   )
 
-  const formValues = watch()
-
-  const sectionCompletionFlags = useMemo(() => computeSectionCompletion(formValues), [formValues])
-
-  const sectionsWithContentCount = useMemo(
-    () => sectionCompletionFlags.filter(Boolean).length,
-    [sectionCompletionFlags],
-  )
-
   const debouncedAutosave = useDebouncedCallback(async () => {
     if (!isDirtyRef.current) {
       return
     }
     const ok = await trigger()
     if (!ok) {
-      setAutosaveError(true)
+      showErrorNotification({
+        message: t("course-plans-analysis-save-status-error"),
+      })
       return
     }
-    setAutosaveError(false)
     autosaveMutation.mutate(patchWorkspace(withDerivedOpenPeriodAll(getValues())))
   }, AUTOSAVE_DEBOUNCE_MS)
 
@@ -1008,22 +906,6 @@ export default function AnalysisWorkspaceForm(props: {
 
   const saving = autosaveMutation.isPending || manualSaveMutation.isPending
 
-  const statusText = useMemo(() => {
-    if (saving) {
-      return t("course-plans-analysis-save-status-saving")
-    }
-    if (autosaveError) {
-      return t("course-plans-analysis-save-status-error")
-    }
-    if (isDirty) {
-      return t("course-plans-analysis-save-status-unsaved")
-    }
-    if (showSavedStatus) {
-      return t("course-plans-analysis-save-status-saved")
-    }
-    return t("course-plans-analysis-save-status-idle")
-  }, [autosaveError, isDirty, saving, showSavedStatus, t])
-
   const scrollToSection = (id: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault()
     document.getElementById(id)?.scrollIntoView({
@@ -1045,61 +927,37 @@ export default function AnalysisWorkspaceForm(props: {
 
   return (
     <form className={formRootStyles} onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className={stickyMergedBarStyles}>
-        <div className={stickyBarRow1Styles}>
-          <div className={statusLeftStyles}>
-            <div
-              className={cx(saveStatusStyles, autosaveError && saveStatusErrorStyles)}
-              role="status"
-              aria-live="polite"
-            >
-              {statusText}
-            </div>
-            <span className={progressSummaryStyles}>
-              {t("course-plans-analysis-sections-progress", {
-                started: sectionsWithContentCount,
-                total: SECTION_COUNT,
-              })}
-            </span>
-          </div>
-          <div className={saveRowStyles}>
-            <span className={saveHintStyles}>{t("course-plans-analysis-autosave-hint")}</span>
-            <Button
-              type="submit"
-              variant="primary"
-              size="medium"
-              disabled={saving}
-              aria-label={t("course-plans-analysis-sticky-save-aria")}
-            >
-              {saving ? t("course-plans-analysis-saving") : t("course-plans-analysis-save-now")}
-            </Button>
-          </div>
+      <div className={stickyToolbarStyles}>
+        <div className={toolbarRowStyles}>
+          <nav className={stickyNavStyles} aria-label={t("course-plans-analysis-nav-aria-label")}>
+            {SECTION_NAV_KEYS.map((key, index) => {
+              const n = index + 1
+              const sectionId = `${SECTION_DOM_PREFIX}${n}`
+              return (
+                <a
+                  key={sectionId}
+                  href={`#${sectionId}`}
+                  className={cx(
+                    sectionNavLinkStyles,
+                    activeSection === n && sectionNavLinkActiveStyles,
+                  )}
+                  onClick={scrollToSection(sectionId)}
+                >
+                  {t(key)}
+                </a>
+              )
+            })}
+          </nav>
+          <Button
+            type="submit"
+            variant="primary"
+            size="medium"
+            disabled={saving}
+            aria-label={t("course-plans-analysis-sticky-save-aria")}
+          >
+            {saving ? t("course-plans-analysis-saving") : t("course-plans-analysis-save-now")}
+          </Button>
         </div>
-        <nav className={stickyNavRowStyles} aria-label={t("course-plans-analysis-nav-aria-label")}>
-          {SECTION_NAV_KEYS.map((key, index) => {
-            const n = index + 1
-            const sectionId = `${SECTION_DOM_PREFIX}${n}`
-            const complete = sectionCompletionFlags[index] === true
-            return (
-              <a
-                key={sectionId}
-                href={`#${sectionId}`}
-                className={cx(
-                  sectionNavLinkStyles,
-                  activeSection === n && sectionNavLinkActiveStyles,
-                )}
-                onClick={scrollToSection(sectionId)}
-              >
-                {complete ? (
-                  <CheckCircle size={ICON_SIZE_NAV} aria-hidden />
-                ) : (
-                  <span className={navIncompleteDotStyles} aria-hidden />
-                )}
-                {t(key)}
-              </a>
-            )
-          })}
-        </nav>
       </div>
 
       <section

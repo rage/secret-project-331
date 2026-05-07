@@ -40,6 +40,8 @@ export const listBoxCss = css`
   list-style: none;
   max-height: 240px;
   overflow: auto;
+  display: grid;
+  gap: var(--space-2);
 `
 
 export const listBoxOptionCss = css`
@@ -47,8 +49,9 @@ export const listBoxOptionCss = css`
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  min-height: 40px;
-  padding: 0 var(--space-3);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid transparent;
   border-radius: calc(var(--control-radius) + 1px);
   color: var(--field-fg);
   cursor: pointer;
@@ -61,20 +64,29 @@ export const listBoxOptionCss = css`
   }
 
   &[data-selected="true"] {
-    background: var(--field-option-selected);
+    background: var(--color-green-600);
+    border-color: var(--color-green-700);
+    color: var(--color-primary-100);
+    font-weight: 600;
   }
 
   &[data-highlighted="true"]:not([data-selected="true"]) {
-    background: var(--field-option-highlight);
+    background: var(--color-green-75);
+    border-color: var(--color-green-300);
+    color: var(--color-green-900);
   }
 
   &[data-selected="true"][data-highlighted="true"] {
-    background: var(--field-option-selected);
+    background: var(--color-green-700);
+    border-color: var(--color-green-800);
+    color: var(--color-primary-100);
   }
 
   &[data-focus-visible="true"] {
-    outline: 2px solid var(--focus-ring-color);
-    outline-offset: -2px;
+    outline: none;
+    box-shadow:
+      0 0 0 1px var(--color-green-300),
+      0 0 0 calc(var(--focus-ring-width) + 1px) rgba(31, 105, 100, 0.4);
   }
 
   &[data-disabled="true"] {

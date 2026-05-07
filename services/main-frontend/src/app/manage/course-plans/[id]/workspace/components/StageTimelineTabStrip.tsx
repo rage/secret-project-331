@@ -2,7 +2,16 @@
 
 import { css, cx } from "@emotion/css"
 import { useTabListState } from "@react-stately/tabs"
-import { type Key, type ReactNode, useEffect, useId, useMemo, useRef, useState } from "react"
+import {
+  type Key,
+  type ReactNode,
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import { useFocusRing, useHover, useTab, useTabList, useTabPanel } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -186,9 +195,9 @@ const currentStageCalloutContainerStyles = css`
   border: 1px solid ${baseTheme.colors.green[200]};
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
   z-index: 6;
-  transform: translateX(-50%);
   justify-content: center;
   border-bottom: 2px solid ${baseTheme.colors.green[200]};
+  max-width: calc(100% - 0.5rem);
 `
 
 const currentStageLabelStyles = css`
@@ -349,9 +358,10 @@ export default function StageTimelineTabStrip({
 
   const [todayPositionPx, setTodayPositionPx] = useState<number | null>(null)
   const [currentStagePosition, setCurrentStagePosition] = useState<{
-    centerX: number
-    width: number
+    left: number
+    minWidth: number
   } | null>(null)
+  const [calloutWidth, setCalloutWidth] = useState<number>(0)
 
   const state = useTabListState({
     selectedKey: selectedStage ?? undefined,
@@ -370,6 +380,7 @@ export default function StageTimelineTabStrip({
 
   const listRef = useRef<HTMLDivElement | null>(null)
   const shellRef = useRef<HTMLDivElement | null>(null)
+  const currentStageCalloutRef = useRef<HTMLDivElement | null>(null)
   const { tabListProps } = useTabList(
     {
       "aria-label": t("course-plans-stage-tabs-aria-label"),
@@ -380,6 +391,32 @@ export default function StageTimelineTabStrip({
 
   const panelRef = useRef<HTMLDivElement | null>(null)
   const { tabPanelProps } = useTabPanel({}, state, panelRef)
+
+  useLayoutEffect(() => {
+    if (!activeStage) {
+      setCalloutWidth(0)
+      return
+    }
+    const calloutElement = currentStageCalloutRef.current
+    if (!calloutElement) {
+      return
+    }
+    const updateCalloutWidth = () => {
+      const width = calloutElement.offsetWidth
+      if (width > 0) {
+        setCalloutWidth(width)
+      }
+    }
+    updateCalloutWidth()
+    if (typeof ResizeObserver === "undefined") {
+      return
+    }
+    const resizeObserver = new ResizeObserver(updateCalloutWidth)
+    resizeObserver.observe(calloutElement)
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [activeStage, currentStageLabel, t])
 
   useEffect(() => {
     const updateTodayPosition = () => {
@@ -433,10 +470,19 @@ export default function StageTimelineTabStrip({
 
       const shellRect = shellElement.getBoundingClientRect()
       const tabRect = activeTabElement.getBoundingClientRect()
-      const centerX = tabRect.left + tabRect.width / 2 - shellRect.left
+      const centerX = tabRect.left + tabRect.width / 2 - shellRect.left + shellElement.scrollLeft
+      const effectiveCalloutWidth = calloutWidth || Math.min(tabRect.width + 32, 360)
+      const edgePadding = 4
+      const viewportLeft = shellElement.scrollLeft
+      const viewportRight = viewportLeft + shellElement.clientWidth
+      const minLeft = viewportLeft + edgePadding
+      const maxLeft = viewportRight - effectiveCalloutWidth - edgePadding
+      const rawLeft = centerX - effectiveCalloutWidth / 2
+      const clampedLeft =
+        maxLeft < minLeft ? minLeft : Math.max(minLeft, Math.min(rawLeft, maxLeft))
       setCurrentStagePosition({
-        centerX,
-        width: tabRect.width,
+        left: clampedLeft,
+        minWidth: Math.min(tabRect.width + 32, 360),
       })
     }
 
@@ -453,7 +499,7 @@ export default function StageTimelineTabStrip({
       window.removeEventListener("resize", updateCurrentStagePosition)
       shellElement?.removeEventListener("scroll", updateCurrentStagePosition)
     }
-  }, [activeStage, stages])
+  }, [activeStage, calloutWidth, stages])
 
   useEffect(() => {
     if (!selectedStage || !listRef.current) {
@@ -481,12 +527,13 @@ export default function StageTimelineTabStrip({
       <div className={timelineShellStyles} ref={shellRef}>
         {activeStage && currentStagePosition != null && onOpenOverview && (
           <div
+            ref={currentStageCalloutRef}
             className={cx(
               currentStageCalloutContainerStyles,
               css({
-                left: currentStagePosition.centerX,
+                left: currentStagePosition.left,
                 top: 0,
-                minWidth: Math.min(currentStagePosition.width + 32, 360),
+                minWidth: currentStagePosition.minWidth,
               }),
             )}
           >

@@ -270,6 +270,10 @@ export function manageExamQuestionsRoute(examId: string) {
   return `/manage/exams/${examId}/questions`
 }
 
+export function manageCoursePlansListRoute() {
+  return `/manage/course-plans`
+}
+
 export function manageCoursePlanRoute(planId: string) {
   return `/manage/course-plans/${planId}`
 }

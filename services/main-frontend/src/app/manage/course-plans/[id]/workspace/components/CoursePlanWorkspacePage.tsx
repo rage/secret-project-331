@@ -27,7 +27,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
 
 const pageRootStyles = css`
-  padding: 2rem 0 3rem 0;
+  padding: 0 0 3rem 0;
   min-height: 100vh;
 `
 
@@ -59,7 +59,6 @@ const headerRowStyles = css`
   align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
-  margin-bottom: 1.25rem;
 `
 
 const headerBlockStyles = css`
@@ -200,7 +199,7 @@ const currentStageTitleStyles = css`
   font-size: 1.35rem;
   font-weight: 700;
   color: ${baseTheme.colors.gray[900]};
-  margin: 1rem 0;
+  margin: 0.55rem 0 0.75rem;
 `
 
 const instructionsSectionTitleStyles = css`

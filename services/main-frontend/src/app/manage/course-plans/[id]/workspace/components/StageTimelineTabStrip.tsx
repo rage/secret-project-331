@@ -31,7 +31,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 
 const timelineShellStyles = css`
   position: relative;
-  margin-top: 0.75rem;
+  margin-top: 0.5rem;
   padding-top: 2.3rem;
   overflow-x: auto;
 `

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery, useQueryClient } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
@@ -10,7 +10,6 @@ import CoursePlanList from "./CoursePlanList"
 import {
   createCourseDesignerPlanMutation,
   getCourseDesignerPlansOptions,
-  getCourseDesignerPlansQueryKey,
 } from "@/generated/api/@tanstack/react-query.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
@@ -33,7 +32,6 @@ const headerStyles = css`
 export default function CoursePlansListPage() {
   const { t } = useTranslation()
   const router = useRouter()
-  const queryClient = useQueryClient()
 
   const plansQuery = useQuery({ ...getCourseDesignerPlansOptions() })
 
@@ -41,8 +39,7 @@ export default function CoursePlansListPage() {
     createCourseDesignerPlanMutation(),
     { notify: true, method: "POST" },
     {
-      onSuccess: async (plan) => {
-        await queryClient.invalidateQueries({ queryKey: getCourseDesignerPlansQueryKey() })
+      onSuccess: (plan) => {
         router.push(manageCoursePlanRoute(plan.id))
       },
     },

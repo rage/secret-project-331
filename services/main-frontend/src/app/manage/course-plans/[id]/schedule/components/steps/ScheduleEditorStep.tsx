@@ -53,7 +53,6 @@ interface ScheduleEditorStepProps {
   onAddMonth: (stage: CourseDesignerStage) => void
   onRemoveMonth: (stage: CourseDesignerStage) => void
   onBack: () => void
-  onSave: () => void
   onFinalize: () => void
 }
 
@@ -71,7 +70,6 @@ export default function ScheduleEditorStep({
   onAddMonth,
   onRemoveMonth,
   onBack,
-  onSave,
   onFinalize,
 }: ScheduleEditorStepProps) {
   const { t } = useTranslation()
@@ -161,10 +159,7 @@ export default function ScheduleEditorStep({
         <Button variant="secondary" size="medium" onClick={onBack}>
           {t("back")}
         </Button>
-        <Button variant="primary" size="medium" disabled={submitDisabled} onClick={onSave}>
-          {t("course-plans-save-schedule")}
-        </Button>
-        <Button variant="secondary" size="medium" disabled={submitDisabled} onClick={onFinalize}>
+        <Button variant="primary" size="medium" disabled={submitDisabled} onClick={onFinalize}>
           {t("course-plans-finalize-schedule")}
         </Button>
       </div>

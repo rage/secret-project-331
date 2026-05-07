@@ -184,9 +184,6 @@ export default function ScheduleWizardPage() {
                   onAddMonth={controller.actions.addMonth}
                   onRemoveMonth={controller.actions.removeMonth}
                   onBack={() => controller.actions.goToStep("setup")}
-                  onSave={() => {
-                    void controller.actions.saveDraft()
-                  }}
                   onFinalize={async () => {
                     const ok = await controller.actions.finalizeDraft()
                     if (ok) {

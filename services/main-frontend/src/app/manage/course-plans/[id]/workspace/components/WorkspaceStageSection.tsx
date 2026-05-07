@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { Trash } from "@vectopus/atlas-icons-react"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -17,7 +17,7 @@ import type {
 } from "@/generated/api/types.generated"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
-import { Button, Checkbox } from "@/shared-module/components"
+import { Button, Checkbox, TextField } from "@/shared-module/components"
 
 const cardStyles = css`
   background: white;
@@ -134,14 +134,8 @@ const addRowStyles = css`
   }
 `
 
-const taskInputStyles = css`
-  flex: 1;
-  min-height: 2.25rem;
-  padding: 0.4rem 0.75rem;
-  border: 1px solid ${baseTheme.colors.gray[300]};
-  border-radius: 8px;
-  font-size: 0.95rem;
-  box-sizing: border-box;
+const taskFieldStyles = css`
+  width: 100%;
 `
 
 const taskListStyles = css`
@@ -152,10 +146,11 @@ const taskListStyles = css`
 
 const taskRowStyles = css`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.5rem;
   padding: 0.4rem 0;
   border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+  min-width: 0;
 
   :last-child {
     border-bottom: none;
@@ -164,7 +159,9 @@ const taskRowStyles = css`
 
 const taskRowCheckboxWrapperStyles = css`
   margin-bottom: 0;
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  width: auto;
+  min-width: auto;
   display: flex;
   align-items: center;
 
@@ -197,13 +194,14 @@ const taskDeleteButtonStyles = css`
 `
 
 const taskTitleStyles = css`
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
+  flex: 1 1 0%;
+  min-width: 0;
+  display: block;
   min-height: 1.25rem;
   font-size: 0.95rem;
   line-height: 1.25;
   color: ${baseTheme.colors.gray[800]};
+  overflow-wrap: break-word;
 `
 
 const taskTitleCompletedStyles = css`
@@ -236,6 +234,8 @@ interface WorkspaceStageSectionProps {
   showStageTitle?: boolean
 }
 
+const NEW_TASK_FIELD_NAME = "newTaskTitle" as const
+
 export default function WorkspaceStageSection({
   planId,
   stage,
@@ -245,14 +245,23 @@ export default function WorkspaceStageSection({
   showStageTitle = true,
 }: WorkspaceStageSectionProps) {
   const { t } = useTranslation()
-  const [newTaskTitle, setNewTaskTitle] = useState("")
+  const {
+    control: newTaskControl,
+    setValue: setNewTaskValue,
+    watch: watchNewTask,
+  } = useForm<{
+    newTaskTitle: string
+  }>({
+    defaultValues: { newTaskTitle: "" },
+  })
+  const newTaskTitle = watchNewTask(NEW_TASK_FIELD_NAME) ?? ""
 
   const createMutation = useToastMutationOptions(
     createCourseDesignerStageTaskMutation(),
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        setNewTaskTitle("")
+        setNewTaskValue(NEW_TASK_FIELD_NAME, "")
         onInvalidate()
       },
     },
@@ -338,24 +347,30 @@ export default function WorkspaceStageSection({
           />
         </div>
       </div>
-      <div className={addRowStyles}>
-        <input
-          type="text"
-          className={taskInputStyles}
+      <form
+        className={addRowStyles}
+        onSubmit={(e) => {
+          e.preventDefault()
+          handleAddTask()
+        }}
+      >
+        <TextField
+          id={`stage-task-input-${stage.id}`}
+          name={NEW_TASK_FIELD_NAME}
+          control={newTaskControl}
+          label={t("course-plans-task-placeholder")}
           placeholder={t("course-plans-task-placeholder")}
-          value={newTaskTitle}
-          onChange={(e) => setNewTaskTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
+          className={taskFieldStyles}
         />
         <Button
+          type="submit"
           variant="secondary"
           size="medium"
-          onClick={handleAddTask}
           disabled={createMutation.isPending || !newTaskTitle.trim()}
         >
           {t("course-plans-add-task")}
         </Button>
-      </div>
+      </form>
       <ul className={taskListStyles}>
         {stage.tasks.length === 0 ? (
           <li className={emptyTasksStyles}>{t("course-plans-no-tasks")}</li>

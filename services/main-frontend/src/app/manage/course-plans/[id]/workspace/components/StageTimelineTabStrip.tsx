@@ -97,6 +97,8 @@ const tabBandFocusRingStyles = css`
 `
 
 const stagePillStyles = css`
+  display: inline-flex;
+  align-items: center;
   align-self: flex-start;
   border-radius: 999px;
   padding: 0.2rem 0.85rem;
@@ -107,6 +109,7 @@ const stagePillStyles = css`
   background: ${baseTheme.colors.gray[100]};
   border: 1px solid ${baseTheme.colors.gray[300]};
   white-space: nowrap;
+  line-height: 1;
 `
 
 const stagePillSelectedStyles = (accent: string) => css`
@@ -177,11 +180,12 @@ const activeStageDotStyles = css`
 
 const completedStageCheckStyles = css`
   display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-bottom: 2px solid ${baseTheme.colors.gray[500]};
-  border-left: 2px solid ${baseTheme.colors.gray[500]};
-  transform: rotate(-45deg);
+  width: 9px;
+  height: 9px;
+  border-bottom: 2px solid currentColor;
+  border-left: 2px solid currentColor;
+  transform: translateY(-1px) rotate(-45deg);
+  transform-origin: center;
 `
 
 const currentStageCalloutContainerStyles = css`
@@ -670,7 +674,12 @@ function StageTimelineTab({
           {isCompleted && (
             <span
               className={css`
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 margin-right: 0.4rem;
+                width: 12px;
+                height: 12px;
               `}
               aria-hidden
             >

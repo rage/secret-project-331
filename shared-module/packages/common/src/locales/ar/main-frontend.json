@@ -1172,6 +1172,7 @@
   "search-users-live-region-one-result-found": "تم العثور على نتيجة واحدة",
   "search-users-live-region-search-failed": "فشل البحث",
   "search-users-live-region-searching-users": "جارٍ البحث عن المستخدمين",
+  "search-users-progress": "اكتملت عمليات البحث: {{completed}}/3",
   "seconds": "ثواني",
   "select-LLM": "النموذج للاستخدام",
   "select-a-country": "اختر دولة",

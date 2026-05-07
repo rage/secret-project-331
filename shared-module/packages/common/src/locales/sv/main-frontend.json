@@ -1170,6 +1170,7 @@
   "search-users-live-region-one-result-found": "1 resultat hittades",
   "search-users-live-region-search-failed": "Sökningen misslyckades",
   "search-users-live-region-searching-users": "Söker efter användare",
+  "search-users-progress": "Slutförda sökningar: {{completed}}/3",
   "seconds": "sekunder",
   "select-LLM": "Modell att använda",
   "select-a-country": "Välj ett land",

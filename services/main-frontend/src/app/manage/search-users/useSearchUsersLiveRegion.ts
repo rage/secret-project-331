@@ -29,10 +29,10 @@ const useSearchUsersLiveRegion = ({
       searchByEmailQuery.isError ||
       searchByOtherDetailsQuery.isError ||
       searchFuzzyMatchQuery.isError
-    const isAnyPending =
-      searchByEmailQuery.isPending ||
-      searchByOtherDetailsQuery.isPending ||
-      searchFuzzyMatchQuery.isPending
+    const isAnyFetching =
+      searchByEmailQuery.isFetching ||
+      searchByOtherDetailsQuery.isFetching ||
+      searchFuzzyMatchQuery.isFetching
 
     const emailData = searchByEmailQuery.data ?? []
     const otherData = searchByOtherDetailsQuery.data ?? []
@@ -55,9 +55,9 @@ const useSearchUsersLiveRegion = ({
     } else if (isAnyError) {
       nextMessage = t("search-users-live-region-search-failed")
       hasSettledForCurrentQueryRef.current = true
-    } else if (isAnyPending && !hasSettledForCurrentQueryRef.current) {
+    } else if (isAnyFetching && !hasSettledForCurrentQueryRef.current) {
       nextMessage = t("search-users-live-region-searching-users")
-    } else if (!isAnyPending) {
+    } else if (!isAnyFetching) {
       hasSettledForCurrentQueryRef.current = true
       if (resultCount === 0) {
         nextMessage = t("search-users-live-region-no-users-found")
@@ -81,13 +81,13 @@ const useSearchUsersLiveRegion = ({
   }, [
     searchByEmailQuery.data,
     searchByEmailQuery.isError,
-    searchByEmailQuery.isPending,
+    searchByEmailQuery.isFetching,
     searchByOtherDetailsQuery.data,
     searchByOtherDetailsQuery.isError,
-    searchByOtherDetailsQuery.isPending,
+    searchByOtherDetailsQuery.isFetching,
     searchFuzzyMatchQuery.data,
     searchFuzzyMatchQuery.isError,
-    searchFuzzyMatchQuery.isPending,
+    searchFuzzyMatchQuery.isFetching,
     searchQuery,
     t,
   ])

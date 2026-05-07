@@ -1179,6 +1179,7 @@
   "search-users-live-region-one-result-found": "Знайдено 1 результат",
   "search-users-live-region-search-failed": "Помилка пошуку",
   "search-users-live-region-searching-users": "Пошук користувачів",
+  "search-users-progress": "Завершено пошуків: {{completed}}/3",
   "seconds": "секунди",
   "select-LLM": "Модель для використання",
   "select-a-country": "Виберіть країну",

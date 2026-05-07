@@ -1178,6 +1178,7 @@
   "search-users-live-region-one-result-found": "1 tulos löytyi",
   "search-users-live-region-search-failed": "Haku epäonnistui",
   "search-users-live-region-searching-users": "Haetaan käyttäjiä",
+  "search-users-progress": "Valmiit haut: {{completed}}/3",
   "seconds": "sekuntia",
   "select-LLM": "käytettävä kielimalli",
   "select-a-country": "Valitse maa",

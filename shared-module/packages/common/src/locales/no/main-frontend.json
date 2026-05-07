@@ -1164,6 +1164,7 @@
   "search-users-live-region-one-result-found": "1 resultat funnet",
   "search-users-live-region-search-failed": "Søk mislyktes",
   "search-users-live-region-searching-users": "Søker etter brukere",
+  "search-users-progress": "Fullførte søk: {{completed}}/3",
   "seconds": "sekunder",
   "select-LLM": "Modell å bruke",
   "select-a-country": "Velg et land",

@@ -18,6 +18,7 @@ const createQuery = (
   ({
     data: [],
     isError: false,
+    isFetching: false,
     isPending: false,
     ...overrides,
   }) as UseQueryResult<UserDetail[], unknown>
@@ -47,5 +48,53 @@ describe("useSearchUsersLiveRegion", () => {
     rerender({ searchQuery: "bob" })
 
     expect(result.current).toBe("search-users-live-region-one-result-found")
+  })
+
+  it("does not announce disabled queries as still searching", () => {
+    const settledQuery = createQuery()
+    const disabledPendingQuery = createQuery({ data: undefined, isPending: true })
+
+    const { result } = renderHook(() =>
+      useSearchUsersLiveRegion({
+        searchQuery: "al",
+        searchByEmailQuery: settledQuery,
+        searchByOtherDetailsQuery: settledQuery,
+        searchFuzzyMatchQuery: disabledPendingQuery,
+      }),
+    )
+
+    expect(result.current).toBe("search-users-live-region-no-users-found")
+  })
+
+  it("does not announce no users found while a query is still fetching", () => {
+    const settledQuery = createQuery()
+    const fetchingQuery = createQuery({ data: undefined, isFetching: true, isPending: true })
+
+    const { result } = renderHook(() =>
+      useSearchUsersLiveRegion({
+        searchQuery: "alice",
+        searchByEmailQuery: settledQuery,
+        searchByOtherDetailsQuery: fetchingQuery,
+        searchFuzzyMatchQuery: settledQuery,
+      }),
+    )
+
+    expect(result.current).toBe("search-users-live-region-searching-users")
+  })
+
+  it("does not announce final result counts while a query is still fetching", () => {
+    const resultQuery = createQuery({ data: [createUser("user-1")] })
+    const fetchingQuery = createQuery({ data: undefined, isFetching: true, isPending: true })
+
+    const { result } = renderHook(() =>
+      useSearchUsersLiveRegion({
+        searchQuery: "alice",
+        searchByEmailQuery: resultQuery,
+        searchByOtherDetailsQuery: fetchingQuery,
+        searchFuzzyMatchQuery: createQuery(),
+      }),
+    )
+
+    expect(result.current).toBe("search-users-live-region-searching-users")
   })
 })

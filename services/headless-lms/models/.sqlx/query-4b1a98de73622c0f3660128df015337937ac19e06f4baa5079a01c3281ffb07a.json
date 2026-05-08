@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_module_completions SET needs_to_be_reviewed = $1\nWHERE course_id = $2 AND user_id = $3 AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Bool",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "4b1a98de73622c0f3660128df015337937ac19e06f4baa5079a01c3281ffb07a"
+}

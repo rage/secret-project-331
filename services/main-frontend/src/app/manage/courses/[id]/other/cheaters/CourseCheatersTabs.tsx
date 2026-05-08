@@ -17,6 +17,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { manageUserRoute } from "@/shared-module/common/utils/routes"
 
 interface CourseCheatersProps {
   courseId: string
@@ -171,10 +172,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                   >
                     <td>
                       <Link
-                        href={{
-                          pathname: "/manage/users/[userId]",
-                          query: { userId: user_id },
-                        }}
+                        href={manageUserRoute(user_id)}
                         className={css`
                           text-decoration: none;
                         `}

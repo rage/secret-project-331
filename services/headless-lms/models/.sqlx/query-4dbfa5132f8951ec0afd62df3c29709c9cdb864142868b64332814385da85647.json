@@ -1,0 +1,25 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    INSERT INTO suspected_cheaters (\n      user_id,\n      total_duration_seconds,\n      total_points,\n      course_id\n    )\n    VALUES ($1, $2, $3, $4)\n    ON CONFLICT (user_id, course_id) WHERE deleted_at IS NULL\n    DO UPDATE SET\n      total_duration_seconds = EXCLUDED.total_duration_seconds,\n      total_points = EXCLUDED.total_points\n    RETURNING is_archived\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "is_archived",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Int4",
+        "Int4",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "4dbfa5132f8951ec0afd62df3c29709c9cdb864142868b64332814385da85647"
+}

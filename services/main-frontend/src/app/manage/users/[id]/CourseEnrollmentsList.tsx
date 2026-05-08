@@ -46,7 +46,13 @@ const CourseEnrollmentsList: React.FC<CourseEnrollmentsListProps> = ({ userId })
   return (
     <div>
       {courseEnrollmentsQuery.data.course_enrollments.map((enrollment) => {
-        const { course, course_module_completions, first_enrolled_at, is_current } = enrollment
+        const {
+          course,
+          course_module_completions,
+          course_module_completions_needing_review,
+          first_enrolled_at,
+          is_current,
+        } = enrollment
         const numDistinctModules = new Set(
           course_module_completions.map((cmc) => cmc.course_module_id),
         ).size
@@ -94,6 +100,10 @@ const CourseEnrollmentsList: React.FC<CourseEnrollmentsListProps> = ({ userId })
                         numDistinctModules,
                       },
                     )}
+              </p>
+              <p>
+                {t("label-course-module-completions-waiting-for-review")}:{" "}
+                {course_module_completions_needing_review}
               </p>
             </div>
             <Link href={courseUserStatusSummaryRoute(enrollment.course_id, userId)}>

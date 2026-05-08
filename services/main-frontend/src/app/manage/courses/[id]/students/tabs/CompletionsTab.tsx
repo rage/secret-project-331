@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next"
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 import { COMPLETIONS_LEAF_MIN_WIDTH, PAD } from "../studentsTableStyles"
 
+import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
 import { getCourseStudentsCompletionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CompletionGridRow } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -44,6 +45,8 @@ const pivotCompletions = (rows: CompletionGridRow[], t: TFunction) => {
     existing[`${mKey}__grade`] = r.grade ?? "-"
     // eslint-disable-next-line i18next/no-literal-string
     existing[`${mKey}__status`] = r.status ?? "-"
+    // eslint-disable-next-line i18next/no-literal-string
+    existing[`${mKey}__needsReview`] = r.needs_to_be_reviewed
     byStudent.set(key, existing)
   }
   return { modulesInOrder, data: Array.from(byStudent.values()) }
@@ -59,6 +62,30 @@ const studentEllipsis = css`
 const StudentCell = ({ getValue }: CellContext<RowObject, unknown>) => (
   <span className={studentEllipsis}>{String(getValue() ?? "")}</span>
 )
+
+const statusCellClass = css`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+`
+
+interface StatusCellProps extends CellContext<RowObject, unknown> {
+  needsReviewKey: string
+}
+
+const CompletionStatusCell: React.FC<StatusCellProps> = ({ getValue, row, needsReviewKey }) => {
+  const status = String(getValue() ?? "-")
+  const needsReview = Boolean(row.original[needsReviewKey])
+  const showStatus = status !== "-" || !needsReview
+
+  return (
+    <div className={statusCellClass}>
+      {showStatus && <span>{status}</span>}
+      {needsReview && <CourseModuleCompletionNeedsReviewBadge />}
+    </div>
+  )
+}
 
 const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObject, unknown>[] => {
   const columns: ColumnDef<RowObject, unknown>[] = [
@@ -81,6 +108,8 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
 
   modulesInOrder.forEach((label, groupIdx) => {
     const mKey = moduleKey(label, t)
+    // eslint-disable-next-line i18next/no-literal-string
+    const needsReviewKey = `${mKey}__needsReview`
     const colorPairIndex = groupIdx
     columns.push({
       // eslint-disable-next-line i18next/no-literal-string
@@ -110,6 +139,7 @@ const buildColumns = (modulesInOrder: string[], t: TFunction): ColumnDef<RowObje
           header: "Status",
           // eslint-disable-next-line i18next/no-literal-string
           accessorKey: `${mKey}__status`,
+          cell: (props) => <CompletionStatusCell {...props} needsReviewKey={needsReviewKey} />,
           meta: {
             minWidth: COMPLETIONS_LEAF_MIN_WIDTH,
             colorPairIndex,

@@ -16,11 +16,13 @@ test("User search works", async ({ page, headless }, testInfo) => {
   await page.getByLabel("User email or name", { exact: true }).click()
   await page.getByLabel("User email or name", { exact: true }).fill("language.teacher")
   await page.getByRole("button", { name: "Search" }).click()
+  await page.getByText("Searches completed").waitFor({ state: "hidden" })
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,
     testInfo,
     headless,
     snapshotName: "search-results",
+    beforeScreenshot: () => page.getByText("Searches completed").waitFor({ state: "hidden" }),
   })
   await page.getByLabel("User email or name", { exact: true }).fill("user@example.com")
   await page.getByRole("button", { name: "Search" }).click()

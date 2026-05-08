@@ -72,7 +72,7 @@ describe("SearchUsersResults", () => {
     expect(screen.queryByText("text-no-results")).not.toBeInTheDocument()
   })
 
-  it("shows progress for one, two, and three completed query slots", () => {
+  it("shows progress while query slots are still completing", () => {
     const { rerender } = renderSearchUsersResults({
       searchByEmailQuery: createQuery({ isFetching: true }),
       searchByOtherDetailsQuery: createQuery({ isFetching: true }),
@@ -98,7 +98,7 @@ describe("SearchUsersResults", () => {
       />,
     )
 
-    expect(screen.getByText("Searches completed: 3/3")).toBeInTheDocument()
+    expect(screen.queryByText("Searches completed: 3/3")).not.toBeInTheDocument()
   })
 
   it("shows no results only after all query slots have completed", () => {

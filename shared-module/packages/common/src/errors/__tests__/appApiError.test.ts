@@ -37,6 +37,7 @@ describe("AppApiError", () => {
         message: "Please fix your input",
         errors: [{ path: "body.email", code: "invalid", message: "Invalid email" }],
         metadata: { block_id: "block-a" },
+        trace_id: "trace-123",
       },
       response,
       request,
@@ -48,6 +49,7 @@ describe("AppApiError", () => {
     expect(err.type).toBe("validation_error")
     expect(err.code).toBe("FORM_VALIDATION_FAILED")
     expect(err.issues).toHaveLength(1)
+    expect(err.extra).toEqual({ trace_id: "trace-123" })
   })
 
   test("classifies abort failures", () => {
@@ -65,11 +67,29 @@ describe("AppApiError", () => {
       requestId: "req-2",
       retryAfterSeconds: 30,
       code: "TOO_MANY_REQUESTS",
+      messageKey: "rate_limited",
+      type: "rate_limit",
+      metadata: { block_id: "block-rate" },
+      extra: { trace_id: "trace-2" },
+      body: { type: "rate_limit", message_key: "rate_limited" },
+      rawText: '{"type":"rate_limit"}',
     })
     const normalized = normalizeErrorForDisplay(err, t)
     expect(normalized.category).toBe("rate_limit")
     expect(normalized.requestId).toBe("req-2")
     expect(normalized.retryAfterSeconds).toBe(30)
+    expect(normalized.technicalDetails?.raw).toEqual({
+      type: "rate_limit",
+      messageKey: "rate_limited",
+      code: "TOO_MANY_REQUESTS",
+      message: "Please retry later",
+      status: 429,
+      issues: [],
+      metadata: { block_id: "block-rate" },
+      extra: { trace_id: "trace-2" },
+      body: { type: "rate_limit", message_key: "rate_limited" },
+      rawText: '{"type":"rate_limit"}',
+    })
   })
 
   test("normalizes chapter_not_open_yet as auth category", () => {

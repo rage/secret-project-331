@@ -85,7 +85,10 @@ Returns user details if the user has permission to view user details through any
     tag = "user-details",
     request_body = UserDetailsRequest,
     responses(
-        (status = 200, description = "User details", body = UserDetail)
+        (status = 200, description = "User details", body = UserDetail),
+        (status = 403, description = "Forbidden", body = serde_json::Value),
+        (status = 404, description = "User details not found", body = serde_json::Value),
+        (status = 500, description = "Internal server error", body = serde_json::Value)
     )
 )]
 pub async fn get_user_details_by_courses(

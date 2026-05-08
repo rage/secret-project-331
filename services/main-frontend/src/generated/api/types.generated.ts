@@ -8020,6 +8020,21 @@ export type GetUserDetailsByCoursesData = {
   url: "/api/v0/main-frontend/user-details/user-by-courses"
 }
 
+export type GetUserDetailsByCoursesErrors = {
+  /**
+   * Forbidden
+   */
+  403: unknown
+  /**
+   * User details not found
+   */
+  404: unknown
+  /**
+   * Internal server error
+   */
+  500: unknown
+}
+
 export type GetUserDetailsByCoursesResponses = {
   /**
    * User details

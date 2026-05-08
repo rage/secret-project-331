@@ -31,6 +31,9 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
       ? t("error-status", { status: parsed.status } as never)
       : null
   const typeLine = parsed.type ? t("error-type", { type: parsed.type } as never) : null
+  const messageKeyLine = parsed.messageKey
+    ? t("error-message-key-line", { messageKey: parsed.messageKey })
+    : null
   const codeLine =
     parsed.code && parsed.code !== parsed.type
       ? t("error-code", { code: parsed.code } as never)
@@ -68,6 +71,7 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
         {(hasTechnicalDetails ||
           statusLine ||
           typeLine ||
+          messageKeyLine ||
           codeLine ||
           parsed.requestId ||
           (parsed.retryAfterSeconds !== null && parsed.retryAfterSeconds !== undefined)) && (
@@ -103,6 +107,11 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
                     <SourceBlock text={typeLine} />
                   </li>
                 )}
+                {messageKeyLine && (
+                  <li>
+                    <SourceBlock text={messageKeyLine} />
+                  </li>
+                )}
                 {codeLine && (
                   <li>
                     <SourceBlock text={codeLine} />
@@ -129,6 +138,11 @@ const ErrorBanner: React.FC<React.PropsWithChildren<BannerProps>> = (props) => {
                 {parsed.technicalDetails?.detail && (
                   <li>
                     <SourceBlock text={parsed.technicalDetails.detail} />
+                  </li>
+                )}
+                {parsed.message && (
+                  <li>
+                    <SourceBlock text={parsed.message} />
                   </li>
                 )}
                 {parsed.technicalDetails?.stack && (

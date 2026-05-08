@@ -111,6 +111,7 @@
       "title": "Invalid input"
     }
   },
+  "error-message-key-line": "Message key: {{messageKey}}",
   "error-multiple-errors-occurred": "Multiple errors occurred",
   "error-part-of-page-has-crashed-error": "Part of page has crashed: {{error}}",
   "error-request-cancelled": "Request was cancelled",

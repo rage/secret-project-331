@@ -818,6 +818,7 @@
   "label-updated": "Updated:",
   "label-url": "URL",
   "label-url-path": "URL path",
+  "label-user-details-query-returned-no-data": "User details query returned no data.",
   "label-user-id": "User id",
   "label-user-points-update-strategy": "User points update strategy",
   "label-valid": "Valid",

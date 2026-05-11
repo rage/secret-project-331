@@ -88,6 +88,9 @@ pub async fn insert_batch(
     input: Vec<ChatbotConversationMessageToolCall>,
     msg_id: Uuid,
 ) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
+    if input.is_empty() {
+        return Ok(Vec::new());
+    }
     // assumes the batch belongs to the same response
     let tool_names: Vec<String> = input.iter().map(|i| i.tool_name.to_owned()).collect();
     let tool_args: Vec<Value> = input.iter().map(|i| i.tool_arguments.to_owned()).collect();
@@ -203,7 +206,8 @@ pub async fn delete(
         r#"
 UPDATE chatbot_conversation_message_tool_calls
 SET deleted_at = NOW()
-WHERE chatbot_conversation_message_id = $1
+WHERE id = $1
+  AND deleted_at IS NULL
 RETURNING
     id,
     created_at,

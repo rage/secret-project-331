@@ -594,7 +594,7 @@ pub async fn make_request_and_stream<'a>(
                         .map_err(|e| ChatbotError::from(e))?;
                     let item = response_output.item.ok_or(chatbot_err!(
                         DeserializationError,
-                        "Expected response ouput item"
+                        "Expected response output item"
                     ))?;
                     process_output_item(conn, item, conversation_id, app_config).await?;
                     output_item_incoming = false;
@@ -826,7 +826,7 @@ pub async fn parse_tool<'a>(
                     function_name_id_args.push((
                         tool_name,
                         call_id,
-                        serde_json::to_value(arguments)?,
+                        serde_json::from_str::<Value>(&arguments)?,
                     ));
                 }
                 OutputItem::Message { .. } => Err(chatbot_err!(

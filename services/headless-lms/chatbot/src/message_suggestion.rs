@@ -109,9 +109,7 @@ pub async fn generate_suggested_messages(
         },
     };
 
-    let (params, max_output_tokens) = if (task_lm.model_type == ModelType::GPTHardThinking)
-        | (task_lm.model_type == ModelType::GPTThinking)
-    {
+    let (params, max_output_tokens) = if model_is_thinking(task_lm.model_type) {
         (
             LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),
             Some(7000),
@@ -182,10 +180,9 @@ fn create_conversation_from_msgs(
     token_budget: i32,
 ) -> ChatbotResult<String> {
     // todo empty messages?
-    conversation_messages
-        .to_vec()
-        .sort_by_key(|el| el.order_number);
-    let conversation: Vec<ChatbotConversationMessage> = conversation_messages
+    let mut sorted_conversation_messages = conversation_messages.to_vec();
+    sorted_conversation_messages.sort_by_key(|el| el.order_number);
+    let conversation: Vec<ChatbotConversationMessage> = sorted_conversation_messages
         .iter()
         .filter_map(|el| match &el.message {
             Message::Text(_) => Some(el.to_owned()),

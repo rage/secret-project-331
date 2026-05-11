@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    model,\n    model_type as \"model_type: ModelType\",\n    default_model,\n    context_size\nFROM chatbot_configurations_models\nWHERE id = (\n    SELECT model_id FROM chatbot_configurations WHERE id = $1\n)\nAND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  model,\n  model_type AS \"model_type: ModelType\",\n  default_model,\n  context_size\nFROM chatbot_configurations_models\nWHERE id = (\n    SELECT model_id\n    FROM chatbot_configurations\n    WHERE id = $1\n      AND deleted_at IS NULL\n  )\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -72,5 +72,5 @@
       false
     ]
   },
-  "hash": "bf61051aed0ec1e1ba3983a9e799d45eaa1ddf33647070261beab20e039a6dcf"
+  "hash": "e1e40ab97437f5582bfbb36f3f31053a035aa1114dde17553fd9983ce579a232"
 }

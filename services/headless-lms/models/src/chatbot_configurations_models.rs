@@ -110,20 +110,22 @@ pub async fn get_by_chatbot_configuration_id(
     let res = sqlx::query_as!(
         ChatbotConfigurationModel,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    model,
-    model_type as "model_type: ModelType",
-    default_model,
-    context_size
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  model,
+  model_type AS "model_type: ModelType",
+  default_model,
+  context_size
 FROM chatbot_configurations_models
 WHERE id = (
-    SELECT model_id FROM chatbot_configurations WHERE id = $1
-)
-AND deleted_at IS NULL
+    SELECT model_id
+    FROM chatbot_configurations
+    WHERE id = $1
+      AND deleted_at IS NULL
+  )
+  AND deleted_at IS NULL
         "#,
         chatbotconf_id,
     )

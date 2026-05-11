@@ -19,7 +19,7 @@ import type {
   ChatbotConversationMessage,
   ChatbotConversationMessageCitation,
 } from "@/generated/course-material-api/types.generated"
-import { isChatbotConversationMessageMessage } from "@/shared-module/common/bindings.guard"
+import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -63,10 +63,10 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   const messages = useMemo(() => {
     const messages: ChatbotConversationMessage[] = [
-      ...(currentConversationInfo.data?.current_conversation_messages?.filter(
-        (m) =>
-          isChatbotConversationMessageMessage(m.message) && m.message.message_role !== "system",
-      ) ?? []),
+      ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {
+        let result = zChatbotConversationMessageMessage.safeParse(m.message)
+        return result.success && result.data.message_role !== "system"
+      }) ?? []),
     ]
     const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
     if (messageState.optimisticMessage) {
@@ -203,15 +203,15 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         ref={scrollContainerRef}
       >
         {messages.map((message) => {
-          let m = message.message
-          if (isChatbotConversationMessageMessage(m)) {
+          let m = zChatbotConversationMessageMessage.safeParse(message.message)
+          if (m.success) {
             return (
               <MessageBubble
                 key={`chatbot-message-${message.id}`}
-                message={m.text ?? ""}
+                message={m.data.text ?? ""}
                 citations={citations.get(message.id)}
-                isFromChatbot={m.message_role === "assistant"}
-                isPending={!m.message_is_complete && newMessageMutation.isPending}
+                isFromChatbot={m.data.message_role === "assistant"}
+                isPending={!m.data.message_is_complete && newMessageMutation.isPending}
               />
             )
           }

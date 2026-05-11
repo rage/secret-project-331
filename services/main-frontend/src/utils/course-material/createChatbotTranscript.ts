@@ -2,7 +2,7 @@ import { matchSpecifiedCitationNumberRegex, REMOVE_CITATIONS_REGEX } from "./cha
 
 import { renumberFilterCitations } from "@/components/course-material/chatbot/shared/MessageBubble"
 import type { ChatbotConversationInfo } from "@/generated/course-material-api/types.generated"
-import { isChatbotConversationMessageMessage } from "@/shared-module/common/bindings.guard"
+import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 
 export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
@@ -25,19 +25,20 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
 
   let transcript = messages
     .map((m) => {
-      const originalMessage = m.message
-      if (originalMessage == null) {
-        return ""
-      }
-      let msg = originalMessage
-
-      if (!isChatbotConversationMessageMessage(msg)) {
+      const originalMessage = zChatbotConversationMessageMessage.safeParse(m.message)
+      console.log(originalMessage)
+      if (!originalMessage.success) {
         // don't put tool messages or reasoning in the transcript
+        console.log("11111111")
         return ""
       }
+
+      let msg = originalMessage.data
 
       if (msg.message_role !== "user" && msg.message_role !== "assistant") {
         // don't put system or tool messages in the transcript
+        console.log("222222222")
+
         return ""
       }
       let t = ""
@@ -71,14 +72,12 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
             // the 1st cit in this message has number 1 in citationNumberingMap
             // add to it the last cit number from the prev message, so that
             // the numbers are unique across the whole transcript.
-            if (isChatbotConversationMessageMessage(msg)) {
-              let newCitNumber =
-                assertNotNullOrUndefined(citationNumberingMap.get(cit.citation_number)) +
-                latestCitNumber
-              let re = matchSpecifiedCitationNumberRegex(cit.citation_number)
-              msg.text = msg.text.replaceAll(re, `[doc${newCitNumber}]`)
-              citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`
-            }
+            let newCitNumber =
+              assertNotNullOrUndefined(citationNumberingMap.get(cit.citation_number)) +
+              latestCitNumber
+            let re = matchSpecifiedCitationNumberRegex(cit.citation_number)
+            msg.text = msg.text.replaceAll(re, `[doc${newCitNumber}]`)
+            citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`
           })
         // latest_cit_n should equal the largest cit number in this message
         latestCitNumber += filteredCitations.length

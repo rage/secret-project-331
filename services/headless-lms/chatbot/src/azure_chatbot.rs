@@ -591,7 +591,7 @@ pub async fn make_request_and_stream<'a>(
                     let json_str = line.trim_start_matches("data: ");
 
                     let response_output = serde_json::from_str::<ResponseOutput>(json_str)
-                        .map_err(|e| ChatbotError::from(e))?;
+                        .map_err(ChatbotError::from)?;
                     let item = response_output.item.ok_or(chatbot_err!(
                         DeserializationError,
                         "Expected response output item"
@@ -604,7 +604,7 @@ pub async fn make_request_and_stream<'a>(
                     let json_str = line.trim_start_matches("data: ");
 
                     let response_output = serde_json::from_str::<ResponseOutput>(json_str)
-                        .map_err(|e| ChatbotError::from(e))?;
+                        .map_err(ChatbotError::from)?;
                     let res = response_output.response.ok_or(chatbot_err!(
                         DeserializationError,
                         "Expected response onject"
@@ -702,7 +702,7 @@ pub async fn process_output_item(
             chatbot_cited_documents_to_citations(
                 conn,
                 get_urls,
-                &api_key,
+                api_key,
                 conversation_message.id,
                 conversation_id,
             )
@@ -795,7 +795,7 @@ pub async fn parse_tool<'a>(
 
                 tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
-                        response_id: (&common_response_id).to_owned(),
+                        response_id: (common_response_id).to_owned(),
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
@@ -805,7 +805,7 @@ pub async fn parse_tool<'a>(
                     message_type: OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
                         output: tool.get_tool_output(),
-                        response_id: (&common_response_id).to_owned(),
+                        response_id: (common_response_id).to_owned(),
                     },
                 })
             }
@@ -943,10 +943,11 @@ pub async fn parse_and_stream_to_user<'a>(
                 anyhow::anyhow!("Failed to parse response chunk: {}", e)
             })?;
 
-            if error_incoming {
-                if let Some(response) = &response_output.response && let Some(error) = &response.error {
-                    Err(chatbot_err!(StreamingError, format!("Error received from the API: {}.", error)))?
-                };
+            if error_incoming &&
+                let Some(response) = &response_output.response && let Some(error) = &response.error
+            {
+                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}.", error)))?
+
             };
 
             if let Some(delta) = &response_output.delta {

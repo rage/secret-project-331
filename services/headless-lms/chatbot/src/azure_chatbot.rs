@@ -607,7 +607,7 @@ pub async fn make_request_and_stream<'a>(
                         .map_err(ChatbotError::from)?;
                     let res = response_output.response.ok_or(chatbot_err!(
                         DeserializationError,
-                        "Expected response onject"
+                        "Expected response object"
                     ))?;
                     response_id = res.id;
                     response_created_incoming = false;

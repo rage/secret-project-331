@@ -72,10 +72,87 @@
           success_symbol = "[\\$](bold green)"
           error_symbol = "[\\$](bold red)"
         '';
+        getentCompat = pkgs.writeShellScriptBin "getent" ''
+          if [ -x /usr/bin/getent ]; then
+            exec /usr/bin/getent "$@"
+          fi
+
+          if [ "''${1:-}" = "passwd" ]; then
+            shift
+
+            if [ "$#" -eq 0 ]; then
+              cat /etc/passwd
+              exit 0
+            fi
+
+            status=2
+            for key in "$@"; do
+              found=0
+              while IFS=: read -r name pass uid gid gecos home shell; do
+                if [ "$name" = "$key" ] || [ "$uid" = "$key" ]; then
+                  printf '%s:%s:%s:%s:%s:%s:%s\n' "$name" "$pass" "$uid" "$gid" "$gecos" "$home" "$shell"
+                  found=1
+                  status=0
+                fi
+              done < /etc/passwd
+
+              if [ "$found" -eq 0 ]; then
+                status=2
+              fi
+            done
+
+            exit "$status"
+          fi
+
+          echo "getent compatibility wrapper only supports passwd without host getent" >&2
+          exit 2
+        '';
+        podmanContainersConfig = pkgs.runCommand "podman-containers-config" { } ''
+          mkdir -p "$out/containers"
+
+          cat > "$out/containers/registries.conf" <<'EOF'
+          unqualified-search-registries = ["docker.io"]
+          EOF
+
+          cat > "$out/containers/policy.json" <<'EOF'
+          {
+            "default": [
+              {
+                "type": "insecureAcceptAnything"
+              }
+            ]
+          }
+          EOF
+        '';
+        podmanWithProjectConfig = pkgs.writeShellScriptBin "podman" ''
+          host_containers_config_dir="$HOME/.config/containers"
+
+          if [ -z "''${CONTAINERS_REGISTRIES_CONF:-}" ] \
+            && [ ! -f "$host_containers_config_dir/registries.conf" ] \
+            && [ ! -f /etc/containers/registries.conf ]; then
+            mkdir -p "$host_containers_config_dir"
+            install -m 0644 "${podmanContainersConfig}/containers/registries.conf" "$host_containers_config_dir/registries.conf"
+          fi
+
+          if [ ! -f "$host_containers_config_dir/policy.json" ] \
+            && [ ! -f /etc/containers/policy.json ]; then
+            mkdir -p "$host_containers_config_dir"
+            install -m 0644 "${podmanContainersConfig}/containers/policy.json" "$host_containers_config_dir/policy.json"
+          fi
+
+          exec ${pkgs.podman}/bin/podman "$@"
+        '';
         linuxOnlyPackages = lib.optionals pkgs.stdenv.isLinux [
           pkgs.docker-client
+          getentCompat
           pkgs.minikube
           pkgs.mold
+          podmanWithProjectConfig
+        ];
+        localClusterPackages = [
+          pkgs.ctlptl
+          pkgs.kind
+          pkgs.tilt
         ];
         downloadApplicationsPackages =
           [
@@ -92,7 +169,7 @@
           ++ lib.optionals pkgs.stdenv.isLinux [
             pkgs.minikube
           ];
-        downloadApplicationsBinPath = lib.makeBinPath downloadApplicationsPackages;
+        priorityBinPath = lib.makeBinPath (downloadApplicationsPackages ++ localClusterPackages ++ linuxOnlyPackages);
       in
       {
         devShells.default = pkgs.mkShell {
@@ -106,6 +183,7 @@
               pkgs.cmake
               pkgs.coreutils
               pkgs.curl
+              pkgs.ctlptl
               pkgs.file
               pkgs.findutils
               pkgs.gcc
@@ -116,6 +194,7 @@
               pkgs.gnutar
               pkgs.gzip
               pkgs.jq
+              pkgs.kind
               pkgs.kubectl
               pkgs.kubectx
               pkgs.kustomize
@@ -147,7 +226,9 @@
           STARSHIP_CONFIG = "${starshipConfig}";
 
           shellHook = ''
-            export PATH="${downloadApplicationsBinPath}:$PATH"
+            export PATH="${priorityBinPath}:$PATH"
+            ${lib.optionalString pkgs.stdenv.isLinux ''export KIND_EXPERIMENTAL_PROVIDER=podman''}
+            export TILT_DISABLE_ANALYTICS=1
             export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
             if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
@@ -155,7 +236,7 @@
             fi
 
             if [ -t 0 ]; then
-              exec fish -C 'set -gx PATH (string split : "${downloadApplicationsBinPath}") $PATH; source ${fishDevConfig}'
+              exec fish -C 'set -gx PATH (string split : "${priorityBinPath}") $PATH; ${lib.optionalString pkgs.stdenv.isLinux "set -gx KIND_EXPERIMENTAL_PROVIDER podman; "}set -gx TILT_DISABLE_ANALYTICS 1; source ${fishDevConfig}'
             fi
           '';
         };

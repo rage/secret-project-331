@@ -252,8 +252,11 @@ fn create_msg_string(m: &ChatbotConversationMessage) -> String {
     match m.message.to_owned() {
         Message::Text(text_message) => {
             match text_message.message_role {
-                MessageRole::Assistant | MessageRole::User => {
-                    format!("{}:\n{}\n\n", text_message.message_role, text_message.text)
+                MessageRole::Assistant => {
+                    format!("Assistant:\n{}\n\n", text_message.text)
+                }
+                MessageRole::User => {
+                    format!("Student:\n{}\n\n", text_message.text)
                 }
                 _ => "".to_string(), //todo error?
             }

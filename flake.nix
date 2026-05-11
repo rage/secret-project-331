@@ -77,6 +77,22 @@
           pkgs.minikube
           pkgs.mold
         ];
+        downloadApplicationsPackages =
+          [
+            rustToolchain
+            pkgs.actionlint
+            pkgs.kubectl
+            pkgs.kubectx
+            pkgs.kustomize
+            pkgs.oxipng
+            pkgs.skaffold
+            pkgs.sqlx-cli
+            pkgs.stern
+          ]
+          ++ lib.optionals pkgs.stdenv.isLinux [
+            pkgs.minikube
+          ];
+        downloadApplicationsBinPath = lib.makeBinPath downloadApplicationsPackages;
       in
       {
         devShells.default = pkgs.mkShell {
@@ -131,6 +147,7 @@
           STARSHIP_CONFIG = "${starshipConfig}";
 
           shellHook = ''
+            export PATH="${downloadApplicationsBinPath}:$PATH"
             export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
             if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
@@ -138,7 +155,7 @@
             fi
 
             if [ -t 0 ]; then
-              exec fish -C 'source ${fishDevConfig}'
+              exec fish -C 'set -gx PATH (string split : "${downloadApplicationsBinPath}") $PATH; source ${fishDevConfig}'
             fi
           '';
         };

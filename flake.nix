@@ -13,10 +13,10 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       flake-utils,
       rust-overlay,
+      ...
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -27,21 +27,7 @@
         };
 
         lib = pkgs.lib;
-        rustToolchainConfig = builtins.fromTOML (builtins.readFile ./rust-toolchain.toml);
-        rustChannel = rustToolchainConfig.toolchain.channel;
-        rustVersion =
-          if builtins.match "^[0-9]+\\.[0-9]+$" rustChannel != null then
-            "${rustChannel}.0"
-          else
-            rustChannel;
-        rustToolchain = pkgs.rust-bin.stable.${rustVersion}.default.override {
-          extensions = [
-            "clippy"
-            "rust-analyzer"
-            "rust-src"
-            "rustfmt"
-          ];
-        };
+        rustToolchain = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
 
         opensslPkgConfigPath = lib.makeSearchPath "lib/pkgconfig" [
           pkgs.openssl.dev
@@ -51,7 +37,7 @@
           starship init fish | source
           abbr -a -- c clear
           abbr -a -- gits "git status -sb"
-          ${lib.optionalString pkgs.stdenv.isLinux ''abbr -a -- open xdg-open''}
+          ${lib.optionalString pkgs.stdenv.isLinux "abbr -a -- open xdg-open"}
         '';
         starshipConfig = pkgs.writeText "starship.toml" ''
           add_newline = false
@@ -72,6 +58,8 @@
           success_symbol = "[\\$](bold green)"
           error_symbol = "[\\$](bold red)"
         '';
+
+        # passwd-only getent when /usr/bin/getent is missing (Tilt). Exit 0 only if every key matched.
         getentCompat = pkgs.writeShellScriptBin "getent" ''
           if [ -x /usr/bin/getent ]; then
             exec /usr/bin/getent "$@"
@@ -85,28 +73,32 @@
               exit 0
             fi
 
-            status=2
+            any_missing=0
             for key in "$@"; do
               found=0
               while IFS=: read -r name pass uid gid gecos home shell; do
                 if [ "$name" = "$key" ] || [ "$uid" = "$key" ]; then
                   printf '%s:%s:%s:%s:%s:%s:%s\n' "$name" "$pass" "$uid" "$gid" "$gecos" "$home" "$shell"
                   found=1
-                  status=0
                 fi
               done < /etc/passwd
 
               if [ "$found" -eq 0 ]; then
-                status=2
+                any_missing=1
               fi
             done
 
-            exit "$status"
+            if [ "$any_missing" -eq 1 ]; then
+              exit 2
+            fi
+            exit 0
           fi
 
           echo "getent compatibility wrapper only supports passwd without host getent" >&2
           exit 2
         '';
+
+        # Dev-only registries + insecureAcceptAnything policy. Not for prod/CI.
         podmanContainersConfig = pkgs.runCommand "podman-containers-config" { } ''
           mkdir -p "$out/containers"
 
@@ -124,24 +116,63 @@
           }
           EOF
         '';
+        # Podman: temp XDG overlay (host containers/ + store fallbacks) when policy or registries missing; else plain exec.
         podmanWithProjectConfig = pkgs.writeShellScriptBin "podman" ''
-          host_containers_config_dir="$HOME/.config/containers"
+          host_xdg_config_home="''${XDG_CONFIG_HOME:-$HOME/.config}"
+          host_containers="$host_xdg_config_home/containers"
 
-          if [ -z "''${CONTAINERS_REGISTRIES_CONF:-}" ] \
-            && [ ! -f "$host_containers_config_dir/registries.conf" ] \
-            && [ ! -f /etc/containers/registries.conf ]; then
-            mkdir -p "$host_containers_config_dir"
-            install -m 0644 "${podmanContainersConfig}/containers/registries.conf" "$host_containers_config_dir/registries.conf"
+          host_has_policy=false
+          if [ -f "$host_containers/policy.json" ] || [ -f /etc/containers/policy.json ]; then
+            host_has_policy=true
           fi
 
-          if [ ! -f "$host_containers_config_dir/policy.json" ] \
-            && [ ! -f /etc/containers/policy.json ]; then
-            mkdir -p "$host_containers_config_dir"
-            install -m 0644 "${podmanContainersConfig}/containers/policy.json" "$host_containers_config_dir/policy.json"
+          host_has_registries=false
+          if [ -n "''${CONTAINERS_REGISTRIES_CONF:-}" ] \
+            || [ -f "$host_containers/registries.conf" ] \
+            || [ -f /etc/containers/registries.conf ]; then
+            host_has_registries=true
           fi
 
-          exec ${pkgs.podman}/bin/podman "$@"
+          if [ "$host_has_policy" = "true" ] && [ "$host_has_registries" = "true" ]; then
+            exec ${pkgs.podman}/bin/podman "$@"
+          fi
+
+          overlay="$(mktemp -d -t secret-project-331-podman-XXXXXX)"
+          trap 'rm -rf "$overlay"' EXIT
+          mkdir -p "$overlay/containers"
+
+          if [ -d "$host_containers" ]; then
+            find "$host_containers" -mindepth 1 -maxdepth 1 \
+              -exec ln -sfn '{}' "$overlay/containers/" \;
+          fi
+
+          if [ "$host_has_policy" = "false" ]; then
+            ln -sfn "${podmanContainersConfig}/containers/policy.json" \
+              "$overlay/containers/policy.json"
+          fi
+
+          if [ "$host_has_registries" = "false" ]; then
+            ln -sfn "${podmanContainersConfig}/containers/registries.conf" \
+              "$overlay/containers/registries.conf"
+          fi
+
+          XDG_CONFIG_HOME="$overlay" "${pkgs.podman}/bin/podman" "$@"
         '';
+        projectCliPackages = [
+          pkgs.actionlint
+          pkgs.kubectl
+          pkgs.kubectx
+          pkgs.kustomize
+          pkgs.oxipng
+          pkgs.skaffold
+          pkgs.sqlx-cli
+          pkgs.stern
+        ];
+        localClusterPackages = [
+          pkgs.ctlptl
+          pkgs.kind
+          pkgs.tilt
+        ];
         linuxOnlyPackages = lib.optionals pkgs.stdenv.isLinux [
           pkgs.docker-client
           getentCompat
@@ -149,97 +180,79 @@
           pkgs.mold
           podmanWithProjectConfig
         ];
-        localClusterPackages = [
-          pkgs.ctlptl
-          pkgs.kind
-          pkgs.tilt
+        pathPriorityPackages = [
+          rustToolchain
+        ]
+        ++ projectCliPackages
+        ++ localClusterPackages
+        ++ linuxOnlyPackages;
+        shellSupportPackages = [
+          pkgs.bc
+          pkgs.cargo-chef
+          pkgs.cargo-watch
+          pkgs.cmake
+          pkgs.coreutils
+          pkgs.curl
+          pkgs.file
+          pkgs.findutils
+          pkgs.fish
+          pkgs.gcc
+          pkgs.git
+          pkgs.gnumake
+          pkgs.gnugrep
+          pkgs.gnused
+          pkgs.gnutar
+          pkgs.gzip
+          pkgs.jq
+          pkgs.libclang
+          pkgs.moreutils
+          pkgs.openssl
+          pkgs.pkg-config
+          pkgs.pnpm
+          pkgs.postgresql
+          pkgs.python3
+          pkgs.redis
+          pkgs.rsync
+          pkgs.starship
+          pkgs.systemfd
+          pkgs.which
+          pkgs.zlib
+          pkgs.zstd
         ];
-        downloadApplicationsPackages =
-          [
-            rustToolchain
-            pkgs.actionlint
-            pkgs.kubectl
-            pkgs.kubectx
-            pkgs.kustomize
-            pkgs.oxipng
-            pkgs.skaffold
-            pkgs.sqlx-cli
-            pkgs.stern
-          ]
-          ++ lib.optionals pkgs.stdenv.isLinux [
-            pkgs.minikube
-          ];
-        priorityBinPath = lib.makeBinPath (downloadApplicationsPackages ++ localClusterPackages ++ linuxOnlyPackages);
+
+        # Prepended to PATH; must include the podman wrapper before pkgs.podman.
+        pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;
       in
       {
-        devShells.default = pkgs.mkShell {
-          packages =
-            [
-              rustToolchain
-              pkgs.actionlint
-              pkgs.bc
-              pkgs.cargo-chef
-              pkgs.cargo-watch
-              pkgs.cmake
-              pkgs.coreutils
-              pkgs.curl
-              pkgs.ctlptl
-              pkgs.file
-              pkgs.findutils
-              pkgs.gcc
-              pkgs.git
-              pkgs.gnumake
-              pkgs.gnugrep
-              pkgs.gnused
-              pkgs.gnutar
-              pkgs.gzip
-              pkgs.jq
-              pkgs.kind
-              pkgs.kubectl
-              pkgs.kubectx
-              pkgs.kustomize
-              pkgs.libclang
-              pkgs.moreutils
-              pkgs.openssl
-              pkgs.oxipng
-              pkgs.pkg-config
-              pkgs.pnpm
-              pkgs.postgresql
-              pkgs.python3
-              pkgs.redis
-              pkgs.rsync
-              pkgs.skaffold
-              pkgs.sqlx-cli
-              pkgs.stern
-              pkgs.systemfd
-              pkgs.tilt
-              pkgs.which
-              pkgs.zlib
-              pkgs.zstd
-              pkgs.fish
-              pkgs.starship
-            ]
-            ++ linuxOnlyPackages;
+        devShells.default = pkgs.mkShell (
+          {
+            packages = pathPriorityPackages ++ shellSupportPackages;
 
-          OPENSSL_DIR = "${pkgs.openssl.dev}";
-          LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
-          STARSHIP_CONFIG = "${starshipConfig}";
+            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+            LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
+            STARSHIP_CONFIG = "${starshipConfig}";
+            TILT_DISABLE_ANALYTICS = "1";
 
-          shellHook = ''
-            export PATH="${priorityBinPath}:$PATH"
-            ${lib.optionalString pkgs.stdenv.isLinux ''export KIND_EXPERIMENTAL_PROVIDER=podman''}
-            export TILT_DISABLE_ANALYTICS=1
-            export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+            shellHook = ''
+              export PATH="${pathPriorityBinPath}:$PATH"
+              export PKG_CONFIG_PATH="${opensslPkgConfigPath}''${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
 
-            if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
-              export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
-            fi
+              if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
+                export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+              fi
 
-            if [ -t 0 ]; then
-              exec fish -C 'set -gx PATH (string split : "${priorityBinPath}") $PATH; ${lib.optionalString pkgs.stdenv.isLinux "set -gx KIND_EXPERIMENTAL_PROVIDER podman; "}set -gx TILT_DISABLE_ANALYTICS 1; source ${fishDevConfig}'
-            fi
-          '';
-        };
+              # Interactive TTY: exec fish. NO_PROJECT_FISH=1 skips.
+              if [ -t 0 ] && [ -t 1 ] && [ -z "''${IN_PROJECT_FISH:-}" ] && [ -z "''${NO_PROJECT_FISH:-}" ]; then
+                export IN_PROJECT_FISH=1
+                exec ${pkgs.fish}/bin/fish -C 'source ${fishDevConfig}'
+              fi
+            '';
+          }
+          // lib.optionalAttrs pkgs.stdenv.isLinux {
+            KIND_EXPERIMENTAL_PROVIDER = "podman";
+          }
+        );
       }
     );
 }

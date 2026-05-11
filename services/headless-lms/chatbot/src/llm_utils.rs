@@ -260,7 +260,7 @@ impl APIOutputMessage {
                 message: Message::ToolOutput(ChatbotConversationMessageToolOutput {
                     tool_call_id: call_id,
                     tool_kind: ToolKind::AzureAiSearch,
-                    output: serde_json::to_string(&output)?,
+                    output,
                     response_id,
                     ..Default::default()
                 }),
@@ -351,7 +351,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                 ToolKind::AzureAiSearch => APIOutputMessage {
                     message_type: OutputItem::AzureAiSearchCallOutput {
                         call_id: tool_output.tool_call_id,
-                        output: serde_json::from_str(&tool_output.output)?,
+                        output: tool_output.output,
                         response_id: tool_output.response_id,
                     },
                 },
@@ -420,7 +420,7 @@ impl TryFrom<APIOutputMessage> for ChatbotConversationMessageToolOutput {
                 response_id,
                 call_id,
                 output,
-            } => OK(ChatbotConversationMessageToolOutput {
+            } => Ok(ChatbotConversationMessageToolOutput {
                 output,
                 tool_call_id: call_id,
                 response_id,
@@ -463,6 +463,7 @@ impl TryFrom<APIToolCall> for ChatbotConversationMessageToolCall {
             tool_name: value.function.name,
             tool_arguments: serde_json::from_str(&value.function.arguments)?,
             tool_call_id: value.id,
+            tool_kind: value.tool_type,
             ..Default::default()
         })
     }

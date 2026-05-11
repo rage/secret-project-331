@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_conversation_message_reasoning\nSET deleted_at = NOW()\nWHERE id = $1\nRETURNING *\n        ",
+  "query": "\nUPDATE chatbot_conversation_message_reasoning\nSET deleted_at = NOW()\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -54,5 +54,5 @@
       false
     ]
   },
-  "hash": "d36a3033b4d5f935fca2462d01d4374ccd3d771e5e0545b63f93aba07d0e19a7"
+  "hash": "78dd0f61529b6c663bf4238ab900e22b20389cc416449368fa5010c38eee5ff5"
 }

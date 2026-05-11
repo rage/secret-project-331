@@ -76,8 +76,10 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
             messageText = messageText.replaceAll(re, `[doc${newCitNumber}]`)
             citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`
           })
-        // latestCitNumber should equal the largest cit number in this message
-        latestCitNumber += Math.max(...citationNumberingMap.values())
+        // latestCitNumber should equal the largest cit number in this message.
+        // because this message has citations, citationNumberingMap has values
+        // so the max on next line should never actually be 0
+        latestCitNumber += Math.max(0, ...citationNumberingMap.values())
       }
       t += messageText + "\n\n"
 

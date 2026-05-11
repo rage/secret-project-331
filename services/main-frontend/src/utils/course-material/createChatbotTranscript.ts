@@ -26,10 +26,8 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
   let transcript = messages
     .map((m) => {
       const originalMessage = zChatbotConversationMessageMessage.safeParse(m.message)
-      console.log(originalMessage)
       if (!originalMessage.success) {
         // don't put tool messages or reasoning in the transcript
-        console.log("11111111")
         return ""
       }
 
@@ -37,8 +35,6 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
 
       if (msg.message_role !== "user" && msg.message_role !== "assistant") {
         // don't put system or tool messages in the transcript
-        console.log("222222222")
-
         return ""
       }
       let t = ""

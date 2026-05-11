@@ -115,7 +115,7 @@ const CertificationsPage: React.FC = () => {
         body: {
           metadata,
           // eslint-disable-next-line i18next/no-literal-string
-          file: firstFile ?? new File([], "empty-certificate-upload"),
+          file: [firstFile ?? new File([], "empty-certificate-upload")],
         },
         bodySerializer: () => createCertificateConfigurationFormData(metadata, files),
       })

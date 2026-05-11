@@ -270,7 +270,7 @@ impl APIOutputMessage {
                 summary,
                 response_id,
             } => {
-                let text = if summary.len() > 0 {
+                let text = if !summary.is_empty() {
                     Some(
                         summary
                             .iter()
@@ -721,16 +721,13 @@ pub fn get_params_for_model(
     model: &ChatbotConfigurationModel,
     configuration: &ChatbotConfiguration,
 ) -> LLMRequestParams {
-    match model.model.as_str() {
-        "gpt-5.2-chat" => {
-            return LLMRequestParams::GPTThinking(ThinkingParams {
-                reasoning: Some(Reasoning {
-                    effort: ReasoningEffortLevel::Medium,
-                    summary: Some(SummaryType::Detailed),
-                }),
-            });
-        }
-        _ => {}
+    if model.model.as_str() == "gpt-5.2-chat" {
+        return LLMRequestParams::GPTThinking(ThinkingParams {
+            reasoning: Some(Reasoning {
+                effort: ReasoningEffortLevel::Medium,
+                summary: Some(SummaryType::Detailed),
+            }),
+        });
     }
     match model.model_type {
         ModelType::GPTNonThinking => LLMRequestParams::GPTNonThinking(NonThinkingParams {
@@ -773,11 +770,13 @@ pub fn get_params_for_model(
     }
 }
 
+/// Checks if the model_type is a thinking model type. This function defines
+/// which model types are thinking (reasoning)
 pub fn model_is_thinking(model_type: ModelType) -> bool {
-    match model_type {
-        ModelType::GPTHardThinking | ModelType::GPTThinking => true,
-        _ => false,
-    }
+    matches!(
+        model_type,
+        ModelType::GPTHardThinking | ModelType::GPTThinking
+    )
 }
 
 #[cfg(test)]

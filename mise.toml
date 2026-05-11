@@ -1,0 +1,21 @@
+# Mirrors bin/download-applications-linux for trying the project toolchain with mise.
+
+[tools]
+rust = "1.95.0"
+
+"aqua:GoogleContainerTools/skaffold" = "2.17.0"
+"aqua:kubernetes/kubernetes/kubectl" = "1.34.3"
+"aqua:kubernetes/minikube" = "1.38.0"
+"aqua:kubernetes-sigs/kustomize" = "5.7.1"
+"aqua:rhysd/actionlint" = "1.7.10"
+"aqua:stern/stern" = "1.33.1"
+"aqua:ahmetb/kubectx" = "0.9.5"
+"aqua:ahmetb/kubectx/kubens" = "0.9.5"
+
+"cargo:oxipng" = { version = "10.1.1", depends = ["rust"] }
+
+[tools."cargo:sqlx-cli"]
+version = "0.8.6"
+default-features = false
+features = "rustls,postgres"
+depends = ["rust"]

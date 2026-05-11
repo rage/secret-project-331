@@ -201,6 +201,7 @@ pub async fn delete(
 UPDATE chatbot_conversation_message_messages
 SET deleted_at = NOW()
 WHERE id = $1
+  AND deleted_at IS NULL
 RETURNING
     id,
     created_at,

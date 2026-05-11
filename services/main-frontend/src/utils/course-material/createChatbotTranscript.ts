@@ -32,6 +32,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
       }
 
       let msg = originalMessage.data
+      let messageText = msg.text
 
       if (msg.message_role !== "user" && msg.message_role !== "assistant") {
         // don't put system or tool messages in the transcript
@@ -43,7 +44,7 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
       t += `[${name} said:]\n`
 
       if (hideCitations && msg.message_role === "assistant") {
-        t += msg.text.replace(REMOVE_CITATIONS_REGEX, "") + "\n\n"
+        t += messageText.replace(REMOVE_CITATIONS_REGEX, "") + "\n\n"
         return t
       }
 
@@ -52,15 +53,15 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
         let currentCitations = citations.filter((c) => c.conversation_message_id === m.id)
         // citationNumberingMap should contain the same numbers as the filteredCitations array
         let { filteredCitations, citationNumberingMap } = renumberFilterCitations(
-          msg.text,
+          messageText,
           currentCitations,
           true,
         )
         anyCitationsUsed = filteredCitations.length > 0 || anyCitationsUsed
         filteredCitations
           .sort((a, b) =>
-            citationNumberingMap.get(a.citation_number) <
-            citationNumberingMap.get(b.citation_number)
+            assertNotNullOrUndefined(citationNumberingMap.get(a.citation_number)) <
+            assertNotNullOrUndefined(citationNumberingMap.get(b.citation_number))
               ? -1
               : 1,
           )
@@ -72,13 +73,13 @@ export const createChatbotTranscript = (info: ChatbotConversationInfo) => {
               assertNotNullOrUndefined(citationNumberingMap.get(cit.citation_number)) +
               latestCitNumber
             let re = matchSpecifiedCitationNumberRegex(cit.citation_number)
-            msg.text = msg.text.replaceAll(re, `[doc${newCitNumber}]`)
+            messageText = messageText.replaceAll(re, `[doc${newCitNumber}]`)
             citationList += `[doc${newCitNumber}] ${cit.title}, ${cit.document_url}\n`
           })
-        // latest_cit_n should equal the largest cit number in this message
-        latestCitNumber += filteredCitations.length
+        // latestCitNumber should equal the largest cit number in this message
+        latestCitNumber += Math.max(...citationNumberingMap.values())
       }
-      t += msg.text + "\n\n"
+      t += messageText + "\n\n"
 
       return t
     })

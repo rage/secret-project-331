@@ -2,7 +2,7 @@ use crate::azure_chatbot::{
     InputItem, LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams,
 };
 use crate::llm_utils::{
-    APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
+    APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request, model_is_thinking,
     parse_text_completion,
 };
 use crate::prelude::*;
@@ -334,9 +334,7 @@ async fn process_block_chunk(
     task_lm: &TaskLMSpec,
 ) -> ChatbotResult<String> {
     let input = prepare_llm_messages(chunk, system_message)?;
-    let params = if (task_lm.model_type == ModelType::GPTHardThinking)
-        | (task_lm.model_type == ModelType::GPTThinking)
-    {
+    let params = if model_is_thinking(task_lm.model_type) {
         LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None })
     } else {
         LLMRequestParams::GPTNonThinking(NonThinkingParams {

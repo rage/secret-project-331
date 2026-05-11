@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = true\nWHERE id = $1\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    course_id,\n    enabled_to_students,\n    chatbot_name,\n    model_id,\n    prompt,\n    initial_message,\n    weekly_tokens_per_user,\n    daily_tokens_per_user,\n    temperature,\n    top_p,\n    frequency_penalty,\n    presence_penalty,\n    max_output_tokens,\n    use_azure_search,\n    maintain_azure_search_index,\n    hide_citations,\n    use_semantic_reranking,\n    use_tools,\n    default_chatbot,\n    suggest_next_messages,\n    verbosity as \"verbosity: VerbosityLevel\",\n    reasoning_effort as \"reasoning_effort: ReasoningEffortLevel\",\n    initial_suggested_messages\n",
+  "query": "\nUPDATE chatbot_configurations\nSET default_chatbot = TRUE\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING id,\n  created_at,\n  updated_at,\n  deleted_at,\n  course_id,\n  enabled_to_students,\n  chatbot_name,\n  model_id,\n  prompt,\n  initial_message,\n  weekly_tokens_per_user,\n  daily_tokens_per_user,\n  temperature,\n  top_p,\n  frequency_penalty,\n  presence_penalty,\n  max_output_tokens,\n  use_azure_search,\n  maintain_azure_search_index,\n  hide_citations,\n  use_semantic_reranking,\n  use_tools,\n  default_chatbot,\n  suggest_next_messages,\n  verbosity AS \"verbosity: VerbosityLevel\",\n  reasoning_effort AS \"reasoning_effort: ReasoningEffortLevel\",\n  initial_suggested_messages\n",
   "describe": {
     "columns": [
       {
@@ -199,5 +199,5 @@
       true
     ]
   },
-  "hash": "35af15895164d5ee4ad38e935776e87e2f11618ec8f1f19500060816dd281468"
+  "hash": "18e7b9b3f301f0e1878be17e17e884f1235043c184a53890a7aa688dcfe677a5"
 }

@@ -18,7 +18,11 @@ export const renumberFilterCitations = (
   message: string,
   citations: ChatbotConversationMessageCitation[],
   isFromChatbot: boolean,
-) => {
+): {
+  filteredCitations: ChatbotConversationMessageCitation[]
+  citedDocs: number[]
+  citationNumberingMap: Map<number, number>
+} => {
   /** change the citation_number of the actually cited citations so that
   the first citation that appears in the msg is 1, the 2nd is 2, etc.
   and filter out citations that were not cited in the msg. */

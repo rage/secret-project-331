@@ -383,11 +383,20 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
 
 impl From<ChatbotConversationMessageToolOutput> for APIOutputMessage {
     fn from(value: ChatbotConversationMessageToolOutput) -> Self {
-        APIOutputMessage {
-            message_type: OutputItem::FunctionCallOutput {
-                call_id: value.tool_call_id,
-                output: value.output,
-                response_id: value.response_id,
+        match value.tool_kind {
+            ToolKind::Function => APIOutputMessage {
+                message_type: OutputItem::FunctionCallOutput {
+                    call_id: value.tool_call_id,
+                    output: value.output,
+                    response_id: value.response_id,
+                },
+            },
+            ToolKind::AzureAiSearch => APIOutputMessage {
+                message_type: OutputItem::AzureAiSearchCallOutput {
+                    response_id: value.response_id,
+                    call_id: value.tool_call_id,
+                    output: value.output,
+                },
             },
         }
     }
@@ -402,6 +411,16 @@ impl TryFrom<APIOutputMessage> for ChatbotConversationMessageToolOutput {
                 output,
                 response_id,
             } => Ok(ChatbotConversationMessageToolOutput {
+                output,
+                tool_call_id: call_id,
+                response_id,
+                ..Default::default()
+            }),
+            OutputItem::AzureAiSearchCallOutput {
+                response_id,
+                call_id,
+                output,
+            } => OK(ChatbotConversationMessageToolOutput {
                 output,
                 tool_call_id: call_id,
                 response_id,
@@ -675,7 +694,7 @@ pub async fn make_blocking_llm_request(
 }
 
 /// Collects all the completion choices to a string. Assumes the completion has only
-/// text message content, no tool calls or responses.
+/// text message content, no tool calls or tool output.
 pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
     let res =
     completion
@@ -683,6 +702,7 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
         .into_iter()
         .map(|x| match x.message_type {
             OutputItem::Message {  content , ..} => Ok(content.get_content_text()),
+            OutputItem::Reasoning { .. } => Ok("".to_string()),
             _ =>  Err(chatbot_err!( InvalidMessageShape, "It was assumed this LLM response contains only text, but a tool call or tool response was detected.")),
         })
         .collect::<ChatbotResult<Vec<String>>>()?
@@ -749,6 +769,13 @@ pub fn get_params_for_model(
             })
         }
         ModelType::Mistral => LLMRequestParams::Mistral(MistralParams { test: true }),
+    }
+}
+
+pub fn model_is_thinking(model_type: ModelType) -> bool {
+    match model_type {
+        ModelType::GPTHardThinking | ModelType::GPTThinking => true,
+        _ => false,
     }
 }
 

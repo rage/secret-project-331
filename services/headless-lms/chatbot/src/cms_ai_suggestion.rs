@@ -10,7 +10,7 @@ use crate::{
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
-        parse_text_completion,
+        model_is_thinking, parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -233,9 +233,7 @@ pub async fn generate_paragraph_suggestions(
         },
     };
 
-    let (params, max_output_tokens) = if (task_lm.model_type == ModelType::GPTHardThinking)
-        | (task_lm.model_type == ModelType::GPTThinking)
-    {
+    let (params, max_output_tokens) = if model_is_thinking(task_lm.model_type) {
         (
             LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),
             Some(4000),

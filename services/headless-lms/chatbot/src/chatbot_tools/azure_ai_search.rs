@@ -58,7 +58,7 @@ pub fn get_azure_ai_search_tool_definition(
 ) -> ChatbotResult<AzureAISearchToolDefinition> {
     let index_name = Url::parse(&app_config.base_url)?
         .host_str()
-        .ok_or_else(anyhow::anyhow!("Invalid application base url, no host"))?
+        .ok_or_else(|| anyhow::anyhow!("Invalid application base url, no host"))?
         .replace(".", "-");
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         anyhow::anyhow!("Azure configuration is missing from the application configuration")

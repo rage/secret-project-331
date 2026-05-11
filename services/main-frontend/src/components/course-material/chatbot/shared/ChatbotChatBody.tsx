@@ -65,7 +65,10 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     const messages: ChatbotConversationMessage[] = [
       ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {
         let result = zChatbotConversationMessageMessage.safeParse(m.message)
-        return result.success && result.data.message_role !== "system"
+        return (
+          result.success &&
+          (result.data.message_role === "user" || result.data.message_role === "assistant")
+        )
       }) ?? []),
     ]
     const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)

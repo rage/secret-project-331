@@ -354,7 +354,7 @@ impl LLMRequest {
         let mut api_chat_messages: Vec<APIInputMessage> = conversation_messages
             .into_iter()
             .filter_map(|m| match m.message {
-                Message::Reasoning { .. } => None,
+                Message::Reasoning(..) => None,
                 _ => Some(APIInputMessage::try_from(m)),
             })
             .collect::<ChatbotResult<Vec<_>>>()?;

@@ -10,7 +10,7 @@ use crate::{
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
         APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
-        parse_text_completion,
+        model_is_thinking, parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
@@ -18,7 +18,6 @@ use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
-    chatbot_configurations_models::ModelType,
     chatbot_conversation_message_messages::MessageRole,
     chatbot_conversation_messages::{ChatbotConversationMessage, Message},
 };

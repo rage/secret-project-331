@@ -83,62 +83,6 @@ RETURNING
     Ok(res)
 }
 
-pub async fn insert_batch(
-    conn: &mut PgConnection,
-    input: Vec<ChatbotConversationMessageToolCall>,
-    msg_id: Uuid,
-) -> ModelResult<Vec<ChatbotConversationMessageToolCall>> {
-    if input.is_empty() {
-        return Ok(Vec::new());
-    }
-    // assumes the batch belongs to the same response
-    let tool_names: Vec<String> = input.iter().map(|i| i.tool_name.to_owned()).collect();
-    let tool_args: Vec<Value> = input.iter().map(|i| i.tool_arguments.to_owned()).collect();
-    let tool_ids: Vec<String> = input.iter().map(|i| i.tool_call_id.to_owned()).collect();
-    let kinds: Vec<ToolKind> = input.iter().map(|i| i.tool_kind.to_owned()).collect();
-    let response_id = &input[0].response_id;
-
-    let res = sqlx::query_as!(
-        ChatbotConversationMessageToolCall,
-        r#"
-INSERT INTO chatbot_conversation_message_tool_calls (
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    tool_kind,
-    response_id
-  )
-SELECT $1,
-  UNNEST($2::VARCHAR(255) []),
-  UNNEST($3::JSONB []),
-  UNNEST($4::VARCHAR(255) []),
-  UNNEST($5::tool_kind []),
-  $6
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    chatbot_conversation_message_id,
-    tool_name,
-    tool_arguments,
-    tool_call_id,
-    tool_kind as "tool_kind: ToolKind",
-    response_id
-        "#,
-        msg_id,
-        &tool_names,
-        &tool_args,
-        &tool_ids,
-        kinds as Vec<ToolKind>,
-        response_id,
-    )
-    .fetch_all(conn)
-    .await?;
-    Ok(res)
-}
-
 pub async fn get_by_id(
     conn: &mut PgConnection,
     id: Uuid,

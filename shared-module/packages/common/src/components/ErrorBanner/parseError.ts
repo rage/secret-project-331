@@ -1,9 +1,13 @@
+import { TFunction } from "i18next"
+
 import { normalizeErrorForDisplay } from "../../errors/normalizeErrorForDisplay"
+import type { ErrorViewTechnicalDetails } from "../../errors/normalizeErrorForDisplay"
 
 export interface ParsedError {
   title: string
   message?: string
   sourceData?: unknown
+  technicalDetails?: ErrorViewTechnicalDetails
   linkBlockId?: string
   status?: number | null
   messageKey?: string | null
@@ -17,12 +21,14 @@ export interface ParsedError {
 /**
  * Parses an unknown error value into a structure suitable for rendering.
  */
-export function parseError(error: unknown, defaultTitle: string): ParsedError {
-  const normalized = normalizeErrorForDisplay(error)
+export function parseError(error: unknown, defaultTitle: string, t: TFunction): ParsedError {
+  const normalized = normalizeErrorForDisplay(error, t)
+  const technicalDetails = normalized.technicalDetails ?? undefined
   return {
     title: normalized.title || defaultTitle,
     message: normalized.message ?? undefined,
-    sourceData: normalized.technicalDetails ?? undefined,
+    sourceData: technicalDetails?.detail ?? technicalDetails?.raw ?? undefined,
+    technicalDetails,
     linkBlockId: normalized.blockId ?? undefined,
     status: normalized.status,
     messageKey: normalized.messageKey,

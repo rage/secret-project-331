@@ -109,13 +109,11 @@ const CertificationsPage: React.FC = () => {
       }
 
       const files = [overlaySvg, backgroundSvg].filter((file): file is File => file !== null)
-      const firstFile = files[0]
 
       return updateCertificateConfiguration({
         body: {
           metadata,
-          // eslint-disable-next-line i18next/no-literal-string
-          file: [firstFile ?? new File([], "empty-certificate-upload")],
+          file: files,
         },
         bodySerializer: () => createCertificateConfigurationFormData(metadata, files),
       })

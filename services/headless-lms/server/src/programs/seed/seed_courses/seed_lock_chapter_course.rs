@@ -51,7 +51,7 @@ pub async fn seed_lock_chapter_course(
             teacher_in_charge_email: "admin@example.com".to_string(),
             opening_time: None,
             closing_time: None,
-            instance_id: Some(cx.v5(b"a1b2c3d4-e5f6-7890-abcd-ef1234567890")),
+            instance_id: Some(cx.v5(b"1799a6d1-c1b1-4f51-a92f-e832554fc924")),
         })
         .role(teacher_user_id, UserRole::Teacher)
         .module(
@@ -78,7 +78,7 @@ pub async fn seed_lock_chapter_course(
                                                     "anchor": "model-solution-title"
                                                 },
                                             )
-                                            .with_id(cx.v5(b"f1a2b3c4-d5e6-7890-abcd-ef1234567890")),
+                                            .with_id(cx.v5(b"883c8ed0-08db-4cd1-a0a4-5cc79c69bdfe")),
                                             GutenbergBlock::paragraph("Congratulations on completing Chapter 1! Here's a model solution for the Customer Behavior Analysis Project.")
                                                 .with_id(cx.v5(b"f2a3b4c5-d6e7-8901-bcde-f1234567891")),
                                             GutenbergBlock::paragraph("The project involved analyzing customer purchase data to identify patterns and segment customers. The first step was data cleaning, which included handling missing values using appropriate imputation methods and removing outliers using the IQR method.")

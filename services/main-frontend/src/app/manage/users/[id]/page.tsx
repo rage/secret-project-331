@@ -37,7 +37,7 @@ const UserPage: React.FC = () => {
     }),
   })
 
-  const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? []
+  const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? null
 
   const userDetailsQuery = useUserDetails(courseIds, id)
   const userDetails = extractUserDetail(userDetailsQuery.data)
@@ -60,6 +60,7 @@ const UserPage: React.FC = () => {
   if (!userDetailsQuery.data) {
     return (
       <DataLoadError
+        contextMessage={t("label-user-details-query-returned-no-data")}
         onRetry={() => {
           void userDetailsQuery.refetch()
         }}

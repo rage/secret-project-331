@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM user_details\nWHERE user_id IN (\n    SELECT UNNEST($1::uuid [])\n  )\n",
+  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  search_helper,\n  country,\n  email_communication_consent\nFROM user_details\nWHERE user_id = ANY($1::uuid[])\n        ",
   "describe": {
     "columns": [
       {
@@ -20,33 +20,33 @@
       },
       {
         "ordinal": 3,
-        "name": "first_name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 4,
-        "name": "last_name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 5,
         "name": "email",
         "type_info": "Varchar"
       },
       {
+        "ordinal": 4,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
         "ordinal": 6,
+        "name": "search_helper",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
         "name": "country",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "email_communication_consent",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 8,
-        "name": "search_helper",
-        "type_info": "Text"
       }
     ],
     "parameters": {
@@ -58,13 +58,13 @@
       false,
       false,
       false,
-      true,
-      true,
       false,
       true,
-      false,
-      true
+      true,
+      true,
+      true,
+      false
     ]
   },
-  "hash": "74d82f3b6234558038f0d4cebd6f4b05aaef172cb0b75276f9ae429f7c3c10ec"
+  "hash": "579e0266fde1f6215877326ff37923730113bf5aa83d4872f4af06bdde16ea04"
 }

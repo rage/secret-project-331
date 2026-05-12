@@ -31,12 +31,15 @@ const EssayFeedback: React.FC<
       >
         <pre
           className={css`
-            display: flex;
+            display: block;
             font-family: Raleway, sans-serif;
             color: #676e7b;
             font-size: 1.125rem;
             font-weight: 500;
             white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            min-width: 0;
+            max-width: 100%;
           `}
         >
           {text?.trim()}

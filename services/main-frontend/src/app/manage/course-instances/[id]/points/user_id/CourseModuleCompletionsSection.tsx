@@ -47,6 +47,16 @@ const CompletionDate = styled.span`
   font-size: 0.875rem;
 `
 
+const ReviewBanner = styled.div`
+  background: ${baseTheme.colors.red[100]};
+  border: 1px solid ${baseTheme.colors.red[500]};
+  border-radius: 0.375rem;
+  color: ${baseTheme.colors.red[800]};
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+`
+
 const InfoGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(15.625rem, 1fr));
@@ -133,6 +143,9 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
                 />
               </CompletionDate>
             </ModuleHeader>
+            {courseModuleCompletion.needs_to_be_reviewed && (
+              <ReviewBanner>{t("course-module-completion-needs-review")}</ReviewBanner>
+            )}
             <InfoGrid>
               <InfoItem>
                 <Label>{t("label-passed")}</Label>

@@ -70,7 +70,9 @@
     }
   },
   "error-part-of-page-has-crashed-error": "Del av sidan har kraschat: {{error}}",
+  "error-status": "Status: {{status}}",
   "error-title": "Fel",
+  "error-type": "Typ: {{type}}",
   "essay": "Uppsats",
   "exercise-iframe-reload-exhausted-message": "De automatiska omladdningsförsöken tog slut. Du kan försöka ladda om övningen manuellt.",
   "exercise-iframe-reload-exhausted-reload-button": "Ladda om övningen",

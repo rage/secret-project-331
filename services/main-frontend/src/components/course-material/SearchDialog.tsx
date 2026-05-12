@@ -275,7 +275,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
         if (e instanceof Error && e.name === "AbortError") {
           return
         }
-        const parsed = normalizeErrorForDisplay(e)
+        const parsed = normalizeErrorForDisplay(e, t)
         setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)
@@ -286,7 +286,7 @@ const SearchDialog: React.FC<React.PropsWithChildren<SearchDialogProps>> = ({
     return () => {
       abortControllerRef.current?.abort()
     }
-  }, [courseId, debouncedQuery])
+  }, [courseId, debouncedQuery, t])
 
   // Keep the keyboard shortcut functionality
   useEffect(() => {

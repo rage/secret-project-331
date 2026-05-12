@@ -452,10 +452,10 @@ mod tests {
 
     #[test]
     fn uuid_into_value() -> Result<(), SearchFilterError> {
-        let id = Uuid::parse_str("11111111-2222-3333-4444-555555555555").unwrap();
+        let id = Uuid::parse_str("bb45d558-0b4b-47c8-97cd-01b3f91639f2").unwrap();
         assert_eq!(
             SearchFilterValue::from(id).to_odata()?,
-            "'11111111-2222-3333-4444-555555555555'"
+            "'bb45d558-0b4b-47c8-97cd-01b3f91639f2'"
         );
         Ok(())
     }

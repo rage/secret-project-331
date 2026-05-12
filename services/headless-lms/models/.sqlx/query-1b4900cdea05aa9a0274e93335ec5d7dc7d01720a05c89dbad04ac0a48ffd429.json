@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT completions.completion_registration_attempt_date,\n  completions.course_module_id,\n  completions.created_at,\n  completions.grade,\n  completions.passed,\n  completions.prerequisite_modules_completed,\n  (registered.id IS NOT NULL) AS \"registered!\",\n  completions.user_id,\n  completions.completion_date\nFROM course_module_completions completions\n  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (\n    completions.id = registered.course_module_completion_id\n  )\n  JOIN user_course_settings settings ON (\n    completions.user_id = settings.user_id\n    AND settings.current_course_id = completions.course_id\n  )\nWHERE settings.current_course_instance_id = $1\n  AND completions.deleted_at IS NULL\n  AND registered.deleted_at IS NULL\n  AND settings.deleted_at IS NULL\n  AND settings.current_course_id = $2\n        ",
+  "query": "\nSELECT completions.completion_registration_attempt_date,\n  completions.course_module_id,\n  completions.created_at,\n  completions.grade,\n  completions.passed,\n  completions.prerequisite_modules_completed,\n  (registered.id IS NOT NULL) AS \"registered!\",\n  completions.needs_to_be_reviewed,\n  completions.user_id,\n  completions.completion_date\nFROM course_module_completions completions\n  LEFT JOIN course_module_completion_registered_to_study_registries registered ON (\n    completions.id = registered.course_module_completion_id\n  )\n  JOIN user_course_settings settings ON (\n    completions.user_id = settings.user_id\n    AND settings.current_course_id = completions.course_id\n  )\nWHERE settings.current_course_instance_id = $1\n  AND completions.deleted_at IS NULL\n  AND registered.deleted_at IS NULL\n  AND settings.deleted_at IS NULL\n  AND settings.current_course_id = $2\n        ",
   "describe": {
     "columns": [
       {
@@ -40,11 +40,16 @@
       },
       {
         "ordinal": 7,
+        "name": "needs_to_be_reviewed",
+        "type_info": "Bool"
+      },
+      {
+        "ordinal": 8,
         "name": "user_id",
         "type_info": "Uuid"
       },
       {
-        "ordinal": 8,
+        "ordinal": 9,
         "name": "completion_date",
         "type_info": "Timestamptz"
       }
@@ -64,8 +69,9 @@
       false,
       null,
       false,
+      false,
       false
     ]
   },
-  "hash": "b81028df6b3aa825cfa908ca40a1a495bf344e502590874618f967df0e9ff54c"
+  "hash": "1b4900cdea05aa9a0274e93335ec5d7dc7d01720a05c89dbad04ac0a48ffd429"
 }

@@ -26,12 +26,23 @@ export interface SearchUsersResultsProps {
   searchFuzzyMatchQuery: UseQueryResult<UserDetail[], unknown>
 }
 
+const SEARCH_QUERY_COUNT = 3
+
 const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsProps>> = ({
   searchByEmailQuery,
   searchByOtherDetailsQuery,
   searchFuzzyMatchQuery,
 }) => {
   const { t } = useTranslation()
+  const searchQueries = [searchByEmailQuery, searchByOtherDetailsQuery, searchFuzzyMatchQuery]
+  const completedSearchCount = searchQueries.filter((query) => !query.isFetching).length
+  const isAnyFetching = completedSearchCount < SEARCH_QUERY_COUNT
+  const firstError = searchQueries.find((query) => query.isError)?.error
+  const errorBanner =
+    firstError !== undefined && firstError !== null ? (
+      <ErrorBanner variant="readOnly" error={firstError} />
+    ) : null
+
   const [data, userIdsFromFuzzyMatch] = useMemo(() => {
     let res: UserDetail[] = []
     let userIdsFromFuzzyMatch: string[] = []
@@ -84,65 +95,77 @@ const SearchUsersResults: React.FC<React.PropsWithChildren<SearchUsersResultsPro
     getCoreRowModel: getCoreRowModel(),
   })
 
-  if (searchByEmailQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={searchByEmailQuery.error} />
-  }
-
-  if (searchByEmailQuery.isFetching) {
-    return <Spinner variant="medium" />
-  }
-
-  if (!data) {
-    return null
-  }
+  const progressIndicator = isAnyFetching ? (
+    <div
+      className={css`
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1rem 0;
+      `}
+    >
+      <span>{t("search-users-progress", { completed: completedSearchCount })}</span>
+      <Spinner variant="small" disableMargin />
+    </div>
+  ) : null
 
   if (data.length === 0) {
-    return <p>{t("text-no-results")}</p>
+    return (
+      <div>
+        {errorBanner}
+        {progressIndicator}
+        {isAnyFetching ? <Spinner variant="medium" /> : <p>{t("text-no-results")}</p>}
+      </div>
+    )
   }
 
   return (
-    <div
-      className={css`
-        table {
-          width: 100%;
-        }
-        th {
-          text-align: left;
-        }
-        td {
-          padding: 0.5rem 2rem;
-          padding-left: 0;
-        }
-      `}
-    >
-      <table>
-        <thead>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <th key={header.id}>
-                  {!header.isPlaceholder &&
-                    flexRender(header.column.columnDef.header, header.getContext())}
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody>
-          {table.getRowModel().rows.map((row) => (
-            <tr
-              key={row.id}
-              className={css`
-                ${userIdsFromFuzzyMatch.has(row.original.user_id) && `opacity: 0.7;`}
-              `}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div>
+      {errorBanner}
+      {progressIndicator}
+      <div
+        className={css`
+          table {
+            width: 100%;
+          }
+          th {
+            text-align: left;
+          }
+          td {
+            padding: 0.5rem 2rem;
+            padding-left: 0;
+          }
+        `}
+      >
+        <table>
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id}>
+                    {!header.isPlaceholder &&
+                      flexRender(header.column.columnDef.header, header.getContext())}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr
+                key={row.id}
+                className={css`
+                  ${userIdsFromFuzzyMatch.has(row.original.user_id) && `opacity: 0.7;`}
+                `}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

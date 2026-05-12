@@ -71,7 +71,9 @@
     }
   },
   "error-part-of-page-has-crashed-error": "Osa sivusta on kaatunut: {{error}}",
+  "error-status": "Tila: {{status}}",
   "error-title": "Virhe",
+  "error-type": "Tyyppi: {{type}}",
   "essay": "Essee",
   "exercise-iframe-reload-exhausted-message": "Automaattiset uudelleenlatausyritykset loppuivat. Voit yrittää ladata tehtävän uudelleen käsin.",
   "exercise-iframe-reload-exhausted-reload-button": "Lataa tehtävä uudelleen",

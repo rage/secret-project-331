@@ -9637,6 +9637,30 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "404": {
+            "description": "User details not found",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
           }
         }
       }
@@ -11319,13 +11343,16 @@
       },
       "CompletionGridRow": {
         "type": "object",
-        "required": ["student", "grade", "status"],
+        "required": ["student", "grade", "status", "needs_to_be_reviewed"],
         "properties": {
           "grade": {
             "type": "string"
           },
           "module": {
             "type": ["string", "null"]
+          },
+          "needs_to_be_reviewed": {
+            "type": "boolean"
           },
           "status": {
             "type": "string"
@@ -11742,6 +11769,7 @@
           "course",
           "course_instances",
           "course_module_completions",
+          "course_module_completions_needing_review",
           "first_enrolled_at",
           "is_current"
         ],
@@ -11764,6 +11792,10 @@
             "items": {
               "$ref": "#/components/schemas/CourseModuleCompletion"
             }
+          },
+          "course_module_completions_needing_review": {
+            "type": "integer",
+            "format": "int32"
           },
           "first_enrolled_at": {
             "type": "string",
@@ -12140,6 +12172,7 @@
           "passed",
           "prerequisite_modules_completed",
           "registered",
+          "needs_to_be_reviewed",
           "user_id",
           "completion_date"
         ],
@@ -12167,6 +12200,10 @@
             "type": ["integer", "null"],
             "format": "int32",
             "description": "Grade that the student received for the completion."
+          },
+          "needs_to_be_reviewed": {
+            "type": "boolean",
+            "description": "Whether or not the completion needs to be reviewed by the teacher."
           },
           "passed": {
             "type": "boolean",

@@ -82,10 +82,11 @@ test.describe("Teacher can set threshold for course", () => {
     await teacherPage.reload()
     await teacherPage.getByRole("columnheader", { name: "Student ID" }).waitFor()
     await teacherPage.getByRole("columnheader", { name: "Completion time", exact: true }).waitFor()
-    await teacherPage
-      .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
-      .first()
-      .waitFor({ state: "visible" })
+    const targetStudentCell = teacherPage.getByRole("cell", {
+      name: /Student ID: 7ba4beb1-abe8-/,
+    })
+    const targetStudentRow = teacherPage.locator("tr").filter({ has: targetStudentCell })
+    await expect(targetStudentCell).toBeVisible()
     await teacherPage
       .getByText("bc403a82-1e8b-4274-acc8-d765648ef698")
       .first()
@@ -102,15 +103,19 @@ test.describe("Teacher can set threshold for course", () => {
     await waitForSuccessNotification(
       teacherPage,
       async () => {
-        await teacherPage.getByText("Clear suspicion", { exact: true }).first().click()
+        await targetStudentRow.getByText("Clear suspicion", { exact: true }).click()
       },
       "Suspicion cleared and archived",
     )
     await teacherPage.getByRole("tab", { name: "Archived" }).click()
-    await teacherPage
-      .getByText("7ba4beb1-abe8-4bad-8bb2-d012c55b310c")
-      .first()
-      .waitFor({ state: "visible" })
+    await expect(
+      teacherPage
+        .getByRole("row")
+        .filter({
+          has: teacherPage.getByRole("cell", { name: /Student ID: 7ba4beb1-abe8-/ }),
+        })
+        .first(),
+    ).toBeVisible()
 
     // Teacher approve a suspected cheater
     await teacherPage.getByRole("tab", { name: "Suspected students" }).click()

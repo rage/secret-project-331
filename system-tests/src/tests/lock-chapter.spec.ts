@@ -8,7 +8,7 @@ import { getLocatorForNthExerciseServiceIframe } from "@/utils/iframeLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
-const LOCK_CHAPTERS_COURSE_ID = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+const LOCK_CHAPTERS_COURSE_ID = "1799a6d1-c1b1-4f51-a92f-e832554fc924"
 const STUDENT1_USER_ID = "02364d40-2aac-4763-8a06-2381fd298d79"
 const LOCK_CHAPTER_1_PAGE_URL =
   "http://project-331.local/org/university-of-helsinki-department-of-mathematics-and-statistics/courses/lock-chapter-test-course/chapter-1/lock-page"

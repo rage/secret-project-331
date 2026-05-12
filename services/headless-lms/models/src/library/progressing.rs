@@ -106,7 +106,7 @@ pub async fn check_and_insert_suspected_cheaters(
     };
 
     if (student_duration_seconds as i32) < thresholds.duration_seconds {
-        suspected_cheaters::insert(
+        let suspicion_is_active = suspected_cheaters::insert(
             conn,
             completion.user_id,
             course_id,
@@ -115,7 +115,10 @@ pub async fn check_and_insert_suspected_cheaters(
         )
         .await?;
 
-        course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true).await?;
+        if suspicion_is_active {
+            course_module_completions::update_needs_to_be_reviewed(conn, completion.id, true)
+                .await?;
+        }
     }
 
     Ok(())
@@ -1187,6 +1190,130 @@ mod tests {
                 .unwrap();
         assert_eq!(cheaters.len(), 1);
         assert_eq!(cheaters[0].user_id, user);
+    }
+
+    #[tokio::test]
+    async fn tagging_suspected_cheater_is_idempotent() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        let completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: None,
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            &thresholds,
+            completion.clone(),
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(tx.as_mut(), user, course, &thresholds, completion)
+            .await
+            .unwrap();
+
+        let cheaters =
+            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
+                .await
+                .unwrap();
+        assert_eq!(cheaters.len(), 1);
+        let completion_needing_review =
+            course_module_completions::get_latest_by_course_and_user_ids(
+                tx.as_mut(),
+                course_module.id,
+                user,
+            )
+            .await
+            .unwrap();
+        assert!(completion_needing_review.needs_to_be_reviewed);
+
+        suspected_cheaters::archive_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let archived_completion = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(!archived_completion.needs_to_be_reviewed);
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            &thresholds,
+            archived_completion,
+        )
+        .await
+        .unwrap();
+
+        let visible_cheaters =
+            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
+                .await
+                .unwrap();
+        let archived_cheaters =
+            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, true)
+                .await
+                .unwrap();
+        assert!(visible_cheaters.is_empty());
+        assert_eq!(archived_cheaters.len(), 1);
+        let rechecked_completion = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(!rechecked_completion.needs_to_be_reviewed);
     }
 
     #[tokio::test]

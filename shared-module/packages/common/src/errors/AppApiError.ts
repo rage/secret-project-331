@@ -28,6 +28,7 @@ export interface AppApiErrorInit {
   detail?: string | null
   issues?: CanonicalApiIssue[]
   metadata?: Record<string, unknown> | null
+  extra?: Record<string, unknown> | null
   retryAfterSeconds?: number | null
   url?: string | null
   method?: string | null
@@ -81,6 +82,7 @@ export class AppApiError extends Error {
   detail: string | null
   issues: CanonicalApiIssue[]
   metadata: Record<string, unknown> | null
+  extra: Record<string, unknown> | null
   retryAfterSeconds: number | null
   url: string | null
   method: string | null
@@ -102,6 +104,7 @@ export class AppApiError extends Error {
     this.detail = init.detail ?? null
     this.issues = init.issues ?? []
     this.metadata = init.metadata ?? null
+    this.extra = init.extra ?? null
     this.retryAfterSeconds = init.retryAfterSeconds ?? null
     this.url = init.url ?? null
     this.method = init.method ?? null
@@ -145,6 +148,7 @@ export function parseCanonicalApiPayload(payload: unknown): {
   message: string | null
   issues: CanonicalApiIssue[]
   metadata: Record<string, unknown> | null
+  extra: Record<string, unknown> | null
 } {
   if (!isRecord(payload)) {
     return {
@@ -154,8 +158,19 @@ export function parseCanonicalApiPayload(payload: unknown): {
       message: null,
       issues: [],
       metadata: null,
+      extra: null,
     }
   }
+
+  const {
+    type: _type,
+    message_key: _messageKey,
+    code: _code,
+    message: _message,
+    errors: _errors,
+    metadata: _metadata,
+    ...extra
+  } = payload
 
   return {
     type: asString(payload.type),
@@ -164,6 +179,7 @@ export function parseCanonicalApiPayload(payload: unknown): {
     message: asString(payload.message),
     issues: parseIssues(payload.errors),
     metadata: isRecord(payload.metadata) ? payload.metadata : null,
+    extra: Object.keys(extra).length > 0 ? extra : null,
   }
 }
 
@@ -194,6 +210,7 @@ export function appApiErrorFromHttpFailure(input: {
     detail: typeof input.body === "string" && input.body.trim() !== "" ? input.body : null,
     issues: parsed.issues,
     metadata: parsed.metadata,
+    extra: parsed.extra,
     retryAfterSeconds: extractRetryAfterSeconds(input.response.headers),
     url: input.request.url,
     method: input.request.method,

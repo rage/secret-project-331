@@ -476,6 +476,7 @@ import type {
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponses,
   GetUserDetailsByCoursesData,
+  GetUserDetailsByCoursesErrors,
   GetUserDetailsByCoursesResponses,
   GetUserDetailsForAuthenticatedUserData,
   GetUserDetailsForAuthenticatedUserResponses,
@@ -6307,7 +6308,12 @@ export const updateUserInfo = <ThrowOnError extends boolean = true>(
 export const getUserDetailsByCourses = <ThrowOnError extends boolean = true>(
   options: Options<GetUserDetailsByCoursesData, ThrowOnError>,
 ) =>
-  (options.client ?? client).post<GetUserDetailsByCoursesResponses, unknown, ThrowOnError, "data">({
+  (options.client ?? client).post<
+    GetUserDetailsByCoursesResponses,
+    GetUserDetailsByCoursesErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseValidator: async (data) => await zGetUserDetailsByCoursesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/user-details/user-by-courses",

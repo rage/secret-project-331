@@ -61,6 +61,7 @@ pub struct CompletionGridRow {
     pub module: Option<String>, // empty/default row can be None
     pub grade: String,          // "-", "Passed", "Failed", or number as text
     pub status: String,         // "Registered" | "-"
+    pub needs_to_be_reviewed: bool,
 }
 
 /// Returns student × module grid with latest completion per (user,module),
@@ -90,7 +91,8 @@ latest_cmc AS (
     cmc.course_module_id,
     cmc.grade,
     cmc.passed,
-    cmc.completion_date
+    cmc.completion_date,
+    cmc.needs_to_be_reviewed
   FROM course_module_completions cmc
   WHERE cmc.course_id = $1
     AND cmc.deleted_at IS NULL
@@ -108,6 +110,7 @@ SELECT
   m.module_name AS "module_name?",
   r.grade AS "grade?",
   r.passed AS "passed?",
+  r.needs_to_be_reviewed AS "needs_to_be_reviewed?",
   (r.id IS NOT NULL AND r.id IN (SELECT course_module_completion_id FROM cmcr)) AS "is_registered?"
 FROM modules m
 CROSS JOIN enrolled e
@@ -152,6 +155,7 @@ LEFT JOIN latest_cmc r
                 module: r.module_name,
                 grade,
                 status,
+                needs_to_be_reviewed: r.needs_to_be_reviewed.unwrap_or(false),
             }
         })
         .collect();

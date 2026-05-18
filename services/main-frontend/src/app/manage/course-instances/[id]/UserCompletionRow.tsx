@@ -5,6 +5,7 @@ import { times } from "lodash"
 import React, { JSX } from "react"
 import { useTranslation } from "react-i18next"
 
+import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCompletionNeedsReviewBadge"
 import { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import type {
   CourseModule,
@@ -38,6 +39,22 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
     } else {
       return <i>{innerText}*</i>
     }
+  }
+
+  function mapGradeCell(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
+    return (
+      <div
+        className={css`
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
+        `}
+      >
+        {mapGradeToText(completion)}
+        {completion.needs_to_be_reviewed && <CourseModuleCompletionNeedsReviewBadge />}
+      </div>
+    )
   }
 
   function mapRegistration(completion: CourseModuleCompletionWithRegistrationInfo): JSX.Element {
@@ -76,7 +93,7 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
           const completion = user.moduleCompletions.get(module.id)?.[0]
           return (
             <React.Fragment key={module.id}>
-              <td>{completion ? mapGradeToText(completion) : "-"}</td>
+              <td>{completion ? mapGradeCell(completion) : "-"}</td>
               <td>{completion ? mapRegistration(completion) : ""}</td>
             </React.Fragment>
           )
@@ -94,7 +111,7 @@ const PlayerCompletionRow: React.FC<UserCompletionRowProps> = ({ sortedCourseMod
               const completion = user.moduleCompletions.get(module.id)?.[i + 1]
               return (
                 <React.Fragment key={module.id}>
-                  <td>{completion ? mapGradeToText(completion) : "-"}</td>
+                  <td>{completion ? mapGradeCell(completion) : "-"}</td>
                   <td>{completion ? mapRegistration(completion) : ""}</td>
                 </React.Fragment>
               )

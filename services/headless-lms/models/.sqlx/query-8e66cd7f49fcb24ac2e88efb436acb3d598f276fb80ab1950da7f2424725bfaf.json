@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM user_details\nWHERE user_id = ANY($1::uuid[])\n        ",
+  "query": "\nSELECT user_id,\n  created_at,\n  updated_at,\n  email,\n  first_name,\n  last_name,\n  search_helper,\n  country,\n  email_communication_consent\nFROM user_details\nWHERE user_id = $1;\n",
   "describe": {
     "columns": [
       {
@@ -20,51 +20,51 @@
       },
       {
         "ordinal": 3,
-        "name": "first_name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 4,
-        "name": "last_name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 5,
         "name": "email",
         "type_info": "Varchar"
       },
       {
+        "ordinal": 4,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
         "ordinal": 6,
+        "name": "search_helper",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
         "name": "country",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "email_communication_consent",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 8,
-        "name": "search_helper",
-        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
-        "UuidArray"
+        "Uuid"
       ]
     },
     "nullable": [
       false,
       false,
       false,
-      true,
-      true,
       false,
       true,
-      false,
-      true
+      true,
+      true,
+      true,
+      false
     ]
   },
-  "hash": "fcc2dc901aa905a4e5a8c4241da33f43ce3d9916b3979336d0daf6f5bf231287"
+  "hash": "8e66cd7f49fcb24ac2e88efb436acb3d598f276fb80ab1950da7f2424725bfaf"
 }

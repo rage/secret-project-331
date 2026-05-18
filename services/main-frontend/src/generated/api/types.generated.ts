@@ -435,6 +435,7 @@ export type CohortActivity = {
 export type CompletionGridRow = {
   grade: string
   module?: string | null
+  needs_to_be_reviewed: boolean
   status: string
   student: string
 }
@@ -681,6 +682,7 @@ export type CourseEnrollmentInfo = {
   course_id: string
   course_instances: Array<CourseInstance>
   course_module_completions: Array<CourseModuleCompletion>
+  course_module_completions_needing_review: number
   first_enrolled_at: string
   is_current: boolean
   user_course_settings?: null | UserCourseSettings
@@ -817,6 +819,10 @@ export type CourseModuleCompletionWithRegistrationInfo = {
    * Grade that the student received for the completion.
    */
   grade?: number | null
+  /**
+   * Whether or not the completion needs to be reviewed by the teacher.
+   */
+  needs_to_be_reviewed: boolean
   /**
    * Whether or not the student is eligible for credit for the completion.
    */
@@ -8458,6 +8464,21 @@ export type GetUserDetailsByCoursesData = {
   path?: never
   query?: never
   url: "/api/v0/main-frontend/user-details/user-by-courses"
+}
+
+export type GetUserDetailsByCoursesErrors = {
+  /**
+   * Forbidden
+   */
+  403: unknown
+  /**
+   * User details not found
+   */
+  404: unknown
+  /**
+   * Internal server error
+   */
+  500: unknown
 }
 
 export type GetUserDetailsByCoursesResponses = {

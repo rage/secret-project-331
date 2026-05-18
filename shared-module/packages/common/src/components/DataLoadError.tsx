@@ -10,6 +10,7 @@ export interface DataLoadErrorProps {
   onRetry: () => void | Promise<void>
   buttonVariant?: React.ComponentProps<typeof Button>["variant"]
   buttonSize?: React.ComponentProps<typeof Button>["size"]
+  contextMessage?: React.ReactNode
 }
 
 /**
@@ -19,12 +20,17 @@ const DataLoadError: React.FC<React.PropsWithChildren<DataLoadErrorProps>> = ({
   onRetry,
   buttonVariant = "primary",
   buttonSize = "medium",
+  contextMessage,
 }) => {
   const { t } = useTranslation()
 
   return (
     <div>
-      <ErrorBanner variant={"readOnly"} error={t("label-error-loading")} />
+      <ErrorBanner
+        variant={"readOnly"}
+        error={t("label-error-loading")}
+        contextMessage={contextMessage}
+      />
       <Button
         variant={buttonVariant}
         size={buttonSize}

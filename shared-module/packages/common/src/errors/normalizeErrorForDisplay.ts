@@ -298,6 +298,18 @@ function normalizeAppApiError(error: AppApiError, t: TFunction): ErrorViewModel 
       detail: error.detail,
       method: error.method,
       url: error.url,
+      raw: {
+        type: error.type,
+        messageKey: error.messageKey,
+        code: error.code,
+        message: error.userMessage,
+        status: error.status,
+        issues: error.issues,
+        metadata: error.metadata,
+        extra: error.extra,
+        body: error.body,
+        rawText: error.rawText,
+      },
     },
     raw: error,
   }

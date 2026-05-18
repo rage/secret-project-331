@@ -257,6 +257,8 @@ pub struct CourseModuleCompletionWithRegistrationInfo {
     pub prerequisite_modules_completed: bool,
     /// Whether or not the completion has been registered to a study registry.
     pub registered: bool,
+    /// Whether or not the completion needs to be reviewed by the teacher.
+    pub needs_to_be_reviewed: bool,
     /// ID of the user for the completion.
     pub user_id: Uuid,
     // When the user completed the course
@@ -279,6 +281,7 @@ SELECT completions.completion_registration_attempt_date,
   completions.passed,
   completions.prerequisite_modules_completed,
   (registered.id IS NOT NULL) AS "registered!",
+  completions.needs_to_be_reviewed,
   completions.user_id,
   completions.completion_date
 FROM course_module_completions completions
@@ -613,6 +616,26 @@ WHERE id = $2 AND deleted_at IS NULL
         ",
         needs_to_be_reviewed,
         id
+    )
+    .execute(conn)
+    .await?;
+    Ok(res.rows_affected() > 0)
+}
+
+pub async fn update_needs_to_be_reviewed_by_course_and_user_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_id: Uuid,
+    needs_to_be_reviewed: bool,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        "
+UPDATE course_module_completions SET needs_to_be_reviewed = $1
+WHERE course_id = $2 AND user_id = $3 AND deleted_at IS NULL
+        ",
+        needs_to_be_reviewed,
+        course_id,
+        user_id,
     )
     .execute(conn)
     .await?;

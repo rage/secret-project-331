@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM user_details\nWHERE user_id = $1 ",
+  "query": "\nSELECT ud.user_id,\n  ud.created_at,\n  ud.updated_at,\n  ud.email,\n  ud.first_name,\n  ud.last_name,\n  ud.search_helper,\n  ud.country,\n  ud.email_communication_consent\nFROM user_details ud\nJOIN user_course_settings ucs ON ud.user_id = ucs.user_id\nWHERE ud.user_id = $1\n  AND ucs.current_course_id = $2\n  AND ucs.deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -20,37 +20,38 @@
       },
       {
         "ordinal": 3,
-        "name": "first_name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 4,
-        "name": "last_name",
-        "type_info": "Varchar"
-      },
-      {
-        "ordinal": 5,
         "name": "email",
         "type_info": "Varchar"
       },
       {
+        "ordinal": 4,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
         "ordinal": 6,
+        "name": "search_helper",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 7,
         "name": "country",
         "type_info": "Varchar"
       },
       {
-        "ordinal": 7,
+        "ordinal": 8,
         "name": "email_communication_consent",
         "type_info": "Bool"
-      },
-      {
-        "ordinal": 8,
-        "name": "search_helper",
-        "type_info": "Text"
       }
     ],
     "parameters": {
       "Left": [
+        "Uuid",
         "Uuid"
       ]
     },
@@ -58,13 +59,13 @@
       false,
       false,
       false,
-      true,
-      true,
       false,
       true,
-      false,
-      true
+      true,
+      true,
+      true,
+      false
     ]
   },
-  "hash": "31ec5a4b089caf670c2b3ea745433235b142e889e7ee61621fbf8d4be62bc35d"
+  "hash": "a74792ffd8262c15bdf2d0ed385d224bd9f46b5459557a77fdd095c4d9705255"
 }

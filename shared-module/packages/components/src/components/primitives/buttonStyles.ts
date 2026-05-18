@@ -1,7 +1,7 @@
 import { css, cx, keyframes } from "@emotion/css"
-import type { PressEvent } from "@react-types/shared"
+import type { PressEvent } from "react-aria"
 
-export type ButtonSize = "sm" | "md" | "lg"
+export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
 export type ButtonVariant = "primary" | "secondary" | "tertiary"
@@ -244,9 +244,9 @@ const tertiaryCss = css`
 `
 
 const sizeStyles: Record<ButtonSize, string> = {
-  sm: sizeSmCss,
-  md: sizeMdCss,
-  lg: sizeLgCss,
+  small: sizeSmCss,
+  medium: sizeMdCss,
+  large: sizeLgCss,
 }
 
 const variantStyles: Record<ButtonVariant, string> = {

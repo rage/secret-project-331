@@ -1,18 +1,22 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { useId, useImperativeHandle, useRef } from "react"
-import { VisuallyHidden } from "react-aria"
+import React, { useEffect, useId, useImperativeHandle, useRef } from "react"
+import { mergeProps, useField, VisuallyHidden } from "react-aria"
+import type { FieldValues, Path } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { useControllableState } from "../lib/utils/controllable"
-import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { findFirstMatchingChild } from "../lib/utils/compositeField"
+import { resolveFieldDescribedBy } from "../lib/utils/field"
 import {
   applyOtpBackspace,
   applyOtpCharacter,
   applyOtpPaste,
   clampOtpIndex,
   joinOtpSlots,
+  type OtpAllowedCharacters,
+  resolveOtpSlotAriaLabel,
   splitOtpValue,
 } from "../lib/utils/otp"
 
@@ -56,20 +60,6 @@ const otpSlotCss = css`
   }
 `
 
-export type OtpFieldProps = React.ComponentPropsWithoutRef<"input"> & {
-  label: React.ReactNode
-  description?: React.ReactNode
-  errorMessage?: React.ReactNode
-  fieldSize?: FieldSize
-  length?: number
-  onComplete?: (value: string) => void
-  allowedCharacters?: RegExp
-  isDisabled?: boolean
-  isReadOnly?: boolean
-  isRequired?: boolean
-  isInvalid?: boolean
-}
-
 const otpSlotSmCss = css`
   width: 36px;
   height: 44px;
@@ -90,6 +80,8 @@ const otpSlotLgCss = css`
 
 // eslint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
+// eslint-disable-next-line i18next/no-literal-string
+const slotInputSelector = "input"
 
 function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
   switch (fieldSize) {
@@ -103,194 +95,262 @@ function resolveOtpSlotSizeCss(fieldSize: FieldSize) {
   }
 }
 
-export const OtpField = React.forwardRef<HTMLInputElement, OtpFieldProps>(
-  function OtpField(props, forwardedRef) {
-    const {
-      id,
-      label,
-      description,
-      errorMessage,
-      fieldSize = "md",
-      length = 6,
-      onComplete,
-      allowedCharacters = /[0-9]/,
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
-      className,
-      value,
-      defaultValue,
-      disabled,
-      readOnly,
-      required,
-      onChange,
-      name,
-      "aria-describedby": ariaDescribedBy,
-      "aria-invalid": ariaInvalid,
-      ...rest
-    } = props
+/**
+ * One-time code entry with multiple slots and hidden input for autofill.
+ * Uses react-hook-form; pass `name` and `control`. Field value is the full OTP string.
+ * The hidden input mirrors the value for browser OTP autofill (`autoComplete` such as `one-time-code`); RHF is
+ * driven by `field.onChange` from the slots, not by relying on the hidden input as the source of truth.
+ *
+ * @example
+ * <OtpField name="code" control={control} label="Code" length={6} />
+ */
+export type OtpFieldProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
+  label: React.ReactNode
+  description?: React.ReactNode
+  errorMessage?: React.ReactNode
+  fieldSize?: FieldSize
+  length?: number
+  onComplete?: (value: string) => void
+  allowedCharacters?: OtpAllowedCharacters
+  getSlotAriaLabel?: (index: number, length: number) => string
+  isDisabled?: boolean
+  isReadOnly?: boolean
+  isRequired?: boolean
+  id?: string
+  autoComplete?: string
+  className?: string
+}
 
-    const { t } = useTranslation()
+export function OtpField<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: OtpFieldProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    id,
+    label,
+    description,
+    errorMessage,
+    fieldSize = "md",
+    length = 6,
+    onComplete,
+    allowedCharacters = /[0-9]/,
+    getSlotAriaLabel,
+    isDisabled = false,
+    isReadOnly = false,
+    isRequired = false,
+    className,
+    autoComplete,
+  } = props
 
-    const generatedInputId = useId()
-    const inputId = id ?? generatedInputId
-    const descriptionId = useId()
-    const errorMessageId = useId()
-    const state = resolveFieldState({
-      disabled,
-      readOnly,
-      required,
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
-      errorMessage,
-    })
-    const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
-      descriptionId,
-      errorMessageId,
-      hasDescription: Boolean(description),
-      hasErrorMessage: Boolean(errorMessage),
-    })
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
 
-    const [otpValue, setOtpValue] = useControllableState<string>({
-      value: typeof value === "string" ? value : undefined,
-      defaultValue: typeof defaultValue === "string" ? defaultValue : "",
-    })
-    const hiddenInputRef = useRef<HTMLInputElement>(null)
-    const slotRefs = useRef<Array<HTMLInputElement | null>>([])
-    useImperativeHandle(forwardedRef, () => hiddenInputRef.current as HTMLInputElement)
+  const { t } = useTranslation("shared-module")
+  const generatedInputId = useId()
+  const inputId = id ?? generatedInputId
+  const hiddenInputRef = useRef<HTMLInputElement>(null)
+  const slotsContainerRef = useRef<HTMLDivElement>(null)
+  const slotRefs = useRef<Array<HTMLInputElement | null>>([])
+  const hasFocusWithinRef = useRef(false)
 
-    const slots = splitOtpValue(otpValue, length)
+  useImperativeHandle(field.ref, () => {
+    return (slotRefs.current[0] ??
+      findFirstMatchingChild<HTMLInputElement>(
+        slotsContainerRef.current,
+        slotInputSelector,
+      )) as HTMLInputElement
+  })
 
-    function commitValue(nextValue: string) {
-      setOtpValue(nextValue)
-
-      if (hiddenInputRef.current) {
-        hiddenInputRef.current.value = nextValue
+  const descriptionId = useId()
+  const errorMessageId = useId()
+  const { labelProps, fieldProps, descriptionProps, errorMessageProps } = useField({
+    label,
+    description,
+    errorMessage: resolvedError,
+    id: inputId,
+    isInvalid,
+  })
+  const {
+    id: labelTargetId = inputId,
+    "aria-labelledby": fieldAriaLabelledBy,
+    ...groupFieldProps
+  } = fieldProps
+  const groupAriaLabelledBy = Array.from(
+    new Set(
+      [fieldAriaLabelledBy, labelProps.id]
+        .flatMap((value) => (typeof value === "string" ? value.split(" ") : []))
+        .filter((value) => value.length > 0),
+    ),
+  ).join(" ")
+  const mergedLabelProps = mergeProps(labelProps, {
+    onClick: () => {
+      if (isDisabled) {
+        return
       }
 
-      if (nextValue.length === length) {
-        onComplete?.(nextValue)
-      }
+      slotRefs.current[0]?.focus()
+    },
+  })
 
-      if (onChange && hiddenInputRef.current) {
-        const syntheticEvent = {
-          currentTarget: hiddenInputRef.current,
-          target: hiddenInputRef.current,
-        } as React.ChangeEvent<HTMLInputElement>
+  const otpValue = typeof field.value === "string" ? field.value : ""
 
-        onChange(syntheticEvent)
-      }
+  useEffect(() => {
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current.value = otpValue
     }
+  }, [otpValue])
 
-    return (
-      <FieldShell
-        className={className}
-        label={label}
-        inputId={inputId}
-        description={description}
-        descriptionId={description ? descriptionId : undefined}
-        errorMessage={errorMessage}
-        errorMessageId={errorMessage ? errorMessageId : undefined}
-        isDisabled={state.isDisabled}
-        isRequired={state.isRequired}
-        layout={stackedLayout}
+  const describedBy = resolveFieldDescribedBy({
+    ariaDescribedBy: undefined,
+    descriptionId,
+    errorMessageId,
+    hasDescription: Boolean(description),
+    hasErrorMessage: Boolean(resolvedError),
+  })
+
+  const slots = splitOtpValue(otpValue, length)
+
+  const commitValue = (nextValue: string) => {
+    field.onChange(nextValue)
+    if (hiddenInputRef.current) {
+      hiddenInputRef.current.value = nextValue
+    }
+    if (nextValue.length === length) {
+      onComplete?.(nextValue)
+    }
+  }
+
+  return (
+    <FieldShell
+      className={className}
+      label={label}
+      labelProps={mergedLabelProps as React.HTMLAttributes<HTMLElement>}
+      description={description}
+      descriptionProps={descriptionProps as React.HTMLAttributes<HTMLElement>}
+      errorMessage={resolvedError}
+      errorMessageProps={errorMessageProps as React.HTMLAttributes<HTMLElement>}
+      isDisabled={isDisabled}
+      isRequired={isRequired}
+      layout={stackedLayout}
+    >
+      {/* Autofill target; RHF value flows from slot handlers, not this input's events. */}
+      <VisuallyHidden>
+        <input
+          ref={hiddenInputRef}
+          type="text"
+          name={field.name}
+          value={otpValue}
+          disabled={isDisabled}
+          readOnly={isReadOnly}
+          required={isRequired}
+          aria-hidden="true"
+          tabIndex={-1}
+          autoComplete={autoComplete ?? "one-time-code"}
+          aria-describedby={describedBy}
+          onChange={() => {
+            return
+          }}
+        />
+      </VisuallyHidden>
+
+      <div
+        {...groupFieldProps}
+        ref={slotsContainerRef}
+        className={otpSlotsCss}
+        role="group"
+        aria-labelledby={groupAriaLabelledBy || undefined}
+        aria-disabled={isDisabled ? "true" : undefined}
+        onBlur={(event) => {
+          if (slotsContainerRef.current?.contains(event.relatedTarget as Node | null)) {
+            return
+          }
+
+          hasFocusWithinRef.current = false
+          field.onBlur()
+        }}
+        onFocus={() => {
+          if (hasFocusWithinRef.current) {
+            return
+          }
+
+          hasFocusWithinRef.current = true
+        }}
       >
-        <VisuallyHidden>
+        {slots.map((slotValue, index) => (
           <input
-            {...rest}
-            ref={hiddenInputRef}
-            type="text"
-            name={name}
-            value={otpValue}
-            disabled={state.isDisabled}
-            readOnly={state.isReadOnly}
-            required={state.isRequired}
-            aria-hidden="true"
-            tabIndex={-1}
-            autoComplete="one-time-code"
-            onChange={() => {
-              return
+            key={`${inputId}-${index}`}
+            id={index === 0 ? labelTargetId : undefined}
+            ref={(element) => {
+              slotRefs.current[index] = element
             }}
-          />
-        </VisuallyHidden>
+            className={cx(otpSlotCss, resolveOtpSlotSizeCss(fieldSize))}
+            type="text"
+            inputMode="numeric"
+            maxLength={1}
+            autoComplete={index === 0 ? (autoComplete ?? "one-time-code") : "off"}
+            value={slotValue}
+            disabled={isDisabled}
+            readOnly={isReadOnly}
+            data-invalid={isInvalid ? "true" : "false"}
+            aria-invalid={isInvalid ? "true" : undefined}
+            aria-required={index === 0 && isRequired ? "true" : undefined}
+            aria-label={resolveOtpSlotAriaLabel(index, length, getSlotAriaLabel, (slotIndex) =>
+              t("otp.slotLabel", { index: slotIndex + 1 }),
+            )}
+            onChange={(event) => {
+              if (isReadOnly) {
+                return
+              }
 
-        <div className={otpSlotsCss} role="group">
-          {slots.map((slotValue, index) => (
-            <input
-              key={`${inputId}-${index}`}
-              ref={(element) => {
-                slotRefs.current[index] = element
-              }}
-              className={cx(otpSlotCss, resolveOtpSlotSizeCss(fieldSize))}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              id={index === 0 ? inputId : undefined}
-              autoComplete={index === 0 ? "one-time-code" : "off"}
-              value={slotValue}
-              disabled={state.isDisabled}
-              readOnly={state.isReadOnly}
-              data-invalid={state.isInvalid ? "true" : "false"}
-              aria-describedby={index === 0 ? describedBy : undefined}
-              aria-invalid={index === 0 && state.isInvalid ? "true" : undefined}
-              required={index === 0 ? state.isRequired : undefined}
-              aria-label={t("otp.slotLabel", { index: index + 1 })}
-              onChange={(event) => {
-                if (state.isReadOnly) {
-                  return
-                }
+              const result = applyOtpCharacter(
+                slots,
+                index,
+                event.currentTarget.value,
+                allowedCharacters,
+              )
+              const nextValue = joinOtpSlots(result.slots)
 
-                const result = applyOtpCharacter(
-                  slots,
-                  index,
-                  event.currentTarget.value,
-                  allowedCharacters,
-                )
-                const nextValue = joinOtpSlots(result.slots)
-
-                commitValue(nextValue)
-                slotRefs.current[result.nextIndex]?.focus()
-              }}
-              onKeyDown={(event) => {
-                if (event.key === "ArrowLeft") {
-                  event.preventDefault()
-                  slotRefs.current[clampOtpIndex(index - 1, length)]?.focus()
-                } else if (event.key === "ArrowRight") {
-                  event.preventDefault()
-                  slotRefs.current[clampOtpIndex(index + 1, length)]?.focus()
-                } else if (event.key === "Backspace") {
-                  if (state.isReadOnly) {
-                    return
-                  }
-
-                  event.preventDefault()
-
-                  const result = applyOtpBackspace(slots, index)
-                  commitValue(joinOtpSlots(result.slots))
-                  slotRefs.current[result.nextIndex]?.focus()
-                }
-              }}
-              onPaste={(event) => {
-                if (state.isReadOnly) {
+              commitValue(nextValue)
+              slotRefs.current[result.nextIndex]?.focus()
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowLeft") {
+                event.preventDefault()
+                slotRefs.current[clampOtpIndex(index - 1, length)]?.focus()
+              } else if (event.key === "ArrowRight") {
+                event.preventDefault()
+                slotRefs.current[clampOtpIndex(index + 1, length)]?.focus()
+              } else if (event.key === "Backspace") {
+                if (isReadOnly) {
                   return
                 }
 
                 event.preventDefault()
 
-                const pastedText = event.clipboardData.getData("text")
-                const result = applyOtpPaste(slots, index, pastedText, allowedCharacters)
+                const result = applyOtpBackspace(slots, index)
                 commitValue(joinOtpSlots(result.slots))
                 slotRefs.current[result.nextIndex]?.focus()
-              }}
-            />
-          ))}
-        </div>
-      </FieldShell>
-    )
-  },
-)
+              }
+            }}
+            onPaste={(event) => {
+              if (isReadOnly) {
+                return
+              }
+
+              event.preventDefault()
+
+              const pastedText = event.clipboardData.getData("text")
+              const result = applyOtpPaste(slots, index, pastedText, allowedCharacters)
+              commitValue(joinOtpSlots(result.slots))
+              slotRefs.current[result.nextIndex]?.focus()
+            }}
+          />
+        ))}
+      </div>
+    </FieldShell>
+  )
+}

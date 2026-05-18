@@ -1,14 +1,21 @@
 "use client"
 
 import type { ListState } from "@react-stately/list"
-import type { Node } from "@react-types/shared"
 import React from "react"
 import { useOption } from "react-aria"
 
 import { comboSelectedMarkCss, listBoxOptionCss } from "../selectStyles"
 
+type ListBoxNode<T extends object> = NonNullable<ReturnType<ListState<T>["collection"]["getItem"]>>
+
 /** Renders a single selectable row in a list box. */
-export function Option<T extends object>({ item, state }: { item: Node<T>; state: ListState<T> }) {
+export function Option<T extends object>({
+  item,
+  state,
+}: {
+  item: ListBoxNode<T>
+  state: ListState<T>
+}) {
   const ref = React.useRef<HTMLLIElement>(null)
   const { optionProps, isDisabled, isFocused, isFocusVisible, isSelected } = useOption(
     { key: item.key },

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { DateTimeLocalField } from "../../src/shared-module/components"
@@ -12,27 +13,28 @@ const stackCss = css`
   max-width: 360px;
 `
 
+type Form = { dt: string }
+
 function PlaygroundStory() {
   const { t } = useTranslation()
+  const { control } = useForm<Form>({ defaultValues: { dt: "2026-03-11T12:00" } })
   return (
-    <DateTimeLocalField
-      label={t("story.dateTime.playgroundLabel")}
-      defaultValue="2026-03-11T12:00"
-    />
+    <DateTimeLocalField name="dt" control={control} label={t("story.dateTime.playgroundLabel")} />
   )
 }
 
 function StatesStory() {
   const { t } = useTranslation()
+  const { control } = useForm<Form>({ defaultValues: { dt: "" } })
+  const { control: c2 } = useForm<Form>({ defaultValues: { dt: "2026-03-11T12:00" } })
+  const { control: c3 } = useForm<Form>({ defaultValues: { dt: "" } })
   return (
     <div className={stackCss}>
-      <DateTimeLocalField label={t("story.dateTime.default")} />
+      <DateTimeLocalField name="dt" control={control} label={t("story.dateTime.default")} />
+      <DateTimeLocalField name="dt" control={c2} label={t("story.dateTime.disabled")} isDisabled />
       <DateTimeLocalField
-        label={t("story.dateTime.disabled")}
-        disabled
-        defaultValue="2026-03-11T12:00"
-      />
-      <DateTimeLocalField
+        name="dt"
+        control={c3}
         label={t("story.dateTime.invalid")}
         errorMessage={t("story.dateTime.invalidMessage")}
       />

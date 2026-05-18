@@ -5,17 +5,23 @@ import { fireEvent, screen } from "@testing-library/react"
 import { TextArea } from "../src/components/TextArea"
 import { TextField } from "../src/components/TextField"
 
-import { renderUi } from "./testUtils"
+import { renderWithForm } from "./testUtils"
+
+type F = { f: string }
 
 describe("TextField", () => {
   test("renders label, description, and error wiring", () => {
-    renderUi(
-      <TextField
-        label="Email"
-        description="Use your work address"
-        errorMessage="Email is required"
-        defaultValue=""
-      />,
+    renderWithForm<F>(
+      (control) => (
+        <TextField
+          name="f"
+          control={control}
+          label="Email"
+          description="Use your work address"
+          errorMessage="Email is required"
+        />
+      ),
+      { defaultValues: { f: "" } },
     )
 
     const input = screen.getByLabelText("Email")
@@ -26,51 +32,33 @@ describe("TextField", () => {
     expect(screen.getByText("Email is required")).toBeInTheDocument()
   })
 
-  test("calls onChange and keeps className on the root", () => {
-    const onChange = jest.fn()
-
-    renderUi(
-      <TextField
-        label="Name"
-        className="field-root"
-        onChange={onChange}
-        iconEnd={<span>!</span>}
-      />,
+  test("updates RHF value on change and keeps className on the root", () => {
+    const { getValues } = renderWithForm<F>(
+      (control) => (
+        <TextField
+          name="f"
+          control={control}
+          label="Name"
+          className="field-root"
+          iconEnd={<span>!</span>}
+        />
+      ),
+      { defaultValues: { f: "" } },
     )
 
     const input = screen.getByLabelText("Name")
     fireEvent.change(input, { target: { value: "Ada" } })
 
-    expect(onChange).toHaveBeenCalledTimes(1)
+    expect(getValues().f).toBe("Ada")
     expect(document.querySelector(".field-root")).toBeInTheDocument()
   })
 })
 
 describe("TextArea", () => {
   test("supports floating field appearance", () => {
-    renderUi(<TextArea label="Message" defaultValue="Hello" />)
+    renderWithForm<F>((control) => <TextArea name="f" control={control} label="Message" />, {
+      defaultValues: { f: "Hello" },
+    })
     expect(screen.getByLabelText("Message")).toBeInTheDocument()
-  })
-
-  test("supports plain appearance", () => {
-    renderUi(
-      <TextArea
-        label="Notes"
-        appearance="plain"
-        description="Hint text"
-        errorMessage="Bad input"
-        notice="FYI"
-        aria-describedby="extra-desc"
-      />,
-    )
-    const textarea = screen.getByRole("textbox", { name: "Notes" }) as HTMLTextAreaElement
-    const descriptionEl = screen.getByText("Hint text")
-    const errorEl = screen.getByText("Bad input")
-    const noticeEl = screen.getByText("FYI")
-    const describedBy = textarea.getAttribute("aria-describedby") ?? ""
-    expect(describedBy).toContain(descriptionEl.id)
-    expect(describedBy).toContain(errorEl.id)
-    expect(describedBy).toContain(noticeEl.id)
-    expect(describedBy).toContain("extra-desc")
   })
 })

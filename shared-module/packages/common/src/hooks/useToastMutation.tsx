@@ -24,7 +24,7 @@ import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfi
 
 interface EnableNotifications {
   notify: true
-  method: "POST" | "PUT" | "DELETE"
+  method: "POST" | "PUT" | "PATCH" | "DELETE"
   dismissable?: boolean
   loadingText?: string
   successHeader?: string
@@ -122,6 +122,9 @@ export default function useToastMutation<
         }
         switch (notificationOptions.method) {
           case "PUT":
+            displaySuccessNotification(notificationOptions, successDisplayOptions)
+            break
+          case "PATCH":
             displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
           case "POST":

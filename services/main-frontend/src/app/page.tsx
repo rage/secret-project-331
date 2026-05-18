@@ -40,6 +40,18 @@ const FrontPage = () => {
       </div>
       <div>
         <Link
+          href="/manage/course-plans"
+          className={css`
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+          `}
+        >
+          {t("link-text-course-plans")}
+        </Link>
+      </div>
+      <div>
+        <Link
           href={allOrganizationsRoute()}
           className={css`
             cursor: pointer;

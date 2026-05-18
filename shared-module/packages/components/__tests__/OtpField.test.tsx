@@ -1,14 +1,17 @@
 "use client"
 
-import { fireEvent, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 
 import { OtpField } from "../src/components/OtpField"
 
-import { pasteText, renderUi } from "./testUtils"
+import { FormHarness, pasteText, renderWithForm } from "./testUtils"
 
 describe("OtpField", () => {
   test("types across slots and advances focus", () => {
-    renderUi(<OtpField label="Verification code" length={4} />)
+    renderWithForm<{ otp: string }>(
+      (control) => <OtpField name="otp" control={control} label="Verification code" length={4} />,
+      { defaultValues: { otp: "" } },
+    )
 
     const slot1 = screen.getByLabelText("Code character 1")
     const slot2 = screen.getByLabelText("Code character 2")
@@ -20,7 +23,10 @@ describe("OtpField", () => {
   })
 
   test("supports backspace and arrow navigation", () => {
-    renderUi(<OtpField label="Verification code" length={4} defaultValue="12" />)
+    renderWithForm<{ otp: string }>(
+      (control) => <OtpField name="otp" control={control} label="Verification code" length={4} />,
+      { defaultValues: { otp: "12" } },
+    )
 
     const slot2 = screen.getByLabelText("Code character 2")
     const slot3 = screen.getByLabelText("Code character 3")
@@ -34,7 +40,10 @@ describe("OtpField", () => {
   })
 
   test("distributes pasted text across the remaining slots", () => {
-    renderUi(<OtpField label="Verification code" length={4} />)
+    const { getValues } = renderWithForm<{ otp: string }>(
+      (control) => <OtpField name="otp" control={control} label="Verification code" length={4} />,
+      { defaultValues: { otp: "" } },
+    )
 
     const slot1 = screen.getByLabelText("Code character 1")
     const slot2 = screen.getByLabelText("Code character 2")
@@ -47,26 +56,56 @@ describe("OtpField", () => {
     expect(slot2).toHaveValue("8")
     expect(slot3).toHaveValue("2")
     expect(slot4).toHaveValue("1")
+    expect(getValues().otp).toBe("4821")
   })
 
-  test("supports controlled value updates", () => {
-    const { rerender } = renderUi(
-      <OtpField label="Verification code" value="12" onChange={() => null} />,
+  test("supports form-driven value updates", () => {
+    const { rerender } = render(
+      <FormHarness<{ otp: string }> key="a" defaultValues={{ otp: "12" }}>
+        {(control) => (
+          <OtpField name="otp" control={control} label="Verification code" length={4} />
+        )}
+      </FormHarness>,
     )
     expect(screen.getByLabelText("Code character 1")).toHaveValue("1")
     expect(screen.getByLabelText("Code character 2")).toHaveValue("2")
 
-    rerender(<OtpField label="Verification code" value="9876" onChange={() => null} />)
+    rerender(
+      <FormHarness<{ otp: string }> key="b" defaultValues={{ otp: "9876" }}>
+        {(control) => (
+          <OtpField name="otp" control={control} label="Verification code" length={4} />
+        )}
+      </FormHarness>,
+    )
     expect(screen.getByLabelText("Code character 1")).toHaveValue("9")
     expect(screen.getByLabelText("Code character 4")).toHaveValue("6")
   })
 
+  test("focuses the first slot when the label is clicked", () => {
+    renderWithForm<{ otp: string }>((control) => (
+      <OtpField name="otp" control={control} label="Verification code" length={4} />
+    ))
+
+    fireEvent.click(screen.getByText("Verification code"))
+
+    expect(document.activeElement).toBe(screen.getByLabelText("Code character 1"))
+  })
+
   test("calls onComplete and submits the hidden form value", () => {
     const onComplete = jest.fn()
-    const { container } = renderUi(
-      <form>
-        <OtpField label="Verification code" name="otp" length={4} onComplete={onComplete} />
-      </form>,
+    const { container, getValues } = renderWithForm<{ otp: string }>(
+      (control) => (
+        <form>
+          <OtpField
+            name="otp"
+            control={control}
+            label="Verification code"
+            length={4}
+            onComplete={onComplete}
+          />
+        </form>
+      ),
+      { defaultValues: { otp: "" } },
     )
 
     fireEvent.change(screen.getByLabelText("Code character 1"), { target: { value: "1" } })
@@ -75,10 +114,28 @@ describe("OtpField", () => {
     fireEvent.change(screen.getByLabelText("Code character 4"), { target: { value: "4" } })
 
     expect(onComplete).toHaveBeenCalledWith("1234")
+    expect(getValues().otp).toBe("1234")
 
     const form = container.querySelector("form")
     expect(form).not.toBeNull()
     const formData = new FormData(form as HTMLFormElement)
     expect(formData.get("otp")).toBe("1234")
+  })
+
+  test("surfaces required and invalid state on the visible otp controls", () => {
+    renderWithForm<{ otp: string }>((control) => (
+      <OtpField
+        name="otp"
+        control={control}
+        errorMessage="Required"
+        label="Verification code"
+        isRequired
+      />
+    ))
+
+    expect(screen.getByRole("group", { name: /Verification code/ })).toBeInTheDocument()
+    expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-required", "true")
+    expect(screen.getByLabelText("Code character 1")).toHaveAttribute("aria-invalid", "true")
+    expect(screen.getByRole("alert")).toHaveTextContent("Required")
   })
 })

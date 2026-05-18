@@ -1,3 +1,5 @@
+export type OtpAllowedCharacters = RegExp | ((char: string) => boolean)
+
 const DEFAULT_ALLOWED_CHARACTERS = /[0-9]/
 
 /**
@@ -57,15 +59,24 @@ function toCharacterMatcher(pattern: RegExp) {
   return new RegExp(pattern.source, flags)
 }
 
-export function sanitizeOtpText(
+function isAllowedOtpCharacter(character: string, allowedCharacters: OtpAllowedCharacters) {
+  if (typeof allowedCharacters === "function") {
+    return allowedCharacters(character)
+  }
+
+  return toCharacterMatcher(allowedCharacters).test(character)
+}
+
+export function sanitizeOtpValue(
   value: string,
-  allowedCharacters: RegExp = DEFAULT_ALLOWED_CHARACTERS,
+  allowedCharacters: OtpAllowedCharacters = DEFAULT_ALLOWED_CHARACTERS,
 ) {
-  const matcher = toCharacterMatcher(allowedCharacters)
   return Array.from(value)
-    .filter((character) => matcher.test(character))
+    .filter((character) => isAllowedOtpCharacter(character, allowedCharacters))
     .join("")
 }
+
+export const sanitizeOtpText = sanitizeOtpValue
 
 export function splitOtpValue(value: string, length: number) {
   return Array.from({ length }, (_, index) => value[index] ?? "")
@@ -83,10 +94,10 @@ export function applyOtpCharacter(
   slots: string[],
   index: number,
   input: string,
-  allowedCharacters: RegExp,
+  allowedCharacters: OtpAllowedCharacters,
 ) {
   const nextSlots = [...slots]
-  const sanitizedCharacter = sanitizeOtpText(input, allowedCharacters).slice(-1)
+  const sanitizedCharacter = sanitizeOtpValue(input, allowedCharacters).slice(-1)
 
   nextSlots[index] = sanitizedCharacter
 
@@ -100,14 +111,14 @@ export function applyOtpPaste(
   slots: string[],
   startIndex: number,
   pastedText: string,
-  allowedCharacters: RegExp,
+  allowedCharacters: OtpAllowedCharacters,
 ) {
   const nextSlots = [...slots]
-  const sanitizedCharacters = sanitizeOtpText(pastedText, allowedCharacters)
+  const sanitizedCharacters = sanitizeOtpValue(pastedText, allowedCharacters)
   const characters = sanitizedCharacters.slice(0, nextSlots.length - startIndex).split("")
 
-  for (const [offset, character] of characters.entries()) {
-    nextSlots[startIndex + offset] = character
+  for (let offset = 0; offset < characters.length; offset += 1) {
+    nextSlots[startIndex + offset] = characters[offset]
   }
 
   const nextIndex =
@@ -139,4 +150,17 @@ export function applyOtpBackspace(slots: string[], index: number) {
     slots: nextSlots,
     nextIndex: previousIndex,
   }
+}
+
+export function resolveOtpSlotAriaLabel(
+  index: number,
+  length: number,
+  getSlotAriaLabel?: (index: number, length: number) => string,
+  fallback?: (index: number, length: number) => string,
+) {
+  return (
+    getSlotAriaLabel?.(index, length) ??
+    fallback?.(index, length) ??
+    `Character ${index + 1} of ${length}`
+  )
 }

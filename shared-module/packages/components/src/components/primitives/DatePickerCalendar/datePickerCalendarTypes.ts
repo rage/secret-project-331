@@ -21,6 +21,7 @@ export type ChooserGridOption = {
   id: string
   isSelected: boolean
   label: string
+  isDisabled?: boolean
   onSelect: () => void
 }
 

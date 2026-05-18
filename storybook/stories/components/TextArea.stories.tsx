@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
 import { AlignLeft } from "@vectopus/atlas-icons-react"
+import { useForm } from "react-hook-form"
 
 import { TextArea } from "../../src/shared-module/components"
 
@@ -19,26 +20,11 @@ const rowCss = css`
   gap: 16px;
 `
 
+type Form = { a: string; b: string; c: string }
+
 const meta = {
   title: "Components/TextArea",
   component: TextArea,
-  parameters: {
-    docs: {
-      description: {
-        component:
-          'Floating-label textarea built on React Aria `useTextField` with `inputElementType="textarea"`, including size variants, description/error messaging, icons, and optional auto-resize.',
-      },
-    },
-  },
-  argTypes: {
-    fieldSize: {
-      control: "select",
-      options: ["sm", "md", "lg"],
-    },
-    autoResize: {
-      control: "boolean",
-    },
-  },
 } satisfies Meta<typeof TextArea>
 
 export default meta
@@ -46,87 +32,76 @@ export default meta
 type StoryType = StoryObj<typeof meta>
 
 export const Playground = {
-  args: {
-    label: "Bio",
-    fieldSize: "md",
-    rows: 3,
-    description: "Tell us a little bit about yourself.",
-    autoResize: true,
+  render: () => {
+    const { control } = useForm<Form>({ defaultValues: { a: "" } })
+    return (
+      <TextArea
+        name="a"
+        control={control}
+        label="Bio"
+        fieldSize="md"
+        rows={3}
+        description="Tell us a little bit about yourself."
+        autoResize
+      />
+    )
   },
 } satisfies StoryType
 
 export const States = {
-  render: () => (
-    <div className={columnCss}>
-      <TextArea label="Default" rows={3} />
-      <TextArea label="With description" description="Helper text goes here." rows={3} />
-      <TextArea label="With error" errorMessage="Too short." rows={3} />
-      <TextArea label="Disabled" disabled rows={3} />
-      <TextArea label="Read only" defaultValue="Read-only content" readOnly rows={3} />
-      <TextArea
-        label="Plain editor"
-        appearance="plain"
-        rows={3}
-        defaultValue="Inline editable text"
-      />
-    </div>
-  ),
+  render: () => {
+    const { control } = useForm<Form>({ defaultValues: { a: "", b: "", c: "Read-only content" } })
+    return (
+      <div className={columnCss}>
+        <TextArea name="a" control={control} label="Default" rows={3} />
+        <TextArea
+          name="b"
+          control={control}
+          label="With description"
+          description="Helper text goes here."
+          rows={3}
+        />
+        <TextArea
+          name="a"
+          control={control}
+          label="With error"
+          errorMessage="Too short."
+          rows={3}
+        />
+        <TextArea name="a" control={control} label="Disabled" isDisabled rows={3} />
+        <TextArea name="c" control={control} label="Read only" isReadOnly rows={3} />
+      </div>
+    )
+  },
 } satisfies StoryType
 
 export const Sizes = {
-  render: () => (
-    <div className={rowCss}>
-      <TextArea label="Small" fieldSize="sm" rows={3} />
-      <TextArea label="Medium" fieldSize="md" rows={3} />
-      <TextArea label="Large" fieldSize="lg" rows={3} />
-    </div>
-  ),
+  render: () => {
+    const { control } = useForm<Form>({ defaultValues: { a: "", b: "", c: "" } })
+    return (
+      <div className={rowCss}>
+        <TextArea name="a" control={control} label="Small" fieldSize="sm" rows={3} />
+        <TextArea name="b" control={control} label="Medium" fieldSize="md" rows={3} />
+        <TextArea name="c" control={control} label="Large" fieldSize="lg" rows={3} />
+      </div>
+    )
+  },
 } satisfies StoryType
 
 export const WithIcon = {
-  render: () => (
-    <div className={columnCss}>
-      <TextArea
-        label="Notes"
-        description="Leading icon anchored to the label baseline."
-        iconStart={<AlignLeft aria-hidden="true" size={16} />}
-        rows={4}
-      />
-    </div>
-  ),
-} satisfies StoryType
-
-export const AutoResize = {
-  render: () => (
-    <div className={columnCss}>
-      <TextArea
-        label="Auto-resize"
-        autoResize
-        autoResizeMaxHeightPx={160}
-        defaultValue={
-          "This textarea auto-resizes to fit its content.\n\nResize by typing more lines and watch it clamp at a maximum height with a scrollbar."
-        }
-      />
-    </div>
-  ),
-} satisfies StoryType
-
-const longUnbroken =
-  "VeryLongUnbrokenLabelStringThatShouldWrapGracefullyInNarrowLayoutsWithoutOverflowingTheViewportHorizontally"
-
-export const LongMessages = {
-  render: () => (
-    <div className={columnCss}>
-      <TextArea
-        label={longUnbroken}
-        description="Helper text that is intentionally long so description wrapping can be reviewed at narrow widths."
-        rows={3}
-      />
-      <TextArea
-        label="Label"
-        errorMessage="Error text that is intentionally long so error wrapping can be reviewed at narrow widths without horizontal overflow."
-        rows={3}
-      />
-    </div>
-  ),
+  render: () => {
+    const { control } = useForm<Form>({ defaultValues: { a: "" } })
+    return (
+      <div className={columnCss}>
+        <TextArea
+          name="a"
+          control={control}
+          label="Notes"
+          description="Leading icon anchored to the label baseline."
+          iconStart={<AlignLeft aria-hidden="true" size={16} />}
+          rows={4}
+        />
+      </div>
+    )
+  },
 } satisfies StoryType

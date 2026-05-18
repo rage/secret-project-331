@@ -1,0 +1,46 @@
+"use client"
+
+import { useQuery } from "@tanstack/react-query"
+import { useParams } from "next/navigation"
+import React, { useMemo } from "react"
+import { useTranslation } from "react-i18next"
+
+import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import { getCourseDesignerPlanOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
+
+/** Registers the breadcrumb for an individual course plan, using its name once loaded. */
+export default function CoursePlanLayout({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation()
+  const params = useParams<{ id: string }>()
+  const planId = params.id ?? ""
+
+  const planQuery = useQuery({
+    ...getCourseDesignerPlanOptions({ path: { plan_id: planId } }),
+    enabled: planId !== "",
+  })
+
+  const planName = planQuery.data?.plan.name ?? null
+
+  const crumbs = useMemo(() => {
+    if (planQuery.isPending) {
+      return [{ isLoading: true as const }]
+    }
+    return [
+      {
+        isLoading: false as const,
+        label: planName ?? t("course-plans-untitled-plan"),
+        href: manageCoursePlanRoute(planId),
+      },
+    ]
+  }, [planQuery.isPending, planName, planId, t])
+
+  useRegisterBreadcrumbs({
+    key: `course-plan:${planId}`,
+    order: 20,
+    crumbs,
+    disabled: planId === "",
+  })
+
+  return <>{children}</>
+}

@@ -349,7 +349,7 @@ export const chooserGridOptionCss = css`
   justify-content: center;
   min-height: 40px;
   padding: 0 var(--space-2);
-  border: 0;
+  border: 1px solid transparent;
   border-radius: var(--control-radius);
   background: var(--picker-accent-hover);
   color: var(--field-fg);
@@ -365,7 +365,9 @@ export const chooserGridOptionCss = css`
 
   &:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 var(--focus-ring-width) var(--picker-focus-ring);
+    box-shadow:
+      0 0 0 1px var(--color-green-300),
+      0 0 0 calc(var(--focus-ring-width) + 1px) var(--picker-focus-ring);
   }
 
   &:disabled {
@@ -376,6 +378,7 @@ export const chooserGridOptionCss = css`
 
   &:hover:not(:disabled) {
     background: var(--picker-accent-soft);
+    border-color: var(--color-green-300);
     color: var(--color-green-900);
   }
 `
@@ -383,7 +386,14 @@ export const chooserGridOptionCss = css`
 export const chooserGridOptionSelectedCss = css`
   background: var(--picker-accent-bg);
   color: var(--picker-accent-fg);
+  border-color: var(--color-green-700);
   font-weight: 600;
+
+  &:hover:not(:disabled) {
+    background: var(--color-green-700);
+    border-color: var(--color-green-800);
+    color: var(--picker-accent-fg);
+  }
 `
 
 export const timePanelCss = css`

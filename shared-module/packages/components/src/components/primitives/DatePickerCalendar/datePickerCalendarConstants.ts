@@ -6,6 +6,10 @@ export const previousYearsLabel = "Previous years"
 
 export const nextYearsLabel = "Next years"
 
+export const previousYearLabel = "Previous year"
+
+export const nextYearLabel = "Next year"
+
 export const backToCalendarLabel = "Back to calendar"
 
 export const clearLabel = "Clear"

@@ -1,7 +1,5 @@
 import { css } from "@emotion/css"
 
-import { fieldControlCss } from "../fieldStyles"
-
 export const segmentedFieldShellCss = css`
   flex: 1 1 auto;
   min-width: 0;
@@ -114,7 +112,7 @@ export const segmentedPickerTriggerCss = css`
 
 /** When the label is at rest (unfloated) with no value: no vertical padding on the shell so height matches TextField. */
 export const segmentedFieldShellRestEmptyCss = css`
-  .${fieldControlCss}[data-floated="false"] & {
+  [data-field-control][data-floated="false"] & {
     padding-top: 0;
     padding-bottom: 0;
     min-height: 0;

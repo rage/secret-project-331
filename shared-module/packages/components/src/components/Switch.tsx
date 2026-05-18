@@ -2,10 +2,13 @@
 
 import { cx } from "@emotion/css"
 import { useToggleState } from "@react-stately/toggle"
-import React, { useId } from "react"
-import { mergeProps, useFocusRing, useObjectRef, useSwitch } from "react-aria"
+import React, { useId, useRef } from "react"
+import { mergeProps, useFocusRing, useSwitch } from "react-aria"
+import type { FieldValues, Path } from "react-hook-form"
 
-import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { composeRefs } from "../lib/utils/compositeField"
+import { resolveFieldDescribedBy } from "../lib/utils/field"
 
 import { FieldShell } from "./primitives/FieldShell"
 import {
@@ -21,7 +24,22 @@ import {
 } from "./primitives/checkableStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
-export type SwitchProps = React.ComponentPropsWithoutRef<"input"> & {
+// eslint-disable-next-line i18next/no-literal-string
+const stackedLayout = "stacked" as const
+// eslint-disable-next-line i18next/no-literal-string
+const dataStateTrue = "true"
+
+/**
+ * Accessible switch (toggle) with label and optional description or error text.
+ * Uses react-hook-form; pass `name` and `control`. Field value is boolean.
+ *
+ * @example
+ * <Switch name="enabled" control={control} label="Enable notifications" />
+ */
+export type SwitchProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -29,140 +47,136 @@ export type SwitchProps = React.ComponentPropsWithoutRef<"input"> & {
   isDisabled?: boolean
   isReadOnly?: boolean
   isRequired?: boolean
-  isInvalid?: boolean
+  id?: string
+  switchValue?: string | number | readonly string[]
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
+  "aria-label"?: string
+  className?: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
-const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
-const dataStateTrue = "true"
+export function Switch<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: SwitchProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    id,
+    label,
+    description,
+    errorMessage,
+    fieldSize = "md",
+    isDisabled = false,
+    isReadOnly = false,
+    isRequired = false,
+    className,
+    switchValue,
+    onKeyDown,
+    onKeyUp,
+    "aria-label": ariaLabel,
+  } = props
 
-export const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
-  function Switch(props, forwardedRef) {
-    const {
-      id,
-      label,
-      description,
-      errorMessage,
-      fieldSize = "md",
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const selected = Boolean(field.value)
+
+  const generatedInputId = useId()
+  const inputId = id ?? generatedInputId
+  const descriptionId = useId()
+  const errorMessageId = useId()
+  const describedBy = resolveFieldDescribedBy({
+    ariaDescribedBy: undefined,
+    descriptionId,
+    errorMessageId,
+    hasDescription: Boolean(description),
+    hasErrorMessage: Boolean(resolvedError),
+  })
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const toggleState = useToggleState({
+    isDisabled,
+    isReadOnly,
+    isSelected: selected,
+    onChange: (next) => {
+      field.onChange(next)
+    },
+  })
+
+  const inputValue =
+    switchValue == null
+      ? undefined
+      : Array.isArray(switchValue)
+        ? switchValue.join(",")
+        : String(switchValue)
+
+  const {
+    inputProps,
+    isDisabled: isSwitchDisabled,
+    isPressed,
+    isSelected,
+    labelProps,
+  } = useSwitch(
+    {
+      children: label,
+      id: inputId,
+      name: field.name,
+      value: inputValue,
       isDisabled,
       isReadOnly,
-      isRequired,
-      isInvalid,
-      className,
-      checked,
-      defaultChecked,
-      disabled,
-      readOnly,
-      required,
-      onChange,
-      onKeyDown,
-      onKeyUp,
-      onFocus,
-      onBlur,
-      name,
-      value,
-      "aria-describedby": ariaDescribedBy,
-      "aria-invalid": ariaInvalid,
-      ...rest
-    } = props
+      "aria-label": ariaLabel,
+      "aria-describedby": describedBy,
+    },
+    toggleState,
+    inputRef,
+  )
 
-    const generatedInputId = useId()
-    const inputId = id ?? generatedInputId
-    const descriptionId = useId()
-    const errorMessageId = useId()
-    const resolvedState = resolveFieldState({
-      disabled,
-      readOnly,
-      required,
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
-      errorMessage,
-    })
-    const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
-      descriptionId,
-      errorMessageId,
-      hasDescription: Boolean(description),
-      hasErrorMessage: Boolean(errorMessage),
-    })
+  const { focusProps, isFocusVisible } = useFocusRing()
+  const mergedInputProps = mergeProps(inputProps, focusProps, {
+    onKeyDown,
+    onKeyUp,
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+      inputProps.onBlur?.(e)
+      field.onBlur()
+    },
+    "aria-invalid": isInvalid ? dataStateTrue : undefined,
+    required: isRequired,
+    type: "checkbox" as const,
+  })
 
-    const inputRef = useObjectRef(forwardedRef)
-    const toggleState = useToggleState({
-      isDisabled: resolvedState.isDisabled,
-      isReadOnly: resolvedState.isReadOnly,
-      isSelected: checked,
-      defaultSelected: defaultChecked,
-    })
-    const inputValue =
-      value == null ? undefined : Array.isArray(value) ? value.join(",") : String(value)
-
-    const {
-      inputProps,
-      isDisabled: isSwitchDisabled,
-      isPressed,
-      isSelected,
-      labelProps,
-    } = useSwitch(
-      {
-        children: label,
-        id: inputId,
-        name,
-        value: inputValue,
-        isDisabled: resolvedState.isDisabled,
-        isReadOnly: resolvedState.isReadOnly,
-        "aria-describedby": describedBy,
-      },
-      toggleState,
-      inputRef,
-    )
-
-    const { focusProps, isFocusVisible } = useFocusRing()
-    const mergedInputProps = mergeProps(inputProps, focusProps, {
-      ...rest,
-      onBlur,
-      onChange,
-      onFocus,
-      onKeyDown,
-      onKeyUp,
-      "aria-invalid": resolvedState.isInvalid ? dataStateTrue : undefined,
-      required: resolvedState.isRequired,
-    })
-
-    return (
-      <FieldShell
-        className={cx(checkableRootCss, className)}
-        description={description}
-        descriptionId={description ? descriptionId : undefined}
-        errorMessage={errorMessage}
-        errorMessageId={errorMessage ? errorMessageId : undefined}
-        layout={stackedLayout}
+  return (
+    <FieldShell
+      className={cx(checkableRootCss, className)}
+      description={description}
+      descriptionId={description ? descriptionId : undefined}
+      errorMessage={resolvedError}
+      errorMessageId={resolvedError ? errorMessageId : undefined}
+      layout={stackedLayout}
+    >
+      <label
+        {...labelProps}
+        className={cx(checkableRowCss, switchRowCss, resolveCheckableSizeCss(fieldSize))}
+        data-disabled={isSwitchDisabled ? "true" : "false"}
       >
-        <label
-          {...labelProps}
-          className={cx(checkableRowCss, switchRowCss, resolveCheckableSizeCss(fieldSize))}
+        <input
+          {...mergedInputProps}
+          ref={composeRefs(inputRef, field.ref)}
+          className={checkableInputCss}
+        />
+        <span
+          className={switchTrackCss}
+          aria-hidden="true"
           data-disabled={isSwitchDisabled ? "true" : "false"}
+          data-focus-visible={isFocusVisible ? "true" : "false"}
+          data-invalid={isInvalid ? "true" : "false"}
+          data-pressed={isPressed ? "true" : "false"}
+          data-selected={isSelected ? "true" : "false"}
         >
-          <input {...mergedInputProps} ref={inputRef} className={checkableInputCss} />
-          <span
-            className={switchTrackCss}
-            aria-hidden="true"
-            data-disabled={isSwitchDisabled ? "true" : "false"}
-            data-focus-visible={isFocusVisible ? "true" : "false"}
-            data-invalid={resolvedState.isInvalid ? "true" : "false"}
-            data-pressed={isPressed ? "true" : "false"}
-            data-selected={isSelected ? "true" : "false"}
-          >
-            <span className={switchThumbCss} data-selected={isSelected ? "true" : "false"} />
-          </span>
-          <span className={checkableContentCss}>
-            <span className={checkableLabelCss}>{label}</span>
-          </span>
-        </label>
-      </FieldShell>
-    )
-  },
-)
+          <span className={switchThumbCss} data-selected={isSelected ? "true" : "false"} />
+        </span>
+        <span className={checkableContentCss}>
+          <span className={checkableLabelCss}>{label}</span>
+        </span>
+      </label>
+    </FieldShell>
+  )
+}

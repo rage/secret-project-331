@@ -29,46 +29,54 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+const countryOptions = [
+  { value: "fi", label: "Finland" },
+  { value: "se", label: "Sweden" },
+  { value: "no", label: "Norway" },
+]
+
 function ControlledSelectStory() {
   const [value, setValue] = useState("b")
 
   return (
     <Select
       label="Controlled"
+      options={[
+        { value: "a", label: "Option A" },
+        { value: "b", label: "Option B" },
+        { value: "c", label: "Option C" },
+      ]}
       value={value}
       onChange={(event) => setValue(event.currentTarget.value)}
-    >
-      <option value="a">Option A</option>
-      <option value="b">Option B</option>
-      <option value="c">Option C</option>
-    </Select>
+    />
   )
 }
 
 export const Playground = {
-  render: () => (
-    <Select label="Country" defaultValue="fi">
-      <option value="fi">Finland</option>
-      <option value="se">Sweden</option>
-      <option value="no">Norway</option>
-    </Select>
-  ),
+  render: () => <Select defaultValue="fi" label="Country" options={countryOptions} />,
 } satisfies Story
 
 export const States = {
   render: () => (
     <div className={stackCss}>
-      <Select label="Default">
-        <option value="">Choose</option>
-        <option value="1">One</option>
-      </Select>
-      <Select label="Disabled" disabled>
-        <option value="1">One</option>
-      </Select>
-      <Select label="Invalid" errorMessage="Selection required">
-        <option value="">Choose</option>
-        <option value="1">One</option>
-      </Select>
+      <Select
+        label="Default"
+        options={[
+          { value: "1", label: "One" },
+          { value: "2", label: "Two" },
+        ]}
+        placeholder="Choose"
+      />
+      <Select disabled label="Disabled" options={[{ value: "1", label: "One" }]} />
+      <Select
+        errorMessage="Selection required"
+        label="Invalid"
+        options={[
+          { value: "1", label: "One" },
+          { value: "2", label: "Two" },
+        ]}
+        placeholder="Choose"
+      />
     </div>
   ),
 } satisfies Story

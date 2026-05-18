@@ -86,9 +86,7 @@ export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
   return (
     <div className={blockingErrorCss} role="alert">
       <div className={errorStackCss}>
-        <p className={errorTextCss}>
-          {t("queryResult.errorMessage", { message: getErrorMessage(error) })}
-        </p>
+        <p className={errorTextCss}>{getErrorMessage(error)}</p>
         <Button type="button" variant="secondary" size="small" onPress={retry}>
           {t("queryResult.retry")}
         </Button>
@@ -103,7 +101,7 @@ export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   return (
     <div className={errorStackCss}>
       <div className={staleStatusCss} role="status">
-        {t("queryResult.errorMessage", { message: getErrorMessage(error) })}
+        {getErrorMessage(error)}
       </div>
       <Button type="button" variant="tertiary" size="small" onPress={retry}>
         {t("queryResult.retry")}

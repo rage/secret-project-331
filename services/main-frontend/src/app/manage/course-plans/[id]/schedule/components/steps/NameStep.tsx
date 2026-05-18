@@ -1,9 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useEffect } from "react"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
+import { useWizardTextField } from "../../hooks/useWizardStepFields"
 
 import { baseTheme } from "@/shared-module/common/styles"
 import { Button, TextField } from "@/shared-module/components"
@@ -35,23 +35,8 @@ interface NameStepProps {
 
 export default function NameStep({ planName, onPlanNameChange, onContinue }: NameStepProps) {
   const { t } = useTranslation()
-  const { control, setValue, watch } = useForm<{ planName: string }>({
-    defaultValues: { planName },
-  })
-
-  useEffect(() => {
-    setValue("planName", planName)
-  }, [planName, setValue])
-
-  useEffect(() => {
-    const subscription = watch((values, meta) => {
-      if (meta.name === "planName") {
-        onPlanNameChange(values.planName ?? "")
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [onPlanNameChange, watch])
+  // eslint-disable-next-line i18next/no-literal-string
+  const { control, fieldName } = useWizardTextField("planName", planName, onPlanNameChange)
 
   return (
     <>
@@ -60,8 +45,7 @@ export default function NameStep({ planName, onPlanNameChange, onContinue }: Nam
       <div className={fieldStyles}>
         <TextField
           id="course-plan-name"
-          // eslint-disable-next-line i18next/no-literal-string
-          name="planName"
+          name={fieldName}
           control={control}
           label={t("course-plans-plan-name-label")}
           placeholder={t("course-plans-untitled-plan")}

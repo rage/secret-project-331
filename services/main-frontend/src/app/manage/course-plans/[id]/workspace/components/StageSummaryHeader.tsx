@@ -1,40 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import {
-  Berries,
-  Cabin,
-  Campfire,
-  CandleLight,
-  Leaf,
-  MapleLeaf,
-  MistyCloud,
-  PineTree,
-  Sleigh,
-  Sunrise,
-  WaterLiquid,
-  WinterSnowflake,
-} from "@vectopus/atlas-icons-react"
 import { useTranslation } from "react-i18next"
 
+import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
-
-const MONTH_ICONS = [
-  WinterSnowflake,
-  Sleigh,
-  Sunrise,
-  WaterLiquid,
-  Leaf,
-  Campfire,
-  Cabin,
-  Berries,
-  MapleLeaf,
-  MistyCloud,
-  CandleLight,
-  PineTree,
-] as const
 
 const stageHeaderBarStyles = css`
   display: flex;
@@ -148,7 +120,7 @@ const StageSummaryHeader: React.FC<StageSummaryHeaderProps> = ({
   metaLabel,
   onClick,
 }) => {
-  const MonthIcon = MONTH_ICONS[monthIndex] ?? MONTH_ICONS[0]
+  const MonthIcon = COURSE_PLAN_MONTH_ICONS[monthIndex] ?? COURSE_PLAN_MONTH_ICONS[0]
 
   return (
     <BreakFromCentered sidebar={false}>

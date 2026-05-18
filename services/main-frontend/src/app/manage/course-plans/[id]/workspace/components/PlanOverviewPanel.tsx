@@ -2,11 +2,11 @@
 
 import { css, cx } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo, useState } from "react"
-import { useForm } from "react-hook-form"
+import React, { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"
+import { useAdjustScheduleDialogState } from "../hooks/useAdjustScheduleDialogState"
 
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -373,40 +373,8 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
 }) => {
   const { t, i18n } = useTranslation()
   const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false)
-  const [extendMonths, setExtendMonths] = useState(1)
-  const { control, setValue, watch } = useForm<{ extendMonths: string }>({
-    defaultValues: { extendMonths: String(extendMonths) },
-  })
-
-  const extendMonthsOptions = useMemo(
-    () =>
-      Array.from({ length: 6 }, (_item, index) => {
-        const months = index + 1
-        return {
-          value: String(months),
-          label: t("course-plans-adjust-schedule-month-option", { count: months }),
-        }
-      }),
-    [t],
-  )
-
-  useEffect(() => {
-    setValue("extendMonths", String(extendMonths))
-  }, [extendMonths, setValue])
-
-  useEffect(() => {
-    const subscription = watch((values, meta) => {
-      if (meta.name !== "extendMonths") {
-        return
-      }
-      const next = Number(values.extendMonths)
-      if (!Number.isNaN(next) && next > 0) {
-        setExtendMonths(next)
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [watch])
+  const { control, extendMonths, extendMonthsOptions, resetExtendMonths } =
+    useAdjustScheduleDialogState(1)
 
   /** Formats a Date as localized month and year. */
   const formatMonthYearFromDate = (date: Date): string =>
@@ -616,8 +584,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
                   variant="secondary"
                   size="medium"
                   onClick={() => {
-                    setExtendMonths(1)
-                    setValue("extendMonths", "1")
+                    resetExtendMonths()
                     setIsAdjustDialogOpen(true)
                   }}
                   disabled={isExtendPending || isAdvancePending}

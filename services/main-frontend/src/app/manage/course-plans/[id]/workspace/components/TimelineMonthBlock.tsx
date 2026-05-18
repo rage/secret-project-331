@@ -1,40 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import {
-  Berries,
-  Cabin,
-  Campfire,
-  CandleLight,
-  Leaf,
-  MapleLeaf,
-  MistyCloud,
-  PineTree,
-  Sleigh,
-  Sunrise,
-  WaterLiquid,
-  WinterSnowflake,
-} from "@vectopus/atlas-icons-react"
 import { format } from "date-fns"
 
 import { type StageMonth } from "../../schedule/scheduleMappers"
 
+import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
 import { baseTheme } from "@/shared-module/common/styles"
-
-const MONTH_ICONS = [
-  WinterSnowflake,
-  Sleigh,
-  Sunrise,
-  WaterLiquid,
-  Leaf,
-  Campfire,
-  Cabin,
-  Berries,
-  MapleLeaf,
-  MistyCloud,
-  CandleLight,
-  PineTree,
-] as const
 
 const timelineMonthBlockStyles = css`
   min-width: 84px;
@@ -76,7 +48,7 @@ interface TimelineMonthBlockProps {
 }
 
 export default function TimelineMonthBlock({ month }: TimelineMonthBlockProps) {
-  const MonthIcon = MONTH_ICONS[month.date.getMonth()]
+  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()]
 
   return (
     <div className={timelineMonthBlockStyles} title={month.label}>

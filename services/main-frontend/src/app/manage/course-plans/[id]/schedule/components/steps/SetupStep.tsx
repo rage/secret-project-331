@@ -1,9 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useEffect, useMemo } from "react"
-import { useForm } from "react-hook-form"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+
+import { useSetupStepFields } from "../../hooks/useWizardStepFields"
 
 import { CourseDesignerCourseSize } from "@/generated/api/types.generated"
 import { Button, Select, YearMonthField } from "@/shared-module/components"
@@ -50,14 +51,12 @@ export default function SetupStep({
   onContinue,
 }: SetupStepProps) {
   const { t } = useTranslation()
-  const { control, setValue, watch } = useForm<{
-    courseSize: CourseDesignerCourseSize
-    startsOnMonth: string
-  }>({
-    defaultValues: {
-      courseSize,
-      startsOnMonth,
-    },
+
+  const { control } = useSetupStepFields({
+    courseSize,
+    startsOnMonth,
+    onCourseSizeChange,
+    onStartsOnMonthChange,
   })
 
   const courseSizeOptions = useMemo(
@@ -71,27 +70,6 @@ export default function SetupStep({
     ],
     [t],
   )
-
-  useEffect(() => {
-    setValue("courseSize", courseSize)
-  }, [courseSize, setValue])
-
-  useEffect(() => {
-    setValue("startsOnMonth", startsOnMonth)
-  }, [startsOnMonth, setValue])
-
-  useEffect(() => {
-    const subscription = watch((values, meta) => {
-      if (meta.name === "courseSize" && values.courseSize) {
-        onCourseSizeChange(values.courseSize)
-      }
-      if (meta.name === "startsOnMonth") {
-        onStartsOnMonthChange(values.startsOnMonth ?? "")
-      }
-    })
-
-    return () => subscription.unsubscribe()
-  }, [onCourseSizeChange, onStartsOnMonthChange, watch])
 
   return (
     <>

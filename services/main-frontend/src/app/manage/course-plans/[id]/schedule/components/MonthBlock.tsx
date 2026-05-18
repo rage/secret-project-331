@@ -1,40 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import {
-  Berries,
-  Cabin,
-  Campfire,
-  CandleLight,
-  Leaf,
-  MapleLeaf,
-  MistyCloud,
-  PineTree,
-  Sleigh,
-  Sunrise,
-  WaterLiquid,
-  WinterSnowflake,
-} from "@vectopus/atlas-icons-react"
 import { format } from "date-fns"
 import { motion } from "motion/react"
 import { forwardRef } from "react"
 
 import { StageMonth } from "../scheduleMappers"
 
-const MONTH_ICONS = [
-  WinterSnowflake,
-  Sleigh,
-  Sunrise,
-  WaterLiquid,
-  Leaf,
-  Campfire,
-  Cabin,
-  Berries,
-  MapleLeaf,
-  MistyCloud,
-  CandleLight,
-  PineTree,
-] as const
+import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
 
 const stageMonthBlockStyles = css`
   min-width: 84px;
@@ -81,7 +54,7 @@ const MonthBlock = forwardRef<HTMLDivElement, MonthBlockProps>(function MonthBlo
   { month, reduceMotion, layoutId },
   ref,
 ) {
-  const MonthIcon = MONTH_ICONS[month.date.getMonth()]
+  const MonthIcon = COURSE_PLAN_MONTH_ICONS[month.date.getMonth()]
 
   return (
     <motion.div

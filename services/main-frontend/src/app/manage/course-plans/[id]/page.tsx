@@ -14,6 +14,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
+/** Redirects to schedule wizard or workspace based on plan status. */
 function CoursePlanHubRedirect() {
   const params = useParams<{ id: string }>()
   const router = useRouter()

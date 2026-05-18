@@ -26,7 +26,7 @@ export function ListBox<T extends object>({
   emptyState,
   ...props
 }: ListBoxProps<T>) {
-  const { t } = useTranslation()
+  const { t } = useTranslation("shared-module")
   const fallbackRef = React.useRef<HTMLUListElement>(null)
   const resolvedRef = listBoxRef ?? fallbackRef
   const { listBoxProps } = useListBox(props, state, resolvedRef)

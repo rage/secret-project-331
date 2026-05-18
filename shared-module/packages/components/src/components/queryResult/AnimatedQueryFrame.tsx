@@ -83,14 +83,11 @@ export type AnimatedQueryFrameProps<E> = {
 /** Default blocking-error UI with retry. */
 export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
   const { t } = useTranslation()
-
   return (
     <div className={blockingErrorCss} role="alert">
       <div className={errorStackCss}>
-        <p className={errorTextCss}>
-          {t("queryResult.errorMessage", { message: getErrorMessage(error) })}
-        </p>
-        <Button type="button" variant="secondary" size="sm" onPress={retry}>
+        <p className={errorTextCss}>{getErrorMessage(error)}</p>
+        <Button type="button" variant="secondary" size="small" onPress={retry}>
           {t("queryResult.retry")}
         </Button>
       </div>
@@ -101,13 +98,12 @@ export function DefaultBlockingError<E>({ error, retry }: FallbackArgs<E>) {
 /** Inline stale-error notice with retry (content still renders below). */
 export function DefaultStaleError<E>({ error, retry }: FallbackArgs<E>) {
   const { t } = useTranslation()
-
   return (
     <div className={errorStackCss}>
       <div className={staleStatusCss} role="status">
-        {t("queryResult.errorMessage", { message: getErrorMessage(error) })}
+        {getErrorMessage(error)}
       </div>
-      <Button type="button" variant="tertiary" size="sm" onPress={retry}>
+      <Button type="button" variant="tertiary" size="small" onPress={retry}>
         {t("queryResult.retry")}
       </Button>
     </div>

@@ -484,6 +484,149 @@ export interface NewCodeGiveaway {
   require_course_specific_consent_form_question_id: string | null
 }
 
+export type CourseDesignerCourseSize = "small" | "medium" | "large"
+
+export interface CourseDesignerPlan {
+  id: string
+  created_at: string
+  updated_at: string
+  created_by_user_id: string
+  name: string | null
+  status: CourseDesignerPlanStatus
+  active_stage: CourseDesignerStage | null
+  last_weekly_stage_email_sent_at: string | null
+}
+
+export interface CourseDesignerPlanDetails {
+  plan: CourseDesignerPlan
+  members: Array<CourseDesignerPlanMember>
+  stages: Array<CourseDesignerPlanStageWithTasks>
+}
+
+export interface CourseDesignerPlanMember {
+  id: string
+  created_at: string
+  updated_at: string
+  user_id: string
+}
+
+export interface CourseDesignerPlanStage {
+  id: string
+  created_at: string
+  updated_at: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  planned_starts_on: string
+  planned_ends_on: string
+  actual_started_at: string | null
+  actual_completed_at: string | null
+  workspace_data: unknown | null
+}
+
+export type CourseDesignerPlanStageStatus = "NotStarted" | "InProgress" | "Completed"
+
+export interface CourseDesignerPlanStageTask {
+  id: string
+  created_at: string
+  updated_at: string
+  course_designer_plan_stage_id: string
+  title: string
+  description: string | null
+  order_number: number
+  is_completed: boolean
+  completed_at: string | null
+  completed_by_user_id: string | null
+  is_auto_generated: boolean
+  created_by_user_id: string | null
+}
+
+export interface CourseDesignerPlanStageWithTasks {
+  id: string
+  created_at: string
+  updated_at: string
+  stage: CourseDesignerStage
+  status: CourseDesignerPlanStageStatus
+  planned_starts_on: string
+  planned_ends_on: string
+  actual_started_at: string | null
+  actual_completed_at: string | null
+  workspace_data: unknown | null
+  tasks: Array<CourseDesignerPlanStageTask>
+}
+
+export type AnalysisCourseType = "Compulsory" | "Elective"
+
+export interface AnalysisWorkspaceV1 {
+  course_title: string | null
+  credits: number | null
+  language: string | null
+  target_group: string | null
+  mode_synchronous: boolean
+  mode_asynchronous: boolean
+  open_period_i: boolean
+  open_period_ii: boolean
+  open_period_iii: boolean
+  open_period_iv: boolean
+  open_period_all: boolean
+  responsible_teachers: string | null
+  degree_programme: string | null
+  course_type: AnalysisCourseType | null
+  students_demographic_data: string | null
+  wishes_topics: string | null
+  wishes_content_format_text: boolean
+  wishes_content_format_video: boolean
+  wishes_content_format_podcast: boolean
+  wishes_content_format_xr: boolean
+  wishes_content_format_notes: string | null
+  wishes_assessment_text: string | null
+  wishes_other_suggestions: string | null
+  market_results: string | null
+  resources_university: string | null
+  resources_purchase_budget: string | null
+  contributors_instructional_designer: string | null
+  contributors_subject_matter_experts: string | null
+  contributors_editors: string | null
+  contributors_support_staff: string | null
+}
+
+export type CourseDesignerStageWorkspace = {
+  schema: "analysis_v1"
+  payload: AnalysisWorkspaceV1
+}
+
+export type CourseDesignerPlanStatus =
+  | "Draft"
+  | "Scheduling"
+  | "InProgress"
+  | "Completed"
+  | "Archived"
+
+export interface CourseDesignerPlanSummary {
+  id: string
+  created_at: string
+  updated_at: string
+  created_by_user_id: string
+  name: string | null
+  status: CourseDesignerPlanStatus
+  active_stage: CourseDesignerStage | null
+  last_weekly_stage_email_sent_at: string | null
+  member_count: number
+  stage_count: number
+}
+
+export interface CourseDesignerScheduleStageInput {
+  stage: CourseDesignerStage
+  planned_starts_on: string
+  planned_ends_on: string
+}
+
+export type CourseDesignerStage =
+  | "Analysis"
+  | "Design"
+  | "Development"
+  | "Implementation"
+  | "Evaluation"
+
 export interface CourseBackgroundQuestionAnswer {
   id: string
   created_at: string
@@ -2577,6 +2720,39 @@ export interface CertificateConfigurationUpdate {
   certificate_grade_font_size: string | null
   certificate_grade_text_color: string | null
   certificate_grade_text_anchor: CertificateTextAnchor | null
+}
+
+export interface CourseDesignerScheduleSuggestionRequest {
+  course_size: CourseDesignerCourseSize
+  starts_on: string
+}
+
+export interface CourseDesignerScheduleSuggestionResponse {
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
+export interface CreateCourseDesignerPlanRequest {
+  name: string | null
+}
+
+export interface CreateCourseDesignerStageTaskRequest {
+  title: string
+  description: string | null
+}
+
+export interface ExtendStageRequest {
+  months: number
+}
+
+export interface SaveCourseDesignerScheduleRequest {
+  name: string | null
+  stages: Array<CourseDesignerScheduleStageInput>
+}
+
+export interface UpdateCourseDesignerStageTaskRequest {
+  title: string | null
+  description: string | null
+  is_completed: boolean | null
 }
 
 export interface GetFeedbackQuery {

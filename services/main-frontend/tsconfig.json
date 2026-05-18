@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "target": "esnext",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -31,5 +33,9 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "src/shared-module", ".next"]
+  "exclude": [
+    "node_modules",
+    "src/shared-module",
+    ".next"
+  ]
 }

@@ -61,7 +61,6 @@ const chooseEstimateFromSamples = (samples: ClockSkewSample[]): ClockSkewEstimat
   }
 }
 
-/* eslint-disable i18next/no-literal-string */
 const getDateStringInTimezone = (ms: number, tz: string): string =>
   new Intl.DateTimeFormat("en", {
     timeZone: tz,
@@ -69,7 +68,6 @@ const getDateStringInTimezone = (ms: number, tz: string): string =>
     month: "2-digit",
     day: "2-digit",
   }).format(new Date(ms))
-/* eslint-enable i18next/no-literal-string */
 
 const formatDateTimeInTimezone = (
   timestampMs: number,
@@ -78,17 +76,17 @@ const formatDateTimeInTimezone = (
 ): string => {
   return new Intl.DateTimeFormat(language, {
     timeZone,
-    // eslint-disable-next-line i18next/no-literal-string
+
     year: "numeric",
-    // eslint-disable-next-line i18next/no-literal-string
+
     month: "2-digit",
-    // eslint-disable-next-line i18next/no-literal-string
+
     day: "2-digit",
-    // eslint-disable-next-line i18next/no-literal-string
+
     hour: "2-digit",
-    // eslint-disable-next-line i18next/no-literal-string
+
     minute: "2-digit",
-    // eslint-disable-next-line i18next/no-literal-string
+
     second: "2-digit",
   }).format(new Date(timestampMs))
 }
@@ -96,11 +94,11 @@ const formatDateTimeInTimezone = (
 const formatTimeInTimezone = (timestampMs: number, timeZone: string, language: string): string => {
   return new Intl.DateTimeFormat(language, {
     timeZone,
-    // eslint-disable-next-line i18next/no-literal-string
+
     hour: "2-digit",
-    // eslint-disable-next-line i18next/no-literal-string
+
     minute: "2-digit",
-    // eslint-disable-next-line i18next/no-literal-string
+
     second: "2-digit",
   }).format(new Date(timestampMs))
 }

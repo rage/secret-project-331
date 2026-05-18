@@ -73,10 +73,12 @@ export function GroupedRadio({
     description ? descriptionId : undefined,
     errorMessage ? errorMessageId : undefined,
   )
+  const { type: _ignoredType, ...inputDomProps } = rest as typeof rest & { type?: string }
 
   const mergedInputProps = mergeProps(inputProps, focusProps, {
-    ...rest,
+    ...inputDomProps,
     onChange,
+    type: "radio" as const,
   })
 
   return (

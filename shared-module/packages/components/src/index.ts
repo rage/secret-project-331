@@ -19,7 +19,7 @@ export type { RadioProps } from "./components/Radio"
 export { RadioGroup } from "./components/RadioGroup"
 export type { RadioGroupProps } from "./components/RadioGroup"
 export { Select } from "./components/Select"
-export type { SelectProps } from "./components/Select"
+export type { SelectOption, SelectOptionGroup, SelectProps } from "./components/Select"
 export { Switch } from "./components/Switch"
 export type { SwitchProps } from "./components/Switch"
 export { TextArea } from "./components/TextArea"
@@ -28,21 +28,11 @@ export { TextField } from "./components/TextField"
 export type { TextFieldProps } from "./components/TextField"
 export { TimeField } from "./components/TimeField"
 export type { TimeFieldProps } from "./components/TimeField"
+export { YearMonthField } from "./components/YearMonthField"
+export type { YearMonthFieldProps } from "./components/YearMonthField"
 export type ButtonRef = HTMLButtonElement
-export type CheckboxRef = HTMLInputElement
-export type ComboBoxRef = HTMLInputElement
-export type DateFieldRef = HTMLInputElement
-export type DateTimeLocalFieldRef = HTMLInputElement
-export type FileFieldRef = HTMLInputElement
 export type LinkRef = HTMLAnchorElement
-export type OtpFieldRef = HTMLInputElement
 export type RadioRef = HTMLInputElement
-export type RadioGroupRef = HTMLFieldSetElement
-export type SelectRef = HTMLDivElement
-export type SwitchRef = HTMLInputElement
-export type TextAreaRef = HTMLTextAreaElement
-export type TextFieldRef = HTMLInputElement
-export type TimeFieldRef = HTMLInputElement
 export type {
   ButtonSize,
   ButtonVariant,
@@ -50,6 +40,12 @@ export type {
   PressHandlers,
 } from "./components/primitives/buttonStyles"
 export type { FieldSize } from "./components/primitives/fieldStyles"
+export {
+  emptyStringToNull,
+  fileListToArray,
+  nullIfEmpty,
+  stringToNumberOrNull,
+} from "./lib/utils/rhfAdapters"
 export { tokensGlobal } from "./styles/tokens"
 
 export {

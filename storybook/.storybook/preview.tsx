@@ -34,7 +34,6 @@ if (!i18next.isInitialized) {
           "story.time.invalid": "Invalid",
           "story.time.invalidMessage": "Time is required",
           "story.time.playgroundLabel": "Start time",
-          "queryResult.errorMessage": "{{message}}",
           "queryResult.loading": "Loading",
           "queryResult.refreshing": "Refreshing",
           "queryResult.retry": "Retry",

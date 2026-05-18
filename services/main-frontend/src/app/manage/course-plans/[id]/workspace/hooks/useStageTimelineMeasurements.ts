@@ -144,7 +144,6 @@ export function useStageTimelineMeasurements({
       `[data-stage-key="${selectedStage}"]`,
     )
     if (tabElement) {
-      // eslint-disable-next-line i18next/no-literal-string
       tabElement.scrollIntoView({ block: "nearest", inline: "center" })
     }
   }, [selectedStage])

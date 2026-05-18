@@ -39,7 +39,6 @@ export const ROWS_SHORT = 2
 export const ICON_SIZE_SECTION = 14
 export const ICON_SIZE_SECTION_BADGE = 18
 
-// eslint-disable-next-line i18next/no-literal-string
 export const ANALYSIS_WORKSPACE_SCHEMA_V1 = "analysis_v1" as const
 
 export const LANGUAGE_OPTIONS = [
@@ -70,13 +69,11 @@ export type ContributorFieldKey = keyof Pick<
 
 /** Stable DOM id for the section heading (aria-labelledby). */
 export function analysisSectionHeadingId(n: AnalysisSectionIndex): string {
-  // eslint-disable-next-line i18next/no-literal-string -- DOM id suffix, not user-facing
   return `${SECTION_DOM_PREFIX}${n}-heading`
 }
 
 /** Stable DOM id for the collapsible section body (aria-controls). */
 export function analysisSectionBodyId(n: AnalysisSectionIndex): string {
-  // eslint-disable-next-line i18next/no-literal-string -- DOM id suffix, not user-facing
   return `${SECTION_DOM_PREFIX}${n}-body`
 }
 

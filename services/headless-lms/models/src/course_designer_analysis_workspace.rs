@@ -22,6 +22,7 @@ pub enum AnalysisCourseType {
 /// Analysis stage form: course metadata, needs, wishes, market, resources, contributors.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, ToSchema)]
 #[serde(rename_all = "snake_case")]
+#[derive(Default)]
 pub struct AnalysisWorkspaceV1 {
     pub course_title: Option<String>,
     pub credits: Option<f64>,
@@ -55,54 +56,17 @@ pub struct AnalysisWorkspaceV1 {
     pub contributors_support_staff: Option<String>,
 }
 
-impl Default for AnalysisWorkspaceV1 {
-    fn default() -> Self {
-        Self {
-            course_title: None,
-            credits: None,
-            language: None,
-            target_group: None,
-            mode_synchronous: false,
-            mode_asynchronous: false,
-            open_period_i: false,
-            open_period_ii: false,
-            open_period_iii: false,
-            open_period_iv: false,
-            open_period_all: false,
-            responsible_teachers: None,
-            degree_programme: None,
-            course_type: None,
-            students_demographic_data: None,
-            wishes_topics: None,
-            wishes_content_format_text: false,
-            wishes_content_format_video: false,
-            wishes_content_format_podcast: false,
-            wishes_content_format_xr: false,
-            wishes_content_format_notes: None,
-            wishes_assessment_text: None,
-            wishes_other_suggestions: None,
-            market_results: None,
-            resources_university: None,
-            resources_purchase_budget: None,
-            contributors_instructional_designer: None,
-            contributors_subject_matter_experts: None,
-            contributors_editors: None,
-            contributors_support_staff: None,
-        }
-    }
-}
-
 impl AnalysisWorkspaceV1 {
     /// Returns an error message if credits or other fields are invalid.
     pub fn validate(&self) -> ModelResult<()> {
-        if let Some(c) = self.credits {
-            if !c.is_finite() || c < 0.0 {
-                return Err(ModelError::new(
-                    ModelErrorType::InvalidRequest,
-                    "Credits must be a non-negative finite number.".to_string(),
-                    None,
-                ));
-            }
+        if let Some(c) = self.credits
+            && (!c.is_finite() || c < 0.0)
+        {
+            return Err(ModelError::new(
+                ModelErrorType::InvalidRequest,
+                "Credits must be a non-negative finite number.".to_string(),
+                None,
+            ));
         }
         Ok(())
     }

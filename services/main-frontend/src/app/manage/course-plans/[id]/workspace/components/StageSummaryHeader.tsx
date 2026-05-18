@@ -1,7 +1,6 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useTranslation } from "react-i18next"
 
 import { COURSE_PLAN_MONTH_ICONS } from "@/app/manage/course-plans/monthIcons"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"

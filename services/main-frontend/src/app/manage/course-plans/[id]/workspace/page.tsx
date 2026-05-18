@@ -538,7 +538,6 @@ function CoursePlanWorkspacePage() {
     isOverviewOpen,
     setIsOverviewOpen,
     viewedStage,
-    analysisWorkspaceDirty,
     setAnalysisWorkspaceDirty,
     handleSelectedStageChange,
     handleAdvanceStage,

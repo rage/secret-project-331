@@ -2,7 +2,7 @@
 
 import { css, cx } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
-import React, { useMemo, useState } from "react"
+import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { SCHEDULE_STAGE_ORDER } from "../../schedule/scheduleConstants"

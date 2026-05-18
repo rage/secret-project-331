@@ -6,13 +6,6 @@ import { useCallback, useEffect, useRef, useState } from "react"
 
 import type { CourseDesignerStage } from "@/generated/api/types.generated"
 
-type StageLabelTranslationKey =
-  | "course-plans-stage-analysis"
-  | "course-plans-stage-design"
-  | "course-plans-stage-development"
-  | "course-plans-stage-implementation"
-  | "course-plans-stage-evaluation"
-
 type StageBriefTranslationKey =
   | "course-plans-phase-brief-analysis"
   | "course-plans-phase-brief-design"

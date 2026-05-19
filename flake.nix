@@ -34,6 +34,27 @@
           pkgs.zlib.dev
         ];
         fishDevConfig = pkgs.writeText "fish-dev-config.fish" ''
+          function fish_greeting
+            echo (set_color cyan)"  Secret Project 331"(set_color normal) (set_color brblack)"— development shell"(set_color normal)
+            echo ""
+            echo (set_color yellow)"  Aliases"(set_color normal)
+            echo (set_color brblack)"    c     "(set_color normal)"clear the screen"
+            echo (set_color brblack)"    gits  "(set_color normal)"short git status"
+            ${lib.optionalString pkgs.stdenv.isLinux ''
+              echo (set_color brblack)"    open  "(set_color normal)"open a file or URL"
+            ''}
+            echo ""
+            echo (set_color yellow)"  bin/"(set_color normal)
+            echo (set_color brblack)"    dev                       "(set_color normal)"local dev stack (skaffold dev)"
+            echo (set_color brblack)"    test                      "(set_color normal)"production build + deploy to minikube"
+            echo (set_color brblack)"    git-merge-origin-master   "(set_color normal)"fetch and merge origin/master"
+            echo (set_color brblack)"    sqlx-database-reset       "(set_color normal)"reset minikube DB and re-run migrations"
+            echo (set_color brblack)"    system-tests-run-tests    "(set_color normal)"run Playwright system tests"
+            echo (set_color brblack)"    pods                      "(set_color normal)"watch cluster pods"
+            echo (set_color brblack)"    psql                      "(set_color normal)"psql into local dev database"
+            echo ""
+          end
+
           starship init fish | source
           abbr -a -- c clear
           abbr -a -- gits "git status -sb"

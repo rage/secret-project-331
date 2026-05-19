@@ -10,6 +10,7 @@ async fn mock_document_storage(
     document_id: web::Path<String>,
 ) -> ControllerResult<String> {
     assert!(app_conf.test_chatbot && app_conf.test_mode);
+    trace!("In mock document storage");
 
     let base_url = app_conf.base_url.to_owned();
 

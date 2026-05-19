@@ -33,26 +33,21 @@
           pkgs.openssl.dev
           pkgs.zlib.dev
         ];
-        starshipConfig = pkgs.writeText "starship.toml" ''
-          add_newline = false
-          format = "$directory $git_branch$git_status $character"
 
-          [directory]
-          truncation_length = 0
-          truncation_symbol = "» "
-          truncate_to_repo = true
+        mkPackageManagerStub =
+          name: hint:
+          pkgs.writeShellScriptBin name ''
+            echo "error: ${name} is not used in this project." >&2
+            echo "Use pnpm instead. ${hint}" >&2
+            exit 1
+          '';
 
-          [git_branch]
-          symbol = ""
-          format = "[$branch]($style)"
-
-          [git_status]
-          format = "([$all_status$ahead_behind]($style))"
-
-          [character]
-          success_symbol = "[\\$](bold green)"
-          error_symbol = "[\\$](bold red)"
-        '';
+        packageManagerStubs = [
+          (mkPackageManagerStub "npm" "Example: pnpm install, pnpm run <script>.")
+          (mkPackageManagerStub "npx" "Example: pnpm exec <pkg>, or pnpm dlx <pkg>.")
+          (mkPackageManagerStub "yarn" "Example: pnpm install, pnpm run <script>.")
+          (mkPackageManagerStub "yarnpkg" "Example: pnpm install, pnpm run <script>.")
+        ];
 
         # passwd-only getent when /usr/bin/getent is missing (Tilt). Exit 0 only if every key matched.
         getentCompat = pkgs.writeShellScriptBin "getent" ''
@@ -175,7 +170,7 @@
           pkgs.mold
           podmanWithProjectConfig
         ];
-        pathPriorityPackages = [
+        pathPriorityPackages = packageManagerStubs ++ [
           rustToolchain
         ]
         ++ projectCliPackages
@@ -208,7 +203,6 @@
           pkgs.python3
           pkgs.redis
           pkgs.rsync
-          pkgs.starship
           pkgs.systemfd
           pkgs.which
           pkgs.zlib
@@ -226,7 +220,6 @@
             OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
             OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
             LIBCLANG_PATH = lib.makeLibraryPath [ pkgs.libclang.lib ];
-            STARSHIP_CONFIG = "${starshipConfig}";
             TILT_DISABLE_ANALYTICS = "1";
 
             shellHook = ''

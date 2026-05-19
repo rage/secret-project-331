@@ -9,7 +9,7 @@ import type { ThemeMode } from "./queryResultStyles"
 
 export type QueryResultProps<T, E = unknown> = {
   query: UseQueryResult<T, E>
-  themeMode: ThemeMode
+  themeMode?: ThemeMode
   children: (data: T) => React.ReactNode
   emptyFallback?: React.ReactNode
   treatNullAsEmpty?: boolean
@@ -27,7 +27,7 @@ export type QueryResultProps<T, E = unknown> = {
  */
 export function QueryResult<T, E = unknown>({
   query,
-  themeMode,
+  themeMode = "light",
   children,
   emptyFallback = null,
   treatNullAsEmpty = false,

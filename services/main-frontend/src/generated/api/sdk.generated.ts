@@ -18,6 +18,8 @@ import type {
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponses,
+  AdvanceCourseDesignerStageData,
+  AdvanceCourseDesignerStageResponses,
   ApproveCourseSuspectedCheaterData,
   ApproveCourseSuspectedCheaterResponses,
   ApproveOauthConsentData,
@@ -39,6 +41,12 @@ import type {
   CreateCourseCopyData,
   CreateCourseCopyResponses,
   CreateCourseData,
+  CreateCourseDesignerPlanData,
+  CreateCourseDesignerPlanResponses,
+  CreateCourseDesignerScheduleSuggestionData,
+  CreateCourseDesignerScheduleSuggestionResponses,
+  CreateCourseDesignerStageTaskData,
+  CreateCourseDesignerStageTaskResponses,
   CreateCourseGlossaryTermData,
   CreateCourseGlossaryTermErrors,
   CreateCourseGlossaryTermResponses,
@@ -84,6 +92,8 @@ import type {
   DeleteCodeGiveawayCodeData,
   DeleteCodeGiveawayCodeResponses,
   DeleteCourseData,
+  DeleteCourseDesignerStageTaskData,
+  DeleteCourseDesignerStageTaskResponses,
   DeleteCourseInstanceData,
   DeleteCourseInstanceResponses,
   DeleteCourseModuleThresholdData,
@@ -149,6 +159,10 @@ import type {
   ExportExerciseAnswersCsvResponses,
   ExportExerciseDefinitionsCsvData,
   ExportExerciseDefinitionsCsvResponses,
+  ExtendCourseDesignerStageData,
+  ExtendCourseDesignerStageResponses,
+  FinalizeCourseDesignerScheduleData,
+  FinalizeCourseDesignerScheduleResponses,
   GenerateCertificateData,
   GenerateCertificateResponses,
   GetAvgTimeToFirstSubmissionHistoryData,
@@ -200,6 +214,10 @@ import type {
   GetCourseData,
   GetCourseDefaultPeerReviewData,
   GetCourseDefaultPeerReviewResponses,
+  GetCourseDesignerPlanData,
+  GetCourseDesignerPlanResponses,
+  GetCourseDesignerPlansData,
+  GetCourseDesignerPlansResponses,
   GetCourseExercisesAndAnswersRequiringAttentionCountsData,
   GetCourseExercisesAndAnswersRequiringAttentionCountsResponses,
   GetCourseExercisesData,
@@ -458,6 +476,7 @@ import type {
   GetUserDetailsByCourseAndUserIdData,
   GetUserDetailsByCourseAndUserIdResponses,
   GetUserDetailsByCoursesData,
+  GetUserDetailsByCoursesErrors,
   GetUserDetailsByCoursesResponses,
   GetUserDetailsForAuthenticatedUserData,
   GetUserDetailsForAuthenticatedUserResponses,
@@ -509,6 +528,8 @@ import type {
   RestorePageHistoryResponses,
   RevokeOauthTokenData,
   RevokeOauthTokenResponses,
+  SaveCourseDesignerScheduleData,
+  SaveCourseDesignerScheduleResponses,
   SearchUserDetailsByEmailData,
   SearchUserDetailsByEmailResponses,
   SearchUserDetailsByOtherDetailsData,
@@ -546,6 +567,10 @@ import type {
   UpdateCourseChapterOrderingData,
   UpdateCourseChapterOrderingResponses,
   UpdateCourseData,
+  UpdateCourseDesignerStageTaskData,
+  UpdateCourseDesignerStageTaskResponses,
+  UpdateCourseDesignerStageWorkspaceData,
+  UpdateCourseDesignerStageWorkspaceResponses,
   UpdateCourseModulesData,
   UpdateCourseModulesResponses,
   UpdateCoursePageOrderingData,
@@ -584,6 +609,7 @@ import type {
 import {
   zAddCodeGiveawayCodesResponse,
   zAddTeacherGradingForExamSubmissionResponse,
+  zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
   zChangeUserPasswordResponse,
   zConfigureChatbotResponse,
@@ -591,6 +617,9 @@ import {
   zCreateCodeGiveawayResponse,
   zCreateCourseChatbotResponse,
   zCreateCourseCopyResponse,
+  zCreateCourseDesignerPlanResponse,
+  zCreateCourseDesignerScheduleSuggestionResponse,
+  zCreateCourseDesignerStageTaskResponse,
   zCreateCourseGlossaryTermResponse,
   zCreateCourseInstanceEmailTemplateResponse,
   zCreateCourseInstanceResponse,
@@ -605,6 +634,7 @@ import {
   zCreateUserResearchConsentResponse,
   zDeleteCertificateConfigurationResponse,
   zDeleteChapterResponse,
+  zDeleteCourseDesignerStageTaskResponse,
   zDeleteEmailTemplateResponse,
   zDeleteExerciseRepositoryResponse,
   zDeleteExerciseServiceResponse,
@@ -626,6 +656,8 @@ import {
   zExportExamSubmissionsCsvResponse,
   zExportExerciseAnswersCsvResponse,
   zExportExerciseDefinitionsCsvResponse,
+  zExtendCourseDesignerStageResponse,
+  zFinalizeCourseDesignerScheduleResponse,
   zGenerateCertificateResponse,
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
@@ -649,6 +681,8 @@ import {
   zGetCourseCompletionStatsForEmailDomainResponse,
   zGetCourseDailySubmissionCountsResponse,
   zGetCourseDailyUsersWhoSubmittedSomethingResponse,
+  zGetCourseDesignerPlanResponse,
+  zGetCourseDesignerPlansResponse,
   zGetCourseExercisesAndAnswersRequiringAttentionCountsResponse,
   zGetCourseExercisesResponse,
   zGetCourseExerciseStatusesForUserResponse,
@@ -785,6 +819,7 @@ import {
   zResetExercisesForSelectedUsersResponse,
   zResetUserPasswordResponse,
   zRestorePageHistoryResponse,
+  zSaveCourseDesignerScheduleResponse,
   zSearchUserDetailsByEmailResponse,
   zSearchUserDetailsByOtherDetailsResponse,
   zSearchUserDetailsFuzzyMatchResponse,
@@ -798,6 +833,8 @@ import {
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
+  zUpdateCourseDesignerStageTaskResponse,
+  zUpdateCourseDesignerStageWorkspaceResponse,
   zUpdateCoursePeerReviewQueueReviewsReceivedResponse,
   zUpdateCourseResponse,
   zUpdateExerciseRepositoryResponse,
@@ -1721,6 +1758,207 @@ export const getCourseModuleUserCompletion = <ThrowOnError extends boolean = tru
     ...options,
   })
 
+export const getCourseDesignerPlans = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCourseDesignerPlansData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<GetCourseDesignerPlansResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseDesignerPlansResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans",
+    ...options,
+  })
+
+export const createCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<CreateCourseDesignerPlanData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<CreateCourseDesignerPlanResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zCreateCourseDesignerPlanResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/course-plans",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
+
+export const getCourseDesignerPlan = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseDesignerPlanData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<GetCourseDesignerPlanResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseDesignerPlanResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}",
+    ...options,
+  })
+
+export const saveCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
+  options: Options<SaveCourseDesignerScheduleData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    SaveCourseDesignerScheduleResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zSaveCourseDesignerScheduleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const finalizeCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
+  options: Options<FinalizeCourseDesignerScheduleData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    FinalizeCourseDesignerScheduleResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zFinalizeCourseDesignerScheduleResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/finalize",
+    ...options,
+  })
+
+export const createCourseDesignerScheduleSuggestion = <ThrowOnError extends boolean = true>(
+  options: Options<CreateCourseDesignerScheduleSuggestionData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    CreateCourseDesignerScheduleSuggestionResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zCreateCourseDesignerScheduleSuggestionResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/schedule/suggestions",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const advanceCourseDesignerStage = <ThrowOnError extends boolean = true>(
+  options: Options<AdvanceCourseDesignerStageData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    AdvanceCourseDesignerStageResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zAdvanceCourseDesignerStageResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/advance",
+    ...options,
+  })
+
+export const createCourseDesignerStageTask = <ThrowOnError extends boolean = true>(
+  options: Options<CreateCourseDesignerStageTaskData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    CreateCourseDesignerStageTaskResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zCreateCourseDesignerStageTaskResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage_id}/tasks",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const extendCourseDesignerStage = <ThrowOnError extends boolean = true>(
+  options: Options<ExtendCourseDesignerStageData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<
+    ExtendCourseDesignerStageResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zExtendCourseDesignerStageResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage}/extend",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const updateCourseDesignerStageWorkspace = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseDesignerStageWorkspaceData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    UpdateCourseDesignerStageWorkspaceResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zUpdateCourseDesignerStageWorkspaceResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage}/workspace",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const deleteCourseDesignerStageTask = <ThrowOnError extends boolean = true>(
+  options: Options<DeleteCourseDesignerStageTaskData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<
+    DeleteCourseDesignerStageTaskResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zDeleteCourseDesignerStageTaskResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}",
+    ...options,
+  })
+
+export const updateCourseDesignerStageTask = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseDesignerStageTaskData, ThrowOnError>,
+) =>
+  (options.client ?? client).patch<
+    UpdateCourseDesignerStageTaskResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zUpdateCourseDesignerStageTaskResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
 /**
  *
  * POST `/api/v0/main-frontend/courses` - Create a new course.
@@ -2314,6 +2552,10 @@ export const joinCourseWithJoinCode = <ThrowOnError extends boolean = true>(
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/join-course-with-join-code",
     ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
   })
 
 /**
@@ -6066,7 +6308,12 @@ export const updateUserInfo = <ThrowOnError extends boolean = true>(
 export const getUserDetailsByCourses = <ThrowOnError extends boolean = true>(
   options: Options<GetUserDetailsByCoursesData, ThrowOnError>,
 ) =>
-  (options.client ?? client).post<GetUserDetailsByCoursesResponses, unknown, ThrowOnError, "data">({
+  (options.client ?? client).post<
+    GetUserDetailsByCoursesResponses,
+    GetUserDetailsByCoursesErrors,
+    ThrowOnError,
+    "data"
+  >({
     responseValidator: async (data) => await zGetUserDetailsByCoursesResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/user-details/user-by-courses",

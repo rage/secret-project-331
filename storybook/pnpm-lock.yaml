@@ -90,12 +90,18 @@ importers:
       react-aria:
         specifier: ^3.48.0
         version: 3.48.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react-hook-form:
+        specifier: ^7.72.0
+        version: 7.72.0(react@19.2.5)
       react-i18next:
         specifier: ^17.0.4
         version: 17.0.4(i18next@26.0.6(typescript@5.9.2))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.2)
       uuid:
         specifier: ^14.0.0
         version: 14.0.0
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@chromatic-com/storybook':
         specifier: ^5.1.2
@@ -1832,6 +1838,12 @@ packages:
     peerDependencies:
       react: ^19.2.5
 
+  react-hook-form@7.72.0:
+    resolution: {integrity: sha512-V4v6jubaf6JAurEaVnT9aUPKFbNtDgohj5CIgVGyPHvT9wRx5OZHVjz31GsxnPNI278XMu+ruFz+wGOscHaLKw==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      react: ^16.8.0 || ^17 || ^18 || ^19
+
   react-i18next@17.0.4:
     resolution: {integrity: sha512-hQipmK4EF0y6RO6tt6WuqnmWpWYEXmQUUzecmMBuNsIgYd3smXcG4GtYPWhvgxn0pqMOItKlEO8H24HCs5hc3g==}
     peerDependencies:
@@ -2129,6 +2141,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@4.4.3:
+    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
 
 snapshots:
 
@@ -3814,6 +3829,10 @@ snapshots:
       react: 19.2.5
       scheduler: 0.27.0
 
+  react-hook-form@7.72.0(react@19.2.5):
+    dependencies:
+      react: 19.2.5
+
   react-i18next@17.0.4(i18next@26.0.6(typescript@5.9.2))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@5.9.2):
     dependencies:
       '@babel/runtime': 7.29.2
@@ -4054,5 +4073,7 @@ snapshots:
   yaml@2.8.3: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@4.4.3: {}
 
 time: {}

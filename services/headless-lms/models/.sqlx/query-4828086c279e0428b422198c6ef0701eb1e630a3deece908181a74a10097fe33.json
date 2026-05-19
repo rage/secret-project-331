@@ -1,0 +1,87 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id,\n  proposal_id,\n  block_id,\n  block_attribute,\n  original_text,\n  changed_text,\n  status AS \"status: ProposalStatus\",\n  created_at,\n  updated_at,\n  deleted_at\nFROM proposed_block_edits\nWHERE id = ANY($1)\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "proposal_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "block_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "block_attribute",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 4,
+        "name": "original_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 5,
+        "name": "changed_text",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 6,
+        "name": "status: ProposalStatus",
+        "type_info": {
+          "Custom": {
+            "name": "proposal_status",
+            "kind": {
+              "Enum": [
+                "pending",
+                "accepted",
+                "rejected"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 8,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "4828086c279e0428b422198c6ef0701eb1e630a3deece908181a74a10097fe33"
+}

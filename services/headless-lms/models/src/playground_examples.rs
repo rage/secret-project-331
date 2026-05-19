@@ -39,6 +39,22 @@ WHERE deleted_at IS NULL;
     Ok(examples)
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PlaygroundExample> {
+    let example = sqlx::query_as!(
+        PlaygroundExample,
+        "
+SELECT *
+from playground_examples
+WHERE id = $1
+  AND deleted_at IS NULL;
+  ",
+        id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+    Ok(example)
+}
+
 pub async fn insert_playground_example(
     conn: &mut PgConnection,
     data: PlaygroundExampleData,

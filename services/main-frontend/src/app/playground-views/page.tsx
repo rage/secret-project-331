@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import { isServer, useQuery } from "@tanstack/react-query"
+import { useQuery } from "@tanstack/react-query"
 import { BellXmark, CheckCircle, MoveUpDownArrows } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
 import React, { useEffect, useState } from "react"
@@ -165,7 +165,8 @@ const ModelSolutionSpecArea = styled.div`
   grid-area: model-solution-spec;
 `
 
-const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin
+const PUBLIC_ADDRESS =
+  typeof window === "undefined" ? "https://courses.mooc.fi" : new URL(window.location.href).origin
 const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service-info`
 
 const IframeViewPlayground: React.FC = () => {
@@ -304,10 +305,16 @@ const IframeViewPlayground: React.FC = () => {
         if (!serviceInfoQuery.data || !isValidServiceInfo || !privateSpecValidJson) {
           throw new Error("Requirements for the mutation not satisfied.")
         }
+        if (!websocketId || !playgroundGradingCallbackClaim) {
+          throw new Error("Playground websocket is not registered.")
+        }
         const gradingRequest: GradingRequest = {
-          grading_update_url: buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
-            websocket_id: String(websocketId),
-          }),
+          // eslint-disable-next-line i18next/no-literal-string
+          grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
+            websocket_id: websocketId,
+          })}?playground-grading-callback-claim=${encodeURIComponent(
+            playgroundGradingCallbackClaim,
+          )}`,
           exercise_spec: privateSpecParsed,
           submission_data: param.data,
         }
@@ -336,6 +343,10 @@ const IframeViewPlayground: React.FC = () => {
 
   const [websocket, setWebsocket] = useState<WebSocket | null>(null)
   const [websocketId, setWebsocketId] = useState<string | null>(null)
+  const [playgroundGradingCallbackClaim, setPlaygroundGradingCallbackClaim] = useState<
+    string | null
+  >(null)
+  const isPlaygroundWebsocketReady = Boolean(websocketId && playgroundGradingCallbackClaim)
   useEffect(() => {
     // prevent creating unnecessary websocket connections
     if (websocket === null) {
@@ -349,7 +360,8 @@ const IframeViewPlayground: React.FC = () => {
         console.error("websocket timed out")
       } else if (msg.tag == "Registered") {
         console.info("Registered websocket", msg.data)
-        setWebsocketId(msg.data)
+        setWebsocketId(msg.data.websocket_id)
+        setPlaygroundGradingCallbackClaim(msg.data.playground_grading_callback_claim)
       } else if (msg.tag == "ExerciseTaskGradingResult") {
         submitAnswerMutation.mutate({ type: "fromWebsocket", data: msg.data })
       } else {
@@ -773,7 +785,9 @@ const IframeViewPlayground: React.FC = () => {
                     variant={"primary"}
                     size={"medium"}
                     disabled={
-                      currentStateReceivedFromIframe === null || submitAnswerMutation.isPending
+                      currentStateReceivedFromIframe === null ||
+                      !isPlaygroundWebsocketReady ||
+                      submitAnswerMutation.isPending
                     }
                     onClick={() => {
                       if (!currentStateReceivedFromIframe) {

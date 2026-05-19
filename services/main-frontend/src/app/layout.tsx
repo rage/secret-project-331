@@ -4,6 +4,7 @@ import "@/init/registerMainFrontendApiClients"
 import Script from "next/script"
 import React, { Suspense, useEffect } from "react"
 
+import DesignTokensRoot from "@/components/DesignTokensRoot"
 import Layout from "@/components/Layout"
 import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper"
 import { AriaRouterProvider } from "@/components/providers/AriaRouterProvider"
@@ -34,6 +35,7 @@ const RootLayout = ({
   return (
     <html lang="en" dir={getDir("en")}>
       <body>
+        <DesignTokensRoot />
         <Script noModule id="outdated-browser-warning">
           {OUTDATED_BROWSER_WARNING_SCRIPT}
         </Script>

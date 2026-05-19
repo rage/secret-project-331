@@ -2,10 +2,11 @@
 
 import { css } from "@emotion/css"
 import type { ListState } from "@react-stately/list"
-import type { Node } from "@react-types/shared"
 import { useListBoxSection } from "react-aria"
 
 import { Option } from "./Option"
+
+type ListBoxNode<T extends object> = NonNullable<ReturnType<ListState<T>["collection"]["getItem"]>>
 
 const sectionCss = css`
   display: grid;
@@ -31,7 +32,7 @@ export function Section<T extends object>({
   section,
   state,
 }: {
-  section: Node<T>
+  section: ListBoxNode<T>
   state: ListState<T>
 }) {
   const { itemProps, headingProps, groupProps } = useListBoxSection({

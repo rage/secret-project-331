@@ -33,6 +33,7 @@ pub struct CourseEnrollmentInfo {
     pub course_instances: Vec<CourseInstance>,
     pub user_course_settings: Option<UserCourseSettings>,
     pub course_module_completions: Vec<CourseModuleCompletion>,
+    pub course_module_completions_needing_review: i32,
     pub first_enrolled_at: DateTime<Utc>,
     pub is_current: bool,
 }
@@ -152,6 +153,28 @@ WHERE user_id = $1
     Ok(res)
 }
 
+pub async fn get_by_user_id_and_course_ids(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_ids: &[Uuid],
+) -> ModelResult<Vec<CourseInstanceEnrollment>> {
+    let res = sqlx::query_as!(
+        CourseInstanceEnrollment,
+        "
+SELECT *
+FROM course_instance_enrollments
+WHERE user_id = $1
+  AND course_id = ANY($2)
+  AND deleted_at IS NULL
+        ",
+        user_id,
+        course_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_course_instance_enrollments_info_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -256,6 +279,10 @@ ORDER BY first_enrolled_at
             .filter(|cmc| cmc.course_id == row.course_id)
             .cloned()
             .collect();
+        let course_module_completions_needing_review = all_course_module_completions
+            .iter()
+            .filter(|cmc| cmc.course_id == row.course_id && cmc.needs_to_be_reviewed)
+            .count() as i32;
         let is_current = user_course_settings_for_course
             .as_ref()
             .map(|ucs| ucs.current_course_id == row.course_id)
@@ -275,6 +302,7 @@ ORDER BY first_enrolled_at
             course_instances,
             user_course_settings: user_course_settings_for_course,
             course_module_completions,
+            course_module_completions_needing_review,
             first_enrolled_at,
             is_current,
         });

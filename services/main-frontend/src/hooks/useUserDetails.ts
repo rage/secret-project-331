@@ -2,6 +2,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query"
 
 import { getBulkUserDetails, getUserDetailsByCourses } from "@/generated/api/sdk.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
+import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 export interface UseUserDetailsOptions {
@@ -35,6 +36,27 @@ export const isUserDetailsNotFound = (
   return result?.kind === "not-found"
 }
 
+/** Returns true when user details query inputs are sufficient to fetch data. */
+export const isUserDetailsQueryReady = (
+  courseIds: string[] | null | undefined,
+  userId: string | null | undefined,
+): boolean => {
+  return Boolean(userId && courseIds)
+}
+
+/** Returns true when a thrown query error represents a not-found user. */
+export const isUserDetailsNotFoundError = (error: unknown): boolean => {
+  return (
+    (isAppApiError(error) &&
+      (error.messageKey === "not_found" || error.type === "not_found" || error.status === 404)) ||
+    (typeof error === "object" &&
+      error !== null &&
+      "status" in error &&
+      typeof error.status === "number" &&
+      error.status === 404)
+  )
+}
+
 const getUserDetailsQueryOptions = (courseIds: string[], userId: string) =>
   queryOptions({
     queryKey: ["user-details/user", courseIds, userId],
@@ -52,17 +74,7 @@ const getUserDetailsQueryOptions = (courseIds: string[], userId: string) =>
           user,
         }
       } catch (error) {
-        const message =
-          typeof error === "string"
-            ? error
-            : typeof error === "object" &&
-                error !== null &&
-                "message" in error &&
-                typeof error.message === "string"
-              ? error.message
-              : JSON.stringify(error)
-
-        if (message.includes("RecordNotFound")) {
+        if (isUserDetailsNotFoundError(error)) {
           return {
             kind: "not-found",
             userId,
@@ -99,7 +111,7 @@ export const useUserDetails = (
       ): value is {
         courseIds: string[]
         userId: string
-      } => Boolean(value?.userId && value.courseIds.length > 0),
+      } => isUserDetailsQueryReady(value?.courseIds, value?.userId),
       build: ({ courseIds, userId }) => getUserDetailsQueryOptions(courseIds, userId),
     }),
     staleTime: options?.staleTime,

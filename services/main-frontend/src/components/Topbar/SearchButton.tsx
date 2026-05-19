@@ -268,7 +268,7 @@ const SearchButton: React.FC<SearchButtonProps> = ({ courseId, organizationSlug 
         if (e instanceof Error && e.name === "AbortError") {
           return
         }
-        const parsed = normalizeErrorForDisplay(e)
+        const parsed = normalizeErrorForDisplay(e, t)
         setError(parsed.message ?? parsed.title)
       } finally {
         setIsLoading(false)

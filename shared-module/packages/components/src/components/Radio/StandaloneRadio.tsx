@@ -60,8 +60,9 @@ export function StandaloneRadio({ forwardedRef, ...props }: RadioInnerProps) {
     description ? descriptionId : undefined,
     errorMessage ? errorMessageId : undefined,
   )
+  const { type: _ignoredType, ...inputDomProps } = rest as typeof rest & { type?: string }
 
-  const mergedInputProps = mergeProps(rest, focusProps, {
+  const mergedInputProps = mergeProps(inputDomProps, focusProps, {
     className: checkableInputCss,
     type: "radio" as const,
     disabled: standaloneState.isDisabled,

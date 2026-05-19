@@ -60,10 +60,22 @@ async fn delete_email_template(
     user: AuthUser,
 ) -> ControllerResult<web::Json<EmailTemplate>> {
     let mut conn = pool.acquire().await?;
+    let email_template =
+        models::email_templates::get_email_template(&mut conn, *email_template_id).await?;
+    let token = if let Some(course_id) = email_template.course_id {
+        authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?
+    } else {
+        authorize(
+            &mut conn,
+            Act::Administrate,
+            Some(user.id),
+            Res::GlobalPermissions,
+        )
+        .await?
+    };
     let deleted =
         models::email_templates::delete_email_template(&mut conn, *email_template_id).await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::AnyCourse).await?;
     token.authorized_ok(web::Json(deleted))
 }
 

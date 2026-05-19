@@ -367,6 +367,7 @@ headless_lms_utils::define_err_macro!(
     model_err,
     ModelError,
     ModelErrorType,
+    ModelErrorType,
     "Create a ModelError with less boilerplate."
 );
 
@@ -479,6 +480,40 @@ mod test {
         let id = 123;
         let err = model_err!(NotFound, format!("Item with id {} not found", id));
         assert_eq!(err.message(), "Item with id 123 not found");
+    }
+
+    #[test]
+    fn test_model_err_macro_struct_variant_without_source() {
+        let err = model_err!(
+            PreconditionFailedWithCMSAnchorBlockId {
+                id: Uuid::nil(),
+                description: "Anchor missing",
+            },
+            "Invalid anchor".to_string()
+        );
+        assert_eq!(err.message(), "Invalid anchor");
+        assert!(matches!(
+            err.error_type(),
+            ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { .. }
+        ));
+    }
+
+    #[test]
+    fn test_model_err_macro_struct_variant_with_source() {
+        let source_err = std::io::Error::other("source");
+        let err = model_err!(
+            PreconditionFailedWithCMSAnchorBlockId {
+                id: Uuid::nil(),
+                description: "Anchor missing",
+            },
+            "Invalid anchor".to_string(),
+            source_err
+        );
+        assert!(matches!(
+            err.error_type(),
+            ModelErrorType::PreconditionFailedWithCMSAnchorBlockId { .. }
+        ));
+        assert!(err.source.is_some());
     }
 
     #[tokio::test]

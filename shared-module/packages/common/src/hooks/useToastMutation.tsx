@@ -24,7 +24,7 @@ import useSetShowStuffInfinitelyInSystemTestScreenshots from "./useShowToastInfi
 
 interface EnableNotifications {
   notify: true
-  method: "POST" | "PUT" | "DELETE"
+  method: "POST" | "PUT" | "PATCH" | "DELETE"
   dismissable?: boolean
   loadingText?: string
   successHeader?: string
@@ -124,6 +124,9 @@ export default function useToastMutation<
           case "PUT":
             displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
+          case "PATCH":
+            displaySuccessNotification(notificationOptions, successDisplayOptions)
+            break
           case "POST":
             displaySuccessNotification(notificationOptions, successDisplayOptions)
             break
@@ -148,7 +151,7 @@ export default function useToastMutation<
         toast.remove()
         let errorMessage = notificationOptions.errorMessage
         if (!errorMessage) {
-          const view = normalizeErrorForDisplay(error)
+          const view = normalizeErrorForDisplay(error, t)
           const localizedCopy = resolveErrorDisplayCopy(view, t)
           errorMessage = localizedCopy.message ?? localizedCopy.title
         }

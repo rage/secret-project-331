@@ -6,6 +6,7 @@ import { useDatePickerState } from "@react-stately/datepicker"
 import type React from "react"
 import type { DateFieldAria, DatePickerAria, DateValue, TimeValue } from "react-aria"
 
+import { composeRefs } from "../../../lib/utils/compositeField"
 import { joinAriaDescribedBy, resolveFieldState } from "../../../lib/utils/field"
 import { DatePickerCalendar } from "../DatePickerCalendar"
 import { FieldShell } from "../FieldShell"
@@ -30,7 +31,11 @@ import {
   segmentedSegmentsRowCss,
   segmentedSegmentsRowRestHiddenCss,
 } from "./segmentedDateInputFieldStyles"
-import { shouldHideRestSegmentPlaceholders } from "./segmentedDateInputFieldUtils"
+import {
+  emitSyntheticBlur,
+  emitSyntheticFocus,
+  shouldHideRestSegmentPlaceholders,
+} from "./segmentedDateInputFieldUtils"
 
 export type PickerSegmentedFieldProps = {
   canClear: boolean
@@ -38,11 +43,14 @@ export type PickerSegmentedFieldProps = {
   dateFieldAria: DateFieldAria
   description?: React.ReactNode
   errorMessage?: React.ReactNode
+  externalOnBlur?: React.FocusEventHandler<HTMLElement>
+  externalOnFocus?: React.FocusEventHandler<HTMLElement>
   fieldRef: React.RefObject<HTMLDivElement | null>
   fieldSize: FieldSize
   groupRef: React.RefObject<HTMLDivElement | null>
   hiddenInputRef: React.RefObject<HTMLInputElement | null>
   hiddenInputValue: string
+  inputRef?: React.Ref<HTMLInputElement>
   iconEnd?: React.ReactNode
   iconStart?: React.ReactNode
   isFocused: boolean
@@ -79,11 +87,14 @@ export function PickerSegmentedField({
   dateFieldAria,
   description,
   errorMessage,
+  externalOnBlur,
+  externalOnFocus,
   fieldRef,
   fieldSize,
   groupRef,
   hiddenInputRef,
   hiddenInputValue,
+  inputRef,
   iconEnd,
   iconStart,
   isFocused,
@@ -131,17 +142,9 @@ export function PickerSegmentedField({
       label={label}
       labelProps={label ? (pickerAria.labelProps as React.HTMLAttributes<HTMLElement>) : undefined}
       description={description}
-      descriptionId={
-        description && typeof pickerAria.descriptionProps.id === "string"
-          ? pickerAria.descriptionProps.id
-          : undefined
-      }
+      descriptionProps={pickerAria.descriptionProps as React.HTMLAttributes<HTMLElement>}
       errorMessage={errorMessage}
-      errorMessageId={
-        errorMessage && typeof pickerAria.errorMessageProps.id === "string"
-          ? pickerAria.errorMessageProps.id
-          : undefined
-      }
+      errorMessageProps={pickerAria.errorMessageProps as React.HTMLAttributes<HTMLElement>}
       notice={notice}
       noticeId={notice ? noticeId : undefined}
       isDisabled={resolvedState.isDisabled}
@@ -164,13 +167,26 @@ export function PickerSegmentedField({
         aria-readonly={resolvedState.isReadOnly ? dataStateTrue : undefined}
         aria-required={resolvedState.isRequired ? dataStateTrue : undefined}
         onBlur={(event) => {
-          if (!groupRef.current?.contains(event.relatedTarget as Node | null)) {
+          const isLeavingGroup = !groupRef.current?.contains(event.relatedTarget as Node | null)
+
+          if (isLeavingGroup) {
             setIsFocused(false)
+            emitSyntheticBlur(
+              hiddenInputRef.current,
+              externalOnBlur as React.FocusEventHandler<HTMLInputElement> | undefined,
+            )
           }
 
           pickerAria.groupProps.onBlur?.(event)
         }}
         onFocus={(event) => {
+          if (!isFocused) {
+            emitSyntheticFocus(
+              hiddenInputRef.current,
+              externalOnFocus as React.FocusEventHandler<HTMLInputElement> | undefined,
+            )
+          }
+
           setIsFocused(true)
           pickerAria.groupProps.onFocus?.(event)
         }}
@@ -221,7 +237,7 @@ export function PickerSegmentedField({
       </div>
       <input
         {...dateFieldAria.inputProps}
-        ref={hiddenInputRef}
+        ref={composeRefs(hiddenInputRef, inputRef)}
         type="hidden"
         aria-describedby={describedBy}
         value={hiddenInputValue}

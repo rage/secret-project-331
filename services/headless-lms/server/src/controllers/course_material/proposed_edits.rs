@@ -32,7 +32,8 @@ async fn post_proposed_edits(
 ) -> ControllerResult<HttpResponse> {
     let mut conn = pool.acquire().await?;
     let user_id = user.map(|u| u.id);
-    models::proposed_page_edits::insert(
+    let token = authorize(&mut conn, Act::View, user_id, Res::Course(*course_id)).await?;
+    models::proposed_page_edits::create_for_page_id_and_course_id(
         &mut conn,
         PKeyPolicy::Generate,
         *course_id,
@@ -40,7 +41,6 @@ async fn post_proposed_edits(
         &payload,
     )
     .await?;
-    let token = authorize(&mut conn, Act::View, user_id, Res::Course(*course_id)).await?;
     token.authorized_ok(HttpResponse::Ok().finish())
 }
 

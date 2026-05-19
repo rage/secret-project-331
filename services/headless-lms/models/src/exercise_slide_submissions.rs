@@ -241,6 +241,44 @@ WHERE id = $1
     Ok(exercise_slide_submission)
 }
 
+pub async fn get_by_course_id_and_user_ids_and_exercise_ids(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    user_ids: &[Uuid],
+    exercise_ids: &[Uuid],
+) -> ModelResult<Vec<ExerciseSlideSubmission>> {
+    let submissions = sqlx::query_as!(
+        ExerciseSlideSubmission,
+        r#"
+SELECT ess.id,
+  ess.created_at,
+  ess.updated_at,
+  ess.deleted_at,
+  ess.exercise_slide_id,
+  ess.course_id,
+  ess.exam_id,
+  ess.exercise_id,
+  ess.user_id,
+  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.flag_count
+FROM exercise_slide_submissions ess
+  JOIN exercises e ON e.id = ess.exercise_id
+WHERE ess.course_id = $1
+  AND e.course_id = $1
+  AND ess.user_id = ANY($2)
+  AND ess.exercise_id = ANY($3)
+  AND ess.deleted_at IS NULL
+  AND e.deleted_at IS NULL
+        "#,
+        course_id,
+        user_ids,
+        exercise_ids
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(submissions)
+}
+
 /// Returns a map of exercise_slide_submission id -> user_id for the given submission ids.
 pub async fn get_user_ids_by_submission_ids(
     conn: &mut PgConnection,

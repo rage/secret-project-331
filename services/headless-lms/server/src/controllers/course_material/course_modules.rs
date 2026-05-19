@@ -2,7 +2,7 @@ use headless_lms_models::{course_instances, user_course_exercise_service_variabl
 use models::{course_modules, library::custom_view_exercises::CustomViewExerciseSubmissions};
 use utoipa::OpenApi;
 
-use crate::{domain::authorization::skip_authorize, prelude::*};
+use crate::{domain::authorization::authorize_access_to_course_material, prelude::*};
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -36,8 +36,10 @@ async fn get_course_module_id_by_chapter_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
-    let module_id = course_modules::get_course_module_id_by_chapter(&mut conn, *chapter_id).await?;
-    let token = skip_authorize();
+    let chapter = models::chapters::get_chapter(&mut conn, *chapter_id).await?;
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), chapter.course_id).await?;
+    let module_id = chapter.course_module_id;
     token.authorized_ok(web::Json(module_id))
 }
 
@@ -65,9 +67,9 @@ async fn get_default_course_module_id_by_course_id(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
     let module = course_modules::get_default_by_course_id(&mut conn, *course_id).await?;
     let module_id = module.id;
-    let token = skip_authorize();
     token.authorized_ok(web::Json(module_id))
 }
 
@@ -102,9 +104,18 @@ async fn get_user_course_module_exercises_by_exercise_type(
 ) -> ControllerResult<web::Json<CustomViewExerciseSubmissions>> {
     let mut conn = pool.acquire().await?;
     let (course_module_id, exercise_type, course_instance_id) = path.into_inner();
-    let course_id = course_instances::get_course_instance(&mut conn, course_instance_id)
-        .await?
-        .course_id;
+    let course_instance =
+        course_instances::get_course_instance(&mut conn, course_instance_id).await?;
+    let module = course_modules::get_by_id(&mut conn, course_module_id).await?;
+    if module.course_id != course_instance.course_id {
+        return Err(controller_err!(
+            Forbidden,
+            "Course module does not belong to the requested course instance".to_string()
+        ));
+    }
+    let token =
+        authorize_access_to_course_material(&mut conn, Some(user.id), module.course_id).await?;
+    let course_id = course_instance.course_id;
     let exercise_tasks = models::exercise_task_submissions::get_user_custom_view_exercise_tasks_by_module_and_exercise_type(
         &mut conn,
         &exercise_type,
@@ -121,7 +132,6 @@ async fn get_user_course_module_exercises_by_exercise_type(
     .await?;
     let user_variables =
     user_course_exercise_service_variables::get_all_user_variables_for_user_and_course_and_exercise_type(&mut conn, user.id, course_id, &exercise_type).await?;
-    let token = skip_authorize();
     let res = CustomViewExerciseSubmissions {
         exercise_tasks,
         exercises,

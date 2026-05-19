@@ -52,6 +52,56 @@ RETURNING *
     Ok(res)
 }
 
+pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+SELECT *
+FROM chatbot_conversations
+WHERE id = $1
+  AND deleted_at IS NULL
+        "#,
+        id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn create_for_user_and_configuration(
+    conn: &mut PgConnection,
+    pkey_policy: PKeyPolicy<Uuid>,
+    user_id: Uuid,
+    chatbot_configuration_id: Uuid,
+) -> ModelResult<ChatbotConversation> {
+    let res = sqlx::query_as!(
+        ChatbotConversation,
+        r#"
+INSERT INTO chatbot_conversations (
+    id,
+    course_id,
+    user_id,
+    chatbot_configuration_id
+)
+SELECT
+    $1,
+    chatbot_configurations.course_id,
+    $2,
+    chatbot_configurations.id
+FROM chatbot_configurations
+WHERE chatbot_configurations.id = $3
+  AND chatbot_configurations.deleted_at IS NULL
+RETURNING *
+        "#,
+        pkey_policy.into_uuid(),
+        user_id,
+        chatbot_configuration_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_latest_conversation_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,

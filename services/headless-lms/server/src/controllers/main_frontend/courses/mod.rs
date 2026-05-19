@@ -873,9 +873,16 @@ pub async fn create_course_copy(
     )
     .await?;
 
-    let mut tx = conn.begin().await?;
-
     let new_course = payload.new_course.clone();
+    authorize(
+        &mut conn,
+        Act::CreateCoursesOrExams,
+        Some(user.id),
+        Res::Organization(new_course.organization_id),
+    )
+    .await?;
+
+    let mut tx = conn.begin().await?;
 
     let copied_course = match &payload.mode {
         CopyCourseMode::Duplicate => {
@@ -1505,9 +1512,10 @@ async fn update_material_reference(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    models::material_references::update_material_reference_by_id(
+    models::material_references::update_by_id_and_course_id(
         &mut conn,
         reference_id,
+        course_id,
         payload.0,
     )
     .await?;
@@ -1537,7 +1545,8 @@ async fn delete_material_reference_by_id(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(course_id)).await?;
 
-    models::material_references::delete_reference(&mut conn, reference_id).await?;
+    models::material_references::delete_by_id_and_course_id(&mut conn, reference_id, course_id)
+        .await?;
     token.authorized_ok(web::Json(()))
 }
 
@@ -2312,7 +2321,8 @@ async fn teacher_archive_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::suspected_cheaters::archive_suspected_cheater(&mut conn, user_id).await?;
+    models::suspected_cheaters::archive_by_user_id_and_course_id(&mut conn, user_id, course_id)
+        .await?;
 
     token.authorized_ok(web::Json(()))
 }
@@ -2344,7 +2354,8 @@ async fn teacher_approve_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::suspected_cheaters::approve_suspected_cheater(&mut conn, user_id).await?;
+    models::suspected_cheaters::approve_by_user_id_and_course_id(&mut conn, user_id, course_id)
+        .await?;
 
     // Fail student
     //find by user_id and course_id
@@ -2354,6 +2365,11 @@ async fn teacher_approve_suspected_cheater(
     .await?;
 
     token.authorized_ok(web::Json(()))
+}
+
+#[derive(Debug, Serialize, Deserialize, utoipa::ToSchema)]
+pub struct JoinCourseWithJoinCodePayload {
+    join_code: String,
 }
 
 /**
@@ -2367,6 +2383,7 @@ POST /courses/:course_id/join-course-with-join-code - Adds the user to join_code
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
+    request_body = JoinCourseWithJoinCodePayload,
     responses(
         (status = 200, description = "Joined course id", body = Uuid)
     )
@@ -2374,12 +2391,14 @@ POST /courses/:course_id/join-course-with-join-code - Adds the user to join_code
 #[instrument(skip(pool))]
 async fn add_user_to_course_with_join_code(
     course_id: web::Path<Uuid>,
+    payload: web::Json<JoinCourseWithJoinCodePayload>,
     user: AuthUser,
     pool: web::Data<PgPool>,
 ) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
+    models::courses::get_by_id_and_join_code(&mut conn, *course_id, &payload.join_code).await?;
     let joined =
         models::join_code_uses::insert(&mut conn, PKeyPolicy::Generate, user.id, *course_id)
             .await?;

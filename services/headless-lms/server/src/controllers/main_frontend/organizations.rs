@@ -46,7 +46,7 @@ pub(crate) struct MainFrontendOrganizationsApiDoc;
 #[allow(dead_code)]
 #[derive(Debug, ToSchema)]
 struct OrganizationImageUploadPayload {
-    #[schema(content_media_type = "application/octet-stream")]
+    #[schema(content_media_type = "application/octet-stream", value_type = String, format = Binary)]
     file: Vec<u8>,
 }
 
@@ -435,15 +435,43 @@ async fn get_organization(
     pool: web::Data<PgPool>,
     file_store: web::Data<dyn FileStore>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: Option<AuthUser>,
 ) -> ControllerResult<web::Json<Organization>> {
     let mut conn = pool.acquire().await?;
     let db_organization =
         models::organizations::get_organization(&mut conn, *organization_id).await?;
+    if db_organization.deleted_at.is_some() {
+        return Err(organization_not_found());
+    }
+    let token = if db_organization.hidden {
+        let Some(user) = user else {
+            return Err(organization_not_found());
+        };
+        match authorize(
+            &mut conn,
+            Act::Edit,
+            Some(user.id),
+            Res::Organization(db_organization.id),
+        )
+        .await
+        {
+            Ok(token) => token,
+            Err(err) if matches!(err.error_type(), ControllerErrorType::Forbidden) => {
+                return Err(organization_not_found());
+            }
+            Err(err) => return Err(err),
+        }
+    } else {
+        skip_authorize()
+    };
     let organization =
         Organization::from_database_organization(db_organization, file_store.as_ref(), &app_conf);
 
-    let token = skip_authorize();
     token.authorized_ok(web::Json(organization))
+}
+
+fn organization_not_found() -> ControllerError {
+    controller_err!(NotFound, "Organization not found".to_string())
 }
 
 #[derive(Debug, Deserialize, ToSchema)]

@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { Meta, StoryObj } from "@storybook/react-vite"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { TimeField } from "../../src/shared-module/components"
@@ -12,18 +13,29 @@ const stackCss = css`
   max-width: 320px;
 `
 
+type Form = { t: string }
+
 function PlaygroundStory() {
   const { t } = useTranslation()
-  return <TimeField label={t("story.time.playgroundLabel")} defaultValue="09:30" />
+  const { control } = useForm<Form>({ defaultValues: { t: "09:30" } })
+  return <TimeField name="t" control={control} label={t("story.time.playgroundLabel")} />
 }
 
 function StatesStory() {
   const { t } = useTranslation()
+  const { control } = useForm<Form>({ defaultValues: { t: "" } })
+  const { control: c2 } = useForm<Form>({ defaultValues: { t: "09:30" } })
+  const { control: c3 } = useForm<Form>({ defaultValues: { t: "" } })
   return (
     <div className={stackCss}>
-      <TimeField label={t("story.time.default")} />
-      <TimeField label={t("story.time.disabled")} disabled defaultValue="09:30" />
-      <TimeField label={t("story.time.invalid")} errorMessage={t("story.time.invalidMessage")} />
+      <TimeField name="t" control={control} label={t("story.time.default")} />
+      <TimeField name="t" control={c2} label={t("story.time.disabled")} isDisabled />
+      <TimeField
+        name="t"
+        control={c3}
+        label={t("story.time.invalid")}
+        errorMessage={t("story.time.invalidMessage")}
+      />
     </div>
   )
 }

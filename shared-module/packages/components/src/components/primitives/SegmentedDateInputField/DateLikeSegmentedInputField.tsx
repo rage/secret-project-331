@@ -16,57 +16,37 @@ import {
 /** Segmented control for `date` or `datetime` with optional calendar popover. */
 export function DateLikeSegmentedInputField(
   props: DateLikeFieldProps,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const base = useSegmentedFieldBase(props, forwardedRef)
   const granularity = props.kind === "date" ? dayGranularity : minuteGranularity
-  const parsedValue = parseDateLikeValue(props.kind, base.value)
-  const parsedDefaultValue = parseDateLikeValue(props.kind, base.defaultValue)
-  const [uncontrolledValue, setUncontrolledValue] = useState<DateValue | null>(
-    parsedDefaultValue ?? null,
-  )
+  const currentValue = parseDateLikeValue(props.kind, base.value)
   const [pickerResetKey, setPickerResetKey] = useState(0)
-  const previousControlledValue = useRef("")
-  const currentValue = base.isControlled ? (parsedValue ?? null) : uncontrolledValue
-  const serializedControlledValue = typeof base.value === "string" ? base.value : ""
+  const previousSerializedValue = useRef("")
+  const serializedValue = typeof base.value === "string" ? base.value : ""
 
   useEffect(() => {
-    if (!base.isControlled) {
-      return
-    }
-
-    if (previousControlledValue.current.length > 0 && serializedControlledValue.length === 0) {
+    if (previousSerializedValue.current.length > 0 && serializedValue.length === 0) {
       setPickerResetKey((current) => current + 1)
     }
-
-    previousControlledValue.current = serializedControlledValue
-  }, [base.isControlled, serializedControlledValue])
+    previousSerializedValue.current = serializedValue
+  }, [serializedValue])
 
   const commitValue = (nextValue: DateValue | null) => {
-    if (!base.isControlled) {
-      setUncontrolledValue(nextValue)
-    }
-
-    emitSyntheticChange(
-      base.hiddenInputRef.current,
-      base.onChange,
-      serializeDateLikeInputValue(props.kind, nextValue, minuteGranularity),
-    )
+    const nextSerialized = serializeDateLikeInputValue(props.kind, nextValue, minuteGranularity)
+    base.onValueChange?.(nextSerialized)
+    emitSyntheticChange(base.hiddenInputRef.current, base.onChange, nextSerialized)
   }
 
   return (
     <DateLikePickerInner
       key={pickerResetKey}
       base={base}
-      currentValue={currentValue}
+      currentValue={currentValue ?? null}
       granularity={granularity}
       kind={props.kind}
       onClear={() => {
-        if (!base.isControlled) {
-          setUncontrolledValue(null)
-          setPickerResetKey((current) => current + 1)
-        }
-
+        base.onValueChange?.("")
         emitSyntheticChange(base.hiddenInputRef.current, base.onChange, "")
       }}
       onCommitValue={commitValue}

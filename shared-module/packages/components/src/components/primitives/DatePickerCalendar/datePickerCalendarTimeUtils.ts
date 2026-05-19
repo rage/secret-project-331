@@ -127,9 +127,15 @@ function normalizeTimeInput(raw: string, locale: string) {
 }
 
 function normalizeDayPeriodToken(raw: string, locale: string) {
-  return normalizeTimeInput(raw, locale)
-    .toLocaleLowerCase(locale)
-    .replace(/[^\p{L}\p{N}]+/gu, "")
+  const normalizedInput = normalizeTimeInput(raw, locale).toLocaleLowerCase(locale)
+
+  return Array.from(normalizedInput)
+    .filter((character) => {
+      const upper = character.toLocaleUpperCase(locale)
+      const lower = character.toLocaleLowerCase(locale)
+      return /\d/.test(character) || upper !== lower
+    })
+    .join("")
 }
 
 function hasDayPeriodToken(raw: string, locale: string, tokens: string[]) {

@@ -19,6 +19,44 @@ export const zActivityProgress = z.enum([
   "Completed",
 ])
 
+export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
+
+/**
+ * Analysis stage form: course metadata, needs, wishes, market, resources, contributors.
+ */
+export const zAnalysisWorkspaceV1 = z.object({
+  contributors_editors: z.string().nullish(),
+  contributors_instructional_designer: z.string().nullish(),
+  contributors_subject_matter_experts: z.string().nullish(),
+  contributors_support_staff: z.string().nullish(),
+  course_title: z.string().nullish(),
+  course_type: zAnalysisCourseType.nullish(),
+  credits: z.number().nullish(),
+  degree_programme: z.string().nullish(),
+  language: z.string().nullish(),
+  market_results: z.string().nullish(),
+  mode_asynchronous: z.boolean(),
+  mode_synchronous: z.boolean(),
+  open_period_all: z.boolean(),
+  open_period_i: z.boolean(),
+  open_period_ii: z.boolean(),
+  open_period_iii: z.boolean(),
+  open_period_iv: z.boolean(),
+  resources_purchase_budget: z.string().nullish(),
+  resources_university: z.string().nullish(),
+  responsible_teachers: z.string().nullish(),
+  students_demographic_data: z.string().nullish(),
+  target_group: z.string().nullish(),
+  wishes_assessment_text: z.string().nullish(),
+  wishes_content_format_notes: z.string().nullish(),
+  wishes_content_format_podcast: z.boolean(),
+  wishes_content_format_text: z.boolean(),
+  wishes_content_format_video: z.boolean(),
+  wishes_content_format_xr: z.boolean(),
+  wishes_other_suggestions: z.string().nullish(),
+  wishes_topics: z.string().nullish(),
+})
+
 export const zAuthorizedClientInfo = z.object({
   client_id: z.uuid(),
   client_name: z.string(),
@@ -422,6 +460,137 @@ export const zCourseCount = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+export const zCourseDesignerCourseSize = z.enum(["small", "medium", "large"])
+
+export const zCourseDesignerPlanMember = z.object({
+  created_at: z.iso.datetime(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
+  user_id: z.uuid(),
+})
+
+export const zCourseDesignerPlanStageStatus = z.enum(["NotStarted", "InProgress", "Completed"])
+
+export const zCourseDesignerPlanStageTask = z.object({
+  completed_at: z.iso.datetime().nullish(),
+  completed_by_user_id: z.uuid().nullish(),
+  course_designer_plan_stage_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  created_by_user_id: z.uuid().nullish(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  is_auto_generated: z.boolean(),
+  is_completed: z.boolean(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  title: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseDesignerPlanStatus = z.enum([
+  "Draft",
+  "Scheduling",
+  "InProgress",
+  "Completed",
+  "Archived",
+])
+
+export const zCourseDesignerScheduleSuggestionRequest = z.object({
+  course_size: zCourseDesignerCourseSize,
+  starts_on: z.iso.date(),
+})
+
+export const zCourseDesignerStage = z.enum([
+  "Analysis",
+  "Design",
+  "Development",
+  "Implementation",
+  "Evaluation",
+])
+
+export const zCourseDesignerPlan = z.object({
+  active_stage: zCourseDesignerStage.nullish(),
+  created_at: z.iso.datetime(),
+  created_by_user_id: z.uuid(),
+  id: z.uuid(),
+  last_weekly_stage_email_sent_at: z.iso.datetime().nullish(),
+  name: z.string().nullish(),
+  status: zCourseDesignerPlanStatus,
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseDesignerPlanStage = z.object({
+  actual_completed_at: z.iso.datetime().nullish(),
+  actual_started_at: z.iso.datetime().nullish(),
+  created_at: z.iso.datetime(),
+  id: z.uuid(),
+  planned_ends_on: z.iso.date(),
+  planned_starts_on: z.iso.date(),
+  stage: zCourseDesignerStage,
+  status: zCourseDesignerPlanStageStatus,
+  updated_at: z.iso.datetime(),
+  workspace_data: z.unknown().optional(),
+})
+
+export const zCourseDesignerPlanStageWithTasks = zCourseDesignerPlanStage.and(
+  z.object({
+    tasks: z.array(zCourseDesignerPlanStageTask),
+  }),
+)
+
+export const zCourseDesignerPlanDetails = z.object({
+  members: z.array(zCourseDesignerPlanMember),
+  plan: zCourseDesignerPlan,
+  stages: z.array(zCourseDesignerPlanStageWithTasks),
+})
+
+export const zCourseDesignerPlanSummary = z.object({
+  active_stage: zCourseDesignerStage.nullish(),
+  created_at: z.iso.datetime(),
+  created_by_user_id: z.uuid(),
+  id: z.uuid(),
+  last_weekly_stage_email_sent_at: z.iso.datetime().nullish(),
+  member_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  name: z.string().nullish(),
+  stage_count: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  status: zCourseDesignerPlanStatus,
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseDesignerScheduleStageInput = z.object({
+  planned_ends_on: z.iso.date(),
+  planned_starts_on: z.iso.date(),
+  stage: zCourseDesignerStage,
+})
+
+export const zCourseDesignerScheduleSuggestionResponse = z.object({
+  stages: z.array(zCourseDesignerScheduleStageInput),
+})
+
+/**
+ * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
+ */
+export const zCourseDesignerStageWorkspace = z.object({
+  payload: zAnalysisWorkspaceV1,
+  schema: z.enum(["analysis_v1"]),
+})
+
 export const zCourseExam = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -545,6 +714,15 @@ export const zCourseUserInfo = z.object({
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
   user_id: z.uuid(),
+})
+
+export const zCreateCourseDesignerPlanRequest = z.object({
+  name: z.string().nullish(),
+})
+
+export const zCreateCourseDesignerStageTaskRequest = z.object({
+  description: z.string().nullish(),
+  title: z.string(),
 })
 
 export const zCronJobInfo = z.object({
@@ -960,6 +1138,13 @@ export const zExerciseUserCounts = z.object({
   page_order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+export const zExtendStageRequest = z.object({
+  months: z
+    .int()
+    .gte(0)
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
@@ -2003,6 +2188,11 @@ export const zRoleDomain = z.union([
   }),
 ])
 
+export const zSaveCourseDesignerScheduleRequest = z.object({
+  name: z.string().nullish(),
+  stages: z.array(zCourseDesignerScheduleStageInput),
+})
+
 export const zSearchRequest = z.object({
   query: z.string(),
 })
@@ -2124,6 +2314,12 @@ export const zThresholdData = z.object({
 })
 
 export const zTimeGranularity = z.enum(["Year", "Month", "Day"])
+
+export const zUpdateCourseDesignerStageTaskRequest = z.object({
+  description: z.string().nullish(),
+  is_completed: z.boolean().nullish(),
+  title: z.string().nullish(),
+})
 
 /**
  * Result of a image upload. Tells where the uploaded image can be retrieved from.
@@ -2929,6 +3125,126 @@ export const zGetCourseModuleUserCompletionPath = z.object({
  * User completion information
  */
 export const zGetCourseModuleUserCompletionResponse = zUserCompletionInformation
+
+/**
+ * Plans
+ */
+export const zGetCourseDesignerPlansResponse = z.array(zCourseDesignerPlanSummary)
+
+export const zCreateCourseDesignerPlanBody = zCreateCourseDesignerPlanRequest
+
+/**
+ * Created plan
+ */
+export const zCreateCourseDesignerPlanResponse = zCourseDesignerPlan
+
+export const zGetCourseDesignerPlanPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Plan details
+ */
+export const zGetCourseDesignerPlanResponse = zCourseDesignerPlanDetails
+
+export const zSaveCourseDesignerScheduleBody = zSaveCourseDesignerScheduleRequest
+
+export const zSaveCourseDesignerSchedulePath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Updated plan details
+ */
+export const zSaveCourseDesignerScheduleResponse = zCourseDesignerPlanDetails
+
+export const zFinalizeCourseDesignerSchedulePath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Finalized plan
+ */
+export const zFinalizeCourseDesignerScheduleResponse = zCourseDesignerPlan
+
+export const zCreateCourseDesignerScheduleSuggestionBody = zCourseDesignerScheduleSuggestionRequest
+
+export const zCreateCourseDesignerScheduleSuggestionPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Suggested schedule
+ */
+export const zCreateCourseDesignerScheduleSuggestionResponse =
+  zCourseDesignerScheduleSuggestionResponse
+
+export const zAdvanceCourseDesignerStagePath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Updated plan details
+ */
+export const zAdvanceCourseDesignerStageResponse = zCourseDesignerPlanDetails
+
+export const zCreateCourseDesignerStageTaskBody = zCreateCourseDesignerStageTaskRequest
+
+export const zCreateCourseDesignerStageTaskPath = z.object({
+  plan_id: z.uuid(),
+  stage_id: z.uuid(),
+})
+
+/**
+ * Created task
+ */
+export const zCreateCourseDesignerStageTaskResponse = zCourseDesignerPlanStageTask
+
+export const zExtendCourseDesignerStageBody = zExtendStageRequest
+
+export const zExtendCourseDesignerStagePath = z.object({
+  plan_id: z.uuid(),
+  stage: z.string(),
+})
+
+/**
+ * Updated plan details
+ */
+export const zExtendCourseDesignerStageResponse = zCourseDesignerPlanDetails
+
+export const zUpdateCourseDesignerStageWorkspaceBody = zCourseDesignerStageWorkspace
+
+export const zUpdateCourseDesignerStageWorkspacePath = z.object({
+  plan_id: z.uuid(),
+  stage: z.string(),
+})
+
+/**
+ * Updated plan details
+ */
+export const zUpdateCourseDesignerStageWorkspaceResponse = zCourseDesignerPlanDetails
+
+export const zDeleteCourseDesignerStageTaskPath = z.object({
+  plan_id: z.uuid(),
+  task_id: z.uuid(),
+})
+
+/**
+ * Task deleted
+ */
+export const zDeleteCourseDesignerStageTaskResponse = z.void()
+
+export const zUpdateCourseDesignerStageTaskBody = zUpdateCourseDesignerStageTaskRequest
+
+export const zUpdateCourseDesignerStageTaskPath = z.object({
+  plan_id: z.uuid(),
+  task_id: z.uuid(),
+})
+
+/**
+ * Updated task
+ */
+export const zUpdateCourseDesignerStageTaskResponse = zCourseDesignerPlanStageTask
 
 export const zCreateCourseBody = zNewCourse
 

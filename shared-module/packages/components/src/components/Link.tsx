@@ -3,11 +3,10 @@
 import { cx } from "@emotion/css"
 import NextLink from "next/link"
 import React from "react"
-import { useLink, useObjectRef, VisuallyHidden } from "react-aria"
+import { mergeProps, useLink, useObjectRef, VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import { joinAriaDescribedBy } from "../lib/utils/aria"
-import { mergeHandlers } from "../lib/utils/handlers"
 
 import {
   type ButtonSize,
@@ -85,7 +84,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
 
     const styledAsButtonResolved = styledAsButton === true
 
-    const { t } = useTranslation()
+    const { t } = useTranslation("shared-module")
 
     const isLoading = Boolean(isLoadingProp)
     const disabled = Boolean(isDisabledProp)
@@ -135,7 +134,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       cx(
         styledAsButtonResolved
           ? resolveButtonRootCss({
-              size: (styledAsButtonResolved ? size : undefined) ?? "md",
+              size: (styledAsButtonResolved ? size : undefined) ?? "medium",
               variant: (styledAsButtonResolved ? variant : undefined) ?? "primary",
             })
           : undefined,
@@ -148,9 +147,20 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
     const resolvedIconPosition =
       (styledAsButtonResolved ? iconPosition : undefined) ?? defaultIconPosition
 
+    const mergedLinkProps = mergeProps(linkProps, {
+      onClick: isInteractivelyDisabled ? undefined : onClick,
+      onPointerDown,
+      onPointerUp,
+      onPointerCancel,
+      onKeyDown,
+      onKeyUp,
+      onFocus,
+      onBlur,
+    })
+
     return (
       <NextLink
-        {...linkProps}
+        {...mergedLinkProps}
         {...rest}
         ref={ref}
         className={rootClassName}
@@ -161,14 +171,6 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         // eslint-disable-next-line i18next/no-literal-string
         aria-busy={isLoading ? "true" : undefined}
         tabIndex={finalTabIndex}
-        onClick={mergeHandlers(linkProps.onClick, isInteractivelyDisabled ? undefined : onClick)}
-        onPointerDown={mergeHandlers(linkProps.onPointerDown, onPointerDown)}
-        onPointerUp={mergeHandlers(linkProps.onPointerUp, onPointerUp)}
-        onPointerCancel={mergeHandlers(linkProps.onPointerCancel, onPointerCancel)}
-        onKeyDown={mergeHandlers(linkProps.onKeyDown, onKeyDown)}
-        onKeyUp={mergeHandlers(linkProps.onKeyUp, onKeyUp)}
-        onFocus={mergeHandlers(linkProps.onFocus, onFocus)}
-        onBlur={mergeHandlers(linkProps.onBlur, onBlur)}
       >
         {styledAsButtonResolved ? (
           <>

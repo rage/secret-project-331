@@ -1659,6 +1659,452 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plans": {
+      "get": {
+        "tags": ["course-plans"],
+        "operationId": "getCourseDesignerPlans",
+        "responses": {
+          "200": {
+            "description": "Plans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseDesignerPlanSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "createCourseDesignerPlan",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseDesignerPlanRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}": {
+      "get": {
+        "tags": ["course-plans"],
+        "operationId": "getCourseDesignerPlan",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/schedule": {
+      "put": {
+        "tags": ["course-plans"],
+        "operationId": "saveCourseDesignerSchedule",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveCourseDesignerScheduleRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/schedule/finalize": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "finalizeCourseDesignerSchedule",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Finalized plan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/schedule/suggestions": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "createCourseDesignerScheduleSuggestion",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseDesignerScheduleSuggestionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Suggested schedule",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerScheduleSuggestionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/stages/advance": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "advanceCourseDesignerStage",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Updated plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage_id}/tasks": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "createCourseDesignerStageTask",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "stage_id",
+            "in": "path",
+            "description": "Stage id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCourseDesignerStageTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Created task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanStageTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage}/extend": {
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "extendCourseDesignerStage",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "stage",
+            "in": "path",
+            "description": "Stage name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExtendStageRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/stages/{stage}/workspace": {
+      "patch": {
+        "tags": ["course-plans"],
+        "operationId": "updateCourseDesignerStageWorkspace",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "stage",
+            "in": "path",
+            "description": "Stage name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseDesignerStageWorkspace"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated plan details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/tasks/{task_id}": {
+      "delete": {
+        "tags": ["course-plans"],
+        "operationId": "deleteCourseDesignerStageTask",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "Task id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Task deleted"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["course-plans"],
+        "operationId": "updateCourseDesignerStageTask",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "task_id",
+            "in": "path",
+            "description": "Task id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCourseDesignerStageTaskRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated task",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanStageTask"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses": {
       "post": {
         "tags": ["courses"],
@@ -10083,6 +10529,127 @@
         "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
         "enum": ["Initialized", "Started", "InProgress", "Submitted", "Completed"]
       },
+      "AnalysisCourseType": {
+        "type": "string",
+        "enum": ["compulsory", "elective"]
+      },
+      "AnalysisWorkspaceV1": {
+        "type": "object",
+        "description": "Analysis stage form: course metadata, needs, wishes, market, resources, contributors.",
+        "required": [
+          "mode_synchronous",
+          "mode_asynchronous",
+          "open_period_i",
+          "open_period_ii",
+          "open_period_iii",
+          "open_period_iv",
+          "open_period_all",
+          "wishes_content_format_text",
+          "wishes_content_format_video",
+          "wishes_content_format_podcast",
+          "wishes_content_format_xr"
+        ],
+        "properties": {
+          "contributors_editors": {
+            "type": ["string", "null"]
+          },
+          "contributors_instructional_designer": {
+            "type": ["string", "null"]
+          },
+          "contributors_subject_matter_experts": {
+            "type": ["string", "null"]
+          },
+          "contributors_support_staff": {
+            "type": ["string", "null"]
+          },
+          "course_title": {
+            "type": ["string", "null"]
+          },
+          "course_type": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AnalysisCourseType"
+              }
+            ]
+          },
+          "credits": {
+            "type": ["number", "null"],
+            "format": "double"
+          },
+          "degree_programme": {
+            "type": ["string", "null"]
+          },
+          "language": {
+            "type": ["string", "null"]
+          },
+          "market_results": {
+            "type": ["string", "null"]
+          },
+          "mode_asynchronous": {
+            "type": "boolean"
+          },
+          "mode_synchronous": {
+            "type": "boolean"
+          },
+          "open_period_all": {
+            "type": "boolean"
+          },
+          "open_period_i": {
+            "type": "boolean"
+          },
+          "open_period_ii": {
+            "type": "boolean"
+          },
+          "open_period_iii": {
+            "type": "boolean"
+          },
+          "open_period_iv": {
+            "type": "boolean"
+          },
+          "resources_purchase_budget": {
+            "type": ["string", "null"]
+          },
+          "resources_university": {
+            "type": ["string", "null"]
+          },
+          "responsible_teachers": {
+            "type": ["string", "null"]
+          },
+          "students_demographic_data": {
+            "type": ["string", "null"]
+          },
+          "target_group": {
+            "type": ["string", "null"]
+          },
+          "wishes_assessment_text": {
+            "type": ["string", "null"]
+          },
+          "wishes_content_format_notes": {
+            "type": ["string", "null"]
+          },
+          "wishes_content_format_podcast": {
+            "type": "boolean"
+          },
+          "wishes_content_format_text": {
+            "type": "boolean"
+          },
+          "wishes_content_format_video": {
+            "type": "boolean"
+          },
+          "wishes_content_format_xr": {
+            "type": "boolean"
+          },
+          "wishes_other_suggestions": {
+            "type": ["string", "null"]
+          },
+          "wishes_topics": {
+            "type": ["string", "null"]
+          }
+        }
+      },
       "AnswerRequiringAttentionWithTasks": {
         "type": "object",
         "required": [
@@ -11762,6 +12329,352 @@
           }
         }
       },
+      "CourseDesignerCourseSize": {
+        "type": "string",
+        "enum": ["small", "medium", "large"]
+      },
+      "CourseDesignerPlan": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "created_by_user_id", "status"],
+        "properties": {
+          "active_stage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseDesignerStage"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_weekly_stage_email_sent_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerPlanStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseDesignerPlanDetails": {
+        "type": "object",
+        "required": ["plan", "members", "stages"],
+        "properties": {
+          "members": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerPlanMember"
+            }
+          },
+          "plan": {
+            "$ref": "#/components/schemas/CourseDesignerPlan"
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerPlanStageWithTasks"
+            }
+          }
+        }
+      },
+      "CourseDesignerPlanMember": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "user_id"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "CourseDesignerPlanStage": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "stage",
+          "status",
+          "planned_starts_on",
+          "planned_ends_on"
+        ],
+        "properties": {
+          "actual_completed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "actual_started_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "planned_ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "planned_starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerPlanStageStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "workspace_data": {}
+        }
+      },
+      "CourseDesignerPlanStageStatus": {
+        "type": "string",
+        "enum": ["NotStarted", "InProgress", "Completed"]
+      },
+      "CourseDesignerPlanStageTask": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "course_designer_plan_stage_id",
+          "title",
+          "order_number",
+          "is_completed",
+          "is_auto_generated"
+        ],
+        "properties": {
+          "completed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "completed_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_designer_plan_stage_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by_user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "is_auto_generated": {
+            "type": "boolean"
+          },
+          "is_completed": {
+            "type": "boolean"
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "title": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseDesignerPlanStageWithTasks": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CourseDesignerPlanStage"
+          },
+          {
+            "type": "object",
+            "required": ["tasks"],
+            "properties": {
+              "tasks": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CourseDesignerPlanStageTask"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "CourseDesignerPlanStatus": {
+        "type": "string",
+        "enum": ["Draft", "Scheduling", "InProgress", "Completed", "Archived"]
+      },
+      "CourseDesignerPlanSummary": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "created_by_user_id",
+          "status",
+          "member_count",
+          "stage_count"
+        ],
+        "properties": {
+          "active_stage": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CourseDesignerStage"
+              }
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "created_by_user_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_weekly_stage_email_sent_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "member_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "stage_count": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "status": {
+            "$ref": "#/components/schemas/CourseDesignerPlanStatus"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CourseDesignerScheduleStageInput": {
+        "type": "object",
+        "required": ["stage", "planned_starts_on", "planned_ends_on"],
+        "properties": {
+          "planned_ends_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "planned_starts_on": {
+            "type": "string",
+            "format": "date"
+          },
+          "stage": {
+            "$ref": "#/components/schemas/CourseDesignerStage"
+          }
+        }
+      },
+      "CourseDesignerScheduleSuggestionRequest": {
+        "type": "object",
+        "required": ["course_size", "starts_on"],
+        "properties": {
+          "course_size": {
+            "$ref": "#/components/schemas/CourseDesignerCourseSize"
+          },
+          "starts_on": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      },
+      "CourseDesignerScheduleSuggestionResponse": {
+        "type": "object",
+        "required": ["stages"],
+        "properties": {
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerScheduleStageInput"
+            }
+          }
+        }
+      },
+      "CourseDesignerStage": {
+        "type": "string",
+        "enum": ["Analysis", "Design", "Development", "Implementation", "Evaluation"]
+      },
+      "CourseDesignerStageWorkspace": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["payload", "schema"],
+            "properties": {
+              "payload": {
+                "$ref": "#/components/schemas/AnalysisWorkspaceV1"
+              },
+              "schema": {
+                "type": "string",
+                "enum": ["analysis_v1"]
+              }
+            }
+          }
+        ],
+        "description": "Discriminant for forward-compatible workspace payloads stored in `workspace_data`."
+      },
       "CourseEnrollmentInfo": {
         "type": "object",
         "required": [
@@ -12332,6 +13245,26 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "CreateCourseDesignerPlanRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": ["string", "null"]
+          }
+        }
+      },
+      "CreateCourseDesignerStageTaskRequest": {
+        "type": "object",
+        "required": ["title"],
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "title": {
+            "type": "string"
           }
         }
       },
@@ -13588,6 +14521,17 @@
           "page_order_number": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "ExtendStageRequest": {
+        "type": "object",
+        "required": ["months"],
+        "properties": {
+          "months": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 0
           }
         }
       },
@@ -16040,6 +16984,21 @@
           }
         }
       },
+      "SaveCourseDesignerScheduleRequest": {
+        "type": "object",
+        "required": ["stages"],
+        "properties": {
+          "name": {
+            "type": ["string", "null"]
+          },
+          "stages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseDesignerScheduleStageInput"
+            }
+          }
+        }
+      },
       "SearchRequest": {
         "type": "object",
         "required": ["query"],
@@ -16292,6 +17251,20 @@
       "TimeGranularity": {
         "type": "string",
         "enum": ["Year", "Month", "Day"]
+      },
+      "UpdateCourseDesignerStageTaskRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "is_completed": {
+            "type": ["boolean", "null"]
+          },
+          "title": {
+            "type": ["string", "null"]
+          }
+        }
       },
       "UploadResult": {
         "type": "object",

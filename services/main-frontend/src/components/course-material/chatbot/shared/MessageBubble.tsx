@@ -42,8 +42,6 @@ export const renumberFilterCitations = (
 
   let uniqueCitations = Array.from(citedDocsSet)
 
-  uniqueCitations = uniqueCitations.filter((v) => actualCitationNs.includes(v))
-
   let filteredCitations: ChatbotConversationMessageCitation[] = []
   let citationNumberingMap = new Map()
   let citedPages = new Map()

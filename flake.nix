@@ -62,11 +62,12 @@
         '';
         starshipConfig = pkgs.writeText "starship.toml" ''
           add_newline = false
-          format = "$directory[ \\$ ](dimmed white)$git_branch$git_status[ \\$ ](dimmed white)$character"
+          format = "$directory $git_branch$git_status $character"
 
           [directory]
-          truncation_length = 3
-          truncation_symbol = "../"
+          truncation_length = 0
+          truncation_symbol = "» "
+          truncate_to_repo = true
 
           [git_branch]
           symbol = ""
@@ -266,6 +267,17 @@
               # Interactive TTY: exec fish. NO_PROJECT_FISH=1 skips.
               if [ -t 0 ] && [ -t 1 ] && [ -z "''${IN_PROJECT_FISH:-}" ] && [ -z "''${NO_PROJECT_FISH:-}" ]; then
                 export IN_PROJECT_FISH=1
+                ${pkgs.fish}/bin/fish -c '
+                  if not set -q __fish_initialized; or test $__fish_initialized -lt 4300
+                    if set -Uq fish_key_bindings
+                      set -g fish_key_bindings $fish_key_bindings
+                      set --erase --universal fish_key_bindings
+                    end
+                    set -U __fish_initialized 4300
+                  else if set -Uq fish_key_bindings
+                    set --erase --universal fish_key_bindings
+                  end
+                ' </dev/null 2>/dev/null || true
                 exec ${pkgs.fish}/bin/fish -C 'source ${fishDevConfig}'
               fi
             '';

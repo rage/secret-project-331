@@ -125,15 +125,15 @@ function makeInputSizeCss(s: SizeValues): string {
     padding: ${s.inputPaddingYRest} ${s.inputPaddingX} ${s.inputPaddingYRest};
     border-radius: ${s.borderRadius};
 
-    .${fieldControlCss}[data-floated="true"] & {
+    [data-field-control][data-floated="true"] & {
       padding-top: ${s.inputPaddingTopFloated};
       padding-bottom: ${s.inputPaddingBottomFloated};
     }
 
-    .${fieldControlCss}[data-has-icon-start="true"] & {
+    [data-field-control][data-has-icon-start="true"] & {
       padding-left: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
     }
-    .${fieldControlCss}[data-has-icon-end="true"] & {
+    [data-field-control][data-has-icon-end="true"] & {
       padding-right: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
     }
   `
@@ -147,7 +147,7 @@ const inputSizeStyles: Record<FieldSize, string> = {
 
 /** Returns the composed className for a single-line input element. */
 export function resolveInputCss(size: FieldSize): string {
-  return cx(inputBaseCss, inputSizeStyles[size])
+  return `${inputBaseCss} ${inputSizeStyles[size]}`
 }
 
 function makeTextareaSizeCss(s: SizeValues): string {
@@ -157,15 +157,15 @@ function makeTextareaSizeCss(s: SizeValues): string {
     border-radius: ${s.borderRadius};
     resize: vertical;
 
-    .${fieldControlCss}[data-floated="true"] & {
+    [data-field-control][data-floated="true"] & {
       padding-top: ${s.inputPaddingTopFloated};
       padding-bottom: ${s.inputPaddingBottomFloated};
     }
 
-    .${fieldControlCss}[data-has-icon-start="true"] & {
+    [data-field-control][data-has-icon-start="true"] & {
       padding-left: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
     }
-    .${fieldControlCss}[data-has-icon-end="true"] & {
+    [data-field-control][data-has-icon-end="true"] & {
       padding-right: calc(${s.inputPaddingX} + var(--field-icon-slot-width));
     }
   `
@@ -179,7 +179,7 @@ const textareaSizeStyles: Record<FieldSize, string> = {
 
 /** Returns the composed className for a textarea element. */
 export function resolveTextareaCss(size: FieldSize): string {
-  return cx(inputBaseCss, textareaSizeStyles[size])
+  return `${inputBaseCss} ${textareaSizeStyles[size]}`
 }
 
 /** Muted value text when nothing is selected or the selected option has an empty value. */
@@ -207,20 +207,20 @@ const selectTriggerBaseCss = css`
     padding-bottom ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING},
     box-shadow ${FIELD_MOTION_DURATION} ${FIELD_MOTION_EASING};
 
-  .${fieldControlCss}[data-focused="true"] & {
+  [data-field-control][data-focused="true"] & {
     box-shadow:
       inset 0 0 0 1px var(--field-border-focus),
       0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color),
       0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--focus-ring-color);
   }
 
-  .${fieldControlCss}[data-invalid="true"] & {
+  [data-field-control][data-invalid="true"] & {
     box-shadow:
       inset 0 0 0 1px var(--field-border-color-invalid),
       0 0 0 var(--focus-ring-offset) var(--focus-ring-offset-color);
   }
 
-  &:disabled .${selectTriggerValuePlaceholderCss} {
+  &:disabled [data-select-placeholder="true"] {
     color: var(--field-disabled-fg);
   }
 
@@ -235,13 +235,13 @@ function makeSelectTriggerSizeCss(s: SizeValues): string {
     padding: 0 ${s.inputPaddingX};
     border-radius: ${s.borderRadius};
 
-    .${fieldControlCss}[data-floated="false"] & {
+    [data-field-control][data-floated="false"] & {
       padding-top: ${s.inputPaddingYRest};
       padding-bottom: ${s.inputPaddingYRest};
       align-items: center;
     }
 
-    .${fieldControlCss}[data-floated="true"] & {
+    [data-field-control][data-floated="true"] & {
       padding-top: ${s.inputPaddingTopFloated};
       padding-bottom: ${s.inputPaddingBottomFloated};
     }
@@ -256,7 +256,7 @@ const selectTriggerSizeStyles: Record<FieldSize, string> = {
 
 /** Returns the composed className for a select trigger element. */
 export function resolveSelectTriggerCss(size: FieldSize): string {
-  return cx(selectTriggerBaseCss, selectTriggerSizeStyles[size])
+  return `${selectTriggerBaseCss} ${selectTriggerSizeStyles[size]}`
 }
 
 const labelBaseCss = css`
@@ -285,7 +285,7 @@ const labelBaseCss = css`
 
 function makeLabelSizeCss(s: SizeValues): string {
   return css`
-    .${fieldControlCss}[data-floated="false"] & {
+    [data-field-control][data-floated="false"] & {
       top: 50%;
       left: ${s.labelLeft};
       font-size: ${s.labelRestFontSize};
@@ -295,21 +295,7 @@ function makeLabelSizeCss(s: SizeValues): string {
       color: var(--field-label-color);
     }
 
-    .${fieldControlCss}[data-has-icon-start="true"][data-floated="false"] & {
-      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
-    }
-
-    .${fieldControlCss}[data-multiline="true"][data-floated="false"] & {
-      top: ${s.inputPaddingYRest};
-      transform: translateY(0) scale(1);
-      transform-origin: left top;
-    }
-
-    .${fieldControlCss}[data-has-icon-start="true"][data-multiline="true"][data-floated="false"] & {
-      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
-    }
-
-    .${fieldControlCss}[data-floated="true"] & {
+    [data-field-control][data-floated="true"] & {
       top: ${s.labelFloatTop};
       left: ${s.labelLeft};
       font-size: ${s.labelFloatFontSize};
@@ -318,25 +304,40 @@ function makeLabelSizeCss(s: SizeValues): string {
       opacity: 1;
     }
 
-    .${fieldControlCss}[data-has-icon-start="true"][data-floated="true"] & {
-      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
-    }
-
-    .${fieldControlCss}[data-floated="true"][data-focused="true"] & {
-      color: var(--field-label-color-focus);
-    }
-
-    .${fieldControlCss}[data-floated="true"]:not([data-focused="true"]) & {
-      color: var(--field-label-color);
-    }
-
-    .${fieldControlCss}[data-invalid="true"] & {
+    [data-field-control][data-invalid="true"] & {
       color: var(--field-label-color-invalid);
     }
 
-    .${fieldControlCss}[data-disabled="true"] & {
+    [data-field-control][data-disabled="true"] & {
       color: var(--field-disabled-fg);
       opacity: 0.85;
+    }
+
+    [data-field-control][data-has-icon-start="true"][data-floated="false"] & {
+      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
+    }
+
+    [data-field-control][data-multiline="true"][data-floated="false"] & {
+      top: ${s.inputPaddingYRest};
+      transform: translateY(0) scale(1);
+      transform-origin: left top;
+    }
+
+    [data-field-control][data-has-icon-start="true"][data-floated="true"] & {
+      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
+    }
+
+    [data-field-control][data-floated="true"][data-focused="true"] & {
+      color: var(--field-label-color-focus);
+    }
+
+    [data-field-control][data-floated="true"]:not([data-focused="true"]) & {
+      color: var(--field-label-color);
+    }
+
+    [data-field-control][data-has-icon-start="true"][data-multiline="true"][data-floated="false"]
+      & {
+      left: calc(${s.labelLeft} + var(--field-icon-slot-width));
     }
   `
 }
@@ -349,22 +350,22 @@ const labelSizeStyles: Record<FieldSize, string> = {
 
 /** Returns the composed className for the inset floating label on inputs and textareas. */
 export function resolveFieldLabelCss(size: FieldSize): string {
-  return cx(labelBaseCss, labelSizeStyles[size])
+  return `${labelBaseCss} ${labelSizeStyles[size]}`
 }
 
 const selectLabelChevronRoomCss = css`
-  .${fieldControlCss}[data-floated="false"] & {
+  [data-field-control][data-floated="false"] & {
     max-width: calc(100% - 2.75rem);
   }
 
-  .${fieldControlCss}[data-floated="true"] & {
+  [data-field-control][data-floated="true"] & {
     max-width: calc(100% - 2.5rem);
   }
 `
 
 /** Returns label className for select triggers (same inset pattern; extra room for chevron). */
 export function resolveSelectLabelCss(size: FieldSize): string {
-  return cx(labelBaseCss, labelSizeStyles[size], selectLabelChevronRoomCss)
+  return `${labelBaseCss} ${labelSizeStyles[size]} ${selectLabelChevronRoomCss}`
 }
 
 const iconSlotBaseCss = css`
@@ -463,11 +464,7 @@ const messageSizeStyles: Record<FieldSize, string> = {
 
 /** Returns the composed className for a description or error message element. */
 export function resolveMessageCss(size: FieldSize, isError: boolean): string {
-  return cx(
-    messageBaseCss,
-    messageSizeStyles[size],
-    isError ? messageErrorCss : messageDescriptionCss,
-  )
+  return `${messageBaseCss} ${messageSizeStyles[size]} ${isError ? messageErrorCss : messageDescriptionCss}`
 }
 
 /** Returns the size value object for a given FieldSize – useful for tests and
@@ -592,10 +589,10 @@ function makeFloatingInsetPaddingTopCss(s: SizeValues): string {
       transition: none;
     }
 
-    .${fieldControlCss}[data-floated="false"] & {
+    [data-field-control][data-floated="false"] & {
       padding-top: ${s.inputPaddingYRest};
     }
-    .${fieldControlCss}[data-floated="true"] & {
+    [data-field-control][data-floated="true"] & {
       padding-top: ${s.inputPaddingTopFloated};
     }
   `
@@ -604,7 +601,24 @@ function makeFloatingInsetPaddingTopCss(s: SizeValues): string {
 /** Combobox input: vertical padding follows inset label band via parent data-floated. */
 export function resolveComboBoxInputCss(fieldSize: FieldSize): string {
   const s = sizeValues[fieldSize]
-  return cx(inputResetCss, inputWithFloatingLabelCss, makeFloatingInsetPaddingTopCss(s))
+  const comboTriggerSlotWidth = "2.5rem"
+  const comboTopFloat = fieldSize === "md" ? "1.55rem" : s.inputPaddingTopFloated
+  const comboBottomFloat = fieldSize === "md" ? "0.45rem" : s.inputPaddingBottomFloated
+
+  return cx(
+    inputBaseCss,
+    css`
+      min-height: ${s.controlHeight};
+      border-radius: ${s.borderRadius};
+      padding: ${s.inputPaddingYRest} calc(${s.inputPaddingX} + ${comboTriggerSlotWidth})
+        ${s.inputPaddingYRest} ${s.inputPaddingX};
+
+      [data-field-control][data-floated="true"] & {
+        padding-top: ${comboTopFloat};
+        padding-bottom: ${comboBottomFloat};
+      }
+    `,
+  )
 }
 
 /** Segmented date/time field shell: same top padding as ComboBox; bottom padding from control surface. */

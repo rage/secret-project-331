@@ -41,6 +41,185 @@ fi
 echo ""
 
 DOMAIN="project-331.local"
+HOSTS_FILE="/etc/hosts"
+
+function confirm() {
+  local prompt="$1"
+  local answer
+
+  if [ ! -t 0 ]; then
+    return 1
+  fi
+
+  while true; do
+    read -r -p "$prompt [y/N] " answer
+    case "$answer" in
+      [Yy]|[Yy][Ee][Ss])
+        return 0
+        ;;
+      ""|[Nn]|[Nn][Oo])
+        return 1
+        ;;
+      *)
+        echo "Please answer yes or no."
+        ;;
+    esac
+  done
+}
+
+function run_as_root() {
+  if command -v pkexec &> /dev/null; then
+    if run_command pkexec "$@"; then
+      return 0
+    fi
+    echo "pkexec failed. Falling back to sudo."
+  fi
+
+  if command -v sudo &> /dev/null; then
+    run_command sudo "$@"
+  else
+    echo "Neither pkexec nor sudo is installed or in your \$PATH. Please update $HOSTS_FILE manually."
+    return 255
+  fi
+}
+
+function resolve_domain_ip() {
+  local domain="$1"
+  getent hosts "$domain" | awk '{ print $1; exit }'
+}
+
+function create_proposed_hosts_file() {
+  local domain="$1"
+  local ip="$2"
+  local proposed_hosts_file="$3"
+  local updated_hosts_file
+
+  updated_hosts_file=$(mktemp)
+  cp "$HOSTS_FILE" "$proposed_hosts_file"
+  awk -v domain="$domain" '
+    /^[[:space:]]*#/ || NF == 0 {
+      print
+      next
+    }
+    {
+      contains_domain = 0
+      comment_start = NF + 1
+      for (i = 1; i <= NF; i++) {
+        if ($i ~ /^#/) {
+          comment_start = i
+          break
+        }
+      }
+
+      output = $1
+      alias_count = 0
+      for (i = 2; i < comment_start; i++) {
+        if ($i == domain) {
+          contains_domain = 1
+        } else {
+          output = output "\t" $i
+          alias_count++
+        }
+      }
+      if (!contains_domain) {
+        print
+        next
+      }
+      if (alias_count > 0) {
+        if (comment_start <= NF) {
+          output = output "\t"
+          for (i = comment_start; i <= NF; i++) {
+            output = output (i == comment_start ? "" : " ") $i
+          }
+        }
+        print output
+      }
+    }
+  ' "$proposed_hosts_file" > "$updated_hosts_file"
+  printf "%s\t%s\n" "$ip" "$domain" >> "$updated_hosts_file"
+  mv "$updated_hosts_file" "$proposed_hosts_file"
+}
+
+function print_colored_diff() {
+  local line
+
+  while IFS= read -r line || [ -n "$line" ]; do
+    case "$line" in
+      +++*|---*)
+        printf "%s\n" "$line"
+        ;;
+      +*)
+        printf "%b%s%b\n" "$GREEN" "$line" "$RESET_EVERYTHING"
+        ;;
+      -*)
+        printf "%b%s%b\n" "$RED" "$line" "$RESET_EVERYTHING"
+        ;;
+      *)
+        printf "%s\n" "$line"
+        ;;
+    esac
+  done < "$1"
+}
+
+function ask_to_update_hosts() {
+  local domain="$1"
+  local ip="$2"
+  local proposed_hosts_file
+  local patch_file
+  local patch_command
+  local diff_status
+
+  if [ ! -t 0 ]; then
+    echo "Cannot ask to update $HOSTS_FILE automatically because stdin is not interactive."
+    echo "Please update $HOSTS_FILE manually."
+    return 255
+  fi
+
+  ensure_program_in_path diff
+  ensure_program_in_path patch
+
+  proposed_hosts_file=$(mktemp)
+  patch_file=$(mktemp)
+  create_proposed_hosts_file "$domain" "$ip" "$proposed_hosts_file"
+
+  if diff -u -L "$HOSTS_FILE" -L "$HOSTS_FILE (updated)" "$HOSTS_FILE" "$proposed_hosts_file" > "$patch_file"; then
+    diff_status=0
+  else
+    diff_status=$?
+  fi
+  rm -f "$proposed_hosts_file"
+
+  if [ "$diff_status" -gt 1 ]; then
+    rm -f "$patch_file"
+    echo "Failed to create a diff for $HOSTS_FILE. Please update it manually."
+    return 255
+  fi
+
+  if [ "$diff_status" -eq 0 ]; then
+    rm -f "$patch_file"
+    echo "$HOSTS_FILE already contains the expected entry."
+    return 0
+  fi
+
+  echo "Proposed change to $HOSTS_FILE:"
+  print_colored_diff "$patch_file"
+  echo ""
+
+  if confirm "Apply this change to $HOSTS_FILE?"; then
+    patch_command=$(command -v patch)
+    if ! run_as_root "$patch_command" --batch --forward "$HOSTS_FILE" "$patch_file"; then
+      rm -f "$patch_file"
+      return 255
+    fi
+    rm -f "$patch_file"
+    echo "Updated $HOSTS_FILE."
+    echo ""
+  else
+    rm -f "$patch_file"
+    echo "Please update $HOSTS_FILE manually."
+    return 255
+  fi
+}
 
 ensure_program_in_path minikube
 ensure_program_in_path getent
@@ -55,24 +234,39 @@ fi
 
 echo ""
 
-if ! getent hosts "$DOMAIN" > /dev/null; then
-    echo "Error: cannot resolve an ip for $DOMAIN. Please update your /etc/hosts according to the documentation."
-    exit 255
-fi
-
-
-PROJECT_DOMAIN_IP=$(getent hosts "$DOMAIN" | awk '{ print $1 }')
-echo "Resolved ip for $DOMAIN: $PROJECT_DOMAIN_IP"
-
 MINIKUBE_IP=$(minikube ip)
 echo "Minikube ip: $MINIKUBE_IP"
+
+if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
+  echo "Error: cannot resolve an ip for $DOMAIN."
+  ask_to_update_hosts "$DOMAIN" "$MINIKUBE_IP"
+fi
+
+if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
+  echo "Error: still cannot resolve an ip for $DOMAIN. Please check $HOSTS_FILE manually."
+  exit 255
+fi
+echo "Resolved ip for $DOMAIN: $PROJECT_DOMAIN_IP"
 
 if [ "$PROJECT_DOMAIN_IP" = "$MINIKUBE_IP" ]; then
   echo "The ips match."
   echo ""
 else
- echo "The ips don't match. Please update your /etc/hosts"
- exit 255
+  echo "The ips don't match."
+  ask_to_update_hosts "$DOMAIN" "$MINIKUBE_IP"
+
+  if ! PROJECT_DOMAIN_IP=$(resolve_domain_ip "$DOMAIN"); then
+    echo "Error: cannot resolve an ip for $DOMAIN after updating $HOSTS_FILE. Please check it manually."
+    exit 255
+  fi
+  echo "Resolved ip for $DOMAIN after updating $HOSTS_FILE: $PROJECT_DOMAIN_IP"
+
+  if [ "$PROJECT_DOMAIN_IP" != "$MINIKUBE_IP" ]; then
+    echo "The ips still don't match. Please check $HOSTS_FILE manually."
+    exit 255
+  fi
+  echo "The ips match."
+  echo ""
 fi
 
 echo "Checking if the ingress works"

@@ -25,6 +25,7 @@
     "@fontsource/raleway": "^5.2.8",
     "@fontsource/roboto-mono": "^5.2.8",
     "@fontsource/space-mono": "^5.2.9",
+    "@internationalized/date": "^3.12.0",
     "@json2csv/plainjs": "^7.0.6",
     "@monaco-editor/react": "^4.7.0",
     "@next/bundle-analyzer": "16.2.4",

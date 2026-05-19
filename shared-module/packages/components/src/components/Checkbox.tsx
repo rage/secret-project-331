@@ -2,10 +2,13 @@
 
 import { cx } from "@emotion/css"
 import { useToggleState } from "@react-stately/toggle"
-import React, { useEffect, useId } from "react"
-import { mergeProps, useCheckbox, useFocusRing, useObjectRef } from "react-aria"
+import React, { useEffect, useId, useRef } from "react"
+import { mergeProps, useCheckbox, useFocusRing } from "react-aria"
+import type { FieldValues, Path } from "react-hook-form"
 
-import { resolveFieldDescribedBy, resolveFieldState } from "../lib/utils/field"
+import { type RhfFieldProps, useRhfField } from "../lib/types/rhfField"
+import { composeRefs } from "../lib/utils/compositeField"
+import { resolveFieldDescribedBy } from "../lib/utils/field"
 
 import { FieldShell } from "./primitives/FieldShell"
 import {
@@ -23,14 +26,20 @@ import {
 } from "./primitives/checkableStyles"
 import type { FieldSize } from "./primitives/fieldStyles"
 
+// eslint-disable-next-line i18next/no-literal-string
+const stackedLayout = "stacked" as const
+
 /**
- * Props for {@link Checkbox}. The input always renders as `type="checkbox"`.
- * Use `checked` with `onChange` for controlled usage; use `defaultChecked` for
- * uncontrolled initial state. `isIndeterminate` is visual-only and does not
- * change the checked boolean unless you also update `checked`/`onChange`; it
- * is intended to be driven by the parent.
+ * Accessible checkbox with label and optional description or error text.
+ * Uses react-hook-form; pass `name` and `control`. Field value is boolean.
+ *
+ * @example
+ * <Checkbox name="terms" control={control} label="I agree" />
  */
-export type CheckboxProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"> & {
+export type CheckboxProps<T extends FieldValues, N extends Path<T> = Path<T>> = RhfFieldProps<
+  T,
+  N
+> & {
   label: React.ReactNode
   description?: React.ReactNode
   errorMessage?: React.ReactNode
@@ -38,158 +47,154 @@ export type CheckboxProps = Omit<React.ComponentPropsWithoutRef<"input">, "type"
   isDisabled?: boolean
   isReadOnly?: boolean
   isRequired?: boolean
-  isInvalid?: boolean
   isIndeterminate?: boolean
+  id?: string
+  /** Optional `value` attribute on the native checkbox (not the form field value). */
+  checkboxValue?: string | number | readonly string[]
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
+  onKeyUp?: React.KeyboardEventHandler<HTMLInputElement>
+  "aria-label"?: string
+  className?: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
-const stackedLayout = "stacked" as const
+export function Checkbox<T extends FieldValues, N extends Path<T> = Path<T>>(
+  props: CheckboxProps<T, N>,
+) {
+  const {
+    name,
+    control,
+    rules,
+    id,
+    label,
+    description,
+    errorMessage,
+    fieldSize = "md",
+    isDisabled = false,
+    isReadOnly = false,
+    isRequired = false,
+    isIndeterminate = false,
+    className,
+    checkboxValue,
+    onKeyDown,
+    onKeyUp,
+    "aria-label": ariaLabel,
+  } = props
 
-/**
- * Accessible checkbox with label and optional description or error text.
- * See {@link CheckboxProps} for controlled vs uncontrolled and indeterminate behavior.
- */
-export const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
-  function Checkbox(props, forwardedRef) {
-    const {
-      id,
-      label,
-      description,
-      errorMessage,
-      fieldSize = "md",
+  const { field, resolvedError, isInvalid } = useRhfField({ name, control, rules, errorMessage })
+  const selected = Boolean(field.value)
+
+  const generatedInputId = useId()
+  const inputId = id ?? generatedInputId
+  const descriptionId = useId()
+  const errorMessageId = useId()
+  const describedBy = resolveFieldDescribedBy({
+    ariaDescribedBy: undefined,
+    descriptionId,
+    errorMessageId,
+    hasDescription: Boolean(description),
+    hasErrorMessage: Boolean(resolvedError),
+  })
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const toggleState = useToggleState({
+    isDisabled,
+    isReadOnly,
+    isSelected: selected,
+    onChange: (next) => {
+      field.onChange(next)
+    },
+  })
+
+  const inputValue =
+    checkboxValue == null
+      ? undefined
+      : Array.isArray(checkboxValue)
+        ? checkboxValue.join(",")
+        : String(checkboxValue)
+
+  const { inputProps, isSelected, labelProps } = useCheckbox(
+    {
+      children: label,
+      id: inputId,
+      name: field.name,
+      value: inputValue,
       isDisabled,
       isReadOnly,
       isRequired,
       isInvalid,
-      isIndeterminate = false,
-      className,
-      checked,
-      defaultChecked,
-      disabled,
-      readOnly,
-      required,
-      onChange,
-      onKeyDown,
-      onKeyUp,
-      onFocus,
-      onBlur,
-      name,
-      value,
-      "aria-describedby": ariaDescribedBy,
-      "aria-invalid": ariaInvalid,
-      ...rest
-    } = props
+      isIndeterminate,
+      "aria-label": ariaLabel,
+      "aria-describedby": describedBy,
+    },
+    toggleState,
+    inputRef,
+  )
 
-    const generatedInputId = useId()
-    const inputId = id ?? generatedInputId
-    const descriptionId = useId()
-    const errorMessageId = useId()
-    const resolvedState = resolveFieldState({
-      disabled,
-      readOnly,
-      required,
-      isDisabled,
-      isReadOnly,
-      isRequired,
-      isInvalid,
-      ariaInvalid,
-      errorMessage,
-    })
-    const describedBy = resolveFieldDescribedBy({
-      ariaDescribedBy,
-      descriptionId,
-      errorMessageId,
-      hasDescription: Boolean(description),
-      hasErrorMessage: Boolean(errorMessage),
-    })
+  const { focusProps, isFocusVisible } = useFocusRing()
 
-    const inputRef = useObjectRef(forwardedRef)
-    const toggleState = useToggleState({
-      isDisabled: resolvedState.isDisabled,
-      isReadOnly: resolvedState.isReadOnly,
-      isSelected: checked,
-      defaultSelected: defaultChecked,
-    })
-    const inputValue =
-      value == null ? undefined : Array.isArray(value) ? value.join(",") : String(value)
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.indeterminate = isIndeterminate
+    }
+  }, [isIndeterminate])
 
-    const { inputProps, isSelected, labelProps } = useCheckbox(
-      {
-        children: label,
-        id: inputId,
-        name,
-        value: inputValue,
-        isDisabled: resolvedState.isDisabled,
-        isReadOnly: resolvedState.isReadOnly,
-        isRequired: resolvedState.isRequired,
-        isInvalid: resolvedState.isInvalid,
-        isIndeterminate,
-        "aria-describedby": describedBy,
-      },
-      toggleState,
-      inputRef,
-    )
+  const mergedInputProps = mergeProps(inputProps, focusProps, {
+    onKeyDown,
+    onKeyUp,
+    onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+      inputProps.onBlur?.(e)
+      field.onBlur()
+    },
+  })
 
-    const { focusProps, isFocusVisible } = useFocusRing()
-
-    useEffect(() => {
-      if (inputRef.current) {
-        inputRef.current.indeterminate = isIndeterminate
-      }
-    }, [inputRef, isIndeterminate])
-
-    const mergedInputProps = mergeProps(inputProps, focusProps, {
-      ...rest,
-      onBlur,
-      onFocus,
-      onKeyDown,
-      onKeyUp,
-      ...(resolvedState.isReadOnly ? {} : { onChange }),
-    })
-
-    const showCheck = isSelected && !isIndeterminate
-
-    return (
-      <FieldShell
-        className={cx(checkableRootCss, className)}
-        description={description}
-        descriptionId={description ? descriptionId : undefined}
-        errorMessage={errorMessage}
-        errorMessageId={errorMessage ? errorMessageId : undefined}
-        layout={stackedLayout}
+  return (
+    <FieldShell
+      className={cx(checkableRootCss, className)}
+      description={description}
+      descriptionId={description ? descriptionId : undefined}
+      errorMessage={resolvedError}
+      errorMessageId={resolvedError ? errorMessageId : undefined}
+      layout={stackedLayout}
+    >
+      <label
+        {...labelProps}
+        className={cx(checkableRowCss, resolveCheckableSizeCss(fieldSize))}
+        data-disabled={isDisabled ? "true" : "false"}
       >
-        <label
-          {...labelProps}
-          className={cx(checkableRowCss, resolveCheckableSizeCss(fieldSize))}
-          data-disabled={resolvedState.isDisabled ? "true" : "false"}
+        <input
+          {...mergedInputProps}
+          ref={composeRefs(inputRef, field.ref)}
+          className={checkableInputCss}
+          type="checkbox"
+        />
+        <span
+          className={resolveChoiceIndicatorCss(fieldSize, "checkbox")}
+          aria-hidden="true"
+          data-disabled={isDisabled ? "true" : "false"}
+          data-focus-visible={isFocusVisible ? "true" : "false"}
+          data-indeterminate={isIndeterminate ? "true" : "false"}
+          data-invalid={isInvalid ? "true" : "false"}
+          data-selected={isSelected ? "true" : "false"}
         >
-          <input
-            {...mergedInputProps}
-            ref={inputRef}
-            className={checkableInputCss}
-            type="checkbox"
+          <span
+            className={cx(
+              choiceMarkCss,
+              checkboxMarkCss,
+              isSelected && !isIndeterminate && choiceMarkVisibleCss,
+            )}
           />
           <span
-            className={resolveChoiceIndicatorCss(fieldSize, "checkbox")}
-            aria-hidden="true"
-            data-disabled={resolvedState.isDisabled ? "true" : "false"}
-            data-focus-visible={isFocusVisible ? "true" : "false"}
-            data-indeterminate={isIndeterminate ? "true" : "false"}
-            data-invalid={resolvedState.isInvalid ? "true" : "false"}
-            data-selected={isSelected ? "true" : "false"}
-          >
-            {showCheck ? (
-              <span className={cx(choiceMarkCss, choiceMarkVisibleCss, checkboxMarkCss)} />
-            ) : null}
-            {isIndeterminate ? (
-              <span className={cx(choiceMarkCss, choiceMarkVisibleCss, indeterminateMarkCss)} />
-            ) : null}
-          </span>
-          <span className={checkableContentCss}>
-            <span className={checkableLabelCss}>{label}</span>
-          </span>
-        </label>
-      </FieldShell>
-    )
-  },
-)
+            className={cx(
+              choiceMarkCss,
+              indeterminateMarkCss,
+              isIndeterminate && choiceMarkVisibleCss,
+            )}
+          />
+        </span>
+        <span className={checkableContentCss}>
+          <span className={checkableLabelCss}>{label}</span>
+        </span>
+      </label>
+    </FieldShell>
+  )
+}

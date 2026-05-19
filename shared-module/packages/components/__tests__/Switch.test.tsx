@@ -1,53 +1,38 @@
 "use client"
 
 import { fireEvent, screen } from "@testing-library/react"
+import type React from "react"
 
 import { Switch } from "../src/components/Switch"
 
-import { pressSpace, renderUi } from "./testUtils"
+import { pressSpace, renderBooleanField, renderWithForm } from "./testUtils"
 
 describe("Switch", () => {
   test("exposes the switch role and accessible name", () => {
-    renderUi(<Switch label="Enable alerts" />)
+    renderBooleanField((control) => <Switch name="f" control={control} label="Enable alerts" />)
 
     expect(screen.getByRole("switch", { name: "Enable alerts" })).toBeInTheDocument()
   })
 
-  test("supports uncontrolled state changes", () => {
-    renderUi(<Switch label="Share profile" defaultChecked />)
+  test("updates RHF value on click", () => {
+    const { getValues } = renderBooleanField((control) => (
+      <Switch name="f" control={control} label="Share profile" />
+    ))
 
     const input = screen.getByRole("switch", { name: "Share profile" })
-    expect(input).toBeChecked()
-
     fireEvent.click(input)
-    expect(input).not.toBeChecked()
-  })
-
-  test("fires onChange in controlled mode", () => {
-    const onChange = jest.fn()
-
-    const { rerender } = renderUi(
-      <Switch label="Beta access" checked={false} onChange={onChange} />,
-    )
-    const input = screen.getByRole("switch", { name: "Beta access" })
-
-    fireEvent.click(input)
-    expect(onChange).toHaveBeenCalledTimes(1)
-    expect(input).not.toBeChecked()
-
-    rerender(<Switch label="Beta access" checked onChange={onChange} />)
-    expect(screen.getByRole("switch", { name: "Beta access" })).toBeChecked()
+    expect(getValues().f).toBe(true)
   })
 
   test("supports keyboard space toggling", () => {
-    renderUi(<Switch label="Keyboard" />)
+    renderBooleanField((control) => <Switch name="f" control={control} label="Keyboard" />)
     const input = screen.getByRole("switch", { name: "Keyboard" })
     pressSpace(input)
     expect(input).toBeChecked()
   })
 
   test("keeps native click state in sync after a keyboard toggle", () => {
-    renderUi(<Switch label="Sync switch" />)
+    renderBooleanField((control) => <Switch name="f" control={control} label="Sync switch" />)
     const input = screen.getByRole("switch", { name: "Sync switch" })
 
     pressSpace(input)
@@ -58,31 +43,54 @@ describe("Switch", () => {
   })
 
   test("honors readOnly disabled invalid and required", () => {
-    renderUi(
-      <>
-        <Switch label="Read only" defaultChecked readOnly />
-        <Switch label="Disabled" disabled />
-        <Switch label="Invalid" errorMessage="This is invalid" required />
-      </>,
+    const { getValues } = renderWithForm<{ ro: boolean; d: boolean; i: boolean }>(
+      (control) => (
+        <>
+          <Switch name="ro" control={control} label="Read only" isReadOnly />
+          <Switch name="d" control={control} label="Disabled" isDisabled />
+          <Switch
+            name="i"
+            control={control}
+            label="Invalid"
+            errorMessage="This is invalid"
+            isRequired
+          />
+        </>
+      ),
+      { defaultValues: { ro: false, d: false, i: false } },
     )
 
     const readOnlySwitch = screen.getByRole("switch", { name: "Read only" })
     fireEvent.click(readOnlySwitch)
-    expect(readOnlySwitch).toBeChecked()
+    expect(getValues().ro).toBe(false)
 
     expect(screen.getByRole("switch", { name: "Disabled" })).toBeDisabled()
     expect(screen.getByRole("switch", { name: "Invalid" })).toHaveAttribute("aria-invalid", "true")
     expect(screen.getByRole("switch", { name: "Invalid" })).toBeRequired()
   })
 
-  test("forwards ref and keeps className on root", () => {
-    const ref = { current: null as HTMLInputElement | null }
-    renderUi(<Switch ref={ref} label="Ref switch" className="switch-root" />)
+  test("keeps className on root", () => {
+    renderBooleanField((control) => (
+      <Switch name="f" control={control} label="Class switch" className="switch-root" />
+    ))
+    expect(document.querySelector(".switch-root")).toBeInTheDocument()
+  })
 
-    expect(ref.current).toBeInstanceOf(HTMLInputElement)
-    const root = ref.current?.closest(".switch-root")
-    expect(root).not.toBeNull()
-    expect(root).toBeInstanceOf(HTMLDivElement)
-    expect(root?.className).toEqual(expect.stringContaining("switch-root"))
+  test("ignores runtime type overrides", () => {
+    const SwitchWithRuntimeTypeOverride = Switch as unknown as React.ComponentType<{
+      name: string
+      control: unknown
+      label: string
+      type: string
+    }>
+
+    renderBooleanField((control) => (
+      <SwitchWithRuntimeTypeOverride name="f" control={control} label="Type override" type="text" />
+    ))
+
+    expect(screen.getByRole("switch", { name: "Type override" })).toHaveAttribute(
+      "type",
+      "checkbox",
+    )
   })
 })

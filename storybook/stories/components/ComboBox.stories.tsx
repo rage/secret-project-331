@@ -42,6 +42,8 @@ function ControlledComboBoxStory() {
 
   return (
     <ComboBox
+      getItemKey={(item) => item.id}
+      getItemTextValue={(item) => item.label}
       label="Controlled"
       items={items}
       selectedKey={selectedKey}
@@ -54,7 +56,12 @@ function ControlledComboBoxStory() {
 
 export const Playground = {
   render: () => (
-    <ComboBox label="Project" items={items}>
+    <ComboBox
+      getItemKey={(item) => item.id}
+      getItemTextValue={(item) => item.label}
+      label="Project"
+      items={items}
+    >
       {(item) => item.label}
     </ComboBox>
   ),
@@ -63,13 +70,30 @@ export const Playground = {
 export const States = {
   render: () => (
     <div className={stackCss}>
-      <ComboBox label="Default" items={items}>
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Default"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>
-      <ComboBox label="Custom value" items={items} allowsCustomValue>
+      <ComboBox
+        allowsCustomValue
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Custom value"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>
-      <ComboBox label="Invalid" items={items} errorMessage="Selection required">
+      <ComboBox
+        errorMessage="Selection required"
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Invalid"
+        items={items}
+      >
         {(item) => item.label}
       </ComboBox>
     </div>
@@ -83,7 +107,12 @@ export const Controlled = {
 export const LongOptions = {
   render: () => (
     <div className={stackCss}>
-      <ComboBox label="Project" items={longOptionItems}>
+      <ComboBox
+        getItemKey={(item) => item.id}
+        getItemTextValue={(item) => item.label}
+        label="Project"
+        items={longOptionItems}
+      >
         {(item) => item.label}
       </ComboBox>
     </div>

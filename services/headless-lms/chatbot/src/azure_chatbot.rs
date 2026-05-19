@@ -291,7 +291,7 @@ pub struct LLMRequestResponseFormatParam {
 pub struct LLMRequest {
     pub input: Vec<APIInputMessage>,
     pub model: String,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub tools: Vec<AzureLLMToolDefinition>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tool_choice: Option<LLMToolChoice>,

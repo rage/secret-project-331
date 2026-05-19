@@ -33,33 +33,6 @@
           pkgs.openssl.dev
           pkgs.zlib.dev
         ];
-        fishDevConfig = pkgs.writeText "fish-dev-config.fish" ''
-          function fish_greeting
-            echo (set_color cyan)"  Secret Project 331"(set_color normal) (set_color brblack)"— development shell"(set_color normal)
-            echo ""
-            echo (set_color yellow)"  Aliases"(set_color normal)
-            echo (set_color brblack)"    c     "(set_color normal)"clear the screen"
-            echo (set_color brblack)"    gits  "(set_color normal)"short git status"
-            ${lib.optionalString pkgs.stdenv.isLinux ''
-              echo (set_color brblack)"    open  "(set_color normal)"open a file or URL"
-            ''}
-            echo ""
-            echo (set_color yellow)"  bin/"(set_color normal)
-            echo (set_color brblack)"    dev                       "(set_color normal)"local dev stack (skaffold dev)"
-            echo (set_color brblack)"    test                      "(set_color normal)"production build + deploy to minikube"
-            echo (set_color brblack)"    git-merge-origin-master   "(set_color normal)"fetch and merge origin/master"
-            echo (set_color brblack)"    sqlx-database-reset       "(set_color normal)"reset minikube DB and re-run migrations"
-            echo (set_color brblack)"    system-tests-run-tests    "(set_color normal)"run Playwright system tests"
-            echo (set_color brblack)"    pods                      "(set_color normal)"watch cluster pods"
-            echo (set_color brblack)"    psql                      "(set_color normal)"psql into local dev database"
-            echo ""
-          end
-
-          starship init fish | source
-          abbr -a -- c clear
-          abbr -a -- gits "git status -sb"
-          ${lib.optionalString pkgs.stdenv.isLinux "abbr -a -- open xdg-open"}
-        '';
         starshipConfig = pkgs.writeText "starship.toml" ''
           add_newline = false
           format = "$directory $git_branch$git_status $character"
@@ -263,28 +236,11 @@
               if [ -z "''${RUSTFLAGS:-}" ] && command -v mold >/dev/null 2>&1; then
                 export RUSTFLAGS="-C link-arg=-fuse-ld=mold"
               fi
-
-              # Interactive TTY: exec fish. NO_PROJECT_FISH=1 skips.
-              if [ -t 0 ] && [ -t 1 ] && [ -z "''${IN_PROJECT_FISH:-}" ] && [ -z "''${NO_PROJECT_FISH:-}" ]; then
-                export IN_PROJECT_FISH=1
-                ${pkgs.fish}/bin/fish -c '
-                  if not set -q __fish_initialized; or test $__fish_initialized -lt 4300
-                    if set -Uq fish_key_bindings
-                      set -g fish_key_bindings $fish_key_bindings
-                      set --erase --universal fish_key_bindings
-                    end
-                    set -U __fish_initialized 4300
-                  else if set -Uq fish_key_bindings
-                    set --erase --universal fish_key_bindings
-                  end
-                ' </dev/null 2>/dev/null || true
-                exec ${pkgs.fish}/bin/fish -C 'source ${fishDevConfig}'
-              fi
             '';
           }
-          // lib.optionalAttrs pkgs.stdenv.isLinux {
-            KIND_EXPERIMENTAL_PROVIDER = "podman";
-          }
+          # // lib.optionalAttrs pkgs.stdenv.isLinux {
+          #   KIND_EXPERIMENTAL_PROVIDER = "podman";
+          # }
         );
       }
     );

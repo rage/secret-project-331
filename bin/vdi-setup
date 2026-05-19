@@ -150,6 +150,41 @@ sudo -u "$original_user" env HOME="/data/$original_user" fish -c \
 
 echo "Fish setup complete"
 
+fish_conf_dir="/data/$original_user/.config/fish/conf.d"
+mkdir -p "$fish_conf_dir"
+
+cat > "$fish_conf_dir/secret-project-331.fish" <<'FISH'
+# Managed by bin/vdi-setup — Secret Project 331 dev shell UX
+set -l __sp331_root "$HOME/Code/secret-project-331"
+
+function fish_greeting
+    if not string match -q -- "$__sp331_root*" (pwd)
+        return
+    end
+    echo (set_color yellow)"  Aliases"(set_color normal)
+    echo (set_color brblack)"    c     "(set_color normal)"clear the screen"
+    echo (set_color brblack)"    gits  "(set_color normal)"short git status"
+    echo (set_color brblack)"    open  "(set_color normal)"open a file or URL"
+    echo ""
+    echo (set_color yellow)"  bin/"(set_color normal)
+    echo (set_color brblack)"    dev                       "(set_color normal)"local dev stack (skaffold dev)"
+    echo (set_color brblack)"    test                      "(set_color normal)"production build + deploy to minikube"
+    echo (set_color brblack)"    git-merge-origin-master   "(set_color normal)"fetch and merge origin/master"
+    echo (set_color brblack)"    sqlx-database-reset       "(set_color normal)"reset minikube DB and re-run migrations"
+    echo (set_color brblack)"    system-tests-run-tests    "(set_color normal)"run Playwright system tests"
+    echo (set_color brblack)"    pods                      "(set_color normal)"watch cluster pods"
+    echo (set_color brblack)"    psql                      "(set_color normal)"psql into local dev database"
+    echo ""
+end
+
+abbr -a -- c clear
+abbr -a -- gits "git status -sb"
+abbr -a -- open xdg-open
+FISH
+
+chown "$original_user:$original_user" "$fish_conf_dir/secret-project-331.fish"
+echo "Installed fish aliases for secret-project-331"
+
 # Configure Docker data dir to /data/$original_user/docker
 systemctl stop docker
 

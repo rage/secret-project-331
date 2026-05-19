@@ -19,7 +19,7 @@ async fn mock_document_storage(
             &(CourseMaterialDocument {
                 chunk_id: "1".to_string(),
                 title: "Cited course page".to_string(),
-                url: base_url,
+                url: format!("{base_url}/1"),
                 filepath: "document1".to_string(),
                 chunk: "Mock test page content\n This is test content blah".to_string(),
             }),
@@ -28,7 +28,7 @@ async fn mock_document_storage(
             &(CourseMaterialDocument {
                 chunk_id: "2".to_string(),
                 title: "Cited course page 2".to_string(),
-                url: base_url,
+                url: format!("{base_url}/2"),
                 filepath: "document2".to_string(),
                 chunk: "Mock test page content 2\n This is another test page.".to_string(),
             }),
@@ -37,7 +37,7 @@ async fn mock_document_storage(
             &(CourseMaterialDocument {
                 chunk_id: "3".to_string(),
                 title: "Cited course page".to_string(),
-                url: base_url,
+                url: format!("{base_url}/3"),
                 filepath: "document3".to_string(),
                 chunk: DOCUMENT_3.to_string(),
             }),

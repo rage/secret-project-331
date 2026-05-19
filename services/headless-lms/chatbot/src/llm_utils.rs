@@ -136,7 +136,7 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                 ToolKind::AzureAiSearch => APIInputMessage {
                     message_type: InputItem::FunctionCallOutput {
                         call_id: tool_output.tool_call_id,
-                        output: serde_json::from_str(&tool_output.output)?,
+                        output: tool_output.output,
                     },
                 },
             },

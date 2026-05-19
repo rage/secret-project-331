@@ -911,7 +911,6 @@ pub async fn parse_and_stream_to_user<'a>(
                 "response.completed" | "response.incomplete" => {response_received = true;},
                 "response.output_text.delta" => {
                     // streaming
-                    continue;
                 },
                 "response.function_call_arguments.delta" => error!("ERROR, function call received but can't be processed while streaming to user."),
                 // todo: react corectly
@@ -1024,6 +1023,7 @@ pub async fn send_chat_request_and_parse_stream(
                 parse_tool(conn, stream, conversation_id, &user_context, app_config).await?
             }
             ResponseStreamType::TextResponse(stream) => {
+                println!("STREAMING TO USER");
                 return parse_and_stream_to_user(
                     conn,
                     stream,

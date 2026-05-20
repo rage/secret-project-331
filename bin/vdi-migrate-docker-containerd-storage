@@ -1,0 +1,323 @@
+#!/bin/bash
+set -Eeuo pipefail
+
+original_user=""
+tmpdir=""
+moved_dirs=()
+backup_suffix=""
+
+usage() {
+  cat <<'END'
+Usage:
+  bin/vdi-migrate-docker-containerd-storage [--user USER]
+
+Migrates an existing MOOC VDI to keep Docker and containerd storage under:
+
+  /data/USER/docker/docker-root
+  /data/USER/docker/containerd
+
+The script shows diffs for the system config files before applying anything.
+It then stops Docker/containerd, moves old Docker/containerd data aside, writes
+the new configs, restarts services, verifies Docker, and asks whether to delete
+the moved-aside data.
+
+Run as root, for example:
+
+  pkexec bin/vdi-migrate-docker-containerd-storage
+END
+}
+
+cleanup() {
+  if [ -n "$tmpdir" ] && [ -d "$tmpdir" ]; then
+    rm -rf "$tmpdir"
+  fi
+}
+
+on_error() {
+  local line="$1"
+  local status="$2"
+
+  echo
+  echo "ERROR: migration failed at line $line with exit status $status."
+  if [ -n "$backup_suffix" ]; then
+    echo "Config backups, if any were created, use suffix: .bak-$backup_suffix"
+  fi
+  if [ "${#moved_dirs[@]}" -gt 0 ]; then
+    echo "Moved-aside data was left in place:"
+    printf '  %s\n' "${moved_dirs[@]}"
+  fi
+  exit "$status"
+}
+
+trap cleanup EXIT
+trap 'on_error "$LINENO" "$?"' ERR
+
+confirm() {
+  local prompt="$1"
+  local answer
+
+  if [ ! -t 0 ]; then
+    echo "ERROR: confirmation requires an interactive terminal."
+    return 1
+  fi
+
+  while true; do
+    read -r -p "$prompt [y/N] " answer
+    case "$answer" in
+      [Yy]|[Yy][Ee][Ss])
+        return 0
+        ;;
+      ""|[Nn]|[Nn][Oo])
+        return 1
+        ;;
+      *)
+        echo "Please answer yes or no."
+        ;;
+    esac
+  done
+}
+
+detect_original_user() {
+  if [ -n "$original_user" ]; then
+    return
+  fi
+
+  if [ -n "${SUDO_USER:-}" ] && [ "$SUDO_USER" != "root" ]; then
+    original_user="$SUDO_USER"
+    return
+  fi
+
+  original_user="$(logname 2>/dev/null || true)"
+  if [ -n "$original_user" ] && [ "$original_user" != "root" ]; then
+    return
+  fi
+
+  echo "ERROR: could not detect the VDI user. Re-run with --user USER."
+  exit 1
+}
+
+show_file_diff() {
+  local current_file="$1"
+  local proposed_file="$2"
+  local title="$3"
+
+  echo
+  echo "=== $title ==="
+  if [ -e "$current_file" ]; then
+    if diff -u \
+      --label "$current_file (current)" \
+      --label "$current_file (proposed)" \
+      "$current_file" \
+      "$proposed_file"; then
+      echo "No changes."
+    fi
+  else
+    diff -u \
+      --label "$current_file (missing)" \
+      --label "$current_file (proposed)" \
+      /dev/null \
+      "$proposed_file" || true
+  fi
+}
+
+backup_file() {
+  local path="$1"
+
+  if [ -e "$path" ]; then
+    cp -a "$path" "$path.bak-$backup_suffix"
+    echo "Backed up $path -> $path.bak-$backup_suffix"
+  fi
+}
+
+move_aside() {
+  local source="$1"
+  local destination
+  local index
+
+  if [ ! -e "$source" ]; then
+    return
+  fi
+
+  destination="$source.old-$backup_suffix"
+  index=1
+  while [ -e "$destination" ]; do
+    destination="$source.old-$backup_suffix-$index"
+    index=$((index + 1))
+  done
+
+  mv "$source" "$destination"
+  moved_dirs+=("$destination")
+  echo "Moved $source -> $destination"
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --user)
+      if [ "$#" -lt 2 ]; then
+        echo "ERROR: --user requires a value."
+        exit 1
+      fi
+      original_user="$2"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "ERROR: unknown argument: $1"
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+if [ "$EUID" -ne 0 ]; then
+  echo "ERROR: this migration must run as root. Try:"
+  echo "  pkexec $0"
+  exit 1
+fi
+
+command -v diff >/dev/null
+command -v docker >/dev/null
+command -v systemctl >/dev/null
+
+if [ ! -d /data ]; then
+  echo "ERROR: /data does not exist. This does not look like a configured VDI."
+  exit 1
+fi
+
+detect_original_user
+
+data_home="/data/$original_user"
+docker_base="$data_home/docker"
+docker_root="$docker_base/docker-root"
+containerd_root="$docker_base/containerd"
+
+if [ ! -d "$data_home" ]; then
+  echo "ERROR: $data_home does not exist. Re-run with the correct --user USER."
+  exit 1
+fi
+
+tmpdir="$(mktemp -d)"
+backup_suffix="$(date +%Y%m%d-%H%M%S)"
+
+docker_config="$tmpdir/daemon.json"
+containerd_config="$tmpdir/config.toml"
+docker_override="$tmpdir/docker-override.conf"
+containerd_override="$tmpdir/containerd-override.conf"
+
+cat > "$docker_config" <<END
+{
+  "data-root": "$docker_root"
+}
+END
+
+cat > "$containerd_config" <<END
+root = "$containerd_root"
+state = "/run/containerd"
+disabled_plugins = ["cri"]
+END
+
+cat > "$docker_override" <<END
+[Unit]
+RequiresMountsFor=$docker_root $containerd_root
+END
+
+cat > "$containerd_override" <<END
+[Unit]
+RequiresMountsFor=$containerd_root
+END
+
+echo "Preparing Docker/containerd storage migration for user: $original_user"
+echo "Docker data-root: $docker_root"
+echo "containerd root: $containerd_root"
+echo
+echo "Current disk usage:"
+df -hT / /data
+echo
+echo "Current Docker summary, if Docker is running:"
+docker info 2>/dev/null | grep -E 'Docker Root Dir|Storage Driver|driver-type|Server Version' || true
+
+show_file_diff /etc/docker/daemon.json "$docker_config" "/etc/docker/daemon.json"
+show_file_diff /etc/containerd/config.toml "$containerd_config" "/etc/containerd/config.toml"
+show_file_diff /etc/systemd/system/docker.service.d/override.conf "$docker_override" "/etc/systemd/system/docker.service.d/override.conf"
+show_file_diff /etc/systemd/system/containerd.service.d/override.conf "$containerd_override" "/etc/systemd/system/containerd.service.d/override.conf"
+
+echo
+echo "If applied, active old storage directories will be moved aside before new directories are created:"
+if [ -e "$docker_base" ] && [ ! -e "$docker_root" ] && [ ! -e "$containerd_root" ]; then
+  echo "  $docker_base -> $docker_base.old-$backup_suffix"
+elif [ -e "$docker_base" ]; then
+  echo "  $docker_base already contains the new layout; it will be kept."
+else
+  echo "  $docker_base does not exist yet; it will be created."
+fi
+if [ -e /var/lib/containerd ]; then
+  echo "  /var/lib/containerd -> /var/lib/containerd.old-$backup_suffix"
+fi
+if [ -e /var/lib/docker ]; then
+  echo "  /var/lib/docker -> /var/lib/docker.old-$backup_suffix"
+fi
+
+echo
+if ! confirm "Apply this migration now?"; then
+  echo "Cancelled."
+  exit 0
+fi
+
+echo "Stopping Docker and containerd..."
+systemctl stop docker
+systemctl stop containerd
+
+backup_file /etc/docker/daemon.json
+backup_file /etc/containerd/config.toml
+backup_file /etc/systemd/system/docker.service.d/override.conf
+backup_file /etc/systemd/system/containerd.service.d/override.conf
+
+if [ -e "$docker_base" ] && [ ! -e "$docker_root" ] && [ ! -e "$containerd_root" ]; then
+  move_aside "$docker_base"
+elif [ -e "$docker_base" ]; then
+  echo "Keeping $docker_base because it already contains the new layout."
+fi
+move_aside /var/lib/containerd
+move_aside /var/lib/docker
+
+install -d -m 0711 -o root -g root "$docker_base" "$docker_root" "$containerd_root"
+install -D -m 0644 "$docker_config" /etc/docker/daemon.json
+install -D -m 0644 "$containerd_config" /etc/containerd/config.toml
+install -D -m 0644 "$docker_override" /etc/systemd/system/docker.service.d/override.conf
+install -D -m 0644 "$containerd_override" /etc/systemd/system/containerd.service.d/override.conf
+
+systemctl daemon-reload
+systemctl start containerd
+systemctl start docker
+
+echo
+echo "Migration verification:"
+docker info | grep -E 'Docker Root Dir|Storage Driver|driver-type|Server Version'
+df -hT / /data
+du -sh \
+  "$docker_root" \
+  "$containerd_root" \
+  /var/lib/containerd* \
+  /var/lib/docker* \
+  "$data_home"/docker.old-* \
+  2>/dev/null || true
+
+if [ "${#moved_dirs[@]}" -gt 0 ]; then
+  echo
+  echo "Moved-aside data directories:"
+  printf '  %s\n' "${moved_dirs[@]}"
+  echo
+  if confirm "Delete these moved-aside directories now?"; then
+    rm -rf -- "${moved_dirs[@]}"
+    echo "Deleted moved-aside data directories."
+    df -hT / /data
+  else
+    echo "Kept moved-aside data directories for manual review."
+  fi
+fi
+
+echo
+echo "Done."

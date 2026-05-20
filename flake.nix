@@ -88,66 +88,6 @@
           exit 2
         '';
 
-        # Dev-only registries + insecureAcceptAnything policy. Not for prod/CI.
-        podmanContainersConfig = pkgs.runCommand "podman-containers-config" { } ''
-          mkdir -p "$out/containers"
-
-          cat > "$out/containers/registries.conf" <<'EOF'
-          unqualified-search-registries = ["docker.io"]
-          EOF
-
-          cat > "$out/containers/policy.json" <<'EOF'
-          {
-            "default": [
-              {
-                "type": "insecureAcceptAnything"
-              }
-            ]
-          }
-          EOF
-        '';
-        # Podman: temp XDG overlay (host containers/ + store fallbacks) when policy or registries missing; else plain exec.
-        podmanWithProjectConfig = pkgs.writeShellScriptBin "podman" ''
-          host_xdg_config_home="''${XDG_CONFIG_HOME:-$HOME/.config}"
-          host_containers="$host_xdg_config_home/containers"
-
-          host_has_policy=false
-          if [ -f "$host_containers/policy.json" ] || [ -f /etc/containers/policy.json ]; then
-            host_has_policy=true
-          fi
-
-          host_has_registries=false
-          if [ -n "''${CONTAINERS_REGISTRIES_CONF:-}" ] \
-            || [ -f "$host_containers/registries.conf" ] \
-            || [ -f /etc/containers/registries.conf ]; then
-            host_has_registries=true
-          fi
-
-          if [ "$host_has_policy" = "true" ] && [ "$host_has_registries" = "true" ]; then
-            exec ${pkgs.podman}/bin/podman "$@"
-          fi
-
-          overlay="$(mktemp -d -t secret-project-331-podman-XXXXXX)"
-          trap 'rm -rf "$overlay"' EXIT
-          mkdir -p "$overlay/containers"
-
-          if [ -d "$host_containers" ]; then
-            find "$host_containers" -mindepth 1 -maxdepth 1 \
-              -exec ln -sfn '{}' "$overlay/containers/" \;
-          fi
-
-          if [ "$host_has_policy" = "false" ]; then
-            ln -sfn "${podmanContainersConfig}/containers/policy.json" \
-              "$overlay/containers/policy.json"
-          fi
-
-          if [ "$host_has_registries" = "false" ]; then
-            ln -sfn "${podmanContainersConfig}/containers/registries.conf" \
-              "$overlay/containers/registries.conf"
-          fi
-
-          XDG_CONFIG_HOME="$overlay" "${pkgs.podman}/bin/podman" "$@"
-        '';
         projectCliPackages = [
           pkgs.actionlint
           pkgs.kubectl
@@ -164,11 +104,9 @@
           pkgs.tilt
         ];
         linuxOnlyPackages = lib.optionals pkgs.stdenv.isLinux [
-          pkgs.docker-client
           getentCompat
           pkgs.minikube
           pkgs.mold
-          podmanWithProjectConfig
         ];
         pathPriorityPackages = packageManagerStubs ++ [
           rustToolchain
@@ -209,7 +147,6 @@
           pkgs.zstd
         ];
 
-        # Prepended to PATH; must include the podman wrapper before pkgs.podman.
         pathPriorityBinPath = lib.makeBinPath pathPriorityPackages;
       in
       {
@@ -231,9 +168,6 @@
               fi
             '';
           }
-          # // lib.optionalAttrs pkgs.stdenv.isLinux {
-          #   KIND_EXPERIMENTAL_PROVIDER = "podman";
-          # }
         );
       }
     );

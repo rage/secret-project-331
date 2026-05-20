@@ -13,6 +13,28 @@ echo "/data exists"
 
 original_user="$(logname)"
 original_home="/home/$original_user"
+data_home="/data/$original_user"
+docker_base="$data_home/docker"
+docker_root="$docker_base/docker-root"
+containerd_root="$docker_base/containerd"
+
+fix_data_permissions() {
+  chown "$original_user:$original_user" "$data_home"
+  find "$data_home" -mindepth 1 -maxdepth 1 ! -name docker -exec chown -R "$original_user:$original_user" {} +
+
+  if [ -d "$docker_base" ]; then
+    chown root:root "$docker_base"
+    chmod 0711 "$docker_base"
+  fi
+  if [ -d "$docker_root" ]; then
+    chown root:root "$docker_root"
+    chmod 0711 "$docker_root"
+  fi
+  if [ -d "$containerd_root" ]; then
+    chown root:root "$containerd_root"
+    chmod 0711 "$containerd_root"
+  fi
+}
 
 # Run as root
 if [ "$EUID" -ne 0 ]; then
@@ -23,26 +45,26 @@ fi
 echo "Running as root"
 
 # Create folder /data/$original_user
-if [ ! -d "/data/$original_user" ]; then
-  mkdir -p "/data/$original_user"
+if [ ! -d "$data_home" ]; then
+  mkdir -p "$data_home"
 fi
 
-echo "/data/$original_user exists"
+echo "$data_home exists"
 
 # Create .profile
-if [ ! -f "/data/$original_user/.profile" ]; then
-  touch "/data/$original_user/.profile"
+if [ ! -f "$data_home/.profile" ]; then
+  touch "$data_home/.profile"
 fi
 
 # Create /data/$original_user/Code/secret-project-331
-if [ ! -d "/data/$original_user/Code/secret-project-331" ]; then
-  mkdir -p "/data/$original_user/Code/secret-project-331"
+if [ ! -d "$data_home/Code/secret-project-331" ]; then
+  mkdir -p "$data_home/Code/secret-project-331"
 fi
 
-echo "/data/$original_user/Code/secret-project-331 exists"
+echo "$data_home/Code/secret-project-331 exists"
 
-chown -R "$original_user:$original_user" "/data/$original_user"
-echo "Fixed initial permissions in /data/$original_user"
+fix_data_permissions
+echo "Fixed initial permissions in $data_home"
 
 bashrc_addition=$(cat <<END
 
@@ -95,7 +117,7 @@ echo "--------------------------------------------------------"
 echo "Running script as $original_user"
 sudo -u "$original_user" bash "$tmp_script_file"
 
-export HOME="/data/$original_user"
+export HOME="$data_home"
 
 # Base packages
 apt-get update
@@ -115,7 +137,7 @@ apt-get install -y \
 
 # Install pnpm using standalone script (no npm required)
 if ! command -v pnpm >/dev/null 2>&1; then
-  sudo -u "$original_user" env HOME="/data/$original_user" sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
+  sudo -u "$original_user" env HOME="$data_home" sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
   echo "Installed pnpm"
 fi
 
@@ -139,18 +161,18 @@ apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin do
 usermod -aG docker "$original_user"
 
 # If rust not installed, install it for the original user
-if ! sudo -u "$original_user" env HOME="/data/$original_user" bash -lc 'command -v rustc >/dev/null 2>&1'; then
-  sudo -u "$original_user" env HOME="/data/$original_user" bash -lc 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
+if ! sudo -u "$original_user" env HOME="$data_home" bash -lc 'command -v rustc >/dev/null 2>&1'; then
+  sudo -u "$original_user" env HOME="$data_home" bash -lc 'curl --proto "=https" --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y'
   echo "Installed rust"
 fi
 
 # Install fisher for fish
-sudo -u "$original_user" env HOME="/data/$original_user" fish -c \
+sudo -u "$original_user" env HOME="$data_home" fish -c \
   "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
 
 echo "Fish setup complete"
 
-fish_conf_dir="/data/$original_user/.config/fish/conf.d"
+fish_conf_dir="$data_home/.config/fish/conf.d"
 mkdir -p "$fish_conf_dir"
 
 cat > "$fish_conf_dir/secret-project-331.fish" <<'FISH'
@@ -185,20 +207,44 @@ FISH
 chown "$original_user:$original_user" "$fish_conf_dir/secret-project-331.fish"
 echo "Installed fish aliases for secret-project-331"
 
-# Configure Docker data dir to /data/$original_user/docker
+# Keep Docker and containerd storage off the root filesystem. Docker 29 uses the
+# containerd image store/snapshotter, so data-root alone is not enough.
 systemctl stop docker
+systemctl stop containerd
 
-if [ ! -d "/data/$original_user/docker" ]; then
-  mkdir -p "/data/$original_user/docker"
-fi
+install -d -m 0711 -o root -g root "$docker_base" "$docker_root" "$containerd_root"
 
+install -d -m 0755 /etc/docker
 cat > /etc/docker/daemon.json <<END
 {
-  "data-root": "/data/$original_user/docker"
+  "data-root": "$docker_root"
 }
 END
 
+install -d -m 0755 /etc/containerd
+cat > /etc/containerd/config.toml <<END
+root = "$containerd_root"
+state = "/run/containerd"
+disabled_plugins = ["cri"]
+END
+
+install -d -m 0755 /etc/systemd/system/docker.service.d /etc/systemd/system/containerd.service.d
+cat > /etc/systemd/system/docker.service.d/override.conf <<END
+[Unit]
+RequiresMountsFor=$docker_root $containerd_root
+END
+cat > /etc/systemd/system/containerd.service.d/override.conf <<END
+[Unit]
+RequiresMountsFor=$containerd_root
+END
+
+systemctl daemon-reload
+systemctl start containerd
 systemctl start docker
+
+echo "Configured Docker data-root: $docker_root"
+echo "Configured containerd root: $containerd_root"
+docker info | grep -E 'Docker Root Dir|Storage Driver|driver-type|Server Version'
 
 # Configure zram as preferred swap, keep existing disk swap as fallback
 cat > /etc/default/zramswap <<'END'
@@ -236,18 +282,18 @@ echo
 
 # Clone the repository if it is not already there
 repository="https://github.com/rage/secret-project-331.git"
-clone_path="/data/$original_user/Code/secret-project-331"
+clone_path="$data_home/Code/secret-project-331"
 
 if [ -d "$clone_path/.git" ]; then
   echo "Repository already cloned at $clone_path"
 else
   rm -rf "$clone_path"
-  sudo -u "$original_user" env HOME="/data/$original_user" git clone "$repository" "$clone_path"
+  sudo -u "$original_user" env HOME="$data_home" git clone "$repository" "$clone_path"
   echo "Cloned the secret project repository to $clone_path"
 fi
 
-chown -R "$original_user:$original_user" "/data/$original_user"
-echo "Fixed permissions in /data/$original_user"
+fix_data_permissions
+echo "Fixed permissions in $data_home"
 
 echo
 echo "Setup complete."

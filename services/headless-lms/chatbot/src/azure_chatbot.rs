@@ -628,7 +628,7 @@ pub async fn make_request_and_stream<'a>(
                         output_item_incoming = true;
                         pinned_lines.next().await;
                         continue;
-                    } // there can be reasoning or tool calls, do stuff
+                    }
                     "response.function_call_arguments.delta" => {
                         if response_id.is_empty() {
                             return Err(anyhow::anyhow!(
@@ -771,8 +771,8 @@ pub async fn parse_tool<'a>(
                     "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
                 ));
             }
-            "response.error" => {}
-            _ => continue,
+            "response.error" => {} // todo error handling
+            _ => {}
         };
 
         let json_str = line.trim_start_matches("data: ");

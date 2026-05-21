@@ -29,3 +29,6 @@ COMMENT ON COLUMN chatbot_configurations_models.model_type IS 'The model type te
 
 ALTER TABLE chatbot_configurations DROP COLUMN thinking_model;
 ALTER TABLE chatbot_configurations_models DROP COLUMN thinking;
+ALTER TABLE chatbot_configurations
+ALTER COLUMN use_semantic_reranking
+SET DEFAULT TRUE;

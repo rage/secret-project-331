@@ -71,3 +71,6 @@ WHERE model_id IN (
 
 ALTER TABLE chatbot_configurations_models DROP COLUMN model_type;
 DROP TYPE model_type;
+ALTER TABLE chatbot_configurations
+ALTER COLUMN use_semantic_reranking
+SET DEFAULT FALSE;

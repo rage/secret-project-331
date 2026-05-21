@@ -50,7 +50,6 @@ pub struct EmbeddingDependency {
     pub deployment_name: String,
 }
 
-// todo what
 pub fn get_azure_ai_search_tool_definition(
     app_config: &ApplicationConfiguration,
     course_id: Uuid,

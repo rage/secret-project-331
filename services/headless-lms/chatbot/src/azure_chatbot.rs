@@ -209,7 +209,6 @@ pub enum SummaryType {
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
 pub struct ReasoningOutput {
-    // todo make neater
     #[serde(rename = "type")]
     pub output_type: String, //summary_text
     pub text: String,
@@ -372,30 +371,23 @@ impl LLMRequest {
             },
         );
 
-        let (search_tool, use_search) = if configuration.use_azure_search {
-            (
-                vec![AzureLLMToolDefinition::Search(
-                    get_azure_ai_search_tool_definition(
-                        app_config,
-                        configuration.course_id,
-                        configuration.use_semantic_reranking,
-                    )?,
-                )],
-                true,
-            )
+        let mut tools = if configuration.use_tools {
+            get_chatbot_tool_definitions()
         } else {
-            (Vec::new(), false)
+            Vec::new()
         };
 
-        let (mut tools, use_tools) = if configuration.use_tools {
-            (get_chatbot_tool_definitions(), true)
-        } else {
-            (Vec::new(), false)
+        if configuration.use_azure_search {
+            tools.extend(vec![AzureLLMToolDefinition::Search(
+                get_azure_ai_search_tool_definition(
+                    app_config,
+                    configuration.course_id,
+                    configuration.use_semantic_reranking,
+                )?,
+            )]);
         };
 
-        // todo: do this in a nicer way
-        tools.extend(search_tool);
-        let tool_choice = if use_search || use_tools {
+        let tool_choice = if configuration.use_azure_search || configuration.use_tools {
             Some(LLMToolChoice::Auto)
         } else {
             None
@@ -414,7 +406,7 @@ impl LLMRequest {
                 tools,
                 tool_choice,
                 text: Some(RequestTextOptions {
-                    verbosity: Some(configuration.verbosity), // todo does it work with non-thinking?
+                    verbosity: Some(configuration.verbosity),
                     format: None,
                 }),
                 params,
@@ -913,7 +905,7 @@ pub async fn parse_and_stream_to_user<'a>(
                     // streaming
                 },
                 "response.function_call_arguments.delta" => error!("ERROR, function call received but can't be processed while streaming to user."),
-                // todo: react corectly
+                // todo: handle errors corectly
                 "response.error" => {error_incoming = true;},
                 _ => continue,
             };

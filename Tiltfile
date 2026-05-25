@@ -137,6 +137,7 @@ def shell_join(argv):
     return " ".join([shlex.quote(x) for x in argv])
 
 
+# Returns Tilt resource names to pass on the CLI for the given mode (excludes warm-routes in test).
 def requested_resources_for_mode(target_mode):
     filtered_resources = []
     for resource in requested_resources:
@@ -146,6 +147,7 @@ def requested_resources_for_mode(target_mode):
     return filtered_resources
 
 
+# Returns resources to auto-trigger when switching mode (defaults if none were requested).
 def trigger_resources_for_mode(target_mode):
     filtered_resources = requested_resources_for_mode(target_mode)
     if filtered_resources:
@@ -158,6 +160,7 @@ def trigger_resources_for_mode(target_mode):
     return resources
 
 
+# Builds argv for `tilt args` to switch mode and optional resource subset.
 def tilt_args_argv(target_mode):
     return (
         ["tilt", "args"]
@@ -166,10 +169,12 @@ def tilt_args_argv(target_mode):
     )
 
 
+# Shell-quoted command string for a mode switch button.
 def switch_mode_cmd(target_mode):
     return shell_join(tilt_args_argv(target_mode))
 
 
+# Prints active mode and triggers the resources that should run in that mode.
 def mode_resource_cmd():
     base_cmd = (
         'printf "\\n==============================\\nACTIVE MODE: %%s\\n==============================\\n" "%s"'
@@ -184,10 +189,12 @@ def kubectl(args):
     return "kubectl --context=%s %s" % (kind_context, args)
 
 
+# Resolves the Kind node's internal IP for /etc/hosts hints.
 KIND_NODE_IP_CMD = kubectl(
     "get nodes -o jsonpath='{.items[0].status.addresses[?(@.type==\"InternalIP\")].address}'"
 )
 
+# Installs ingress-nginx on Kind, enables snippet annotations, waits for readiness, prints hosts hint.
 WAIT_FOR_INGRESS_CMD = (
     "set -e; "
     + "if ! "
@@ -335,6 +342,7 @@ TEST_SUPPORT_OBJECTS = [
 ]
 
 
+# Registers shared Kubernetes objects (ingress, secrets, RBAC) as one Tilt resource.
 def configure_support_resource(objects):
     k8s_resource(
         objects=objects,
@@ -345,6 +353,7 @@ def configure_support_resource(objects):
     )
 
 
+# Registers postgres/redis PVs, PVCs, and config as the data-infra resource.
 def configure_data_infra_resource():
     k8s_resource(
         objects=DATA_INFRA_OBJECTS,
@@ -353,6 +362,7 @@ def configure_data_infra_resource():
     )
 
 
+# Wires web/worker workloads and data services with port-forwards and dependencies.
 def configure_k8s_resources():
     for workload in WEB_WORKLOADS:
         k8s_resource(
@@ -378,20 +388,24 @@ def configure_k8s_resources():
     )
 
 
+# Paths that force a full image rebuild for a Node service.
 def node_rebuild_deps(service):
     return ["services/%s/%s" % (service, path) for path in NODE_REBUILD_FILES]
 
 
+# Live-update rules: rebuild on lockfile/Dockerfile changes, sync src otherwise.
 def node_live_update(service):
     return [fall_back_on(path) for path in node_rebuild_deps(service)] + [
         sync("services/%s/src" % service, "/app/src"),
     ]
 
 
+# Sync rule mapping a headless-lms subtree into the container /app path.
 def headless_lms_sync(path):
     return sync("services/headless-lms/%s" % path, "/app/%s" % path)
 
 
+# Returns the dockerignore file list for the given service image build.
 def docker_ignore_for_service(service):
     if service == "headless-lms":
         return HEADLESS_LMS_DOCKER_IGNORE
@@ -432,6 +446,7 @@ TEST_IMAGES = [
 ]
 
 
+# Builds a service image with service-specific ignore rules and live-update steps.
 def build_image(image, service, dockerfile, live_update_steps):
     docker_build(
         image,

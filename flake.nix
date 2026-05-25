@@ -66,9 +66,16 @@
             any_missing=0
             for key in "$@"; do
               found=0
+              printed_uids=""
               while IFS=: read -r name pass uid gid gecos home shell; do
                 if [ "$name" = "$key" ] || [ "$uid" = "$key" ]; then
-                  printf '%s:%s:%s:%s:%s:%s:%s\n' "$name" "$pass" "$uid" "$gid" "$gecos" "$home" "$shell"
+                  case " $printed_uids " in
+                    *" $uid "*) ;;
+                    *)
+                      printf '%s:%s:%s:%s:%s:%s:%s\n' "$name" "$pass" "$uid" "$gid" "$gecos" "$home" "$shell"
+                      printed_uids="$printed_uids $uid"
+                      ;;
+                  esac
                   found=1
                 fi
               done < /etc/passwd
@@ -109,6 +116,7 @@
           pkgs.mold
         ];
         pathPriorityPackages = packageManagerStubs ++ [
+          pkgs.nodejs_24
           rustToolchain
         ]
         ++ projectCliPackages

@@ -17,9 +17,9 @@ Migrates an existing MOOC VDI to keep Docker and containerd storage under:
   /data/USER/docker/containerd
 
 The script shows diffs for the system config files before applying anything.
-It then stops Docker/containerd, moves old Docker/containerd data aside, writes
-the new configs, restarts services, verifies Docker, and asks whether to delete
-the moved-aside data.
+It then stops Docker/containerd, copies existing storage into the new paths,
+moves the originals aside as backup, writes the new configs, restarts services,
+verifies Docker, and asks whether to delete the moved-aside data.
 
 Run as root, for example:
 
@@ -129,6 +129,37 @@ backup_file() {
   fi
 }
 
+validate_original_user() {
+  local user="$1"
+
+  if [[ "$user" == *"/"* || "$user" == *".."* ]]; then
+    echo "ERROR: invalid user name: $user"
+    exit 1
+  fi
+  if ! id -u "$user" >/dev/null 2>&1; then
+    echo "ERROR: user does not exist: $user"
+    exit 1
+  fi
+}
+
+# Copies source tree into destination; aborts on rsync failure.
+copy_storage_tree() {
+  local source="$1"
+  local destination="$2"
+  local label="$3"
+
+  if [ ! -e "$source" ]; then
+    return
+  fi
+  if [ -z "$(find "$source" -mindepth 1 -print -quit 2>/dev/null)" ]; then
+    return
+  fi
+
+  command -v rsync >/dev/null
+  echo "Copying $label from $source to $destination..."
+  rsync -aHAX --info=stats2 "$source"/ "$destination"/
+}
+
 move_aside() {
   local source="$1"
   local destination
@@ -158,6 +189,7 @@ while [ "$#" -gt 0 ]; do
         exit 1
       fi
       original_user="$2"
+      validate_original_user "$original_user"
       shift 2
       ;;
     -h|--help)
@@ -188,6 +220,7 @@ if [ ! -d /data ]; then
 fi
 
 detect_original_user
+validate_original_user "$original_user"
 
 data_home="/data/$original_user"
 docker_base="$data_home/docker"
@@ -275,15 +308,28 @@ backup_file /etc/containerd/config.toml
 backup_file /etc/systemd/system/docker.service.d/override.conf
 backup_file /etc/systemd/system/containerd.service.d/override.conf
 
+migrate_flat_docker_base=false
 if [ -e "$docker_base" ] && [ ! -e "$docker_root" ] && [ ! -e "$containerd_root" ]; then
+  migrate_flat_docker_base=true
+fi
+
+install -d -m 0711 -o root -g root "$docker_base" "$docker_root" "$containerd_root"
+
+if [ "$migrate_flat_docker_base" = true ]; then
+  rsync -aHAX --info=stats2 \
+    --exclude='docker-root/' --exclude='containerd/' \
+    "$docker_base"/ "$docker_root"/
+fi
+copy_storage_tree /var/lib/docker "$docker_root" "Docker (/var/lib/docker)"
+copy_storage_tree /var/lib/containerd "$containerd_root" "containerd (/var/lib/containerd)"
+
+if [ "$migrate_flat_docker_base" = true ]; then
   move_aside "$docker_base"
 elif [ -e "$docker_base" ]; then
   echo "Keeping $docker_base because it already contains the new layout."
 fi
 move_aside /var/lib/containerd
 move_aside /var/lib/docker
-
-install -d -m 0711 -o root -g root "$docker_base" "$docker_root" "$containerd_root"
 install -D -m 0644 "$docker_config" /etc/docker/daemon.json
 install -D -m 0644 "$containerd_config" /etc/containerd/config.toml
 install -D -m 0644 "$docker_override" /etc/systemd/system/docker.service.d/override.conf

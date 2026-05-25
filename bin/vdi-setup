@@ -177,7 +177,7 @@ mkdir -p "$fish_conf_dir"
 
 cat > "$fish_conf_dir/secret-project-331.fish" <<'FISH'
 # Managed by bin/vdi-setup — Secret Project 331 dev shell UX
-set -l __sp331_root "$HOME/Code/secret-project-331"
+set -g __sp331_root "$HOME/Code/secret-project-331"
 
 function fish_greeting
     if not string match -q -- "$__sp331_root*" (pwd)

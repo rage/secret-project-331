@@ -8,13 +8,14 @@ use crate::{
     azure_chatbot::ChatbotUserContext,
     chatbot_error::chatbot_err,
     chatbot_tools::{
-        azure_ai_search::AzureAISearchToolDefinition, course_progress::CourseProgressTool,
+        custom_tools::course_progress::CourseProgressTool,
+        provider_tools::azure_ai_search::AzureAISearchToolDefinition,
     },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
-pub mod azure_ai_search;
-pub mod course_progress;
+pub mod custom_tools;
+pub mod provider_tools;
 
 pub trait ChatbotTool {
     type State;

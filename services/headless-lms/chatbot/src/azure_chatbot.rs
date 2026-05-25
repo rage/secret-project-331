@@ -30,7 +30,7 @@ use tracing::trace;
 use url::Url;
 
 use crate::chatbot_error::ChatbotResult;
-use crate::chatbot_tools::azure_ai_search::get_azure_ai_search_tool_definition;
+use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
 use crate::chatbot_tools::{
     AzureLLMToolDefinition, ChatbotTool, get_chatbot_tool, get_chatbot_tool_definitions,
 };
@@ -104,7 +104,6 @@ pub struct IncompleteReason {
 /// Streamed token of the response text
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ResponseOutput {
-    // type: event type
     pub delta: Option<String>,
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
@@ -126,18 +125,21 @@ pub enum OutputItem {
     AzureAiSearchCall {
         response_id: String,
         call_id: String,
-        arguments: String, // json string
+        /// JSON string
+        arguments: String,
     },
     AzureAiSearchCallOutput {
         response_id: String,
         call_id: String,
-        output: String, // json string
+        /// JSON string
+        output: String,
     },
     FunctionCall {
         response_id: String,
         call_id: String,
         #[serde(rename = "name")]
         tool_name: String,
+        /// JSON string
         arguments: String,
     },
     FunctionCallOutput {
@@ -154,7 +156,7 @@ pub enum InputItem {
     Message {
         role: MessageRole,
         content: MessageContent,
-    }, // we can get annotations and full text from here, but not yet.
+    },
     FunctionCall {
         call_id: String,
         #[serde(rename = "name")]
@@ -415,6 +417,9 @@ impl LLMRequest {
         ))
     }
 
+    /// Save to db output items received during streaming before the final answer is streamed to
+    /// the user. Include these items in the input of this LLMRequest. These OutputItems can be
+    /// reasoning, tools call items, etc.
     pub async fn update_messages_to_db(
         mut self,
         conn: &mut PgConnection,
@@ -424,13 +429,8 @@ impl LLMRequest {
         for m in new_msgs {
             let converted_msg = m.to_chatbot_conversation_message(conversation_id)?;
             chatbot_conversation_messages::insert(conn, converted_msg).await?;
-            match m.message_type {
-                OutputItem::Reasoning { .. } => {}
-                _ => {
-                    let input_message = APIInputMessage::try_from(m)?;
-                    self.input.push(input_message);
-                }
-            }
+            let input_message = APIInputMessage::try_from(m)?;
+            self.input.push(input_message);
         }
         Ok(self)
     }
@@ -528,6 +528,11 @@ impl Drop for RequestCancelledGuard {
     }
 }
 
+/// Creates a stream with the LLMRequest and processes received OutputItems until receiving
+/// a response text or tool call.
+/// Returns
+///     response id created by Azure (String)
+///     ResponseStreamType (type: response text or tool call) containing the created stream
 pub async fn make_request_and_stream<'a>(
     conn: &mut PgConnection,
     chat_request: LLMRequest,
@@ -559,6 +564,8 @@ pub async fn make_request_and_stream<'a>(
     let mut pinned_lines = Box::pin(peekable_lines_stream);
 
     let mut event_type;
+    // empty string because when event: response.created, it will be set as the correct
+    // value, and this event is the first event of the stream.
     let mut response_id = "".to_string();
     let mut output_item_incoming = false;
     let mut response_created_incoming = false;
@@ -579,64 +586,54 @@ pub async fn make_request_and_stream<'a>(
                 if line.starts_with("event: ") {
                     event_type = line.trim_start_matches("event: ").to_string();
                     trace!("Event: {event_type}");
-                } else if output_item_incoming && line.starts_with("data: ") {
-                    let json_str = line.trim_start_matches("data: ");
-
-                    let response_output = serde_json::from_str::<ResponseOutput>(json_str)
-                        .map_err(ChatbotError::from)?;
-                    let item = response_output.item.ok_or(chatbot_err!(
-                        DeserializationError,
-                        "Expected response output item"
-                    ))?;
-                    process_output_item(conn, item, conversation_id, app_config).await?;
-                    output_item_incoming = false;
-                    pinned_lines.next().await;
-                    continue;
-                } else if response_created_incoming && line.starts_with("data: ") {
-                    let json_str = line.trim_start_matches("data: ");
-
-                    let response_output = serde_json::from_str::<ResponseOutput>(json_str)
-                        .map_err(ChatbotError::from)?;
-                    let res = response_output.response.ok_or(chatbot_err!(
-                        DeserializationError,
-                        "Expected response object"
-                    ))?;
-                    response_id = res.id;
-                    response_created_incoming = false;
-                    pinned_lines.next().await;
-                    continue;
-                } else {
-                    pinned_lines.next().await;
-                    continue;
-                };
-
-                match event_type.as_str() {
-                    "response.created" => {
-                        response_created_incoming = true;
-                        pinned_lines.next().await;
-                        continue;
-                    }
-                    "response.output_item.done" => {
-                        output_item_incoming = true;
-                        pinned_lines.next().await;
-                        continue;
-                    }
-                    "response.function_call_arguments.delta" => {
-                        if response_id.is_empty() {
-                            return Err(anyhow::anyhow!(
-                                "No response_id found! This should never happen!"
+                    match event_type.as_str() {
+                        "response.created" => {
+                            response_created_incoming = true;
+                        }
+                        "response.output_item.done" => {
+                            output_item_incoming = true;
+                        }
+                        "response.function_call_arguments.delta" => {
+                            if response_id.is_empty() {
+                                return Err(anyhow::anyhow!(
+                                    "No response_id found! This should never happen!"
+                                ));
+                            }
+                            return Ok((response_id, ResponseStreamType::Toolcall(pinned_lines)));
+                        }
+                        "response.output_text.delta" => {
+                            return Ok((
+                                response_id,
+                                ResponseStreamType::TextResponse(pinned_lines),
                             ));
                         }
-                        return Ok((response_id, ResponseStreamType::Toolcall(pinned_lines)));
+                        _ => {}
                     }
-                    "response.output_text.delta" => {
-                        return Ok((response_id, ResponseStreamType::TextResponse(pinned_lines)));
+                } else if line.starts_with("data: ") {
+                    let json_str = line.trim_start_matches("data: ");
+                    let response_output = serde_json::from_str::<ResponseOutput>(json_str)
+                        .map_err(ChatbotError::from)?;
+
+                    if response_created_incoming {
+                        let res = response_output.response.ok_or(chatbot_err!(
+                            DeserializationError,
+                            "Expected response object"
+                        ))?;
+                        response_id = res.id;
+                        response_created_incoming = false;
                     }
-                    _ => {
-                        pinned_lines.next().await;
-                        continue;
+                    if output_item_incoming {
+                        let item = response_output.item.ok_or(chatbot_err!(
+                            DeserializationError,
+                            "Expected response output item"
+                        ))?;
+                        // put in input
+                        process_output_item(conn, item, conversation_id, app_config).await?;
+                        output_item_incoming = false;
                     }
                 }
+                pinned_lines.next().await;
+                continue;
             }
         }
     }
@@ -958,7 +955,6 @@ pub async fn parse_and_stream_to_user<'a>(
                         process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;
                         continue;
                     },
-
                 };
             }
         }

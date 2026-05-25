@@ -15,4 +15,4 @@ enforce_inotify_watches_limit_sufficient
 
 make_sure_skaffold_local_env_patch_files_exists
 
-run_command tilt up --context "$TILT_KIND_CONTEXT" -- --mode dev "$@"
+run_command tilt up --stream --context "$TILT_KIND_CONTEXT" -- --mode dev "$@"

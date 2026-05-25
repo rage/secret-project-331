@@ -416,24 +416,6 @@ impl LLMRequest {
             request_estimated_tokens,
         ))
     }
-
-    /// Save to db output items received during streaming before the final answer is streamed to
-    /// the user. Include these items in the input of this LLMRequest. These OutputItems can be
-    /// reasoning, tools call items, etc.
-    pub async fn update_messages_to_db(
-        mut self,
-        conn: &mut PgConnection,
-        new_msgs: Vec<APIOutputMessage>,
-        conversation_id: Uuid,
-    ) -> anyhow::Result<Self> {
-        for m in new_msgs {
-            let converted_msg = m.to_chatbot_conversation_message(conversation_id)?;
-            chatbot_conversation_messages::insert(conn, converted_msg).await?;
-            let input_message = APIInputMessage::try_from(m)?;
-            self.input.push(input_message);
-        }
-        Ok(self)
-    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -796,7 +778,15 @@ pub async fn parse_tool<'a>(
                         output: tool.get_tool_output(),
                         response_id: (common_response_id).to_owned(),
                     },
-                })
+                });
+            }
+            // save tool_msgs to the db
+            for m in &tool_msgs {
+                chatbot_conversation_messages::insert(
+                    conn,
+                    m.to_chatbot_conversation_message(conversation_id)?,
+                )
+                .await?;
             }
             messages.extend(tool_msgs);
             break;
@@ -824,7 +814,10 @@ pub async fn parse_tool<'a>(
                 ))?,
                 _ => {
                     // save this chunk's data
-                    process_output_item(conn, item, conversation_id, app_config).await?;
+                    process_output_item(conn, item.clone(), conversation_id, app_config).await?;
+                    // add this output item to the messages to be included in the next
+                    // LLMRequest
+                    messages.push(APIOutputMessage { message_type: item });
                 }
             }
         }
@@ -1006,12 +999,11 @@ pub async fn send_chat_request_and_parse_stream(
             make_request_and_stream(conn, chat_request.clone(), conversation_id, app_config)
                 .await?;
 
-        let new_tool_msgs = match response_type {
+        let new_conversation_items = match response_type {
             ResponseStreamType::Toolcall(stream) => {
                 parse_tool(conn, stream, conversation_id, &user_context, app_config).await?
             }
             ResponseStreamType::TextResponse(stream) => {
-                println!("STREAMING TO USER");
                 return parse_and_stream_to_user(
                     conn,
                     stream,
@@ -1024,8 +1016,11 @@ pub async fn send_chat_request_and_parse_stream(
                 .await;
             }
         };
-        chat_request = chat_request
-            .update_messages_to_db(conn, new_tool_msgs, conversation_id)
-            .await?;
+        chat_request.input.extend(
+            new_conversation_items
+                .into_iter()
+                .map(APIInputMessage::try_from)
+                .collect::<ChatbotResult<Vec<APIInputMessage>>>()?,
+        );
     }
 }

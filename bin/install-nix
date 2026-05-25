@@ -32,8 +32,9 @@ PLATFORM="$(uname -s)"
 NIX_DAEMON_SH="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
 NIX_DAEMON_FISH="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish"
 FISH_CONF_DIR="$HOME/.config/fish/conf.d"
-NIX_FISH="$FISH_CONF_DIR/nix.fish"
-DIRENV_FISH="$FISH_CONF_DIR/direnv.fish"
+# fish sources conf.d/*.fish in lexicographic order; prefix so nix loads before direnv.
+NIX_FISH="$FISH_CONF_DIR/00-nix.fish"
+DIRENV_FISH="$FISH_CONF_DIR/10-direnv.fish"
 
 if [ "$UNINSTALL" -eq 1 ]; then
   NIX_UNINSTALLER="/nix/nix-installer"
@@ -99,9 +100,10 @@ HASH_x86_64_linux="b9911496659f0c35c642353d592926c024c205b597e8094bf73a42908a75e
 HASH_aarch64_linux="d2ede080a0a7b34119362f4a8a6fb5e49a4d16b302ce54c96cd05514bdea6c7c"
 HASH_aarch64_darwin="e506c3576e825be73e7b7a18ea34b22e0b1cffcbaa031b2ef0b4b93314aafeea"
 
+NIX_ALREADY_INSTALLED=0
 if command -v nix > /dev/null 2>&1; then
+  NIX_ALREADY_INSTALLED=1
   echo -e "${GREEN}Nix is already installed ($(nix --version)).${RESET_EVERYTHING}"
-  exit 0
 fi
 
 ARCH="$(uname -m)"
@@ -120,6 +122,11 @@ trap 'rm -rf "$WORKDIR"' EXIT
 
 cd "$WORKDIR"
 
+if [ "$NIX_ALREADY_INSTALLED" -eq 1 ]; then
+  # shellcheck disable=SC1090
+  [ -f "$NIX_DAEMON_SH" ] && . "$NIX_DAEMON_SH"
+  export PATH="/nix/var/nix/profiles/default/bin:$HOME/.nix-profile/bin:$PATH"
+else
 echo -e "${BLUE}Downloading Determinate Nix installer v${INSTALLER_VERSION} (${ARCH_SLUG})...${RESET_EVERYTHING}"
 curl --proto '=https' --tlsv1.2 -fsSL "$BASE/$BINARY" -o nix-installer
 
@@ -166,6 +173,7 @@ if ! command -v nix > /dev/null 2>&1; then
   echo -e "${RED}Nix installed, but nix is not available in PATH in this shell.${RESET_EVERYTHING}" >&2
   exit 1
 fi
+fi
 
 echo -e "${BLUE}Setting up fish shell integration...${RESET_EVERYTHING}"
 mkdir -p "$FISH_CONF_DIR"
@@ -183,18 +191,27 @@ FISH
 fi
 
 echo -e "${BLUE}Installing direnv via Nix...${RESET_EVERYTHING}"
-nix --extra-experimental-features 'nix-command flakes' profile install nixpkgs#direnv
+nix --extra-experimental-features 'nix-command flakes' profile add nixpkgs#direnv
 
 if ! command -v direnv > /dev/null 2>&1; then
   export PATH="$HOME/.nix-profile/bin:$PATH"
 fi
 direnv --version > /dev/null
 
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [ -f "$REPO_ROOT/.envrc" ]; then
+  echo -e "${BLUE}Allowing direnv for $REPO_ROOT...${RESET_EVERYTHING}"
+  direnv allow "$REPO_ROOT"
+fi
+
 if [ -f "$DIRENV_FISH" ] && ! grep -q 'nix-installer-wrapper' "$DIRENV_FISH"; then
   echo "$DIRENV_FISH already exists (not created by this script); leaving it unchanged."
 else
   cat > "$DIRENV_FISH" <<'FISH'
 # nix-installer-wrapper
+if not command -q direnv; and test -d "$HOME/.nix-profile/bin"
+    fish_add_path -m "$HOME/.nix-profile/bin"
+end
 if command -q direnv
     direnv hook fish | source
 end
@@ -215,6 +232,10 @@ for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
   fi
 done
 
-echo -e "${GREEN}Nix installation complete!${RESET_EVERYTHING}"
-echo "Open a new shell (or run: source $NIX_DAEMON_SH) to use nix."
-echo "Verify with: nix --version"
+if [ "$NIX_ALREADY_INSTALLED" -eq 1 ]; then
+  echo -e "${GREEN}Fish/direnv integration updated.${RESET_EVERYTHING}"
+else
+  echo -e "${GREEN}Nix installation complete!${RESET_EVERYTHING}"
+fi
+echo "Open a new fish shell to pick up conf.d changes."
+echo "Verify with: nix --version && direnv --version"

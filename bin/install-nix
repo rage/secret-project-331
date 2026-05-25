@@ -1,0 +1,220 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/.common"
+
+if [ "$(id -u)" -eq 0 ]; then
+  echo -e "${RED}Run this as your normal user, not root.${RESET_EVERYTHING}" >&2
+  exit 1
+fi
+
+UNINSTALL=0
+case "${1:-}" in
+  "")
+    ;;
+  --uninstall)
+    UNINSTALL=1
+    ;;
+  -h|--help)
+    echo "Usage: $0 [--uninstall]"
+    exit 0
+    ;;
+  *)
+    echo -e "${RED}Unknown option: $1${RESET_EVERYTHING}" >&2
+    echo "Usage: $0 [--uninstall]" >&2
+    exit 1
+    ;;
+esac
+
+PLATFORM="$(uname -s)"
+
+NIX_DAEMON_SH="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+NIX_DAEMON_FISH="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish"
+FISH_CONF_DIR="$HOME/.config/fish/conf.d"
+NIX_FISH="$FISH_CONF_DIR/nix.fish"
+DIRENV_FISH="$FISH_CONF_DIR/direnv.fish"
+
+if [ "$UNINSTALL" -eq 1 ]; then
+  NIX_UNINSTALLER="/nix/nix-installer"
+  if [ ! -x "$NIX_UNINSTALLER" ]; then
+    echo -e "${RED}Nix does not appear to be installed (no uninstaller at $NIX_UNINSTALLER).${RESET_EVERYTHING}" >&2
+    exit 1
+  fi
+
+  if command -v pkexec > /dev/null 2>&1; then
+    ELEVATE=(pkexec)
+  elif command -v sudo > /dev/null 2>&1; then
+    ELEVATE=(sudo)
+  else
+    echo -e "${RED}Need pkexec or sudo to perform the Nix uninstall.${RESET_EVERYTHING}" >&2
+    exit 1
+  fi
+
+  echo -e "${BLUE}Uninstalling Nix...${RESET_EVERYTHING}"
+  "${ELEVATE[@]}" "$NIX_UNINSTALLER" uninstall --no-confirm
+
+  for f in "$NIX_FISH" "$DIRENV_FISH"; do
+    if [ -f "$f" ] && grep -q 'nix-installer-wrapper' "$f"; then
+      rm "$f"
+      echo "Removed $f"
+    elif [ -f "$f" ]; then
+      echo "$f was not created by this script; leaving it unchanged."
+    fi
+  done
+
+  for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+    if [ -f "$rc" ] && grep -q '>>> Nix installer wrapper >>>' "$rc"; then
+      if [ "$PLATFORM" = "Darwin" ]; then
+        sed -i '' '/# >>> Nix installer wrapper >>>/,/# <<< Nix installer wrapper <<</d' "$rc"
+      else
+        sed -i '/# >>> Nix installer wrapper >>>/,/# <<< Nix installer wrapper <<</d' "$rc"
+      fi
+      echo "Removed Nix source block from $rc"
+    fi
+  done
+
+  echo -e "${GREEN}Nix uninstalled.${RESET_EVERYTHING}"
+  exit 0
+fi
+
+if [ "$PLATFORM" = "Darwin" ]; then
+  REQUIRED_CMDS=(curl shasum awk chmod uname mktemp)
+else
+  REQUIRED_CMDS=(curl sha256sum awk chmod uname mktemp)
+fi
+for cmd in "${REQUIRED_CMDS[@]}"; do
+  command -v "$cmd" > /dev/null 2>&1 || {
+    echo -e "${RED}Missing required command: $cmd${RESET_EVERYTHING}" >&2
+    exit 1
+  }
+done
+
+# Pinned version + SHA-256 hashes per architecture.
+# To upgrade: update INSTALLER_VERSION and the HASH_* values below.
+# Verify new hashes against: https://github.com/DeterminateSystems/nix-installer/releases
+# Note: x86_64-darwin is not published for v3.21.0 (Apple Silicon only for macOS).
+INSTALLER_VERSION="3.21.0"
+HASH_x86_64_linux="b9911496659f0c35c642353d592926c024c205b597e8094bf73a42908a75e462"
+HASH_aarch64_linux="d2ede080a0a7b34119362f4a8a6fb5e49a4d16b302ce54c96cd05514bdea6c7c"
+HASH_aarch64_darwin="e506c3576e825be73e7b7a18ea34b22e0b1cffcbaa031b2ef0b4b93314aafeea"
+
+if command -v nix > /dev/null 2>&1; then
+  echo -e "${GREEN}Nix is already installed ($(nix --version)).${RESET_EVERYTHING}"
+  exit 0
+fi
+
+ARCH="$(uname -m)"
+case "${PLATFORM}-${ARCH}" in
+  Linux-x86_64)   ARCH_SLUG="x86_64-linux";   EXPECTED_HASH="$HASH_x86_64_linux" ;;
+  Linux-aarch64)  ARCH_SLUG="aarch64-linux";  EXPECTED_HASH="$HASH_aarch64_linux" ;;
+  Darwin-arm64)   ARCH_SLUG="aarch64-darwin"; EXPECTED_HASH="$HASH_aarch64_darwin" ;;
+  *) echo -e "${RED}Unsupported platform/architecture: ${PLATFORM}-${ARCH}${RESET_EVERYTHING}" >&2; exit 1 ;;
+esac
+
+BASE="https://github.com/DeterminateSystems/nix-installer/releases/download/v${INSTALLER_VERSION}"
+BINARY="nix-installer-${ARCH_SLUG}"
+
+WORKDIR="$(mktemp -d)"
+trap 'rm -rf "$WORKDIR"' EXIT
+
+cd "$WORKDIR"
+
+echo -e "${BLUE}Downloading Determinate Nix installer v${INSTALLER_VERSION} (${ARCH_SLUG})...${RESET_EVERYTHING}"
+curl --proto '=https' --tlsv1.2 -fsSL "$BASE/$BINARY" -o nix-installer
+
+echo -e "${BLUE}Verifying SHA-256 checksum...${RESET_EVERYTHING}"
+if [ "$PLATFORM" = "Darwin" ]; then
+  ACTUAL_HASH="$(shasum -a 256 nix-installer | awk '{print $1}')"
+else
+  ACTUAL_HASH="$(sha256sum nix-installer | awk '{print $1}')"
+fi
+if [ "$EXPECTED_HASH" != "$ACTUAL_HASH" ]; then
+  echo -e "${RED}ERROR: SHA-256 checksum mismatch${RESET_EVERYTHING}" >&2
+  echo "  expected: $EXPECTED_HASH" >&2
+  echo "  actual:   $ACTUAL_HASH" >&2
+  exit 1
+fi
+echo -e "${GREEN}SHA-256 checksum OK.${RESET_EVERYTHING}"
+
+chmod +x nix-installer
+
+if command -v pkexec > /dev/null 2>&1; then
+  ELEVATE=(pkexec)
+elif command -v sudo > /dev/null 2>&1; then
+  ELEVATE=(sudo)
+else
+  echo -e "${RED}Need pkexec or sudo to perform the Nix install.${RESET_EVERYTHING}" >&2
+  exit 1
+fi
+
+# NIX_INSTALLER_INIT can be set to "none" on Linux systems without systemd (e.g. Docker containers)
+INIT_ARGS=()
+if [ "$PLATFORM" = "Linux" ] && [ -n "${NIX_INSTALLER_INIT:-}" ]; then
+  INIT_ARGS=(linux --init "$NIX_INSTALLER_INIT")
+fi
+
+echo -e "${BLUE}Running Determinate Nix installer...${RESET_EVERYTHING}"
+umask 0022
+"${ELEVATE[@]}" "$WORKDIR/nix-installer" install "${INIT_ARGS[@]}" --no-confirm --diagnostic-endpoint=""
+
+# shellcheck disable=SC1090
+[ -f "$NIX_DAEMON_SH" ] && . "$NIX_DAEMON_SH"
+export PATH="/nix/var/nix/profiles/default/bin:$PATH"
+
+if ! command -v nix > /dev/null 2>&1; then
+  echo -e "${RED}Nix installed, but nix is not available in PATH in this shell.${RESET_EVERYTHING}" >&2
+  exit 1
+fi
+
+echo -e "${BLUE}Setting up fish shell integration...${RESET_EVERYTHING}"
+mkdir -p "$FISH_CONF_DIR"
+
+if [ -f "$NIX_FISH" ] && ! grep -q 'nix-installer-wrapper' "$NIX_FISH"; then
+  echo "$NIX_FISH already exists (not created by this script); leaving it unchanged."
+else
+  cat > "$NIX_FISH" <<FISH
+# nix-installer-wrapper
+if test -e '$NIX_DAEMON_FISH'
+    source '$NIX_DAEMON_FISH'
+end
+FISH
+  echo "Created $NIX_FISH"
+fi
+
+echo -e "${BLUE}Installing direnv via Nix...${RESET_EVERYTHING}"
+nix --extra-experimental-features 'nix-command flakes' profile install nixpkgs#direnv
+
+if ! command -v direnv > /dev/null 2>&1; then
+  export PATH="$HOME/.nix-profile/bin:$PATH"
+fi
+direnv --version > /dev/null
+
+if [ -f "$DIRENV_FISH" ] && ! grep -q 'nix-installer-wrapper' "$DIRENV_FISH"; then
+  echo "$DIRENV_FISH already exists (not created by this script); leaving it unchanged."
+else
+  cat > "$DIRENV_FISH" <<'FISH'
+# nix-installer-wrapper
+if command -q direnv
+    direnv hook fish | source
+end
+FISH
+  echo "Created $DIRENV_FISH"
+fi
+
+echo -e "${BLUE}Setting up bash/zsh fallback integration...${RESET_EVERYTHING}"
+for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
+  if [ -f "$rc" ] && ! grep -q '>>> Nix installer wrapper >>>' "$rc"; then
+    {
+      echo
+      echo "# >>> Nix installer wrapper >>>"
+      echo "[ -f '$NIX_DAEMON_SH' ] && . '$NIX_DAEMON_SH'"
+      echo "# <<< Nix installer wrapper <<<"
+    } >> "$rc"
+    echo "Added Nix source block to $rc"
+  fi
+done
+
+echo -e "${GREEN}Nix installation complete!${RESET_EVERYTHING}"
+echo "Open a new shell (or run: source $NIX_DAEMON_SH) to use nix."
+echo "Verify with: nix --version"

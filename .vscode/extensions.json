@@ -10,6 +10,7 @@
     "usernamehw.errorlens",
     "jebbs.plantuml",
     "wix.vscode-import-cost",
-    "ms-playwright.playwright"
+    "ms-playwright.playwright",
+    "mkhl.direnv"
   ]
 }

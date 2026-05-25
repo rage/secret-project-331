@@ -13,4 +13,4 @@ ensure_common_programs_in_path
 
 make_sure_skaffold_local_env_patch_files_exists
 
-run_command tilt up --context "$TILT_KIND_CONTEXT" -- --mode only-db "$@"
+run_command tilt up --stream --context "$TILT_KIND_CONTEXT" -- --mode only-db "$@"

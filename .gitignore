@@ -1,5 +1,6 @@
 .env
 .cache
+.direnv/
 
 # Local TLS certs/keys (do not commit)
 project-331.local.pem
@@ -151,4 +152,3 @@ hidden/
 # skaffold
 skaffold-build-output.json
 skaffold-images
-

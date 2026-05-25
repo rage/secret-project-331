@@ -1,2 +1,5 @@
 #!/bin/sh
+
+. "$(dirname "$0")/ensure-dev-path.sh"
+
 pnpm exec tsx .husky/ensure-dependencies-up-to-date.ts

@@ -6,6 +6,7 @@ set -l repo_root (realpath "$script_dir/../..")
 set -gx NIX_CONFIG "experimental-features = nix-command flakes"
 set -gx NIX_INSTALLER_INIT none
 
+# Add Nix profile/bin paths to Fish PATH if Nix is installed and profile directories exist
 function add_nix_paths
     if test -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish
         source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish

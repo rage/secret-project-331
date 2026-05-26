@@ -138,7 +138,7 @@ function check_port --argument-names port label
     end
 
     if ss -ltnH "sport = :$port" | string match -q "*:$port*"
-        ok "$label port $port" "already listening"
+        fail "$label port $port" "already listening"
     else
         ok "$label port $port" "not currently listening; available for local port-forward"
     end
@@ -231,7 +231,7 @@ else
     warn "TMC langs CLI" "missing; bin/devcontainer-up can run bin/tmc-langs-setup"
 end
 
-set -l playwright_binary (find "$HOME/.cache/ms-playwright" -maxdepth 2 -type f -name 'playwright.sh' -o -name 'chrome' -o -name 'chromium' -print -quit 2>/dev/null)
+set -l playwright_binary (find "$HOME/.cache/ms-playwright" -maxdepth 2 -type f \( -name 'playwright.sh' -o -name 'chrome' -o -name 'chromium' \) -print -quit 2>/dev/null)
 if test -n "$playwright_binary"
     ok "Playwright browser cache" "$HOME/.cache/ms-playwright"
 else

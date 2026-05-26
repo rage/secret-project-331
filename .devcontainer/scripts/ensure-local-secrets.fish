@@ -14,14 +14,19 @@ for file in $files
     end
 end
 
-bash -lc 'cd "$1" && source bin/.common && make_sure_skaffold_local_env_patch_files_exists' _ "$repo_root"
+if not bash -lc 'cd "$1" && source bin/.common && make_sure_skaffold_local_env_patch_files_exists' _ "$repo_root"
+    echo "Failed to ensure local Kubernetes secret patch files." >&2
+    exit 1
+end
 
 if test (count $missing_before) -eq 0
     echo "Local Kubernetes secret patch files already exist."
 else
     echo "Created missing local Kubernetes secret patch files:"
     for file in $missing_before
-        echo "  $file"
+        if test -f "$file"
+            echo "  $file"
+        end
     end
 end
 

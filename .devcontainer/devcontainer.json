@@ -21,31 +21,13 @@
     "source=secret-project-cargo-git,target=/home/vscode/.cargo/git,type=volume",
     "source=secret-project-playwright,target=/home/vscode/.cache/ms-playwright,type=volume"
   ],
-  "forwardPorts": [
-    80, 443, 3000, 3001, 3002, 3004, 3005, 54328, 63798, 6006, 8765, 8766, 8767, 8768, 8769, 8770,
-    8771, 8772, 8773, 8774, 8775, 8776, 8777, 8778, 8779, 8780, 8781, 8782, 8783, 8784
-  ],
+  "forwardPorts": [80, 443, 54328, 63798, 6006],
   "portsAttributes": {
     "80": {
       "label": "Kubernetes ingress HTTP"
     },
     "443": {
       "label": "Kubernetes ingress HTTPS"
-    },
-    "3000": {
-      "label": "Main frontend"
-    },
-    "3001": {
-      "label": "CMS"
-    },
-    "3002": {
-      "label": "Quizzes"
-    },
-    "3004": {
-      "label": "TMC"
-    },
-    "3005": {
-      "label": "Example exercise"
     },
     "54328": {
       "label": "PostgreSQL"

@@ -26,11 +26,15 @@ run_fish_script() {
 
   if command -v fish >/dev/null 2>&1; then
     fish "$script" "$@"
-  elif command -v nix >/dev/null 2>&1; then
-    nix develop "$REPO_ROOT" --command fish "$script" "$@"
   else
-    echo "fish is not installed and nix is not available to provide it." >&2
-    exit 1
+    local nix_bin
+    nix_bin="$(find_nix 2>/dev/null || true)"
+    if [ -n "$nix_bin" ]; then
+      "$nix_bin" develop "$REPO_ROOT" --command fish "$script" "$@"
+    else
+      echo "fish is not installed and nix is not available to provide it." >&2
+      exit 1
+    fi
   fi
 }
 
@@ -87,4 +91,4 @@ fi
 run_fish_script "${DEVCONTAINER_SCRIPTS}/ensure-kind-cluster.fish"
 
 echo "Starting Tilt development mode."
-exec run_nix bin/dev-tilt "$@"
+run_nix bin/dev-tilt "$@"

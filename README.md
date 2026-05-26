@@ -29,7 +29,7 @@ To begin development on Secret Project 331, set up your local environment by fol
 
 ### Package Manager
 
-This project uses **pnpm** as the package manager. Please install pnpm before setting up the development environment by following the [pnpm installation guide](https://pnpm.io/installation).
+This project uses **pnpm** as the package manager. If you set up with Nix (`bin/install-nix`), pnpm is provided automatically. Otherwise, install it manually by following the [pnpm installation guide](https://pnpm.io/installation).
 
 ## Code Style
 

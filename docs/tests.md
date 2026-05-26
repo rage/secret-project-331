@@ -1,15 +1,9 @@
 # Testing Guide
 
-## Introduction
+The project focuses mainly on **system-level testing** to verify the full application works end to end. **Unit tests** are written when:
 
-Learn about different types of software testing by visiting [Levels of Software Testing](https://artoftesting.com/levels-of-software-testing).
-
-### Focus on System-Level Testing
-
-We focus mainly on **system-level testing** to make sure the entire application works as expected. We also write **unit tests** in cases where:
-
-- They won't break easily due to changes in how the code is implemented.
-- We need to make sure we handle all possible edge cases correctly
+- The behavior won't break easily if the implementation changes.
+- All edge cases need to be covered explicitly.
 
 ## Running System Tests
 
@@ -35,11 +29,7 @@ For debugging, run:
 bin/system-tests-run-tests-debug
 ```
 
-When debugging, add `test.only` to the test you want to focus on. This will run only that test. Remember to remove `test.only` once debugging is complete.
-
-#### Example of `test.only`
-
-If you want to debug a specific test, you can add `.only` to its definition. This ensures only that test runs, skipping all others:
+Add `test.only` to the test you want to focus on:
 
 ```javascript
 test.only("debugging a specific test", async ({ page }) => {
@@ -47,13 +37,13 @@ test.only("debugging a specific test", async ({ page }) => {
 })
 ```
 
-After debugging, **remove the `.only`** so all tests run as usual.
+Remove `.only` when done so all tests run again.
 
 Tests are located in the `system-tests/src/tests/` folder.
 
 ### Available Commands
 
-Here are the commands you can use to run and manage system tests:
+Commands for running and managing system tests:
 
 - `bin/system-tests-run-tests-debug` - Debug tests step by step.
 - `bin/system-tests-record-test-admin` - Record a test as an admin user.

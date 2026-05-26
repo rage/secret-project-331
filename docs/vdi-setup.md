@@ -1,6 +1,7 @@
 # VDI Setup for MOOC Center Employees
 
-> **Note**: This guide is intended **exclusively for employees of the MOOC Center at the University of Helsinki** who need to set up a Virtual Desktop Infrastructure (VDI) environment for working on Secret Project 331.
+> [!NOTE]
+> This guide is intended exclusively for employees of the MOOC Center at the University of Helsinki who need to set up a Virtual Desktop Infrastructure (VDI) environment for working on Secret Project 331.
 
 This document details the setup process for the VDI environment specifically required for development on Secret Project 331.
 
@@ -22,7 +23,8 @@ This document details the setup process for the VDI environment specifically req
 5. Sign in with your university credentials. Make sure the dropdown below the credentials field is set to **ATKK**.
 6. Select your virtual desktop, which should appear as `vdi-mooc-<your university username>`.
 
-> **Tip**: You can also access the virtual desktop through [https://vdi.helsinki.fi](https://vdi.helsinki.fi), but using the VMware Horizon Client is recommended for better performance and features.
+> [!TIP]
+> You can also access the virtual desktop through [https://vdi.helsinki.fi](https://vdi.helsinki.fi), but using the Omnissa Horizon Client is recommended for better performance and features.
 
 ## Requesting Administrative Privileges (sudo)
 
@@ -47,7 +49,8 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    git config --global user.email "youremail@example.com"
    ```
 
-   > **Privacy Tip**: If you'd like to keep your email private, follow [GitHub's guide to using a `noreply` email address](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address).
+   > [!TIP]
+   > If you'd like to keep your email private, follow [GitHub's guide to using a `noreply` email address](https://docs.github.com/en/account-and-profile/setting-up-and-managing-your-personal-account-on-github/managing-email-preferences/setting-your-commit-email-address).
 
 2. **(Optional)** Install GitHub CLI to cache credentials and avoid entering your personal access token repeatedly:
 
@@ -90,7 +93,8 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    source "$HOME/.profile"
    ```
 
-   > **Note**: If this command does not work, try running it in a Bash shell instead of Fish. Enter Bash by typing `bash`, run the command, then exit Bash with `Ctrl+D`.
+   > [!NOTE]
+   > If this command does not work, try running it in a Bash shell instead of Fish. Enter Bash by typing `bash`, run the command, then exit Bash with `Ctrl+D`.
 
 4. Apply Docker group permissions:
 
@@ -98,17 +102,18 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    newgrp docker
    ```
 
-5. Install Rust using rustup: https://rustup.rs/
-
-6. Install required tools by running:
+5. Install all required tools with Nix:
 
    ```bash
-   bin/download-applications-linux
+   bin/install-nix
+   direnv allow
    ```
 
-7. Restart your terminal to apply all changes.
+   This provides Rust, Node, pnpm, kubectl, Skaffold, Minikube, and everything else needed.
 
-8. Delete the initially cloned repository if you no longer need it and use the one located in `/data`.
+6. Restart your terminal to apply all changes.
+
+7. Delete the initially cloned repository if you no longer need it and use the one located in `/data`.
 
 ### Running the Development Environment
 
@@ -120,4 +125,5 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
 
 2. Follow the instructions in the `docs/Development.md` file under the section **Running the development environment** to complete the setup.
 
-> **Tip**: The `vdi-setup` script installs most dependencies, so you may skip parts of the setup process in `Development.md`.
+> [!TIP]
+> The `vdi-setup` script installs most dependencies. After running it, continue from the **Project setup** section in `Development.md`.

@@ -3,13 +3,7 @@
 This project is designed to run on Kubernetes, ensuring a consistent and reliable setup across all environments. For local development, we use **Minikube** and **Skaffold** to start a Kubernetes cluster locally and deploy all project services in a production-like manner.
 
 > [!TIP]
->
-> ## TL;DR
->
-> - **Automated Production Deployment**: Fully automated with GitHub Actions, Skaffold, and Minikube.
-> - **Production Environment**: Deployed to Google Cloud Platform (GCP) Kubernetes.
-> - **Local Testing**: Use `bin/test` to replicate the production environment locally.
-> - **Run System Tests**: Use `bin/system-tests-run-tests` for end-to-end testing. This validates that the system as a whole functions correctly before deployment.
+> **TL;DR** - Automated via GitHub Actions + Skaffold. Production runs on GCP Kubernetes. Use `bin/test` to replicate production locally and `bin/system-tests-run-tests` for end-to-end tests before deployment.
 
 ## Production Deployment Workflow
 
@@ -89,7 +83,7 @@ Routing rules are defined in `kubernetes/base/ingress.yml`. For more details, re
 | **Deployment Tool**           | Skaffold                                     | Skaffold                                       | Skaffold                    |
 | **Kubernetes Cluster**        | Minikube                                     | Minikube                                       | GCP Kubernetes              |
 | **Domain**                    | `project-331.local`                          | `project-331.local`                            | `courses.mooc.fi`           |
-| **Deployments Configuration** | `skaffold.yml`                               | `skaffold.production.yml`                      | `skaffold.production.yml`   |
+| **Deployments Configuration** | `skaffold.yaml`                              | `skaffold.production.yaml`                     | `skaffold.production.yaml`  |
 
 **`bin/dev`** is optimized for rapid iteration with live reloading. **`bin/test`** closely mirrors production, enabling a production-like system to be tested on any machine. The production deployment process is similar to `bin/test`, but it uses live infrastructure.
 

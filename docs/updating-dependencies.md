@@ -10,7 +10,8 @@ Check if we are using the current node LTS version by comparing with https://nod
 2. Replace node version in the FROM statements
 3. Update the pull command in `bin/build-dockerfile-node-base`
 
-> **Note**: Since this project uses pnpm, Node.js version management is handled automatically by pnpm. No `.nvmrc` files are needed.
+> [!NOTE]
+> Since this project uses pnpm, Node.js version management is handled automatically by pnpm. No `.nvmrc` files are needed.
 
 ## Updating node dependencies
 
@@ -18,7 +19,8 @@ When updating dependencies, you need to pay special attention to the cms service
 
 Before you start: Run this: `pnpm install && bin/pnpm-install-all`
 
-> **Important**: This project uses **pnpm** as the package manager. Do not use `npm` or `yarn` for dependency management.
+> [!IMPORTANT]
+> This project uses **pnpm** as the package manager. Do not use `npm` or `yarn` for dependency management.
 
 One by one cd to a service and run `pnpm exec npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `pnpm exec tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `pnpm audit --fix`.
 

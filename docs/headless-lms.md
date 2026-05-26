@@ -116,18 +116,6 @@ SELECT * FROM organizations WHERE deleted_at IS NULL;
 
 Now run the command `bin/psql-analyze explain.sql analyze.json` and then add the contents of both `explain.sql` and newly generated `analyze.json` on [https://tatiyants.com/pev/#/plans/new](https://tatiyants.com/pev/#/plans/new).
 
-### Setup development with a local Postgres
-
-Usually you don't need this as you can use the Postgres started by either `bin/dev` or `bin/dev-only-db`.
-
-1. cd services/headless-lms/models/ && cp .env.example .env
-2. In `.env` setup `DATABASE_URL=postgres://localhost/headless_lms_dev`
-3. `bin/local-dev-db-create-user`
-4. `bin/local-dev-db-create`
-5. Run `bin/sqlx-migrate-run`
-6. (Optional) `bin/seed-local`
-7. If migrations succeed, run `bin/dev`
-
 ## New struct/enum
 
 When creating a new struct or enum, it's common to derive a set of often used traits to make the struct easier to work with, even if the traits aren't strictly needed right now.

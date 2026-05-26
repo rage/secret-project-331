@@ -1,7 +1,7 @@
 # Development Environment Setup
 
 > [!NOTE]
-> Linux is the primary development platform at the University of Helsinki. macOS and Windows are supported but less tested.
+> Linux is the primary development platform at the MOOC center. macOS should also work but it's less tested.
 
 ## Requirements
 

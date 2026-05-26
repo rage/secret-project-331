@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  m.id,\n  m.user_id,\n  ud.first_name,\n  ud.last_name,\n  ud.email,\n  m.created_at\nFROM course_designer_plan_members m\nJOIN course_designer_plan_members self_member\n  ON self_member.course_designer_plan_id = m.course_designer_plan_id\n  AND self_member.user_id = $2\n  AND self_member.deleted_at IS NULL\nJOIN user_details ud ON ud.user_id = m.user_id\nWHERE m.course_designer_plan_id = $1\n  AND m.deleted_at IS NULL\nORDER BY m.created_at ASC, m.id ASC\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "first_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "last_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      true,
+      true,
+      false,
+      false
+    ]
+  },
+  "hash": "05569b14c5760b36414e9285174a41098b825d57e754dfaed426b807a4aa6e82"
+}

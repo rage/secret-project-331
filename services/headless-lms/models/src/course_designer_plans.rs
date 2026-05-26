@@ -1401,3 +1401,170 @@ RETURNING s.id
 pub fn no_gap_between(previous_end: NaiveDate, next_start: NaiveDate) -> bool {
     previous_end + Duration::days(1) == next_start
 }
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, FromRow, ToSchema)]
+pub struct PlanMemberWithDetails {
+    pub id: Uuid,
+    pub user_id: Uuid,
+    pub first_name: Option<String>,
+    pub last_name: Option<String>,
+    pub email: String,
+    pub created_at: DateTime<Utc>,
+}
+
+/// Returns all members of a plan with their user details.
+/// Fails if the requesting user is not a member of the plan.
+pub async fn get_plan_members_with_details(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    requesting_user_id: Uuid,
+) -> ModelResult<Vec<PlanMemberWithDetails>> {
+    let members = sqlx::query_as!(
+        PlanMemberWithDetails,
+        r#"
+SELECT
+  m.id,
+  m.user_id,
+  ud.first_name,
+  ud.last_name,
+  ud.email,
+  m.created_at
+FROM course_designer_plan_members m
+JOIN course_designer_plan_members self_member
+  ON self_member.course_designer_plan_id = m.course_designer_plan_id
+  AND self_member.user_id = $2
+  AND self_member.deleted_at IS NULL
+JOIN user_details ud ON ud.user_id = m.user_id
+WHERE m.course_designer_plan_id = $1
+  AND m.deleted_at IS NULL
+ORDER BY m.created_at ASC, m.id ASC
+"#,
+        plan_id,
+        requesting_user_id
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(members)
+}
+
+/// Adds a user as a plan member, identified by email.
+/// Fails if the requesting user is not a member, or if the email is not found.
+pub async fn add_plan_member_by_email(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    requesting_user_id: Uuid,
+    email: &str,
+) -> ModelResult<PlanMemberWithDetails> {
+    // Verify requesting user is a member.
+    get_plan_for_user(conn, plan_id, requesting_user_id).await?;
+
+    // Look up the target user by email.
+    let target_user_id: Uuid = sqlx::query_scalar!(
+        r#"
+SELECT users.id
+FROM user_details ud
+JOIN users ON users.id = ud.user_id
+WHERE lower(ud.email) = lower($1)
+  AND users.deleted_at IS NULL
+"#,
+        email
+    )
+    .fetch_optional(&mut *conn)
+    .await?
+    .ok_or_else(|| {
+        ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "No user found with that email address.".to_string(),
+            None,
+        )
+    })?;
+
+    // Restore the most recently soft-deleted membership if one exists.
+    let restored = sqlx::query_scalar!(
+        r#"
+UPDATE course_designer_plan_members
+SET deleted_at = NULL, updated_at = NOW()
+WHERE id = (
+  SELECT id
+  FROM course_designer_plan_members
+  WHERE course_designer_plan_id = $1
+    AND user_id = $2
+    AND deleted_at IS NOT NULL
+  ORDER BY deleted_at DESC
+  LIMIT 1
+)
+RETURNING id
+"#,
+        plan_id,
+        target_user_id
+    )
+    .fetch_optional(&mut *conn)
+    .await?;
+
+    // If no soft-deleted record was restored, insert a fresh one (or do nothing if already active).
+    if restored.is_none() {
+        sqlx::query!(
+            r#"
+INSERT INTO course_designer_plan_members (course_designer_plan_id, user_id)
+VALUES ($1, $2)
+ON CONFLICT DO NOTHING
+"#,
+            plan_id,
+            target_user_id
+        )
+        .execute(&mut *conn)
+        .await?;
+    }
+
+    // Fetch and return the now-active member record with user details.
+    let member = sqlx::query_as!(
+        PlanMemberWithDetails,
+        r#"
+SELECT
+  m.id,
+  m.user_id,
+  ud.first_name,
+  ud.last_name,
+  ud.email,
+  m.created_at
+FROM course_designer_plan_members m
+JOIN user_details ud ON ud.user_id = m.user_id
+WHERE m.course_designer_plan_id = $1
+  AND m.user_id = $2
+  AND m.deleted_at IS NULL
+"#,
+        plan_id,
+        target_user_id
+    )
+    .fetch_one(&mut *conn)
+    .await?;
+
+    Ok(member)
+}
+
+/// Soft-deletes a plan member.
+/// Fails if the requesting user is not a member.
+pub async fn remove_plan_member(
+    conn: &mut PgConnection,
+    plan_id: Uuid,
+    requesting_user_id: Uuid,
+    target_user_id: Uuid,
+) -> ModelResult<()> {
+    get_plan_for_user(conn, plan_id, requesting_user_id).await?;
+
+    sqlx::query!(
+        r#"
+UPDATE course_designer_plan_members
+SET deleted_at = NOW(), updated_at = NOW()
+WHERE course_designer_plan_id = $1
+  AND user_id = $2
+  AND deleted_at IS NULL
+"#,
+        plan_id,
+        target_user_id
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(())
+}

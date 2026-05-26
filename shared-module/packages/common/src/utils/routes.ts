@@ -286,6 +286,10 @@ export function manageCoursePlanWorkspaceRoute(planId: string) {
   return `/manage/course-plans/${planId}/workspace`
 }
 
+export function manageCoursePlanPermissionsRoute(planId: string) {
+  return `/manage/course-plans/${planId}/permissions`
+}
+
 export function testExamRoute(organizationSlug: string, examId: string) {
   return `/org/${organizationSlug}/exams/testexam/${examId}`
 }

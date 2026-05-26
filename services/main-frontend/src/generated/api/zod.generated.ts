@@ -19,6 +19,10 @@ export const zActivityProgress = z.enum([
   "Completed",
 ])
 
+export const zAddPlanMemberRequest = z.object({
+  email: z.string(),
+})
+
 export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
 
 /**
@@ -1963,6 +1967,15 @@ export const zPeerReviewWithQuestionsAndAnswers = z.object({
   questions_and_answers: z.array(zPeerOrSelfReviewQuestionAndAnswer),
 })
 
+export const zPlanMemberWithDetails = z.object({
+  created_at: z.iso.datetime(),
+  email: z.string(),
+  first_name: z.string().nullish(),
+  id: z.uuid(),
+  last_name: z.string().nullish(),
+  user_id: z.uuid(),
+})
+
 export const zPlaygroundExample = z.object({
   created_at: z.iso.datetime(),
   data: z.unknown(),
@@ -3155,6 +3168,36 @@ export const zGetCourseDesignerPlanPath = z.object({
  * Plan details
  */
 export const zGetCourseDesignerPlanResponse = zCourseDesignerPlanDetails
+
+export const zGetCoursePlanMembersPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Plan members
+ */
+export const zGetCoursePlanMembersResponse = z.array(zPlanMemberWithDetails)
+
+export const zAddCoursePlanMemberBody = zAddPlanMemberRequest
+
+export const zAddCoursePlanMemberPath = z.object({
+  plan_id: z.uuid(),
+})
+
+/**
+ * Added member
+ */
+export const zAddCoursePlanMemberResponse = zPlanMemberWithDetails
+
+export const zRemoveCoursePlanMemberPath = z.object({
+  plan_id: z.uuid(),
+  user_id: z.uuid(),
+})
+
+/**
+ * Member removed
+ */
+export const zRemoveCoursePlanMemberResponse = z.void()
 
 export const zSaveCourseDesignerScheduleBody = zSaveCourseDesignerScheduleRequest
 

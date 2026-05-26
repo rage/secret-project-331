@@ -830,7 +830,6 @@ pub async fn parse_and_stream_to_user<'a>(
     conn: &mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
-    //response_order_number: i32,
     pool: PgPool,
     request_estimated_tokens: i32,
     response_id: String,

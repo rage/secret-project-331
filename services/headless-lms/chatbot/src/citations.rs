@@ -22,13 +22,14 @@ pub struct CourseMaterialDocument {
 }
 
 impl CourseMaterialDocument {
-    pub async fn to_chatbot_conversation_message_citation(
+    /// Converts the document to citation. Returns also the page_id of the cited document
+    /// so we can get the correct chapter_number later.
+    pub fn to_chatbot_conversation_message_citation(
         &self,
-        conn: &mut PgConnection,
         conversation_message_id: Uuid,
         conversation_id: Uuid,
         citation_number: i32,
-    ) -> ChatbotResult<ChatbotConversationMessageCitation> {
+    ) -> ChatbotResult<(ChatbotConversationMessageCitation, Option<Uuid>)> {
         // Shorten the content if needed
         let content = if self.chunk.len() < 255 {
             self.chunk.clone()
@@ -42,30 +43,25 @@ impl CourseMaterialDocument {
         let decoded_title = url_decode(&self.title)?;
         let decoded_url = url_decode(&self.url)?;
 
-        // Get the chapter number
+        // Get the page id
         let mut page_path = PathBuf::from(&self.filepath);
         page_path.set_extension("");
         let page_id_str = page_path.file_name();
         let page_id =
             page_id_str.and_then(|id_str| Uuid::parse_str(id_str.to_string_lossy().as_ref()).ok());
-        let course_material_chapter_number = if let Some(id) = page_id {
-            let chapter = models::chapters::get_chapter_by_page_id(conn, id)
-                .await
-                .ok();
-            chapter.map(|c| c.chapter_number)
-        } else {
-            None
-        };
-        Ok(ChatbotConversationMessageCitation {
-            conversation_message_id,
-            conversation_id,
-            course_material_chapter_number,
-            title: decoded_title,
-            content,
-            document_url: decoded_url,
-            citation_number,
-            ..Default::default()
-        })
+
+        Ok((
+            ChatbotConversationMessageCitation {
+                conversation_message_id,
+                conversation_id,
+                title: decoded_title,
+                content,
+                document_url: decoded_url,
+                citation_number,
+                ..Default::default()
+            },
+            page_id,
+        ))
     }
 }
 
@@ -77,20 +73,16 @@ pub async fn chatbot_cited_documents_to_citations(
     api_key: &str,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+    let mut documents: Vec<(CourseMaterialDocument, i32)> = vec![];
     for (idx, url) in document_urls.iter_mut().enumerate() {
         let document = get_course_material_document(url, api_key).await?;
         let citation_number = (idx + 1) as i32;
-        save_document(
-            conn,
-            document,
-            conversation_message_id,
-            conversation_id,
-            citation_number,
-        )
-        .await?;
+        documents.push((document, citation_number));
     }
-    Ok(())
+    let res = save_documents(conn, documents, conversation_message_id, conversation_id).await?;
+
+    Ok(res)
 }
 
 /// Get a document from the search index with a LLM-provided get url
@@ -139,22 +131,28 @@ async fn process_course_material_document_response(
 }
 
 /// Save a course material document into the database as a citation
-async fn save_document(
+async fn save_documents(
     conn: &mut PgConnection,
-    document: CourseMaterialDocument,
+    documents_with_citation_numbers: Vec<(CourseMaterialDocument, i32)>,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
-    citation_number: i32,
-) -> anyhow::Result<ChatbotConversationMessageCitation> {
-    let citation = document
-        .to_chatbot_conversation_message_citation(
-            conn,
-            conversation_message_id,
-            conversation_id,
-            citation_number,
-        )
-        .await?;
-    let res = chatbot_conversation_messages_citations::insert(conn, citation).await?;
+) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+    let (citations, page_ids): (Vec<ChatbotConversationMessageCitation>, Vec<Option<Uuid>>) =
+        documents_with_citation_numbers
+            .iter()
+            .map(|(d, citation_number)| {
+                d.to_chatbot_conversation_message_citation(
+                    conversation_message_id,
+                    conversation_id,
+                    citation_number.to_owned(),
+                )
+            })
+            .collect::<ChatbotResult<Vec<(ChatbotConversationMessageCitation, Option<Uuid>)>>>()?
+            .into_iter()
+            .unzip();
+    // insert batch?
+    let res =
+        chatbot_conversation_messages_citations::insert_batch(conn, citations, page_ids).await?;
 
     Ok(res)
 }

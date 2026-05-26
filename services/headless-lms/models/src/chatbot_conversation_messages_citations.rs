@@ -65,6 +65,56 @@ RETURNING *
     Ok(res)
 }
 
+/// Insert a batch of citation from the same conversation
+pub async fn insert_batch(
+    conn: &mut PgConnection,
+    input: Vec<ChatbotConversationMessageCitation>,
+    page_ids: Vec<Option<Uuid>>,
+) -> ModelResult<Vec<ChatbotConversationMessageCitation>> {
+    let conv_id = input[0].conversation_id;
+    let cm_ids: Vec<Uuid> = input.iter().map(|x| x.conversation_message_id).collect();
+    let titles: Vec<String> = input.iter().map(|x| x.title.to_owned()).collect();
+    let contents: Vec<String> = input.iter().map(|x| x.content.to_owned()).collect();
+    let document_urls: Vec<String> = input.iter().map(|x| x.document_url.to_owned()).collect();
+    let citation_numbers: Vec<i32> = input.iter().map(|x| x.citation_number).collect();
+
+    let res = sqlx::query_as!(
+        ChatbotConversationMessageCitation,
+        r#"
+INSERT INTO chatbot_conversation_messages_citations (
+    conversation_id,
+    conversation_message_id,
+    title,
+    content,
+    document_url,
+    citation_number,
+    course_material_chapter_number
+  )
+SELECT $1,
+  UNNEST($2::UUID []),
+  UNNEST($3::TEXT []),
+  UNNEST($4::TEXT []),
+  UNNEST($5::TEXT []),
+  UNNEST($6::INTEGER []),
+  c.chapter_number
+  FROM UNNEST($7::UUID []) page_id, pages p
+  JOIN chapters c ON c.id = p.chapter_id
+  WHERE p.id = page_id AND c.deleted_at IS NULL
+RETURNING *
+        "#,
+        conv_id,
+        &cm_ids,
+        &titles,
+        &contents,
+        &document_urls,
+        &citation_numbers,
+        &page_ids as _,
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_by_message_id(
     conn: &mut PgConnection,
     message_id: Uuid,

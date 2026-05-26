@@ -32,8 +32,7 @@ bin/print-versions
 <details>
 <summary>Option B: Manual install (without Nix)</summary>
 
-> [!NOTE]
-> After installing all tools manually, run `bin/print-versions` to confirm everything is in place.
+Note: After installing all tools manually, run `bin/print-versions` to confirm everything is in place.
 
 ### Linux
 

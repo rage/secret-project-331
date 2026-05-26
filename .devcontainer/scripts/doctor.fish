@@ -8,20 +8,6 @@ set -g warn_count 0
 set -gx NIX_CONFIG "experimental-features = nix-command flakes"
 set -gx TILT_DISABLE_ANALYTICS 1
 
-function add_nix_paths
-    if test -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish
-        source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish
-    end
-
-    if test -d /nix/var/nix/profiles/default/bin
-        fish_add_path -m /nix/var/nix/profiles/default/bin
-    end
-
-    if test -d "$HOME/.nix-profile/bin"
-        fish_add_path -m "$HOME/.nix-profile/bin"
-    end
-end
-
 function usage
     echo "Usage: .devcontainer/scripts/doctor.fish [--prereq]"
     echo ""
@@ -29,7 +15,7 @@ function usage
     echo "--prereq keeps the same checks and exits non-zero only for hard failures."
 end
 
-add_nix_paths
+source $script_dir/lib/nix-paths.fish
 
 for arg in $argv
     switch "$arg"

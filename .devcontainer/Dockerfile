@@ -27,3 +27,12 @@ RUN apt-get update \
     sudo \
     xz-utils \
   && rm -rf /var/lib/apt/lists/*
+
+COPY --chown=vscode:vscode bin/install-nix bin/.common /tmp/bin/
+
+USER vscode
+RUN chmod +x /tmp/bin/install-nix \
+  && env NIX_INSTALLER_INIT=none PROJECT_331_DEVCONTAINER=1 bash /tmp/bin/install-nix \
+  && rm -rf /tmp/bin \
+  && nix --version
+USER root

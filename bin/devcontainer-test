@@ -1,0 +1,67 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+export NIX_CONFIG="${NIX_CONFIG:-experimental-features = nix-command flakes}"
+export TILT_DISABLE_ANALYTICS="${TILT_DISABLE_ANALYTICS:-1}"
+
+find_nix() {
+  if command -v nix >/dev/null 2>&1; then
+    command -v nix
+  elif [ -x /nix/var/nix/profiles/default/bin/nix ]; then
+    echo /nix/var/nix/profiles/default/bin/nix
+  elif [ -x "${HOME}/.nix-profile/bin/nix" ]; then
+    echo "${HOME}/.nix-profile/bin/nix"
+  else
+    return 1
+  fi
+}
+
+usage() {
+  cat <<'EOF'
+Usage: bin/devcontainer-test [--tilt|--skaffold|--system] [args...]
+
+Defaults to --tilt, which uses the Kind/Tilt-compatible bin/test-tilt path.
+--skaffold runs the legacy Minikube/Skaffold bin/test path.
+--system runs bin/system-tests-run-tests and expects the app to already be running.
+EOF
+}
+
+mode="tilt"
+case "${1:-}" in
+  --tilt)
+    mode="tilt"
+    shift
+    ;;
+  --skaffold)
+    mode="skaffold"
+    shift
+    ;;
+  --system)
+    mode="system"
+    shift
+    ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+esac
+
+"${REPO_ROOT}/bin/devcontainer-doctor" --prereq
+
+cd "$REPO_ROOT"
+NIX_BIN="$(find_nix)"
+
+case "$mode" in
+  tilt)
+    exec "$NIX_BIN" develop "$REPO_ROOT" --command bin/test-tilt "$@"
+    ;;
+  skaffold)
+    exec "$NIX_BIN" develop "$REPO_ROOT" --command bin/test "$@"
+    ;;
+  system)
+    exec "$NIX_BIN" develop "$REPO_ROOT" --command bin/system-tests-run-tests "$@"
+    ;;
+esac

@@ -35,4 +35,3 @@ RUN chmod +x /tmp/bin/install-nix \
   && env NIX_INSTALLER_INIT=none PROJECT_331_DEVCONTAINER=1 bash /tmp/bin/install-nix \
   && rm -rf /tmp/bin \
   && nix --version
-USER root

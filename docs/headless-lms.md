@@ -138,7 +138,7 @@ QueryBuilder docs at https://docs.rs/sqlx/latest/sqlx/query_builder/struct.Query
 SQLx querybuilder can be used to create more complex and dynamic SQL queries.
 
 ```rs
-import sqlx::query_builder::QueryBuilder;
+use sqlx::query_builder::QueryBuilder;
 
 // QueryBuilder is initiated with new() function, which takes 'init' sql statement.
 let sql = QueryBuilder::new("INSERT INTO exercises (id, name, course_id)");

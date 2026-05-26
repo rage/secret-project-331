@@ -123,7 +123,7 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
    cd /data/username/Code/secret-project-331
    ```
 
-2. Follow the instructions in the `docs/Development.md` file under the section **Running the development environment** to complete the setup.
+2. Follow the instructions in `docs/Development.md`, starting from the **Project setup** section.
 
 > [!TIP]
 > The `vdi-setup` script installs most dependencies. After running it, continue from the **Project setup** section in `Development.md`.

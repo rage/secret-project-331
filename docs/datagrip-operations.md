@@ -30,7 +30,7 @@ To view a certificate:
 Query the `user_details` table:
 
 ```sql
-WHERE user_id = '<USER ID>'
+SELECT * FROM user_details WHERE user_id = '<USER ID>';
 ```
 
 ## Find pages with default image alt texts

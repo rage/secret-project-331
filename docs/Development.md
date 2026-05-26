@@ -184,7 +184,7 @@ Same as Linux: use `minikube ip` and add the result to `/etc/hosts`.
 
 Get the IP with `minikube ip`, then add it to `C:\Windows\System32\drivers\etc\hosts`:
 
-```
+```text
 <minikube-ip>    project-331.local
 ```
 

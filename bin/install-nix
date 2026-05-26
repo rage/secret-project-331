@@ -191,7 +191,11 @@ FISH
 fi
 
 echo -e "${BLUE}Installing direnv via Nix...${RESET_EVERYTHING}"
-nix --extra-experimental-features 'nix-command flakes' profile add nixpkgs#direnv
+if command -v direnv > /dev/null 2>&1; then
+  echo "direnv is already available ($(direnv --version)); skipping Nix profile installation."
+else
+  nix --extra-experimental-features 'nix-command flakes' profile add nixpkgs#direnv
+fi
 
 if ! command -v direnv > /dev/null 2>&1; then
   export PATH="$HOME/.nix-profile/bin:$PATH"

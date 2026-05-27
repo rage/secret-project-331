@@ -295,6 +295,8 @@
   "course-navigation": "Navigera till kurs '{{ title }}'",
   "course-overview": "Kursöversikt",
   "course-pages-for": "Kursens sidor för {{course-name}}",
+  "course-plan-permissions-title": "Kursplanens behörigheter",
+  "course-plans-manage-members": "Hantera medlemmar",
   "course-plans-reset-suggestion": "Återställ förslag",
   "course-plans-wizard-name-hint": "Detta är ett arbetsnamn som kan ändras senare.",
   "course-plans-wizard-progress-label": "Framsteg för schemainställning",

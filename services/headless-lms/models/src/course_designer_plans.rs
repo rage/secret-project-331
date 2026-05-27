@@ -1419,6 +1419,8 @@ pub async fn get_plan_members_with_details(
     plan_id: Uuid,
     requesting_user_id: Uuid,
 ) -> ModelResult<Vec<PlanMemberWithDetails>> {
+    get_plan_for_user(conn, plan_id, requesting_user_id).await?;
+
     let members = sqlx::query_as!(
         PlanMemberWithDetails,
         r#"
@@ -1430,17 +1432,12 @@ SELECT
   ud.email,
   m.created_at
 FROM course_designer_plan_members m
-JOIN course_designer_plan_members self_member
-  ON self_member.course_designer_plan_id = m.course_designer_plan_id
-  AND self_member.user_id = $2
-  AND self_member.deleted_at IS NULL
 JOIN user_details ud ON ud.user_id = m.user_id
 WHERE m.course_designer_plan_id = $1
   AND m.deleted_at IS NULL
 ORDER BY m.created_at ASC, m.id ASC
 "#,
-        plan_id,
-        requesting_user_id
+        plan_id
     )
     .fetch_all(conn)
     .await?;

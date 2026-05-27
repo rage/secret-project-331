@@ -150,7 +150,6 @@ async fn save_documents(
             .collect::<ChatbotResult<Vec<(ChatbotConversationMessageCitation, Option<Uuid>)>>>()?
             .into_iter()
             .unzip();
-    // insert batch?
     let res =
         chatbot_conversation_messages_citations::insert_batch(conn, citations, page_ids).await?;
 

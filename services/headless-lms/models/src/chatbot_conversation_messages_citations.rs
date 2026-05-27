@@ -91,15 +91,25 @@ INSERT INTO chatbot_conversation_messages_citations (
     course_material_chapter_number
   )
 SELECT $1,
-  UNNEST($2::UUID []),
-  UNNEST($3::TEXT []),
-  UNNEST($4::TEXT []),
-  UNNEST($5::TEXT []),
-  UNNEST($6::INTEGER []),
+  lol.cm_id,
+  lol.title,
+  lol.content,
+  lol.document_url,
+  lol.citation_number,
   c.chapter_number
-  FROM UNNEST($7::UUID []) page_id, pages p
-  JOIN chapters c ON c.id = p.chapter_id
-  WHERE p.id = page_id AND c.deleted_at IS NULL
+FROM (
+    SELECT
+      UNNEST($2::UUID []) cm_id,
+      UNNEST($3::TEXT []) title,
+      UNNEST($4::TEXT []) content,
+      UNNEST($5::TEXT []) document_url,
+      UNNEST($6::INTEGER []) citation_number,
+      UNNEST($7::UUID []) page_id
+  ) lol
+  JOIN pages p ON p.id = lol.page_id
+  LEFT JOIN chapters c ON p.chapter_id = c.id
+WHERE c.deleted_at IS NULL
+  AND p.deleted_at IS NULL
 RETURNING *
         "#,
         conv_id,

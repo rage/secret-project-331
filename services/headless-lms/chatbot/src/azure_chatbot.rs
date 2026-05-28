@@ -694,6 +694,7 @@ pub async fn process_output_item(
 
             chatbot_cited_documents_to_citations(
                 conn,
+                app_config.test_chatbot,
                 get_urls,
                 api_key,
                 conversation_message.id,

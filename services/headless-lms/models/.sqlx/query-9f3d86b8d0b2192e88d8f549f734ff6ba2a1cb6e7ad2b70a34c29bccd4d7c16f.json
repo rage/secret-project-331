@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  cmc.id AS completion_id,\n  cmc.user_id,\n  ud.email,\n  cmc.completion_language,\n  cmc.course_module_id,\n  cmc.course_id,\n  ud.ects_unsubscribe_token\nFROM course_module_completions cmc\nJOIN user_details ud ON ud.user_id = cmc.user_id\nLEFT JOIN ects_reminder_email_sends ers\n  ON ers.course_module_completion_id = cmc.id\n  AND ers.email_type = 'initial'\n  AND ers.deleted_at IS NULL\nWHERE cmc.eligible_for_ects = true\n  AND cmc.passed = true\n  AND cmc.deleted_at IS NULL\n  AND ud.country = 'FI'\n  AND ud.ects_email_opt_out = false\n  AND cmc.completion_date < NOW() - INTERVAL '24 hours'\n  AND ers.id IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "completion_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "completion_language",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "ects_unsubscribe_token",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "9f3d86b8d0b2192e88d8f549f734ff6ba2a1cb6e7ad2b70a34c29bccd4d7c16f"
+}

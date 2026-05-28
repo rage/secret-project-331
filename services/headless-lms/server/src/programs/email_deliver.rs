@@ -5,6 +5,7 @@ use crate::prelude::*;
 use anyhow::{Context, Result};
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use futures::{FutureExt, StreamExt};
+use headless_lms_models::ects_reminder_email_sends::get_completion_id_by_email_delivery_id;
 use headless_lms_models::email_deliveries::{
     Email, EmailDeliveryErrorInsert, FETCH_LIMIT, fetch_emails,
     increment_retry_and_mark_non_retryable, increment_retry_and_schedule,
@@ -289,6 +290,51 @@ async fn apply_email_template_replacements(
         }
         EmailTemplateType::Generic => {
             return Ok(TemplateApplyResult::Ready(blocks));
+        }
+        EmailTemplateType::EctsInitialReminder | EmailTemplateType::EctsFollowUpReminder => {
+            let base = ProgramConfig::optional("FRONTEND_BASE_URL")
+                .and_then(|value| {
+                    let trimmed = value.trim();
+                    if trimmed.is_empty() {
+                        None
+                    } else {
+                        Some(trimmed.to_string())
+                    }
+                })
+                .unwrap_or_else(|| FRONTEND_BASE_URL.to_string());
+            let base = base.trim_end_matches('/');
+
+            let completion_id = match get_completion_id_by_email_delivery_id(conn, email_id).await {
+                Ok(id) => id,
+                Err(err) => {
+                    let msg = format!(
+                        "No ECTS reminder send record for email delivery {}: {}",
+                        email_id, err
+                    );
+                    record_non_retryable_failure(conn, email_id, attempt, "template", msg).await?;
+                    return Ok(TemplateApplyResult::Abandoned);
+                }
+            };
+
+            let completion =
+                headless_lms_models::course_module_completions::get_by_id(conn, completion_id)
+                    .await?;
+
+            let unsubscribe_token =
+                headless_lms_models::user_details::get_ects_unsubscribe_token(conn, user_id)
+                    .await?;
+
+            replacements.insert(
+                "REGISTRATION_LINK".to_string(),
+                format!(
+                    "{}/completion-registration/{}",
+                    base, completion.course_module_id
+                ),
+            );
+            replacements.insert(
+                "UNSUBSCRIBE_LINK".to_string(),
+                format!("{}/unsubscribe/ects?token={}", base, unsubscribe_token),
+            );
         }
     }
 

@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  (\n    SELECT COUNT(*)\n    FROM course_module_completions\n    WHERE eligible_for_ects = true AND passed = true AND deleted_at IS NULL\n  ) AS \"eligible_completions!\",\n  (\n    SELECT COUNT(*)\n    FROM course_module_completions cmc\n    JOIN user_details ud ON ud.user_id = cmc.user_id\n    WHERE cmc.eligible_for_ects = true AND cmc.passed = true AND cmc.deleted_at IS NULL\n      AND ud.country = 'FI'\n  ) AS \"finland_eligible_completions!\",\n  (\n    SELECT COUNT(*) FROM ects_reminder_email_sends\n    WHERE email_type = 'initial' AND deleted_at IS NULL\n  ) AS \"initial_emails_sent!\",\n  (\n    SELECT COUNT(*) FROM ects_reminder_email_sends\n    WHERE email_type = 'follow_up' AND deleted_at IS NULL\n  ) AS \"follow_up_emails_sent!\",\n  (\n    SELECT COUNT(DISTINCT ers.course_module_completion_id)\n    FROM ects_reminder_email_sends ers\n    JOIN course_module_completion_registered_to_study_registries reg\n      ON reg.course_module_completion_id = ers.course_module_completion_id\n      AND reg.deleted_at IS NULL\n    WHERE ers.deleted_at IS NULL\n  ) AS \"registered_after_email!\",\n  (\n    SELECT COUNT(*) FROM user_details WHERE ects_email_opt_out = true\n  ) AS \"opted_out!\"\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "eligible_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 1,
+        "name": "finland_eligible_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "initial_emails_sent!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "follow_up_emails_sent!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "registered_after_email!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "opted_out!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "c9986ac6169432b3615f5684f3939ffaacd2ea46c03736d57b25482bb82035f4"
+}

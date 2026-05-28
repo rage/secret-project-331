@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  cmc.id AS completion_id,\n  cmc.user_id,\n  ud.email,\n  cmc.completion_language,\n  cmc.course_module_id,\n  cmc.course_id,\n  ud.ects_unsubscribe_token\nFROM course_module_completions cmc\nJOIN user_details ud ON ud.user_id = cmc.user_id\nJOIN ects_reminder_email_sends initial_send\n  ON initial_send.course_module_completion_id = cmc.id\n  AND initial_send.email_type = 'initial'\n  AND initial_send.deleted_at IS NULL\nLEFT JOIN ects_reminder_email_sends follow_up_send\n  ON follow_up_send.course_module_completion_id = cmc.id\n  AND follow_up_send.email_type = 'follow_up'\n  AND follow_up_send.deleted_at IS NULL\nLEFT JOIN course_module_completion_registered_to_study_registries reg\n  ON reg.course_module_completion_id = cmc.id\n  AND reg.deleted_at IS NULL\nWHERE cmc.eligible_for_ects = true\n  AND cmc.passed = true\n  AND cmc.deleted_at IS NULL\n  AND ud.country = 'FI'\n  AND ud.ects_email_opt_out = false\n  AND initial_send.created_at < NOW() - INTERVAL '14 days'\n  AND follow_up_send.id IS NULL\n  AND reg.id IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "completion_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "email",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 3,
+        "name": "completion_language",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 4,
+        "name": "course_module_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 6,
+        "name": "ects_unsubscribe_token",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "6466e983d99bcf77242f4d15dd0bf05afe928b653f942e044ae4f1a0b7e7e844"
+}

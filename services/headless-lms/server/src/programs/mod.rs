@@ -9,6 +9,7 @@ pub mod ended_exams_processor;
 pub mod mailchimp_syncer;
 pub mod open_university_registration_link_fetcher;
 pub mod peer_review_updater;
+pub mod periodic_task_runner;
 pub mod regrader;
 pub mod seed;
 pub mod service_info_fetcher;

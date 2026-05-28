@@ -1955,7 +1955,14 @@
       },
       "EmailTemplateType": {
         "type": "string",
-        "enum": ["reset_password_email", "delete_user_email", "confirm_email_code", "generic"]
+        "enum": [
+          "reset_password_email",
+          "delete_user_email",
+          "confirm_email_code",
+          "generic",
+          "ects_initial_reminder",
+          "ects_follow_up_reminder"
+        ]
       },
       "EmailTemplateUpdate": {
         "type": "object",

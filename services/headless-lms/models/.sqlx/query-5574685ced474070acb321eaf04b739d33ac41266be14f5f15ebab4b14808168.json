@@ -39,7 +39,9 @@
                 "reset_password_email",
                 "delete_user_email",
                 "generic",
-                "confirm_email_code"
+                "confirm_email_code",
+                "ects_initial_reminder",
+                "ects_follow_up_reminder"
               ]
             }
           }

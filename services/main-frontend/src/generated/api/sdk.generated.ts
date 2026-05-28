@@ -128,6 +128,8 @@ import type {
   DownloadCodeGiveawayCodesCsvResponses,
   DuplicateExamData,
   DuplicateExamResponses,
+  EctsEmailUnsubscribeData,
+  EctsEmailUnsubscribeResponses,
   EditCourseInstanceData,
   EditCourseInstanceResponses,
   EditExamData,
@@ -306,6 +308,12 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponses,
   GetCurrentTimeData,
   GetCurrentTimeResponses,
+  GetEctsEmailPreferencesData,
+  GetEctsEmailPreferencesResponses,
+  GetEctsReminderStatsByCourseData,
+  GetEctsReminderStatsByCourseResponses,
+  GetEctsReminderStatsData,
+  GetEctsReminderStatsResponses,
   GetEditProposalCountData,
   GetEditProposalCountResponses,
   GetEditProposalsData,
@@ -580,6 +588,8 @@ import type {
   UpdateCourseReferenceData,
   UpdateCourseReferenceResponses,
   UpdateCourseResponses,
+  UpdateEctsEmailPreferencesData,
+  UpdateEctsEmailPreferencesResponses,
   UpdateExerciseRepositoryData,
   UpdateExerciseRepositoryResponses,
   UpdateExerciseServiceData,
@@ -722,6 +732,9 @@ import {
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
   zGetCurrentTimeResponse,
+  zGetEctsEmailPreferencesResponse,
+  zGetEctsReminderStatsByCourseResponse,
+  zGetEctsReminderStatsResponse,
   zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
@@ -3908,6 +3921,39 @@ export const getCourseWeekdayHourSubmissionCounts = <ThrowOnError extends boolea
 
 /**
  *
+ * GET `/api/v0/main-frontend/ects-reminder-stats` - Global ECTS reminder campaign statistics (global admin only)
+ */
+export const getEctsReminderStats = <ThrowOnError extends boolean = true>(
+  options?: Options<GetEctsReminderStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<GetEctsReminderStatsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetEctsReminderStatsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/ects-reminder-stats",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/ects-reminder-stats/by-course` - Per-course ECTS reminder statistics (global admin only)
+ */
+export const getEctsReminderStatsByCourse = <ThrowOnError extends boolean = true>(
+  options?: Options<GetEctsReminderStatsByCourseData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<
+    GetEctsReminderStatsByCourseResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetEctsReminderStatsByCourseResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/ects-reminder-stats/by-course",
+    ...options,
+  })
+
+/**
+ *
  * GET `/api/v0/main-frontend/email-templates`
  */
 export const getEmailTemplates = <ThrowOnError extends boolean = true>(
@@ -6213,6 +6259,55 @@ export const getBulkUserDetails = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/user-details/ects-email-preferences` - Get the current user's ECTS email preferences
+ */
+export const getEctsEmailPreferences = <ThrowOnError extends boolean = true>(
+  options?: Options<GetEctsEmailPreferencesData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<GetEctsEmailPreferencesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetEctsEmailPreferencesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/user-details/ects-email-preferences",
+    ...options,
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/user-details/ects-email-preferences` - Update the current user's ECTS email opt-out preference
+ */
+export const updateEctsEmailPreferences = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateEctsEmailPreferencesData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<
+    UpdateEctsEmailPreferencesResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/user-details/ects-email-preferences",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/user-details/ects-email-unsubscribe` - Unsubscribe from ECTS reminder emails using a token from the email link. Does not require authentication.
+ */
+export const ectsEmailUnsubscribe = <ThrowOnError extends boolean = true>(
+  options: Options<EctsEmailUnsubscribeData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<EctsEmailUnsubscribeResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/user-details/ects-email-unsubscribe",
+    ...options,
   })
 
 /**

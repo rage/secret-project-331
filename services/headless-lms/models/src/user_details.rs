@@ -432,6 +432,70 @@ WHERE user_id = $2
     Ok(())
 }
 
+/// Lightweight preferences struct for ECTS email opt-out, separate from UserDetail
+/// to avoid touching its many SELECT queries.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize, ToSchema)]
+pub struct UserEctsEmailPreferences {
+    pub ects_email_opt_out: bool,
+}
+
+pub async fn get_ects_unsubscribe_token(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Uuid> {
+    let token = sqlx::query_scalar!(
+        "SELECT ects_unsubscribe_token FROM user_details WHERE user_id = $1",
+        user_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(token)
+}
+
+pub async fn get_user_ects_email_preferences(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<UserEctsEmailPreferences> {
+    let res = sqlx::query_as!(
+        UserEctsEmailPreferences,
+        "SELECT ects_email_opt_out FROM user_details WHERE user_id = $1",
+        user_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn set_ects_email_preference(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    opt_out: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE user_details SET ects_email_opt_out = $1 WHERE user_id = $2",
+        opt_out,
+        user_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
+/// Opts a user out of ECTS reminder emails using their unsubscribe token (no login required).
+/// Returns the user_id if the token was found, or None if the token did not match any user.
+pub async fn opt_out_ects_email_by_unsubscribe_token(
+    conn: &mut PgConnection,
+    token: Uuid,
+) -> ModelResult<Option<Uuid>> {
+    let res = sqlx::query!(
+        "UPDATE user_details SET ects_email_opt_out = true WHERE ects_unsubscribe_token = $1 RETURNING user_id",
+        token,
+    )
+    .fetch_optional(conn)
+    .await?;
+    Ok(res.map(|r| r.user_id))
+}
+
 pub async fn update_user_email_communication_consent(
     conn: &mut PgConnection,
     user_id: Uuid,

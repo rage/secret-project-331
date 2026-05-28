@@ -6032,6 +6032,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/ects-reminder-stats": {
+      "get": {
+        "tags": ["ects-reminder-stats"],
+        "summary": "\nGET `/api/v0/main-frontend/ects-reminder-stats` - Global ECTS reminder campaign statistics (global admin only)",
+        "operationId": "getEctsReminderStats",
+        "responses": {
+          "200": {
+            "description": "Global ECTS reminder stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EctsReminderStats"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/ects-reminder-stats/by-course": {
+      "get": {
+        "tags": ["ects-reminder-stats"],
+        "summary": "\nGET `/api/v0/main-frontend/ects-reminder-stats/by-course` - Per-course ECTS reminder statistics (global admin only)",
+        "operationId": "getEctsReminderStatsByCourse",
+        "responses": {
+          "200": {
+            "description": "Per-course ECTS reminder stats",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EctsReminderCourseStats"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/email-templates": {
       "get": {
         "tags": ["email_templates"],
@@ -9933,6 +9974,69 @@
         }
       }
     },
+    "/api/v0/main-frontend/user-details/ects-email-preferences": {
+      "get": {
+        "tags": ["user-details"],
+        "summary": "\nGET `/api/v0/main-frontend/user-details/ects-email-preferences` - Get the current user's ECTS email preferences",
+        "operationId": "getEctsEmailPreferences",
+        "responses": {
+          "200": {
+            "description": "ECTS email preferences",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEctsEmailPreferences"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["user-details"],
+        "summary": "\nPUT `/api/v0/main-frontend/user-details/ects-email-preferences` - Update the current user's ECTS email opt-out preference",
+        "operationId": "updateEctsEmailPreferences",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EctsEmailPreferencesPayload"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/user-details/ects-email-unsubscribe": {
+      "get": {
+        "tags": ["user-details"],
+        "summary": "\nGET `/api/v0/main-frontend/user-details/ects-email-unsubscribe` - Unsubscribe from ECTS reminder emails using a token from the email link. Does not require authentication.",
+        "operationId": "ectsEmailUnsubscribe",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "description": "Unsubscribe token from the email link",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Unsubscribed successfully"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/user-details/search-by-email": {
       "post": {
         "tags": ["user-details"],
@@ -13444,6 +13548,95 @@
           }
         }
       },
+      "EctsEmailPreferencesPayload": {
+        "type": "object",
+        "required": ["ects_email_opt_out"],
+        "properties": {
+          "ects_email_opt_out": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EctsReminderCourseStats": {
+        "type": "object",
+        "description": "Stats for one course row in the per-course breakdown table.",
+        "required": [
+          "course_id",
+          "course_name",
+          "eligible_completions",
+          "finland_eligible_completions",
+          "initial_emails_sent",
+          "follow_up_emails_sent",
+          "registered_after_email"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "course_name": {
+            "type": "string"
+          },
+          "eligible_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "finland_eligible_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "follow_up_emails_sent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "initial_emails_sent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "registered_after_email": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "EctsReminderStats": {
+        "type": "object",
+        "description": "Stats for the ECTS reminder marketing dashboard.",
+        "required": [
+          "eligible_completions",
+          "finland_eligible_completions",
+          "initial_emails_sent",
+          "follow_up_emails_sent",
+          "registered_after_email",
+          "opted_out"
+        ],
+        "properties": {
+          "eligible_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "finland_eligible_completions": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "follow_up_emails_sent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "initial_emails_sent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "opted_out": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "registered_after_email": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "EditProposalInfo": {
         "type": "object",
         "required": ["page_id", "page_proposal_id", "block_proposals"],
@@ -13590,7 +13783,14 @@
       },
       "EmailTemplateType": {
         "type": "string",
-        "enum": ["reset_password_email", "delete_user_email", "confirm_email_code", "generic"]
+        "enum": [
+          "reset_password_email",
+          "delete_user_email",
+          "confirm_email_code",
+          "generic",
+          "ects_initial_reminder",
+          "ects_follow_up_reminder"
+        ]
       },
       "EventInfo": {
         "type": "object",
@@ -17546,6 +17746,16 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "UserEctsEmailPreferences": {
+        "type": "object",
+        "description": "Lightweight preferences struct for ECTS email opt-out, separate from UserDetail\nto avoid touching its many SELECT queries.",
+        "required": ["ects_email_opt_out"],
+        "properties": {
+          "ects_email_opt_out": {
+            "type": "boolean"
           }
         }
       },

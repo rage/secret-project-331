@@ -1,0 +1,56 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n  c.id AS course_id,\n  c.name AS course_name,\n  COUNT(DISTINCT cmc.id) FILTER (\n    WHERE cmc.eligible_for_ects = true AND cmc.passed = true\n  ) AS \"eligible_completions!\",\n  COUNT(DISTINCT cmc.id) FILTER (\n    WHERE cmc.eligible_for_ects = true AND cmc.passed = true AND ud.country = 'FI'\n  ) AS \"finland_eligible_completions!\",\n  COUNT(DISTINCT ers_i.id) AS \"initial_emails_sent!\",\n  COUNT(DISTINCT ers_f.id) AS \"follow_up_emails_sent!\",\n  COUNT(DISTINCT reg.course_module_completion_id) AS \"registered_after_email!\"\nFROM courses c\nLEFT JOIN course_module_completions cmc ON cmc.course_id = c.id AND cmc.deleted_at IS NULL\nLEFT JOIN user_details ud ON ud.user_id = cmc.user_id\nLEFT JOIN ects_reminder_email_sends ers_i\n  ON ers_i.course_module_completion_id = cmc.id\n  AND ers_i.email_type = 'initial'\n  AND ers_i.deleted_at IS NULL\nLEFT JOIN ects_reminder_email_sends ers_f\n  ON ers_f.course_module_completion_id = cmc.id\n  AND ers_f.email_type = 'follow_up'\n  AND ers_f.deleted_at IS NULL\nLEFT JOIN course_module_completion_registered_to_study_registries reg\n  ON reg.course_module_completion_id = cmc.id\n  AND reg.deleted_at IS NULL\n  AND EXISTS (\n    SELECT 1 FROM ects_reminder_email_sends e2\n    WHERE e2.course_module_completion_id = cmc.id AND e2.deleted_at IS NULL\n  )\nWHERE c.deleted_at IS NULL\nGROUP BY c.id, c.name\nHAVING COUNT(DISTINCT ers_i.id) > 0 OR COUNT(DISTINCT ers_f.id) > 0\nORDER BY \"initial_emails_sent!\" DESC\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "course_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 2,
+        "name": "eligible_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "finland_eligible_completions!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "initial_emails_sent!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "follow_up_emails_sent!",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "registered_after_email!",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "5eab2b896c54b2de799659438274f980404b08d626360e6c5f12fee135943679"
+}

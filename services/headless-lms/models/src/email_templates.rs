@@ -9,6 +9,8 @@ pub enum EmailTemplateType {
     DeleteUserEmail,
     ConfirmEmailCode,
     Generic,
+    EctsInitialReminder,
+    EctsFollowUpReminder,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -139,6 +141,48 @@ LIMIT 1
         language
     )
     .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
+/// Finds the best email template for a given type and language, preferring course-specific
+/// templates over global ones. Falls back to English if no language match is found.
+/// Returns None if no template of this type exists at all.
+pub async fn get_best_email_template_for_course(
+    conn: &mut PgConnection,
+    template_type: EmailTemplateType,
+    language: &str,
+    course_id: Uuid,
+) -> ModelResult<Option<EmailTemplate>> {
+    let res = sqlx::query_as!(
+        EmailTemplate,
+        r#"
+SELECT id,
+  created_at,
+  updated_at,
+  deleted_at,
+  content,
+  email_template_type AS "template_type: EmailTemplateType",
+  subject,
+  exercise_completions_threshold,
+  points_threshold,
+  course_id,
+  language
+FROM email_templates
+WHERE email_template_type = $1
+  AND deleted_at IS NULL
+  AND (course_id = $3 OR course_id IS NULL)
+  AND (language = $2 OR language = 'en' OR language IS NULL)
+ORDER BY
+  CASE WHEN course_id = $3 THEN 0 ELSE 1 END,
+  CASE WHEN language = $2 THEN 0 WHEN language = 'en' THEN 1 ELSE 2 END
+LIMIT 1
+        "#,
+        template_type as EmailTemplateType,
+        language,
+        course_id,
+    )
+    .fetch_optional(conn)
     .await?;
     Ok(res)
 }

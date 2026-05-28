@@ -129,7 +129,8 @@ async fn get_plans(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<CourseDesignerPlanSummary>>> {
     let mut conn = pool.acquire().await?;
-    let plans = models::course_designer_plans::list_plans_for_user(&mut conn, user.id).await?;
+    let plans =
+        models::course_designer_plan_members::list_plans_for_user(&mut conn, user.id).await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(plans))
 }
@@ -174,7 +175,7 @@ async fn post_schedule_suggestion(
 ) -> ControllerResult<web::Json<CourseDesignerScheduleSuggestionResponse>> {
     let mut conn = pool.acquire().await?;
     // Membership check by fetching the plan; suggestions are only available to plan members.
-    models::course_designer_plans::get_plan_for_user(&mut conn, *plan_id, user.id).await?;
+    models::course_designer_plan_members::get_plan_for_user(&mut conn, *plan_id, user.id).await?;
     let stages = models::course_designer_plans::build_schedule_suggestion(
         payload.course_size,
         payload.starts_on,
@@ -203,7 +204,7 @@ async fn put_schedule(
 ) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
     models::course_designer_plans::validate_schedule_input(&payload.stages)?;
     let mut conn = pool.acquire().await?;
-    let details = models::course_designer_plans::replace_schedule_for_user(
+    let details = models::course_designer_plan_members::replace_schedule_for_user(
         &mut conn,
         *plan_id,
         user.id,
@@ -230,9 +231,10 @@ async fn post_finalize_schedule(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlan>> {
     let mut conn = pool.acquire().await?;
-    let plan =
-        models::course_designer_plans::finalize_schedule_for_user(&mut conn, *plan_id, user.id)
-            .await?;
+    let plan = models::course_designer_plan_members::finalize_schedule_for_user(
+        &mut conn, *plan_id, user.id,
+    )
+    .await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(plan))
 }
@@ -258,7 +260,7 @@ async fn post_stage_task(
 ) -> ControllerResult<web::Json<CourseDesignerPlanStageTask>> {
     let (plan_id, stage_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let task = models::course_designer_plans::create_stage_task_for_user(
+    let task = models::course_designer_plan_members::create_stage_task_for_user(
         &mut conn,
         plan_id,
         stage_id,
@@ -292,7 +294,7 @@ async fn patch_task(
 ) -> ControllerResult<web::Json<CourseDesignerPlanStageTask>> {
     let (plan_id, task_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    let task = models::course_designer_plans::update_stage_task_for_user(
+    let task = models::course_designer_plan_members::update_stage_task_for_user(
         &mut conn,
         plan_id,
         task_id,
@@ -325,8 +327,10 @@ async fn delete_task(
 ) -> ControllerResult<HttpResponse> {
     let (plan_id, task_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    models::course_designer_plans::delete_stage_task_for_user(&mut conn, plan_id, task_id, user.id)
-        .await?;
+    models::course_designer_plan_members::delete_stage_task_for_user(
+        &mut conn, plan_id, task_id, user.id,
+    )
+    .await?;
     let token = skip_authorize();
     token.authorized_ok(HttpResponse::NoContent().finish())
 }
@@ -370,7 +374,7 @@ async fn post_extend_stage(
         )
     })?;
     let mut conn = pool.acquire().await?;
-    let details = models::course_designer_plans::extend_stage_for_user(
+    let details = models::course_designer_plan_members::extend_stage_for_user(
         &mut conn,
         plan_id,
         stage,
@@ -397,9 +401,10 @@ async fn post_advance_stage(
     user: AuthUser,
 ) -> ControllerResult<web::Json<CourseDesignerPlanDetails>> {
     let mut conn = pool.acquire().await?;
-    let details =
-        models::course_designer_plans::advance_to_next_stage_for_user(&mut conn, *plan_id, user.id)
-            .await?;
+    let details = models::course_designer_plan_members::advance_to_next_stage_for_user(
+        &mut conn, *plan_id, user.id,
+    )
+    .await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(details))
 }
@@ -464,9 +469,10 @@ async fn get_plan_members(
     user: AuthUser,
 ) -> ControllerResult<web::Json<Vec<PlanMemberWithDetails>>> {
     let mut conn = pool.acquire().await?;
-    let members =
-        models::course_designer_plans::get_plan_members_with_details(&mut conn, *plan_id, user.id)
-            .await?;
+    let members = models::course_designer_plan_members::get_plan_members_with_details(
+        &mut conn, *plan_id, user.id,
+    )
+    .await?;
     let token = skip_authorize();
     token.authorized_ok(web::Json(members))
 }
@@ -488,7 +494,7 @@ async fn post_plan_member(
     user: AuthUser,
 ) -> ControllerResult<web::Json<PlanMemberWithDetails>> {
     let mut conn = pool.acquire().await?;
-    let member = models::course_designer_plans::add_plan_member_by_email(
+    let member = models::course_designer_plan_members::add_plan_member_by_email(
         &mut conn,
         *plan_id,
         user.id,
@@ -518,8 +524,13 @@ async fn delete_plan_member(
 ) -> ControllerResult<HttpResponse> {
     let (plan_id, target_user_id) = path.into_inner();
     let mut conn = pool.acquire().await?;
-    models::course_designer_plans::remove_plan_member(&mut conn, plan_id, user.id, target_user_id)
-        .await?;
+    models::course_designer_plan_members::remove_plan_member(
+        &mut conn,
+        plan_id,
+        user.id,
+        target_user_id,
+    )
+    .await?;
     let token = skip_authorize();
     token.authorized_ok(HttpResponse::NoContent().finish())
 }

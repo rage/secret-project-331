@@ -1,60 +1,52 @@
 # Internationalization
 
-See the following documentations:
+See the [react-i18next docs](https://react.i18next.com/) and [i18next docs](https://www.i18next.com/).
 
-1. https://react.i18next.com/
-2. https://www.i18next.com/
-
-Try to use easier string to translate e.g. `Remove image` -> `Remove` so that we can reuse translations.
+Prefer shorter, reusable strings. For example, use `Remove` instead of `Remove image` so the translation can be reused elsewhere.
 
 ## Lint
 
-We enforce all translatable strings are translated with an ESLint plugin. It will give you `Disallow literal` string errors on places where you probably should use a translation.
+All translatable strings are enforced by an ESLint plugin. It will report `Disallow literal` errors where strings should use translations.
 
-## Short language codes vs long language codes
+## Language codes
 
-For translating UI, short language codes preferred. Long language codes supported too, but they inherit the translations from the base language. For example, we have specified that `en` translation is for American English. If we wanted to create a British English translation, we would create them with the `en-GB` identifier. This translation would inherit the `en` translations, and we can just override the strings that differ.
+For UI translations, short language codes are preferred (`en`, `fi`). Long codes are supported and inherit from the base language. For example, `en-GB` would inherit from `en` and only override strings that differ.
 
-For specifying the language of a course a long language code should be used.
+For specifying the language of a course, use a long language code.
 
 ## VSCode snippets
 
-To get the useTranslation hook, type `ut`.
-
-To use the t function in a JSX context, type `tj`.
+- `ut` - inserts the `useTranslation` hook
+- `tj` - inserts the `t` function in a JSX context
 
 ## Workflow
 
-Open a terminal in shared-module and run:
+Open a terminal in `shared-module` and run:
 
 ```bash
 pnpm run watch
 ```
 
-To keep changes to the translation files automatically synchronized with the different microservices.
+This keeps translation file changes automatically synchronized across services.
 
-Try to use reusable strings for the interface. For example if you have a button that says "Save page", it might be a good idea to replace that with just "Save" so that we don't need a new translation for that.
-
-Here's a video that shows how to start the workflow, how to use the ut snippet and the tj snippet. Finally, it also shows that you don't use the tj snippet when you're not in a jsx context:
+Here's a video showing the workflow, `ut` and `tj` snippets, and when not to use `tj` (non-JSX context):
 
 https://user-images.githubusercontent.com/1922896/139198182-4fd3ce70-60dc-444a-8615-e2a9b58b5a7f.mp4
 
-### etc
+## Fixing false positive 'disallow literal string' errors
 
-#### Upper case text
+Try these in order (prefer options higher on the list):
 
-If the design of the interface demands upper case text, our convention is to put the text in the translation file in lowercase and apply css text-transform: uppercase to the element.
+1. Move the literal to a top-level constant with an uppercase name, e.g. `const CONSTANT = 'foo'`. Use this for temporary content that will be replaced later instead of suppressing with a comment.
+2. Suppress the specific instance with an ESLint comment (VS Code suggests this automatically).
+3. Add the property/function name to the ESLint config ignore list. Only do this if you are certain no real translatable strings will be silenced.
 
-#### False positive 'disallow literal string' eslint messages
+## React components inside translatable strings
 
-Try to do the one of the following. Things further up on the list are preferrable.
+Use the `Trans` component from react-i18next. Note: it does not re-render on language change unless you pass the `t` function.
 
-1. move the literal string to a constant to the top level of the file with upper case name e.g. `const CONSTANT = 'foo'`. **If you have temporary content that will be replaced later do this instead of ignoring the line with a comment.**
-2. Ignore the instance with an eslint comment that vscode suggests
-3. Ignore property/function name in eslint config (only do this if you are sure that it will not ignore any real translatable strings.
+See: https://react.i18next.com/latest/trans-component
 
-#### React components in middle of translatable strings
+## Upper-case text
 
-See the following link. Note that it does not rerender on language change unless you pass it the t function.
-
-https://react.i18next.com/latest/trans-component
+If the design requires upper-case text, store the string in lowercase in the translation file and apply `text-transform: uppercase` in CSS.

@@ -104,11 +104,7 @@ Plugins must define the following data types for their internal operations:
 
 ## REST API Endpoints (Consumed by the Backend)
 
-### Overview
-
-The host system backend communicates with the plugin via REST API endpoints to perform operations like grading and generating exercise specifications. Plugins must implement the following endpoints.
-
-### Endpoint Summary
+The backend communicates with the plugin via REST to grade answers and generate exercise specifications. Plugins must implement:
 
 1. **Service Info Endpoint**: Provides metadata about the plugin.
 2. **User Interface IFrame Endpoint**: Serves the HTML content for the plugin's IFrames.
@@ -165,29 +161,25 @@ The host system backend communicates with the plugin via REST API endpoints to p
 
 ### Scenario 1: Editing and Saving an Exercise
 
-1. **Teacher Opens CMS**: The teacher opens the Content Management System (CMS) to edit a page containing an exercise.
-2. **IFrame Initialization**: The CMS loads the plugin's IFrame and establishes communication.
-3. **Set State**: The CMS sends a `set-state` message with the current `private_spec` to the IFrame.
-4. **Editing**: The teacher edits the exercise within the IFrame. The plugin sends `current-state` messages with the updated `private_spec`.
-5. **Saving**: Upon saving, the CMS sends the latest `private_spec` to the backend.
-6. **Spec Generation**:
-   - The backend calls the plugin's Public Spec Generator Endpoint to generate the `public_spec`.
-   - The backend calls the Model Solution Spec Generator Endpoint to generate the `model_solution_spec`.
-7. **Storage**: The backend stores the `private_spec`, `public_spec`, and `model_solution_spec` in the database.
+1. Teacher opens the CMS to edit a page containing an exercise.
+2. CMS loads the plugin IFrame and establishes communication.
+3. CMS sends `set-state` with the current `private_spec` to the IFrame.
+4. Teacher edits the exercise. Plugin sends `current-state` with the updated `private_spec`.
+5. On save, CMS sends the latest `private_spec` to the backend.
+6. Backend calls the Public Spec Generator and Model Solution Spec Generator endpoints.
+7. Backend stores `private_spec`, `public_spec`, and `model_solution_spec`.
 
 ### Scenario 2: Answering and Grading an Exercise
 
-1. **Student Loads Exercise**: The student opens the course material containing the exercise.
-2. **IFrame Initialization**: The course material loads the plugin's IFrame and establishes communication.
-3. **Set State**: The course material sends a `set-state` message with the `public_spec` to the IFrame.
-4. **Answering**: The student interacts with the exercise within the IFrame. The plugin sends `current-state` messages with the updated `answer`.
-5. **Submitting**: The student submits the exercise. The course material sends the `answer` to the backend.
-6. **Grading**:
-   - The backend retrieves the `private_spec` from storage.
-   - The backend calls the plugin's Grade Endpoint with the `private_spec` and `answer`.
-7. **Feedback**: The plugin returns `correctness_coefficient` and `grading_feedback`. The backend stores this data.
-8. **Displaying Results**: The course material sends a `set-state` message to the IFrame to switch to the View Submission View, including necessary data (`public_spec`, `answer`, `grading_feedback`, and optionally `model_solution_spec`).
+1. Student opens course material containing the exercise.
+2. Course material loads the plugin IFrame and establishes communication.
+3. Course material sends `set-state` with the `public_spec` to the IFrame.
+4. Student interacts with the exercise. Plugin sends `current-state` with the updated `answer`.
+5. Student submits. Course material sends the `answer` to the backend.
+6. Backend retrieves `private_spec` and calls the Grade endpoint with `private_spec` and `answer`.
+7. Plugin returns `correctness_coefficient` and `grading_feedback`. Backend stores this.
+8. Course material sends `set-state` to switch the IFrame to the View Submission view with `public_spec`, `answer`, `grading_feedback`, and optionally `model_solution_spec`.
 
 ## Developer Tool: Playground
 
-To assist in developing and testing plugins, we provide a tool called the [Playground](https://courses.mooc.fi/playground-tabs). This tool simulates the host environment, allowing you to preview your plugin's views, test communication, and inspect data types.
+The [Playground](https://courses.mooc.fi/playground-tabs) simulates the host environment. Use it to preview your plugin's views, test the communication protocol, and inspect data types.

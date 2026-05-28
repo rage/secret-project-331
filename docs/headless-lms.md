@@ -1,8 +1,8 @@
-# Notes on headless lms
+# Headless LMS
 
 ## Database
 
-Interaction with the database is done with the SQLx library. Please place all your SQL queries inside the `models`-folder.
+Interaction with the database is done with the SQLx library. Place all SQL queries inside the `models` folder.
 
 ### SQLx prepare
 
@@ -116,18 +116,6 @@ SELECT * FROM organizations WHERE deleted_at IS NULL;
 
 Now run the command `bin/psql-analyze explain.sql analyze.json` and then add the contents of both `explain.sql` and newly generated `analyze.json` on [https://tatiyants.com/pev/#/plans/new](https://tatiyants.com/pev/#/plans/new).
 
-### Setup development with a local Postgres
-
-Usually you don't need this as you can use the Postgres started by either `bin/dev` or `bin/dev-only-db`.
-
-1. cd services/headless-lms/models/ && cp .env.example .env
-2. In `.env` setup `DATABASE_URL=postgres://localhost/headless_lms_dev`
-3. `bin/local-dev-db-create-user`
-4. `bin/local-dev-db-create`
-5. Run `bin/sqlx-migrate-run`
-6. (Optional) `bin/seed-local`
-7. If migrations succeed, run `bin/dev`
-
 ## New struct/enum
 
 When creating a new struct or enum, it's common to derive a set of often used traits to make the struct easier to work with, even if the traits aren't strictly needed right now.
@@ -150,7 +138,7 @@ QueryBuilder docs at https://docs.rs/sqlx/latest/sqlx/query_builder/struct.Query
 SQLx querybuilder can be used to create more complex and dynamic SQL queries.
 
 ```rs
-import sqlx::query_builder::QueryBuilder;
+use sqlx::query_builder::QueryBuilder;
 
 // QueryBuilder is initiated with new() function, which takes 'init' sql statement.
 let sql = QueryBuilder::new("INSERT INTO exercises (id, name, course_id)");
@@ -180,7 +168,7 @@ Resulting sql query is
 INSERT INTO exercises (id, name, course_id) VALUES (e1.id, e1.name, e1.course_id), (e2.id, e2.name, e2.course_id),... ON CONFLICT (id) DO UPDATE SET name = excluded.name, course_id = excluded.course_id RETURNING id
 ```
 
-Most usable QueryBuilder is for bulk inserting or updating.
+QueryBuilder is most useful for bulk inserts and updates.
 
 ## Generating frontend API clients and types
 
@@ -277,7 +265,7 @@ pub async fn some_endpoint(user: Option<AuthUser>) -> String {
 
 ### Adding documentation to an endpoint
 
-When you have finished coding the endpoint you should add documentations to it so they can be easily read by anyone. Documentation should include short description about the endpoint and an example response data from it.
+Add documentation to each endpoint: a short description and an example response.
 
 The `doc-file-generator` program in `headless-lms-entrypoint` can be used to generate documentation for response types from Rust code, ensuring they stay up to date. The program can be called with the `bin/generate-doc-files` script, and the generated files can be used with the doc-macro crate's helper `generated_doc` macro: `#[generated_doc]` or `#[generated_doc(MyType)]`. The macro will attempt to parse the return type from the function signature if omitted from the macro call. This should be used only for public API endpoints, not internal ones.
 
@@ -295,9 +283,7 @@ async fn some_controller() -> ControllerResult<web::Json<MyType>> {
 }
 ```
 
-Easiest way to get the example response data and double check that endpoint works as itended is to write request to an **requests.rest** file and run the request. Before this, if needed, remember to update **seed.sql** file so that the needed data exists in a database.
-
-After this the docs are ready to go. Docs are created automatically upon mergin your feature branch to master.
+The easiest way to get example response data is to write a request in a `requests.rest` file and run it. If needed, update seed data first so the required records exist. Docs are generated automatically when merging to master.
 
 ## Sqlx
 

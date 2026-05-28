@@ -1,0 +1,62 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    et.email_template_type::TEXT AS template_type,\n    COUNT(DISTINCT ed.id) AS \"total_sent!: i64\",\n    COUNT(eo.id) AS \"total_opened!: i64\",\n    COUNT(DISTINCT eo.email_delivery_id) AS \"unique_opened!: i64\",\n    SUM(elc.click_count) AS \"total_clicked!: i64\",\n    COUNT(DISTINCT CASE WHEN elc.first_clicked_at IS NOT NULL THEN elc.email_delivery_id END) AS \"unique_clicked!: i64\",\n    COUNT(DISTINCT CASE WHEN ede.smtp_response_code >= 500 THEN ede.email_delivery_id END) AS \"hard_bounces!: i64\",\n    COUNT(DISTINCT CASE WHEN ede.smtp_response_code >= 400 AND ede.smtp_response_code < 500 THEN ede.email_delivery_id END) AS \"soft_bounces!: i64\"\nFROM email_deliveries ed\nJOIN email_templates et ON et.id = ed.email_template_id\nLEFT JOIN email_opens eo ON eo.email_delivery_id = ed.id\nLEFT JOIN email_link_clicks elc ON elc.email_delivery_id = ed.id\nLEFT JOIN email_delivery_errors ede ON ede.email_delivery_id = ed.id\nWHERE ed.deleted_at IS NULL\n  AND ed.sent = TRUE\nGROUP BY et.email_template_type\nORDER BY et.email_template_type\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "template_type",
+        "type_info": "Text"
+      },
+      {
+        "ordinal": 1,
+        "name": "total_sent!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 2,
+        "name": "total_opened!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 3,
+        "name": "unique_opened!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 4,
+        "name": "total_clicked!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 5,
+        "name": "unique_clicked!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 6,
+        "name": "hard_bounces!: i64",
+        "type_info": "Int8"
+      },
+      {
+        "ordinal": 7,
+        "name": "soft_bounces!: i64",
+        "type_info": "Int8"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ]
+  },
+  "hash": "7541cf24563ecbcae99e3c9b52a0702138d49be321b443150e436c076e53cfc3"
+}

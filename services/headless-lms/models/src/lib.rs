@@ -39,6 +39,7 @@ pub mod courses;
 pub mod ects_reminder_email_sends;
 pub mod email_deliveries;
 pub mod email_templates;
+pub mod email_tracking;
 pub mod email_verification_tokens;
 pub mod ended_processed_exams;
 pub mod error;

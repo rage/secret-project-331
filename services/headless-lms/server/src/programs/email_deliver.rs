@@ -12,6 +12,7 @@ use headless_lms_models::email_deliveries::{
     insert_email_delivery_error, mark_as_sent,
 };
 use headless_lms_models::email_templates::EmailTemplateType;
+use headless_lms_models::email_tracking::insert_email_link_click_stubs;
 use headless_lms_models::user_passwords::get_unused_reset_password_token_with_user_id;
 use headless_lms_utils::email_processor::{self, BlockAttributes, EmailGutenbergBlock};
 use lettre::transport::smtp::Error as SmtpError;
@@ -21,10 +22,14 @@ use lettre::{
     message::{MultiPart, SinglePart, header},
 };
 use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
 use sqlx::{Connection, PgConnection, PgPool};
 use std::collections::HashMap;
 use uuid::Uuid;
 const BATCH_SIZE: usize = FETCH_LIMIT as usize;
+
+static HREF_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r#"href="([^"]+)""#).expect("invalid href regex"));
 
 const FRONTEND_BASE_URL: &str = "https://courses.mooc.fi";
 const BASE_BACKOFF_SECS: i64 = 60;
@@ -138,7 +143,45 @@ pub async fn send_message(email: Email, mailer: &SmtpTransport, pool: PgPool) ->
     let msg_as_plaintext = email_processor::process_content_to_plaintext(&email_block);
     let msg_as_html = email_processor::process_content_to_html(&email_block);
 
-    let msg = match build_email_message(&email, attempt, msg_as_plaintext, msg_as_html) {
+    let tracking_base = ProgramConfig::optional("FRONTEND_BASE_URL")
+        .and_then(|value| {
+            let trimmed = value.trim();
+            if trimmed.is_empty() {
+                None
+            } else {
+                Some(trimmed.to_string())
+            }
+        })
+        .unwrap_or_else(|| FRONTEND_BASE_URL.to_string());
+    let tracking_base = tracking_base.trim_end_matches('/');
+
+    let mut link_stubs: Vec<(Uuid, Uuid, String)> = Vec::new();
+    let tracked_html = HREF_REGEX
+        .replace_all(&msg_as_html, |caps: &Captures| {
+            let dest = caps[1].to_string();
+            let click_id = Uuid::new_v4();
+            link_stubs.push((click_id, email.id, dest));
+            format!(
+                r#"href="{}/api/v0/main-frontend/email-tracking/click/{}""#,
+                tracking_base, click_id
+            )
+        })
+        .to_string();
+    if !link_stubs.is_empty() {
+        if let Err(err) = insert_email_link_click_stubs(&mut conn, &link_stubs).await {
+            tracing::warn!(
+                "Failed to insert link click stubs for email {}: {}",
+                email.id,
+                err
+            );
+        }
+    }
+    let tracked_html = format!(
+        r#"{}<img src="{}/api/v0/main-frontend/email-tracking/open/{}" width="1" height="1" alt="" style="display:none">"#,
+        tracked_html, tracking_base, email.id
+    );
+
+    let msg = match build_email_message(&email, attempt, msg_as_plaintext, tracked_html) {
         Ok(msg) => msg,
         Err(err) => {
             record_message_build_failure(&mut conn, &email, attempt, &err).await?;

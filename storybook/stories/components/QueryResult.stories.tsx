@@ -147,7 +147,7 @@ export const SuccessDark: Story = {
 
 const fullWidthRowsCss = css`
   width: 100%;
-  border-top: 1px solid #babdc2;
+  border-top: 1px solid var(--color-gray-200);
 `
 
 const fullWidthRowCss = css`
@@ -155,7 +155,7 @@ const fullWidthRowCss = css`
   grid-template-columns: 1fr auto;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #babdc2;
+  border-bottom: 1px solid var(--color-gray-200);
 `
 
 export const FullWidthRows: Story = {

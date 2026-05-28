@@ -20,7 +20,7 @@ export const zActivityProgress = z.enum([
 ])
 
 export const zAddPlanMemberRequest = z.object({
-  email: z.string(),
+  email: z.email(),
 })
 
 export const zAnalysisCourseType = z.enum(["compulsory", "elective"])
@@ -1969,7 +1969,7 @@ export const zPeerReviewWithQuestionsAndAnswers = z.object({
 
 export const zPlanMemberWithDetails = z.object({
   created_at: z.iso.datetime(),
-  email: z.string(),
+  email: z.email(),
   first_name: z.string().nullish(),
   id: z.uuid(),
   last_name: z.string().nullish(),

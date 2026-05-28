@@ -451,6 +451,7 @@ async fn patch_stage_workspace(
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
 pub struct AddPlanMemberRequest {
+    #[schema(value_type = String, format = Email)]
     pub email: String,
 }
 

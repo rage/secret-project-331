@@ -513,8 +513,6 @@ pub async fn add_plan_member_by_email(
     requesting_user_id: Uuid,
     email: &str,
 ) -> ModelResult<PlanMemberWithDetails> {
-    get_plan_for_user(conn, plan_id, requesting_user_id).await?;
-
     let target_user_id: Uuid = sqlx::query_scalar!(
         r#"
 SELECT users.id
@@ -545,13 +543,21 @@ WHERE id = (
   WHERE course_designer_plan_id = $1
     AND user_id = $2
     AND deleted_at IS NOT NULL
+    AND EXISTS (
+      SELECT 1
+      FROM course_designer_plan_members requester
+      WHERE requester.course_designer_plan_id = $1
+        AND requester.user_id = $3
+        AND requester.deleted_at IS NULL
+    )
   ORDER BY deleted_at DESC
   LIMIT 1
 )
 RETURNING id
 "#,
         plan_id,
-        target_user_id
+        target_user_id,
+        requesting_user_id
     )
     .fetch_optional(&mut *conn)
     .await?;
@@ -560,11 +566,19 @@ RETURNING id
         sqlx::query!(
             r#"
 INSERT INTO course_designer_plan_members (course_designer_plan_id, user_id)
-VALUES ($1, $2)
+SELECT $1, $2
+WHERE EXISTS (
+  SELECT 1
+  FROM course_designer_plan_members requester
+  WHERE requester.course_designer_plan_id = $1
+    AND requester.user_id = $3
+    AND requester.deleted_at IS NULL
+)
 ON CONFLICT DO NOTHING
 "#,
             plan_id,
-            target_user_id
+            target_user_id,
+            requesting_user_id
         )
         .execute(&mut *conn)
         .await?;

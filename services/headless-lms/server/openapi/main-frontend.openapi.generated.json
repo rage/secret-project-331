@@ -10638,7 +10638,8 @@
         "required": ["email"],
         "properties": {
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           }
         }
       },
@@ -16588,7 +16589,8 @@
             "format": "date-time"
           },
           "email": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "first_name": {
             "type": ["string", "null"]

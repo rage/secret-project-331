@@ -1,0 +1,24 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_designer_plan_members\nSET deleted_at = NULL, updated_at = NOW()\nWHERE id = (\n  SELECT id\n  FROM course_designer_plan_members\n  WHERE course_designer_plan_id = $1\n    AND user_id = $2\n    AND deleted_at IS NOT NULL\n    AND EXISTS (\n      SELECT 1\n      FROM course_designer_plan_members requester\n      WHERE requester.course_designer_plan_id = $1\n        AND requester.user_id = $3\n        AND requester.deleted_at IS NULL\n    )\n  ORDER BY deleted_at DESC\n  LIMIT 1\n)\nRETURNING id\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "271645fe1638b006dedc98dff99c5379fff8421cc309dec61db3baf6033f8d47"
+}

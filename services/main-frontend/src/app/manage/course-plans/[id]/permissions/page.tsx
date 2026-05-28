@@ -61,13 +61,13 @@ const titleStyles = css`
 
 const addFormStyles = css`
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   align-items: center;
   margin-bottom: 2rem;
 
-  @media (max-width: 30rem) {
-    grid-template-columns: minmax(0, 1fr);
+  ${respondToOrLarger.sm} {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 `
 
@@ -140,6 +140,7 @@ const CoursePlanPermissionsPage: React.FC = () => {
       onSuccess: () => {
         reset()
         membersQuery.refetch()
+        setMutationError(null)
       },
       onError: setMutationError,
     },
@@ -149,10 +150,16 @@ const CoursePlanPermissionsPage: React.FC = () => {
     removeCoursePlanMemberMutation(),
     { notify: true, method: "DELETE" },
     {
-      onSuccess: () => membersQuery.refetch(),
+      onSuccess: () => {
+        membersQuery.refetch()
+        setMutationError(null)
+      },
       onError: setMutationError,
     },
   )
+
+  const normalizedMutationError =
+    mutationError instanceof Error ? mutationError : new Error(String(mutationError))
 
   const handleAddMember = handleSubmit(({ email: memberEmail }) => {
     addMutation.mutate({
@@ -165,7 +172,7 @@ const CoursePlanPermissionsPage: React.FC = () => {
     <div className={pageStyles}>
       <h1 className={titleStyles}>{t("course-plan-permissions-title")}</h1>
 
-      {mutationError != null && <ErrorBanner variant="readOnly" error={mutationError as Error} />}
+      {mutationError != null && <ErrorBanner variant="readOnly" error={normalizedMutationError} />}
 
       <form className={addFormStyles} onSubmit={handleAddMember}>
         <TextField

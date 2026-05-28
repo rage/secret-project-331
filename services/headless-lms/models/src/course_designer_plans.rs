@@ -439,6 +439,7 @@ pub struct PlanMemberWithDetails {
     pub user_id: Uuid,
     pub first_name: Option<String>,
     pub last_name: Option<String>,
+    #[schema(value_type = String, format = Email)]
     pub email: String,
     pub created_at: DateTime<Utc>,
 }

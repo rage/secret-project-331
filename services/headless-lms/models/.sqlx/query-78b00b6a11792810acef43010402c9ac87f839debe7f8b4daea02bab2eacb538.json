@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT\n  m.id,\n  m.user_id,\n  ud.first_name,\n  ud.last_name,\n  ud.email,\n  m.created_at\nFROM course_designer_plan_members m\nJOIN user_details ud ON ud.user_id = m.user_id\nWHERE m.course_designer_plan_id = $1\n  AND m.user_id = $2\n  AND m.deleted_at IS NULL\n",
+  "query": "\nSELECT\n  m.id,\n  m.user_id,\n  ud.first_name,\n  ud.last_name,\n  ud.email,\n  m.created_at\nFROM course_designer_plan_members m\nJOIN user_details ud ON ud.user_id = m.user_id\nWHERE m.course_designer_plan_id = $1\n  AND m.user_id = $2\n  AND m.deleted_at IS NULL\n  AND EXISTS (\n    SELECT 1\n    FROM course_designer_plan_members requester\n    WHERE requester.course_designer_plan_id = $1\n      AND requester.user_id = $3\n      AND requester.deleted_at IS NULL\n  )\n",
   "describe": {
     "columns": [
       {
@@ -37,6 +37,7 @@
     "parameters": {
       "Left": [
         "Uuid",
+        "Uuid",
         "Uuid"
       ]
     },
@@ -49,5 +50,5 @@
       false
     ]
   },
-  "hash": "f09f79c68bf7d1ad98cc9461ff5ef17b793fbe61e1b9d0a634d43f748a27972b"
+  "hash": "78b00b6a11792810acef43010402c9ac87f839debe7f8b4daea02bab2eacb538"
 }

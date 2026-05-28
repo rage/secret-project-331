@@ -7,7 +7,6 @@ use crate::course_designer_plans::{
 use crate::prelude::*;
 use chrono::Duration;
 use serde_json::json;
-use sqlx::Row;
 
 /// Lists plans visible to a member.
 pub async fn list_plans_for_user(
@@ -121,14 +120,15 @@ pub async fn get_plan_stages_for_user(
     plan_id: Uuid,
     user_id: Uuid,
 ) -> ModelResult<Vec<CourseDesignerPlanStage>> {
-    let stages = sqlx::query_as::<_, CourseDesignerPlanStage>(
+    let stages = sqlx::query_as!(
+        CourseDesignerPlanStage,
         r#"
 SELECT
   stages.id,
   stages.created_at,
   stages.updated_at,
-  stages.stage,
-  stages.status,
+  stages.stage AS "stage: CourseDesignerStage",
+  stages.status AS "status: CourseDesignerPlanStageStatus",
   stages.planned_starts_on,
   stages.planned_ends_on,
   stages.actual_started_at,
@@ -151,9 +151,9 @@ ORDER BY
   END,
   stages.id
 "#,
+        plan_id,
+        user_id
     )
-    .bind(plan_id)
-    .bind(user_id)
     .fetch_all(conn)
     .await?;
     Ok(stages)
@@ -209,12 +209,12 @@ pub async fn create_stage_task_for_user(
 ) -> ModelResult<CourseDesignerPlanStageTask> {
     let title = title.trim();
     if title.is_empty() {
-        return Err(ModelError::new(
-            ModelErrorType::InvalidRequest,
-            "Task title cannot be empty.".to_string(),
-            None,
+        return Err(model_err!(
+            InvalidRequest,
+            "Task title cannot be empty.".to_string()
         ));
     }
+    let mut tx = conn.begin().await?;
     let stage_ok = sqlx::query_scalar!(
         r#"
 SELECT s.id AS "id?"
@@ -222,15 +222,17 @@ FROM course_designer_plan_stages s
 JOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id
   AND m.user_id = $2 AND m.deleted_at IS NULL
 WHERE s.id = $3 AND s.course_designer_plan_id = $1 AND s.deleted_at IS NULL
+FOR UPDATE
 "#,
         plan_id,
         user_id,
         stage_id
     )
-    .fetch_optional(&mut *conn)
+    .fetch_optional(&mut *tx)
     .await?
     .flatten();
     if stage_ok.is_none() {
+        tx.rollback().await?;
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "Stage not found or user is not a plan member.".to_string(),
@@ -245,7 +247,7 @@ WHERE course_designer_plan_stage_id = $1 AND deleted_at IS NULL
 "#,
         stage_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
     let order_number = max_order.unwrap_or(0) + 1;
     let task: CourseDesignerPlanStageTask = sqlx::query_as!(
@@ -280,8 +282,9 @@ RETURNING
         order_number,
         user_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
+    tx.commit().await?;
     Ok(task)
 }
 
@@ -295,26 +298,39 @@ pub async fn update_stage_task_for_user(
     description: Option<String>,
     is_completed: Option<bool>,
 ) -> ModelResult<CourseDesignerPlanStageTask> {
-    let row = sqlx::query(
+    let row = sqlx::query!(
         r#"
-SELECT t.title, t.description, t.is_completed
+SELECT
+  t.title,
+  t.description,
+  t.is_completed,
+  t.completed_at,
+  t.completed_by_user_id
 FROM course_designer_plan_stage_tasks t
 JOIN course_designer_plan_stages s ON s.id = t.course_designer_plan_stage_id AND s.deleted_at IS NULL
 JOIN course_designer_plan_members m ON m.course_designer_plan_id = s.course_designer_plan_id
   AND m.user_id = $2 AND m.deleted_at IS NULL
 WHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL
 "#,
+        plan_id,
+        user_id,
+        task_id
     )
-    .bind(plan_id)
-    .bind(user_id)
-    .bind(task_id)
     .fetch_optional(&mut *conn)
     .await?;
-    let (current_title, current_description, current_completed) = match row {
+    let (
+        current_title,
+        current_description,
+        current_completed,
+        current_completed_at,
+        current_completed_by_user_id,
+    ) = match row {
         Some(r) => (
-            r.get::<String, _>("title"),
-            r.get::<Option<String>, _>("description"),
-            r.get::<bool, _>("is_completed"),
+            r.title,
+            r.description,
+            r.is_completed,
+            r.completed_at,
+            r.completed_by_user_id,
         ),
         None => {
             return Err(ModelError::new(
@@ -334,9 +350,14 @@ WHERE t.id = $3 AND s.course_designer_plan_id = $1 AND t.deleted_at IS NULL
     }
     let new_description = description.or(current_description);
     let new_completed = is_completed.unwrap_or(current_completed);
-    let now = Utc::now();
-    let completed_at = if new_completed { Some(now) } else { None };
-    let completed_by = if new_completed { Some(user_id) } else { None };
+    let (completed_at, completed_by) = match is_completed {
+        Some(_) if !current_completed && new_completed => {
+            let now = Utc::now();
+            (Some(now), Some(user_id))
+        }
+        Some(_) if current_completed && !new_completed => (None, None),
+        _ => (current_completed_at, current_completed_by_user_id),
+    };
     let task: CourseDesignerPlanStageTask = sqlx::query_as!(
         CourseDesignerPlanStageTask,
         r#"
@@ -563,7 +584,7 @@ RETURNING id
     .await?;
 
     if restored.is_none() {
-        sqlx::query!(
+        let inserted = sqlx::query!(
             r#"
 INSERT INTO course_designer_plan_members (course_designer_plan_id, user_id)
 SELECT $1, $2
@@ -582,6 +603,14 @@ ON CONFLICT DO NOTHING
         )
         .execute(&mut *conn)
         .await?;
+        if inserted.rows_affected() == 0 {
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "Plan not found, requester is not a plan member, or member already exists."
+                    .to_string(),
+                None,
+            ));
+        }
     }
 
     let member = sqlx::query_as!(
@@ -599,9 +628,17 @@ JOIN user_details ud ON ud.user_id = m.user_id
 WHERE m.course_designer_plan_id = $1
   AND m.user_id = $2
   AND m.deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM course_designer_plan_members requester
+    WHERE requester.course_designer_plan_id = $1
+      AND requester.user_id = $3
+      AND requester.deleted_at IS NULL
+  )
 "#,
         plan_id,
-        target_user_id
+        target_user_id,
+        requesting_user_id
     )
     .fetch_one(&mut *conn)
     .await?;
@@ -616,20 +653,34 @@ pub async fn remove_plan_member(
     requesting_user_id: Uuid,
     target_user_id: Uuid,
 ) -> ModelResult<()> {
-    get_plan_for_user(conn, plan_id, requesting_user_id).await?;
-    sqlx::query!(
+    let updated = sqlx::query!(
         r#"
 UPDATE course_designer_plan_members
 SET deleted_at = NOW(), updated_at = NOW()
 WHERE course_designer_plan_id = $1
   AND user_id = $2
   AND deleted_at IS NULL
+  AND EXISTS (
+    SELECT 1
+    FROM course_designer_plan_members requester
+    WHERE requester.course_designer_plan_id = $1
+      AND requester.user_id = $3
+      AND requester.deleted_at IS NULL
+  )
 "#,
         plan_id,
-        target_user_id
+        target_user_id,
+        requesting_user_id
     )
     .execute(conn)
     .await?;
+    if updated.rows_affected() == 0 {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            "Member not found or user is not a plan member.".to_string(),
+            None,
+        ));
+    }
     Ok(())
 }
 
@@ -649,6 +700,7 @@ pub async fn replace_schedule_for_user(
             | CourseDesignerPlanStatus::Completed
             | CourseDesignerPlanStatus::Archived
     ) {
+        tx.rollback().await?;
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "Cannot edit schedule for a plan that has already started or is closed.".to_string(),
@@ -751,6 +803,7 @@ pub async fn extend_stage_for_user(
     let mut tx = conn.begin().await?;
     let plan = get_plan_for_stage_extend(&mut tx, plan_id, user_id).await?;
     if plan.status != CourseDesignerPlanStatus::InProgress {
+        tx.rollback().await?;
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "Can only extend a stage when plan is in progress.".to_string(),
@@ -758,17 +811,19 @@ pub async fn extend_stage_for_user(
         ));
     }
     if plan.active_stage != Some(stage) {
+        tx.rollback().await?;
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "Can only extend the current active stage.".to_string(),
             None,
         ));
     }
-    let stage_row: CourseDesignerPlanStage = sqlx::query_as::<_, CourseDesignerPlanStage>(
+    let stage_row: CourseDesignerPlanStage = sqlx::query_as!(
+        CourseDesignerPlanStage,
         r#"
 SELECT id, created_at, updated_at,
-  stage,
-  status,
+  stage AS "stage: CourseDesignerStage",
+  status AS "status: CourseDesignerPlanStageStatus",
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
@@ -777,9 +832,9 @@ SELECT id, created_at, updated_at,
 FROM course_designer_plan_stages
 WHERE course_designer_plan_id = $1 AND stage = $2 AND deleted_at IS NULL
 "#,
+        plan_id,
+        stage as CourseDesignerStage
     )
-    .bind(plan_id)
-    .bind(stage)
     .fetch_one(&mut *tx)
     .await?;
     let new_ends_on =
@@ -802,11 +857,12 @@ WHERE id = $1 AND deleted_at IS NULL
         .ok_or_else(|| {
             ModelError::new(ModelErrorType::Generic, "Invalid stage.".to_string(), None)
         })?;
-    let all_stages: Vec<CourseDesignerPlanStage> = sqlx::query_as::<_, CourseDesignerPlanStage>(
+    let all_stages: Vec<CourseDesignerPlanStage> = sqlx::query_as!(
+        CourseDesignerPlanStage,
         r#"
 SELECT id, created_at, updated_at,
-  stage,
-  status,
+  stage AS "stage: CourseDesignerStage",
+  status AS "status: CourseDesignerPlanStageStatus",
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
@@ -816,8 +872,8 @@ FROM course_designer_plan_stages
 WHERE course_designer_plan_id = $1 AND deleted_at IS NULL
 ORDER BY CASE stage WHEN 'analysis' THEN 1 WHEN 'design' THEN 2 WHEN 'development' THEN 3 WHEN 'implementation' THEN 4 WHEN 'evaluation' THEN 5 END
 "#,
+        plan_id
     )
-    .bind(plan_id)
     .fetch_all(&mut *tx)
     .await?;
     let later_stage_rows: Vec<_> = all_stages
@@ -867,19 +923,24 @@ pub async fn advance_to_next_stage_for_user(
     let mut tx = conn.begin().await?;
     let plan = get_plan_for_stage_advance(&mut tx, plan_id, user_id).await?;
     if plan.status != CourseDesignerPlanStatus::InProgress {
+        tx.rollback().await?;
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "Plan must be in progress to advance.".to_string(),
             None,
         ));
     }
-    let current_stage = plan.active_stage.ok_or_else(|| {
-        ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            "Plan has no active stage.".to_string(),
-            None,
-        )
-    })?;
+    let current_stage = match plan.active_stage {
+        Some(stage) => stage,
+        None => {
+            tx.rollback().await?;
+            return Err(ModelError::new(
+                ModelErrorType::PreconditionFailed,
+                "Plan has no active stage.".to_string(),
+                None,
+            ));
+        }
+    };
     let now = Utc::now();
     sqlx::query!(
         r#"
@@ -992,6 +1053,7 @@ pub async fn finalize_schedule_for_user(
             | CourseDesignerPlanStatus::Completed
             | CourseDesignerPlanStatus::Archived
     ) {
+        tx.rollback().await?;
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "Cannot finalize schedule for a plan that has already started or is closed."
@@ -1011,6 +1073,7 @@ WHERE course_designer_plan_id = $1
     .fetch_one(&mut *tx)
     .await?;
     if active_stage_count != 5 {
+        tx.rollback().await?;
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
             "Schedule must contain all 5 stages before finalizing.".to_string(),
@@ -1044,14 +1107,15 @@ WHERE course_designer_plan_id = $1 AND stage = $4 AND deleted_at IS NULL
     )
     .execute(&mut *tx)
     .await?;
-    let schedule_snapshot = sqlx::query_as::<_, CourseDesignerPlanStage>(
+    let schedule_snapshot = sqlx::query_as!(
+        CourseDesignerPlanStage,
         r#"
 SELECT
   id,
   created_at,
   updated_at,
-  stage,
-  status,
+  stage AS "stage: CourseDesignerStage",
+  status AS "status: CourseDesignerPlanStageStatus",
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
@@ -1070,8 +1134,8 @@ ORDER BY
   END,
   id
 "#,
+        plan_id
     )
-    .bind(plan_id)
     .fetch_all(&mut *tx)
     .await?;
     crate::course_designer_plans::insert_plan_event(

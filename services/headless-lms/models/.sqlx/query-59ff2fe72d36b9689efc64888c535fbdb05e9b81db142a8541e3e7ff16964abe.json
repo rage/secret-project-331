@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO chatbot_conversation_messages_citations (\n    conversation_id,\n    conversation_message_id,\n    title,\n    content,\n    document_url,\n    citation_number,\n    course_material_chapter_number\n  )\nSELECT $1,\n  lol.cm_id,\n  lol.title,\n  lol.content,\n  lol.document_url,\n  lol.citation_number,\n  c.chapter_number\nFROM (\n    SELECT\n      UNNEST($2::UUID []) cm_id,\n      UNNEST($3::TEXT []) title,\n      UNNEST($4::TEXT []) content,\n      UNNEST($5::TEXT []) document_url,\n      UNNEST($6::INTEGER []) citation_number,\n      UNNEST($7::UUID []) page_id\n  ) lol\n  JOIN pages p ON p.id = lol.page_id\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE c.deleted_at IS NULL\n  AND p.deleted_at IS NULL\nRETURNING *\n        ",
+  "query": "\nINSERT INTO chatbot_conversation_messages_citations (\n    conversation_id,\n    conversation_message_id,\n    title,\n    content,\n    document_url,\n    citation_number,\n    course_material_chapter_number\n  )\nSELECT $1,\n  input.cm_id,\n  input.title,\n  input.content,\n  input.document_url,\n  input.citation_number,\n  c.chapter_number\nFROM (\n    SELECT UNNEST($2::UUID []) cm_id,\n      UNNEST($3::TEXT []) title,\n      UNNEST($4::TEXT []) content,\n      UNNEST($5::TEXT []) document_url,\n      UNNEST($6::INTEGER []) citation_number,\n      UNNEST($7::UUID []) page_id\n  ) AS input\n  JOIN pages p ON p.id = input.page_id\n  LEFT JOIN chapters c ON p.chapter_id = c.id\nWHERE c.deleted_at IS NULL\n  AND p.deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -84,5 +84,5 @@
       true
     ]
   },
-  "hash": "b396f9f525380f76af7547b2b4e276289def103c857146b298f3814f9975659e"
+  "hash": "59ff2fe72d36b9689efc64888c535fbdb05e9b81db142a8541e3e7ff16964abe"
 }

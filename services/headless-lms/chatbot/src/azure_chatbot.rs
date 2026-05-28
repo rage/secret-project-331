@@ -6,7 +6,7 @@ use std::sync::{
 };
 use std::task::{Context, Poll};
 
-use anyhow::{Error, Ok, anyhow};
+use anyhow::{Error, anyhow};
 use bytes::Bytes;
 use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
@@ -43,6 +43,27 @@ use crate::llm_utils::{
 use crate::prelude::*;
 
 pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
+
+enum ParsedResponseLine {
+    Event(String),
+    Data(ResponseOutput),
+}
+
+impl ParsedResponseLine {
+    pub fn parse(input: &str) -> ChatbotResult<Option<Self>> {
+        if input.starts_with("event: ") {
+            let event_type = input.trim_start_matches("event: ").to_string();
+            Ok(Some(ParsedResponseLine::Event(event_type)))
+        } else if input.starts_with("data: ") {
+            let data = input.trim_start_matches("data: ").to_string();
+            let response_output =
+                serde_json::from_str::<ResponseOutput>(&data).map_err(ChatbotError::from)?;
+            Ok(Some(ParsedResponseLine::Data(response_output)))
+        } else {
+            Ok(None)
+        }
+    }
+}
 
 /// Context about the user and course for a chatbot interaction.
 /// Passed to tool implementations so they can access user-specific data.
@@ -512,8 +533,8 @@ impl Drop for RequestCancelledGuard {
 
 /// Creates a stream with the LLMRequest and processes received OutputItems until receiving
 /// a response text or tool call.
-/// Returns
-///     response id created by Azure (String)
+/// Returns:
+///     response id created by Azure (String),
 ///     ResponseStreamType (type: response text or tool call) containing the created stream
 pub async fn make_request_and_stream<'a>(
     conn: &mut PgConnection,
@@ -545,7 +566,6 @@ pub async fn make_request_and_stream<'a>(
     let peekable_lines_stream = lines_stream.peekable();
     let mut pinned_lines = Box::pin(peekable_lines_stream);
 
-    let mut event_type;
     // empty string because when event: response.created, it will be set as the correct
     // value, and this event is the first event of the stream.
     let mut response_id = "".to_string();
@@ -565,54 +585,56 @@ pub async fn make_request_and_stream<'a>(
                 ));
             }
             Some(Result::Ok(line)) => {
-                if line.starts_with("event: ") {
-                    event_type = line.trim_start_matches("event: ").to_string();
-                    trace!("Event: {event_type}");
-                    match event_type.as_str() {
-                        "response.created" => {
-                            response_created_incoming = true;
-                        }
-                        "response.output_item.done" => {
-                            output_item_incoming = true;
-                        }
-                        "response.function_call_arguments.delta" => {
-                            if response_id.is_empty() {
-                                return Err(anyhow::anyhow!(
-                                    "No response_id found! This should never happen!"
+                match ParsedResponseLine::parse(line)? {
+                    Some(ParsedResponseLine::Event(event_type)) => {
+                        trace!("Event: {event_type}");
+                        match event_type.as_str() {
+                            "response.created" => {
+                                response_created_incoming = true;
+                            }
+                            "response.output_item.done" => {
+                                output_item_incoming = true;
+                            }
+                            "response.function_call_arguments.delta" => {
+                                if response_id.is_empty() {
+                                    return Err(anyhow::anyhow!(
+                                        "No response_id found! This should never happen!"
+                                    ));
+                                }
+                                return Ok((
+                                    response_id,
+                                    ResponseStreamType::Toolcall(pinned_lines),
                                 ));
                             }
-                            return Ok((response_id, ResponseStreamType::Toolcall(pinned_lines)));
+                            "response.output_text.delta" => {
+                                return Ok((
+                                    response_id,
+                                    ResponseStreamType::TextResponse(pinned_lines),
+                                ));
+                            }
+                            _ => {}
                         }
-                        "response.output_text.delta" => {
-                            return Ok((
-                                response_id,
-                                ResponseStreamType::TextResponse(pinned_lines),
-                            ));
+                    }
+                    Some(ParsedResponseLine::Data(response_output)) => {
+                        if response_created_incoming {
+                            let res = response_output.response.ok_or(chatbot_err!(
+                                DeserializationError,
+                                "Expected response object"
+                            ))?;
+                            response_id = res.id;
+                            response_created_incoming = false;
                         }
-                        _ => {}
+                        if output_item_incoming {
+                            let item = response_output.item.ok_or(chatbot_err!(
+                                DeserializationError,
+                                "Expected response output item"
+                            ))?;
+                            // put in input
+                            process_output_item(conn, item, conversation_id, app_config).await?;
+                            output_item_incoming = false;
+                        }
                     }
-                } else if line.starts_with("data: ") {
-                    let json_str = line.trim_start_matches("data: ");
-                    let response_output = serde_json::from_str::<ResponseOutput>(json_str)
-                        .map_err(ChatbotError::from)?;
-
-                    if response_created_incoming {
-                        let res = response_output.response.ok_or(chatbot_err!(
-                            DeserializationError,
-                            "Expected response object"
-                        ))?;
-                        response_id = res.id;
-                        response_created_incoming = false;
-                    }
-                    if output_item_incoming {
-                        let item = response_output.item.ok_or(chatbot_err!(
-                            DeserializationError,
-                            "Expected response output item"
-                        ))?;
-                        // put in input
-                        process_output_item(conn, item, conversation_id, app_config).await?;
-                        output_item_incoming = false;
-                    }
+                    None => {}
                 }
                 pinned_lines.next().await;
                 continue;
@@ -719,34 +741,34 @@ pub async fn parse_tool<'a>(
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
-    let mut event_type = "".to_string();
     let mut response_received: bool = false;
 
     trace!("Parsing tool calls...");
 
     while let Some(val) = lines.next().await {
         let line = val?;
-        if line.starts_with("event: ") {
-            event_type = line.trim_start_matches("event: ").to_string();
-            continue;
-        }
-        if !line.to_owned().starts_with("data: ") {
-            continue;
-        }
-        match event_type.as_str() {
-            "response.completed" => {
-                response_received = true;
+        let response_output = match ParsedResponseLine::parse(&line)? {
+            Some(ParsedResponseLine::Event(event_type)) => {
+                match event_type.as_str() {
+                    "response.completed" => {
+                        response_received = true;
+                    }
+                    "response.output_text.delta" => {
+                        return Err(anyhow::anyhow!(
+                            "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
+                        ));
+                    }
+                    "response.error" => {} // todo error handling
+                    _ => {}
+                };
+                continue;
             }
-            "response.output_text.delta" => {
-                return Err(anyhow::anyhow!(
-                    "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
-                ));
+            Some(ParsedResponseLine::Data(data)) => data,
+            None => {
+                continue;
             }
-            "response.error" => {} // todo error handling
-            _ => {}
         };
 
-        let json_str = line.trim_start_matches("data: ");
         if response_received {
             // the stream ended
             if function_name_id_args.is_empty() {
@@ -790,10 +812,7 @@ pub async fn parse_tool<'a>(
             }
             messages.extend(tool_msgs);
             break;
-        }
-        let response_output = serde_json::from_str::<ResponseOutput>(json_str)
-            .map_err(|e| anyhow::anyhow!("Failed to parse response chunk: {} {}", e, json_str))?;
-        if let Some(item) = response_output.item {
+        } else if let Some(item) = response_output.item {
             match item {
                 OutputItem::FunctionCall {
                     call_id,
@@ -879,13 +898,15 @@ pub async fn parse_and_stream_to_user<'a>(
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
             let line = val?;
-            if line.starts_with("event: ") {
-                event_type = line.trim_start_matches("event: ").to_string();
-                continue;
+            let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
+                Some(ParsedResponseLine::Event(event)) => {
+                    event_type = event;
+                    continue;
+                },
+                Some(ParsedResponseLine::Data(data)) => data,
+                None => {continue;},
             };
-            if !line.starts_with("data: ") {
-                continue;
-            }
+
             let mut full_response_text = full_response_text.lock().await;
 
             match event_type.as_str() {
@@ -918,10 +939,6 @@ pub async fn parse_and_stream_to_user<'a>(
                 ).await?;
                 break;
             }
-            let json_str = line.trim_start_matches("data: ");
-            let response_output = serde_json::from_str::<ResponseOutput>(json_str).map_err(|e| {
-                anyhow::anyhow!("Failed to parse response chunk: {}", e)
-            })?;
 
             if error_incoming &&
                 let Some(response) = &response_output.response && let Some(error) = &response.error

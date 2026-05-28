@@ -16,7 +16,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Waits until every query in the tuple has succeeded, then calls `renderData` with the typed data tuple. Shares the same loading, error, and refetch chrome as `QueryResult`.",
+          "Waits until every query in the tuple has succeeded, then calls `renderData` with the typed data tuple. Shares the same loading, error, and refetch chrome as `QueryResult`, while keeping loaded content layout-neutral (no clipping frame).",
       },
     },
   },

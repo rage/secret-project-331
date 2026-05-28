@@ -86,6 +86,20 @@ const metadataRowStyles = css`
   margin: 0;
 `
 
+const manageMembersLinkStyles = css`
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: ${baseTheme.colors.green[700]};
+  text-decoration: none;
+  white-space: nowrap;
+  align-self: center;
+
+  &:hover {
+    color: ${baseTheme.colors.green[800]};
+    text-decoration: underline;
+  }
+`
+
 const workspaceGridStyles = css`
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -722,16 +736,7 @@ function CoursePlanWorkspacePage() {
                     </div>
                     <Link
                       href={manageCoursePlanPermissionsRoute(planId)}
-                      className={css`
-                        font-size: 0.9rem;
-                        color: ${baseTheme.colors.primary[600]};
-                        text-decoration: none;
-                        white-space: nowrap;
-                        align-self: center;
-                        &:hover {
-                          text-decoration: underline;
-                        }
-                      `}
+                      className={manageMembersLinkStyles}
                     >
                       {t("course-plans-manage-members")}
                     </Link>

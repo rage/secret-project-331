@@ -1,10 +1,11 @@
 "use client"
 
-import { css } from "@emotion/css"
+import { css, cx } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
 import { useParams } from "next/navigation"
 import React, { useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -13,13 +14,19 @@ import {
   removeCoursePlanMemberMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PlanMemberWithDetails } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { baseTheme } from "@/shared-module/common/styles"
+import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Button, QueryResult, TextField } from "@/shared-module/components"
+
+const ADD_MEMBER_FIELD = "email" as const
+
+type AddMemberFormValues = {
+  email: string
+}
 
 /** Returns member display name, or em dash when both names are empty. */
 function formatPlanMemberDisplayName(
@@ -31,17 +38,94 @@ function formatPlanMemberDisplayName(
   }
 
   const first = member.first_name ?? ""
-
   const last = member.last_name ?? ""
-
   return `${first} ${last}`.trim()
 }
+
+const pageStyles = css`
+  max-width: 900px;
+  margin: 2.5rem auto;
+  padding: 0 1.25rem 3rem;
+
+  ${respondToOrLarger.md} {
+    padding: 0 1.75rem 3rem;
+  }
+`
+
+const titleStyles = css`
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: ${baseTheme.colors.gray[900]};
+  margin: 0 0 1.5rem 0;
+`
+
+const addFormStyles = css`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  @media (max-width: 30rem) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`
+
+const emailFieldStyles = css`
+  flex: 1 1 16rem;
+  min-width: 0;
+`
+
+const memberListStyles = css`
+  display: flex;
+  flex-direction: column;
+`
+
+const memberRowStyles = css`
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.5fr) auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+`
+
+const memberHeaderOnlyStyles = css`
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: ${baseTheme.colors.gray[500]};
+  padding-top: 0;
+`
+
+const memberNameStyles = css`
+  font-size: 0.95rem;
+  color: ${baseTheme.colors.gray[800]};
+`
+
+const memberEmailStyles = css`
+  font-size: 0.95rem;
+  color: ${baseTheme.colors.gray[800]};
+  overflow-wrap: anywhere;
+`
+
+const memberActionStyles = css`
+  justify-self: end;
+`
+
+const emptyStateStyles = css`
+  margin: 0;
+  color: ${baseTheme.colors.gray[500]};
+  font-size: 0.95rem;
+`
 
 const CoursePlanPermissionsPage: React.FC = () => {
   const { t } = useTranslation()
   const { id: planId } = useParams<{ id: string }>()
-  const [newEmail, setNewEmail] = useState("")
   const [mutationError, setMutationError] = useState<unknown | null>(null)
+  const { control, handleSubmit, reset, watch } = useForm<AddMemberFormValues>({
+    defaultValues: { email: "" },
+  })
+  const email = watch(ADD_MEMBER_FIELD) ?? ""
 
   const membersQuery = useQuery({
     ...getCoursePlanMembersOptions({
@@ -54,7 +138,7 @@ const CoursePlanPermissionsPage: React.FC = () => {
     { notify: true, method: "POST" },
     {
       onSuccess: () => {
-        setNewEmail("")
+        reset()
         membersQuery.refetch()
       },
       onError: setMutationError,
@@ -70,128 +154,77 @@ const CoursePlanPermissionsPage: React.FC = () => {
     },
   )
 
+  const handleAddMember = handleSubmit(({ email: memberEmail }) => {
+    addMutation.mutate({
+      path: { plan_id: planId },
+      body: { email: memberEmail.trim() },
+    })
+  })
+
   return (
-    <div
-      className={css`
-        max-width: 900px;
-        margin: 40px auto;
-        padding: 0 2rem;
-      `}
-    >
-      <h1>{t("course-plan-permissions-title")}</h1>
+    <div className={pageStyles}>
+      <h1 className={titleStyles}>{t("course-plan-permissions-title")}</h1>
 
-      {mutationError && <ErrorBanner variant="readOnly" error={mutationError} />}
+      {mutationError != null && <ErrorBanner variant="readOnly" error={mutationError as Error} />}
 
-      <div
-        className={css`
-          display: flex;
-          align-items: flex-end;
-          gap: 1rem;
-          margin-top: 2rem;
-          margin-bottom: 1rem;
-        `}
-      >
-        <div
-          className={css`
-            flex: 1;
-          `}
-        >
-          <TextField
-            id="new-member-email"
-            label={t("label-email")}
-            placeholder={t("field-enter-email")}
-            value={newEmail}
-            onChangeByValue={(value) => setNewEmail(value)}
-          />
-        </div>
+      <form className={addFormStyles} onSubmit={handleAddMember}>
+        <TextField
+          id="new-member-email"
+          name={ADD_MEMBER_FIELD}
+          control={control}
+          label={t("label-email")}
+          placeholder={t("field-enter-email")}
+          type="email"
+          autoComplete="email"
+          className={emailFieldStyles}
+        />
         <Button
+          type="submit"
           variant="primary"
           size="medium"
-          onClick={() =>
-            addMutation.mutate({
-              path: { plan_id: planId },
-              body: { email: newEmail },
-            })
-          }
-          disabled={addMutation.isPending || newEmail.trim().length === 0}
+          disabled={addMutation.isPending || email.trim().length === 0}
+          isLoading={addMutation.isPending}
         >
           {t("label-add-user")}
         </Button>
-      </div>
+      </form>
 
-      {membersQuery.isLoading && <Spinner variant="large" />}
-      {membersQuery.isError && <ErrorBanner variant="readOnly" error={membersQuery.error} />}
-      {membersQuery.isSuccess && membersQuery.data.length === 0 && <p>{t("no-roles-found")}</p>}
-      {membersQuery.isSuccess && membersQuery.data.length > 0 && (
-        <table
-          className={css`
-            width: 100%;
-            border-spacing: 0 10px;
-            margin-top: 1rem;
-            th {
-              font-weight: 500;
-              opacity: 0.7;
-              text-align: left;
-            }
-            th:not(:first-child),
-            td:not(:first-child) {
-              padding-left: 40px;
-            }
-          `}
-        >
-          <thead>
-            <tr>
-              <th>{t("text-field-label-name")}</th>
-              <th>{t("label-email")}</th>
-              <th>{t("label-action")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {membersQuery.data.map((member) => (
-              <tr
-                className={css`
-                  td {
-                    padding-top: 14px;
-                    padding-bottom: 14px;
-                    background: #f5f6f7;
-                    font-size: 16px;
-                    color: #1a2333;
-                  }
-                  td:first-child {
-                    padding-left: 20px;
-                    border-radius: 4px 0 0 4px;
-                  }
-                  td:last-child {
-                    padding-right: 20px;
-                    border-radius: 0 4px 4px 0;
-                  }
-                `}
-                key={member.user_id}
-              >
-                <td>{formatPlanMemberDisplayName(member)}</td>
-                <td>{member.email}</td>
-                <td>
-                  <button
+      <QueryResult
+        query={membersQuery}
+        emptyFallback={<p className={emptyStateStyles}>{t("no-roles-found")}</p>}
+      >
+        {(members) => (
+          <div className={memberListStyles}>
+            <div className={cx(memberRowStyles, memberHeaderOnlyStyles)}>
+              <span>{t("text-field-label-name")}</span>
+              <span>{t("label-email")}</span>
+              <span className={memberActionStyles}>{t("label-action")}</span>
+            </div>
+            {members.map((member) => (
+              <div className={memberRowStyles} key={member.user_id}>
+                <span className={memberNameStyles}>{formatPlanMemberDisplayName(member)}</span>
+                <span className={memberEmailStyles}>{member.email}</span>
+                <div className={memberActionStyles}>
+                  <Button
+                    type="button"
+                    variant="icon"
+                    size="small"
                     aria-label={t("remove-role")}
-                    className={css`
-                      cursor: pointer;
-                      background: transparent;
-                      border: 0;
-                    `}
+                    disabled={removeMutation.isPending}
                     onClick={() =>
                       removeMutation.mutate({
                         path: { plan_id: planId, user_id: member.user_id },
                       })
                     }
                   >
-                    <XmarkCircle size={20} color="#1A2333" />
-                  </button>
-                </td>
-              </tr>
+                    <XmarkCircle size={18} />
+                  </Button>
+                </div>
+              </div>
             ))}
-          </tbody>
-        </table>
-      )}
+          </div>
+        )}
+      </QueryResult>
     </div>
   )
 }

@@ -69,6 +69,7 @@ impl CourseMaterialDocument {
 /// as chatbot_conversation_message_citations into the database
 pub async fn chatbot_cited_documents_to_citations(
     conn: &mut PgConnection,
+    test_chatbot: bool,
     mut document_urls: Vec<Url>,
     api_key: &str,
     conversation_message_id: Uuid,
@@ -80,7 +81,14 @@ pub async fn chatbot_cited_documents_to_citations(
         let citation_number = (idx + 1) as i32;
         documents.push((document, citation_number));
     }
-    let res = save_documents(conn, documents, conversation_message_id, conversation_id).await?;
+    let res = save_documents(
+        conn,
+        test_chatbot,
+        documents,
+        conversation_message_id,
+        conversation_id,
+    )
+    .await?;
 
     Ok(res)
 }
@@ -133,6 +141,7 @@ async fn process_course_material_document_response(
 /// Save a course material document into the database as a citation
 async fn save_documents(
     conn: &mut PgConnection,
+    test_chatbot: bool,
     documents_with_citation_numbers: Vec<(CourseMaterialDocument, i32)>,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
@@ -150,8 +159,23 @@ async fn save_documents(
             .collect::<ChatbotResult<Vec<(ChatbotConversationMessageCitation, Option<Uuid>)>>>()?
             .into_iter()
             .unzip();
+    if test_chatbot {
+        return save_documents_mock(conn, citations).await;
+    };
     let res =
         chatbot_conversation_messages_citations::insert_batch(conn, citations, page_ids).await?;
 
+    Ok(res)
+}
+
+async fn save_documents_mock(
+    conn: &mut PgConnection,
+    citations: Vec<ChatbotConversationMessageCitation>,
+) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
+    let mut res = vec![];
+    for input in citations {
+        let a = chatbot_conversation_messages_citations::insert(conn, input).await?;
+        res.push(a)
+    }
     Ok(res)
 }

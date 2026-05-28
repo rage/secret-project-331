@@ -141,6 +141,7 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                 },
             },
             Message::Reasoning(..) => {
+                // todo: can reasoning input items be allowed? if there is a summary
                 return Err(chatbot_err!(Other, "Reasoning input items not allowed."));
             }
         };

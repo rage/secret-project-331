@@ -6126,6 +6126,58 @@
         }
       }
     },
+    "/api/v0/main-frontend/email-tracking/click/{click_id}": {
+      "get": {
+        "tags": ["email-tracking"],
+        "summary": "\nGET `/api/v0/main-frontend/email-tracking/click/{click_id}` - Email link click redirect",
+        "operationId": "clickRedirect",
+        "responses": {
+          "302": {
+            "description": "Redirect to destination URL"
+          },
+          "404": {
+            "description": "Unknown click ID"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/email-tracking/open/{delivery_id}": {
+      "get": {
+        "tags": ["email-tracking"],
+        "summary": "\nGET `/api/v0/main-frontend/email-tracking/open/{delivery_id}` - Email open tracking pixel",
+        "operationId": "openTrackingPixel",
+        "responses": {
+          "200": {
+            "description": "1x1 tracking pixel",
+            "content": {
+              "image/gif": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/email-tracking/stats": {
+      "get": {
+        "tags": ["email-tracking"],
+        "summary": "\nGET `/api/v0/main-frontend/email-tracking/stats` - Email engagement stats per template type (global admin only)",
+        "operationId": "getEmailTrackingStats",
+        "responses": {
+          "200": {
+            "description": "Email engagement stats per template type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EmailEngagementStats"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/exams/{exam_id}/exam-exercises": {
       "get": {
         "tags": ["exams"],
@@ -13718,6 +13770,51 @@
           },
           "language": {
             "type": "string"
+          }
+        }
+      },
+      "EmailEngagementStats": {
+        "type": "object",
+        "required": [
+          "total_sent",
+          "total_opened",
+          "unique_opened",
+          "total_clicked",
+          "unique_clicked",
+          "hard_bounces",
+          "soft_bounces"
+        ],
+        "properties": {
+          "hard_bounces": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "soft_bounces": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "template_type": {
+            "type": ["string", "null"]
+          },
+          "total_clicked": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total_opened": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "total_sent": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unique_clicked": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "unique_opened": {
+            "type": "integer",
+            "format": "int64"
           }
         }
       },

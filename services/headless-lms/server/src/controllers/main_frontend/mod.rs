@@ -16,6 +16,7 @@ pub mod course_modules;
 pub mod courses;
 pub mod ects_reminder_stats;
 pub mod email_templates;
+pub mod email_tracking;
 pub mod exams;
 pub mod exercise_repositories;
 pub mod exercise_services;
@@ -56,6 +57,7 @@ use utoipa::OpenApi;
         (path = "/course-modules", api = course_modules::MainFrontendCourseModulesApiDoc),
         (path = "/courses", api = courses::MainFrontendCoursesApiDoc),
         (path = "/ects-reminder-stats", api = ects_reminder_stats::MainFrontendEctsReminderStatsApiDoc),
+        (path = "/email-tracking", api = email_tracking::MainFrontendEmailTrackingApiDoc),
         (path = "/email-templates", api = email_templates::MainFrontendEmailTemplatesApiDoc),
         (path = "/exams", api = exams::MainFrontendExamsApiDoc),
         (path = "/exercise-repositories", api = exercise_repositories::MainFrontendExerciseRepositoriesApiDoc),
@@ -92,6 +94,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .service(web::scope("/course-modules").configure(course_modules::_add_routes))
         .service(web::scope("/courses").configure(courses::_add_routes))
         .service(web::scope("/ects-reminder-stats").configure(ects_reminder_stats::_add_routes))
+        .service(web::scope("/email-tracking").configure(email_tracking::_add_routes))
         .service(web::scope("/email-templates").configure(email_templates::_add_routes))
         .service(web::scope("/exercises").configure(exercises::_add_routes))
         .service(web::scope("/feedback").configure(feedback::_add_routes))

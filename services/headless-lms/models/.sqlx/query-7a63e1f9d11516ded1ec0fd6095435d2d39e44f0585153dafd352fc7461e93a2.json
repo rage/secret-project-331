@@ -1,0 +1,22 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE email_link_clicks\nSET first_clicked_at = COALESCE(first_clicked_at, NOW()),\n    click_count = click_count + 1\nWHERE id = $1\nRETURNING destination_url\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "destination_url",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false
+    ]
+  },
+  "hash": "7a63e1f9d11516ded1ec0fd6095435d2d39e44f0585153dafd352fc7461e93a2"
+}

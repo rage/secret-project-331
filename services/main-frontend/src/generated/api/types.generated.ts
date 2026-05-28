@@ -985,6 +985,17 @@ export type EmailData = {
   language: string
 }
 
+export type EmailEngagementStats = {
+  hard_bounces: number
+  soft_bounces: number
+  template_type?: string | null
+  total_clicked: number
+  total_opened: number
+  total_sent: number
+  unique_clicked: number
+  unique_opened: number
+}
+
 export type EmailTemplate = {
   content?: unknown
   course_id?: string | null
@@ -6028,6 +6039,51 @@ export type DeleteEmailTemplateResponses = {
 
 export type DeleteEmailTemplateResponse =
   DeleteEmailTemplateResponses[keyof DeleteEmailTemplateResponses]
+
+export type ClickRedirectData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-tracking/click/{click_id}"
+}
+
+export type ClickRedirectErrors = {
+  /**
+   * Unknown click ID
+   */
+  404: unknown
+}
+
+export type OpenTrackingPixelData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-tracking/open/{delivery_id}"
+}
+
+export type OpenTrackingPixelResponses = {
+  /**
+   * 1x1 tracking pixel
+   */
+  200: unknown
+}
+
+export type GetEmailTrackingStatsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/email-tracking/stats"
+}
+
+export type GetEmailTrackingStatsResponses = {
+  /**
+   * Email engagement stats per template type
+   */
+  200: Array<EmailEngagementStats>
+}
+
+export type GetEmailTrackingStatsResponse =
+  GetEmailTrackingStatsResponses[keyof GetEmailTrackingStatsResponses]
 
 export type GetExamExercisesData = {
   body?: never

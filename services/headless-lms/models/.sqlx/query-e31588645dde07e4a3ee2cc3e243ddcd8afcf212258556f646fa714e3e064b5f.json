@@ -1,0 +1,16 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO email_link_clicks (id, email_delivery_id, destination_url) VALUES ($1, $2, $3)",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "e31588645dde07e4a3ee2cc3e243ddcd8afcf212258556f646fa714e3e064b5f"
+}

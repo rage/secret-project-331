@@ -30,6 +30,8 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
+  ClickRedirectData,
+  ClickRedirectErrors,
   ConfigureChatbotData,
   ConfigureChatbotResponses,
   CreateChapterData,
@@ -320,6 +322,8 @@ import type {
   GetEditProposalsResponses,
   GetEmailTemplatesData,
   GetEmailTemplatesResponses,
+  GetEmailTrackingStatsData,
+  GetEmailTrackingStatsResponses,
   GetExamData,
   GetExamExercisesData,
   GetExamExercisesResponses,
@@ -509,6 +513,8 @@ import type {
   JoinCourseWithJoinCodeResponses,
   MarkFeedbackAsReadData,
   MarkFeedbackAsReadResponses,
+  OpenTrackingPixelData,
+  OpenTrackingPixelResponses,
   PostOauthUserInfoData,
   PostOauthUserInfoErrors,
   PostOauthUserInfoResponses,
@@ -738,6 +744,7 @@ import {
   zGetEditProposalCountResponse,
   zGetEditProposalsResponse,
   zGetEmailTemplatesResponse,
+  zGetEmailTrackingStatsResponse,
   zGetExamExercisesResponse,
   zGetExamResponse,
   zGetExamSubmissionsWithExamIdResponse,
@@ -3977,6 +3984,46 @@ export const deleteEmailTemplate = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zDeleteEmailTemplateResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/email-templates/{email_template_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-tracking/click/{click_id}` - Email link click redirect
+ */
+export const clickRedirect = <ThrowOnError extends boolean = true>(
+  options?: Options<ClickRedirectData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<unknown, ClickRedirectErrors, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-tracking/click/{click_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-tracking/open/{delivery_id}` - Email open tracking pixel
+ */
+export const openTrackingPixel = <ThrowOnError extends boolean = true>(
+  options?: Options<OpenTrackingPixelData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<OpenTrackingPixelResponses, unknown, ThrowOnError, "data">({
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-tracking/open/{delivery_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-tracking/stats` - Email engagement stats per template type (global admin only)
+ */
+export const getEmailTrackingStats = <ThrowOnError extends boolean = true>(
+  options?: Options<GetEmailTrackingStatsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<GetEmailTrackingStatsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetEmailTrackingStatsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/email-tracking/stats",
     ...options,
   })
 

@@ -23,6 +23,7 @@ import {
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
+  clickRedirect,
   configureChatbot,
   createChapter,
   createCodeGiveaway,
@@ -166,6 +167,7 @@ import {
   getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
+  getEmailTrackingStats,
   getExam,
   getExamExercises,
   getExamSubmissionsWithExamId,
@@ -260,6 +262,7 @@ import {
   introspectOauthToken,
   joinCourseWithJoinCode,
   markFeedbackAsRead,
+  openTrackingPixel,
   type Options,
   postOauthUserInfo,
   previewCourseInstanceCompletions,
@@ -330,6 +333,7 @@ import type {
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
+  ClickRedirectData,
   ConfigureChatbotData,
   ConfigureChatbotResponse,
   CreateChapterData,
@@ -589,6 +593,8 @@ import type {
   GetEditProposalsResponse,
   GetEmailTemplatesData,
   GetEmailTemplatesResponse,
+  GetEmailTrackingStatsData,
+  GetEmailTrackingStatsResponse,
   GetExamData,
   GetExamExercisesData,
   GetExamExercisesResponse,
@@ -770,6 +776,7 @@ import type {
   JoinCourseWithJoinCodeData,
   JoinCourseWithJoinCodeResponse,
   MarkFeedbackAsReadData,
+  OpenTrackingPixelData,
   PostOauthUserInfoData,
   PreviewCourseInstanceCompletionsData,
   PreviewCourseInstanceCompletionsResponse,
@@ -5213,6 +5220,68 @@ export const deleteEmailTemplateMutation = (
   }
   return mutationOptions
 }
+
+export const clickRedirectQueryKey = (options?: Options<ClickRedirectData>) =>
+  createQueryKey("clickRedirect", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-tracking/click/{click_id}` - Email link click redirect
+ */
+export const clickRedirectOptions = (options?: Options<ClickRedirectData>) =>
+  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof clickRedirectQueryKey>>({
+    queryFn: async ({ queryKey, signal }) =>
+      await clickRedirect({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: clickRedirectQueryKey(options),
+  })
+
+export const openTrackingPixelQueryKey = (options?: Options<OpenTrackingPixelData>) =>
+  createQueryKey("openTrackingPixel", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-tracking/open/{delivery_id}` - Email open tracking pixel
+ */
+export const openTrackingPixelOptions = (options?: Options<OpenTrackingPixelData>) =>
+  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof openTrackingPixelQueryKey>>({
+    queryFn: async ({ queryKey, signal }) =>
+      await openTrackingPixel({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: openTrackingPixelQueryKey(options),
+  })
+
+export const getEmailTrackingStatsQueryKey = (options?: Options<GetEmailTrackingStatsData>) =>
+  createQueryKey("getEmailTrackingStats", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/email-tracking/stats` - Email engagement stats per template type (global admin only)
+ */
+export const getEmailTrackingStatsOptions = (options?: Options<GetEmailTrackingStatsData>) =>
+  queryOptions<
+    GetEmailTrackingStatsResponse,
+    DefaultError,
+    GetEmailTrackingStatsResponse,
+    ReturnType<typeof getEmailTrackingStatsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getEmailTrackingStats({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getEmailTrackingStatsQueryKey(options),
+  })
 
 export const getExamExercisesQueryKey = (options: Options<GetExamExercisesData>) =>
   createQueryKey("getExamExercises", options)

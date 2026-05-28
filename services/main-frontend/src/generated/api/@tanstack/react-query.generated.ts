@@ -14,6 +14,7 @@ import {
 import { client } from "../client.generated"
 import {
   addCodeGiveawayCodes,
+  addCoursePlanMember,
   addRole,
   addTeacherGradingForExamSubmission,
   advanceCourseDesignerStage,
@@ -144,6 +145,7 @@ import {
   getCoursePageVisitDatumSummaryByDeviceTypes,
   getCoursePageVisitDatumSummaryByPages,
   getCoursePartnersBlock,
+  getCoursePlanMembers,
   getCourseProgressForUser,
   getCourseReferences,
   getCourseStructure,
@@ -262,6 +264,7 @@ import {
   processEditProposal,
   receivePlaygroundGrading,
   releaseExamGrades,
+  removeCoursePlanMember,
   removeRole,
   reprocessCourseCompletions,
   resetCourseProgressForEveryone,
@@ -312,6 +315,8 @@ import {
 import type {
   AddCodeGiveawayCodesData,
   AddCodeGiveawayCodesResponse,
+  AddCoursePlanMemberData,
+  AddCoursePlanMemberResponse,
   AddRoleData,
   AddTeacherGradingForExamSubmissionData,
   AddTeacherGradingForExamSubmissionResponse,
@@ -541,6 +546,8 @@ import type {
   GetCoursePageVisitDatumSummaryData,
   GetCoursePageVisitDatumSummaryResponse,
   GetCoursePartnersBlockData,
+  GetCoursePlanMembersData,
+  GetCoursePlanMembersResponse,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponse,
   GetCourseReferencesData,
@@ -764,6 +771,8 @@ import type {
   ProcessEditProposalData,
   ReceivePlaygroundGradingData,
   ReleaseExamGradesData,
+  RemoveCoursePlanMemberData,
+  RemoveCoursePlanMemberResponse,
   RemoveRoleData,
   ReprocessCourseCompletionsData,
   ReprocessCourseCompletionsResponse,
@@ -2226,6 +2235,70 @@ export const getCourseDesignerPlanOptions = (options: Options<GetCourseDesignerP
       }),
     queryKey: getCourseDesignerPlanQueryKey(options),
   })
+
+export const getCoursePlanMembersQueryKey = (options: Options<GetCoursePlanMembersData>) =>
+  createQueryKey("getCoursePlanMembers", options)
+
+export const getCoursePlanMembersOptions = (options: Options<GetCoursePlanMembersData>) =>
+  queryOptions<
+    GetCoursePlanMembersResponse,
+    DefaultError,
+    GetCoursePlanMembersResponse,
+    ReturnType<typeof getCoursePlanMembersQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCoursePlanMembers({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCoursePlanMembersQueryKey(options),
+  })
+
+export const addCoursePlanMemberMutation = (
+  options?: Partial<Options<AddCoursePlanMemberData>>,
+): UseMutationOptions<
+  AddCoursePlanMemberResponse,
+  DefaultError,
+  Options<AddCoursePlanMemberData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AddCoursePlanMemberResponse,
+    DefaultError,
+    Options<AddCoursePlanMemberData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await addCoursePlanMember({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const removeCoursePlanMemberMutation = (
+  options?: Partial<Options<RemoveCoursePlanMemberData>>,
+): UseMutationOptions<
+  RemoveCoursePlanMemberResponse,
+  DefaultError,
+  Options<RemoveCoursePlanMemberData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RemoveCoursePlanMemberResponse,
+    DefaultError,
+    Options<RemoveCoursePlanMemberData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await removeCoursePlanMember({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const saveCourseDesignerScheduleMutation = (
   options?: Partial<Options<SaveCourseDesignerScheduleData>>,

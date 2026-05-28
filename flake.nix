@@ -161,6 +161,12 @@
         devShells.default = pkgs.mkShell (
           {
             packages = pathPriorityPackages ++ shellSupportPackages;
+            # tikv-jemalloc-sys configure uses -O0 -Werror; glibc fortify warns
+            # without optimization, so disable only fortify/fortify3 from Nix defaults.
+            hardeningDisable = [
+              "fortify"
+              "fortify3"
+            ];
 
             OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
             OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";

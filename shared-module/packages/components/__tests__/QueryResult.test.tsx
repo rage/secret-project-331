@@ -1,11 +1,16 @@
 "use client"
 
+import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
 import { act, screen } from "@testing-library/react"
 
 import { QueryResult } from "../src/components/queryResult/QueryResult"
 
 import { domClick, renderUi } from "./testUtils"
+
+const edgeContentBorderCss = css`
+  border-bottom: 1px solid rgb(118, 123, 133);
+`
 
 function makeQuery<T, E = unknown>(partial: Partial<UseQueryResult<T, E>>): UseQueryResult<T, E> {
   return {
@@ -139,4 +144,28 @@ test("refreshing announces status", () => {
 
   expect(screen.getByText("ok")).toBeInTheDocument()
   expect(screen.getByRole("status", { name: "Refreshing" })).toBeInTheDocument()
+})
+
+test("loaded content is not wrapped in a clipping frame", () => {
+  renderUi(
+    <QueryResult query={makeQuery({ data: "ok" })} themeMode="light">
+      {(d: string) => (
+        <div data-testid="edge-content" className={edgeContentBorderCss}>
+          {d}
+        </div>
+      )}
+    </QueryResult>,
+  )
+
+  const content = screen.getByTestId("edge-content")
+  const section = content.closest("section")
+
+  expect(section).toBeTruthy()
+
+  let node = content.parentElement
+  while (node && node !== section) {
+    const styles = getComputedStyle(node)
+    expect(styles.overflow).not.toBe("hidden")
+    node = node.parentElement
+  }
 })

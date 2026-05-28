@@ -1,0 +1,83 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_conversation_messages_citations\nSET conversation_message_id = $1\nWHERE conversation_message_id IN (\n    SELECT id\n    FROM chatbot_conversation_messages\n    WHERE id IN (\n        SELECT conversation_message_id\n        FROM chatbot_conversation_message_tool_outputs\n        WHERE response_id = $2\n          AND deleted_at IS NULL\n      )\n      AND deleted_at IS NULL\n  )\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "conversation_message_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 2,
+        "name": "conversation_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 3,
+        "name": "course_material_chapter_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 4,
+        "name": "title",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 5,
+        "name": "content",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "document_url",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 7,
+        "name": "citation_number",
+        "type_info": "Int4"
+      },
+      {
+        "ordinal": 8,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 9,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 10,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "339a2390fdf05a561878b3c373bcbae92922e3121705d38e1ede64a0e31cffcc"
+}

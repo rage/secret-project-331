@@ -366,7 +366,6 @@ pub async fn seed_organization_uh_mathstat(
             use_azure_search: true,
             default_chatbot: true,
             model_id: seed_llm_result.llm_default_model_id,
-            thinking_model: seed_llm_result.llm_default_model_thinking,
             ..Default::default()
         },
     )

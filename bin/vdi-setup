@@ -268,7 +268,7 @@ echo
 # - SIGTERM when mem <= 8% and free swap <= 26%
 # - SIGKILL when mem <= 4% and free swap <= 13%
 cat > /etc/default/earlyoom <<'END'
-EARLYOOM_ARGS="-r 60 -m 8 -s 26 --prefer (^|/)(rustc|next-server|node|nodejs|chromium)$ --avoid (^|/)(init|systemd|systemd-journald|systemd-logind|dbus-daemon|sshd|Xorg|containerd|dockerd|kubelet)$"
+EARLYOOM_ARGS="-r 60 -m 8 -s 26 --prefer (^|/)(rustc|next-server|node|nodejs|chromium|rust-analyzer)$ --avoid (^|/)(init|systemd|systemd-journald|systemd-logind|dbus-daemon|sshd|Xorg|containerd|dockerd|kubelet)$"
 END
 
 systemctl enable earlyoom

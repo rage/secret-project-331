@@ -2,7 +2,6 @@ use crate::prelude::*;
 use utoipa::ToSchema;
 
 #[derive(Clone, PartialEq, Deserialize, Serialize, ToSchema)]
-
 pub struct ChatbotConversationSuggestedMessage {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,

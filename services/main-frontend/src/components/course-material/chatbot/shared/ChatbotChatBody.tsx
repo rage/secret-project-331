@@ -19,6 +19,7 @@ import type {
   ChatbotConversationMessage,
   ChatbotConversationMessageCitation,
 } from "@/generated/course-material-api/types.generated"
+import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -62,43 +63,59 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   const messages = useMemo(() => {
     const messages: ChatbotConversationMessage[] = [
-      ...(currentConversationInfo.data?.current_conversation_messages?.filter(
-        (m) => m.message_role !== "tool" && m.tool_call_fields.length === 0,
-      ) ?? []),
+      ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {
+        let result = zChatbotConversationMessageMessage.safeParse(m.message)
+        return (
+          result.success &&
+          (result.data.message_role === "user" || result.data.message_role === "assistant")
+        )
+      }) ?? []),
     ]
     const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
     if (messageState.optimisticMessage) {
       messages.push({
         id: v4(),
-        message: messageState.optimisticMessage,
-        // eslint-disable-next-line i18next/no-literal-string
-        message_role: "user",
+        message: {
+          id: v4(),
+          text: messageState.optimisticMessage,
+          // eslint-disable-next-line i18next/no-literal-string
+          message_role: "user",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_at: null,
+          chatbot_conversation_message_id: v4(),
+          message_is_complete: true,
+          response_id: null,
+          used_tokens: 0,
+        },
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         deleted_at: null,
         conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        message_is_complete: true,
-        used_tokens: 0,
         order_number: lastOrderNumber + 1,
-        tool_call_fields: [],
-        tool_output: null,
       })
     }
     if (messageState.streamingMessage) {
       messages.push({
         id: v4(),
-        message: messageState.streamingMessage,
-        // eslint-disable-next-line i18next/no-literal-string
-        message_role: "assistant",
+        message: {
+          id: v4(),
+          text: messageState.streamingMessage,
+          // eslint-disable-next-line i18next/no-literal-string
+          message_role: "assistant",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_at: null,
+          chatbot_conversation_message_id: v4(),
+          message_is_complete: false,
+          response_id: "",
+          used_tokens: 0,
+        },
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
         deleted_at: null,
         conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        message_is_complete: false,
-        used_tokens: 0,
         order_number: lastOrderNumber + 2,
-        tool_call_fields: [],
-        tool_output: null,
       })
     }
     return messages
@@ -188,15 +205,20 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         `}
         ref={scrollContainerRef}
       >
-        {messages.map((message) => (
-          <MessageBubble
-            key={`chatbot-message-${message.id}`}
-            message={message.message ?? ""}
-            citations={citations.get(message.id)}
-            isFromChatbot={message.message_role === "assistant"}
-            isPending={!message.message_is_complete && newMessageMutation.isPending}
-          />
-        ))}
+        {messages.map((message) => {
+          let m = zChatbotConversationMessageMessage.safeParse(message.message)
+          if (m.success) {
+            return (
+              <MessageBubble
+                key={`chatbot-message-${message.id}`}
+                message={m.data.text ?? ""}
+                citations={citations.get(message.id)}
+                isFromChatbot={m.data.message_role === "assistant"}
+                isPending={!m.data.message_is_complete && newMessageMutation.isPending}
+              />
+            )
+          }
+        })}
         <div
           className={css`
             display: flex;

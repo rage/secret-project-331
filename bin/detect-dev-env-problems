@@ -6,7 +6,7 @@ enforce_inotify_watches_limit_sufficient
 
 ensure_program_in_path docker
 
-if id -Gn | tr ' ' '\n' | grep -xq docker; then
+if { id -Gn 2> /dev/null || true; } | tr ' ' '\n' | grep -xq docker; then
     echo "Current user is in the docker group."
 else
     echo 'Error: you are not in the docker group. Please follow the instructions from https://docs.docker.com/engine/install/linux-postinstall/'

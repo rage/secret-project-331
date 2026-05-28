@@ -72,7 +72,6 @@ pub async fn seed_chatbot_course(
             use_azure_search: true,
             hide_citations: false,
             model_id: llm.id,
-            thinking_model: llm.thinking,
             default_chatbot: true,
             ..Default::default()
         })
@@ -86,7 +85,6 @@ pub async fn seed_chatbot_course(
             use_azure_search: true,
             hide_citations: false,
             model_id: llm.id,
-            thinking_model: llm.thinking,
             ..Default::default()})
         .chatbot_config(NewChatbotConf {
             course_id,
@@ -98,7 +96,6 @@ pub async fn seed_chatbot_course(
             use_azure_search: true,
             hide_citations: false,
             model_id: llm.id,
-            thinking_model: llm.thinking,
             suggest_next_messages: true,
             initial_suggested_messages: Some(vec!["What is going on?".to_string(), "Tell me more about your fascinating self.".to_string(), "What's the time? What's the time? What's the time? What's the time? What's the time? What's the time? Aaaaaaaaaaaaaaaaaaaaaaaaaaah!".to_string()]),
             ..Default::default()})

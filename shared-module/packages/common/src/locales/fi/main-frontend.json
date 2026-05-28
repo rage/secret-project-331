@@ -1297,6 +1297,8 @@
   "reasoning-effort-low": "Matala",
   "reasoning-effort-medium": "Keskitaso",
   "reasoning-effort-minimal": "Pienin mahdollinen",
+  "reasoning-effort-none": "Ei päättelyä",
+  "reasoning-effort-xhigh": "Ekstrakorkea",
   "received-enough-peer-reviews": "Tarpeeksi saatuja vertaisarvionteja",
   "received-number-data": "Saatu numero palaute",
   "received-reviews": "Vastaanotetut arviot",

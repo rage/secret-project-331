@@ -52,11 +52,10 @@ const ImageBlock: React.FC<
     <>
       <img
         title={title}
-        height={height}
-        width={width}
         className={css`
+          width: ${width ? `${width}` : "100%"};
           max-width: 100%;
-          height: auto;
+          height: ${height ? `${height}` : "auto"};
           margin: 1rem 0;
           ${scale && `transform: scale(${scale});`}
           ${aspectRatio && `aspect-ratio: ${aspectRatio};`}
@@ -74,7 +73,7 @@ const ImageBlock: React.FC<
   const imageContent = (
     <div
       className={css`
-        width: fit-content;
+        width: 100%;
         ${(align === "center" || align === undefined) &&
         `margin-left: auto;
         margin-right: auto;

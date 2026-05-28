@@ -252,6 +252,8 @@ export type EmailTemplateType =
   | "delete_user_email"
   | "confirm_email_code"
   | "generic"
+  | "ects_initial_reminder"
+  | "ects_follow_up_reminder"
 
 export type EmailTemplateUpdate = {
   content: unknown

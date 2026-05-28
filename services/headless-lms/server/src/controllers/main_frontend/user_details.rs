@@ -1,4 +1,7 @@
-use models::{pages::SearchRequest, user_details::UserDetail};
+use models::{
+    pages::SearchRequest,
+    user_details::{UserDetail, UserEctsEmailPreferences},
+};
 use utoipa::{OpenApi, ToSchema};
 
 use crate::{controllers, prelude::*};
@@ -16,7 +19,10 @@ use std::net::IpAddr;
     get_bulk_user_details,
     get_user_details_for_user,
     get_user_country_by_ip,
-    update_user_info
+    update_user_info,
+    get_ects_email_preferences,
+    update_ects_email_preferences,
+    ects_email_unsubscribe
 ))]
 pub(crate) struct MainFrontendUserDetailsApiDoc;
 
@@ -489,6 +495,97 @@ pub async fn update_user_info(
     token.authorized_ok(web::Json(updated_user))
 }
 
+/**
+GET `/api/v0/main-frontend/user-details/ects-email-preferences` - Get the current user's ECTS email preferences
+*/
+#[utoipa::path(
+    get,
+    path = "/ects-email-preferences",
+    operation_id = "getEctsEmailPreferences",
+    tag = "user-details",
+    responses(
+        (status = 200, description = "ECTS email preferences", body = UserEctsEmailPreferences)
+    )
+)]
+pub async fn get_ects_email_preferences(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<UserEctsEmailPreferences>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let prefs = models::user_details::get_user_ects_email_preferences(&mut conn, user.id).await?;
+    token.authorized_ok(web::Json(prefs))
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct EctsEmailPreferencesPayload {
+    pub ects_email_opt_out: bool,
+}
+
+/**
+PUT `/api/v0/main-frontend/user-details/ects-email-preferences` - Update the current user's ECTS email opt-out preference
+*/
+#[utoipa::path(
+    put,
+    path = "/ects-email-preferences",
+    operation_id = "updateEctsEmailPreferences",
+    tag = "user-details",
+    request_body = EctsEmailPreferencesPayload,
+    responses(
+        (status = 200, description = "Updated")
+    )
+)]
+pub async fn update_ects_email_preferences(
+    user: AuthUser,
+    pool: web::Data<PgPool>,
+    payload: web::Json<EctsEmailPreferencesPayload>,
+) -> ControllerResult<web::Json<()>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    models::user_details::set_ects_email_preference(&mut conn, user.id, payload.ects_email_opt_out)
+        .await?;
+    token.authorized_ok(web::Json(()))
+}
+
+/**
+GET `/api/v0/main-frontend/user-details/ects-email-unsubscribe` - Unsubscribe from ECTS reminder emails using a token from the email link. Does not require authentication.
+*/
+#[utoipa::path(
+    get,
+    path = "/ects-email-unsubscribe",
+    operation_id = "ectsEmailUnsubscribe",
+    tag = "user-details",
+    params(
+        ("token" = Uuid, Query, description = "Unsubscribe token from the email link")
+    ),
+    responses(
+        (status = 200, description = "Unsubscribed successfully")
+    )
+)]
+pub async fn ects_email_unsubscribe(
+    pool: web::Data<PgPool>,
+    query: web::Query<std::collections::HashMap<String, String>>,
+) -> ControllerResult<web::Json<()>> {
+    let token_str = query.get("token").ok_or_else(|| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Missing token parameter".to_string(),
+            None,
+        )
+    })?;
+    let token: Uuid = token_str.parse().map_err(|_| {
+        ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "Invalid token format".to_string(),
+            None,
+        )
+    })?;
+    let mut conn = pool.acquire().await?;
+    let auth_token = skip_authorize();
+    models::user_details::opt_out_ects_email_by_unsubscribe_token(&mut conn, token).await?;
+    auth_token.authorized_ok(web::Json(()))
+}
+
 pub fn _add_routes(cfg: &mut ServiceConfig) {
     cfg.route("/search-by-email", web::post().to(search_users_by_email))
         .route(
@@ -517,5 +614,17 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/get-users-by-course-id",
             web::get().to(get_users_by_course_id),
         )
-        .route("/bulk-user-details", web::post().to(get_bulk_user_details));
+        .route("/bulk-user-details", web::post().to(get_bulk_user_details))
+        .route(
+            "/ects-email-preferences",
+            web::get().to(get_ects_email_preferences),
+        )
+        .route(
+            "/ects-email-preferences",
+            web::put().to(update_ects_email_preferences),
+        )
+        .route(
+            "/ects-email-unsubscribe",
+            web::get().to(ects_email_unsubscribe),
+        );
 }

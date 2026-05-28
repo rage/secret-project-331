@@ -927,6 +927,35 @@ export type DomainCompletionStats = {
   users_with_some_unregistered_completions: number
 }
 
+export type EctsEmailPreferencesPayload = {
+  ects_email_opt_out: boolean
+}
+
+/**
+ * Stats for one course row in the per-course breakdown table.
+ */
+export type EctsReminderCourseStats = {
+  course_id: string
+  course_name: string
+  eligible_completions: number
+  finland_eligible_completions: number
+  follow_up_emails_sent: number
+  initial_emails_sent: number
+  registered_after_email: number
+}
+
+/**
+ * Stats for the ECTS reminder marketing dashboard.
+ */
+export type EctsReminderStats = {
+  eligible_completions: number
+  finland_eligible_completions: number
+  follow_up_emails_sent: number
+  initial_emails_sent: number
+  opted_out: number
+  registered_after_email: number
+}
+
 export type EditProposalInfo = {
   block_proposals: Array<BlockProposalInfo>
   page_id: string
@@ -982,6 +1011,8 @@ export type EmailTemplateType =
   | "delete_user_email"
   | "confirm_email_code"
   | "generic"
+  | "ects_initial_reminder"
+  | "ects_follow_up_reminder"
 
 export type EventInfo = {
   count?: number | null
@@ -2174,6 +2205,14 @@ export type UserDetail = {
 export type UserDetailsRequest = {
   course_ids: Array<string>
   user_id: string
+}
+
+/**
+ * Lightweight preferences struct for ECTS email opt-out, separate from UserDetail
+ * to avoid touching its many SELECT queries.
+ */
+export type UserEctsEmailPreferences = {
+  ects_email_opt_out: boolean
 }
 
 export type UserExerciseState = {
@@ -5918,6 +5957,40 @@ export type GetCourseWeekdayHourSubmissionCountsResponses = {
 export type GetCourseWeekdayHourSubmissionCountsResponse =
   GetCourseWeekdayHourSubmissionCountsResponses[keyof GetCourseWeekdayHourSubmissionCountsResponses]
 
+export type GetEctsReminderStatsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/ects-reminder-stats"
+}
+
+export type GetEctsReminderStatsResponses = {
+  /**
+   * Global ECTS reminder stats
+   */
+  200: EctsReminderStats
+}
+
+export type GetEctsReminderStatsResponse =
+  GetEctsReminderStatsResponses[keyof GetEctsReminderStatsResponses]
+
+export type GetEctsReminderStatsByCourseData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/ects-reminder-stats/by-course"
+}
+
+export type GetEctsReminderStatsByCourseResponses = {
+  /**
+   * Per-course ECTS reminder stats
+   */
+  200: Array<EctsReminderCourseStats>
+}
+
+export type GetEctsReminderStatsByCourseResponse =
+  GetEctsReminderStatsByCourseResponses[keyof GetEctsReminderStatsByCourseResponses]
+
 export type GetEmailTemplatesData = {
   body?: never
   path?: never
@@ -8391,6 +8464,56 @@ export type GetBulkUserDetailsResponses = {
 
 export type GetBulkUserDetailsResponse =
   GetBulkUserDetailsResponses[keyof GetBulkUserDetailsResponses]
+
+export type GetEctsEmailPreferencesData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/user-details/ects-email-preferences"
+}
+
+export type GetEctsEmailPreferencesResponses = {
+  /**
+   * ECTS email preferences
+   */
+  200: UserEctsEmailPreferences
+}
+
+export type GetEctsEmailPreferencesResponse =
+  GetEctsEmailPreferencesResponses[keyof GetEctsEmailPreferencesResponses]
+
+export type UpdateEctsEmailPreferencesData = {
+  body: EctsEmailPreferencesPayload
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/user-details/ects-email-preferences"
+}
+
+export type UpdateEctsEmailPreferencesResponses = {
+  /**
+   * Updated
+   */
+  200: unknown
+}
+
+export type EctsEmailUnsubscribeData = {
+  body?: never
+  path?: never
+  query: {
+    /**
+     * Unsubscribe token from the email link
+     */
+    token: string
+  }
+  url: "/api/v0/main-frontend/user-details/ects-email-unsubscribe"
+}
+
+export type EctsEmailUnsubscribeResponses = {
+  /**
+   * Unsubscribed successfully
+   */
+  200: unknown
+}
 
 export type SearchUserDetailsByEmailData = {
   body: SearchRequest

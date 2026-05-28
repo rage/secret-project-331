@@ -71,6 +71,7 @@ import {
   denyOauthConsent,
   downloadCodeGiveawayCodesCsv,
   duplicateExam,
+  ectsEmailUnsubscribe,
   editCourseInstance,
   editExam,
   exchangeOauthToken,
@@ -159,6 +160,9 @@ import {
   getCourseUserSettingsForUser,
   getCourseWeekdayHourSubmissionCounts,
   getCurrentTime,
+  getEctsEmailPreferences,
+  getEctsReminderStats,
+  getEctsReminderStatsByCourse,
   getEditProposalCount,
   getEditProposals,
   getEmailTemplates,
@@ -296,6 +300,7 @@ import {
   updateCoursePageOrdering,
   updateCoursePeerReviewQueueReviewsReceived,
   updateCourseReference,
+  updateEctsEmailPreferences,
   updateExerciseRepository,
   updateExerciseService,
   updateGeneratedCertificate,
@@ -405,6 +410,7 @@ import type {
   DownloadCodeGiveawayCodesCsvResponse,
   DuplicateExamData,
   DuplicateExamResponse,
+  EctsEmailUnsubscribeData,
   EditCourseInstanceData,
   EditExamData,
   ExchangeOauthTokenData,
@@ -571,6 +577,12 @@ import type {
   GetCourseWeekdayHourSubmissionCountsResponse,
   GetCurrentTimeData,
   GetCurrentTimeResponse,
+  GetEctsEmailPreferencesData,
+  GetEctsEmailPreferencesResponse,
+  GetEctsReminderStatsByCourseData,
+  GetEctsReminderStatsByCourseResponse,
+  GetEctsReminderStatsData,
+  GetEctsReminderStatsResponse,
   GetEditProposalCountData,
   GetEditProposalCountResponse,
   GetEditProposalsData,
@@ -822,6 +834,7 @@ import type {
   UpdateCoursePeerReviewQueueReviewsReceivedResponse,
   UpdateCourseReferenceData,
   UpdateCourseResponse,
+  UpdateEctsEmailPreferencesData,
   UpdateExerciseRepositoryData,
   UpdateExerciseRepositoryResponse,
   UpdateExerciseServiceData,
@@ -5100,6 +5113,57 @@ export const getCourseWeekdayHourSubmissionCountsOptions = (
     queryKey: getCourseWeekdayHourSubmissionCountsQueryKey(options),
   })
 
+export const getEctsReminderStatsQueryKey = (options?: Options<GetEctsReminderStatsData>) =>
+  createQueryKey("getEctsReminderStats", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/ects-reminder-stats` - Global ECTS reminder campaign statistics (global admin only)
+ */
+export const getEctsReminderStatsOptions = (options?: Options<GetEctsReminderStatsData>) =>
+  queryOptions<
+    GetEctsReminderStatsResponse,
+    DefaultError,
+    GetEctsReminderStatsResponse,
+    ReturnType<typeof getEctsReminderStatsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getEctsReminderStats({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getEctsReminderStatsQueryKey(options),
+  })
+
+export const getEctsReminderStatsByCourseQueryKey = (
+  options?: Options<GetEctsReminderStatsByCourseData>,
+) => createQueryKey("getEctsReminderStatsByCourse", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/ects-reminder-stats/by-course` - Per-course ECTS reminder statistics (global admin only)
+ */
+export const getEctsReminderStatsByCourseOptions = (
+  options?: Options<GetEctsReminderStatsByCourseData>,
+) =>
+  queryOptions<
+    GetEctsReminderStatsByCourseResponse,
+    DefaultError,
+    GetEctsReminderStatsByCourseResponse,
+    ReturnType<typeof getEctsReminderStatsByCourseQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getEctsReminderStatsByCourse({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getEctsReminderStatsByCourseQueryKey(options),
+  })
+
 export const getEmailTemplatesQueryKey = (options?: Options<GetEmailTemplatesData>) =>
   createQueryKey("getEmailTemplates", options)
 
@@ -8676,6 +8740,71 @@ export const getBulkUserDetailsMutation = (
   }
   return mutationOptions
 }
+
+export const getEctsEmailPreferencesQueryKey = (options?: Options<GetEctsEmailPreferencesData>) =>
+  createQueryKey("getEctsEmailPreferences", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/user-details/ects-email-preferences` - Get the current user's ECTS email preferences
+ */
+export const getEctsEmailPreferencesOptions = (options?: Options<GetEctsEmailPreferencesData>) =>
+  queryOptions<
+    GetEctsEmailPreferencesResponse,
+    DefaultError,
+    GetEctsEmailPreferencesResponse,
+    ReturnType<typeof getEctsEmailPreferencesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getEctsEmailPreferences({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getEctsEmailPreferencesQueryKey(options),
+  })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/user-details/ects-email-preferences` - Update the current user's ECTS email opt-out preference
+ */
+export const updateEctsEmailPreferencesMutation = (
+  options?: Partial<Options<UpdateEctsEmailPreferencesData>>,
+): UseMutationOptions<unknown, DefaultError, Options<UpdateEctsEmailPreferencesData>> => {
+  const mutationOptions: UseMutationOptions<
+    unknown,
+    DefaultError,
+    Options<UpdateEctsEmailPreferencesData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateEctsEmailPreferences({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
+
+export const ectsEmailUnsubscribeQueryKey = (options: Options<EctsEmailUnsubscribeData>) =>
+  createQueryKey("ectsEmailUnsubscribe", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/user-details/ects-email-unsubscribe` - Unsubscribe from ECTS reminder emails using a token from the email link. Does not require authentication.
+ */
+export const ectsEmailUnsubscribeOptions = (options: Options<EctsEmailUnsubscribeData>) =>
+  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof ectsEmailUnsubscribeQueryKey>>({
+    queryFn: async ({ queryKey, signal }) =>
+      await ectsEmailUnsubscribe({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: ectsEmailUnsubscribeQueryKey(options),
+  })
 
 /**
  *

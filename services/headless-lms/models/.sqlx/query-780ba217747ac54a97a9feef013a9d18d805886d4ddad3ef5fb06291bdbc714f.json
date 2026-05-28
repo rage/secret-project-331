@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  content,\n  email_template_type AS \"template_type: EmailTemplateType\",\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  course_id,\n  language\nFROM email_templates\nWHERE course_id = $1\n  AND deleted_at IS NULL\n        ",
+  "query": "\nSELECT id,\n  created_at,\n  updated_at,\n  deleted_at,\n  content,\n  email_template_type AS \"template_type: EmailTemplateType\",\n  subject,\n  exercise_completions_threshold,\n  points_threshold,\n  course_id,\n  language\nFROM email_templates\nWHERE email_template_type = $1\n  AND deleted_at IS NULL\n  AND (course_id = $3 OR course_id IS NULL)\n  AND (language = $2 OR language = 'en' OR language IS NULL)\nORDER BY\n  CASE WHEN course_id = $3 THEN 0 ELSE 1 END,\n  CASE WHEN language = $2 THEN 0 WHEN language = 'en' THEN 1 ELSE 2 END\nLIMIT 1\n        ",
   "describe": {
     "columns": [
       {
@@ -75,6 +75,22 @@
     ],
     "parameters": {
       "Left": [
+        {
+          "Custom": {
+            "name": "email_template_type",
+            "kind": {
+              "Enum": [
+                "reset_password_email",
+                "delete_user_email",
+                "generic",
+                "confirm_email_code",
+                "ects_initial_reminder",
+                "ects_follow_up_reminder"
+              ]
+            }
+          }
+        },
+        "Text",
         "Uuid"
       ]
     },
@@ -92,5 +108,5 @@
       true
     ]
   },
-  "hash": "431b5241c91ca468468a46ae1b4f1783f99315b647b49bdfe9ea4b3f175bc5f9"
+  "hash": "780ba217747ac54a97a9feef013a9d18d805886d4ddad3ef5fb06291bdbc714f"
 }

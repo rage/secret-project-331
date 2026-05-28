@@ -62,6 +62,10 @@ fn main() -> Result<()> {
             execute: Box::new(|| tokio_run(programs::peer_review_updater::main())),
         },
         Program {
+            name: "periodic-task-runner",
+            execute: Box::new(|| tokio_run(programs::periodic_task_runner::main())),
+        },
+        Program {
             name: "start-server",
             // we'll run the server on the actix runtime without boxing it
             execute: Box::new(|| actix_run(programs::start_server::main())),

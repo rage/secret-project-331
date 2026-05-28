@@ -164,6 +164,8 @@ export const zEmailTemplateType = z.enum([
   "delete_user_email",
   "confirm_email_code",
   "generic",
+  "ects_initial_reminder",
+  "ects_follow_up_reminder",
 ])
 
 export const zEmailTemplate = z.object({

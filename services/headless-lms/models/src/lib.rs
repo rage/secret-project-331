@@ -36,6 +36,7 @@ pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_modules;
 pub mod courses;
+pub mod ects_reminder_email_sends;
 pub mod email_deliveries;
 pub mod email_templates;
 pub mod email_verification_tokens;

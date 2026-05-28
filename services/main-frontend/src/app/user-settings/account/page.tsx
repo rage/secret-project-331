@@ -6,6 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import ChangeUserPasswordForm from "@/components/forms/ChangeUserPasswordForm"
+import EctsEmailPreferencesSection from "@/components/forms/EctsEmailPreferencesSection"
 import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
 import { useUserDetailsForUserQuery } from "@/hooks/useUserDetailsForUserQuery"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -40,6 +41,7 @@ const AccountSettingsPage: React.FC = () => {
             emailCommunicationConsent={getUserDetails.data?.email_communication_consent ?? false}
             email={getUserDetails.data?.email}
           />
+          {getUserDetails.data?.country === "FI" && <EctsEmailPreferencesSection />}
 
           <div
             className={css`

@@ -844,6 +844,112 @@ export const zDomainCompletionStats = z.object({
     }),
 })
 
+export const zEctsEmailPreferencesPayload = z.object({
+  ects_email_opt_out: z.boolean(),
+})
+
+/**
+ * Stats for one course row in the per-course breakdown table.
+ */
+export const zEctsReminderCourseStats = z.object({
+  course_id: z.uuid(),
+  course_name: z.string(),
+  eligible_completions: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  finland_eligible_completions: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  follow_up_emails_sent: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  initial_emails_sent: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  registered_after_email: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
+/**
+ * Stats for the ECTS reminder marketing dashboard.
+ */
+export const zEctsReminderStats = z.object({
+  eligible_completions: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  finland_eligible_completions: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  follow_up_emails_sent: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  initial_emails_sent: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  opted_out: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+  registered_after_email: z.coerce
+    .bigint()
+    .min(BigInt("-9223372036854775808"), {
+      error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+    })
+    .max(BigInt("9223372036854775807"), {
+      error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+    }),
+})
+
 export const zEditProposalInfo = z.object({
   block_proposals: z.array(zBlockProposalInfo),
   page_id: z.uuid(),
@@ -860,6 +966,8 @@ export const zEmailTemplateType = z.enum([
   "delete_user_email",
   "confirm_email_code",
   "generic",
+  "ects_initial_reminder",
+  "ects_follow_up_reminder",
 ])
 
 export const zEmailTemplate = z.object({
@@ -2450,6 +2558,14 @@ export const zPoints = z.object({
 export const zUserDetailsRequest = z.object({
   course_ids: z.array(z.uuid()),
   user_id: z.uuid(),
+})
+
+/**
+ * Lightweight preferences struct for ECTS email opt-out, separate from UserDetail
+ * to avoid touching its many SELECT queries.
+ */
+export const zUserEctsEmailPreferences = z.object({
+  ects_email_opt_out: z.boolean(),
 })
 
 export const zUserExerciseState = z.object({
@@ -4253,6 +4369,16 @@ export const zGetCourseWeekdayHourSubmissionCountsResponse = z.array(
 )
 
 /**
+ * Global ECTS reminder stats
+ */
+export const zGetEctsReminderStatsResponse = zEctsReminderStats
+
+/**
+ * Per-course ECTS reminder stats
+ */
+export const zGetEctsReminderStatsByCourseResponse = z.array(zEctsReminderCourseStats)
+
+/**
  * Email templates
  */
 export const zGetEmailTemplatesResponse = z.array(zEmailTemplate)
@@ -5324,6 +5450,17 @@ export const zGetBulkUserDetailsBody = zBulkUserDetailsRequest
  * Bulk user details
  */
 export const zGetBulkUserDetailsResponse = z.array(zUserDetail)
+
+/**
+ * ECTS email preferences
+ */
+export const zGetEctsEmailPreferencesResponse = zUserEctsEmailPreferences
+
+export const zUpdateEctsEmailPreferencesBody = zEctsEmailPreferencesPayload
+
+export const zEctsEmailUnsubscribeQuery = z.object({
+  token: z.uuid(),
+})
 
 export const zSearchUserDetailsByEmailBody = zSearchRequest
 

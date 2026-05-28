@@ -207,6 +207,20 @@ export const tokensGlobal = injectGlobal`
     --btn-tertiary-shadow-hover: 0 4px 12px rgba(26, 35, 51, 0.15);
     --btn-tertiary-outline-width: 3px;
 
+    /* icon */
+    --btn-icon-bg: transparent;
+    --btn-icon-fg: var(--color-gray-400);
+    --btn-icon-border: transparent;
+    --btn-icon-bg-hover: transparent;
+    --btn-icon-fg-hover: var(--color-gray-700);
+    --btn-icon-border-hover: transparent;
+    --btn-icon-bg-pressed: transparent;
+    --btn-icon-fg-pressed: var(--color-gray-800);
+    --btn-icon-shadow-hover: none;
+    --btn-icon-padding-x-sm: var(--space-3);
+    --btn-icon-padding-x-md: calc(var(--space-4) - (var(--space-1) * 2));
+    --btn-icon-padding-x-lg: var(--space-4);
+
     /* field */
     --field-bg: #ffffff;
     --field-bg-disabled: var(--color-gray-50);

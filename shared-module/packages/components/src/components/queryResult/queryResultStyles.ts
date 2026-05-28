@@ -17,12 +17,6 @@ export const wrapperCss = css`
   isolation: isolate;
 `
 
-export const surfaceFrameCss = css`
-  position: relative;
-  border-radius: calc(var(--space-4) + var(--space-1));
-  overflow: hidden;
-`
-
 export const initialLoadingSurfaceLightCss = css`
   background: var(--query-skeleton-surface-light);
   border: var(--query-border-width) solid var(--query-skeleton-surface-border-light);

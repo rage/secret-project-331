@@ -28,7 +28,6 @@ import {
   skeletonBlockLightCss,
   skeletonBlocksCss,
   staleStatusCss,
-  surfaceFrameCss,
   type ThemeMode,
   topProgressCss,
   topProgressTrackDarkCss,
@@ -198,32 +197,23 @@ export function AnimatedQueryFrame<E>({
           data-testid="query-refreshing-status"
         />
       ) : null}
-      <div className={surfaceFrameCss}>
-        {refreshing ? <div className={cx(topProgressCss, progressTrackCss)} aria-hidden /> : null}
-        <motion.div
-          initial={{ opacity: 0, y: 4 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.18, ease: contentEntranceEase }}
+      {refreshing ? <div className={cx(topProgressCss, progressTrackCss)} aria-hidden /> : null}
+      <motion.div
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.18, ease: contentEntranceEase }}
+      >
+        {staleArgs ? (
+          <motion.div className={bannerCss} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {renderStaleError ? renderStaleError(staleArgs) : <DefaultStaleError {...staleArgs} />}
+          </motion.div>
+        ) : null}
+        <div
+          className={cx(animatedContentCss, refreshing ? animatedContentRefreshingCss : undefined)}
         >
-          {staleArgs ? (
-            <motion.div className={bannerCss} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {renderStaleError ? (
-                renderStaleError(staleArgs)
-              ) : (
-                <DefaultStaleError {...staleArgs} />
-              )}
-            </motion.div>
-          ) : null}
-          <div
-            className={cx(
-              animatedContentCss,
-              refreshing ? animatedContentRefreshingCss : undefined,
-            )}
-          >
-            {children}
-          </div>
-        </motion.div>
-      </div>
+          {children}
+        </div>
+      </motion.div>
     </section>
   )
 }

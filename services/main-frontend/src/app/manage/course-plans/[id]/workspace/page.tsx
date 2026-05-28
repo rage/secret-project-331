@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import type { TFunction } from "i18next"
+import Link from "next/link"
 import { useParams } from "next/navigation"
 import { useCallback } from "react"
 import { useTranslation } from "react-i18next"
@@ -28,6 +29,7 @@ import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { manageCoursePlanPermissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
@@ -82,6 +84,20 @@ const metadataRowStyles = css`
   font-size: 0.9rem;
   color: ${baseTheme.colors.gray[500]};
   margin: 0;
+`
+
+const manageMembersLinkStyles = css`
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: ${baseTheme.colors.green[700]};
+  text-decoration: none;
+  white-space: nowrap;
+  align-self: center;
+
+  &:hover {
+    color: ${baseTheme.colors.green[800]};
+    text-decoration: underline;
+  }
 `
 
 const workspaceGridStyles = css`
@@ -718,6 +734,12 @@ function CoursePlanWorkspacePage() {
                       </h1>
                       {lastEditedText && <p className={metadataRowStyles}>{lastEditedText}</p>}
                     </div>
+                    <Link
+                      href={manageCoursePlanPermissionsRoute(planId)}
+                      className={manageMembersLinkStyles}
+                    >
+                      {t("course-plans-manage-members")}
+                    </Link>
                   </div>
 
                   <StageTimelineTabStrip

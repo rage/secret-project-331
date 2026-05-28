@@ -16,7 +16,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Wraps TanStack Query results with loading skeletons, refetch progress, stale errors, and empty states. Pass `themeMode` from the host app (light/dark).",
+          "Wraps TanStack Query results with loading skeletons, refetch progress, stale errors, and empty states. Loaded content renders layout-neutral (no clipping frame), while loading/error chrome is applied only for those states. Pass `themeMode` from the host app (light/dark).",
       },
     },
   },
@@ -141,6 +141,45 @@ export const SuccessDark: Story = {
       })}
     >
       {(d) => <p className={paragraphCss}>{d}</p>}
+    </QueryResult>
+  ),
+}
+
+const fullWidthRowsCss = css`
+  width: 100%;
+  border-top: 1px solid var(--color-gray-200);
+`
+
+const fullWidthRowCss = css`
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--color-gray-200);
+`
+
+export const FullWidthRows: Story = {
+  render: () => (
+    <QueryResult
+      themeMode="light"
+      query={mockQuery({
+        data: [
+          { label: "Teacher Example", value: "teacher@example.com" },
+          { label: "Assistant Example", value: "assistant@example.com" },
+        ],
+        isPending: false,
+      })}
+    >
+      {(rows) => (
+        <div className={fullWidthRowsCss}>
+          {rows.map((row) => (
+            <div key={row.value} className={fullWidthRowCss}>
+              <span>{row.label}</span>
+              <span>{row.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </QueryResult>
   ),
 }

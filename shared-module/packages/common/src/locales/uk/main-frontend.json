@@ -298,6 +298,8 @@
   "course-navigation": "Перейдіть до курсу '{{ title }}'",
   "course-overview": "Огляд курсу",
   "course-pages-for": "Сторінки курсу для {{course-name}}",
+  "course-plan-permissions-title": "Дозволи плану курсу",
+  "course-plans-manage-members": "Керувати учасниками",
   "course-plans-reset-suggestion": "Скинути пропозицію",
   "course-plans-wizard-name-hint": "Це робоча назва, її можна змінити пізніше.",
   "course-plans-wizard-progress-label": "Прогрес налаштування розкладу",

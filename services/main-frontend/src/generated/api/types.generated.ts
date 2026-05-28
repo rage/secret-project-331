@@ -15,6 +15,10 @@ export type ClientOptions = {
  */
 export type ActivityProgress = "Initialized" | "Started" | "InProgress" | "Submitted" | "Completed"
 
+export type AddPlanMemberRequest = {
+  email: string
+}
+
 export type AnalysisCourseType = "compulsory" | "elective"
 
 /**
@@ -1833,6 +1837,15 @@ export type PendingRole = {
   user_email: string
 }
 
+export type PlanMemberWithDetails = {
+  created_at: string
+  email: string
+  first_name?: string | null
+  id: string
+  last_name?: string | null
+  user_id: string
+}
+
 export type PlaygroundExample = {
   created_at: string
   data: unknown
@@ -3302,6 +3315,76 @@ export type GetCourseDesignerPlanResponses = {
 
 export type GetCourseDesignerPlanResponse =
   GetCourseDesignerPlanResponses[keyof GetCourseDesignerPlanResponses]
+
+export type GetCoursePlanMembersData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/members"
+}
+
+export type GetCoursePlanMembersResponses = {
+  /**
+   * Plan members
+   */
+  200: Array<PlanMemberWithDetails>
+}
+
+export type GetCoursePlanMembersResponse =
+  GetCoursePlanMembersResponses[keyof GetCoursePlanMembersResponses]
+
+export type AddCoursePlanMemberData = {
+  body: AddPlanMemberRequest
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/members"
+}
+
+export type AddCoursePlanMemberResponses = {
+  /**
+   * Added member
+   */
+  200: PlanMemberWithDetails
+}
+
+export type AddCoursePlanMemberResponse =
+  AddCoursePlanMemberResponses[keyof AddCoursePlanMemberResponses]
+
+export type RemoveCoursePlanMemberData = {
+  body?: never
+  path: {
+    /**
+     * Plan id
+     */
+    plan_id: string
+    /**
+     * User id to remove
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-plans/{plan_id}/members/{user_id}"
+}
+
+export type RemoveCoursePlanMemberResponses = {
+  /**
+   * Member removed
+   */
+  204: void
+}
+
+export type RemoveCoursePlanMemberResponse =
+  RemoveCoursePlanMemberResponses[keyof RemoveCoursePlanMemberResponses]
 
 export type SaveCourseDesignerScheduleData = {
   body: SaveCourseDesignerScheduleRequest

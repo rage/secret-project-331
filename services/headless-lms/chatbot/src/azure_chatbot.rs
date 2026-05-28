@@ -741,7 +741,8 @@ pub async fn parse_tool<'a>(
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
-    let mut response_received: bool = false;
+    let mut response_received = false;
+    let mut error_incoming = false;
 
     trace!("Parsing tool calls...");
 
@@ -758,7 +759,9 @@ pub async fn parse_tool<'a>(
                             "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
                         ));
                     }
-                    "response.error" => {} // todo error handling
+                    "response.error" => {
+                        error_incoming = true;
+                    }
                     _ => {}
                 };
                 continue;
@@ -767,6 +770,16 @@ pub async fn parse_tool<'a>(
             None => {
                 continue;
             }
+        };
+
+        if error_incoming
+            && let Some(response) = &response_output.response
+            && let Some(error) = &response.error
+        {
+            Err(chatbot_err!(
+                StreamingError,
+                format!("Error received from the API: {}.", error)
+            ))?
         };
 
         if response_received {
@@ -891,16 +904,26 @@ pub async fn parse_and_stream_to_user<'a>(
 
     trace!("Parsing stream to user...");
 
-    let mut event_type = "".to_string();
     let mut response_received = false;
-    let mut error_incoming: bool = false;
+    let mut error_incoming = false;
 
     let response_stream = async_stream::try_stream! {
         while let Some(val) = lines.next().await {
             let line = val?;
             let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
-                Some(ParsedResponseLine::Event(event)) => {
-                    event_type = event;
+                Some(ParsedResponseLine::Event(event_type)) => {
+                    match event_type.as_str() {
+                        "response.completed" | "response.incomplete" => {response_received = true;},
+                        "response.output_text.delta" => {
+                            // streaming
+                        },
+                        "response.function_call_arguments.delta" => {
+                            error!("ERROR, function call received but can't be processed while streaming to user.");
+                            return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming to user")))?
+                        },
+                        "response.error" => {error_incoming = true;},
+                        _ => {},
+                    };
                     continue;
                 },
                 Some(ParsedResponseLine::Data(data)) => data,
@@ -908,17 +931,6 @@ pub async fn parse_and_stream_to_user<'a>(
             };
 
             let mut full_response_text = full_response_text.lock().await;
-
-            match event_type.as_str() {
-                "response.completed" | "response.incomplete" => {response_received = true;},
-                "response.output_text.delta" => {
-                    // streaming
-                },
-                "response.function_call_arguments.delta" => error!("ERROR, function call received but can't be processed while streaming to user."),
-                // todo: handle errors corectly
-                "response.error" => {error_incoming = true;},
-                _ => continue,
-            };
 
             if response_received {
                 let full_response_as_string = full_response_text.join("");

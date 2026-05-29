@@ -40,6 +40,7 @@ function ensure_common_programs_in_path() {
   ensure_program_in_path sponge
 }
 
+# Verifies git-lfs is installed and working; runs git lfs install --local inside this project's work tree.
 function ensure_git_lfs_installed() {
   if ! command -v git-lfs &> /dev/null; then
     echo "git-lfs is not installed or it is not in your \$PATH. Aborting."
@@ -60,11 +61,13 @@ function ensure_git_lfs_installed() {
     exit 1
   fi
 
-  if git rev-parse --is-inside-work-tree &> /dev/null; then
-    git lfs install --local &> /dev/null || true
+  local script_repo_root
+  if script_repo_root=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null); then
+    git -C "$script_repo_root" lfs install --local &> /dev/null || true
   fi
 }
 
+# Aborts if the current directory is not inside a git repository.
 function ensure_inside_git_work_tree() {
   if ! git rev-parse --is-inside-work-tree &> /dev/null; then
     echo "This command must be run inside the git repository. Aborting."
@@ -72,16 +75,15 @@ function ensure_inside_git_work_tree() {
   fi
 }
 
+# Downloads LFS blobs for a repo-relative path when pointer files are found in the work tree.
 function hydrate_git_lfs_path_if_needed() {
   local repo_relative_path="$1"
   local include_pattern="${2:-$repo_relative_path}"
 
-  if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+  local git_root
+  if ! git_root=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null); then
     return 0
   fi
-
-  local git_root
-  git_root=$(git rev-parse --show-toplevel)
 
   # `git lfs install` alone does not fix checkouts created with skip-smudge or existing pointer files.
   if (cd "$git_root" && git grep -I -l -m 1 "version https://git-lfs.github.com/spec/v1" -- "$repo_relative_path") > /dev/null 2>&1; then
@@ -90,15 +92,18 @@ function hydrate_git_lfs_path_if_needed() {
   fi
 }
 
+# Ensures system-test screenshot LFS objects are downloaded, hydrating if pointer files are detected.
 function ensure_system_test_snapshots_hydrated() {
   hydrate_git_lfs_path_if_needed "$SYSTEM_TEST_SCREENSHOTS_PATH" "$SYSTEM_TEST_SCREENSHOTS_PATH/**"
 }
 
+# Returns true if a repo-relative path is within the system-test screenshots directory.
 function path_is_within_system_test_screenshots() {
   local repo_relative_path="$1"
   [[ "$repo_relative_path" == "$SYSTEM_TEST_SCREENSHOTS_PATH/"* ]]
 }
 
+# Returns true if the staged version of a repo-relative path is a Git LFS pointer file.
 function current_index_path_is_git_lfs_pointer() {
   local repo_relative_path="$1"
 

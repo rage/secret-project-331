@@ -72,5 +72,5 @@ for path in "${conflict_paths[@]}"; do
 done
 
 echo ""
-echo "If master brought in new screenshot PNGs outside LFS, run:"
+echo "If new screenshot PNGs were added outside LFS (on master or this branch), run:"
 echo "  bin/git-migrate-system-test-screenshots-to-lfs"

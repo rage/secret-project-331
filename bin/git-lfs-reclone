@@ -1,0 +1,75 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+# URL of the read-only pre-LFS backup. The old clone's remote is updated to
+# point here so it's clearly labelled and doesn't accidentally push to the
+# live repo.
+BACKUP_REMOTE_URL="git@github.com:rage/secret-project-331-pre-git-lfs.git"
+
+ensure_inside_git_work_tree
+ensure_git_lfs_installed
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+REPO_DIRNAME=$(basename "$REPO_ROOT")
+PARENT_DIR=$(dirname "$REPO_ROOT")
+OLD_DIR="$PARENT_DIR/${REPO_DIRNAME}-old"
+ORIGIN_URL=$(git remote get-url origin)
+
+echo -e "${BLUE}This script will:"
+echo "  1. Rename $REPO_ROOT  →  $OLD_DIR"
+echo "  2. Point the old clone's remote at the pre-LFS backup repo"
+echo "  3. Fresh-clone from $ORIGIN_URL into $REPO_ROOT"
+echo -e "$RESET_EVERYTHING"
+
+# Check for uncommitted changes
+if ! git -C "$REPO_ROOT" diff --quiet || ! git -C "$REPO_ROOT" diff --cached --quiet; then
+  echo -e "${RED}You have uncommitted changes. Commit or stash them before running this.${RESET_EVERYTHING}"
+  exit 1
+fi
+
+# Detect local-only work: branches with no origin counterpart, or with
+# unpushed commits that won't exist in the fresh clone.
+LOCAL_ONLY=""
+while IFS= read -r branch; do
+  if ! git -C "$REPO_ROOT" rev-parse --verify "origin/$branch" &>/dev/null; then
+    LOCAL_ONLY+="  $branch  (no origin counterpart — push it first)"$'\n'
+  elif git -C "$REPO_ROOT" log "origin/$branch..$branch" --oneline | grep -q .; then
+    LOCAL_ONLY+="  $branch  (has unpushed commits — push them first)"$'\n'
+  fi
+done < <(git -C "$REPO_ROOT" branch --format='%(refname:short)')
+
+if [ -n "$LOCAL_ONLY" ]; then
+  echo -e "${RED}Warning: the following branches have local-only work that will not appear in the fresh clone:${RESET_EVERYTHING}"
+  echo "$LOCAL_ONLY"
+  echo "Push them to origin before continuing, or save patches:"
+  echo "  git format-patch origin/<branch>..<branch> -o ~/patches/"
+  echo ""
+  read -r -p "Continue anyway? [y/N] " response
+  if [[ ! "$response" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 1
+  fi
+  echo ""
+fi
+
+if [ -d "$OLD_DIR" ]; then
+  echo -e "${RED}$OLD_DIR already exists. Remove or rename it first.${RESET_EVERYTHING}"
+  exit 1
+fi
+
+run_command mv "$REPO_ROOT" "$OLD_DIR"
+run_command git -C "$OLD_DIR" remote set-url origin "$BACKUP_REMOTE_URL"
+run_command git clone "$ORIGIN_URL" "$REPO_ROOT"
+
+echo ""
+echo -e "${GREEN}Done!${RESET_EVERYTHING}"
+echo ""
+echo "Old clone preserved at : $OLD_DIR  (remote → pre-LFS backup)"
+echo "Fresh clone ready at   : $REPO_ROOT"
+echo ""
+echo "Any stash entries are in the old clone. To recover one:"
+echo "  git -C $OLD_DIR stash show -p stash@{0} | git -C $REPO_ROOT apply"
+echo ""
+echo "Switch to the fresh clone:"
+echo "  cd $REPO_ROOT"

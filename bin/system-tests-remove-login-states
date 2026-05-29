@@ -2,6 +2,8 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+ensure_git_lfs_installed
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../system-tests"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")

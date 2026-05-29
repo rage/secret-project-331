@@ -2,6 +2,9 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+ensure_git_lfs_installed
+ensure_system_test_snapshots_hydrated
+
 echo "This is sometimes used when trying to get rid of too many screenshots relying on scrolling to automatically saved y coordinates"
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"

@@ -40,10 +40,10 @@ Consent is handled via redirects into the LMS login/consent UX rather than as a 
 
 Full test outputs (HTML, traces, large folders) are **temporary** and should **not** be committed. Use the repo-local convention instead:
 
-| What                                                    | Where                                                                              |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| How to run the tool, copy exports, pre-flight checklist | [docs/conformance/README.md](./conformance/README.md)                              |
-| Durable summary for the team                            | This file, section **Conformance run log** (below)                                 |
+| What                                                    | Where                                                 |
+| ------------------------------------------------------- | ----------------------------------------------------- |
+| How to run the tool, copy exports, pre-flight checklist | [docs/conformance/README.md](./conformance/README.md) |
+| Durable summary for the team                            | This file, section **Conformance run log** (below)    |
 
 After each run, paste a **short** summary into **Conformance run log**: plan id (URL query e.g. `plan=…`), profile name (`client_secret_post` + `code` + static client, etc.), date, and failed test identifiers with a one-line diagnosis. That keeps history in git without an “OIDC expert” tree or personal `Downloads` paths.
 

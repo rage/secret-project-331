@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_course_instance","get_organization_id"],"struct":["CmsCourseInstancesApiDoc"]};

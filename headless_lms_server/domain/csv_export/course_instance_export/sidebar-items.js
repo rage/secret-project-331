@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["export_completions","export_course_instances"],"struct":["CompletionsExportOperation","CourseInstancesExportOperation"]};

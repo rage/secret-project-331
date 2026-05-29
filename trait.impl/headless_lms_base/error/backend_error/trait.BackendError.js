@@ -1,0 +1,9 @@
+(function() {
+    const implementors = Object.fromEntries([["headless_lms_certificates",[]],["headless_lms_chatbot",[["impl <a class=\"trait\" href=\"headless_lms_chatbot/prelude/trait.BackendError.html\" title=\"trait headless_lms_chatbot::prelude::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_chatbot/chatbot_error/struct.ChatbotError.html\" title=\"struct headless_lms_chatbot::chatbot_error::ChatbotError\">ChatbotError</a>",0]]],["headless_lms_models",[["impl <a class=\"trait\" href=\"headless_lms_models/re_exports/trait.BackendError.html\" title=\"trait headless_lms_models::re_exports::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_models/error/struct.ModelError.html\" title=\"struct headless_lms_models::error::ModelError\">ModelError</a>",0]]],["headless_lms_server",[["impl <a class=\"trait\" href=\"headless_lms_server/prelude/trait.BackendError.html\" title=\"trait headless_lms_server::prelude::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_server/domain/error/struct.ControllerError.html\" title=\"struct headless_lms_server::domain::error::ControllerError\">ControllerError</a>",0]]],["headless_lms_utils",[["impl <a class=\"trait\" href=\"headless_lms_utils/prelude/trait.BackendError.html\" title=\"trait headless_lms_utils::prelude::BackendError\">BackendError</a> for <a class=\"struct\" href=\"headless_lms_utils/error/util_error/struct.UtilError.html\" title=\"struct headless_lms_utils::error::util_error::UtilError\">UtilError</a>",0]]]]);
+    if (window.register_implementors) {
+        window.register_implementors(implementors);
+    } else {
+        window.pending_implementors = implementors;
+    }
+})()
+//{"start":59,"fragment_lengths":[32,373,352,376,361]}

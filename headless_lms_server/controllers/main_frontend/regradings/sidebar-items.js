@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","create","get_regrading_info_by_id","get_regradings","get_regradings_count"],"struct":["MainFrontendRegradingsApiDoc"]};

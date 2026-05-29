@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"derive":["Deserialize","Serialize"],"macro":["debug","error","info","trace","warn"],"struct":["DateTime","Url","Utc","Uuid"],"trait":["Context","Deserialize","Serialize"]};

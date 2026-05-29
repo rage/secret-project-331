@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","post_proposed_edits"],"struct":["CourseMaterialProposedEditsApiDoc"]};

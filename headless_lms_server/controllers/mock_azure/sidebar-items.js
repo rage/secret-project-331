@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CMS_SUGGESTION","COMPLETION","SUGGESTION"],"fn":["_add_routes","mock_azure_chat_completions"]};

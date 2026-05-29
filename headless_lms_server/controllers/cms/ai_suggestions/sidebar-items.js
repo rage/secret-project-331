@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","suggest_paragraph"],"struct":["CmsAiSuggestionsApiDoc","ParagraphSuggestionContext","ParagraphSuggestionMeta","ParagraphSuggestionRequest","ParagraphSuggestionResponse"]};

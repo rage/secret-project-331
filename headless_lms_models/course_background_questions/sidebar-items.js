@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["CourseBackgroundQuestionType"],"fn":["get_background_questions_and_answers","get_background_questions_for_course_instance"],"struct":["CourseBackgroundQuestion","CourseBackgroundQuestionsAndAnswers"]};

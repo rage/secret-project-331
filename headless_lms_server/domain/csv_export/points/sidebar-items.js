@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["export_course_instance_points","export_exam_points"],"struct":["ExamPointExportOperation","PointExportOperation"]};

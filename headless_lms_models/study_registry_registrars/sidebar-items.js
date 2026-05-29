@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["delete","get_by_id","get_by_secret_key","get_or_create_default_registrar","insert"],"struct":["StudyRegistryRegistrar"]};

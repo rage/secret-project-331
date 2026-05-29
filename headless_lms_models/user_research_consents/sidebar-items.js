@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_research_consent_by_user_id","upsert"],"struct":["UserResearchConsent"]};

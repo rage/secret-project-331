@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["GenerateDocsFor"],"fn":["generated_doc_impl","generated_doc_inner_impl","process_return_type"]};

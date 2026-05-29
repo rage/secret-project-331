@@ -1,0 +1,48 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="GET `/api/v0/study-registry/completions/[:course_id | :uh_course_code | :course_slug]/:course_module_id` – Get completions from a single course module."><title>get_module_completions in headless_lms_server::controllers::study_registry::completions - Rust</title><script>if(window.location.protocol!=="file:")document.head.insertAdjacentHTML("beforeend","SourceSerif4-Regular-6b053e98.ttf.woff2,FiraSans-Italic-81dc35de.woff2,FiraSans-Regular-0fe48ade.woff2,FiraSans-MediumItalic-ccf7e434.woff2,FiraSans-Medium-e1aa3f0a.woff2,SourceCodePro-Regular-8badfe75.ttf.woff2,SourceCodePro-Semibold-aa29a496.ttf.woff2".split(",").map(f=>`<link rel="preload" as="font" type="font/woff2"href="../../../../static.files/${f}">`).join(""))</script><link rel="stylesheet" href="../../../../static.files/normalize-9960930a.css"><link rel="stylesheet" href="../../../../static.files/rustdoc-b7b9f40b.css"><meta name="rustdoc-vars" data-root-path="../../../../" data-static-root-path="../../../../static.files/" data-current-crate="headless_lms_server" data-themes="" data-resource-suffix="" data-rustdoc-version="1.95.0 (59807616e 2026-04-14)" data-channel="1.95.0" data-search-js="search-63369b7b.js" data-stringdex-js="stringdex-b897f86f.js" data-settings-js="settings-170eb4bf.js" ><script src="../../../../static.files/storage-41dd4d93.js"></script><script defer src="sidebar-items.js"></script><script defer src="../../../../static.files/main-5013f961.js"></script><noscript><link rel="stylesheet" href="../../../../static.files/noscript-f7c3ffd8.css"></noscript><link rel="alternate icon" type="image/png" href="../../../../static.files/favicon-32x32-eab170b8.png"><link rel="icon" type="image/svg+xml" href="../../../../static.files/favicon-044be391.svg"></head><body class="rustdoc fn"><a class="skip-main-content" href="#main-content">Skip to main content</a><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><rustdoc-topbar><h2><a href="#">get_module_completions</a></h2></rustdoc-topbar><nav class="sidebar"><div class="sidebar-crate"><h2><a href="../../../../headless_lms_server/index.html">headless_<wbr>lms_<wbr>server</a><span class="version">0.1.0</span></h2></div><div class="sidebar-elems"><section id="rustdoc-toc"><h2 class="location"><a href="#">get_<wbr>module_<wbr>completions</a></h2><h3><a href="#">Sections</a></h3><ul class="block top-toc"><li><a href="#excluding-already-registering-completions" title="Excluding already registering completions.">Excluding already registering completions.</a></li><li><a href="#example-requests" title="Example requests">Example requests</a></li><li><a href="#example-response" title="Example response">Example response</a></li></ul></section><div id="rustdoc-modnav"><h2><a href="index.html">In headless_<wbr>lms_<wbr>server::<wbr>controllers::<wbr>study_<wbr>registry::<wbr>completions</a></h2></div></div></nav><div class="sidebar-resizer" title="Drag to resize sidebar"></div><main><div class="width-limiter"><section id="main-content" class="content" tabindex="-1"><div class="main-heading"><div class="rustdoc-breadcrumbs"><a href="../../../index.html">headless_lms_server</a>::<wbr><a href="../../index.html">controllers</a>::<wbr><a href="../index.html">study_registry</a>::<wbr><a href="index.html">completions</a></div><h1>Function <span class="fn">get_<wbr>module_<wbr>completions</span>&nbsp;<button id="copy-path" title="Copy item path to clipboard">Copy item path</button></h1><rustdoc-toolbar></rustdoc-toolbar><span class="sub-heading"><a class="src" href="../../../../src/headless_lms_server/controllers/study_registry/completions.rs.html#205-275">Source</a> </span></div><pre class="rust item-decl"><code>async fn get_module_completions(
+    req: <a class="struct" href="../../../prelude/struct.HttpRequest.html" title="struct headless_lms_server::prelude::HttpRequest">HttpRequest</a>,
+    path: <a class="struct" href="../../../prelude/web/struct.Path.html" title="struct headless_lms_server::prelude::web::Path">Path</a>&lt;(<a class="struct" href="https://doc.rust-lang.org/1.95.0/alloc/string/struct.String.html" title="struct alloc::string::String">String</a>, <a class="struct" href="../../../prelude/struct.Uuid.html" title="struct headless_lms_server::prelude::Uuid">Uuid</a>)&gt;,
+    pool: <a class="struct" href="../../../prelude/web/struct.Data.html" title="struct headless_lms_server::prelude::web::Data">Data</a>&lt;<a class="type" href="../../../prelude/type.PgPool.html" title="type headless_lms_server::prelude::PgPool">PgPool</a>&gt;,
+    query: <a class="struct" href="../../../prelude/web/struct.Query.html" title="struct headless_lms_server::prelude::web::Query">Query</a>&lt;<a class="struct" href="struct.GetCompletionsQueryParamers.html" title="struct headless_lms_server::controllers::study_registry::completions::GetCompletionsQueryParamers">GetCompletionsQueryParamers</a>&gt;,
+) -&gt; <a class="type" href="../../../domain/error/type.ControllerResult.html" title="type headless_lms_server::domain::error::ControllerResult">ControllerResult</a>&lt;<a class="struct" href="../../../prelude/struct.HttpResponse.html" title="struct headless_lms_server::prelude::HttpResponse">HttpResponse</a>&gt;</code></pre><details class="toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>GET <code>/api/v0/study-registry/completions/[:course_id | :uh_course_code | :course_slug]/:course_module_id</code> – Get completions from a single course module.</p>
+<p>Gets all course completions for a submodule of a given course. The course identifier can either be its
+University of Helsinki course code, or a system-local slug or hash id. For module identifier,
+only the hash id is supported.</p>
+<p>This endpoint is only available to authorized study registries, and requires a valid authorization token
+to access. Results are also streamed rather than included in the response body. In case of an error
+during transmission, an error message will be appended to the end of the broken stream output.</p>
+<p>This endpoint returns an array of <a href="../../../../headless_lms_models/course_module_completions/struct.StudyRegistryCompletion.html" title="struct headless_lms_models::course_module_completions::StudyRegistryCompletion">StudyRegistryCompletion</a> structs.</p>
+<h3 id="excluding-already-registering-completions"><a class="doc-anchor" href="#excluding-already-registering-completions">§</a>Excluding already registering completions.</h3>
+<p>If the study registry has already registered some completions, it can exclude them from the results. This is achieved by adding a query parameter <code>?exclude_already_registered=true</code> to the request. The value of the parameter is a boolean, and it defaults to <code>false</code>.</p>
+<h3 id="example-requests"><a class="doc-anchor" href="#example-requests">§</a>Example requests</h3>
+<p>Using University of Helsinki course code:</p>
+<div class="example-wrap"><pre class="language-http"><code>GET /api/v0/study-registry/completions/BSCS1001/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json</code></pre></div>
+<p>Using course slug:</p>
+<div class="example-wrap"><pre class="language-http"><code>GET /api/v0/study-registry/completions/introduction-to-programming/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json</code></pre></div>
+<p>Using course id:</p>
+<div class="example-wrap"><pre class="language-http"><code>GET /api/v0/study-registry/completions/b3e9575b-fa13-492c-bd14-10cb27df4eec/caf3ccb2-abe9-4661-822c-20b117049dbf HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345
+Content-Type: application/json
+
+Exclude already registereed:
+```http
+GET /api/v0/study-registry/completions/BSCS1001/caf3ccb2-abe9-4661-822c-20b117049dbf?exlcude_already_registered=true HTTP/1.1
+Authorization: Basic documentationOnlyExampleSecretKey-12345</code></pre></div><h3 id="example-response"><a class="doc-anchor" href="#example-response">§</a>Example response</h3><div class="example-wrap"><pre class="language-json"><code>[
+  {
+    &quot;completion_date&quot;: &quot;2022-06-21T00:00:00Z&quot;,
+    &quot;completion_language&quot;: &quot;en-US&quot;,
+    &quot;completion_registration_attempt_date&quot;: null,
+    &quot;email&quot;: &quot;student@example.com&quot;,
+    &quot;grade&quot;: {
+      &quot;scale&quot;: &quot;sis-0-5&quot;,
+      &quot;grade&quot;: &quot;4&quot;
+    },
+    &quot;id&quot;: &quot;633852ce-c82a-4d60-8ab5-28745163f6f9&quot;,
+    &quot;user_id&quot;: &quot;307fa56f-9853-4f5c-afb9-a6736c232f32&quot;,
+    &quot;tier&quot;: null
+  }
+]
+</code></pre></div></div></details></section></div></main></body></html>

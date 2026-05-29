@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["configure","server_runtime_config","set_server_runtime_config"],"mod":["open_university_config","program_config"],"static":["SERVER_RUNTIME_CONFIG"],"struct":["FileStoreRuntimeConfig","ServerConfig","ServerConfigBuilder","ServerRuntimeConfig"]};

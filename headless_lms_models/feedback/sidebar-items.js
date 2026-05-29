@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_by_id","get_feedback_count_for_course","get_feedback_for_course","insert","mark_as_read","set_read_state_by_id_and_course_id"],"struct":["Feedback","FeedbackBlock","FeedbackCount","FeedbackRow","NewFeedback"]};

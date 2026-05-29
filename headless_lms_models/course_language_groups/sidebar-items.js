@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_slug_by_id","insert"],"struct":["CourseLanguageVersion"]};

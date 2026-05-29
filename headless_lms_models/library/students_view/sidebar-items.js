@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_certificates_grid_by_course_id","get_completions_grid_by_course_id","get_course_users","get_progress"],"struct":["CertificateGridRow","CompletionGridRow","ProgressOverview"]};

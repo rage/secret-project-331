@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["BlockProposal","BlockProposalAction","ProposalStatus"],"fn":["get_by_ids"],"struct":["BlockProposalInfo","EditedBlockNoLongerExistsData","EditedBlockStillExistsData","NewProposedBlockEdit","ProposedBlockEdit"]};

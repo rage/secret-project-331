@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"mod":["completion_registered_to_study_registry","completions"]};

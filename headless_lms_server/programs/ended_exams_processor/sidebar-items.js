@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["main","process_ended_exam","process_ended_exam_enrollments","process_ended_exams"]};

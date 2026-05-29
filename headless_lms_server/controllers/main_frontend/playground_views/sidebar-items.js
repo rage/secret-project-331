@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["CONNECTION_TIMEOUT","PING_INTERVAL"],"enum":["PlaygroundViewsMessage"],"fn":["_add_routes","receive_grading","websocket"],"static":["WS_CONNECTIONS"],"struct":["ClientConnection","MainFrontendPlaygroundViewsApiDoc","PlaygroundSubmissionMessage","WsConnections"]};

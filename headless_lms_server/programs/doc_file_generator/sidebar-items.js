@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["controllers","ex","external","main","write_json"],"mod":["example"]};

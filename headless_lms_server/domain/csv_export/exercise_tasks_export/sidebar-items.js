@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["export_course_exercise_tasks"],"struct":["CourseExerciseTasksExportOperation"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["OPEN_UNIVERSITY_REGISTRATION_BASE_URL"],"fn":["fetch_and_update_completion_links","get_open_university_info_for_course_code","main","select_best_candidate","update_course_registration_link"],"struct":["OpenUniversityInfo"]};

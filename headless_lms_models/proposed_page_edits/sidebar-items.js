@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["create_for_page_id_and_course_id","get_by_id","get_proposal_count_for_course","get_proposals_for_course","insert","process_by_id_and_page_id","process_proposal","update_page_edit_status"],"struct":["EditProposalInfo","NewProposedPageEdits","PageProposal","ProposalCount","ProposedPageEdit"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_certificates","get_completions","get_course_users","get_progress","get_user_chapter_locking_statuses","teacher_lock_student_chapter","teacher_set_student_chapter_status","teacher_unlock_student_chapter"],"struct":["ChapterLockStatusActionPayload","MainFrontendCourseStudentsApiDoc"]};

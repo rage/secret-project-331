@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","cronjobs","deployments","events","health","ingresses","jobs","parse_and_validate_tail","pod_disruption_budgets","pod_logs","pods","services","system_health"],"struct":["MainFrontendStatusApiDoc"]};

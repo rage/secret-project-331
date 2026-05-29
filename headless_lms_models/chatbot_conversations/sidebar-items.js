@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["create_for_user_and_configuration","get_by_id","get_current_conversation_info","get_latest_conversation_for_user","insert"],"struct":["ChatbotConversation","ChatbotConversationInfo"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","get_mentimeter_oembed_data"],"struct":["CourseMaterialOEmbedResponse","CourseMaterialOembedApiDoc"]};

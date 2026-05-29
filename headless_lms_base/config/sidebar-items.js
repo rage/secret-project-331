@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["bool_env_false_by_default"],"struct":["ApplicationConfiguration","AzureBlobStorageConfiguration","AzureChatbotConfiguration","AzureConfiguration","AzureSearchConfiguration","OAuthServerConfiguration"]};

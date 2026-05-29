@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"macro":["attributes","define_err_macro"],"mod":["cache","document_schema_processor","email_processor","error","error_identifier","file_store","folder_checksum","futures","http","icu4x","ip_to_country","language_tag_to_name","merge_edits","numbers","page_visit_hasher","pagination","prelude","strings","tmc","url_encoding","url_to_oembed_endpoint"]};

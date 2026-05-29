@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","user_info","user_info_get_doc","user_info_post_doc"],"struct":["MainFrontendOauthUserInfoApiDoc"]};

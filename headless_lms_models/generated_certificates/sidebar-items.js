@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["find_existing","generate_and_insert","generate_verification_id","get_by_id","get_certificate_by_verification_id","get_certificate_for_user","insert_raw","update_certificate"],"struct":["CertificateUpdateRequest","GeneratedCertificate"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":["CustomViewExerciseSubmissions","CustomViewExerciseTaskGrading","CustomViewExerciseTaskSpec","CustomViewExerciseTaskSubmission","CustomViewExerciseTasks"]};

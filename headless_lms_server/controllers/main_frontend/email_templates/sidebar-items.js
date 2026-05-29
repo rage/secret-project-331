@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","delete_email_template","get_all_email_templates"],"struct":["MainFrontendEmailTemplatesApiDoc"]};

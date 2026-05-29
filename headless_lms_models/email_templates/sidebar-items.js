@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["EmailTemplateType"],"fn":["delete_email_template","get_all_email_templates","get_email_template","get_email_templates","get_generic_email_template_by_type_and_language","insert_email_template","update_email_template"],"struct":["EmailTemplate","EmailTemplateNew","EmailTemplateUpdate"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["calculate_error_grouping_identifier","calculate_exact_error_identifier","canonicalize_grouping_message","hash_identifier","normalize_message","normalize_stack_trace"],"static":["BUNDLER_HASH_RE","HEX_ADDR_RE","LONG_NUMBER_RE","TIMESTAMP_RE","UUID_RE"]};

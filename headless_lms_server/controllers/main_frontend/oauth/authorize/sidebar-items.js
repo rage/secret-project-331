@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","authorize","authorize_get_doc","authorize_post_doc","parse_prompt"],"struct":["MainFrontendOauthAuthorizeApiDoc","PromptFlags"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["delete_by_id_and_course_id","delete_reference","get_non_deleted_by_id","get_reference_by_id","get_references_by_course_id","insert_reference","update_by_id_and_course_id","update_material_reference_by_id"],"struct":["MaterialReference","NewMaterialReference"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["file_to_payload","get_extension_from_filename"]};

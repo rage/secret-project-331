@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"constant":["OPEN_UNIVERSITY_COURSE_URL","OPEN_UNIVERSITY_TOKEN"],"fn":["non_blank_string","optional_non_blank"],"struct":["OpenUniversityConfig"]};

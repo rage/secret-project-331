@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["get_by_conversation_id","get_by_message_id","insert"],"struct":["ChatbotConversationMessageCitation"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ChatbotErrorType"],"fn":["as_chatbot_error","missing_chatbot_error"],"macro":["chatbot_err"],"struct":["ChatbotError"],"type":["ChatbotResult"]};

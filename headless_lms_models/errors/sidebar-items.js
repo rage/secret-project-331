@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["ErrorSource"],"fn":["delete_expired","get_all_variants","insert","maybe_delete_expired"],"struct":["ErrorVariant","NewErrorReport"]};

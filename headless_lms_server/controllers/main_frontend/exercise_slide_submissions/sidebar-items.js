@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["_add_routes","add_teacher_grading","get_submission_info","get_user_exercise_state_info"],"struct":["ExerciseStateIds","MainFrontendExerciseSlideSubmissionsApiDoc"]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"enum":["HttpErrorType","ModelErrorType"],"fn":["as_model_error","missing_model_error"],"macro":["model_err"],"struct":["ModelError"],"trait":["TryToOptional"],"type":["ModelResult"]};

@@ -1,0 +1,71 @@
+#!/bin/bash
+set -euo pipefail
+source "$(dirname "$0")/.common"
+
+ensure_inside_git_work_tree
+ensure_git_lfs_installed
+
+mapfile -d '' -t conflict_paths < <(git diff --name-only -z --diff-filter=U -- "$SYSTEM_TEST_SCREENSHOTS_PATH")
+if [ "${#conflict_paths[@]}" -gt 0 ]; then
+  echo "There are unresolved screenshot merge conflicts. Resolve them first with:"
+  echo "  bin/git-list-system-test-screenshot-conflicts"
+  echo "  bin/git-resolve-system-test-screenshot-conflicts --theirs"
+  exit 1
+fi
+
+declare -A seen_paths=()
+declare -a candidate_paths=()
+
+function collect_candidate_paths() {
+  local git_command=("$@")
+  local path
+
+  while IFS= read -r -d '' path; do
+    if [[ "$path" != *.png ]]; then
+      continue
+    fi
+
+    if ! path_is_within_system_test_screenshots "$path"; then
+      continue
+    fi
+
+    if [[ -n "${seen_paths[$path]+x}" ]]; then
+      continue
+    fi
+
+    seen_paths["$path"]=1
+    candidate_paths+=("$path")
+  done < <("${git_command[@]}")
+}
+
+collect_candidate_paths git diff --name-only -z --cached --diff-filter=ACMRT -- "$SYSTEM_TEST_SCREENSHOTS_PATH"
+collect_candidate_paths git diff --name-only -z --diff-filter=ACMRT -- "$SYSTEM_TEST_SCREENSHOTS_PATH"
+collect_candidate_paths git ls-files --others --exclude-standard -z -- "$SYSTEM_TEST_SCREENSHOTS_PATH"
+
+if [ "${#candidate_paths[@]}" -eq 0 ]; then
+  echo -e "${GREEN}No changed system-test screenshot PNGs needed LFS restaging.${RESET_EVERYTHING}"
+  exit 0
+fi
+
+echo "Restaging these screenshot PNGs through Git LFS:"
+printf '%s\n' "${candidate_paths[@]}"
+echo ""
+
+for path in "${candidate_paths[@]}"; do
+  run_command git add -- "$path"
+done
+
+declare -a non_lfs_paths=()
+for path in "${candidate_paths[@]}"; do
+  if ! current_index_path_is_git_lfs_pointer "$path"; then
+    non_lfs_paths+=("$path")
+  fi
+done
+
+if [ "${#non_lfs_paths[@]}" -gt 0 ]; then
+  echo -e "${RED}These screenshot paths are still not staged as Git LFS pointers:${RESET_EVERYTHING}"
+  printf '%s\n' "${non_lfs_paths[@]}"
+  exit 1
+fi
+
+echo -e "${GREEN}All changed system-test screenshot PNGs are now staged through Git LFS.${RESET_EVERYTHING}"

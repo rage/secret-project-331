@@ -31,6 +31,16 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Verify system-test snapshots are hydrated
+        run: |
+          if git grep -I -l -m 1 "version https://git-lfs.github.com/spec/v1" -- system-tests/src/__screenshots__ > /dev/null 2>&1; then
+            echo "System-test snapshots are still Git LFS pointers."
+            git grep -I -l -m 1 "version https://git-lfs.github.com/spec/v1" -- system-tests/src/__screenshots__
+            exit 1
+          fi
 
       - name: System Information Report
         run: |

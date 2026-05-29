@@ -327,6 +327,7 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
     /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     pub content_search_language: Option<String>,
+    pub hidden: bool,
 }
 
 /// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
@@ -554,20 +555,22 @@ pub async fn insert_exam_page(
     let page_res = sqlx::query!(
         "
 INSERT INTO pages (
-    exam_id,
     content,
     url_path,
     title,
-    order_number
+    exam_id,
+    content_search_language,
+    hidden
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
-        exam_id,
-        serde_json::Value::Array(vec![]),
+        serde_json::to_value(page.content)?,
         page.url_path,
         page.title,
-        0
+        exam_id,
+        page.content_search_language,
+        page.hidden
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -1289,6 +1292,7 @@ pub struct CmsPageUpdate {
     pub url_path: String,
     pub title: String,
     pub chapter_id: Option<Uuid>,
+    pub hidden: bool,
 }
 
 impl CmsPageUpdate {
@@ -2311,6 +2315,7 @@ pub async fn insert_new_content_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: new_page.hidden,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -2380,9 +2385,10 @@ INSERT INTO pages(
     order_number,
     chapter_id,
     content_search_language,
-    page_language_group_id
+    page_language_group_id,
+    hidden
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id,
   created_at,
   updated_at,
@@ -2407,6 +2413,7 @@ RETURNING id,
         new_page.chapter_id,
         content_search_language as _,
         page_language_group_id,
+        new_page.hidden,
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -2426,6 +2433,7 @@ RETURNING id,
                 url_path: page.url_path,
                 title: page.title,
                 chapter_id: page.chapter_id,
+                hidden: new_page.hidden,
             },
             retain_ids: false,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -3448,6 +3456,7 @@ pub async fn restore(
                 url_path: page.url_path,
                 title: history_data.title,
                 chapter_id: page.chapter_id,
+                hidden: page.hidden,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::HistoryRestored,
@@ -4019,6 +4028,33 @@ WHERE id = ANY($1)
     Ok(pages)
 }
 
+pub async fn next_order_number_for_page(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    chapter_id: Option<Uuid>,
+) -> ModelResult<i32> {
+    match chapter_id {
+        Some(chapter_id) => {
+            let order_number: Option<i32> = sqlx::query_scalar!(
+                "SELECT MAX(order_number) FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL",
+                chapter_id
+            )
+            .fetch_one(&mut *conn)
+            .await?;
+            Ok(order_number.map(|value| value + 1).unwrap_or(0))
+        }
+        None => {
+            let order_number: Option<i32> = sqlx::query_scalar!(
+                "SELECT MAX(order_number) FROM pages WHERE course_id = $1 AND chapter_id IS NULL AND deleted_at IS NULL",
+                course_id
+            )
+            .fetch_one(&mut *conn)
+            .await?;
+            Ok(order_number.map(|value| value + 1).unwrap_or(0))
+        }
+    }
+}
+
 #[cfg(test)]
 mod test {
     use chrono::TimeZone;
@@ -4082,6 +4118,7 @@ mod test {
                 chapter_id: None,
                 front_page_of_chapter_id: None,
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -4170,6 +4207,7 @@ mod test {
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: None,
+            hidden: false,
         }
     }
 

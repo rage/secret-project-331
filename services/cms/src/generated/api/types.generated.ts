@@ -86,6 +86,7 @@ export type CmsPageUpdate = {
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
   exercises: Array<CmsPageExercise>
+  hidden: boolean
   title: string
   url_path: string
 }

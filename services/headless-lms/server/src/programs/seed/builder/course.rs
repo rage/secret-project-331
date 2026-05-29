@@ -350,6 +350,7 @@ impl CourseBuilder {
             exercise_slides: vec![],
             exercise_tasks: vec![],
             content_search_language: None,
+            hidden: false,
         };
 
         pages::insert_page(

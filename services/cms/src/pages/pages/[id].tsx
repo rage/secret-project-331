@@ -60,6 +60,7 @@ const Pages = ({ query }: PagesProps) => {
           url_path: data.page.url_path,
           title: data.page.title,
           chapter_id: data.page.chapter_id,
+          hidden: data.page.hidden,
         }).content,
       }
       return page

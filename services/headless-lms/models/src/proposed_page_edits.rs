@@ -456,6 +456,7 @@ WHERE id = $1
         url_path: page_with_exercises.page.url_path,
         title: page_with_exercises.page.title,
         chapter_id: page_with_exercises.page.chapter_id,
+        hidden: page_with_exercises.page.hidden,
     };
     crate::pages::update_page(
         &mut tx,
@@ -595,6 +596,7 @@ mod test {
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],
+            hidden: false,
         };
         crate::pages::update_page(
             conn,

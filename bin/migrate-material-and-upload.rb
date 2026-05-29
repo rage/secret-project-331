@@ -33,6 +33,26 @@ def block_contains_name?(blocks, name)
   end
 end
 
+def chapter_slug_for_markdown_file(markdown_file)
+  markdown_file.match(%r{(?:^|/)(chapter-\d+)(?:/|$)})&.captures&.first
+end
+
+def chapter_number_for_slug(chapter_slug)
+  chapter_slug&.match(/^chapter-(\d+)$/)&.captures&.first&.to_i
+end
+
+def page_slug_for_markdown_file(markdown_file)
+  File.basename(markdown_file, File.extname(markdown_file))
+end
+
+def front_page_for_markdown_file?(markdown_file)
+  chapter_slug = chapter_slug_for_markdown_file(markdown_file)
+  return false if chapter_slug.nil?
+
+  page_slug = page_slug_for_markdown_file(markdown_file)
+  page_slug == chapter_slug || page_slug == 'index'
+end
+
 markdown_files = Dir.glob(File.join(material_dir, '**', '*.md')).sort
 page_entries = []
 chapter_entries = {}
@@ -43,7 +63,9 @@ markdown_files.each do |markdown_file|
   next unless File.exist?(json_file)
 
   page_data = JSON.parse(File.read(json_file))
-  chapter_slug = page_data['chapter_slug']
+  chapter_slug = chapter_slug_for_markdown_file(markdown_file)
+  chapter_number = chapter_number_for_slug(chapter_slug)
+  is_front_page = front_page_for_markdown_file?(markdown_file)
   entry = {
     markdown_file: markdown_file,
     json_file: json_file,
@@ -57,9 +79,13 @@ markdown_files.each do |markdown_file|
 
     chapter_entries[chapter_slug] ||= {
       chapter_slug: chapter_slug,
-      chapter_number: page_data['chapter_number'],
-      chapter_title: page_data['chapter_title'] || page_data['title'] || chapter_slug.tr('-', ' ').split.map(&:capitalize).join(' '),
+      chapter_number: chapter_number,
+      chapter_title: nil,
     }
+
+    if is_front_page
+      chapter_entries[chapter_slug][:chapter_title] ||= page_data['title']
+    end
   end
 end
 
@@ -68,7 +94,7 @@ created_chapter_front_page_ids = {}
 
 chapter_entries.values.sort_by { |chapter| [chapter[:chapter_number] || 0, chapter[:chapter_slug]] }.each do |chapter|
   payload = {
-    name: chapter[:chapter_title],
+    name: chapter[:chapter_title] || chapter[:chapter_slug].tr('-', ' ').split.map(&:capitalize).join(' '),
     course_id: course_id,
     chapter_number: chapter[:chapter_number] || 0,
     front_page_id: nil,
@@ -87,18 +113,22 @@ end
 
 page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
   data = entry[:data]
-  chapter_id = created_chapter_ids.fetch(data['chapter_slug'])
-  front_page_id = created_chapter_front_page_ids.fetch(data['chapter_slug'])
+  chapter_slug = chapter_slug_for_markdown_file(entry[:markdown_file])
+  chapter_id = created_chapter_ids.fetch(chapter_slug)
+  front_page_id = created_chapter_front_page_ids.fetch(chapter_slug)
+  is_front_page = front_page_for_markdown_file?(entry[:markdown_file])
 
   page_payload = {
     content: data['content'],
+    exercises: data['exercises'],
+    exercise_slides: data['exercise_slides'],
+    exercise_tasks: data['exercise_tasks'],
     title: data['title'],
     chapter_id: chapter_id,
-    hidden: data['hidden'] || false,
   }
 
-  if data['is_front_page']
-    page_payload[:url_path] = "/#{data['chapter_slug']}"
+  if is_front_page
+    page_payload[:url_path] = "/#{chapter_slug}"
     content = page_payload[:content].dup
 
     unless block_contains_name?(content, 'moocfi/pages-in-chapter')
@@ -113,15 +143,15 @@ page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
 
     update_payload = {
       content: content,
-      exercises: [],
-      exercise_slides: [],
-      exercise_tasks: [],
+      exercises: page_payload[:exercises],
+      exercise_slides: page_payload[:exercise_slides],
+      exercise_tasks: page_payload[:exercise_tasks],
       url_path: page_payload[:url_path],
       title: page_payload[:title],
       chapter_id: chapter_id,
     }
 
-    puts "Updating front page #{entry[:json_file]} -> chapter #{data['chapter_slug']}"
+    puts "Updating front page #{entry[:json_file]} -> chapter #{chapter_slug}"
     page_response = request_json(
       method: :put,
       url: "#{base_url}/api/v0/cms/pages/#{front_page_id}",
@@ -131,7 +161,7 @@ page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
   else
     page_payload[:url_path] = data['url_path']
 
-    puts "Uploading #{entry[:json_file]} -> chapter #{data['chapter_slug']}"
+    puts "Uploading #{entry[:json_file]} -> chapter #{chapter_slug}"
     page_response = request_json(
       method: :post,
       url: "#{base_url}/api/v0/cms/migration/new_page/#{course_id}",
@@ -148,10 +178,12 @@ information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entr
 
   page_payload = {
     content: data['content'],
+    exercises: data['exercises'],
+    exercise_slides: data['exercise_slides'],
+    exercise_tasks: data['exercise_tasks'],
     title: data['title'],
     url_path: data['url_path'],
     chapter_id: nil,
-    hidden: data['hidden'] || false,
   }
 
   puts "Uploading information page #{entry[:json_file]}"

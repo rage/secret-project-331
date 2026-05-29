@@ -114,7 +114,7 @@ pub async fn insert_course_page(
     .await?;
 
     let mut tx = conn.begin().await?;
-    let page_res: Uuid = sqlx::query_scalar(
+    let page_res = sqlx::query_scalar!(
         "
 INSERT INTO pages (
     course_id,
@@ -129,15 +129,15 @@ INSERT INTO pages (
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 RETURNING id
 ",
+        new_course_page.course_id,
+        new_course_page.chapter_id,
+        serde_json::to_value(new_course_page.content.clone())?,
+        new_course_page.url_path.as_str(),
+        new_course_page.title.as_str(),
+        new_course_page.order_number,
+        new_course_page.hidden,
+        page_language_group_id,
     )
-    .bind(new_course_page.course_id)
-    .bind(new_course_page.chapter_id)
-    .bind(serde_json::to_value(new_course_page.content.clone())?)
-    .bind(new_course_page.url_path.as_str())
-    .bind(new_course_page.title.as_str())
-    .bind(new_course_page.order_number)
-    .bind(new_course_page.hidden)
-    .bind(page_language_group_id)
     .fetch_one(&mut *tx)
     .await?;
 

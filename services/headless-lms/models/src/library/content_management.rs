@@ -67,6 +67,7 @@ pub async fn create_new_course(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: false,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -205,6 +206,7 @@ pub async fn create_new_chapter_with_content(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: false,
     };
 
     let page = match pkey_policy {

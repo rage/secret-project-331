@@ -1342,7 +1342,8 @@
           "exercise_slides",
           "exercise_tasks",
           "url_path",
-          "title"
+          "title",
+          "hidden"
         ],
         "properties": {
           "chapter_id": {
@@ -1372,6 +1373,9 @@
             "items": {
               "$ref": "#/components/schemas/CmsPageExercise"
             }
+          },
+          "hidden": {
+            "type": "boolean"
           },
           "title": {
             "type": "string"

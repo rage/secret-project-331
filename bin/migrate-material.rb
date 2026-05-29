@@ -63,6 +63,10 @@ class MaterialMigrator
     content = File.read(file)
 
     json_content = []
+    @normalized_exercises = []
+    @normalized_exercise_slides = []
+    @normalized_exercise_tasks = []
+    @exercise_count = 0
 
     json_block = create_new_block
 
@@ -196,15 +200,12 @@ class MaterialMigrator
     metadata = build_page_metadata(file, json_content)
     wrapped_content = {
       'content': json_content,
+      'exercises': @normalized_exercises,
+      'exercise_slides': @normalized_exercise_slides,
+      'exercise_tasks': @normalized_exercise_tasks,
       'title': metadata[:title],
       'url_path': metadata[:url_path],
-      'chapter_slug': metadata[:chapter_slug],
-      'chapter_number': metadata[:chapter_number],
-      'chapter_title': metadata[:chapter_title],
-      'page_slug': metadata[:page_slug],
-      'language_code': metadata[:language_code],
-      'source_path': metadata[:source_path],
-      'is_front_page': metadata[:is_front_page],
+      'chapter_id': nil,
     }
 
     output_file = File.join(File.dirname(file), "#{File.basename(file, File.extname(file))}.json")
@@ -464,74 +465,61 @@ class MaterialMigrator
 
       puts parsed_quiz_data
 
-      json_block[:name] = 'moocfi/exercise'
-      json_block[:attributes] = {
-        'id': SecureRandom.uuid,
+      exercise_id = SecureRandom.uuid
+      exercise_slide_id = SecureRandom.uuid
+      exercise_task_id = SecureRandom.uuid
+
+      json_content << {
+        'clientId': SecureRandom.uuid,
+        'isValid': true,
+        'name': 'moocfi/exercise',
+        'attributes': {
+          'id': exercise_id,
+        },
+        'innerBlocks': [],
+      }
+
+      @normalized_exercises << {
+        'id': exercise_id,
         'name': parsed_quiz_data['title'],
+        'order_number': @exercise_count,
         'score_maximum': parsed_quiz_data['points'],
+        'max_tries_per_slide': nil,
         'limit_number_of_tries': parsed_quiz_data['triesLimited'],
+        'deadline': nil,
         'needs_peer_review': false,
         'needs_self_review': false,
         'peer_or_self_review_config': nil,
-        'peer_or_self_review_questions_config': nil,
-        'use_course_default_peer_review': true,
+        'peer_or_self_review_questions': nil,
+        'use_course_default_peer_or_self_review_config': true,
+        'teacher_reviews_answer_after_locking': true,
       }
-      json_block[:innerBlocks] << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'moocfi/exercise-settings',
-        'attributes': {},
-        'innerBlocks': [],
+      @normalized_exercise_slides << {
+        'id': exercise_slide_id,
+        'exercise_id': exercise_id,
+        'order_number': 0,
       }
-      json_block[:innerBlocks] << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'moocfi/exercise-slides',
-        'attributes': {},
-        'innerBlocks': [
+      @normalized_exercise_tasks << {
+        'id': exercise_task_id,
+        'exercise_slide_id': exercise_slide_id,
+        'assignment': [
           {
             'clientId': SecureRandom.uuid,
             'isValid': true,
-            'name': 'moocfi/exercise-slide',
-            'attributes': begin
-              slide_attributes = {
-              'id': SecureRandom.uuid,
-              'order_number': 0,
-              }
-              add_if_present(slide_attributes, 'body', parsed_quiz_data['body'])
-              slide_attributes
-            end,
-            'innerBlocks': [
-              {
-                'clientId': SecureRandom.uuid,
-                'isValid': true,
-                'name': 'moocfi/exercise-task',
-                'attributes': {
-                  'id': SecureRandom.uuid,
-                  'exercise_type': 'quizzes',
-                  'private_spec': JSON.generate(parsed_quiz_data),
-                  'show_editor': false,
-                  'order_number': 0,
-                },
-                'innerBlocks': [
-                  {
-                    'clientId': SecureRandom.uuid,
-                    'isValid': true,
-                    'name': 'core/paragraph',
-                    'attributes': {
-                      'content': '',
-                      'dropCap': false,
-                    },
-                    'innerBlocks': [],
-                  },
-                ],
-              },
-            ],
+            'name': 'core/paragraph',
+            'attributes': {
+              'content': parsed_quiz_data['body'] || '',
+              'dropCap': false,
+            },
+            'innerBlocks': [],
           },
         ],
+        'exercise_type': 'quizzes',
+        'private_spec': parsed_quiz_data,
+        'order_number': 0,
       }
-      # @inside_a_block = false if line.end_with?('</quiz>')
-      json_content << json_block if oneliner
+
+      @exercise_count += 1
       @tag_depth = @tag_depth - 1 if line.end_with?('</quiz>') || oneliner
     # end
   end

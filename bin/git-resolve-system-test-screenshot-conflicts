@@ -37,7 +37,9 @@ esac
 declare -a conflict_paths=()
 
 if [ "$#" -eq 0 ]; then
-  mapfile -d '' -t conflict_paths < <(git diff --name-only -z --diff-filter=U -- "$SYSTEM_TEST_SCREENSHOTS_PATH")
+  while IFS= read -r -d '' path; do
+    conflict_paths+=("$path")
+  done < <(git diff --name-only -z --diff-filter=U -- "$SYSTEM_TEST_SCREENSHOTS_PATH")
 else
   for path in "$@"; do
     if ! path_is_within_system_test_screenshots "$path"; then

@@ -2,6 +2,8 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+ensure_git_lfs_installed
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../system-tests/src/__screenshots__"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
@@ -22,6 +24,8 @@ run_command "$(dirname "$0")/git-merge-origin-master"
 
 echo "> git ls-files \"$RELATIVE_PATH\" | grep '.png' | xargs git restore --source origin/master"
 run_command git ls-files "$RELATIVE_PATH" | grep '.png' | xargs git restore --source origin/master
+
+ensure_system_test_snapshots_hydrated
 
 echo "> git add --renormalize \"$RELATIVE_PATH\""
 run_command git add --renormalize "$RELATIVE_PATH"

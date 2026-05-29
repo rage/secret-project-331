@@ -4,7 +4,10 @@ source "$(dirname "$0")/.common"
 
 ensure_inside_git_work_tree
 
-mapfile -d '' -t conflict_paths < <(git diff --name-only -z --diff-filter=U -- ":(top)$SYSTEM_TEST_SCREENSHOTS_PATH")
+declare -a conflict_paths=()
+while IFS= read -r -d '' path; do
+  conflict_paths+=("$path")
+done < <(git diff --name-only -z --diff-filter=U -- ":(top)$SYSTEM_TEST_SCREENSHOTS_PATH")
 
 if [ "${#conflict_paths[@]}" -eq 0 ]; then
   echo -e "${GREEN}No unresolved system-test screenshot conflicts found.${RESET_EVERYTHING}"

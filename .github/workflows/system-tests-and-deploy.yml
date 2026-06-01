@@ -41,9 +41,6 @@ jobs:
             git grep -I -l -m 1 "version https://git-lfs.github.com/spec/v1" -- system-tests/src/__screenshots__
             exit 1
           fi
-      - name: Fetch git lfs objects
-        run: |
-          git lfs fetch --all
 
       - name: System Information Report
         run: |

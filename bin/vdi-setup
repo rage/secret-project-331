@@ -12,6 +12,7 @@ fi
 echo "/data exists"
 
 original_user="$(logname)"
+shared_group="hyad-all"
 original_home="/home/$original_user"
 data_home="/data/$original_user"
 docker_base="$data_home/docker"
@@ -19,8 +20,8 @@ docker_root="$docker_base/docker-root"
 containerd_root="$docker_base/containerd"
 
 fix_data_permissions() {
-  chown "$original_user:hyad-all" "$data_home"
-  find "$data_home" -mindepth 1 -maxdepth 1 ! -name docker -exec chown -R "$original_user:$original_user" {} +
+  chown "$original_user:$shared_group" "$data_home"
+  find "$data_home" -mindepth 1 -maxdepth 1 ! -name docker -exec chown -R "$original_user:$shared_group" {} +
 
   if [ -d "$docker_base" ]; then
     chown root:root "$docker_base"
@@ -43,6 +44,13 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo "Running as root"
+
+if ! getent group "$shared_group" >/dev/null; then
+  echo "ERROR: Required group $shared_group does not exist"
+  exit 1
+fi
+
+echo "Group $shared_group exists"
 
 # Create folder /data/$original_user
 if [ ! -d "$data_home" ]; then
@@ -204,7 +212,7 @@ abbr -a -- gits "git status -sb"
 abbr -a -- open xdg-open
 FISH
 
-chown "$original_user:$original_user" "$fish_conf_dir/secret-project-331.fish"
+chown "$original_user:$shared_group" "$fish_conf_dir/secret-project-331.fish"
 echo "Installed fish aliases for secret-project-331"
 
 # Keep Docker and containerd storage off the root filesystem. Docker 29 uses the

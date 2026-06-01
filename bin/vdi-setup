@@ -12,15 +12,18 @@ fi
 echo "/data exists"
 
 original_user="$(logname)"
+shared_group="hyad-all"
 original_home="/home/$original_user"
 data_home="/data/$original_user"
 docker_base="$data_home/docker"
 docker_root="$docker_base/docker-root"
 containerd_root="$docker_base/containerd"
+pnpm_home="$data_home/.local/share/pnpm"
+pnpm_path="$pnpm_home:$pnpm_home/bin:$PATH"
 
 fix_data_permissions() {
-  chown "$original_user:$original_user" "$data_home"
-  find "$data_home" -mindepth 1 -maxdepth 1 ! -name docker -exec chown -R "$original_user:$original_user" {} +
+  chown "$original_user:$shared_group" "$data_home"
+  find "$data_home" -mindepth 1 -maxdepth 1 ! -name docker -exec chown -R "$original_user:$shared_group" {} +
 
   if [ -d "$docker_base" ]; then
     chown root:root "$docker_base"
@@ -43,6 +46,13 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 echo "Running as root"
+
+if ! getent group "$shared_group" >/dev/null; then
+  echo "ERROR: Required group $shared_group does not exist"
+  exit 1
+fi
+
+echo "Group $shared_group exists"
 
 # Create folder /data/$original_user
 if [ ! -d "$data_home" ]; then
@@ -85,14 +95,16 @@ $banner
 END
 )
 
-echo "$bashrc_addition" > /tmp/bashrc_addition
-chmod a+r /tmp/bashrc_addition
+bashrc_addition_file="$(mktemp)"
 tmp_script_file="$(mktemp)"
-trap 'rm -f /tmp/bashrc_addition "$tmp_script_file"' EXIT INT TERM
+trap 'rm -f "$bashrc_addition_file" "$tmp_script_file"' EXIT INT TERM
+
+echo "$bashrc_addition" > "$bashrc_addition_file"
+chmod a+r "$bashrc_addition_file"
 
 cat > "$tmp_script_file" <<END
 set -euo pipefail
-bashrc_addition=\$(cat /tmp/bashrc_addition)
+bashrc_addition=\$(cat "$bashrc_addition_file")
 echo "bashrc_addition: \$bashrc_addition"
 echo "Running as $original_user"
 
@@ -108,7 +120,7 @@ else
   echo "\$bashrc_addition" >> "$original_home/.bashrc"
 fi
 END
-chmod +x "$tmp_script_file"
+chmod a+r "$tmp_script_file"
 
 echo "--------------------------------------------------------"
 cat "$tmp_script_file"
@@ -133,11 +145,13 @@ apt-get install -y \
   zram-tools \
   ca-certificates \
   curl \
+  fish \
   git
 
 # Install pnpm using standalone script (no npm required)
-if ! command -v pnpm >/dev/null 2>&1; then
-  sudo -u "$original_user" env HOME="$data_home" sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
+install -d -m 0755 -o "$original_user" -g "$shared_group" "$pnpm_home"
+if ! sudo -u "$original_user" env HOME="$data_home" PNPM_HOME="$pnpm_home" PATH="$pnpm_path" sh -c 'command -v pnpm >/dev/null 2>&1'; then
+  sudo -u "$original_user" env HOME="$data_home" PNPM_HOME="$pnpm_home" PATH="$pnpm_path" SHELL=/usr/bin/bash ENV="$data_home/.profile" sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
   echo "Installed pnpm"
 fi
 
@@ -204,7 +218,7 @@ abbr -a -- gits "git status -sb"
 abbr -a -- open xdg-open
 FISH
 
-chown "$original_user:$original_user" "$fish_conf_dir/secret-project-331.fish"
+chown "$original_user:$shared_group" "$fish_conf_dir/secret-project-331.fish"
 echo "Installed fish aliases for secret-project-331"
 
 # Keep Docker and containerd storage off the root filesystem. Docker 29 uses the

@@ -77,7 +77,7 @@ Git should already be installed on the VDI. Confirm this by running `git --versi
 1. Clone the repository using HTTPS:
 
    ```bash
-   git clone https://github.com/rage/secret-project-331.git
+   cd /tmp/ && git clone https://github.com/rage/secret-project-331.git
    ```
 
 2. Run the `vdi-setup` script to install required dependencies and set up the project in your `/data` drive:

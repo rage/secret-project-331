@@ -93,14 +93,16 @@ $banner
 END
 )
 
-echo "$bashrc_addition" > /tmp/bashrc_addition
-chmod a+r /tmp/bashrc_addition
+bashrc_addition_file="$(mktemp)"
 tmp_script_file="$(mktemp)"
-trap 'rm -f /tmp/bashrc_addition "$tmp_script_file"' EXIT INT TERM
+trap 'rm -f "$bashrc_addition_file" "$tmp_script_file"' EXIT INT TERM
+
+echo "$bashrc_addition" > "$bashrc_addition_file"
+chmod a+r "$bashrc_addition_file"
 
 cat > "$tmp_script_file" <<END
 set -euo pipefail
-bashrc_addition=\$(cat /tmp/bashrc_addition)
+bashrc_addition=\$(cat "$bashrc_addition_file")
 echo "bashrc_addition: \$bashrc_addition"
 echo "Running as $original_user"
 
@@ -116,7 +118,7 @@ else
   echo "\$bashrc_addition" >> "$original_home/.bashrc"
 fi
 END
-chmod +x "$tmp_script_file"
+chmod a+r "$tmp_script_file"
 
 echo "--------------------------------------------------------"
 cat "$tmp_script_file"

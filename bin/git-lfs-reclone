@@ -110,35 +110,6 @@ if [ -n "$(git -C "$REPO_ROOT" status --porcelain)" ]; then
   exit 1
 fi
 
-# Detect local-only work: branches with no origin counterpart, or with
-# unpushed commits that won't exist in the fresh clone.
-LOCAL_ONLY=""
-while IFS= read -r branch; do
-  if ! git -C "$REPO_ROOT" rev-parse --verify "origin/$branch" &>/dev/null; then
-    LOCAL_ONLY+="  $branch  (no origin counterpart — push it first)"$'\n'
-  elif git -C "$REPO_ROOT" log "origin/$branch..$branch" --oneline | grep -q .; then
-    LOCAL_ONLY+="  $branch  (has unpushed commits — push them first)"$'\n'
-  fi
-done < <(git -C "$REPO_ROOT" branch --format='%(refname:short)')
-
-if [ -n "$LOCAL_ONLY" ]; then
-  echo -e "${RED}Warning: the following branches have local-only work that will not appear in the fresh clone:${RESET_EVERYTHING}"
-  echo "$LOCAL_ONLY"
-  echo "Push them to origin before continuing, or save patches:"
-  echo "  git format-patch origin/<branch>..<branch> -o ~/patches/"
-  echo ""
-  if ! [ -r /dev/tty ]; then
-    echo -e "${RED}Cannot ask for confirmation without a terminal. Aborting.${RESET_EVERYTHING}"
-    exit 1
-  fi
-  read -r -p "Continue anyway? [y/N] " response < /dev/tty
-  if [[ ! "$response" =~ ^[Yy]$ ]]; then
-    echo "Aborted."
-    exit 1
-  fi
-  echo ""
-fi
-
 if [ -d "$OLD_DIR" ]; then
   echo -e "${RED}$OLD_DIR already exists. Remove or rename it first.${RESET_EVERYTHING}"
   exit 1
@@ -154,7 +125,8 @@ echo ""
 echo "Old clone preserved at : $OLD_DIR  (remote → pre-LFS backup)"
 echo "Fresh clone ready at   : $REPO_ROOT"
 echo ""
-echo "Any stash entries are in the old clone. To recover one:"
+echo "Local branches and stash entries remain in the old clone."
+echo "To recover a stash:"
 echo "  git -C $OLD_DIR stash show -p stash@{0} | git -C $REPO_ROOT apply"
 echo ""
 echo "Switch to the fresh clone:"

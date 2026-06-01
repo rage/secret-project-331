@@ -119,12 +119,13 @@ page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
   is_front_page = front_page_for_markdown_file?(entry[:markdown_file])
 
   page_payload = {
-    content: data['content'],
+    content: data['content'].dup,
     exercises: data['exercises'],
     exercise_slides: data['exercise_slides'],
     exercise_tasks: data['exercise_tasks'],
     title: data['title'],
     chapter_id: chapter_id,
+    hidden: data['hidden'] || false,
   }
 
   if is_front_page
@@ -149,6 +150,7 @@ page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
       url_path: page_payload[:url_path],
       title: page_payload[:title],
       chapter_id: chapter_id,
+      hidden: data['hidden'] || false,
     }
 
     puts "Updating front page #{entry[:json_file]} -> chapter #{chapter_slug}"
@@ -177,13 +179,14 @@ information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entr
   data = entry[:data]
 
   page_payload = {
-    content: data['content'],
+    content: data['content'].dup,
     exercises: data['exercises'],
     exercise_slides: data['exercise_slides'],
     exercise_tasks: data['exercise_tasks'],
     title: data['title'],
     url_path: data['url_path'],
     chapter_id: nil,
+    hidden: data['hidden'] || false,
   }
 
   puts "Uploading information page #{entry[:json_file]}"

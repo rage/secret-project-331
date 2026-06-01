@@ -67,6 +67,7 @@ class MaterialMigrator
     @normalized_exercise_slides = []
     @normalized_exercise_tasks = []
     @exercise_count = 0
+    @hidden = false
 
     json_block = create_new_block
 
@@ -130,8 +131,10 @@ class MaterialMigrator
           # @inside_a_block = false
           if @known_tags.include?(@current_tag_type)
             @tag_depth = @tag_depth - 1
-            if @tag_depth == 0
+            if @tag_depth == 0 && @current_tag_type != 'styled-text'
               json_content << json_block
+              json_block = create_new_block
+            elsif @tag_depth == 0 && @current_tag_type == 'styled-text'
               json_block = create_new_block
             end
           end
@@ -151,7 +154,7 @@ class MaterialMigrator
           next
         end
 
-        handle_block(tag_type, line, json_block, file, json_content)
+        json_block = handle_block(tag_type, line, json_block, file, json_content) || json_block
         next
       end
 
@@ -206,6 +209,7 @@ class MaterialMigrator
       'title': metadata[:title],
       'url_path': metadata[:url_path],
       'chapter_id': nil,
+      'hidden': @hidden,
     }
 
     output_file = File.join(File.dirname(file), "#{File.basename(file, File.extname(file))}.json")
@@ -299,14 +303,20 @@ class MaterialMigrator
   end
 
   def process_frontmatter_line(line, json_block)
-    if line.start_with?('title:')
-      json_block[:attributes][:title] = line.split(':')[1].strip
+    key, value = line.split(':', 2).map(&:strip)
+
+    case key
+    when 'title'
+      json_block[:attributes][:title] = value
+    when 'hidden'
+      normalized_value = value.to_s.downcase.delete_prefix('"').delete_suffix('"').delete_prefix("'").delete_suffix("'")
+      @hidden = normalized_value == 'true'
     end
   end
 
   def handle_block(tag_type, line, json_block, file, json_content)
     @current_tag_type = tag_type
-    case tag_type
+    result = case tag_type
     when 'styled-text'
       handle_paragraph(json_block, json_content)
     when 'text-box' # we convert text-boxes to infoboxes
@@ -326,6 +336,8 @@ class MaterialMigrator
       # @inside_a_block = false
       @tag_depth = @tag_depth - 1
     end
+
+    result.is_a?(Hash) ? result : json_block
   end
 
   def handle_paragraph(json_block, json_content)
@@ -335,17 +347,7 @@ class MaterialMigrator
       'dropCap': false,
     }
     json_content << paragraph_block
-    # json_block[:innerBlocks] << paragraph_block
-    # json_block[:innerBlocks] << {
-    #   'clientId': SecureRandom.uuid,
-    #   'isValid': true,
-    #   'name': 'core/paragraph',
-    #   'attributes': {
-    #     'content': '',
-    #     'dropCap': false,
-    #   },
-    #   'innerBlocks': [],
-    # }
+    paragraph_block
   end
 
   def handle_infobox(line, json_block)
@@ -410,8 +412,11 @@ class MaterialMigrator
       'dropCap': false,
     }
 
-    # If we're inside another tag, add header as an inner block; otherwise add top-level
-    if @tag_depth > 0
+    # Keep markdown headings inside styled-text as top-level blocks so they remain visible.
+    if @current_tag_type == 'styled-text'
+      json_content << header_block
+      json_content << fresh_block
+    elsif @tag_depth > 0
       json_block[:innerBlocks] << header_block
       json_block[:innerBlocks] << fresh_block
     else
@@ -712,6 +717,8 @@ class MaterialMigrator
         'src': src,
       }
     end
+
+    json_block
   end
 
   def handle_span(line, json_block, json_content)

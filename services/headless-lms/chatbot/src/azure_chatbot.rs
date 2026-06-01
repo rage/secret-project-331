@@ -138,7 +138,7 @@ pub enum OutputItem {
         response_id: String,
         role: MessageRole,
         content: MessageContent,
-    }, // we can get annotations and full text from here, but not yet.
+    },
     Reasoning {
         response_id: String,
         summary: Vec<ReasoningOutput>,

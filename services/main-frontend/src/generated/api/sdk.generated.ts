@@ -14,6 +14,8 @@ import { client } from "./client.generated"
 import type {
   AddCodeGiveawayCodesData,
   AddCodeGiveawayCodesResponses,
+  AddCoursePlanMemberData,
+  AddCoursePlanMemberResponses,
   AddRoleData,
   AddRoleResponses,
   AddTeacherGradingForExamSubmissionData,
@@ -275,6 +277,8 @@ import type {
   GetCoursePageVisitDatumSummaryResponses,
   GetCoursePartnersBlockData,
   GetCoursePartnersBlockResponses,
+  GetCoursePlanMembersData,
+  GetCoursePlanMembersResponses,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponses,
   GetCourseReferencesData,
@@ -512,6 +516,8 @@ import type {
   ReceivePlaygroundGradingResponses,
   ReleaseExamGradesData,
   ReleaseExamGradesResponses,
+  RemoveCoursePlanMemberData,
+  RemoveCoursePlanMemberResponses,
   RemoveRoleData,
   RemoveRoleResponses,
   ReprocessCourseCompletionsData,
@@ -608,6 +614,7 @@ import type {
 } from "./types.generated"
 import {
   zAddCodeGiveawayCodesResponse,
+  zAddCoursePlanMemberResponse,
   zAddTeacherGradingForExamSubmissionResponse,
   zAdvanceCourseDesignerStageResponse,
   zApproveOauthConsentResponse,
@@ -707,6 +714,7 @@ import {
   zGetCoursePageVisitDatumSummaryByDeviceTypesResponse,
   zGetCoursePageVisitDatumSummaryByPagesResponse,
   zGetCoursePageVisitDatumSummaryResponse,
+  zGetCoursePlanMembersResponse,
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
@@ -813,6 +821,7 @@ import {
   zGetUsersReturningExercisesHistoryResponse,
   zJoinCourseWithJoinCodeResponse,
   zPreviewCourseInstanceCompletionsResponse,
+  zRemoveCoursePlanMemberResponse,
   zReprocessCourseCompletionsResponse,
   zResetCourseProgressForEveryoneResponse,
   zResetCourseProgressForTeacherThemselvesResponse,
@@ -1793,6 +1802,42 @@ export const getCourseDesignerPlan = <ThrowOnError extends boolean = true>(
     url: "/api/v0/main-frontend/course-plans/{plan_id}",
     ...options,
   })
+
+export const getCoursePlanMembers = <ThrowOnError extends boolean = true>(
+  options: Options<GetCoursePlanMembersData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<GetCoursePlanMembersResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursePlanMembersResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/members",
+    ...options,
+  })
+
+export const addCoursePlanMember = <ThrowOnError extends boolean = true>(
+  options: Options<AddCoursePlanMemberData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<AddCoursePlanMemberResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zAddCoursePlanMemberResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-plans/{plan_id}/members",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
+
+export const removeCoursePlanMember = <ThrowOnError extends boolean = true>(
+  options: Options<RemoveCoursePlanMemberData, ThrowOnError>,
+) =>
+  (options.client ?? client).delete<RemoveCoursePlanMemberResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zRemoveCoursePlanMemberResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/course-plans/{plan_id}/members/{user_id}",
+      ...options,
+    },
+  )
 
 export const saveCourseDesignerSchedule = <ThrowOnError extends boolean = true>(
   options: Options<SaveCourseDesignerScheduleData, ThrowOnError>,

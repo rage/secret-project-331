@@ -1736,6 +1736,110 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-plans/{plan_id}/members": {
+      "get": {
+        "tags": ["course-plans"],
+        "operationId": "getCoursePlanMembers",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Plan members",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PlanMemberWithDetails"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["course-plans"],
+        "operationId": "addCoursePlanMember",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddPlanMemberRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Added member",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanMemberWithDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/course-plans/{plan_id}/members/{user_id}": {
+      "delete": {
+        "tags": ["course-plans"],
+        "operationId": "removeCoursePlanMember",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "description": "Plan id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id to remove",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Member removed"
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-plans/{plan_id}/schedule": {
       "put": {
         "tags": ["course-plans"],
@@ -10529,6 +10633,16 @@
         "description": "\nIndicates what is the user's completion status for a exercise.\n\nAs close as possible to LTI's activity progress for compatibility: <https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress>.",
         "enum": ["Initialized", "Started", "InProgress", "Submitted", "Completed"]
       },
+      "AddPlanMemberRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
       "AnalysisCourseType": {
         "type": "string",
         "enum": ["compulsory", "elective"]
@@ -16445,6 +16559,34 @@
           },
           "user_email": {
             "type": "string"
+          }
+        }
+      },
+      "PlanMemberWithDetails": {
+        "type": "object",
+        "required": ["id", "user_id", "email", "created_at"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "first_name": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "last_name": {
+            "type": ["string", "null"]
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
           }
         }
       },

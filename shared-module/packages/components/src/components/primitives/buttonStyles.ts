@@ -4,7 +4,7 @@ import type { PressEvent } from "react-aria"
 export type ButtonSize = "small" | "medium" | "large"
 export type IconPosition = "start" | "end"
 
-export type ButtonVariant = "primary" | "secondary" | "tertiary"
+export type ButtonVariant = "primary" | "secondary" | "tertiary" | "icon"
 
 export type PressHandlers = {
   onPress?: (e: PressEvent) => void
@@ -156,6 +156,18 @@ const sizeLgCss = css`
   font-size: var(--font-size-lg);
 `
 
+const iconSizeSmCss = css`
+  padding-inline: var(--btn-icon-padding-x-sm);
+`
+
+const iconSizeMdCss = css`
+  padding-inline: var(--btn-icon-padding-x-md);
+`
+
+const iconSizeLgCss = css`
+  padding-inline: var(--btn-icon-padding-x-lg);
+`
+
 const primaryCss = css`
   background: var(--btn-primary-bg);
   color: var(--btn-primary-fg);
@@ -243,6 +255,32 @@ const tertiaryCss = css`
   }
 `
 
+const iconCss = css`
+  background: var(--btn-icon-bg);
+  color: var(--btn-icon-fg);
+  border-color: var(--btn-icon-border);
+  box-shadow: none;
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-icon-bg-hover);
+    color: var(--btn-icon-fg-hover);
+    border-color: var(--btn-icon-border-hover);
+    box-shadow: var(--btn-icon-shadow-hover);
+  }
+
+  &:focus-visible:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--btn-icon-bg-hover);
+    color: var(--btn-icon-fg-hover);
+    border-color: var(--btn-icon-border-hover);
+  }
+
+  &[data-pressed="true"] {
+    background: var(--btn-icon-bg-pressed);
+    color: var(--btn-icon-fg-pressed);
+    box-shadow: none;
+  }
+`
+
 const sizeStyles: Record<ButtonSize, string> = {
   small: sizeSmCss,
   medium: sizeMdCss,
@@ -253,6 +291,13 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary: primaryCss,
   secondary: secondaryCss,
   tertiary: tertiaryCss,
+  icon: iconCss,
+}
+
+const iconSizeStyles: Record<ButtonSize, string> = {
+  small: iconSizeSmCss,
+  medium: iconSizeMdCss,
+  large: iconSizeLgCss,
 }
 
 function resolveVariantCss(variant: ButtonVariant): string {
@@ -260,5 +305,10 @@ function resolveVariantCss(variant: ButtonVariant): string {
 }
 
 export function resolveButtonRootCss(input: ResolveStylesInput): string {
-  return cx(rootBaseCss, sizeStyles[input.size], resolveVariantCss(input.variant))
+  return cx(
+    rootBaseCss,
+    sizeStyles[input.size],
+    resolveVariantCss(input.variant),
+    input.variant === "icon" ? iconSizeStyles[input.size] : undefined,
+  )
 }

@@ -6,7 +6,7 @@ import { Button } from "../src/components/Button"
 
 import { pressEnter, pressSpace, renderUi } from "./testUtils"
 
-type Variant = "primary" | "secondary" | "tertiary"
+type Variant = "primary" | "secondary" | "tertiary" | "icon"
 type Size = "sm" | "md" | "lg"
 
 describe("Button", () => {
@@ -139,7 +139,7 @@ describe("Button", () => {
 })
 
 describe("Button variants and sizes", () => {
-  const variants: Variant[] = ["primary", "secondary", "tertiary"]
+  const variants: Variant[] = ["primary", "secondary", "tertiary", "icon"]
   const sizes: Size[] = ["sm", "md", "lg"]
 
   test.each(variants)("variant renders without crashing: %s", (variant) => {
@@ -182,5 +182,18 @@ describe("Button variants and sizes", () => {
 
     expect(buttons[0].firstChild).toContainElement(startIcon)
     expect(buttons[1].firstChild).toContainElement(endIcon)
+  })
+
+  test("icon variant supports icon-only button with aria-label", () => {
+    renderUi(
+      <Button variant="icon" size="small" aria-label="Remove item">
+        <span data-testid="icon-only">✕</span>
+      </Button>,
+    )
+
+    const button = screen.getByRole("button", { name: "Remove item" })
+    expect(button).toBeInTheDocument()
+    expect(button).toHaveAttribute("data-pressed", "false")
+    expect(screen.getByTestId("icon-only")).toBeInTheDocument()
   })
 })

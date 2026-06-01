@@ -296,6 +296,8 @@
   "course-navigation": "التنقل إلى الدورة '{{ title }}'",
   "course-overview": "نظرة عامة على الدورة",
   "course-pages-for": "صفحات الدورة لـ {{course-name}}",
+  "course-plan-permissions-title": "أذونات خطة الدورة",
+  "course-plans-manage-members": "إدارة الأعضاء",
   "course-plans-reset-suggestion": "إعادة تعيين الاقتراح",
   "course-plans-wizard-name-hint": "هذا اسم عمل مؤقت ويمكن تغييره لاحقاً.",
   "course-plans-wizard-progress-label": "تقدم إعداد الجدول",

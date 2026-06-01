@@ -293,6 +293,8 @@
   "course-navigation": "Naviger til kurs '{{title}}'",
   "course-overview": "Kursoversikt",
   "course-pages-for": "Kurs sider for {{course-name}}",
+  "course-plan-permissions-title": "Tillatelser for kursplan",
+  "course-plans-manage-members": "Administrer medlemmer",
   "course-progress": "Kursprogresjon",
   "course-settings": "Kursinnstillinger",
   "course-status-summary": "Kursstatus oppsummering",

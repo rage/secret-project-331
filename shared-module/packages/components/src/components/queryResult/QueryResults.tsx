@@ -13,7 +13,7 @@ import type { ThemeMode } from "./queryResultStyles"
 
 export type QueryResultsProps<E, TQueries extends QueryTuple<E>> = {
   queries: TQueries
-  themeMode: ThemeMode
+  themeMode?: ThemeMode
   renderData: (
     data: { [K in keyof TQueries]: SuccessData<TQueries[K]> },
     queries: TQueries,
@@ -38,7 +38,7 @@ export type QueryResultsProps<E, TQueries extends QueryTuple<E>> = {
  */
 export function QueryResults<E, TQueries extends QueryTuple<E>>({
   queries,
-  themeMode,
+  themeMode = "light",
   renderData,
   emptyFallback = null,
   treatNullAsEmpty = false,

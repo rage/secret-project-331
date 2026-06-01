@@ -2,6 +2,8 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+ensure_git_lfs_installed
+
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 FOLDER_PATH="$BASEDIR/../system-tests/src/__screenshots__"
 RELATIVE_PATH=$(realpath --relative-to="$(pwd)" "$FOLDER_PATH")
@@ -11,8 +13,19 @@ echo "This will undo any accidentally overwritten screenshot changes while makin
 echo "Before doing this, however, we will merge master to ensure the code in your branch matches the screenshots."
 echo -e "$RESET_EVERYTHING"
 
+# If any screenshots are LFS-tracked, git-lfs makes them look clean to `git
+# status` but dirty to `git merge` (raw bytes differ: pointer vs actual PNG).
+# Restoring with SKIP_SMUDGE ensures the working tree literally contains the
+# pointer text so the merge step sees no local changes.
+echo "> GIT_LFS_SKIP_SMUDGE=1 git restore \"$RELATIVE_PATH\""
+GIT_LFS_SKIP_SMUDGE=1 git restore "$RELATIVE_PATH"
+
 run_command "$(dirname "$0")/git-merge-origin-master"
 
 echo "> git ls-files \"$RELATIVE_PATH\" | grep '.png' | xargs git restore --source origin/master"
 run_command git ls-files "$RELATIVE_PATH" | grep '.png' | xargs git restore --source origin/master
 
+ensure_system_test_snapshots_hydrated
+
+echo "> git add --renormalize \"$RELATIVE_PATH\""
+run_command git add --renormalize "$RELATIVE_PATH"

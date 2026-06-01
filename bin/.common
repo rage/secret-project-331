@@ -66,7 +66,7 @@ function ensure_git_lfs_installed() {
     git -C "$script_repo_root" lfs install --local &> /dev/null || true
   fi
 
-  run_command git lfs fetch
+  run_command git lfs fetch --all
 }
 
 # Aborts if the current directory is not inside a git repository.

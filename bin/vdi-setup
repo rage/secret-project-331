@@ -18,6 +18,8 @@ data_home="/data/$original_user"
 docker_base="$data_home/docker"
 docker_root="$docker_base/docker-root"
 containerd_root="$docker_base/containerd"
+pnpm_home="$data_home/.local/share/pnpm"
+pnpm_path="$pnpm_home:$pnpm_home/bin:$PATH"
 
 fix_data_permissions() {
   chown "$original_user:$shared_group" "$data_home"
@@ -143,11 +145,13 @@ apt-get install -y \
   zram-tools \
   ca-certificates \
   curl \
+  fish \
   git
 
 # Install pnpm using standalone script (no npm required)
-if ! command -v pnpm >/dev/null 2>&1; then
-  sudo -u "$original_user" env HOME="$data_home" sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
+install -d -m 0755 -o "$original_user" -g "$shared_group" "$pnpm_home"
+if ! sudo -u "$original_user" env HOME="$data_home" PNPM_HOME="$pnpm_home" PATH="$pnpm_path" sh -c 'command -v pnpm >/dev/null 2>&1'; then
+  sudo -u "$original_user" env HOME="$data_home" PNPM_HOME="$pnpm_home" PATH="$pnpm_path" SHELL=/usr/bin/bash ENV="$data_home/.profile" sh -c 'curl -fsSL https://get.pnpm.io/install.sh | sh -'
   echo "Installed pnpm"
 fi
 

@@ -19,7 +19,7 @@ docker_root="$docker_base/docker-root"
 containerd_root="$docker_base/containerd"
 
 fix_data_permissions() {
-  chown "$original_user:$original_user" "$data_home"
+  chown "$original_user:hyad-all" "$data_home"
   find "$data_home" -mindepth 1 -maxdepth 1 ! -name docker -exec chown -R "$original_user:$original_user" {} +
 
   if [ -d "$docker_base" ]; then

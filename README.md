@@ -80,7 +80,7 @@ Documentation for teachers is located in the **Wiki** tab of this repository. Th
 
 ### Technical Documentation
 
-- **Backend**: [Headless LMS Server Documentation](https://rage.github.io/secret-project-331/headless_lms_server/index.html)
+- **Backend**: [Headless LMS Server Documentation](https://rage.github.io/secret-project-331-headless-lms-docs/headless_lms_server/index.html)
 - **Database Schema**: [Database Documentation](https://rage.github.io/secret-project-331-db-docs/)
 - **Shared Module**: [Component Storybook](https://rage.github.io/secret-project-storybook/)
 

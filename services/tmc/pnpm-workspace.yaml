@@ -57,3 +57,12 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - webpack@5.104.1
+  - webpack@5.104.0
+  - postcss@8.5.10
+  - '@babel/plugin-transform-modules-systemjs@7.29.4'
+  - ip-address@10.1.1
+  - ws@8.20.1
+  - qs@6.15.2

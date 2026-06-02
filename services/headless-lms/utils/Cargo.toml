@@ -20,17 +20,17 @@ tokio-stream.workspace = true
 # An implementation of future and streams featuring zero allocations, composability, and itera…
 futures = "0.3.32"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.23.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.23.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.149"
+serde_json = "1.0.150"
 # Rust client library for Google Cloud Storage.
-google-cloud-storage = "1.11.0"
+google-cloud-storage = "1.12.0"
 # Authentication and signing helpers for Google Cloud Rust client libraries.
-google-cloud-auth = "1.9.0"
+google-cloud-auth = "1.10.0"
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 # Type erasure for async trait methods
@@ -42,7 +42,7 @@ bytes = "1.11.1"
 # Random number generators and other randomness functionality.
 rand = "0.10.1"
 # the BLAKE3 hash function
-blake3 = "1.8.4"
+blake3 = "1.8.5"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # URL library for Rust, based on the WHATWG URL Standard
@@ -77,7 +77,7 @@ anyhow = "1.0.102"
 # DEFLATE compression and decompression exposed as Read/BufRead/Write streams.
 flate2 = "1.1.9"
 # higher level HTTP client library
-reqwest = { version = "0.13.2", features = [
+reqwest = { version = "0.13.4", features = [
   "brotli",
   "gzip",
   "json",
@@ -86,7 +86,7 @@ reqwest = { version = "0.13.2", features = [
   "stream",
 ] }
 # Redis driver for Rust.
-redis = { version = "1.2.0", features = [
+redis = { version = "1.2.2", features = [
   "aio",
   "tokio-comp",
   "connection-manager",
@@ -94,7 +94,7 @@ redis = { version = "1.2.0", features = [
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
-utoipa = { version = "5.4.0", features = ["uuid"] }
+utoipa = { version = "5.5.0", features = ["uuid"] }
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

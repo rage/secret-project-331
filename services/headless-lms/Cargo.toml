@@ -41,7 +41,7 @@ debug = 1
 
 [workspace.dependencies]
 # An event-driven, non-blocking I/O platform for writing asynchronous I/O backed applications.
-tokio = { version = "1.52.1", features = [
+tokio = { version = "1.52.3", features = [
   "fs",
   "io-util",
   "sync",
@@ -50,14 +50,14 @@ tokio = { version = "1.52.1", features = [
 ] }
 
 # Rustls is a modern TLS library written in Rust.
-rustls = { version = "0.23.38", default-features = false, features = ["ring"] }
+rustls = { version = "0.23.40", default-features = false, features = ["ring"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac = "0.13.0"
 # Pure Rust implementation of the SHA-2 hash function family.
 sha2 = "0.11.0"
 
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries.
-sqlx = { version = "0.8.6", default-features = false, features = [
+sqlx = { version = "0.9.0", default-features = false, features = [
   "postgres",
   "macros",
   "derive",

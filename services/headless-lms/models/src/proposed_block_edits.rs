@@ -88,7 +88,7 @@ SELECT id,
   block_attribute,
   original_text,
   changed_text,
-  status AS "status: ProposalStatus",
+  status,
   created_at,
   updated_at,
   deleted_at

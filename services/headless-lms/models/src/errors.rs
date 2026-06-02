@@ -169,7 +169,7 @@ SELECT
     service,
     exact_error_identifier,
     error_grouping_identifier,
-    error_source AS "error_source: ErrorSource",
+    error_source,
     example_message,
     example_stack_trace,
     normalized_message,

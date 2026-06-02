@@ -1,0 +1,53 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT score_given,\n  grading_progress\nFROM user_exercise_slide_states\nWHERE user_exercise_state_id = $1\n  AND deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "score_given",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "score_given"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "grading_progress",
+        "type_info": {
+          "Custom": {
+            "name": "grading_progress",
+            "kind": {
+              "Enum": [
+                "fully-graded",
+                "pending",
+                "pending-manual",
+                "failed",
+                "not-ready"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "user_exercise_slide_states",
+            "name": "grading_progress"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      false
+    ]
+  },
+  "hash": "3213f2d7b48f9c7d6758ad986750e879b3a4b360fcf1fda98bebd7b0cbe8791d"
+}

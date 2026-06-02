@@ -1,0 +1,138 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT DISTINCT ON (user_exercise_state_id)\n  id,\n  user_exercise_state_id,\n  created_at,\n  updated_at,\n  deleted_at,\n  score_given,\n  teacher_decision,\n  justification,\n  hidden\nFROM teacher_grading_decisions\nWHERE user_exercise_state_id IN (\n    SELECT user_exercise_states.id\n    FROM user_exercise_states\n    WHERE user_exercise_states.user_id = $1\n      AND user_exercise_states.course_id = $2\n      AND user_exercise_states.deleted_at IS NULL\n  )\n  AND deleted_at IS NULL\n  ORDER BY user_exercise_state_id, created_at DESC\n      ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_exercise_state_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "user_exercise_state_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "score_given",
+        "type_info": "Float4",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "score_given"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "teacher_decision",
+        "type_info": {
+          "Custom": {
+            "name": "teacher_decision_type",
+            "kind": {
+              "Enum": [
+                "full-points",
+                "zero-points",
+                "custom-points",
+                "suspected-plagiarism",
+                "reject-and-reset"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "teacher_decision"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "justification",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "justification"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "hidden",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "teacher_grading_decisions",
+            "name": "hidden"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "7e3d93686dfe68d5255f09654ea77bdb34a355185a074f729c1f2e2088630744"
+}

@@ -6,37 +6,79 @@
       {
         "ordinal": 0,
         "name": "jti_hash: _",
-        "type_info": "Bytea"
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "jti_hash"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "seen_at: _",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "seen_at"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "client_id?",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "client_id"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "jkt?",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "jkt"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "htm?",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "htm"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "htu?",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "htu"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "iat?",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_dpop_proofs",
+            "name": "iat"
+          }
+        }
       }
     ],
     "parameters": {

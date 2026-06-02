@@ -6,7 +6,8 @@
       {
         "ordinal": 0,
         "name": "oldest_date",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": "Expression"
       }
     ],
     "parameters": {

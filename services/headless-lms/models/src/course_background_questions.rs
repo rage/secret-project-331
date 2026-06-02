@@ -49,7 +49,7 @@ SELECT id,
   course_instance_id,
   course_id,
   question_text,
-  question_type as "question_type: CourseBackgroundQuestionType"
+  question_type
 FROM course_background_questions
 WHERE deleted_at IS NULL
   AND (

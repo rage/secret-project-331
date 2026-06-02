@@ -301,8 +301,8 @@ RETURNING
   updated_at,
   created_by_user_id,
   name,
-  status AS "status: CourseDesignerPlanStatus",
-  active_stage AS "active_stage: CourseDesignerStage",
+  status,
+  active_stage,
   last_weekly_stage_email_sent_at
 "#,
         user_id,

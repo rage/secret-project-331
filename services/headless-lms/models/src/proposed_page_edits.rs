@@ -210,7 +210,7 @@ SELECT proposed_page_edits.id AS "page_proposal_id!",
   changed_text,
   proposed_page_edits.pending as "pending!",
   block_attribute,
-  proposed_block_edits.status as "block_proposal_status: ProposalStatus",
+  proposed_block_edits.status AS "block_proposal_status",
   proposed_page_edits.created_at as "created_at!",
   pages.title as "page_title!",
   pages.url_path as "page_url_path!"
@@ -537,7 +537,7 @@ WHERE ppe.id = $1
 pub async fn update_page_edit_status(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     let block_proposals = sqlx::query!(
         r#"
-SELECT status AS "status: ProposalStatus"
+SELECT status
 FROM proposed_block_edits
 WHERE proposal_id = $1
 AND deleted_at IS NULL

@@ -92,7 +92,7 @@ SELECT id,
   peer_or_self_review_config_id,
   order_number,
   question,
-  question_type AS "question_type: _",
+  question_type,
   answer_required,
   weight
 FROM peer_or_self_review_questions
@@ -120,7 +120,7 @@ SELECT id,
   peer_or_self_review_config_id,
   order_number,
   question,
-  question_type AS "question_type: _",
+  question_type,
   answer_required,
   weight
 FROM peer_or_self_review_questions
@@ -150,7 +150,7 @@ SELECT id,
     peer_or_self_review_config_id,
     order_number,
     question,
-    question_type AS "question_type: _",
+    question_type,
     answer_required,
     weight
 FROM peer_or_self_review_questions
@@ -178,7 +178,7 @@ SELECT id,
     peer_or_self_review_config_id,
     order_number,
     question,
-    question_type AS "question_type: _",
+    question_type,
     answer_required,
     weight
 FROM peer_or_self_review_questions
@@ -215,7 +215,7 @@ SELECT prq.id as id,
   prq.peer_or_self_review_config_id as peer_or_self_review_config_id,
   prq.order_number as order_number,
   prq.question as question,
-  prq.question_type AS "question_type: _",
+  prq.question_type,
   prq.answer_required as answer_required,
   prq.weight
 from pages p
@@ -268,7 +268,7 @@ pub async fn get_course_default_cms_peer_or_self_review_questions(
 SELECT id,
   peer_or_self_review_config_id,
   order_number,
-  question_type AS "question_type: _",
+  question_type,
   question,
   answer_required,
   weight
@@ -328,7 +328,7 @@ SELECT id,
   peer_or_self_review_config_id,
   order_number,
   question,
-  question_type AS "question_type: _",
+  question_type,
   answer_required,
   weight
 from peer_or_self_review_questions

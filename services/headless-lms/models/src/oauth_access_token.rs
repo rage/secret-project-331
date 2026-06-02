@@ -127,7 +127,7 @@ impl OAuthAccessToken {
               audience,
               jti,
               dpop_jkt,
-              token_type    as "token_type: TokenType",
+              token_type,
               metadata,
               expires_at,
               created_at

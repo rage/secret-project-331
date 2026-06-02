@@ -6,12 +6,24 @@
       {
         "ordinal": 0,
         "name": "tag_name",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "tag_name"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "tag_id",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "mailchimp_course_tags",
+            "name": "tag_id"
+          }
+        }
       }
     ],
     "parameters": {

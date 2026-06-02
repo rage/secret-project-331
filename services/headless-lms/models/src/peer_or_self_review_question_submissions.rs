@@ -183,7 +183,7 @@ SELECT answers.id AS peer_review_question_submission_id,
   questions.id AS peer_or_self_review_question_id,
   questions.order_number,
   questions.question,
-  questions.question_type AS "question_type: PeerOrSelfReviewQuestionType",
+  questions.question_type,
   questions.answer_required,
   submissions.id AS peer_or_self_review_submission_id
 FROM peer_or_self_review_question_submissions answers
@@ -243,7 +243,7 @@ SELECT answers.id AS peer_review_question_submission_id,
   questions.id AS peer_or_self_review_question_id,
   questions.order_number,
   questions.question,
-  questions.question_type AS "question_type: PeerOrSelfReviewQuestionType",
+  questions.question_type,
   questions.answer_required,
   submissions.id AS peer_or_self_review_submission_id
 FROM peer_or_self_review_question_submissions answers

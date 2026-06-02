@@ -1,0 +1,174 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT id, created_at, updated_at,\n  stage,\n  status,\n  planned_starts_on,\n  planned_ends_on,\n  actual_started_at,\n  actual_completed_at,\n  workspace_data\nFROM course_designer_plan_stages\nWHERE course_designer_plan_id = $1 AND stage = $2 AND deleted_at IS NULL\n",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "stage",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "stage"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "status",
+        "type_info": {
+          "Custom": {
+            "name": "course_designer_plan_stage_status",
+            "kind": {
+              "Enum": [
+                "not_started",
+                "in_progress",
+                "completed"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "status"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "planned_starts_on",
+        "type_info": "Date",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "planned_starts_on"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "planned_ends_on",
+        "type_info": "Date",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "planned_ends_on"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "actual_started_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "actual_started_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "actual_completed_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "actual_completed_at"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "workspace_data",
+        "type_info": "Jsonb",
+        "origin": {
+          "Table": {
+            "table": "course_designer_plan_stages",
+            "name": "workspace_data"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        {
+          "Custom": {
+            "name": "course_designer_stage",
+            "kind": {
+              "Enum": [
+                "analysis",
+                "design",
+                "development",
+                "implementation",
+                "evaluation"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "4933a24de97a499ebba0e9bbbbab08cb7fcd8b799c8b4cf9ccf625b887e15f0b"
+}

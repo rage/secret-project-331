@@ -57,7 +57,7 @@ SELECT id,
   exercise_slide_id,
   user_exercise_state_id,
   score_given,
-  grading_progress AS "grading_progress: _"
+  grading_progress
 FROM user_exercise_slide_states
 WHERE id = $1
   AND deleted_at IS NULL
@@ -84,7 +84,7 @@ SELECT id,
   exercise_slide_id,
   user_exercise_state_id,
   score_given,
-  grading_progress AS "grading_progress: _"
+  grading_progress
 FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND exercise_slide_id = $2
@@ -112,7 +112,7 @@ SELECT id,
   exercise_slide_id,
   user_exercise_state_id,
   score_given,
-  grading_progress AS "grading_progress: _"
+  grading_progress
 FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
@@ -152,7 +152,7 @@ pub async fn get_grading_summary_by_user_exercise_state_id(
     let res = sqlx::query!(
         r#"
 SELECT score_given,
-  grading_progress AS "grading_progress: GradingProgress"
+  grading_progress
 FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL

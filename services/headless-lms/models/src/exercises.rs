@@ -346,7 +346,7 @@ pub async fn get_exercise_submissions_and_status_by_course_instance_id(
         e.name as exercise_name,
         e.score_maximum,
         ues.score_given,
-        tgd.teacher_decision as "teacher_decision: _",
+        tgd.teacher_decision,
         ess.id as submission_id,
         ess.updated_at
         FROM exercises e

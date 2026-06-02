@@ -157,7 +157,7 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
         "#,
         exercise_slide_submission.exercise_slide_id,
@@ -199,7 +199,7 @@ RETURNING id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
         "#,
         id,
@@ -228,7 +228,7 @@ course_id,
 exam_id,
 exercise_id,
 user_id,
-user_points_update_strategy AS "user_points_update_strategy: _",
+user_points_update_strategy,
 flag_count
 FROM exercise_slide_submissions
 WHERE id = $1
@@ -259,7 +259,7 @@ SELECT ess.id,
   ess.exam_id,
   ess.exercise_id,
   ess.user_id,
-  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.user_points_update_strategy,
   ess.flag_count
 FROM exercise_slide_submissions ess
   JOIN exercises e ON e.id = ess.exercise_id
@@ -324,7 +324,7 @@ SELECT DISTINCT ON (user_id)
   ess.exam_id,
   ess.exercise_id,
   ess.user_id,
-  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.user_points_update_strategy,
   ess.flag_count
 FROM exercise_slide_submissions AS ess
 JOIN courses AS c
@@ -365,7 +365,7 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
@@ -399,7 +399,7 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE user_id = $1
@@ -432,7 +432,7 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE user_id = $1
@@ -465,7 +465,7 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
@@ -546,7 +546,7 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
@@ -617,7 +617,7 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         exam_id,
         exercise_id,
         user_id,
-        user_points_update_strategy AS "user_points_update_strategy: _",
+        user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
@@ -830,7 +830,7 @@ SELECT id,
   exam_id,
   exercise_id,
   user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
@@ -859,7 +859,7 @@ pub async fn get_all_answers_requiring_attention(
         us_state.user_id,
         us_state.exercise_id,
         us_state.score_given,
-        us_state.grading_progress as "grading_progress: _",
+        us_state.grading_progress,
         t_submission.data_json,
         s_submission.created_at,
         s_submission.updated_at,

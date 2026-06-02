@@ -6,27 +6,57 @@
       {
         "ordinal": 0,
         "name": "user_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "user_passwords",
+            "name": "user_id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "password_hash",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "user_passwords",
+            "name": "password_hash"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_passwords",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_passwords",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "user_passwords",
+            "name": "deleted_at"
+          }
+        }
       }
     ],
     "parameters": {

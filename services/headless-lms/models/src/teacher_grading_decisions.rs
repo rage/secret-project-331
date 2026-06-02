@@ -65,7 +65,7 @@ RETURNING id,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden;
       "#,
@@ -114,7 +114,7 @@ RETURNING id,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden;
       "#,
@@ -144,7 +144,7 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -173,7 +173,7 @@ SELECT DISTINCT ON (user_exercise_state_id) id,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -210,7 +210,7 @@ SELECT DISTINCT ON (user_exercise_state_id)
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -247,7 +247,7 @@ SELECT DISTINCT ON (user_exercise_state_id)
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -286,7 +286,7 @@ pub async fn update_teacher_grading_decision_hidden_field(
           updated_at,
           deleted_at,
           score_given,
-          teacher_decision AS "teacher_decision: _",
+          teacher_decision,
           justification,
           hidden;
               "#,
@@ -311,7 +311,7 @@ SELECT id,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions

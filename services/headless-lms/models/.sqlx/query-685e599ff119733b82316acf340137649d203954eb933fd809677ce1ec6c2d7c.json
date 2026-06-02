@@ -6,7 +6,13 @@
       {
         "ordinal": 0,
         "name": "email_verification_token",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "email_verification_tokens",
+            "name": "email_verification_token"
+          }
+        }
       }
     ],
     "parameters": {

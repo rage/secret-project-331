@@ -377,7 +377,7 @@ pub struct PageChapterAndCourseInformation {
     pub course_slug: Option<String>,
     pub chapter_front_page_id: Option<Uuid>,
     pub chapter_front_page_url_path: Option<String>,
-    pub organization_slug: String,
+    pub organization_slug: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
@@ -2067,7 +2067,7 @@ SELECT id as "id!",
   exercise_id,
   peer_reviews_to_give as "peer_reviews_to_give!",
   peer_reviews_to_receive as "peer_reviews_to_receive!",
-  processing_strategy AS "processing_strategy!: _",
+  processing_strategy AS "processing_strategy!",
   accepting_threshold "accepting_threshold!",
   points_are_all_or_nothing "points_are_all_or_nothing!",
   reset_answer_if_zero_points_from_review,
@@ -2194,7 +2194,7 @@ SELECT id AS "id!",
   order_number AS "order_number!",
   peer_or_self_review_config_id AS "peer_or_self_review_config_id!",
   question AS "question!",
-  question_type AS "question_type!: _",
+  question_type AS "question_type!",
   weight AS "weight!"
 FROM peer_or_self_review_questions
 WHERE id IN (
@@ -3578,7 +3578,7 @@ SELECT chapters.name as "chapter_name?",
   courses.slug as "course_slug?",
   chapters.front_page_id as "chapter_front_page_id?",
   p2.url_path as "chapter_front_page_url_path?",
-  organizations.slug as organization_slug
+  organizations.slug as "organization_slug?"
 FROM pages
   LEFT JOIN chapters on pages.chapter_id = chapters.id
   LEFT JOIN courses on pages.course_id = courses.id

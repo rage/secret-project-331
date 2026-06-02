@@ -39,7 +39,7 @@ RETURNING id,
   target_user_id,
   course_id,
   chapter_id,
-  status as "status: ChapterLockingStatus",
+  status,
   created_at,
   updated_at,
   deleted_at

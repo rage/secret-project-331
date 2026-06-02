@@ -22,8 +22,8 @@ SELECT
   p.updated_at,
   p.created_by_user_id,
   p.name,
-  p.status AS "status: CourseDesignerPlanStatus",
-  p.active_stage AS "active_stage: CourseDesignerStage",
+  p.status,
+  p.active_stage,
   p.last_weekly_stage_email_sent_at,
   COUNT(DISTINCT members.user_id)::BIGINT AS "member_count!",
   COUNT(DISTINCT stages.stage)::BIGINT AS "stage_count!"
@@ -64,8 +64,8 @@ SELECT
   p.updated_at,
   p.created_by_user_id,
   p.name,
-  p.status AS "status: CourseDesignerPlanStatus",
-  p.active_stage AS "active_stage: CourseDesignerStage",
+  p.status,
+  p.active_stage,
   p.last_weekly_stage_email_sent_at
 FROM course_designer_plans p
 JOIN course_designer_plan_members m
@@ -127,8 +127,8 @@ SELECT
   stages.id,
   stages.created_at,
   stages.updated_at,
-  stages.stage AS "stage: CourseDesignerStage",
-  stages.status AS "status: CourseDesignerPlanStageStatus",
+  stages.stage,
+  stages.status,
   stages.planned_starts_on,
   stages.planned_ends_on,
   stages.actual_started_at,
@@ -461,8 +461,8 @@ SELECT
   p.updated_at,
   p.created_by_user_id,
   p.name,
-  p.status AS "status: CourseDesignerPlanStatus",
-  p.active_stage AS "active_stage: CourseDesignerStage",
+  p.status,
+  p.active_stage,
   p.last_weekly_stage_email_sent_at
 FROM course_designer_plans p
 JOIN course_designer_plan_members m ON m.course_designer_plan_id = p.id
@@ -734,8 +734,8 @@ RETURNING
   updated_at,
   created_by_user_id,
   name,
-  status AS "status: CourseDesignerPlanStatus",
-  active_stage AS "active_stage: CourseDesignerStage",
+  status,
+  active_stage,
   last_weekly_stage_email_sent_at
 "#,
         plan_id,
@@ -822,8 +822,8 @@ pub async fn extend_stage_for_user(
         CourseDesignerPlanStage,
         r#"
 SELECT id, created_at, updated_at,
-  stage AS "stage: CourseDesignerStage",
-  status AS "status: CourseDesignerPlanStageStatus",
+  stage,
+  status,
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
@@ -861,8 +861,8 @@ WHERE id = $1 AND deleted_at IS NULL
         CourseDesignerPlanStage,
         r#"
 SELECT id, created_at, updated_at,
-  stage AS "stage: CourseDesignerStage",
-  status AS "status: CourseDesignerPlanStageStatus",
+  stage,
+  status,
   planned_starts_on,
   planned_ends_on,
   actual_started_at,
@@ -1114,8 +1114,8 @@ SELECT
   id,
   created_at,
   updated_at,
-  stage AS "stage: CourseDesignerStage",
-  status AS "status: CourseDesignerPlanStageStatus",
+  stage,
+  status,
   planned_starts_on,
   planned_ends_on,
   actual_started_at,

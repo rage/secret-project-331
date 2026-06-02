@@ -1,0 +1,361 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    INSERT INTO oauth_clients (\n        client_id,\n        client_name,\n        application_type,\n        token_endpoint_auth_method,\n        client_secret,\n        client_secret_expires_at,\n        redirect_uris,\n        post_logout_redirect_uris,\n        allowed_grant_types,\n        scopes,\n        require_pkce,\n        pkce_methods_allowed,\n        allowed_origins,\n        bearer_allowed\n    )\n    VALUES (\n        $1, $2, $3, $4,\n        $5, $6,\n        $7, COALESCE($8, '{}'::text[]),     -- << cast needed for text[]\n        $9, $10,\n        $11, $12,\n        $13, $14\n    )\n    RETURNING\n      id,\n      client_id,\n      client_name,\n      application_type,\n      token_endpoint_auth_method,\n      client_secret AS \"client_secret: _\",\n      client_secret_expires_at,\n      redirect_uris,\n      post_logout_redirect_uris,\n      allowed_grant_types AS \"allowed_grant_types: _\",\n      scopes,\n      require_pkce,\n      pkce_methods_allowed AS \"pkce_methods_allowed: _\",\n      allowed_origins,\n      bearer_allowed,\n      created_at,\n      updated_at,\n      deleted_at\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "client_id",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "client_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "client_name",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "client_name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "application_type",
+        "type_info": {
+          "Custom": {
+            "name": "application_type",
+            "kind": {
+              "Enum": [
+                "web",
+                "native",
+                "spa",
+                "service"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "application_type"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "token_endpoint_auth_method",
+        "type_info": {
+          "Custom": {
+            "name": "token_endpoint_auth_method",
+            "kind": {
+              "Enum": [
+                "none",
+                "client_secret_post"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "token_endpoint_auth_method"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "client_secret: _",
+        "type_info": "Bytea",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "client_secret"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "client_secret_expires_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "client_secret_expires_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "redirect_uris",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "redirect_uris"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "post_logout_redirect_uris",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "post_logout_redirect_uris"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "allowed_grant_types: _",
+        "type_info": {
+          "Custom": {
+            "name": "grant_type[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "grant_type",
+                  "kind": {
+                    "Enum": [
+                      "authorization_code",
+                      "refresh_token",
+                      "client_credentials",
+                      "device_code"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "allowed_grant_types"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "scopes",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "scopes"
+          }
+        }
+      },
+      {
+        "ordinal": 11,
+        "name": "require_pkce",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "require_pkce"
+          }
+        }
+      },
+      {
+        "ordinal": 12,
+        "name": "pkce_methods_allowed: _",
+        "type_info": {
+          "Custom": {
+            "name": "pkce_method[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "pkce_method",
+                  "kind": {
+                    "Enum": [
+                      "plain",
+                      "S256"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "pkce_methods_allowed"
+          }
+        }
+      },
+      {
+        "ordinal": 13,
+        "name": "allowed_origins",
+        "type_info": "TextArray",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "allowed_origins"
+          }
+        }
+      },
+      {
+        "ordinal": 14,
+        "name": "bearer_allowed",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "bearer_allowed"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 17,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "oauth_clients",
+            "name": "deleted_at"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Text",
+        {
+          "Custom": {
+            "name": "application_type",
+            "kind": {
+              "Enum": [
+                "web",
+                "native",
+                "spa",
+                "service"
+              ]
+            }
+          }
+        },
+        {
+          "Custom": {
+            "name": "token_endpoint_auth_method",
+            "kind": {
+              "Enum": [
+                "none",
+                "client_secret_post"
+              ]
+            }
+          }
+        },
+        "Bytea",
+        "Timestamptz",
+        "TextArray",
+        "TextArray",
+        {
+          "Custom": {
+            "name": "grant_type[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "grant_type",
+                  "kind": {
+                    "Enum": [
+                      "authorization_code",
+                      "refresh_token",
+                      "client_credentials",
+                      "device_code"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TextArray",
+        "Bool",
+        {
+          "Custom": {
+            "name": "pkce_method[]",
+            "kind": {
+              "Array": {
+                "Custom": {
+                  "name": "pkce_method",
+                  "kind": {
+                    "Enum": [
+                      "plain",
+                      "S256"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "TextArray",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      true
+    ]
+  },
+  "hash": "034417e5a281a9400f7205d2e6ecf43bb34f2d06cd7811baba444d5ab6782cda"
+}

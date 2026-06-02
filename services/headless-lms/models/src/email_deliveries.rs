@@ -137,7 +137,7 @@ SELECT
     ud.email AS to,
     et.subject AS subject,
     et.content AS body,
-    et.email_template_type AS "template_type: EmailTemplateType",
+    et.email_template_type AS "template_type",
     c.retry_count AS retry_count,
     c.next_retry_at AS next_retry_at,
     c.retryable AS retryable,

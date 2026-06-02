@@ -58,7 +58,7 @@ RETURNING
     updated_at,
     deleted_at,
     model_id,
-    task as "task: ApplicationTask",
+    task,
     context_utilization
         "#,
         input.model_id,
@@ -94,7 +94,7 @@ pub async fn get_for_task(
         r#"
 SELECT
     a.id,
-    a.task as "task: ApplicationTask",
+    a.task,
     a.context_utilization,
     model.model,
     model.thinking,

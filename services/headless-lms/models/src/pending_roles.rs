@@ -86,7 +86,7 @@ pub async fn get_all(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult
             sqlx::query_as!(
                 PendingRole,
                 r#"
-SELECT id, user_email, expires_at, role AS "role!: UserRole" FROM pending_roles
+SELECT id, user_email, expires_at, role AS "role!" FROM pending_roles
 WHERE course_id = $1
 AND deleted_at IS NULL
 AND expires_at > NOW()
@@ -100,7 +100,7 @@ AND expires_at > NOW()
             sqlx::query_as!(
                 PendingRole,
                 r#"
-SELECT id, user_email, expires_at, role AS "role!: UserRole" FROM pending_roles
+SELECT id, user_email, expires_at, role AS "role!" FROM pending_roles
 WHERE course_instance_id = $1
 AND deleted_at IS NULL
 AND expires_at > NOW()

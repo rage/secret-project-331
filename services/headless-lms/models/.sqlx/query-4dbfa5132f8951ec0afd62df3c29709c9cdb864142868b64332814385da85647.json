@@ -6,7 +6,13 @@
       {
         "ordinal": 0,
         "name": "is_archived",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "suspected_cheaters",
+            "name": "is_archived"
+          }
+        }
       }
     ],
     "parameters": {

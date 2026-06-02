@@ -196,8 +196,8 @@ SELECT id,
   updated_at,
   regrading_started_at,
   regrading_completed_at,
-  total_grading_progress AS "total_grading_progress: _",
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  total_grading_progress,
+  user_points_update_strategy,
   user_id
 FROM regradings
 WHERE deleted_at IS NULL
@@ -234,8 +234,8 @@ SELECT id,
   regrading_completed_at,
   created_at,
   updated_at,
-  total_grading_progress AS "total_grading_progress: _",
-  user_points_update_strategy AS "user_points_update_strategy: _",
+  total_grading_progress,
+  user_points_update_strategy,
   user_id
 FROM regradings
 WHERE id = $1

@@ -60,6 +60,7 @@ sha2 = "0.11.0"
 sqlx = { version = "0.9.0", default-features = false, features = [
   "postgres",
   "macros",
+  "sqlx-toml",
   "derive",
   "migrate",
   "runtime-tokio",

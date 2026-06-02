@@ -186,8 +186,8 @@ SELECT
     use_tools,
     default_chatbot,
     suggest_next_messages,
-    verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    verbosity,
+    reasoning_effort,
     initial_suggested_messages
 FROM chatbot_configurations
 WHERE id = $1
@@ -264,8 +264,8 @@ RETURNING
     use_tools,
     default_chatbot,
     suggest_next_messages,
-    verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    verbosity,
+    reasoning_effort,
     initial_suggested_messages
         "#,
         pkey_policy.into_uuid(),
@@ -361,8 +361,8 @@ RETURNING
     use_semantic_reranking,
     default_chatbot,
     suggest_next_messages,
-    verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    verbosity,
+    reasoning_effort,
     use_tools,
     initial_suggested_messages
 "#,
@@ -446,8 +446,8 @@ SELECT
     use_tools,
     default_chatbot,
     suggest_next_messages,
-    verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    verbosity,
+    reasoning_effort,
     initial_suggested_messages
 FROM chatbot_configurations
 WHERE course_id = $1
@@ -494,8 +494,8 @@ SELECT
     use_tools,
     default_chatbot,
     suggest_next_messages,
-    verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    verbosity,
+    reasoning_effort,
     initial_suggested_messages
 FROM chatbot_configurations
 WHERE course_id = $1
@@ -543,8 +543,8 @@ SELECT
     use_tools,
     default_chatbot,
     suggest_next_messages,
-    verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    verbosity,
+    reasoning_effort,
     initial_suggested_messages
 FROM chatbot_configurations
 WHERE maintain_azure_search_index = true
@@ -612,8 +612,8 @@ RETURNING
     use_tools,
     default_chatbot,
     suggest_next_messages,
-    verbosity as "verbosity: VerbosityLevel",
-    reasoning_effort as "reasoning_effort: ReasoningEffortLevel",
+    verbosity,
+    reasoning_effort,
     initial_suggested_messages
 "#,
         chatbot_configuration_id,

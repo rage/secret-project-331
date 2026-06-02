@@ -119,7 +119,7 @@ impl OAuthUserClientScopes {
               COALESCE(
                 array_agg(DISTINCT s.scope ORDER BY s.scope) FILTER (WHERE s.scope IS NOT NULL),
                 '{}'::text[]
-              ) AS "scopes!: Vec<String>"
+              ) AS "scopes!"
             FROM oauth_user_client_scopes ucs
             JOIN oauth_clients c ON c.id = ucs.client_id
             LEFT JOIN LATERAL unnest(ucs.scopes) AS s(scope) ON TRUE

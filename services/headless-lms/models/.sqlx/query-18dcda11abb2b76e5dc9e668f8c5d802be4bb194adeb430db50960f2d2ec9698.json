@@ -6,37 +6,74 @@
       {
         "ordinal": 0,
         "name": "first_name?",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "first_name"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "last_name?",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "user_details",
+            "name": "last_name"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "module_name?",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_modules",
+            "name": "name"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "grade?",
-        "type_info": "Int4"
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "grade"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "passed?",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "passed"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "needs_to_be_reviewed?",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "course_module_completions",
+            "name": "needs_to_be_reviewed"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "is_registered?",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": "Expression"
       }
     ],
     "parameters": {
@@ -49,8 +86,8 @@
       true,
       true,
       true,
-      false,
-      false,
+      true,
+      true,
       null
     ]
   },

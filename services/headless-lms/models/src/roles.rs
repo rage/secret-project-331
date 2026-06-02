@@ -106,7 +106,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role!: UserRole"
+  role AS "role!"
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -125,7 +125,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -145,7 +145,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -165,7 +165,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -185,7 +185,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -389,7 +389,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE user_id = $1
@@ -415,7 +415,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE user_id = $1
@@ -454,7 +454,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE (
@@ -502,7 +502,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE (

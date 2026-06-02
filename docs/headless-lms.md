@@ -10,7 +10,7 @@ Creating new SQL queries in headless-lms using SQLx requires running `bin/sqlx-p
 
 ### SQLx data types
 
-https://docs.rs/sqlx/0.5.5/sqlx/postgres/types/index.html
+https://docs.rs/sqlx/latest/sqlx/postgres/types/index.html
 
 ### New migrations
 
@@ -56,17 +56,14 @@ If you want to reset the database, run `bin/sqlx-database-reset` followed by `bi
 
 ### Using postgres enums in SQLx queries
 
-SQLx isn't able to automatically use postgres enums in its queries; it needs a type hint. For example, given the following postgres enum
+Postgres enum columns are mapped to Rust enums with `#[derive(sqlx::Type)]` and `#[sqlx(type_name = "...")]`. Global mappings from Postgres type names to those Rust types live in [`services/headless-lms/models/sqlx.toml`](services/headless-lms/models/sqlx.toml) under `[macros.type-overrides]`. That lets `query!` / `query_as!` use enums without per-column type hints in most queries, including `SELECT *`.
 
-```postgres
-CREATE TYPE user_role AS ENUM ('admin', 'assistant', 'teacher', 'reviewer');
-```
+When you add a new Postgres enum, define the Rust enum and add an entry to `sqlx.toml`, then run `bin/sqlx-prepare` from the repository root (requires `services/headless-lms/models/.env`; copy from `.env.example`).
 
-and corresponding Rust enum
+Example Rust enum:
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -76,28 +73,22 @@ pub enum UserRole {
 }
 ```
 
-you could use `sqlx::query!` like this
+Example `sqlx.toml` entry:
 
-```rust
-let role: UserRole = sqlx::query!(r#"SELECT role AS "role: UserRole" FROM roles"#)
-    .fetch_one(&mut connection) //               ^^^^^^^^^^^^^^^^^^^
-    .await?
-    .role;
+```toml
+[macros.type-overrides]
+'user_role' = "crate::roles::UserRole"
 ```
 
-The same syntax can be used with `sqlx::query_as!`
+You can then write:
 
 ```rust
-    let roles = sqlx::query_as!(
-        Role,
-        r#"SELECT organization_id, course_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id
-        //                                         ^^^^^^^^^^^^^^^^^^^
-    )
-    .fetch_all(&mut connection)
+let role = sqlx::query_scalar!(r#"SELECT role FROM roles WHERE user_id = $1"#, user_id)
+    .fetch_one(&mut connection)
     .await?;
 ```
 
-Here, `Role` is a struct with various fields, including a `role: UserRole` field.
+For one-off cases (custom types, enum arrays, renamed columns), the older syntax still works: `column AS "alias: MyType"` or `column AS "column: _"`.
 
 ### Analyzing SQL queries
 
@@ -287,7 +278,7 @@ The easiest way to get example response data is to write a request in a `request
 
 ## Sqlx
 
-Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/0.5.5/sqlx/macro.query.html#type-overrides-bind-parameters-postgres-only
+Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/latest/sqlx/macro.query.html#type-overrides-bind-parameters-postgres-only
 
 ### Formatting inline SQL in Visual Studio Code
 

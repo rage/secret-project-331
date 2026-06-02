@@ -11,10 +11,12 @@ Notes:
     to do manual updates and press Enter to continue so the script can commit
   * Runs `pnpm audit --fix=update` and `pnpm install` non-fatally, then commits lockfile changes if present
   * Updates Rust deps in services/headless-lms (upgrade + update), committing each step if changes exist
+  * Pass --resume-from-headless-lms to skip Node/pnpm steps and run only the headless-lms Rust updates
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import shlex
@@ -301,31 +303,22 @@ def build_node_targets(repo_root: Path) -> list[tuple[Path, str]]:
     return [*base_targets, *missing_targets]
 
 
-def main() -> int:
-    script_dir = Path(__file__).resolve().parent
-    repo_root = (script_dir / "..").resolve()
+def parse_args() -> argparse.Namespace:
+    """Parse command-line arguments for the dependency update script."""
+    parser = argparse.ArgumentParser(
+        description="Update Node and Rust dependencies (part 1).",
+    )
+    parser.add_argument(
+        "-r",
+        "--resume-from-headless-lms",
+        action="store_true",
+        help="Skip Node/pnpm updates and run only services/headless-lms Rust updates.",
+    )
+    return parser.parse_args()
 
-    run(["pwd"], check=False)
-    run(["bash", "-lc", f"cd {shlex.quote(str(repo_root))} && pwd"], check=False)
-    os.chdir(repo_root)
 
-    if git_has_changes(repo_root):
-        print(
-            "You have uncommitted changes. Please commit them before running this script."
-        )
-        return 1
-
-    run(["pnpm", "install"])
-    run([str(repo_root / "bin" / "pnpm-install-all")])
-
-    node_targets = build_node_targets(repo_root)
-
-    for folder, name in node_targets:
-        if folder.exists():
-            update_node_deps(folder, name)
-        else:
-            print(f"{BLUE}Skipping {name} (missing at {folder}){RESET}")
-
+def update_headless_lms(repo_root: Path) -> None:
+    """Upgrade and update Rust dependencies in services/headless-lms."""
     headless_lms = repo_root / "services" / "headless-lms"
     if headless_lms.exists():
         with pushd(headless_lms):
@@ -352,6 +345,40 @@ def main() -> int:
                 run(["git", "commit", "-m", "Cargo update", "--no-verify"])
     else:
         print(f"{BLUE}Skipping Rust update (missing at {headless_lms}){RESET}")
+
+
+def main() -> int:
+    args = parse_args()
+    script_dir = Path(__file__).resolve().parent
+    repo_root = (script_dir / "..").resolve()
+
+    run(["pwd"], check=False)
+    run(["bash", "-lc", f"cd {shlex.quote(str(repo_root))} && pwd"], check=False)
+    os.chdir(repo_root)
+
+    if git_has_changes(repo_root):
+        print(
+            "You have uncommitted changes. Please commit them before running this script."
+        )
+        return 1
+
+    if args.resume_from_headless_lms:
+        print(
+            f"{BLUE}Resuming from headless-lms: skipping Node/pnpm dependency updates{RESET}"
+        )
+    else:
+        run(["pnpm", "install"])
+        run([str(repo_root / "bin" / "pnpm-install-all")])
+
+        node_targets = build_node_targets(repo_root)
+
+        for folder, name in node_targets:
+            if folder.exists():
+                update_node_deps(folder, name)
+            else:
+                print(f"{BLUE}Skipping {name} (missing at {folder}){RESET}")
+
+    update_headless_lms(repo_root)
 
     print(f"{GREEN}{BOLD}All done!{RESET}")
     return 0

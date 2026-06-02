@@ -4,14 +4,14 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "license": "Apache-2.0",
+  "private": true,
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.16.0",
-      "onFail": "download"
+      "onFail": "download",
+      "version": "24.16.0"
     }
   },
-  "private": true,
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },

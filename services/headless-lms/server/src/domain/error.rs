@@ -444,10 +444,7 @@ impl error::ResponseError for ControllerError {
             metadata.map(|ErrorMetadata::BlockId(id)| serde_json::json!({ "block_id": id }));
         let (error_type, message_key) = self.error_type_and_message_key();
         let errors = self.validation_issues();
-        let message = match self.error_type {
-            ControllerErrorType::InternalServerError => None,
-            _ => Some(self.message.clone()),
-        };
+        let message = Some(self.message.clone());
 
         let error_response = ApiErrorResponse {
             error_type: Some(error_type.to_string()),
@@ -459,7 +456,8 @@ impl error::ResponseError for ControllerError {
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
-            .body(serde_json::to_string(&error_response).unwrap_or_else(|_| {
+            .body(serde_json::to_string(&error_response).unwrap_or_else(|e| {
+                error!("Error while serialising error response: {e}");
                 r#"{"type":"internal_error","message_key":"internal_error"}"#.to_string()
             }))
     }

@@ -1,0 +1,58 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE chatbot_conversation_message_reasoning\nSET deleted_at = NOW()\nWHERE id = $1\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "chatbot_conversation_message_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "summary",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "response_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "hash": "78dd0f61529b6c663bf4238ab900e22b20389cc416449368fa5010c38eee5ff5"
+}

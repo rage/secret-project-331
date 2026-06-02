@@ -19,7 +19,7 @@ test("Exercise list works", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "exercise-list-view",
-
+    scrollToYCoordinate: 0,
     waitForTheseToBeVisibleAndStable: [page.getByText("Exercises in this course")],
   })
 })

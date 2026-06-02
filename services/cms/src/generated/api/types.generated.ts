@@ -31,15 +31,13 @@ export type ChatbotConfiguration = {
   initial_message: string
   initial_suggested_messages?: Array<string> | null
   maintain_azure_search_index: boolean
-  max_completion_tokens: number
+  max_output_tokens: number
   model_id: string
   presence_penalty: number
   prompt: string
   reasoning_effort: ReasoningEffortLevel
-  response_max_tokens: number
   suggest_next_messages: boolean
   temperature: number
-  thinking_model: boolean
   top_p: number
   updated_at: string
   use_azure_search: boolean
@@ -428,7 +426,7 @@ export type PeerReviewProcessingStrategy =
   | "AutomaticallyGradeOrManualReviewByAverage"
   | "ManualReviewEverything"
 
-export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
 export type RepositoryExercise = {
   checksum: Array<number>

@@ -1,5 +1,5 @@
 # This image is used in skaffold.production.yaml to create a slim image that is used in production
-FROM eu.gcr.io/moocfi-public/project-331-node-cache:latest as builder
+FROM eu.gcr.io/moocfi-public/project-331-node-cache:latest AS builder
 
 RUN mkdir -p /app && chown -R node /app
 
@@ -19,7 +19,7 @@ ENV NEXT_PUBLIC_BASE_PATH="/quizzes"
 
 RUN pnpm run build
 
-FROM eu.gcr.io/moocfi-public/project-331-node-base:latest as runtime
+FROM eu.gcr.io/moocfi-public/project-331-node-base:latest AS runtime
 
 COPY --from=builder /app/.next/standalone /app
 COPY --from=builder /app/.next/static /app/.next/static

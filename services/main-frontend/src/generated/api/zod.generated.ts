@@ -210,21 +210,6 @@ export const zChapterUpdate = z.object({
   opens_at: z.iso.datetime().nullish(),
 })
 
-export const zChatbotConfigurationModel = z.object({
-  context_size: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  created_at: z.iso.datetime(),
-  default_model: z.boolean(),
-  deleted_at: z.iso.datetime().nullish(),
-  deployment_name: z.string(),
-  id: z.uuid(),
-  model: z.string(),
-  thinking: z.boolean(),
-  updated_at: z.iso.datetime(),
-})
-
 export const zCmsPageExerciseSlide = z.object({
   exercise_id: z.uuid(),
   id: z.uuid(),
@@ -1415,6 +1400,22 @@ export const zMaterialReference = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zModelType = z.enum(["GPTThinking", "GPTNonThinking", "GPTHardThinking", "Mistral"])
+
+export const zChatbotConfigurationModel = z.object({
+  context_size: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  created_at: z.iso.datetime(),
+  default_model: z.boolean(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  model: z.string(),
+  model_type: zModelType,
+  updated_at: z.iso.datetime(),
+})
+
 export const zModifiedModule = z.object({
   completion_policy: zCompletionPolicy,
   completion_registration_link_override: z.string().nullish(),
@@ -2085,7 +2086,7 @@ export const zPageProposal = z.object({
   user_id: z.uuid().nullish(),
 })
 
-export const zReasoningEffortLevel = z.enum(["minimal", "low", "medium", "high"])
+export const zReasoningEffortLevel = z.enum(["none", "minimal", "low", "medium", "high", "xhigh"])
 
 export const zRegradingSubmissionInfo = z.object({
   exercise_task_submission_id: z.uuid(),
@@ -2661,7 +2662,7 @@ export const zChatbotConfiguration = z.object({
   initial_message: z.string(),
   initial_suggested_messages: z.array(z.string()).nullish(),
   maintain_azure_search_index: z.boolean(),
-  max_completion_tokens: z
+  max_output_tokens: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -2669,13 +2670,8 @@ export const zChatbotConfiguration = z.object({
   presence_penalty: z.number(),
   prompt: z.string(),
   reasoning_effort: zReasoningEffortLevel,
-  response_max_tokens: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   suggest_next_messages: z.boolean(),
   temperature: z.number(),
-  thinking_model: z.boolean(),
   top_p: z.number(),
   updated_at: z.iso.datetime(),
   use_azure_search: z.boolean(),
@@ -2703,7 +2699,7 @@ export const zNewChatbotConf = z.object({
   initial_message: z.string(),
   initial_suggested_messages: z.array(z.string()).nullish(),
   maintain_azure_search_index: z.boolean(),
-  max_completion_tokens: z
+  max_output_tokens: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -2711,13 +2707,8 @@ export const zNewChatbotConf = z.object({
   presence_penalty: z.number(),
   prompt: z.string(),
   reasoning_effort: zReasoningEffortLevel,
-  response_max_tokens: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   suggest_next_messages: z.boolean(),
   temperature: z.number(),
-  thinking_model: z.boolean(),
   top_p: z.number(),
   use_azure_search: z.boolean(),
   use_semantic_reranking: z.boolean(),

@@ -13,6 +13,8 @@ pub mod chapter_lock_action_logs;
 pub mod chapters;
 pub mod chatbot_configurations;
 pub mod chatbot_configurations_models;
+pub mod chatbot_conversation_message_messages;
+pub mod chatbot_conversation_message_reasoning;
 pub mod chatbot_conversation_message_tool_calls;
 pub mod chatbot_conversation_message_tool_outputs;
 pub mod chatbot_conversation_messages;

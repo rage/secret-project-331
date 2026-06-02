@@ -1,0 +1,101 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO chatbot_conversation_message_tool_calls (\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind,\n    response_id\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING\n    id,\n    created_at,\n    updated_at,\n    deleted_at,\n    chatbot_conversation_message_id,\n    tool_name,\n    tool_arguments,\n    tool_call_id,\n    tool_kind as \"tool_kind: ToolKind\",\n    response_id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz"
+      },
+      {
+        "ordinal": 4,
+        "name": "chatbot_conversation_message_id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 5,
+        "name": "tool_name",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 6,
+        "name": "tool_arguments",
+        "type_info": "Jsonb"
+      },
+      {
+        "ordinal": 7,
+        "name": "tool_call_id",
+        "type_info": "Varchar"
+      },
+      {
+        "ordinal": 8,
+        "name": "tool_kind: ToolKind",
+        "type_info": {
+          "Custom": {
+            "name": "tool_kind",
+            "kind": {
+              "Enum": [
+                "function",
+                "azure-ai-search"
+              ]
+            }
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "response_id",
+        "type_info": "Text"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Jsonb",
+        "Varchar",
+        {
+          "Custom": {
+            "name": "tool_kind",
+            "kind": {
+              "Enum": [
+                "function",
+                "azure-ai-search"
+              ]
+            }
+          }
+        },
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "03c13a775213dbcbe544d076866d9a8980faf10d59b26746ade3048100a01672"
+}

@@ -95,25 +95,13 @@ export const zChatbotConversationMessageCitation = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zChatbotConversationMessageToolCall = z.object({
+export const zChatbotConversationMessageReasoning = z.object({
+  chatbot_conversation_message_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
-  message_id: z.uuid(),
-  tool_arguments: z.unknown(),
-  tool_call_id: z.string(),
-  tool_name: z.string(),
-  updated_at: z.iso.datetime(),
-})
-
-export const zChatbotConversationMessageToolOutput = z.object({
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  id: z.uuid(),
-  message_id: z.uuid(),
-  tool_call_id: z.string(),
-  tool_name: z.string(),
-  tool_output: z.string(),
+  response_id: z.string(),
+  summary: z.string().nullish(),
   updated_at: z.iso.datetime(),
 })
 
@@ -555,40 +543,22 @@ export const zMaterialReference = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zMessageRole = z.enum(["assistant", "user", "tool", "system"])
+export const zMessageRole = z.enum(["assistant", "user", "developer", "system"])
 
-export const zChatbotConversationMessage = z.object({
-  conversation_id: z.uuid(),
+export const zChatbotConversationMessageMessage = z.object({
+  chatbot_conversation_message_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
-  message: z.string().nullish(),
   message_is_complete: z.boolean(),
   message_role: zMessageRole,
-  order_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  tool_call_fields: z.array(zChatbotConversationMessageToolCall),
-  tool_output: zChatbotConversationMessageToolOutput.nullish(),
+  response_id: z.string().nullish(),
+  text: z.string(),
   updated_at: z.iso.datetime(),
   used_tokens: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-})
-
-/**
- * Should contain all information required to display the chatbot to the user.
- */
-export const zChatbotConversationInfo = z.object({
-  chatbot_name: z.string(),
-  course_name: z.string(),
-  current_conversation: zChatbotConversation.nullish(),
-  current_conversation_message_citations: z.array(zChatbotConversationMessageCitation).nullish(),
-  current_conversation_messages: z.array(zChatbotConversationMessage).nullish(),
-  hide_citations: z.boolean(),
-  suggested_messages: z.array(zChatbotConversationSuggestedMessage).nullish(),
 })
 
 export const zNewCourseBackgroundQuestionAnswer = z.object({
@@ -1052,6 +1022,66 @@ export const zTerm = z.object({
 export const zTermUpdate = z.object({
   definition: z.string(),
   term: z.string(),
+})
+
+export const zToolKind = z.enum(["function", "azure_ai_search"])
+
+export const zChatbotConversationMessageToolCall = z.object({
+  chatbot_conversation_message_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  response_id: z.string(),
+  tool_arguments: z.unknown(),
+  tool_call_id: z.string(),
+  tool_kind: zToolKind,
+  tool_name: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zChatbotConversationMessageToolOutput = z.object({
+  chatbot_conversation_message_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  output: z.string(),
+  response_id: z.string(),
+  tool_call_id: z.string(),
+  tool_kind: zToolKind,
+  updated_at: z.iso.datetime(),
+})
+
+export const zMessage = z.union([
+  zChatbotConversationMessageMessage,
+  zChatbotConversationMessageToolCall,
+  zChatbotConversationMessageToolOutput,
+  zChatbotConversationMessageReasoning,
+])
+
+export const zChatbotConversationMessage = z.object({
+  conversation_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  message: zMessage,
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  updated_at: z.iso.datetime(),
+})
+
+/**
+ * Should contain all information required to display the chatbot to the user.
+ */
+export const zChatbotConversationInfo = z.object({
+  chatbot_name: z.string(),
+  course_name: z.string(),
+  current_conversation: zChatbotConversation.nullish(),
+  current_conversation_message_citations: z.array(zChatbotConversationMessageCitation).nullish(),
+  current_conversation_messages: z.array(zChatbotConversationMessage).nullish(),
+  hide_citations: z.boolean(),
+  suggested_messages: z.array(zChatbotConversationSuggestedMessage).nullish(),
 })
 
 export const zUnreturnedExercise = z.object({

@@ -5,14 +5,14 @@
   "keywords": [],
   "license": "Apache-2.0",
   "main": "src/index.ts",
+  "private": true,
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.16.0",
-      "onFail": "download"
+      "onFail": "download",
+      "version": "24.16.0"
     }
   },
-  "private": true,
   "peerDependencies": {
     "@tanstack/react-query": "^5.0.0",
     "i18next": ">=23.0.0",

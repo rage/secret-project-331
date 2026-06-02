@@ -4,8 +4,8 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": "24.16.0",
-      "onFail": "download"
+      "onFail": "download",
+      "version": "24.16.0"
     }
   },
   "scripts": {

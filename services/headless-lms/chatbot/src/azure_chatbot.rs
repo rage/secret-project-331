@@ -629,7 +629,7 @@ pub async fn make_request_and_stream<'a>(
                                 StreamingError,
                                 format!(
                                     "Error received from the API: {}. Response id: {}",
-                                    error, response_id
+                                    error, response.id
                                 )
                             ))?
                         };

@@ -571,6 +571,7 @@ pub async fn make_request_and_stream<'a>(
     let mut response_id = "".to_string();
     let mut output_item_incoming = false;
     let mut response_created_incoming = false;
+    let mut error_incoming = false;
 
     loop {
         let line_res = pinned_lines.as_mut().peek().await;
@@ -580,8 +581,9 @@ pub async fn make_request_and_stream<'a>(
             }
             Some(Err(e)) => {
                 return Err(anyhow!(
-                    "There was an error streaming response from Azure: {}",
-                    e
+                    "There was an error streaming response from Azure: {}. Response id: {}",
+                    e,
+                    response_id
                 ));
             }
             Some(Result::Ok(line)) => {
@@ -612,10 +614,25 @@ pub async fn make_request_and_stream<'a>(
                                     ResponseStreamType::TextResponse(pinned_lines),
                                 ));
                             }
+                            "response.error" => {
+                                error_incoming = true;
+                            }
                             _ => {}
                         }
                     }
                     Some(ParsedResponseLine::Data(response_output)) => {
+                        if error_incoming
+                            && let Some(response) = &response_output.response
+                            && let Some(error) = &response.error
+                        {
+                            Err(chatbot_err!(
+                                StreamingError,
+                                format!(
+                                    "Error received from the API: {}. Response id: {}",
+                                    error, response.id
+                                )
+                            ))?
+                        };
                         if response_created_incoming {
                             let res = response_output.response.ok_or(chatbot_err!(
                                 DeserializationError,
@@ -641,10 +658,9 @@ pub async fn make_request_and_stream<'a>(
             }
         }
     }
-    Err(Error::msg(
-        "The response received from Azure had an unexpected shape and couldn't be parsed"
-            .to_string(),
-    ))
+    Err(Error::msg(format!(
+        "The response received from Azure ended unexpectedly. Response id: {response_id}"
+    )))
 }
 
 /// For saving output items that are not text messages or function calls, i.e. that

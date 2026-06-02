@@ -317,11 +317,26 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def fix_yanked_constant_time_eq() -> None:
+    """Pin constant_time_eq away from yanked 0.4.3 (pulled in by blake3 1.8.5)."""
+    lockfile = Path("Cargo.lock")
+    if not lockfile.exists():
+        return
+    if 'name = "constant_time_eq"\nversion = "0.4.3"' not in lockfile.read_text():
+        return
+    print(
+        f"{BLUE}Pinning constant_time_eq to 0.4.2 (0.4.3 is yanked on crates.io){RESET}"
+    )
+    run(["cargo", "update", "-p", "constant_time_eq", "--precise", "0.4.2"])
+
+
 def update_headless_lms(repo_root: Path) -> None:
     """Upgrade and update Rust dependencies in services/headless-lms."""
     headless_lms = repo_root / "services" / "headless-lms"
     if headless_lms.exists():
         with pushd(headless_lms):
+            # cargo upgrade --recursive runs `cargo update --offline`, which fails when
+            # blake3 1.8.5 resolves to yanked constant_time_eq 0.4.3.
             run(
                 [
                     "cargo",
@@ -331,15 +346,17 @@ def update_headless_lms(repo_root: Path) -> None:
                     "--pinned",
                     "allow",
                     "--recursive",
-                    "true",
+                    "false",
                     "--ignore-rust-version",
                 ]
             )
+            fix_yanked_constant_time_eq()
             if git_has_changes():
                 run(["git", "add", "."])
                 run(["git", "commit", "-m", "Cargo upgrade", "--no-verify"])
 
             run(["cargo", "update", "--recursive"])
+            fix_yanked_constant_time_eq()
             if git_has_changes():
                 run(["git", "add", "."])
                 run(["git", "commit", "-m", "Cargo update", "--no-verify"])

@@ -5,7 +5,13 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "main": "index.js",
-  "packageManager": "pnpm@10.30.3",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.16.0",
+      "onFail": "download"
+    }
+  },
   "scripts": {
     "sync": "tsx sync.ts",
     "sync-once": "tsx sync.ts --once"

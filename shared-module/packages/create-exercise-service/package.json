@@ -5,7 +5,13 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",
   "main": "src/index.js",
-  "packageManager": "pnpm@10.30.3",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.16.0",
+      "onFail": "download"
+    }
+  },
   "scripts": {
     "start": "tsx src/index.ts"
   },

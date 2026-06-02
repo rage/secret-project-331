@@ -9,7 +9,7 @@ Notes:
   * Echoes each command before running it
   * Tries `pnpm update --latest --interactive`, and if it fails, prompts you
     to do manual updates and press Enter to continue so the script can commit
-  * Runs `pnpm audit --fix` and `pnpm install` non-fatally, then commits lockfile changes if present
+  * Runs `pnpm audit --fix=update` and `pnpm install` non-fatally, then commits lockfile changes if present
   * Updates Rust deps in services/headless-lms (upgrade + update), committing each step if changes exist
 """
 
@@ -261,7 +261,7 @@ def update_node_deps(folder: Path, target_name: str) -> None:
             )
 
         try:
-            run(["pnpm", "audit", "--fix"], check=False)
+            run(["pnpm", "audit", "--fix=update"], check=False)
             run(["pnpm", "install"], check=False)
         finally:
             pass

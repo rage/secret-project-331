@@ -2,17 +2,13 @@ engineStrict: true
 
 linkWorkspacePackages: true
 
-managePackageManagerVersions: true
+pmOnFail: download
 
-minimumReleaseAgeExclude:
-  - next
-  - react
-  - react-dom
-  - '@next/*'
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.14.0
-
-onlyBuiltDependencies: []
+nodeVersion: 24.16.0
 
 overrides:
   dompurify@<3.3.2: '>=3.3.2'
@@ -35,8 +31,6 @@ overrides:
   webpack@>=5.49.0 <=5.104.0: '>=5.104.1'
   yaml@>=1.0.0 <1.10.3: '>=1.10.3'
 
-packageManagerStrictVersion: true
-
 preferFrozenLockfile: true
 
 preferWorkspacePackages: true
@@ -51,8 +45,15 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-updateNotifier: false
+allowBuilds:
+  node: false
+  sharp: false
+  unrs-resolver: true
 
-useNodeVersion: 24.14.0
+trustLockfile: true
+
+confirmModulesPurge: false
+
+updateNotifier: false
 
 verifyDepsBeforeRun: install

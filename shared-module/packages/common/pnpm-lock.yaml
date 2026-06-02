@@ -276,6 +276,9 @@ importers:
       msw:
         specifier: ^2.13.4
         version: 2.13.4(@types/node@25.6.0)(typescript@6.0.3)
+      node:
+        specifier: runtime:24.16.0
+        version: runtime:24.16.0
       postcss-styled-syntax:
         specifier: ^0.7.1
         version: 0.7.1(postcss@8.5.10)
@@ -2281,6 +2284,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':
     resolution: {integrity: sha512-ppLRUgHVaGRWUx0R0Ut06Mjo9gBaBkg3v/8AxusGLhsIotbBLuRk51rAzqLC8gq6NyyAojEXglNjzf6R948DNw==}
@@ -2386,7 +2390,7 @@ packages:
     os: [win32]
 
   '@vectopus/atlas-icons-react@https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b':
-    resolution: {tarball: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b}
     version: 0.0.10
 
   '@yarnpkg/lockfile@1.1.0':
@@ -4259,6 +4263,127 @@ packages:
 
   node-releases@2.0.37:
     resolution: {integrity: sha512-1h5gKZCF+pO/o3Iqt5Jp7wc9rH3eJJ0+nh/CIoiRwjRxde/hAHyLPXYN4V3CqKAbiZPSeJFSWHmJsbkicta0Eg==}
+
+  node@runtime:24.16.0:
+    resolution:
+      type: variations
+      variants:
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-MN/Y5EMiwnEoE/JeFjwlPK1TvkPgmJB7i1NIvxdKSWg=
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-aix-ppc64.tar.gz
+          targets:
+            - cpu: ppc64
+              os: aix
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-ORidq07rFXBsQkrwrAijBEyeSPfbEqfXf2t6r8fdXfY=
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-darwin-arm64.tar.gz
+          targets:
+            - cpu: arm64
+              os: darwin
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-KYtMezy4B2XIcD5CuQMkpOzjtmNJR7iedpw8mAq1UYU=
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-darwin-x64.tar.gz
+          targets:
+            - cpu: x64
+              os: darwin
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-WJ9bbdT8/uTf2nMBOQPJZquqir2T28nUNlRORytPDnQ=
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-linux-arm64.tar.gz
+          targets:
+            - cpu: arm64
+              os: linux
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-JStYIFNNwDBKKFQcmkRDfPpyAufyAiXSjUk5MsWOl6o=
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-linux-ppc64le.tar.gz
+          targets:
+            - cpu: ppc64le
+              os: linux
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-Vnrwl1s0BVFrmx3cZEKaI+yMWi+mzwE5EmGkzHdOPt0=
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-linux-s390x.tar.gz
+          targets:
+            - cpu: s390x
+              os: linux
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-L69qOH6bYriI4hxU8BJJ+ydTf/7PGELyn0yRnQpZoP8=
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-linux-x64.tar.gz
+          targets:
+            - cpu: x64
+              os: linux
+        - resolution:
+            archive: zip
+            bin:
+              node: node.exe
+            integrity: sha256-FINGEdTGs8BgVOcAdzK5BHTBbgsy85XgW1Wlce9xxtI=
+            prefix: node-v24.16.0-win-arm64
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-win-arm64.zip
+          targets:
+            - cpu: arm64
+              os: win32
+        - resolution:
+            archive: zip
+            bin:
+              node: node.exe
+            integrity: sha256-7aypvVjsjpIDfaxOh31S9rj0MLgcGLV+JktOL7ERzVY=
+            prefix: node-v24.16.0-win-x64
+            type: binary
+            url: https://nodejs.org/download/release/v24.16.0/node-v24.16.0-win-x64.zip
+          targets:
+            - cpu: x64
+              os: win32
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-hd3ieqc1A7A9rfoEEKgABntOP3Avt/yqO+ryhN/Maek=
+            type: binary
+            url: https://unofficial-builds.nodejs.org/download/release/v24.16.0/node-v24.16.0-linux-arm64-musl.tar.gz
+          targets:
+            - cpu: arm64
+              os: linux
+              libc: musl
+        - resolution:
+            archive: tarball
+            bin:
+              node: bin/node
+            integrity: sha256-UN9djUdIktT3uQYWffNvd/W5OQj2PcUy3FaCGcq2WEE=
+            type: binary
+            url: https://unofficial-builds.nodejs.org/download/release/v24.16.0/node-v24.16.0-linux-x64-musl.tar.gz
+          targets:
+            - cpu: x64
+              os: linux
+              libc: musl
+    version: 24.16.0
+    hasBin: true
 
   normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
@@ -10276,6 +10401,8 @@ snapshots:
 
   node-releases@2.0.37: {}
 
+  node@runtime:24.16.0: {}
+
   normalize-path@3.0.0: {}
 
   npm-run-path@4.0.1:
@@ -11718,4 +11845,91 @@ snapshots:
       react: 19.2.5
       use-sync-external-store: 1.6.0(react@19.2.5)
 
-time: {}
+time:
+  '@citation-js/plugin-bibtex@0.7.21': '2025-10-20T12:40:44.013Z'
+  '@emotion/css@11.13.5': '2024-11-20T07:58:27.802Z'
+  '@emotion/react@11.14.0': '2024-12-09T08:43:27.996Z'
+  '@emotion/styled@11.14.1': '2025-06-26T10:49:15.752Z'
+  '@fontsource-variable/inter@5.2.8': '2025-09-17T09:18:20.284Z'
+  '@fontsource/inter@5.2.8': '2025-09-17T09:09:12.747Z'
+  '@fontsource/josefin-sans@5.2.8': '2025-09-17T09:09:21.666Z'
+  '@fontsource/lato@5.2.7': '2025-09-17T09:09:57.858Z'
+  '@fontsource/raleway@5.2.8': '2025-09-17T09:14:24.688Z'
+  '@fontsource/roboto-mono@5.2.8': '2025-09-17T09:14:36.519Z'
+  '@fontsource/space-mono@5.2.9': '2025-09-17T09:15:39.072Z'
+  '@fortawesome/fontawesome-free@7.2.0': '2026-02-10T19:23:21.189Z'
+  '@fortawesome/fontawesome-svg-core@7.2.0': '2026-02-10T19:22:54.999Z'
+  '@fortawesome/free-regular-svg-icons@7.2.0': '2026-02-10T19:26:32.128Z'
+  '@fortawesome/free-solid-svg-icons@7.2.0': '2026-02-10T19:26:07.963Z'
+  '@fortawesome/react-fontawesome@3.3.1': '2026-04-20T04:12:17.493Z'
+  '@internationalized/date@3.12.1': '2026-04-14T22:43:27.676Z'
+  '@json2csv/plainjs@7.0.6': '2024-02-11T15:50:12.729Z'
+  '@monaco-editor/react@4.7.0': '2025-02-13T16:13:41.390Z'
+  '@next/bundle-analyzer@16.2.4': '2026-04-15T22:33:25.963Z'
+  '@popperjs/core@2.11.8': '2023-05-26T17:27:25.366Z'
+  '@react-aria/dialog@3.6.0': '2026-04-14T22:43:38.676Z'
+  '@react-aria/focus@3.22.0': '2026-04-14T22:43:38.549Z'
+  '@react-aria/overlays@3.32.0': '2026-04-14T22:43:39.985Z'
+  '@react-aria/utils@3.34.0': '2026-04-14T22:43:42.853Z'
+  '@react-stately/collections@3.13.0': '2026-04-14T22:43:32.899Z'
+  '@react-stately/combobox@3.14.0': '2026-04-14T22:43:32.648Z'
+  '@react-stately/datepicker@3.17.0': '2026-04-14T22:43:32.549Z'
+  '@react-stately/overlays@3.7.0': '2026-04-14T22:43:34.069Z'
+  '@react-stately/radio@3.12.0': '2026-04-14T22:43:34.501Z'
+  '@react-stately/select@3.10.0': '2026-04-14T22:43:34.488Z'
+  '@react-stately/toggle@3.10.0': '2026-04-14T22:43:34.476Z'
+  '@react-types/dialog@3.6.0': '2026-04-14T22:43:55.173Z'
+  '@svgr/webpack@8.1.0': '2023-08-15T06:46:24.158Z'
+  '@tanstack/react-query@5.99.2': '2026-04-19T10:58:41.206Z'
+  '@tanstack/react-table@8.21.3': '2025-04-14T20:20:18.966Z'
+  '@testing-library/jest-dom@6.9.1': '2025-10-01T20:04:22.720Z'
+  '@testing-library/react-hooks@8.0.1': '2022-06-18T13:20:19.073Z'
+  '@testing-library/react@16.3.2': '2026-01-19T10:59:08.185Z'
+  '@types/jest@30.0.0': '2025-06-16T07:35:50.850Z'
+  '@types/lodash@4.17.24': '2026-02-23T05:30:28.313Z'
+  '@types/node@25.6.0': '2026-04-10T03:39:59.421Z'
+  '@types/papaparse@5.5.2': '2025-12-13T11:01:57.309Z'
+  '@types/react-dom@19.2.3': '2025-11-12T04:37:39.524Z'
+  '@types/react-outside-click-handler@1.3.4': '2024-09-25T19:20:21.474Z'
+  '@types/react@19.2.14': '2026-02-11T11:44:58.515Z'
+  babel-jest@30.3.0: '2026-03-10T01:59:50.426Z'
+  citation-js@0.7.22: '2025-12-31T16:28:49.462Z'
+  date-fns-tz@3.2.0: '2024-09-30T05:32:59.139Z'
+  date-fns@4.1.0: '2024-09-17T04:37:03.810Z'
+  diff@9.0.0: '2026-04-13T12:39:24.498Z'
+  echarts-for-react@3.0.6: '2026-01-21T04:38:21.243Z'
+  echarts@6.0.0: '2025-07-30T02:38:34.897Z'
+  express@5.2.1: '2025-12-01T20:49:43.268Z'
+  http-proxy-middleware@3.0.5: '2025-04-10T12:14:26.931Z'
+  i18next@26.0.6: '2026-04-18T17:10:50.451Z'
+  immer@11.1.4: '2026-02-10T02:47:08.513Z'
+  jest-environment-jsdom@30.3.0: '2026-03-10T01:59:48.776Z'
+  jest@30.3.0: '2026-03-10T02:00:06.592Z'
+  jotai-family@1.0.1: '2025-12-09T21:36:50.804Z'
+  jotai@2.19.1: '2026-04-07T14:33:54.958Z'
+  lodash@4.18.1: '2026-04-01T21:01:20.458Z'
+  monaco-editor@0.55.1: '2025-11-20T20:26:31.188Z'
+  msw@2.13.4: '2026-04-16T16:25:40.478Z'
+  next@16.2.4: '2026-04-15T22:33:47.905Z'
+  papaparse@5.5.3: '2025-05-19T14:49:51.040Z'
+  postcss-styled-syntax@0.7.1: '2025-01-16T21:37:40.206Z'
+  react-aria-components@1.17.0: '2026-04-14T22:43:43.588Z'
+  react-aria@3.48.0: '2026-04-14T22:43:36.676Z'
+  react-dom@19.2.5: '2026-04-08T18:39:31.423Z'
+  react-hook-form@7.72.1: '2026-04-03T06:54:36.925Z'
+  react-hot-toast@2.6.0: '2025-08-15T16:02:39.493Z'
+  react-i18next@17.0.4: '2026-04-17T05:01:25.818Z'
+  react-outside-click-handler@1.3.0: '2019-09-27T23:13:49.407Z'
+  react-popper@2.3.0: '2022-04-28T10:21:57.798Z'
+  react-spring@10.0.3: '2025-09-18T14:39:45.982Z'
+  react@19.2.5: '2026-04-08T18:39:24.455Z'
+  stylelint-config-recommended@18.0.0: '2026-01-15T11:55:53.530Z'
+  stylelint@17.8.0: '2026-04-15T11:48:43.833Z'
+  svgo@4.0.1: '2026-03-04T14:41:34.341Z'
+  ts-jest@29.4.9: '2026-04-01T15:10:18.893Z'
+  tsafe@1.8.12: '2025-10-01T13:42:15.198Z'
+  tslib@2.8.1: '2024-10-31T22:42:48.624Z'
+  typescript@6.0.3: '2026-04-16T23:38:27.905Z'
+  use-debounce@10.1.1: '2026-03-29T22:32:34.457Z'
+  uuid@14.0.0: '2026-04-19T15:15:42.302Z'
+  zod@4.3.6: '2026-01-22T19:14:35.382Z'

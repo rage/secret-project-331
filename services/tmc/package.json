@@ -1,7 +1,13 @@
 {
   "name": "tmc",
   "version": "1.0.0",
-  "packageManager": "pnpm@10.30.3",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.16.0",
+      "onFail": "download"
+    }
+  },
   "scripts": {
     "build": "node scripts/inject-pyodide-version.cjs && next build",
     "dev": "node scripts/inject-pyodide-version.cjs && next dev --port 3005 --turbopack",

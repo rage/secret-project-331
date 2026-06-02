@@ -2,16 +2,13 @@ engineStrict: true
 
 linkWorkspacePackages: true
 
-managePackageManagerVersions: true
+pmOnFail: download
 
-minimumReleaseAgeExclude:
-  - next
-  - react
-  - '@next/*'
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.14.0
-
-onlyBuiltDependencies: []
+nodeVersion: 24.16.0
 
 overrides:
   '@babel/runtime@<7.26.10': '>=7.26.10'
@@ -34,8 +31,6 @@ overrides:
   webpack-dev-server@<=5.2.0: '>=5.2.1'
   yaml@>=1.0.0 <1.10.3: '>=1.10.3'
 
-packageManagerStrictVersion: true
-
 preferFrozenLockfile: true
 
 preferWorkspacePackages: true
@@ -50,8 +45,19 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-updateNotifier: false
+allowBuilds:
+  '@parcel/watcher': true
+  core-js: false
+  core-js-pure: false
+  esbuild: true
+  node: false
+  sharp: false
+  unrs-resolver: true
 
-useNodeVersion: 24.14.0
+trustLockfile: true
+
+confirmModulesPurge: false
+
+updateNotifier: false
 
 verifyDepsBeforeRun: install

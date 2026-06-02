@@ -4,7 +4,13 @@
   "description": "",
   "keywords": [],
   "main": "index.js",
-  "packageManager": "pnpm@10.30.3",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.16.0",
+      "onFail": "download"
+    }
+  },
   "scripts": {
     "create-login-states": "env LANGUAGE=en_US  pnpm exec playwright test --project setup",
     "help": "playwright --help",

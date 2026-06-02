@@ -8,7 +8,7 @@ use headless_lms_utils::document_schema_processor::{
 use itertools::Itertools;
 use percent_encoding::{AsciiSet, CONTROLS, percent_decode_str, utf8_percent_encode};
 use serde_json::{Value, json};
-use sqlx::{Postgres, QueryBuilder, Row};
+use sqlx::{AssertSqlSafe, Postgres, QueryBuilder, Row};
 use url::Url;
 use utoipa::ToSchema;
 
@@ -3295,7 +3295,9 @@ LIMIT 50;
         "#
     );
 
-    let raw_results = sqlx::query_as::<_, RawPageSearchResult>(&search_results_sql)
+    // The formatted fragments are fixed strings selected from PageSearchQueryType; all request data
+    // remains passed through bind parameters below.
+    let raw_results = sqlx::query_as::<_, RawPageSearchResult>(AssertSqlSafe(search_results_sql))
         .bind(course_id)
         .bind(content_search_language)
         .bind(&page_search_request.query)
@@ -3389,7 +3391,9 @@ ORDER BY ord;
     );
 
     Ok(
-        sqlx::query_as::<_, SearchContentHeadlineRow>(&content_headline_sql)
+        // The formatted fragments are fixed strings selected from PageSearchQueryType; all request data
+        // remains passed through bind parameters below.
+        sqlx::query_as::<_, SearchContentHeadlineRow>(AssertSqlSafe(content_headline_sql))
             .bind(content_search_language)
             .bind(query)
             .bind(last_word)

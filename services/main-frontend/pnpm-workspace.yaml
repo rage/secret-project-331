@@ -56,3 +56,9 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - postcss@8.5.10
+  - '@babel/plugin-transform-modules-systemjs@7.29.4'
+  - qs@6.15.2
+  - tmp@0.2.6

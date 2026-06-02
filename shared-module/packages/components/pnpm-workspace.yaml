@@ -41,3 +41,6 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - postcss@8.5.10

@@ -10,7 +10,7 @@ Notes:
   * Tries `pnpm update --latest --interactive`, and if it fails, prompts you
     to do manual updates and press Enter to continue so the script can commit
   * Runs `pnpm audit --fix=update` and `pnpm install` non-fatally, then commits lockfile changes if present
-  * Updates Rust deps in services/headless-lms (upgrade + update), committing each step if changes exist
+  * Updates Rust deps in services/headless-lms (upgrade + update), excluding azure_core from the automated upgrade pass and committing each step if changes exist
   * Pass --resume-from-headless-lms to skip Node/pnpm steps and run only the headless-lms Rust updates
 """
 
@@ -337,6 +337,8 @@ def update_headless_lms(repo_root: Path) -> None:
         with pushd(headless_lms):
             # cargo upgrade --recursive runs `cargo update --offline`, which fails when
             # blake3 1.8.5 resolves to yanked constant_time_eq 0.4.3.
+            # azure_core is intentionally excluded because the backend should keep
+            # using the currently locked 0.21.x line for now.
             run(
                 [
                     "cargo",
@@ -348,6 +350,8 @@ def update_headless_lms(repo_root: Path) -> None:
                     "--recursive",
                     "false",
                     "--ignore-rust-version",
+                    "--exclude",
+                    "azure_core",
                 ]
             )
             fix_yanked_constant_time_eq()

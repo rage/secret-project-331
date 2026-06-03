@@ -40,7 +40,7 @@
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.3.0",
     "date-fns-tz": "^3.2.0",
-    "i18next": "^26.2.0",
+    "i18next": "^26.3.0",
     "motion": "^12.40.0",
     "react-aria": "^3.48.0",
     "react-hook-form": "^7.76.1",

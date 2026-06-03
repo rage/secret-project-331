@@ -82,8 +82,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.3.0)
       i18next:
-        specifier: ^26.2.0
-        version: 26.2.0(typescript@5.9.2)
+        specifier: ^26.3.0
+        version: 26.3.0(typescript@5.9.2)
       motion:
         specifier: ^12.40.0
         version: 12.40.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -95,7 +95,7 @@ importers:
         version: 7.76.1(react@19.2.6)
       react-i18next:
         specifier: ^17.0.8
-        version: 17.0.8(i18next@26.2.0(typescript@5.9.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.2)
+        version: 17.0.8(i18next@26.3.0(typescript@5.9.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.2)
       uuid:
         specifier: ^14.0.0
         version: 14.0.0
@@ -1756,8 +1756,8 @@ packages:
   html-parse-stringify@3.0.1:
     resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
 
-  i18next@26.2.0:
-    resolution: {integrity: sha512-zwBHldHdTmwN7r6UNc7lC6GWNN+YYg3DrRSeHR5PRRBf5QnJZcYHrQc0uaU26qZeYxR7iFZD+Y315dPnKP47wA==}
+  i18next@26.3.0:
+    resolution: {integrity: sha512-gHSgGpUXVmuqE2El1W61DmxeyeTlFfZgdJRWMo9jScAn5pu7TuTuiccb1zh3E2J9hEBVGJ23+96x0ieBhfuIHA==}
     peerDependencies:
       typescript: ^5 || ^6
     peerDependenciesMeta:
@@ -4082,7 +4082,7 @@ snapshots:
     dependencies:
       void-elements: 3.1.0
 
-  i18next@26.2.0(typescript@5.9.2):
+  i18next@26.3.0(typescript@5.9.2):
     optionalDependencies:
       typescript: 5.9.2
 
@@ -4442,11 +4442,11 @@ snapshots:
     dependencies:
       react: 19.2.6
 
-  react-i18next@17.0.8(i18next@26.2.0(typescript@5.9.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.2):
+  react-i18next@17.0.8(i18next@26.3.0(typescript@5.9.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.2):
     dependencies:
       '@babel/runtime': 7.29.2
       html-parse-stringify: 3.0.1
-      i18next: 26.2.0(typescript@5.9.2)
+      i18next: 26.3.0(typescript@5.9.2)
       react: 19.2.6
       use-sync-external-store: 1.6.0(react@19.2.6)
     optionalDependencies:
@@ -4724,7 +4724,7 @@ time:
   date-fns-tz@3.2.0: '2024-09-30T05:32:59.139Z'
   date-fns@4.3.0: '2026-05-22T22:37:26.371Z'
   eslint-plugin-storybook@10.4.1: '2026-05-22T09:44:48.502Z'
-  i18next@26.2.0: '2026-05-14T19:19:28.356Z'
+  i18next@26.3.0: '2026-05-26T12:59:10.290Z'
   motion@12.40.0: '2026-05-21T12:00:11.274Z'
   prop-types@15.8.1: '2022-01-05T00:08:33.458Z'
   react-aria@3.48.0: '2026-04-14T22:43:36.676Z'

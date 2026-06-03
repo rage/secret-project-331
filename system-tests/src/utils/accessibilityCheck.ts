@@ -22,7 +22,7 @@ export default async function accessibilityCheck(
     const outputStream = new StoringStream()
     const customConsole = new Console(outputStream)
     const results = await new AxeBuilder({ page }).analyze()
-    let resultsFiltered = []
+    let resultsFiltered: typeof results.violations
 
     if (!axeSkip) {
       axeSkip = []

@@ -97,15 +97,9 @@ function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
 }
 
 function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQuiz {
-  let modelSolution: ModelSolutionQuiz | null = null
-  if (isOldQuiz(quiz)) {
-    modelSolution = migrateModelSolutionSpecQuiz(quiz as OldQuiz)
-  } else {
-    modelSolution = quiz as ModelSolutionQuiz
-  }
-  if (modelSolution === null) {
-    throw new Error("Model solution was null")
-  }
+  const modelSolution: ModelSolutionQuiz = isOldQuiz(quiz)
+    ? migrateModelSolutionSpecQuiz(quiz as OldQuiz)
+    : (quiz as ModelSolutionQuiz)
   // Make sure we don't include illegal properties
   for (const quizItem of modelSolution.items) {
     if (quizItem.type === "closed-ended-question") {

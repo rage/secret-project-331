@@ -48,7 +48,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
   )
 
   const usesNewFormat = props.data.innerBlocks && props.data.innerBlocks.length > 0
-  let children = undefined
+  let children
   // This is for handling pages saved with an older version of Gutenberg, where list blocks did not have list item blocks as innerblocks but it had the list items as HTML strings.
   if (!usesNewFormat) {
     if (ordered) {

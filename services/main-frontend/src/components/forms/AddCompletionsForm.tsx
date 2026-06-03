@@ -169,13 +169,10 @@ const AddCompletionsForm: React.FC<AddCompletionsFormProps> = ({
         }
 
         // Validate and process the completion date.
-        let processedDate = null
-        if (completion_date) {
-          processedDate = makeDateStringTimezoneErrorsLessLikely(completion_date)
-          // Optionally, add additional checks here to verify a valid date.
-        } else {
-          processedDate = defaultDate
-        }
+        // Optionally, add additional checks here to verify a valid date.
+        const processedDate = completion_date
+          ? makeDateStringTimezoneErrorsLessLikely(completion_date)
+          : defaultDate
 
         return {
           user_id,

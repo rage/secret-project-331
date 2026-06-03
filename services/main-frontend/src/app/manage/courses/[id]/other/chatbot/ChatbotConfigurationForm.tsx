@@ -14,7 +14,6 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type {
   ChatbotConfiguration,
-  ChatbotConfigurationModel,
   NewChatbotConf,
   ReasoningEffortLevel,
   VerbosityLevel,
@@ -117,12 +116,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const modelFieldValue = watch("model_id")
   const suggestMessagesFieldValue = watch("suggest_next_messages")
 
-  let selectedModel: ChatbotConfigurationModel | null = null
   let selectedModelThinking = false
 
   if (getChatbotModelsList.data) {
     // once the query has finished, selectedModel cannot be null
-    selectedModel = assertNotNullOrUndefined(
+    const selectedModel = assertNotNullOrUndefined(
       getChatbotModelsList.data.find((m) => {
         return m.id === modelFieldValue
       }),

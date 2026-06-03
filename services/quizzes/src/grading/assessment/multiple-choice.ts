@@ -30,7 +30,7 @@ const getMultipleChoicePointsByGradingPolicy = (
   }
 
   // Multiple choice answers
-  let totalScore = 0
+  let totalScore: number
   switch (quizItem.multipleChoiceMultipleOptionsGradingPolicy) {
     case "points-off-incorrect-options":
       totalScore = Math.max(0, countOfCorrectAnswers - countOfIncorrectAnswers)

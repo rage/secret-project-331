@@ -99,12 +99,9 @@ function handlePost(specRequest: unknown) {
   if (quiz === null) {
     return NextResponse.json({ message: "Quiz cannot be null" }, { status: 400 })
   }
-  let converted: PrivateSpecQuiz | null = null
-  if (isOldQuiz(quiz)) {
-    converted = migratePrivateSpecQuiz(quiz as OldQuiz)
-  } else {
-    converted = quiz as PrivateSpecQuiz
-  }
+  const converted: PrivateSpecQuiz = isOldQuiz(quiz)
+    ? migratePrivateSpecQuiz(quiz as OldQuiz)
+    : (quiz as PrivateSpecQuiz)
   const publicSpecQuiz = convertPublicSpecFromPrivateSpec(converted)
   return NextResponse.json(publicSpecQuiz, { status: 200 })
 }

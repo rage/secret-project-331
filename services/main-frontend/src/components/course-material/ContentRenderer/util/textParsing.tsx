@@ -213,7 +213,6 @@ const parseText = (
   const parsedCitation = parseCitation(parsedLatex)
 
   let parsedText = parsedCitation
-  let hasCitationsOrGlossary = false
   let glossaryEntries: Term[] = []
 
   if (options.glossary) {
@@ -231,7 +230,7 @@ const parseText = (
     glossaryEntries = Array.from(uniqueTerms.values())
   }
 
-  hasCitationsOrGlossary = parsedLatex !== parsedText
+  const hasCitationsOrGlossary = parsedLatex !== parsedText
 
   // Sanitation always needs to be the last step because otherwise we might accidentally introduce injection attacks with our custom parsing and modifications to the string
   parsedText = sanitizeCourseMaterialHtml(parsedText)

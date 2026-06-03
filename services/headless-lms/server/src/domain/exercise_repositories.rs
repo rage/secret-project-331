@@ -9,6 +9,7 @@ use headless_lms_utils::{
     file_store::{self, FileStore},
     folder_checksum,
 };
+use secrecy::{ExposeSecret, SecretString};
 use sqlx::{Acquire, PgConnection};
 use std::{
     collections::HashMap,
@@ -29,7 +30,7 @@ pub async fn process(
     repository_id: Uuid,
     url: &str,
     public_key: Option<&str>,
-    deploy_key: Option<&str>,
+    deploy_key: Option<&SecretString>,
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> anyhow::Result<Vec<StoredRepositoryExercise>> {
@@ -72,7 +73,7 @@ struct InnerArgs<'a> {
     repository_id: Uuid,
     url: &'a str,
     public_key: Option<&'a str>,
-    deploy_key: Option<&'a str>,
+    deploy_key: Option<&'a SecretString>,
     file_store: &'a dyn FileStore,
     stored_files: &'a mut Vec<PathBuf>,
     app_conf: &'a ApplicationConfiguration,
@@ -105,7 +106,8 @@ async fn process_inner(
                     Cred::ssh_key_from_memory(
                         username.unwrap_or("git"),
                         public_key,
-                        deploy_key,
+                        // Exposed only here, where the key is handed to libgit2 in memory.
+                        deploy_key.expose_secret(),
                         None,
                     )
                 } else {

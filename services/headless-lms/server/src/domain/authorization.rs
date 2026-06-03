@@ -379,7 +379,7 @@ pub async fn authorize_access_from_tmc_server_to_course_mooc_fi(
     // If auth header correct one, grant access
     if constant_time_eq_str(
         auth_header,
-        tmc_server_secret_for_communicating_to_secret_project.as_str(),
+        tmc_server_secret_for_communicating_to_secret_project.expose_secret(),
     ) {
         return Ok(skip_authorize());
     }
@@ -757,7 +757,7 @@ pub async fn authenticate_tmc_mooc_fi_user(
     conn: &mut PgConnection,
     client: &OAuthClient,
     email: String,
-    password: String,
+    password: SecretString,
     tmc_client: &TmcClient,
 ) -> anyhow::Result<Option<(User, SecretString)>> {
     info!("Attempting to authenticate user with TMC");
@@ -802,12 +802,13 @@ It returns different results based on the authentication outcome:
 pub async fn exchange_password_with_tmc(
     client: &OAuthClient,
     email: String,
-    password: String,
+    password: SecretString,
 ) -> anyhow::Result<Option<SecretString>> {
     let token_result = client
         .exchange_password(
             &ResourceOwnerUsername::new(email),
-            &ResourceOwnerPassword::new(password),
+            // Exposed only here, at the OAuth2 client boundary.
+            &ResourceOwnerPassword::new(password.expose_secret().to_string()),
         )
         .request_async(&async_http_client_with_headers)
         .await;
@@ -849,7 +850,7 @@ pub async fn exchange_password_with_tmc(
 
 /// Fetches the mooc.fi UUID for a user by their upstream ID using the TMC access token.
 async fn fetch_moocfi_id_by_upstream_id(
-    tmc_access_token: &str,
+    tmc_access_token: &SecretString,
     upstream_id: i32,
 ) -> anyhow::Result<Option<Uuid>> {
     info!("Fetching mooc.fi UUID for upstream user id {}", upstream_id);
@@ -858,7 +859,8 @@ async fn fetch_moocfi_id_by_upstream_id(
         .post(MOOCFI_GRAPHQL_URL)
         .header(reqwest::header::CONTENT_TYPE, "application/json")
         .header(reqwest::header::ACCEPT, "application/json")
-        .bearer_auth(tmc_access_token)
+        // Exposed only here, where the bearer token header is built.
+        .bearer_auth(tmc_access_token.expose_secret())
         .json(&GraphQLRequest {
             query: r#"
 query ($upstreamId: Int) {
@@ -924,9 +926,7 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     // If moocfi_id is None, try to fetch it from mooc.fi before generating a new UUID
     let id = match moocfi_id {
         Some(id) => id,
-        None => match fetch_moocfi_id_by_upstream_id(tmc_access_token.expose_secret(), upstream_id)
-            .await?
-        {
+        None => match fetch_moocfi_id_by_upstream_id(tmc_access_token, upstream_id).await? {
             Some(fetched_id) => {
                 info!("Successfully fetched mooc.fi UUID {} for user", fetched_id);
                 fetched_id
@@ -971,11 +971,14 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
 pub async fn authenticate_test_user(
     conn: &mut PgConnection,
     email: &str,
-    password: &str,
+    password: &SecretString,
     application_configuration: &ApplicationConfiguration,
 ) -> anyhow::Result<bool> {
     // Sanity check to ensure this is not called outside of test mode. The whole application configuration is passed to this function instead of just the boolean to make mistakes harder.
     assert!(application_configuration.test_mode);
+
+    // Test-only seeded credentials; exposed once here for the literal comparisons below.
+    let password = password.expose_secret();
 
     let _user = if email == "admin@example.com" && password == "admin" {
         models::users::get_by_email(conn, "admin@example.com").await?
@@ -1055,10 +1058,12 @@ fn get_ratelimit_api_key() -> Result<reqwest::header::HeaderValue, HttpClientErr
         .clone();
     debug!("Using ratelimit API key from runtime config");
 
-    key.parse::<reqwest::header::HeaderValue>().map_err(|err| {
-        error!("Invalid RATELIMIT API key format: {}", err);
-        HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
-    })
+    key.expose_secret()
+        .parse::<reqwest::header::HeaderValue>()
+        .map_err(|err| {
+            error!("Invalid RATELIMIT API key format: {}", err);
+            HttpClientError::Other("Invalid RATELIMIT API key.".to_string())
+        })
 }
 
 /**

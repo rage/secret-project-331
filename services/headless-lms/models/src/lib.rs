@@ -104,6 +104,7 @@ pub mod rejected_exercise_slide_submissions;
 pub mod repository_exercises;
 pub mod research_forms;
 pub mod roles;
+pub mod secret;
 pub mod student_countries;
 pub mod study_registry_registrars;
 pub mod suspected_cheaters;

@@ -1,3 +1,5 @@
+use secrecy::ExposeSecret;
+
 use crate::prelude::*;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::http::REQWEST_CLIENT;
@@ -252,7 +254,7 @@ pub async fn does_search_index_exist(
     let response = REQWEST_CLIENT
         .get(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .send()
         .await?;
 
@@ -525,7 +527,7 @@ pub async fn create_search_index(
                 azure_open_ai_parameters: AzureOpenAiParameters {
                     resource_uri: search_config.vectorizer_resource_uri.clone(),
                     deployment_id: search_config.vectorizer_deployment_id.clone(),
-                    api_key: search_config.vectorizer_api_key.clone(),
+                    api_key: search_config.vectorizer_api_key.expose_secret().to_string(),
                     model_name: search_config.vectorizer_model_name.clone(),
                     auth_identity: None,
                 },
@@ -544,7 +546,7 @@ pub async fn create_search_index(
     let response = REQWEST_CLIENT
         .post(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .body(index_json)
         .send()
         .await?;
@@ -618,7 +620,7 @@ where
     let response = REQWEST_CLIENT
         .post(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .body(batch_json)
         .send()
         .await?;

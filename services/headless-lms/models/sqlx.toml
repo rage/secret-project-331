@@ -30,6 +30,18 @@
 'user_role' = "crate::roles::UserRole"
 'verbosity_level' = "crate::chatbot_configurations::VerbosityLevel"
 
+[macros.table-overrides.'email_verification_tokens']
+'email_verification_token' = "crate::secret::DbSecret"
+'code' = "crate::secret::DbSecret"
+
+[macros.table-overrides.'marketing_mailing_list_access_tokens']
+'access_token' = "crate::secret::DbSecret"
+
+# Giveaway codes are intentionally returned to the recipient over the API, so they use
+# `OutboundSecret` (serializes on the wire, but redacted in Debug/logs and zeroized).
+[macros.table-overrides.'code_giveaway_codes']
+'code' = "crate::secret::OutboundSecret"
+
 [macros.table-overrides.'oauth_clients']
 'client_secret' = "crate::library::oauth::Digest"
 'allowed_grant_types' = "Vec<crate::library::oauth::GrantTypeName>"

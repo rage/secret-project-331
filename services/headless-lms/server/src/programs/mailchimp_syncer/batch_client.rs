@@ -1,6 +1,7 @@
 use crate::prelude::*;
 use flate2::read::GzDecoder;
 use headless_lms_utils::http::REQWEST_CLIENT;
+use secrecy::ExposeSecret;
 use serde_json::json;
 use std::{
     io::{Cursor, Read},
@@ -37,7 +38,7 @@ pub const MAX_MAILCHIMP_BATCH_SIZE: usize = 500;
 /// Submits operations to Mailchimp POST /batches. Chunks at MAX_MAILCHIMP_BATCH_SIZE. Returns batch IDs.
 pub async fn submit_batch(
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
     operations: Vec<BatchOperation>,
 ) -> anyhow::Result<Vec<String>> {
     if operations.is_empty() {
@@ -56,7 +57,10 @@ pub async fn submit_batch(
         let url = format!("https://{}.api.mailchimp.com/3.0/batches", server_prefix);
         let response = REQWEST_CLIENT
             .post(&url)
-            .header("Authorization", format!("apikey {}", access_token))
+            .header(
+                "Authorization",
+                format!("apikey {}", access_token.expose_secret()),
+            )
             .json(&body)
             .send()
             .await?;
@@ -80,7 +84,7 @@ pub async fn submit_batch(
 /// Polls GET /batches/{batch_id} until status is "finished", or timeout. Returns response_body_url and error counts.
 pub async fn poll_batch_until_finished_with_response_url(
     server_prefix: &str,
-    access_token: &str,
+    access_token: &DbSecret,
     batch_id: &str,
     timeout: Duration,
     poll_interval: Duration,
@@ -104,7 +108,10 @@ pub async fn poll_batch_until_finished_with_response_url(
         );
         let response = REQWEST_CLIENT
             .get(&url)
-            .header("Authorization", format!("apikey {}", access_token))
+            .header(
+                "Authorization",
+                format!("apikey {}", access_token.expose_secret()),
+            )
             .send()
             .await?;
         if !response.status().is_success() {

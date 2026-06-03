@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::users::get_by_id;
-use argon2::password_hash::{SaltString, rand_core::OsRng};
-use argon2::{Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier, Version};
+use argon2::password_hash::{PasswordHasher, PasswordVerifier, phc::PasswordHash};
+use argon2::{Algorithm, Argon2, Params, Version};
 use headless_lms_utils::tmc::TmcClient;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::LazyLock;
@@ -50,14 +50,13 @@ SET password_hash = EXCLUDED.password_hash,
 pub fn hash_password(
     password: &SecretString,
 ) -> Result<SecretString, argon2::password_hash::Error> {
-    let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::new(
         Algorithm::Argon2id,
         Version::V0x13,
         Params::new(65536, 3, 4, None)?,
     );
 
-    let password_hash = argon2.hash_password(password.expose_secret().as_bytes(), &salt)?;
+    let password_hash = argon2.hash_password(password.expose_secret().as_bytes())?;
     Ok(SecretString::new(password_hash.to_string().into()))
 }
 
@@ -84,9 +83,8 @@ WHERE user_id = $1
             // This mitigates timing attack vulnerabilities.
 
             static DUMMY_HASH: LazyLock<String> = LazyLock::new(|| {
-                let salt = SaltString::generate(&mut OsRng);
                 Argon2::default()
-                    .hash_password(b"dummy-password", &salt)
+                    .hash_password(b"dummy-password")
                     .expect("failed to create dummy hash")
                     .to_string()
             });

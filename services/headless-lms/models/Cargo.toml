@@ -63,8 +63,8 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
 lettre = "0.11.22"
 # Random number generators and other randomness functionality.
 rand = "0.10.1"
-# OS random number generator, needed for argon2 password hashing.
-rand_core = { version = "0.6", features = ["getrandom"] }
+# Core random number generation traits and tools for implementation.
+rand_core = "0.10.1"
 # Flexible concrete Error type built on std::error::Error
 # Zero value on drop for security
 zeroize = { version = "1.8.2", features = ["derive"] }
@@ -80,7 +80,7 @@ reqwest = { version = "0.13.4", features = ["json"] }
 # Secret value wrapper to avoid leaking secrets in logs and memory
 secrecy.workspace = true
 # Password hashing using Argon2id
-argon2 = "0.5.3"
+argon2 = "0.6.0-rc.8"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

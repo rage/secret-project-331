@@ -46,7 +46,7 @@
     "date-fns-tz": "^3.2.0",
     "express": "^5.2.1",
     "http-proxy-middleware": "^4.0.0",
-    "i18next": "^26.2.0",
+    "i18next": "^26.3.0",
     "immer": "^11.1.8",
     "jotai": "^2.20.0",
     "jotai-family": "^1.0.2",

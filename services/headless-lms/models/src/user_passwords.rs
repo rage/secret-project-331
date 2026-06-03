@@ -15,6 +15,7 @@ pub struct UserPassword {
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct PasswordResetToken {
+    pub id: Uuid,
     pub token: Uuid,
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -67,7 +68,7 @@ pub async fn verify_user_password(
 ) -> ModelResult<bool> {
     let user_password = match sqlx::query!(
         r#"
-SELECT password_hash
+SELECT *
 FROM user_passwords
 WHERE user_id = $1
   AND deleted_at IS NULL
@@ -158,7 +159,7 @@ WHERE user_id = $1
         r#"
       INSERT INTO password_reset_tokens (token, user_id)
 VALUES ($1, $2)
-RETURNING token
+RETURNING *
         "#,
         token,
         user_id
@@ -179,13 +180,7 @@ pub async fn get_unused_reset_password_token_with_user_id(
     let record = sqlx::query_as!(
         PasswordResetToken,
         r#"
-SELECT token,
-  user_id,
-  created_at,
-  updated_at,
-  used_at,
-  deleted_at,
-  expires_at
+SELECT *
 FROM password_reset_tokens
 WHERE user_id = $1
   AND deleted_at IS NULL
@@ -236,7 +231,7 @@ pub async fn change_user_password_with_password_reset_token(
     // Check if token is valid
     let record = sqlx::query!(
         r#"
-SELECT user_id
+SELECT *
 FROM password_reset_tokens
 WHERE token = $1
   AND deleted_at IS NULL

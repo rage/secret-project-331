@@ -159,36 +159,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Chatbot
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    model_id,
-    thinking_model,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    response_max_tokens,
-    max_completion_tokens,
-    use_azure_search,
-    maintain_azure_search_index,
-    hide_citations,
-    use_semantic_reranking,
-    use_tools,
-    default_chatbot,
-    suggest_next_messages,
-    verbosity,
-    reasoning_effort,
-    initial_suggested_messages
+SELECT *
 FROM chatbot_configurations
 WHERE id = $1
 AND deleted_at IS NULL
@@ -237,36 +208,7 @@ INSERT INTO chatbot_configurations (
     initial_suggested_messages
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25)
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    model_id,
-    thinking_model,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    response_max_tokens,
-    max_completion_tokens,
-    use_azure_search,
-    maintain_azure_search_index,
-    hide_citations,
-    use_semantic_reranking,
-    use_tools,
-    default_chatbot,
-    suggest_next_messages,
-    verbosity,
-    reasoning_effort,
-    initial_suggested_messages
+RETURNING *
         "#,
         pkey_policy.into_uuid(),
         input.course_id,
@@ -292,7 +234,7 @@ RETURNING
         maintain_azure_search_index,
         input.default_chatbot,
         input.suggest_next_messages,
-        input.initial_suggested_messages.as_deref()
+        input.initial_suggested_messages.as_deref(),
     )
     .fetch_one(conn)
     .await?;
@@ -335,36 +277,7 @@ SET
     initial_suggested_messages = $24
 WHERE id = $25
     AND deleted_at IS NULL
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    model_id,
-    thinking_model,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    response_max_tokens,
-    max_completion_tokens,
-    use_azure_search,
-    maintain_azure_search_index,
-    hide_citations,
-    use_semantic_reranking,
-    default_chatbot,
-    suggest_next_messages,
-    verbosity,
-    reasoning_effort,
-    use_tools,
-    initial_suggested_messages
+RETURNING *
 "#,
         input.enabled_to_students,
         input.chatbot_name,
@@ -390,7 +303,7 @@ RETURNING
         input.use_tools,
         input.suggest_next_messages,
         input.initial_suggested_messages.as_deref(),
-        chatbot_configuration_id
+        chatbot_configuration_id,
     )
     .fetch_one(conn)
     .await?;
@@ -419,36 +332,7 @@ pub async fn get_for_course(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    model_id,
-    thinking_model,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    response_max_tokens,
-    max_completion_tokens,
-    use_azure_search,
-    maintain_azure_search_index,
-    hide_citations,
-    use_semantic_reranking,
-    use_tools,
-    default_chatbot,
-    suggest_next_messages,
-    verbosity,
-    reasoning_effort,
-    initial_suggested_messages
+SELECT *
 FROM chatbot_configurations
 WHERE course_id = $1
 AND deleted_at IS NULL
@@ -467,36 +351,7 @@ pub async fn get_enabled_nondefault_for_course(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    model_id,
-    thinking_model,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    response_max_tokens,
-    max_completion_tokens,
-    use_azure_search,
-    maintain_azure_search_index,
-    hide_citations,
-    use_semantic_reranking,
-    use_tools,
-    default_chatbot,
-    suggest_next_messages,
-    verbosity,
-    reasoning_effort,
-    initial_suggested_messages
+SELECT *
 FROM chatbot_configurations
 WHERE course_id = $1
 AND default_chatbot IS false
@@ -516,36 +371,7 @@ pub async fn get_for_azure_search_maintenance(
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    model_id,
-    thinking_model,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    response_max_tokens,
-    max_completion_tokens,
-    use_azure_search,
-    maintain_azure_search_index,
-    hide_citations,
-    use_semantic_reranking,
-    use_tools,
-    default_chatbot,
-    suggest_next_messages,
-    verbosity,
-    reasoning_effort,
-    initial_suggested_messages
+SELECT *
 FROM chatbot_configurations
 WHERE maintain_azure_search_index = true
 AND deleted_at IS NULL
@@ -585,36 +411,7 @@ pub async fn set_default_chatbot_for_course(
 UPDATE chatbot_configurations
 SET default_chatbot = true
 WHERE id = $1
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    enabled_to_students,
-    chatbot_name,
-    model_id,
-    thinking_model,
-    prompt,
-    initial_message,
-    weekly_tokens_per_user,
-    daily_tokens_per_user,
-    temperature,
-    top_p,
-    frequency_penalty,
-    presence_penalty,
-    response_max_tokens,
-    max_completion_tokens,
-    use_azure_search,
-    maintain_azure_search_index,
-    hide_citations,
-    use_semantic_reranking,
-    use_tools,
-    default_chatbot,
-    suggest_next_messages,
-    verbosity,
-    reasoning_effort,
-    initial_suggested_messages
+RETURNING *
 "#,
         chatbot_configuration_id,
     )

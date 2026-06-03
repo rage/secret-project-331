@@ -35,7 +35,7 @@ INSERT INTO peer_or_self_review_question_submissions (
     number_data
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         peer_or_self_review_question_id,

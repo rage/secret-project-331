@@ -19,7 +19,9 @@ pub struct EmailTemplate {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub content: Option<serde_json::Value>,
-    pub template_type: EmailTemplateType,
+    #[serde(rename = "template_type")]
+    #[schema(rename = "template_type")]
+    pub email_template_type: EmailTemplateType,
     pub subject: Option<String>,
     pub exercise_completions_threshold: Option<i32>,
     pub points_threshold: Option<i32>,
@@ -53,17 +55,7 @@ pub async fn get_email_templates(
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE course_id = $1
   AND deleted_at IS NULL
@@ -79,17 +71,7 @@ pub async fn get_all_email_templates(conn: &mut PgConnection) -> ModelResult<Vec
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE deleted_at IS NULL
         "#,
@@ -107,17 +89,7 @@ pub async fn get_generic_email_template_by_type_and_language(
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE email_template_type = $1
   AND course_id IS NULL
@@ -167,17 +139,7 @@ UPDATE
 SET subject = COALESCE(EXCLUDED.subject, email_templates.subject),
   content = COALESCE(EXCLUDED.content, email_templates.content),
   updated_at = NOW()
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+RETURNING *
         "#,
         email_template.template_type as EmailTemplateType,
         course_id,
@@ -197,17 +159,7 @@ pub async fn get_email_template(
     let res = sqlx::query_as!(
         EmailTemplate,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+SELECT *
 FROM email_templates
 WHERE id = $1
   AND deleted_at IS NULL
@@ -235,17 +187,7 @@ SET email_template_type = $1,
   points_threshold = $5
 WHERE id = $6
   AND deleted_at IS NULL
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+RETURNING *
   "#,
         email_template_update.template_type as EmailTemplateType,
         email_template_update.subject,
@@ -270,17 +212,7 @@ UPDATE email_templates
 SET deleted_at = NOW()
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  content,
-  email_template_type AS "template_type",
-  subject,
-  exercise_completions_threshold,
-  points_threshold,
-  course_id,
-  language
+RETURNING *
   "#,
         email_template_id
     )

@@ -62,6 +62,7 @@ SELECT
   p.id,
   p.created_at,
   p.updated_at,
+  p.deleted_at,
   p.created_by_user_id,
   p.name,
   p.status,
@@ -459,6 +460,7 @@ SELECT
   p.id,
   p.created_at,
   p.updated_at,
+  p.deleted_at,
   p.created_by_user_id,
   p.name,
   p.status,
@@ -728,15 +730,7 @@ SET
   status = $3
 WHERE id = $1
   AND deleted_at IS NULL
-RETURNING
-  id,
-  created_at,
-  updated_at,
-  created_by_user_id,
-  name,
-  status,
-  active_stage,
-  last_weekly_stage_email_sent_at
+RETURNING *
 "#,
         plan_id,
         name,

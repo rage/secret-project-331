@@ -75,18 +75,7 @@ INSERT INTO course_instances (
     support_email
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+RETURNING *
 "#,
         pkey_policy.into_uuid(),
         new_course_instance.course_id,
@@ -108,18 +97,7 @@ pub async fn get_course_instance(
     let course_instance = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -277,18 +255,7 @@ pub async fn get_all_course_instances(conn: &mut PgConnection) -> ModelResult<Ve
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE deleted_at IS NULL
 "#
@@ -305,18 +272,7 @@ pub async fn get_course_instances_for_course(
     let course_instances = sqlx::query_as!(
         CourseInstance,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  starts_at,
-  ends_at,
-  name,
-  description,
-  teacher_in_charge_name,
-  teacher_in_charge_email,
-  support_email
+SELECT *
 FROM course_instances
 WHERE course_id = $1
   AND deleted_at IS NULL;

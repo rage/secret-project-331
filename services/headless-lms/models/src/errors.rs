@@ -100,7 +100,7 @@ ON CONFLICT (service, exact_error_identifier, deleted_at) DO UPDATE SET
     occurrence_count = error_variants.occurrence_count + 1,
     last_seen_at = now(),
     updated_at = now()
-RETURNING id
+RETURNING *
         "#,
         service,
         exact_error_identifier,
@@ -165,21 +165,7 @@ pub async fn get_all_variants(
     let res = sqlx::query!(
         r#"
 SELECT
-    id,
-    service,
-    exact_error_identifier,
-    error_grouping_identifier,
-    error_source,
-    example_message,
-    example_stack_trace,
-    normalized_message,
-    normalized_stack_trace,
-    occurrence_count,
-    last_seen_at,
-    resolved_at,
-    created_at,
-    updated_at,
-    deleted_at
+    *
 FROM error_variants
 WHERE deleted_at IS NULL
 ORDER BY last_seen_at DESC
@@ -220,7 +206,7 @@ UPDATE error_occurrences
 SET deleted_at = now()
 WHERE created_at < now() - interval '2 months'
   AND deleted_at IS NULL
-RETURNING error_variant_id
+RETURNING *
         "#
     )
     .fetch_all(&mut *tx)

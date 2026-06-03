@@ -242,7 +242,7 @@ INSERT INTO exercises (
     exercise_language_group_id
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         course_id,
@@ -744,7 +744,7 @@ UPDATE exercises
 SET deleted_at = now()
 WHERE page_id = $1
 AND deleted_at IS NULL
-RETURNING id;
+RETURNING *;
         ",
         page_id
     )
@@ -793,7 +793,7 @@ SET use_course_default_peer_or_self_review_config = $1,
   needs_peer_review = $2,
   needs_self_review = $3
 WHERE id = $4
-RETURNING id;
+RETURNING *;
         ",
         use_course_default_peer_or_self_review_config,
         needs_peer_review,

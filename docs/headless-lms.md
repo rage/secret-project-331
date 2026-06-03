@@ -56,9 +56,11 @@ If you want to reset the database, run `bin/sqlx-database-reset` followed by `bi
 
 ### Using postgres enums in SQLx queries
 
-Postgres enum columns are mapped to Rust enums with `#[derive(sqlx::Type)]` and `#[sqlx(type_name = "...")]`. Global mappings from Postgres type names to those Rust types live in [`services/headless-lms/models/sqlx.toml`](services/headless-lms/models/sqlx.toml) under `[macros.type-overrides]`. That lets `query!` / `query_as!` use enums without per-column type hints in most queries, including `SELECT *`.
+Postgres enum columns are mapped to Rust enums with `#[derive(sqlx::Type)]` and `#[sqlx(type_name = "...")]`. Global mappings from Postgres type names to those Rust types live in [`services/headless-lms/models/sqlx.toml`](services/headless-lms/models/sqlx.toml) under `[macros.type-overrides]`. Non-enum custom column types and enum-array columns live under `[macros.table-overrides.'table']`, which lets single-table `query!` / `query_as!` calls use `SELECT *` / `RETURNING *` without per-query `AS "col: Type"` hints.
 
-When you add a new Postgres enum, define the Rust enum and add an entry to `sqlx.toml`, then run `bin/sqlx-prepare` from the repository root (requires `services/headless-lms/models/.env`; copy from `.env.example`).
+A struct that models a table should contain all of that table's columns. If a table-backed query struct is missing columns and the query is otherwise a plain single-table projection, prefer completing the struct over keeping an explicit projection. Completing serialized API types is acceptable unless the missing column is a genuinely dangerous secret that should not be newly exposed through an external API.
+
+When you add a new Postgres enum or custom column type, define the Rust type and add the appropriate entry to `sqlx.toml`, then run `bin/sqlx-prepare` from the repository root (requires `services/headless-lms/models/.env`; copy from `.env.example`).
 
 Example Rust enum:
 
@@ -80,6 +82,15 @@ Example `sqlx.toml` entry:
 'user_role' = "crate::roles::UserRole"
 ```
 
+Example `table-overrides` entry:
+
+```toml
+[macros.table-overrides.'oauth_clients']
+'client_secret' = "crate::library::oauth::Digest"
+'allowed_grant_types' = "Vec<crate::library::oauth::GrantTypeName>"
+'pkce_methods_allowed' = "Vec<crate::library::oauth::pkce::PkceMethod>"
+```
+
 You can then write:
 
 ```rust
@@ -88,7 +99,11 @@ let role = sqlx::query_scalar!(r#"SELECT role FROM roles WHERE user_id = $1"#, u
     .await?;
 ```
 
-For one-off cases (custom types, enum arrays, renamed columns), the older syntax still works: `column AS "alias: MyType"` or `column AS "column: _"`.
+For single-table queries that read or write every column, prefer `SELECT *` / `RETURNING *`. Reserve explicit column lists for joins, subsets, computed expressions, casts, or renames.
+
+For one-off cases that truly cannot be registered globally, the older syntax still works: `column AS "alias: MyType"` or `column AS "column: _"`. Use it sparingly; for custom types and enum arrays, `sqlx.toml` is the default place to register the mapping.
+
+Models code must continue to use SQLx macros (`query!`, `query_as!`, `query_scalar!`, `query_file!`, etc.) rather than runtime SQLx query APIs.
 
 ### Analyzing SQL queries
 

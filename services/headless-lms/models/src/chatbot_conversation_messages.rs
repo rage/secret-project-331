@@ -115,18 +115,7 @@ INSERT INTO chatbot_conversation_messages (
     tool_output_id
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    conversation_id,
-    message,
-    message_role,
-    message_is_complete,
-    used_tokens,
-    order_number,
-    tool_output_id
+RETURNING *
         "#,
         input.conversation_id,
         input.message,
@@ -238,18 +227,7 @@ INSERT INTO chatbot_conversation_messages (
     tool_output_id
 )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    conversation_id,
-    message,
-    message_role,
-    message_is_complete,
-    used_tokens,
-    order_number,
-    tool_output_id
+RETURNING *
         "#,
         input.conversation_id,
         input.message,
@@ -334,18 +312,7 @@ pub async fn get_by_conversation_id(
     let mut msgs: Vec<ChatbotConversationMessageRow> = sqlx::query_as!(
         ChatbotConversationMessageRow,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    conversation_id,
-    message,
-    message_role,
-    message_is_complete,
-    used_tokens,
-    order_number,
-    tool_output_id
+SELECT *
 FROM chatbot_conversation_messages
 WHERE conversation_id = $1
 AND deleted_at IS NULL
@@ -379,18 +346,7 @@ pub async fn update(
 UPDATE chatbot_conversation_messages
 SET message = $2, message_is_complete = $3, used_tokens = $4
 WHERE id = $1
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    conversation_id,
-    message,
-    message_role,
-    message_is_complete,
-    used_tokens,
-    order_number,
-    tool_output_id
+RETURNING *
         "#,
         id,
         Some(message),
@@ -414,18 +370,7 @@ pub async fn delete(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotCon
 UPDATE chatbot_conversation_messages
 SET deleted_at = NOW()
 WHERE id = $1
-RETURNING
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    conversation_id,
-    message,
-    message_role,
-    message_is_complete,
-    used_tokens,
-    order_number,
-    tool_output_id
+RETURNING *
         "#,
         id
     )

@@ -299,9 +299,7 @@ async fn copy_exam_content(
 
     let parent_exam_fields = sqlx::query!(
         "
-SELECT language,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE id = $1
         ",
@@ -389,12 +387,9 @@ WHERE id = $2;
     copy_exercise_slides(&mut *tx, copied_exam.id, parent_exam.id).await?;
     copy_exercise_tasks(&mut *tx, copied_exam.id, parent_exam.id).await?;
 
-    let get_page_id = sqlx::query!(
-        "SELECT id AS page_id FROM pages WHERE exam_id = $1;",
-        copied_exam.id
-    )
-    .fetch_one(&mut *tx)
-    .await?;
+    let get_page_id = sqlx::query!("SELECT id FROM pages WHERE exam_id = $1;", copied_exam.id)
+        .fetch_one(&mut *tx)
+        .await?;
 
     Ok(Exam {
         courses: vec![], // no related courses on newly copied exam
@@ -404,7 +399,7 @@ WHERE id = $2;
         instructions: copied_exam.instructions,
         name: copied_exam.name,
         time_minutes: copied_exam.time_minutes,
-        page_id: get_page_id.page_id,
+        page_id: get_page_id.id,
         minimum_points_treshold: copied_exam.minimum_points_treshold,
         language: copied_exam
             .language

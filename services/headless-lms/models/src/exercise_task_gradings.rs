@@ -84,7 +84,7 @@ INSERT INTO exercise_task_gradings (
     exercise_task_id
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         submission_id,
@@ -101,24 +101,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercis
     let res = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress,
-  unscaled_score_maximum,
-  unscaled_score_given,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+SELECT *
 FROM exercise_task_gradings
 WHERE id = $1
 "#,
@@ -136,24 +119,7 @@ pub async fn get_by_exercise_task_submission_id(
     let res = sqlx::query_as!(
         ExerciseTaskGrading,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress,
-  unscaled_score_maximum,
-  unscaled_score_given,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+SELECT *
 FROM exercise_task_gradings
 WHERE exercise_task_submission_id = $1
   AND deleted_at IS NULL
@@ -256,7 +222,7 @@ LIMIT 1
 pub async fn get_course_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Option<Uuid>> {
     let course_id = sqlx::query!(
         "
-SELECT course_id
+SELECT *
 from exercise_task_gradings
 where id = $1
         ",
@@ -274,8 +240,7 @@ pub async fn get_course_or_exam_id(
 ) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "
-SELECT course_id,
-  exam_id
+SELECT *
 from exercise_task_gradings
 where id = $1
 ",
@@ -303,24 +268,7 @@ INSERT INTO exercise_task_gradings(
     grading_started_at
   )
 VALUES($1, $2, $3, $4, $5, now())
-RETURNING id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress,
-  unscaled_score_given,
-  unscaled_score_maximum,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+RETURNING *
 "#,
         submission.id,
         exercise.course_id,
@@ -428,24 +376,7 @@ SET grading_progress = $2,
   grading_completed_at = $7,
   score_given = $8
 WHERE id = $1
-RETURNING id,
-  created_at,
-  updated_at,
-  exercise_task_submission_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  exercise_task_id,
-  grading_priority,
-  score_given,
-  grading_progress,
-  unscaled_score_given,
-  unscaled_score_maximum,
-  grading_started_at,
-  grading_completed_at,
-  feedback_json,
-  feedback_text,
-  deleted_at
+RETURNING *
 "#,
         grading.id,
         grading_result.grading_progress as GradingProgress,

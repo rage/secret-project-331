@@ -5,8 +5,12 @@ use utoipa::ToSchema;
 
 pub struct Term {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub term: String,
     pub definition: String,
+    pub course_id: Uuid,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -37,7 +41,7 @@ pub async fn insert(
         "
 INSERT INTO glossary (term, definition, course_id)
 SELECT $1, $2, $3
-RETURNING id
+RETURNING *
 ",
         term,
         definition,
@@ -156,9 +160,7 @@ pub async fn fetch_for_course(conn: &mut PgConnection, course_id: Uuid) -> Model
     let res = sqlx::query_as!(
         Term,
         "
-SELECT glossary.id,
-  glossary.term,
-  glossary.definition
+SELECT *
 FROM glossary
 WHERE glossary.course_id = $1
 AND deleted_at IS NULL

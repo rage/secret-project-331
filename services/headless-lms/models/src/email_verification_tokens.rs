@@ -56,7 +56,7 @@ INSERT INTO email_verification_tokens (
     expires_at
 )
 VALUES ($1, $2, $3, NOW() + INTERVAL '15 minutes')
-RETURNING email_verification_token
+RETURNING *
         "#,
         email_verification_token,
         user_id,
@@ -77,16 +77,7 @@ pub async fn get_by_email_verification_token(
     let record = sqlx::query_as!(
         EmailVerificationToken,
         r#"
-SELECT id,
-    email_verification_token,
-    user_id,
-    code,
-    code_sent,
-    expires_at,
-    used_at,
-    created_at,
-    updated_at,
-    deleted_at
+SELECT *
 FROM email_verification_tokens
 WHERE email_verification_token = $1
   AND expires_at > NOW()

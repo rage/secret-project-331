@@ -213,7 +213,7 @@ pub async fn insert(
                 "
 INSERT INTO roles (user_id, role, is_global)
 VALUES ($1, $2, True)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole
@@ -227,7 +227,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, organization_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -242,7 +242,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, course_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -257,7 +257,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, course_instance_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -272,7 +272,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, exam_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,

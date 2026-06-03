@@ -96,7 +96,7 @@ pub async fn insert(
         "
 INSERT INTO peer_or_self_review_configs (id, course_id, exercise_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         course_id,
@@ -169,20 +169,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerOrS
     let res = sqlx::query_as!(
         PeerOrSelfReviewConfig,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  exercise_id,
-  peer_reviews_to_give,
-  peer_reviews_to_receive,
-  accepting_threshold,
-  processing_strategy,
-  manual_review_cutoff_in_days,
-  points_are_all_or_nothing,
-  review_instructions,
-  reset_answer_if_zero_points_from_review
+SELECT *
 FROM peer_or_self_review_configs
 WHERE id = $1
   AND deleted_at IS NULL
@@ -202,20 +189,7 @@ pub async fn get_by_exercise_id(
     let res = sqlx::query_as!(
         PeerOrSelfReviewConfig,
         r#"
-SELECT id,
-    created_at,
-    updated_at,
-    deleted_at,
-    course_id,
-    exercise_id,
-    peer_reviews_to_give,
-    peer_reviews_to_receive,
-    accepting_threshold,
-    processing_strategy,
-    manual_review_cutoff_in_days,
-    points_are_all_or_nothing,
-    review_instructions,
-    reset_answer_if_zero_points_from_review
+SELECT *
 FROM peer_or_self_review_configs
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -247,20 +221,7 @@ pub async fn get_default_for_course_by_course_id(
     let res = sqlx::query_as!(
         PeerOrSelfReviewConfig,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_id,
-  exercise_id,
-  peer_reviews_to_give,
-  peer_reviews_to_receive,
-  accepting_threshold,
-  processing_strategy,
-  manual_review_cutoff_in_days,
-  points_are_all_or_nothing,
-  review_instructions,
-  reset_answer_if_zero_points_from_review
+SELECT *
 FROM peer_or_self_review_configs
 WHERE course_id = $1
   AND exercise_id IS NULL
@@ -280,7 +241,7 @@ UPDATE peer_or_self_review_configs
 SET deleted_at = now()
 WHERE id = $1
 AND deleted_at IS NULL
-RETURNING id
+RETURNING *
     ",
         id
     )
@@ -401,7 +362,7 @@ UPDATE peer_or_self_review_configs
 SET deleted_at = now()
 WHERE exercise_id = ANY ($1)
 AND deleted_at IS NULL
-RETURNING id;
+RETURNING *;
     ",
         exercise_ids
     )

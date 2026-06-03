@@ -23,6 +23,8 @@ pub enum HistoryChangeReason {
 pub struct PageHistory {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub title: String,
     pub content: Value,
     pub history_change_reason: HistoryChangeReason,
@@ -66,7 +68,7 @@ INSERT INTO page_history (
     restored_from_id
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         page_id,
@@ -114,14 +116,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PageHis
     let res = sqlx::query_as!(
         PageHistory,
         r#"
-SELECT id,
-  title,
-  content,
-  created_at,
-  history_change_reason,
-  restored_from_id,
-  author_user_id,
-  page_id
+SELECT *
 FROM page_history
 WHERE id = $1
   AND deleted_at IS NULL
@@ -141,14 +136,7 @@ pub async fn history(
     let res = sqlx::query_as!(
         PageHistory,
         r#"
-SELECT id,
-  title,
-  content,
-  created_at,
-  history_change_reason,
-  restored_from_id,
-  author_user_id,
-  page_id
+SELECT *
 FROM page_history
 WHERE page_id = $1
 AND deleted_at IS NULL

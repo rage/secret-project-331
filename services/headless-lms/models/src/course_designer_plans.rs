@@ -48,6 +48,7 @@ pub struct CourseDesignerPlan {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub created_by_user_id: Uuid,
     pub name: Option<String>,
     pub status: CourseDesignerPlanStatus,
@@ -295,15 +296,7 @@ pub async fn create_plan(
         r#"
 INSERT INTO course_designer_plans (created_by_user_id, name)
 VALUES ($1, $2)
-RETURNING
-  id,
-  created_at,
-  updated_at,
-  created_by_user_id,
-  name,
-  status,
-  active_stage,
-  last_weekly_stage_email_sent_at
+RETURNING *
 "#,
         user_id,
         name

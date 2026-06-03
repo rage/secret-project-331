@@ -189,15 +189,7 @@ INSERT INTO flagged_answers (
     description
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id,
-  submission_id,
-  flagged_user,
-  flagged_by,
-  reason,
-  description,
-  created_at,
-  updated_at,
-  deleted_at
+RETURNING *
         "#,
         flagged_answer.submission_id,
         flagged_answer.flagged_user,
@@ -219,7 +211,7 @@ pub async fn increment_flag_count(
         UPDATE exercise_slide_submissions
         SET flag_count = COALESCE(flag_count, 0) + 1
         WHERE id = $1
-        RETURNING flag_count
+        RETURNING *
         "#,
         submission_id
     )
@@ -236,16 +228,7 @@ pub async fn get_flagged_answers_by_submission_id(
     let results = sqlx::query_as!(
         FlaggedAnswer,
         r#"
-        SELECT
-            id,
-            submission_id,
-            flagged_user,
-            flagged_by,
-            reason,
-            description,
-            created_at,
-            updated_at,
-            deleted_at
+        SELECT *
         FROM flagged_answers
         WHERE submission_id = $1
           AND deleted_at IS NULL
@@ -265,16 +248,7 @@ pub async fn get_flagged_answers_submission_ids_by_flaggers_id(
     let flagged_submissions = sqlx::query_as!(
         FlaggedAnswer,
         r#"
-        SELECT
-            id,
-            submission_id,
-            flagged_user,
-            flagged_by,
-            reason,
-            description,
-            created_at,
-            updated_at,
-            deleted_at
+        SELECT *
         FROM flagged_answers
         WHERE flagged_by = $1
           AND deleted_at IS NULL

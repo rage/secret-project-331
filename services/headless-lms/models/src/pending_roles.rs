@@ -8,8 +8,13 @@ use utoipa::ToSchema;
 
 pub struct PendingRole {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub user_email: String,
     pub role: UserRole,
+    pub course_id: Option<Uuid>,
+    pub course_instance_id: Option<Uuid>,
     pub expires_at: DateTime<Utc>,
 }
 
@@ -63,7 +68,7 @@ INSERT INTO pending_roles (
     course_instance_id
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id;
+RETURNING *;
         "#,
         pkey_policy.into_uuid(),
         role_info.email,
@@ -86,7 +91,7 @@ pub async fn get_all(conn: &mut PgConnection, domain: RoleDomain) -> ModelResult
             sqlx::query_as!(
                 PendingRole,
                 r#"
-SELECT id, user_email, expires_at, role AS "role!" FROM pending_roles
+SELECT * FROM pending_roles
 WHERE course_id = $1
 AND deleted_at IS NULL
 AND expires_at > NOW()
@@ -100,7 +105,7 @@ AND expires_at > NOW()
             sqlx::query_as!(
                 PendingRole,
                 r#"
-SELECT id, user_email, expires_at, role AS "role!" FROM pending_roles
+SELECT * FROM pending_roles
 WHERE course_instance_id = $1
 AND deleted_at IS NULL
 AND expires_at > NOW()

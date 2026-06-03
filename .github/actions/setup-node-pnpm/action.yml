@@ -1,9 +1,25 @@
 name: Setup Node & pnpm
-description: Install pnpm from package.json and let it handle Node via devEngines.runtime
+description: Install the Node version from package.json devEngines.runtime, then activate pnpm from packageManager
 runs:
   using: composite
   steps:
-    - shell: bash
+    - name: Determine Node version
+      id: node-version
+      shell: bash
+      run: |
+        cd "$GITHUB_WORKSPACE"
+
+        # Read the desired Node version from devEngines.runtime so it stays in sync with package.json.
+        NODE_VERSION="$(node -p "const v = require('./package.json').devEngines?.runtime?.version; if (!v) throw new Error('Expected devEngines.runtime.version in package.json'); v")"
+        echo "version=$NODE_VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ steps.node-version.outputs.version }}
+
+    - name: Install pnpm
+      shell: bash
       run: |
         cd "$GITHUB_WORKSPACE"
 

@@ -34,6 +34,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "@eslint/compat": "^2.1.0",
     "@eslint/js": "^10.0.1",
     "@hey-api/openapi-ts": "0.97.3",
     "@next/eslint-plugin-next": "^16.2.6",

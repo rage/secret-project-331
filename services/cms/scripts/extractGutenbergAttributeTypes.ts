@@ -55,7 +55,7 @@ const OriginalURL = global.URL
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const urlThatDoesntCrashWithPaths = function (...args: any[]) {
-  if (args[0].startsWith("/")) {
+  if (typeof args[0] === "string" && args[0].startsWith("/")) {
     return new OriginalURL(`https://example.com${args[0]}`)
   }
   // @ts-expect-error: mirrors the function

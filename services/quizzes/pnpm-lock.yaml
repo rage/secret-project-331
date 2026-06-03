@@ -233,6 +233,9 @@ importers:
       jest-environment-jsdom:
         specifier: ^30.4.1
         version: 30.4.1
+      jest-environment-node:
+        specifier: ^30.4.1
+        version: 30.4.1
       node:
         specifier: runtime:24.16.0
         version: runtime:24.16.0
@@ -10480,6 +10483,7 @@ time:
   i18next@26.3.0: '2026-05-26T12:59:10.290Z'
   immer@11.1.8: '2026-05-08T15:09:33.021Z'
   jest-environment-jsdom@30.4.1: '2026-05-08T08:34:58.404Z'
+  jest-environment-node@30.4.1: '2026-05-08T08:34:56.628Z'
   jest@30.4.2: '2026-05-09T00:31:21.036Z'
   jotai-family@1.0.2: '2026-05-13T18:49:25.172Z'
   jotai@2.20.0: '2026-05-06T01:10:00.036Z'

@@ -64,6 +64,8 @@ tracing-error = "0.2.1"
 backtrace = "0.3.76"
 # Utilities for random number generation
 rand = "0.10.1"
+# Code-first OpenAPI generation from Rust types and handlers
+utoipa.workspace = true
 
 [lints.clippy]
 unwrap_used = "deny"

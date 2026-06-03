@@ -73,3 +73,5 @@ sqlx = { version = "0.8.6", default-features = false, features = [
 tokio-stream = { version = "0.1.18", features = [ "io-util" ] }
 # Secret value wrapper to avoid leaking secrets in logs and memory.
 secrecy = { version = "0.10.3", features = ["serde"] }
+# Code-first OpenAPI generation from Rust types and handlers
+utoipa = { version = "5.4.0", features = ["chrono", "uuid"] }

@@ -28,6 +28,7 @@ use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use tracing::trace;
 use url::Url;
+use utoipa::ToSchema;
 
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
@@ -439,9 +440,20 @@ impl LLMRequest {
     }
 }
 
+// todo: remove?
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ChatResponse {
     pub text: String,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[serde(tag = "type", content = "data")]
+pub enum ChatStreamEvent {
+    Delta { text: String },
+    Reasoning,
+    ToolCall { tool_name: String },
+    Done,
+    Error { message: String },
 }
 
 /// Custom stream that encapsulates both the response stream and the cancellation guard. Makes sure that the guard is always dropped when the stream is dropped.
@@ -962,7 +974,7 @@ pub async fn parse_and_stream_to_user<'a>(
 
             if let Some(delta) = &response_output.delta {
                 full_response_text.push(delta.to_owned());
-                let response = ChatResponse { text: delta.clone() };
+                let response = ChatStreamEvent::Delta  { text: delta.clone() };
                 let response_as_string = serde_json::to_string(&response)?;
                 yield Bytes::from(response_as_string);
                 yield Bytes::from("\n");
@@ -974,7 +986,9 @@ pub async fn parse_and_stream_to_user<'a>(
                     OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
                     _ => {
                         let mut conn = pool.acquire().await?;
-                        process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;
+                        let res = process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;
+                        yield Bytes::from(serde_json::to_string(&ChatStreamEvent::Reasoning)?);
+                        yield Bytes::from("\n");
                         continue;
                     },
                 };

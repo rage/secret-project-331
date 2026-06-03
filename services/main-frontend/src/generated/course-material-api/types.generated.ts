@@ -50,6 +50,32 @@ export type ChaptersWithStatus = {
   modules: Array<CourseMaterialCourseModule>
 }
 
+export type ChatStreamEvent =
+  | {
+      data: {
+        text: string
+      }
+      type: "Delta"
+    }
+  | {
+      type: "Reasoning"
+    }
+  | {
+      data: {
+        tool_name: string
+      }
+      type: "ToolCall"
+    }
+  | {
+      type: "Done"
+    }
+  | {
+      data: {
+        message: string
+      }
+      type: "Error"
+    }
+
 export type ChatbotConversation = {
   chatbot_configuration_id: string
   course_id: string
@@ -1369,7 +1395,7 @@ export type SendChatbotMessageResponses = {
   /**
    * Chatbot response stream
    */
-  200: string
+  200: ChatStreamEvent
 }
 
 export type SendChatbotMessageResponse =

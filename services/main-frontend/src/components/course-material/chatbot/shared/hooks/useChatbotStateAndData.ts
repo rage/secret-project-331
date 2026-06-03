@@ -6,6 +6,7 @@ import { client as courseMaterialClient } from "@/generated/course-material-api/
 import type {
   ChatbotConversation,
   ChatbotConversationInfo,
+  ChatStreamEvent,
   SendChatbotMessageData,
 } from "@/generated/course-material-api/types.generated"
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
@@ -116,9 +117,10 @@ const useChatbotStateAndData = (
               continue
             }
             try {
-              const parsedValue = JSON.parse(line)
-              if (parsedValue.text) {
-                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.text })
+              const parsedValue: ChatStreamEvent = JSON.parse(line)
+              console.log(parsedValue)
+              if (parsedValue.type === "Delta") {
+                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.data.text })
               }
             } catch (e) {
               console.error(e)

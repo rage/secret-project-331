@@ -369,9 +369,9 @@
           "200": {
             "description": "Chatbot response stream",
             "content": {
-              "text/plain": {
+              "text/event-stream": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/ChatStreamEvent"
                 }
               }
             }
@@ -2951,6 +2951,87 @@
             }
           }
         }
+      },
+      "ChatStreamEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["text"],
+                "properties": {
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Delta"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Reasoning"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["tool_name"],
+                "properties": {
+                  "tool_name": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["ToolCall"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Done"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Error"]
+              }
+            }
+          }
+        ]
       },
       "ChatbotConversation": {
         "type": "object",

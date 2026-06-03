@@ -64,6 +64,33 @@ export const zChapterWithStatus = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zChatStreamEvent = z.union([
+  z.object({
+    data: z.object({
+      text: z.string(),
+    }),
+    type: z.enum(["Delta"]),
+  }),
+  z.object({
+    type: z.enum(["Reasoning"]),
+  }),
+  z.object({
+    data: z.object({
+      tool_name: z.string(),
+    }),
+    type: z.enum(["ToolCall"]),
+  }),
+  z.object({
+    type: z.enum(["Done"]),
+  }),
+  z.object({
+    data: z.object({
+      message: z.string(),
+    }),
+    type: z.enum(["Error"]),
+  }),
+])
+
 export const zChatbotConversation = z.object({
   chatbot_configuration_id: z.uuid(),
   course_id: z.uuid(),
@@ -1412,7 +1439,7 @@ export const zSendChatbotMessagePath = z.object({
 /**
  * Chatbot response stream
  */
-export const zSendChatbotMessageResponse = z.string()
+export const zSendChatbotMessageResponse = zChatStreamEvent
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),

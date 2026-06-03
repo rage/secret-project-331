@@ -155,6 +155,7 @@ import type {
   SearchPagesWithWordsData,
   SearchPagesWithWordsResponses,
   SendChatbotMessageData,
+  SendChatbotMessageResponse,
   SendChatbotMessageResponses,
   UpdateCourseMaterialGlossaryTermData,
   UpdateCourseMaterialGlossaryTermResponses,
@@ -471,9 +472,9 @@ export const newChatbotConversation = <ThrowOnError extends boolean = true>(
  * Sends a new chat message to the chatbot.
  */
 export const sendChatbotMessage = <ThrowOnError extends boolean = true>(
-  options: Options<SendChatbotMessageData, ThrowOnError>,
+  options: Options<SendChatbotMessageData, ThrowOnError, SendChatbotMessageResponse>,
 ) =>
-  (options.client ?? client).post<SendChatbotMessageResponses, unknown, ThrowOnError, "data">({
+  (options.client ?? client).sse.post<SendChatbotMessageResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zSendChatbotMessageResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message",

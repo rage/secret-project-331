@@ -1,7 +1,9 @@
 use actix_web::http::header::ContentType;
 use chrono::Utc;
 
-use headless_lms_chatbot::azure_chatbot::{ChatbotUserContext, send_chat_request_and_parse_stream};
+use headless_lms_chatbot::azure_chatbot::{
+    ChatStreamEvent, ChatbotUserContext, send_chat_request_and_parse_stream,
+};
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::chatbot_conversation_message_messages::{
@@ -82,7 +84,12 @@ Sends a new chat message to the chatbot.
         content_type = "application/json"
     ),
     responses(
-        (status = 200, description = "Chatbot response stream", body = String)
+        (
+            status = 200,
+            description = "Chatbot response stream",
+            body = ChatStreamEvent,
+            content_type = "text/event-stream"
+        )
     )
 )]
 #[instrument(skip(pool, app_conf))]

@@ -60,78 +60,12 @@
       },
       {
         "ordinal": 5,
-        "name": "message",
-        "type_info": "Varchar",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "message"
-          }
-        }
-      },
-      {
-        "ordinal": 6,
-        "name": "message_is_complete",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "message_is_complete"
-          }
-        }
-      },
-      {
-        "ordinal": 7,
-        "name": "used_tokens",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "used_tokens"
-          }
-        }
-      },
-      {
-        "ordinal": 8,
         "name": "order_number",
         "type_info": "Int4",
         "origin": {
           "Table": {
             "table": "chatbot_conversation_messages",
             "name": "order_number"
-          }
-        }
-      },
-      {
-        "ordinal": 9,
-        "name": "message_role",
-        "type_info": {
-          "Custom": {
-            "name": "message_role",
-            "kind": {
-              "Enum": [
-                "user",
-                "assistant",
-                "tool"
-              ]
-            }
-          }
-        },
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "message_role"
-          }
-        }
-      },
-      {
-        "ordinal": 10,
-        "name": "tool_output_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "chatbot_conversation_messages",
-            "name": "tool_output_id"
           }
         }
       }
@@ -147,12 +81,7 @@
       false,
       true,
       false,
-      true,
-      false,
-      false,
-      false,
-      false,
-      true
+      false
     ]
   },
   "hash": "e62a0932d5c3744e8b25d5b8360be439a573722c10b041cfb865415cd5ed9fdd"

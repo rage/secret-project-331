@@ -1095,17 +1095,15 @@
           "enabled_to_students",
           "chatbot_name",
           "model_id",
-          "thinking_model",
           "prompt",
           "initial_message",
           "weekly_tokens_per_user",
           "daily_tokens_per_user",
-          "response_max_tokens",
           "temperature",
           "top_p",
           "frequency_penalty",
           "presence_penalty",
-          "max_completion_tokens",
+          "max_output_tokens",
           "verbosity",
           "reasoning_effort",
           "use_azure_search",
@@ -1165,7 +1163,7 @@
           "maintain_azure_search_index": {
             "type": "boolean"
           },
-          "max_completion_tokens": {
+          "max_output_tokens": {
             "type": "integer",
             "format": "int32"
           },
@@ -1183,19 +1181,12 @@
           "reasoning_effort": {
             "$ref": "#/components/schemas/ReasoningEffortLevel"
           },
-          "response_max_tokens": {
-            "type": "integer",
-            "format": "int32"
-          },
           "suggest_next_messages": {
             "type": "boolean"
           },
           "temperature": {
             "type": "number",
             "format": "float"
-          },
-          "thinking_model": {
-            "type": "boolean"
           },
           "top_p": {
             "type": "number",
@@ -2397,7 +2388,7 @@
       },
       "ReasoningEffortLevel": {
         "type": "string",
-        "enum": ["minimal", "low", "medium", "high"]
+        "enum": ["none", "minimal", "low", "medium", "high", "xhigh"]
       },
       "RepositoryExercise": {
         "type": "object",

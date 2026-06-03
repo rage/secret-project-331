@@ -460,7 +460,7 @@ export const zContentManagementPage = z.object({
   peer_or_self_review_questions: z.array(zCmsPeerOrSelfReviewQuestion),
 })
 
-export const zReasoningEffortLevel = z.enum(["minimal", "low", "medium", "high"])
+export const zReasoningEffortLevel = z.enum(["none", "minimal", "low", "medium", "high", "xhigh"])
 
 export const zRepositoryExercise = z.object({
   checksum: z.array(
@@ -519,7 +519,7 @@ export const zChatbotConfiguration = z.object({
   initial_message: z.string(),
   initial_suggested_messages: z.array(z.string()).nullish(),
   maintain_azure_search_index: z.boolean(),
-  max_completion_tokens: z
+  max_output_tokens: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
@@ -527,13 +527,8 @@ export const zChatbotConfiguration = z.object({
   presence_penalty: z.number(),
   prompt: z.string(),
   reasoning_effort: zReasoningEffortLevel,
-  response_max_tokens: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   suggest_next_messages: z.boolean(),
   temperature: z.number(),
-  thinking_model: z.boolean(),
   top_p: z.number(),
   updated_at: z.iso.datetime(),
   use_azure_search: z.boolean(),

@@ -3044,11 +3044,8 @@
           "created_at",
           "updated_at",
           "conversation_id",
-          "message_role",
-          "message_is_complete",
-          "used_tokens",
           "order_number",
-          "tool_call_fields"
+          "message"
         ],
         "properties": {
           "conversation_id": {
@@ -3068,41 +3065,15 @@
             "format": "uuid"
           },
           "message": {
-            "type": ["string", "null"]
-          },
-          "message_is_complete": {
-            "type": "boolean"
-          },
-          "message_role": {
-            "$ref": "#/components/schemas/MessageRole"
+            "$ref": "#/components/schemas/Message"
           },
           "order_number": {
             "type": "integer",
             "format": "int32"
           },
-          "tool_call_fields": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ChatbotConversationMessageToolCall"
-            }
-          },
-          "tool_output": {
-            "oneOf": [
-              {
-                "type": "null"
-              },
-              {
-                "$ref": "#/components/schemas/ChatbotConversationMessageToolOutput"
-              }
-            ]
-          },
           "updated_at": {
             "type": "string",
             "format": "date-time"
-          },
-          "used_tokens": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },
@@ -3163,18 +3134,23 @@
           }
         }
       },
-      "ChatbotConversationMessageToolCall": {
+      "ChatbotConversationMessageMessage": {
         "type": "object",
         "required": [
           "id",
           "created_at",
           "updated_at",
-          "message_id",
-          "tool_name",
-          "tool_arguments",
-          "tool_call_id"
+          "chatbot_conversation_message_id",
+          "text",
+          "message_role",
+          "message_is_complete",
+          "used_tokens"
         ],
         "properties": {
+          "chatbot_conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -3187,13 +3163,105 @@
             "type": "string",
             "format": "uuid"
           },
-          "message_id": {
+          "message_is_complete": {
+            "type": "boolean"
+          },
+          "message_role": {
+            "$ref": "#/components/schemas/MessageRole"
+          },
+          "response_id": {
+            "type": ["string", "null"]
+          },
+          "text": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "used_tokens": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ChatbotConversationMessageReasoning": {
+        "type": "object",
+        "required": [
+          "id",
+          "chatbot_conversation_message_id",
+          "created_at",
+          "updated_at",
+          "response_id"
+        ],
+        "properties": {
+          "chatbot_conversation_message_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "response_id": {
+            "type": "string"
+          },
+          "summary": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "ChatbotConversationMessageToolCall": {
+        "type": "object",
+        "required": [
+          "id",
+          "created_at",
+          "updated_at",
+          "chatbot_conversation_message_id",
+          "tool_name",
+          "tool_arguments",
+          "tool_call_id",
+          "tool_kind",
+          "response_id"
+        ],
+        "properties": {
+          "chatbot_conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "response_id": {
+            "type": "string"
           },
           "tool_arguments": {},
           "tool_call_id": {
             "type": "string"
+          },
+          "tool_kind": {
+            "$ref": "#/components/schemas/ToolKind"
           },
           "tool_name": {
             "type": "string"
@@ -3210,12 +3278,17 @@
           "id",
           "created_at",
           "updated_at",
-          "message_id",
-          "tool_name",
-          "tool_output",
-          "tool_call_id"
+          "chatbot_conversation_message_id",
+          "output",
+          "tool_call_id",
+          "tool_kind",
+          "response_id"
         ],
         "properties": {
+          "chatbot_conversation_message_id": {
+            "type": "string",
+            "format": "uuid"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -3228,18 +3301,17 @@
             "type": "string",
             "format": "uuid"
           },
-          "message_id": {
-            "type": "string",
-            "format": "uuid"
+          "output": {
+            "type": "string"
+          },
+          "response_id": {
+            "type": "string"
           },
           "tool_call_id": {
             "type": "string"
           },
-          "tool_name": {
-            "type": "string"
-          },
-          "tool_output": {
-            "type": "string"
+          "tool_kind": {
+            "$ref": "#/components/schemas/ToolKind"
           },
           "updated_at": {
             "type": "string",
@@ -5114,9 +5186,25 @@
           }
         }
       },
+      "Message": {
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageMessage"
+          },
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageToolCall"
+          },
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageToolOutput"
+          },
+          {
+            "$ref": "#/components/schemas/ChatbotConversationMessageReasoning"
+          }
+        ]
+      },
       "MessageRole": {
         "type": "string",
-        "enum": ["assistant", "user", "tool", "system"]
+        "enum": ["assistant", "user", "developer", "system"]
       },
       "NewCourseBackgroundQuestionAnswer": {
         "type": "object",
@@ -6140,6 +6228,10 @@
             "type": "string"
           }
         }
+      },
+      "ToolKind": {
+        "type": "string",
+        "enum": ["function", "azure_ai_search"]
       },
       "UnreturnedExercise": {
         "type": "object",

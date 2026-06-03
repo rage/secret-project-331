@@ -1,15 +1,21 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use sqlx::PgConnection;
 
 use crate::{
     azure_chatbot::ChatbotUserContext,
-    chatbot_tools::course_progress::CourseProgressTool,
+    chatbot_error::chatbot_err,
+    chatbot_tools::{
+        custom_tools::course_progress::CourseProgressTool,
+        provider_tools::azure_ai_search::AzureAISearchToolDefinition,
+    },
     prelude::{BackendError, ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 
-pub mod course_progress;
+pub mod custom_tools;
+pub mod provider_tools;
 
 pub trait ChatbotTool {
     type State;
@@ -53,7 +59,7 @@ pub trait ChatbotTool {
 
     /// Get a AzureLLMToolDefinition struct that represents this tool.
     /// The definition is sent to the LLM as part of a chat request.
-    fn get_tool_definition() -> AzureLLMToolDefinition;
+    fn get_tool_definition() -> AzureLLMFunctionToolDefinition;
 
     /// Create a new instance from connection, args and context
     fn new(
@@ -76,30 +82,36 @@ pub struct ToolProperties<S, A: Serialize> {
     arguments: A,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(untagged)]
+pub enum AzureLLMToolDefinition {
+    Function(AzureLLMFunctionToolDefinition),
+    Search(AzureAISearchToolDefinition),
+}
+
 /// A tool definition that is formatted for Azure.
 /// Defines a tool (function) that the LLM can call.
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct AzureLLMToolDefinition {
+pub struct AzureLLMFunctionToolDefinition {
     #[serde(rename = "type")]
     pub tool_type: LLMToolType,
-    pub function: LLMTool,
-}
-/// Content of an AzureLLMToolDefinition
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct LLMTool {
     pub name: String,
     pub description: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub parameters: Option<LLMToolParams>,
+    pub parameters: LLMToolParams,
+    /// Ensures that the LLM calls the tool with the correct params. Should be `true`
+    pub strict: bool,
 }
 
 /// Parameters that a chatbot tool accepts in an AzureLLMToolDefinition
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LLMToolParams {
     #[serde(rename = "type")]
     pub tool_type: LLMToolParamType,
     pub properties: HashMap<String, LLMToolParamProperties>,
     pub required: Vec<String>,
+    /// required to be false
+    pub additional_properties: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -123,7 +135,9 @@ pub enum LLMToolType {
 
 /// Get a vec of AzureLLMToolDefinitions for all available chatbot tools
 pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
-    vec![CourseProgressTool::get_tool_definition()]
+    vec![AzureLLMToolDefinition::Function(
+        CourseProgressTool::get_tool_definition(),
+    )]
 }
 
 /// Create a chatbot tool with LLM-provided arguments by matching the tool call
@@ -131,16 +145,15 @@ pub fn get_chatbot_tool_definitions() -> Vec<AzureLLMToolDefinition> {
 pub async fn get_chatbot_tool(
     conn: &mut PgConnection,
     fn_name: &str,
-    _fn_args: &str, // used in the future in other tool
+    _fn_args: &Value, // used in the future in other tool
     user_context: &ChatbotUserContext,
 ) -> ChatbotResult<impl ChatbotTool> {
     let tool = match fn_name {
         "course_progress" => CourseProgressTool::new(conn, "".to_string(), user_context).await?,
         _ => {
-            return Err(ChatbotError::new(
-                ChatbotErrorType::InvalidToolName,
-                "Incorrect or unknown function name".to_string(),
-                None,
+            return Err(chatbot_err!(
+                InvalidToolName,
+                "Incorrect or unknown function name".to_string()
             ));
         }
     };

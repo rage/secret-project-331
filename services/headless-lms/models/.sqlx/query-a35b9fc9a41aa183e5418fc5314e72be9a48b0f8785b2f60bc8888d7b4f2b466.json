@@ -170,17 +170,6 @@
       },
       {
         "ordinal": 15,
-        "name": "response_max_tokens",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "chatbot_configurations",
-            "name": "response_max_tokens"
-          }
-        }
-      },
-      {
-        "ordinal": 16,
         "name": "use_azure_search",
         "type_info": "Bool",
         "origin": {
@@ -191,7 +180,7 @@
         }
       },
       {
-        "ordinal": 17,
+        "ordinal": 16,
         "name": "maintain_azure_search_index",
         "type_info": "Bool",
         "origin": {
@@ -202,7 +191,7 @@
         }
       },
       {
-        "ordinal": 18,
+        "ordinal": 17,
         "name": "use_semantic_reranking",
         "type_info": "Bool",
         "origin": {
@@ -213,7 +202,7 @@
         }
       },
       {
-        "ordinal": 19,
+        "ordinal": 18,
         "name": "hide_citations",
         "type_info": "Bool",
         "origin": {
@@ -224,7 +213,7 @@
         }
       },
       {
-        "ordinal": 20,
+        "ordinal": 19,
         "name": "default_chatbot",
         "type_info": "Bool",
         "origin": {
@@ -235,7 +224,7 @@
         }
       },
       {
-        "ordinal": 21,
+        "ordinal": 20,
         "name": "model_id",
         "type_info": "Uuid",
         "origin": {
@@ -246,29 +235,7 @@
         }
       },
       {
-        "ordinal": 22,
-        "name": "thinking_model",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "chatbot_configurations",
-            "name": "thinking_model"
-          }
-        }
-      },
-      {
-        "ordinal": 23,
-        "name": "max_completion_tokens",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "chatbot_configurations",
-            "name": "max_completion_tokens"
-          }
-        }
-      },
-      {
-        "ordinal": 24,
+        "ordinal": 21,
         "name": "verbosity",
         "type_info": {
           "Custom": {
@@ -290,17 +257,19 @@
         }
       },
       {
-        "ordinal": 25,
+        "ordinal": 22,
         "name": "reasoning_effort",
         "type_info": {
           "Custom": {
             "name": "reasoning_effort_level",
             "kind": {
               "Enum": [
+                "none",
                 "minimal",
                 "low",
                 "medium",
-                "high"
+                "high",
+                "xhigh"
               ]
             }
           }
@@ -313,7 +282,7 @@
         }
       },
       {
-        "ordinal": 26,
+        "ordinal": 23,
         "name": "use_tools",
         "type_info": "Bool",
         "origin": {
@@ -324,7 +293,7 @@
         }
       },
       {
-        "ordinal": 27,
+        "ordinal": 24,
         "name": "suggest_next_messages",
         "type_info": "Bool",
         "origin": {
@@ -335,13 +304,24 @@
         }
       },
       {
-        "ordinal": 28,
+        "ordinal": 25,
         "name": "initial_suggested_messages",
         "type_info": "VarcharArray",
         "origin": {
           "Table": {
             "table": "chatbot_configurations",
             "name": "initial_suggested_messages"
+          }
+        }
+      },
+      {
+        "ordinal": 26,
+        "name": "max_output_tokens",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "max_output_tokens"
           }
         }
       }
@@ -377,10 +357,8 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      true
+      true,
+      false
     ]
   },
   "hash": "a35b9fc9a41aa183e5418fc5314e72be9a48b0f8785b2f60bc8888d7b4f2b466"

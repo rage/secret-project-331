@@ -298,17 +298,15 @@ export interface ChatbotConfiguration {
   enabled_to_students: boolean
   chatbot_name: string
   model_id: string
-  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  max_completion_tokens: number
+  max_output_tokens: number
   verbosity: VerbosityLevel
   reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
@@ -326,17 +324,15 @@ export interface NewChatbotConf {
   enabled_to_students: boolean
   chatbot_name: string
   model_id: string
-  thinking_model: boolean
   prompt: string
   initial_message: string
   weekly_tokens_per_user: number
   daily_tokens_per_user: number
-  response_max_tokens: number
   temperature: number
   top_p: number
   frequency_penalty: number
   presence_penalty: number
-  max_completion_tokens: number
+  max_output_tokens: number
   verbosity: VerbosityLevel
   reasoning_effort: ReasoningEffortLevel
   use_azure_search: boolean
@@ -352,7 +348,7 @@ export interface NewChatbotConf {
 
 export type VerbosityLevel = "low" | "medium" | "high"
 
-export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
 export interface ChatbotConfigurationModel {
   id: string
@@ -360,11 +356,12 @@ export interface ChatbotConfigurationModel {
   updated_at: string
   deleted_at: string | null
   model: string
-  thinking: boolean
+  model_type: ModelType
   default_model: boolean
-  deployment_name: string
   context_size: number
 }
+
+export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "Mistral"
 
 export interface ChatbotConversationMessage {
   id: string
@@ -372,16 +369,40 @@ export interface ChatbotConversationMessage {
   updated_at: string
   deleted_at: string | null
   conversation_id: string
-  message: string | null
+  order_number: number
+  message: Message
+}
+
+export type Message =
+  | ChatbotConversationMessageMessage
+  | ChatbotConversationMessageToolCall
+  | ChatbotConversationMessageToolOutput
+  | ChatbotConversationMessageReasoning
+
+export type MessageRole = "assistant" | "user" | "developer" | "system"
+
+export interface ChatbotConversationMessageMessage {
+  id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  chatbot_conversation_message_id: string
+  text: string
   message_role: MessageRole
   message_is_complete: boolean
   used_tokens: number
-  order_number: number
-  tool_output: ChatbotConversationMessageToolOutput | null
-  tool_call_fields: Array<ChatbotConversationMessageToolCall>
+  response_id: string | null
 }
 
-export type MessageRole = "assistant" | "user" | "tool" | "system"
+export interface ChatbotConversationMessageReasoning {
+  id: string
+  chatbot_conversation_message_id: string
+  created_at: string
+  updated_at: string
+  deleted_at: string | null
+  summary: string | null
+  response_id: string
+}
 
 export interface ChatbotConversationMessageCitation {
   id: string
@@ -402,21 +423,26 @@ export interface ChatbotConversationMessageToolCall {
   created_at: string
   updated_at: string
   deleted_at: string | null
-  message_id: string
+  chatbot_conversation_message_id: string
   tool_name: string
   tool_arguments: unknown
   tool_call_id: string
+  tool_kind: ToolKind
+  response_id: string
 }
+
+export type ToolKind = "function" | "azure_ai_search"
 
 export interface ChatbotConversationMessageToolOutput {
   id: string
   created_at: string
   updated_at: string
   deleted_at: string | null
-  message_id: string
-  tool_name: string
-  tool_output: string
+  chatbot_conversation_message_id: string
+  output: string
   tool_call_id: string
+  tool_kind: ToolKind
+  response_id: string
 }
 
 export interface ChatbotConversationSuggestedMessage {

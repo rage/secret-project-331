@@ -57,10 +57,12 @@ const textFieldCss = css`
   width: auto;
 `
 
+const NONE = "none"
 const MINIMAL = "minimal"
 const LOW = "low"
 const MEDIUM = "medium"
 const HIGH = "high"
+const XHIGH = "xhigh"
 
 const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQueryRefetch }) => {
   const { t } = useTranslation()
@@ -85,11 +87,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       top_p: oldChatbotConf.top_p,
       frequency_penalty: oldChatbotConf.frequency_penalty,
       presence_penalty: oldChatbotConf.presence_penalty,
-      response_max_tokens: oldChatbotConf.response_max_tokens,
+      max_output_tokens: oldChatbotConf.max_output_tokens,
       verbosity: oldChatbotConf.verbosity,
       reasoning_effort: oldChatbotConf.reasoning_effort,
-      thinking_model: oldChatbotConf.thinking_model,
-      max_completion_tokens: oldChatbotConf.max_completion_tokens,
       use_azure_search: oldChatbotConf.use_azure_search,
       use_tools: oldChatbotConf.use_tools,
       hide_citations: oldChatbotConf.hide_citations,
@@ -118,6 +118,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const suggestMessagesFieldValue = watch("suggest_next_messages")
 
   let selectedModel: ChatbotConfigurationModel | null = null
+  let selectedModelThinking = false
 
   if (getChatbotModelsList.data) {
     // once the query has finished, selectedModel cannot be null
@@ -126,6 +127,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         return m.id === modelFieldValue
       }),
     )
+    selectedModelThinking = ["GPTThinking", "GPTHardThinking"].includes(selectedModel.model_type)
   }
 
   const configureChatbotMutation = useToastMutationOptions(
@@ -155,11 +157,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   )
 
   const onConfigureChatbotWrapper = handleSubmit((data) => {
-    // if the model is thinking or called model-router, force search to be off
-    let model: ChatbotConfigurationModel = assertNotNullOrUndefined(selectedModel)
-    let azure_search =
-      model.thinking || model.model === "model-router" ? false : data.use_azure_search
-
     configureChatbotMutation.mutate({
       body: {
         course_id: oldChatbotConf.course_id, // keep the old course id
@@ -174,15 +171,13 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         top_p: +data.top_p,
         frequency_penalty: +data.frequency_penalty,
         presence_penalty: +data.presence_penalty,
-        response_max_tokens: +data.response_max_tokens,
-        max_completion_tokens: +data.max_completion_tokens,
+        max_output_tokens: +data.max_output_tokens,
         reasoning_effort: data.reasoning_effort,
         verbosity: data.verbosity,
-        thinking_model: model.thinking,
-        use_azure_search: azure_search,
+        use_azure_search: data.use_azure_search,
         // right now use_azure_search requires the next field to be true and there is no need for it to
         // be true if azure search is false, so set them as the same value
-        maintain_azure_search_index: azure_search,
+        maintain_azure_search_index: data.use_azure_search,
         hide_citations: data.hide_citations,
         use_semantic_reranking: data.use_semantic_reranking,
         use_tools: data.use_tools,
@@ -237,12 +232,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
           options={getChatbotModelsList.data.map((m) => {
             return {
               value: m.id,
-              label: `${m.model} (${m.thinking ? t("reasoning") : t("non-reasoning")})`,
+              label: `${m.model} (${["GPTThinking", "GPTHardThinking"].includes(m.model_type) ? t("reasoning") : t("non-reasoning")})`,
             }
           })}
           showDefaultOption={false}
           {...register("model_id")}
         />
+        <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
+        <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
+        <CheckBox label={t("enable-tool-use")} {...register("use_tools")} />
         <CheckBox label={t("suggest-next-messages")} {...register("suggest_next_messages")} />
         {suggestMessagesFieldValue && (
           <div className={itemCss}>
@@ -297,60 +295,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             </div>
           </div>
         )}
-        {selectedModel?.thinking ? (
-          <div className={itemCss}>
-            <h4>{t("configure-reasoning")}</h4>
-            <div
-              className={css`
-                margin: 20px 20px;
-              `}
-            >
-              <SelectMenu<VerbosityLevel>
-                id="verbosity-select"
-                label={t("select-verbosity")}
-                error={errors.verbosity?.message}
-                options={[
-                  { value: LOW, label: t("reasoning-effort-low") },
-                  { value: MEDIUM, label: t("reasoning-effort-medium") },
-                  { value: HIGH, label: t("reasoning-effort-high") },
-                ]}
-                disabled={!selectedModel?.thinking}
-                showDefaultOption={false}
-                {...register("verbosity")}
-              />
-              <SelectMenu<ReasoningEffortLevel>
-                id="reasoning-effort-select"
-                label={t("select-reasoning-effort")}
-                error={errors.reasoning_effort?.message}
-                options={[
-                  { value: MINIMAL, label: t("reasoning-effort-minimal") },
-                  { value: LOW, label: t("reasoning-effort-low") },
-                  { value: MEDIUM, label: t("reasoning-effort-medium") },
-                  { value: HIGH, label: t("reasoning-effort-high") },
-                ]}
-                disabled={!selectedModel?.thinking}
-                showDefaultOption={false}
-                {...register("reasoning_effort")}
-              />
-              <TextField
-                className={textFieldCss}
-                type="number"
-                label={t("max-completion-tokens")}
-                error={errors.max_completion_tokens?.message}
-                disabled={!selectedModel?.thinking}
-                {...register("max_completion_tokens", { required: t("required-field") })}
-              />
-              <CheckBox label={t("enable-tool-use")} {...register("use_tools")} />
-            </div>
-          </div>
-        ) : (
-          selectedModel?.model !== "model-router" && (
-            <>
-              <CheckBox label={t("use-azure-search")} {...register("use_azure_search")} />
-              <CheckBox label={t("hide-citations")} {...register("hide_citations")} />
-            </>
-          )
-        )}
         <Accordion>
           <details
             className={css`
@@ -388,6 +332,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     label={t("weekly-token-user")}
                     {...register("weekly_tokens_per_user")}
                   />
+                  <TextField
+                    className={textFieldCss}
+                    type="number"
+                    label={
+                      selectedModelThinking ? t("max-completion-tokens") : t("max-token-response")
+                    }
+                    error={errors.max_output_tokens?.message}
+                    {...register("max_output_tokens", { required: t("required-field") })}
+                  />
                 </div>
                 <div className={itemCss}>
                   <h4>{t("configure-search")}</h4>
@@ -411,18 +364,50 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     margin-right: 20px;
                   `}
                 >
-                  {!selectedModel?.thinking && (
+                  {selectedModelThinking ? (
+                    <div className={itemCss}>
+                      <h4>{t("configure-reasoning")}</h4>
+                      <div
+                        className={css`
+                          margin: 20px 20px;
+                        `}
+                      >
+                        <SelectMenu<VerbosityLevel>
+                          id="verbosity-select"
+                          label={t("select-verbosity")}
+                          error={errors.verbosity?.message}
+                          options={[
+                            { value: LOW, label: t("reasoning-effort-low") },
+                            { value: MEDIUM, label: t("reasoning-effort-medium") },
+                            { value: HIGH, label: t("reasoning-effort-high") },
+                          ]}
+                          disabled={!selectedModelThinking}
+                          showDefaultOption={false}
+                          {...register("verbosity")}
+                        />
+                        <SelectMenu<ReasoningEffortLevel>
+                          id="reasoning-effort-select"
+                          label={t("select-reasoning-effort")}
+                          error={errors.reasoning_effort?.message}
+                          options={[
+                            { value: NONE, label: t("reasoning-effort-none") },
+                            { value: MINIMAL, label: t("reasoning-effort-minimal") },
+                            { value: LOW, label: t("reasoning-effort-low") },
+                            { value: MEDIUM, label: t("reasoning-effort-medium") },
+                            { value: HIGH, label: t("reasoning-effort-high") },
+                            { value: XHIGH, label: t("reasoning-effort-xhigh") },
+                          ]}
+                          disabled={!selectedModelThinking}
+                          showDefaultOption={false}
+                          {...register("reasoning_effort")}
+                        />
+                      </div>
+                    </div>
+                  ) : (
                     <div>
                       {" "}
                       <div className={itemCss}>
                         <h3>{t("non-reasoning-model-settings")}</h3>
-                        <TextField
-                          className={textFieldCss}
-                          type="number"
-                          label={t("max-token-response")}
-                          error={errors.response_max_tokens?.message}
-                          {...register("response_max_tokens", { required: t("required-field") })}
-                        />
                         <h4>{t("configure-penalty")}</h4>
                         <TextField
                           className={textFieldCss}
@@ -430,7 +415,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.frequency_penalty?.message}
                           step="0.01"
                           label={t("frequency-penalty")}
-                          disabled={selectedModel?.thinking}
+                          disabled={selectedModelThinking}
                           {...register("frequency_penalty", {
                             required: t("required-field"),
                             min: {
@@ -457,7 +442,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.presence_penalty?.message}
                           step="0.01"
                           label={t("presence-penalty")}
-                          disabled={selectedModel?.thinking}
+                          disabled={selectedModelThinking}
                           {...register("presence_penalty", {
                             required: t("required-field"),
                             min: {
@@ -487,7 +472,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.temperature?.message}
                           step="0.01"
                           label={t("temperature")}
-                          disabled={selectedModel?.thinking}
+                          disabled={selectedModelThinking}
                           {...register("temperature", {
                             required: t("required-field"),
                             min: {
@@ -514,7 +499,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           error={errors.top_p?.message}
                           step="0.01"
                           label={t("top-p")}
-                          disabled={selectedModel?.thinking}
+                          disabled={selectedModelThinking}
                           {...register("top_p", {
                             required: t("required-field"),
                             min: {

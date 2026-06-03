@@ -78,14 +78,9 @@ export type ChatbotConversationMessage = {
   created_at: string
   deleted_at?: string | null
   id: string
-  message?: string | null
-  message_is_complete: boolean
-  message_role: MessageRole
+  message: Message
   order_number: number
-  tool_call_fields: Array<ChatbotConversationMessageToolCall>
-  tool_output?: null | ChatbotConversationMessageToolOutput
   updated_at: string
-  used_tokens: number
 }
 
 export type ChatbotConversationMessageCitation = {
@@ -102,25 +97,51 @@ export type ChatbotConversationMessageCitation = {
   updated_at: string
 }
 
-export type ChatbotConversationMessageToolCall = {
+export type ChatbotConversationMessageMessage = {
+  chatbot_conversation_message_id: string
   created_at: string
   deleted_at?: string | null
   id: string
-  message_id: string
+  message_is_complete: boolean
+  message_role: MessageRole
+  response_id?: string | null
+  text: string
+  updated_at: string
+  used_tokens: number
+}
+
+export type ChatbotConversationMessageReasoning = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  response_id: string
+  summary?: string | null
+  updated_at: string
+}
+
+export type ChatbotConversationMessageToolCall = {
+  chatbot_conversation_message_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  response_id: string
   tool_arguments: unknown
   tool_call_id: string
+  tool_kind: ToolKind
   tool_name: string
   updated_at: string
 }
 
 export type ChatbotConversationMessageToolOutput = {
+  chatbot_conversation_message_id: string
   created_at: string
   deleted_at?: string | null
   id: string
-  message_id: string
+  output: string
+  response_id: string
   tool_call_id: string
-  tool_name: string
-  tool_output: string
+  tool_kind: ToolKind
   updated_at: string
 }
 
@@ -663,7 +684,13 @@ export type MaterialReference = {
   updated_at: string
 }
 
-export type MessageRole = "assistant" | "user" | "tool" | "system"
+export type Message =
+  | ChatbotConversationMessageMessage
+  | ChatbotConversationMessageToolCall
+  | ChatbotConversationMessageToolOutput
+  | ChatbotConversationMessageReasoning
+
+export type MessageRole = "assistant" | "user" | "developer" | "system"
 
 export type NewCourseBackgroundQuestionAnswer = {
   answer_value?: string | null
@@ -983,6 +1010,8 @@ export type TermUpdate = {
   definition: string
   term: string
 }
+
+export type ToolKind = "function" | "azure_ai_search"
 
 export type UnreturnedExercise = {
   id: string

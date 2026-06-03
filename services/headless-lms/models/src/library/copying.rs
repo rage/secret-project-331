@@ -1162,13 +1162,12 @@ INSERT INTO chatbot_configurations (
     top_p,
     presence_penalty,
     frequency_penalty,
-    response_max_tokens,
+    max_output_tokens,
     daily_tokens_per_user,
     weekly_tokens_per_user,
     default_chatbot,
     enabled_to_students,
     model_id,
-    thinking_model,
     use_tools
   )
 SELECT
@@ -1185,13 +1184,12 @@ SELECT
   top_p,
   presence_penalty,
   frequency_penalty,
-  response_max_tokens,
+  max_output_tokens,
   daily_tokens_per_user,
   weekly_tokens_per_user,
   default_chatbot,
   enabled_to_students,
   model_id,
-  thinking_model,
   use_tools
 FROM chatbot_configurations
 WHERE course_id = $2

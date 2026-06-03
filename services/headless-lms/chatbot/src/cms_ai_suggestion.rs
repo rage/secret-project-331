@@ -2,21 +2,24 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, JSONSchema, JSONType, LLMRequest, LLMRequestParams,
-        LLMRequestResponseFormatParam, NonThinkingParams, Schema, ThinkingParams,
+        ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
+        LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
+        ThinkingParams,
     },
+    chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
     llm_utils::{
-        APIMessage, APIMessageKind, APIMessageText, estimate_tokens, make_blocking_llm_request,
-        parse_text_completion,
+        APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request,
+        model_is_thinking, parse_text_completion,
     },
     prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::error::backend_error::BackendError;
-use headless_lms_models::application_task_default_language_models::TaskLMSpec;
-use headless_lms_models::chatbot_conversation_messages::MessageRole;
-use headless_lms_models::cms_ai::ParagraphSuggestionAction;
+use headless_lms_models::{
+    application_task_default_language_models::TaskLMSpec,
+    chatbot_conversation_message_messages::MessageRole, cms_ai::ParagraphSuggestionAction,
+};
 
 /// Structured LLM response for CMS paragraph suggestions.
 #[derive(serde::Deserialize)]
@@ -210,54 +213,55 @@ pub async fn generate_paragraph_suggestions(
         calculate_safe_token_limit(task_lm.context_size, task_lm.context_utilization);
 
     if used_tokens > token_budget {
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "Input paragraph is too long for the CMS AI suggestion context window.".to_string(),
-            None,
+        return Err(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "Input paragraph is too long for the CMS AI suggestion context window.".to_string()
         ));
     }
 
-    let system_message = APIMessage {
-        role: MessageRole::System,
-        fields: APIMessageKind::Text(APIMessageText {
-            content: system_instructions,
-        }),
+    let system_message = APIInputMessage {
+        message_type: InputItem::Message {
+            role: MessageRole::System,
+            content: MessageContent::Text(system_instructions),
+        },
     };
 
-    let user_message = APIMessage {
-        role: MessageRole::User,
-        fields: APIMessageKind::Text(APIMessageText {
-            content: user_message_content,
-        }),
+    let user_message = APIInputMessage {
+        message_type: InputItem::Message {
+            role: MessageRole::User,
+            content: MessageContent::Text(user_message_content),
+        },
     };
 
-    let params = if task_lm.thinking {
-        LLMRequestParams::Thinking(ThinkingParams {
-            max_completion_tokens: Some(4000),
-            verbosity: None,
-            reasoning_effort: None,
-            tools: vec![],
-            tool_choice: None,
-        })
+    let (params, max_output_tokens) = if model_is_thinking(task_lm.model_type) {
+        (
+            LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None }),
+            Some(4000),
+        )
     } else {
-        LLMRequestParams::NonThinking(NonThinkingParams {
-            max_tokens: Some(2000),
-            temperature: None,
-            top_p: None,
-            frequency_penalty: None,
-            presence_penalty: None,
-        })
+        (
+            LLMRequestParams::GPTNonThinking(NonThinkingParams {
+                temperature: None,
+                top_p: None,
+                frequency_penalty: None,
+                presence_penalty: None,
+            }),
+            Some(2000),
+        )
     };
 
     let chat_request = LLMRequest {
-        messages: vec![system_message, user_message],
-        data_sources: vec![],
+        input: vec![system_message, user_message],
+        model: task_lm.model.to_owned(),
+        max_output_tokens,
+        tools: vec![],
+        tool_choice: None,
         params,
-        response_format: Some(LLMRequestResponseFormatParam {
-            format_type: JSONType::JsonSchema,
-            json_schema: JSONSchema {
+        text: Some(RequestTextOptions {
+            verbosity: None,
+            format: Some(LLMRequestResponseFormatParam {
+                format_type: JSONType::JsonSchema,
                 name: "CmsParagraphSuggestionResponse".to_string(),
-                strict: true,
                 schema: Schema {
                     type_field: JSONType::Object,
                     properties: HashMap::from([(
@@ -272,29 +276,27 @@ pub async fn generate_paragraph_suggestions(
                     required: vec!["suggestions".to_string()],
                     additional_properties: false,
                 },
-            },
+                strict: true,
+            }),
         }),
-        stop: None,
     };
 
-    let completion = make_blocking_llm_request(chat_request, app_config, &task_lm).await?;
+    let completion = make_blocking_llm_request(chat_request, app_config).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
     let response: CmsParagraphSuggestionResponse = serde_json::from_str(completion_content)
         .map_err(|_| {
-            ChatbotError::new(
-                ChatbotErrorType::ChatbotMessageSuggestError,
+            chatbot_err!(
+                ChatbotMessageSuggestError,
                 "The CMS paragraph suggestion LLM returned an incorrectly formatted response."
-                    .to_string(),
-                None,
+                    .to_string()
             )
         })?;
 
     if response.suggestions.is_empty() {
-        return Err(ChatbotError::new(
-            ChatbotErrorType::ChatbotMessageSuggestError,
-            "The CMS paragraph suggestion LLM returned an empty suggestions list.".to_string(),
-            None,
+        return Err(chatbot_err!(
+            ChatbotMessageSuggestError,
+            "The CMS paragraph suggestion LLM returned an empty suggestions list.".to_string()
         ));
     }
 

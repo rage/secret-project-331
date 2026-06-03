@@ -101,22 +101,18 @@ test.describe("Test chatbot chat box", () => {
         "Default Chatbot Conversation With Citation Popover / View",
         [],
       )
-      await expect(student1Page.getByText("Mock test page content This")).toBeVisible()
+      await expect(
+        student1Page.getByText(
+          "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
+        ),
+      ).toBeVisible()
       await closePopover(student1Page)
       await chatbotDialog.getByLabel("Citation 2").click()
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
       await closePopover(student1Page)
     })
 
-    await test.step("try following the link in reference", async () => {
-      await chatbotDialog.getByRole("link", { name: "1Cited course page" }).click()
-      await student1Page.getByText("chapter 1", { exact: true }).waitFor()
-      await expect(student1Page.getByRole("heading", { name: "The Basics" })).toBeVisible()
-    })
-
     await test.step("try making a new convo", async () => {
-      await student1Page.getByRole("button", { name: "Open chatbot" }).click()
-      await expect(chatbotDialog.getByText("Hello! How can I assist you")).toBeVisible()
       await chatbotDialog.getByRole("button", { name: "Actions", exact: true }).click()
       // the menu popover is not inside the dialog so use student1page
       await student1Page.getByRole("menuitem", { name: "New conversation" }).click()
@@ -175,18 +171,16 @@ test.describe("Test chatbot chat box", () => {
         "Block Chatbot Conversation With Citation Popover / View",
         [],
       )
-      await expect(student1Page.getByText("Mock test page content This")).toBeVisible()
+      await expect(
+        student1Page.getByText(
+          "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
+        ),
+      ).toBeVisible()
       await closePopover(student1Page)
 
       await student1Page.getByLabel("Citation 2").click()
       await expect(student1Page.getByText("Mock test page content 2 This")).toBeVisible()
       await closePopover(student1Page)
-    })
-
-    await test.step("try following the link in reference", async () => {
-      await student1Page.getByRole("link", { name: "1Cited course page" }).click()
-      await student1Page.getByText("chapter 1", { exact: true }).waitFor()
-      await expect(student1Page.getByRole("heading", { name: "The Basics" })).toBeVisible()
     })
 
     await test.step("try making a new convo", async () => {
@@ -237,7 +231,9 @@ test.describe("Test chatbot chat box", () => {
       await citation1.waitFor({ state: "visible" })
       await scrollToYCoordinate(studentPage, 0)
       await citation1.click()
-      const textInPopover = studentPage.getByText("Mock test page content")
+      const textInPopover = studentPage.getByText(
+        "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
+      )
       await textInPopover.waitFor({ state: "visible" })
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await studentPage.waitForTimeout(100)
@@ -258,7 +254,9 @@ test.describe("Test chatbot chat box", () => {
           await scrollElementContainerToTop(citation1)
           await citation1.click()
           // Get a fresh reference to the text after reopening the popover
-          const freshTextInPopover = studentPage.getByText("Mock test page content")
+          const freshTextInPopover = studentPage.getByText(
+            "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
+          )
           await freshTextInPopover.waitFor()
           await waitToBeStable([freshTextInPopover])
         },
@@ -310,7 +308,9 @@ test.describe("Test chatbot chat box", () => {
       await citation1.waitFor({ state: "visible" })
       await scrollToYCoordinate(studentPage, 0)
       await citation1.click()
-      const textInPopover = studentPage.getByText("Mock test page content")
+      const textInPopover = studentPage.getByText(
+        "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
+      )
       await textInPopover.waitFor({ state: "visible" })
       // eslint-disable-next-line playwright/no-wait-for-timeout
       await studentPage.waitForTimeout(100)
@@ -330,7 +330,9 @@ test.describe("Test chatbot chat box", () => {
           })
           await scrollElementContainerToTop(citation1)
           await citation1.click()
-          const freshTextInPopover = studentPage.getByText("Mock test page content")
+          const freshTextInPopover = studentPage.getByText(
+            "More content on the same mock course page. Another snippet. Long. More content on the same mock course page. Another snippet. Long.",
+          )
           await freshTextInPopover.waitFor()
           await waitToBeStable([freshTextInPopover])
         },

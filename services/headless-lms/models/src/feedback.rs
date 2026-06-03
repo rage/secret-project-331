@@ -52,7 +52,7 @@ INSERT INTO feedback(
     page_id
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         user_id,
@@ -100,17 +100,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Feedbac
     let res = sqlx::query_as!(
         FeedbackRow,
         r#"
-SELECT id,
-  user_id,
-  course_id,
-  exam_id,
-  page_id,
-  feedback_given,
-  selected_text,
-  marked_as_read,
-  created_at,
-  updated_at,
-  deleted_at
+SELECT *
 FROM feedback
 WHERE id = $1
   AND deleted_at IS NULL
@@ -136,17 +126,7 @@ SET marked_as_read = $3
 WHERE id = $1
   AND course_id = $2
   AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  course_id,
-  exam_id,
-  page_id,
-  feedback_given,
-  selected_text,
-  marked_as_read,
-  created_at,
-  updated_at,
-  deleted_at
+RETURNING *
         "#,
         id,
         course_id,

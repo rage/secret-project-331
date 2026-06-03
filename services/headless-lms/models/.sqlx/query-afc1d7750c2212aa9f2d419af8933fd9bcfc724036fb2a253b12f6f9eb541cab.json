@@ -1,0 +1,150 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE feedback\nSET marked_as_read = $3\nWHERE id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "feedback_given",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "feedback_given"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "marked_as_read",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "marked_as_read"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "selected_text",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "selected_text"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "exam_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "exam_id"
+          }
+        }
+      },
+      {
+        "ordinal": 10,
+        "name": "page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "feedback",
+            "name": "page_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Bool"
+      ]
+    },
+    "nullable": [
+      false,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "afc1d7750c2212aa9f2d419af8933fd9bcfc724036fb2a253b12f6f9eb541cab"
+}

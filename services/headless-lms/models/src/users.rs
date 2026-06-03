@@ -24,7 +24,7 @@ pub async fn insert(
         "
 INSERT INTO users (id, email_domain)
 VALUES ($1, $2)
-RETURNING id
+RETURNING *
 ",
         pkey_policy.into_uuid(),
         email_domain
@@ -185,7 +185,7 @@ pub async fn get_users_ids_in_db_from_upstream_ids(
 ) -> ModelResult<Vec<Uuid>> {
     let res = sqlx::query!(
         "
-SELECT id
+SELECT *
 FROM users
 WHERE upstream_id IN (
     SELECT UNNEST($1::integer [])

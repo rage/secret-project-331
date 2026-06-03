@@ -1,7 +1,13 @@
 {
   "name": "main-frontend",
   "version": "0.1.0",
-  "packageManager": "pnpm@10.17.1",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.16.0",
+      "onFail": "download"
+    }
+  },
   "private": true,
   "scripts": {
     "build": "NODE_ENV=production next build",

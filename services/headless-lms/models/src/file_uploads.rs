@@ -11,7 +11,7 @@ pub async fn insert(
         r#"
 INSERT INTO file_uploads(path, name, mime, uploaded_by_user)
 VALUES ($1, $2, $3, $4)
-RETURNING id
+RETURNING *
 "#,
         path,
         name,
@@ -26,7 +26,7 @@ RETURNING id
 pub async fn get_filename(conn: &mut PgConnection, path: &str) -> ModelResult<String> {
     let res = sqlx::query!(
         r#"
-SELECT name
+SELECT *
 FROM file_uploads
 WHERE path = $1
 "#,
@@ -44,7 +44,7 @@ UPDATE file_uploads
 SET deleted_at = now()
 WHERE id = $1
 AND deleted_at IS NULL
-RETURNING path
+RETURNING *
 ",
         id
     )

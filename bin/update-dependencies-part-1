@@ -1,27 +1,32 @@
 #!/usr/bin/env python3
 """
-Python port of bin/update-dependencies-part-1
+Update Node and Rust dependencies with resumable package-level reporting.
 
-Notes:
-- Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`)
-- Behavior matches the Bash version, including:
-  * Stops if there are uncommitted changes at start
-  * Echoes each command before running it
-  * Tries `pnpm update --latest --interactive`, and if it fails, prompts you
-    to do manual updates and press Enter to continue so the script can commit
-  * Runs `pnpm audit --fix` and `pnpm install` non-fatally, then commits lockfile changes if present
-  * Updates Rust deps in services/headless-lms (upgrade + update), committing each step if changes exist
+Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`).
+Optionally requires: nix (only when `--update-flake` is passed).
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import os
+import re
 import shlex
+import shutil
 import subprocess
 import sys
-from contextlib import contextmanager
+import time
+import xml.etree.ElementTree as ET
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
+
+try:
+    import tomllib
+except ModuleNotFoundError:  # Python < 3.11; use the flake shell's python3.
+    tomllib = None  # type: ignore[assignment]
 
 BLUE = "\033[0;34m"
 RED = "\033[0;31m"
@@ -30,25 +35,171 @@ BOLD = "\033[1m"
 CURSIVE = "\033[3m"
 RESET = "\033[0m"
 
+STATUS_RUNNING = "RUNNING"
+STATUS_COMPLETED = "COMPLETED"
+STATUS_SKIPPED = "SKIPPED"
+STATUS_FAILED = "FAILED"
+STATUS_MANUAL = "MANUAL"
 
-def echo_command(cmd: list[str] | str) -> None:
+REPORT_BASE = Path(".local") / "update-dependencies-part-1"
+LATEST_RESUME = "__LATEST__"
+VALID_REPORT_FORMATS = {"json", "md", "junit"}
+KNOWN_SUBSTEPS = frozenset(
+    {
+        "pnpm-install",
+        "pnpm-install-all",
+        "sort-package-json",
+        "remove-pnpm-overrides",
+        "pnpm-update",
+        "pnpm-audit",
+        "cargo-upgrade",
+        "cargo-update",
+        "nix-flake-update",
+    }
+)
+
+
+def utc_now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def elapsed_seconds(start: float) -> float:
+    return round(time.monotonic() - start, 3)
+
+
+def relative_to_repo(path: Path, repo_root: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(repo_root.resolve()))
+    except ValueError:
+        return str(path.resolve())
+
+
+def safe_read_json(path: Path) -> dict[str, Any]:
+    try:
+        return json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def write_json(path: Path, data: Any) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+
+
+def colorize(text: str, color: str, enabled: bool) -> str:
+    if not enabled:
+        return text
+    return f"{color}{text}{RESET}"
+
+
+def quoted_command(cmd: list[str] | str) -> str:
     if isinstance(cmd, list):
-        pretty = " ".join(shlex.quote(c) for c in cmd)
-    else:
-        pretty = cmd
-    print(f"{CURSIVE}> {pretty}{RESET}")
+        return " ".join(shlex.quote(c) for c in cmd)
+    return cmd
 
 
-def run(
-    cmd: list[str] | str, check: bool = True, cwd: Path | None = None
-) -> subprocess.CompletedProcess:
-    echo_command(cmd if isinstance(cmd, list) else cmd)
-    return subprocess.run(
-        cmd,
-        shell=isinstance(cmd, str),
-        cwd=str(cwd) if cwd else None,
-        check=check,
+def write_package_json(data: dict[str, Any], path: Path) -> None:
+    path.write_text(json.dumps(data, indent=2) + "\n")
+
+
+def sort_dict_recursively(obj: Any) -> Any:
+    """Sort dictionary keys with scalar values first, then object values."""
+    if isinstance(obj, dict):
+        scalar_keys = []
+        object_keys = []
+
+        for key, value in obj.items():
+            if isinstance(value, dict):
+                object_keys.append(key)
+            else:
+                scalar_keys.append(key)
+
+        sorted_dict = {}
+        for key in sorted(scalar_keys) + sorted(object_keys):
+            sorted_dict[key] = sort_dict_recursively(obj[key])
+        return sorted_dict
+    if isinstance(obj, list):
+        return [sort_dict_recursively(item) for item in obj]
+    return obj
+
+
+def sort_package_json(folder: Path, use_color: bool) -> bool:
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        data = json.loads(package_json_path.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        print(colorize(f"Error processing {package_json_path}: {exc}", RED, use_color))
+        return False
+
+    first_keys = ["name", "version", "description"]
+    dependency_keys = ["dependencies", "devDependencies"]
+    scalar_keys = []
+    object_keys = []
+
+    for key, value in data.items():
+        if key in first_keys or key in dependency_keys:
+            continue
+        if isinstance(value, dict):
+            object_keys.append(key)
+        else:
+            scalar_keys.append(key)
+
+    sorted_data = {}
+    ordered_keys = (
+        [key for key in first_keys if key in data]
+        + sorted(scalar_keys)
+        + sorted(object_keys)
+        + [key for key in dependency_keys if key in data]
     )
+    for key in ordered_keys:
+        sorted_data[key] = sort_dict_recursively(data[key])
+
+    original_json = json.dumps(data, sort_keys=False, indent=2)
+    sorted_json = json.dumps(sorted_data, sort_keys=False, indent=2)
+    if original_json == sorted_json:
+        return False
+
+    print(
+        colorize(
+            f"Sorted package.json fields alphabetically in {folder.name}/package.json",
+            BLUE,
+            use_color,
+        )
+    )
+    write_package_json(sorted_data, package_json_path)
+    return True
+
+
+def remove_pnpm_overrides(folder: Path, use_color: bool) -> bool:
+    package_json_path = folder / "package.json"
+    if not package_json_path.exists():
+        return False
+
+    try:
+        data = json.loads(package_json_path.read_text())
+    except (json.JSONDecodeError, OSError) as exc:
+        print(colorize(f"Error processing {package_json_path}: {exc}", RED, use_color))
+        return False
+
+    pnpm = data.get("pnpm")
+    if not isinstance(pnpm, dict) or "overrides" not in pnpm:
+        return False
+
+    print(
+        colorize(
+            f"Removing pnpm.overrides from {folder.name}/package.json",
+            BLUE,
+            use_color,
+        )
+    )
+    del pnpm["overrides"]
+    if not pnpm:
+        del data["pnpm"]
+    write_package_json(data, package_json_path)
+    return True
 
 
 def git_has_changes(cwd: Path | None = None) -> bool:
@@ -63,298 +214,2040 @@ def git_has_changes(cwd: Path | None = None) -> bool:
     return cp.stdout.strip() != ""
 
 
-def write_package_json(data: dict, path: Path) -> None:
-    """Write package.json data to file with proper formatting and newline at end."""
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
-
-
-def sort_dict_recursively(obj):
-    """Recursively sort dictionary keys with non-object values first, then object values, all alphabetically."""
-    if isinstance(obj, dict):
-        string_keys = []
-        non_object_keys = []
-
-        for key in obj.keys():
-            value = obj[key]
-            if isinstance(value, str) or not isinstance(value, dict):
-                string_keys.append(key)
-            elif isinstance(value, dict):
-                non_object_keys.append(key)
-
-        string_keys.sort()
-        non_object_keys.sort()
-
-        all_keys = string_keys + non_object_keys
-
-        sorted_dict = {}
-        for key in all_keys:
-            sorted_dict[key] = sort_dict_recursively(obj[key])
-        return sorted_dict
-    elif isinstance(obj, list):
-        return [sort_dict_recursively(item) for item in obj]
-    else:
-        return obj
-
-
-def sort_package_json(folder: Path) -> bool:
-    """Sort package.json (mostly) alphabetically. Returns True if changes were made."""
-    package_json_path = folder / "package.json"
-    if not package_json_path.exists():
+def git_has_changes_for_paths(cwd: Path, paths: list[str]) -> bool:
+    if not paths:
         return False
+    cp = subprocess.run(
+        ["git", "status", "--porcelain", "--", *paths],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=str(cwd),
+        text=True,
+        check=True,
+    )
+    return cp.stdout.strip() != ""
 
+
+def git_has_staged_changes_for_paths(cwd: Path, paths: list[str]) -> bool:
+    if not paths:
+        return False
+    cp = subprocess.run(
+        ["git", "diff", "--cached", "--quiet", "--", *paths],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        cwd=str(cwd),
+        text=True,
+        check=False,
+    )
+    return cp.returncode != 0
+
+
+def is_worktree_clean(repo_root: Path) -> bool:
+    return not git_has_changes(repo_root)
+
+
+def truthy_env(name: str) -> bool:
+    return os.environ.get(name, "").lower() in {"1", "true", "yes", "on"}
+
+
+def is_interactive_environment() -> bool:
+    return sys.stdin.isatty() and not truthy_env("CI") and not truthy_env("GITHUB_ACTIONS")
+
+
+def semver_parts(version: str | None) -> tuple[int, int, int] | None:
+    if not version:
+        return None
+    match = re.search(r"(\d+)(?:\.(\d+))?(?:\.(\d+))?", version)
+    if not match:
+        return None
+    major = int(match.group(1))
+    minor = int(match.group(2) or 0)
+    patch = int(match.group(3) or 0)
+    return major, minor, patch
+
+
+def classify_update(from_version: str | None, to_version: str | None) -> str:
+    if from_version is None and to_version is not None:
+        return "version-add"
+    if from_version is not None and to_version is None:
+        return "version-remove"
+    if from_version == to_version:
+        return "unchanged"
+    old = semver_parts(from_version)
+    new = semver_parts(to_version)
+    if old is None or new is None:
+        return "version-update:unknown"
+    if new[0] != old[0]:
+        return "version-update:semver-major"
+    if new[1] != old[1]:
+        return "version-update:semver-minor"
+    if new[2] != old[2]:
+        return "version-update:semver-patch"
+    return "version-update:metadata"
+
+
+def dependency_type_for_package_json(section: str) -> str:
+    mapping = {
+        "dependencies": "production",
+        "devDependencies": "development",
+        "peerDependencies": "peer",
+        "optionalDependencies": "optional",
+        "bundleDependencies": "bundle",
+        "bundledDependencies": "bundle",
+    }
+    return mapping.get(section, section)
+
+
+def package_json_dependencies(path: Path) -> dict[str, dict[str, str]]:
+    if not path.exists():
+        return {}
     try:
-        with open(package_json_path, "r") as f:
-            data = json.load(f)
+        data = json.loads(path.read_text())
+    except (json.JSONDecodeError, OSError):
+        return {}
 
-        sorted_data = {}
+    deps: dict[str, dict[str, str]] = {}
+    for section in (
+        "dependencies",
+        "devDependencies",
+        "peerDependencies",
+        "optionalDependencies",
+        "bundleDependencies",
+        "bundledDependencies",
+    ):
+        values = data.get(section)
+        if not isinstance(values, dict):
+            continue
+        for name, version in values.items():
+            deps[f"{section}:{name}"] = {
+                "name": name,
+                "version": str(version),
+                "dependency_type": dependency_type_for_package_json(section),
+            }
+    return deps
 
-        # Sort keys with specific ordering:
-        # 1. name, version, description (always first)
-        # 2. String values (alphabetical)
-        # 3. Object values (alphabetical)
-        # 4. dependencies
-        # 5. devDependencies
 
-        first_keys = ["name", "version", "description"]
+def cargo_dependency_type(section: str) -> str:
+    mapping = {
+        "dependencies": "production",
+        "dev-dependencies": "development",
+        "build-dependencies": "build",
+        "workspace.dependencies": "workspace",
+        "workspace.dev-dependencies": "workspace-development",
+        "workspace.build-dependencies": "workspace-build",
+    }
+    if section.startswith("target."):
+        return "target"
+    return mapping.get(section, section)
 
-        dependency_keys = ["dependencies", "devDependencies"]
 
-        non_object_keys = []
-        object_keys = []
+def cargo_dependency_version(value: Any) -> str | None:
+    if isinstance(value, str):
+        return value
+    if not isinstance(value, dict):
+        return None
+    version = value.get("version")
+    if isinstance(version, str):
+        return version
+    if value.get("workspace") is True:
+        return "workspace"
+    return None
 
-        for key in data.keys():
-            if key in first_keys or key in dependency_keys:
-                continue
 
-            value = data[key]
-            if isinstance(value, str):
-                non_object_keys.append(key)
-            elif isinstance(value, dict):
-                object_keys.append(key)
-            else:
-                non_object_keys.append(key)
+def cargo_dependency_package_name(name: str, value: Any) -> str:
+    if isinstance(value, dict) and isinstance(value.get("package"), str):
+        return value["package"]
+    return name
 
-        non_object_keys.sort()
-        object_keys.sort()
 
-        all_keys = (
-            [k for k in first_keys if k in data]
-            + non_object_keys
-            + object_keys
-            + [k for k in dependency_keys if k in data]
+def collect_cargo_dependency_section(
+    deps: dict[str, dict[str, str]],
+    section: str,
+    values: Any,
+) -> None:
+    if not isinstance(values, dict):
+        return
+    for name, raw_value in values.items():
+        version = cargo_dependency_version(raw_value)
+        if version is None:
+            continue
+        deps[f"{section}:{name}"] = {
+            "name": cargo_dependency_package_name(name, raw_value),
+            "version": version,
+            "dependency_type": cargo_dependency_type(section),
+        }
+
+
+def cargo_dependencies(path: Path) -> dict[str, dict[str, str]]:
+    if not path.exists():
+        return {}
+    if tomllib is None:
+        raise RuntimeError(
+            "Cargo dependency reporting requires Python 3.11+ for stdlib tomllib. "
+            "Run via `nix develop --command bin/update-dependencies-part-1 ...`."
         )
 
-        for key in all_keys:
-            if key in data:
-                sorted_data[key] = sort_dict_recursively(data[key])
-
-        original_json = json.dumps(data, sort_keys=False, indent=2)
-        sorted_json = json.dumps(sorted_data, sort_keys=False, indent=2)
-
-        if original_json != sorted_json:
-            print(
-                f"{BLUE}Sorted package.json fields alphabetically in {folder.name}/package.json{RESET}"
-            )
-
-            write_package_json(sorted_data, package_json_path)
-
-            return True
-        return False
-    except (json.JSONDecodeError, KeyError, OSError) as e:
-        print(f"{RED}Error processing {package_json_path}: {e}{RESET}")
-        return False
-
-
-def remove_pnpm_overrides(folder: Path) -> bool:
-    """Remove pnpm.overrides from package.json if it exists. Returns True if changes were made."""
-    package_json_path = folder / "package.json"
-    if not package_json_path.exists():
-        return False
+    deps: dict[str, dict[str, str]] = {}
 
     try:
-        with open(package_json_path, "r") as f:
-            data = json.load(f)
+        data = tomllib.loads(path.read_text())
+    except (OSError, tomllib.TOMLDecodeError):
+        return deps
 
-        if "pnpm" in data and "overrides" in data["pnpm"]:
-            print(
-                f"{BLUE}Removing pnpm.overrides from {folder.name}/package.json{RESET}"
+    for section in ("dependencies", "dev-dependencies", "build-dependencies"):
+        collect_cargo_dependency_section(deps, section, data.get(section))
+
+    workspace = data.get("workspace")
+    if isinstance(workspace, dict):
+        for section in ("dependencies", "dev-dependencies", "build-dependencies"):
+            collect_cargo_dependency_section(
+                deps,
+                f"workspace.{section}",
+                workspace.get(section),
             )
-            del data["pnpm"]["overrides"]
 
-            if not data["pnpm"]:
-                del data["pnpm"]
-
-            write_package_json(data, package_json_path)
-
-            return True
-        return False
-    except (json.JSONDecodeError, KeyError, OSError) as e:
-        print(f"{RED}Error processing {package_json_path}: {e}{RESET}")
-        return False
-
-
-@contextmanager
-def pushd(path: Path):
-    old = Path.cwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(old)
-
-
-def update_node_deps(folder: Path, target_name: str) -> None:
-    with pushd(folder):
-        # Sort package.json fields (mostly) alphabetically as the first step
-        if sort_package_json(folder):
-            if git_has_changes():
-                run(["git", "add", "package.json"])
-                run(
-                    [
-                        "git",
-                        "commit",
-                        "-m",
-                        f"Sort package.json fields in {target_name}",
-                        "--no-verify",
-                    ]
+    targets = data.get("target")
+    if isinstance(targets, dict):
+        for target_name, target_config in targets.items():
+            if not isinstance(target_config, dict):
+                continue
+            for section in ("dependencies", "dev-dependencies", "build-dependencies"):
+                collect_cargo_dependency_section(
+                    deps,
+                    f"target.{target_name}.{section}",
+                    target_config.get(section),
                 )
+    return deps
 
-        # Remove pnpm.overrides before updating dependencies
-        if remove_pnpm_overrides(folder):
-            if git_has_changes():
-                run(["git", "add", "package.json"])
-                run(
-                    [
-                        "git",
-                        "commit",
-                        "-m",
-                        f"Remove pnpm.overrides from {target_name}",
-                        "--no-verify",
-                    ]
-                )
 
+@dataclass(frozen=True)
+class ManifestSet:
+    manifest_files: list[Path]
+    lock_files: list[Path]
+
+
+@dataclass(frozen=True)
+class CargoVersionPin:
+    name: str
+    yanked_version: str
+    precise_version: str
+    reason: str
+
+
+@dataclass
+class DependencySnapshot:
+    dependencies: dict[str, dict[str, str]]
+    manifest_files: list[str]
+    lock_files: list[str]
+    lock_file_contents: dict[str, str | None]
+
+
+@dataclass
+class Step:
+    id: str
+    display_name: str
+    cwd: Path
+    ecosystem: str
+    manager: str
+    kind: str
+    target_name: str
+    substeps: list[str]
+    setup_workspace: bool = False
+    opt_in: bool = False
+    cargo_upgrade_excludes: list[str] = field(default_factory=list)
+    cargo_version_pins: list[CargoVersionPin] = field(default_factory=list)
+    manual_review_reasons_on_change: list[str] = field(default_factory=list)
+
+
+@dataclass
+class StepRecord:
+    id: str
+    display_name: str
+    ecosystem: str
+    manager: str
+    directory: str
+    report_directory: str
+    status: str = STATUS_RUNNING
+    started_at: str | None = None
+    ended_at: str | None = None
+    duration_seconds: float | None = None
+    substeps: list[dict[str, Any]] = field(default_factory=list)
+    commits: list[str] = field(default_factory=list)
+    manual_review: dict[str, Any] = field(
+        default_factory=lambda: {"required": False, "reasons": []}
+    )
+    dependency_changes: dict[str, Any] | None = None
+    failure: dict[str, Any] | None = None
+
+
+class CommandRunner:
+    def __init__(self, runner: StepRunnerProtocol) -> None:
+        self.runner = runner
+
+    def run(
+        self,
+        cmd: list[str] | str,
+        *,
+        check: bool = True,
+        cwd: Path | None = None,
+        step_id: str | None = None,
+        substep_id: str | None = None,
+        capture_stdout: bool = False,
+    ) -> subprocess.CompletedProcess:
+        if isinstance(cmd, str):
+            raise TypeError("CommandRunner requires argv lists; string commands are not supported")
+        command_cwd = cwd or self.runner.repo_root
+        print(
+            colorize(f"> {quoted_command(cmd)}", CURSIVE, self.runner.use_color),
+            flush=True,
+        )
+        started_at = utc_now()
+        started = time.monotonic()
+        cp: subprocess.CompletedProcess | None = None
         try:
-            run(["pnpm", "update", "--latest", "--interactive"], check=True)
-        except subprocess.CalledProcessError:
-            print(
-                f"{RED}Updating dependencies for {target_name} failed."
-                f" Please do the dependency update manually in {folder}{RESET}"
+            cp = subprocess.run(
+                cmd,
+                shell=False,
+                cwd=str(command_cwd),
+                check=check,
+                text=True,
+                stdout=subprocess.PIPE if capture_stdout else None,
             )
-            input(
-                "Press Enter when you're ready. The script will then commit your changes..."
-            )
-
-        if git_has_changes():
-            to_add = [p for p in ["package.json", "pnpm-lock.yaml"] if Path(p).exists()]
-            if to_add:
-                run(["git", "add", *to_add])
-            run(
-                [
-                    "git",
-                    "commit",
-                    "-m",
-                    f"Update dependencies for {target_name} ",
-                    "--no-verify",
-                ]
-            )
-
-        try:
-            run(["pnpm", "audit", "--fix"], check=False)
-            run(["pnpm", "install"], check=False)
+            return cp
+        except subprocess.CalledProcessError as exc:
+            cp = exc
+            raise
         finally:
-            pass
+            ended_at = utc_now()
+            duration = elapsed_seconds(started)
+            exit_code = cp.returncode if cp is not None else None
+            record = {
+                "cwd": str(command_cwd),
+                "argv": cmd,
+                "shell": False,
+                "exit_code": exit_code,
+                "started_at": started_at,
+                "ended_at": ended_at,
+                "duration_seconds": duration,
+                "step_id": step_id,
+                "substep_id": substep_id,
+            }
+            self.runner.record_command(record)
 
-        if git_has_changes():
-            if Path("pnpm-lock.yaml").exists():
-                run(["git", "add", "pnpm-lock.yaml"])
-            run(
-                ["git", "commit", "-am", f"pnpm audit for {target_name}", "--no-verify"]
+
+class StepRunnerProtocol:
+    repo_root: Path
+    use_color: bool
+
+    def record_command(self, record: dict[str, Any]) -> None:
+        raise NotImplementedError
+
+
+class StepRunner(StepRunnerProtocol):
+    def __init__(
+        self,
+        *,
+        repo_root: Path,
+        steps: list[Step],
+        selected_steps: list[Step],
+        report_dir: Path,
+        report_formats: set[str],
+        use_color: bool,
+        resume: bool,
+        checkpoint: dict[str, Any] | None = None,
+    ) -> None:
+        self.repo_root = repo_root
+        self.steps = steps
+        self.selected_steps = selected_steps
+        self.report_dir = report_dir
+        self.report_formats = report_formats
+        self.use_color = use_color
+        self.resume = resume
+        self.checkpoint = checkpoint or {}
+        self.run_id = report_dir.name
+        self.audit_dir = self.report_dir / "audit"
+        self.events_path = self.report_dir / "events.jsonl"
+        self.commands_path = self.report_dir / "commands.jsonl"
+        self.command_runner = CommandRunner(self)
+        self.started_at = utc_now()
+        self.start_monotonic = time.monotonic()
+        self.commands: list[dict[str, Any]] = (
+            self.load_existing_commands() if resume else []
+        )
+        self.step_records: dict[str, StepRecord] = {}
+        self.step_statuses: dict[str, str] = {}
+        self.current_step_id: str | None = None
+        self.current_substep_id: str | None = None
+        self.failed_step_id: str | None = None
+        self.failed_substep_records: dict[str, dict[str, Any]] = {}
+        self.manual_review_items: list[dict[str, Any]] = []
+        self.dependency_reports: list[dict[str, Any]] = []
+        self.github_actions = os.environ.get("GITHUB_ACTIONS", "").lower() == "true"
+        self.interactive = is_interactive_environment()
+        self.substep_handlers = {
+            "pnpm-install": self.substep_pnpm_install,
+            "pnpm-install-all": self.substep_pnpm_install_all,
+            "sort-package-json": self.substep_sort_package_json,
+            "remove-pnpm-overrides": self.substep_remove_pnpm_overrides,
+            "pnpm-update": self.run_pnpm_update,
+            "pnpm-audit": self.run_pnpm_audit,
+            "cargo-upgrade": self.run_cargo_upgrade,
+            "cargo-update": self.run_cargo_update,
+            "nix-flake-update": self.run_nix_flake_update,
+        }
+
+        self.report_dir.mkdir(parents=True, exist_ok=True)
+        self.audit_dir.mkdir(parents=True, exist_ok=True)
+        if not resume:
+            self.events_path.write_text("")
+            self.commands_path.write_text("")
+
+        if "json" in self.report_formats:
+            self.write_schema()
+        self.write_checkpoint(event="initialized")
+        self.record_event(
+            "run_initialized",
+            {
+                "run_id": self.run_id,
+                "report_dir": str(self.report_dir),
+                "selected_step_ids": [step.id for step in selected_steps],
+                "resume": resume,
+            },
+        )
+
+    def load_existing_commands(self) -> list[dict[str, Any]]:
+        if not self.commands_path.exists():
+            return []
+        records = []
+        try:
+            lines = self.commands_path.read_text().splitlines()
+        except OSError:
+            return []
+        for line in lines:
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(record, dict):
+                records.append(record)
+        return records
+
+    def record_event(self, event: str, payload: dict[str, Any] | None = None) -> None:
+        record = {"ts": utc_now(), "event": event}
+        if payload:
+            record.update(payload)
+        with self.events_path.open("a") as f:
+            f.write(json.dumps(record, sort_keys=True) + "\n")
+
+    def record_command(self, record: dict[str, Any]) -> None:
+        self.commands.append(record)
+        with self.commands_path.open("a") as f:
+            f.write(json.dumps(record, sort_keys=True) + "\n")
+
+    def write_checkpoint(self, event: str) -> None:
+        checkpoint = {
+            "run_id": self.run_id,
+            "updated_at": utc_now(),
+            "event": event,
+            "selected_step_ids": [step.id for step in self.selected_steps],
+            "current_step_id": self.current_step_id,
+            "current_substep_id": self.current_substep_id,
+            "completed_steps": [
+                step_id
+                for step_id, status in self.step_statuses.items()
+                if status in {STATUS_COMPLETED, STATUS_MANUAL}
+            ],
+            "skipped_steps": [
+                step_id
+                for step_id, status in self.step_statuses.items()
+                if status == STATUS_SKIPPED
+            ],
+            "failed_steps": [
+                step_id
+                for step_id, status in self.step_statuses.items()
+                if status == STATUS_FAILED
+            ],
+            "step_statuses": self.step_statuses,
+        }
+        write_json(self.report_dir / "checkpoint.json", checkpoint)
+
+    def write_schema(self) -> None:
+        schema = {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "title": "update-dependencies-part-1 run report",
+            "type": "object",
+            "required": [
+                "run_id",
+                "status",
+                "repo_root",
+                "report_dir",
+                "started_at",
+                "ended_at",
+                "duration_seconds",
+                "selected_step_ids",
+                "steps",
+                "commands",
+            ],
+            "properties": {
+                "run_id": {"type": "string"},
+                "status": {"type": "string"},
+                "repo_root": {"type": "string"},
+                "report_dir": {"type": "string"},
+                "started_at": {"type": "string"},
+                "ended_at": {"type": "string"},
+                "duration_seconds": {"type": "number"},
+                "selected_step_ids": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": ["id", "status", "substeps"],
+                    },
+                },
+                "commands": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "required": [
+                            "cwd",
+                            "argv",
+                            "shell",
+                            "exit_code",
+                            "started_at",
+                            "ended_at",
+                            "duration_seconds",
+                        ],
+                    },
+                },
+            },
+            "additionalProperties": True,
+        }
+        write_json(self.report_dir / "run.schema.json", schema)
+
+    def run(self) -> int:
+        if not self.selected_steps:
+            self.finalize()
+            self.print_final_summary()
+            return 0
+
+        for index, step in enumerate(self.selected_steps, start=1):
+            if self.should_skip_completed_from_resume(step):
+                self.mark_step_skipped_from_resume(step)
+                continue
+
+            try:
+                self.run_step(index, len(self.selected_steps), step)
+            except KeyboardInterrupt:
+                self.failed_step_id = step.id
+                self.mark_step_failed(step, "Interrupted by user", interrupted=True)
+                self.finalize()
+                self.print_final_summary()
+                raise
+            except Exception as exc:
+                self.failed_step_id = step.id
+                self.mark_step_failed(step, str(exc))
+                self.finalize()
+                self.print_final_summary()
+                return 1
+
+            if self.step_statuses.get(step.id) == STATUS_FAILED:
+                self.failed_step_id = step.id
+                self.finalize()
+                self.print_final_summary()
+                return 1
+
+        self.finalize()
+        self.print_final_summary()
+        return 0
+
+    def should_skip_completed_from_resume(self, step: Step) -> bool:
+        if not self.resume:
+            return False
+        # Resume is intentionally step-level: failed or in-progress steps restart
+        # at their first substep. Keep substeps idempotent when adding new ones.
+        statuses = self.checkpoint.get("step_statuses")
+        if not isinstance(statuses, dict):
+            return False
+        return statuses.get(step.id) in {
+            STATUS_COMPLETED,
+            STATUS_MANUAL,
+            STATUS_SKIPPED,
+        }
+
+    def mark_step_skipped_from_resume(self, step: Step) -> None:
+        record = self.create_step_record(step)
+        record.status = STATUS_SKIPPED
+        record.started_at = utc_now()
+        record.ended_at = record.started_at
+        record.duration_seconds = 0.0
+        record.failure = {"message": "Already completed in checkpoint"}
+        self.step_records[step.id] = record
+        self.step_statuses[step.id] = STATUS_SKIPPED
+        self.record_event(
+            "step_skipped",
+            {"step_id": step.id, "reason": "already_completed_in_checkpoint"},
+        )
+        self.write_checkpoint(event=f"step_skipped:{step.id}")
+        print(colorize(f"SKIPPED {step.id} (already complete in checkpoint)", BLUE, self.use_color))
+
+    def create_step_record(self, step: Step) -> StepRecord:
+        return StepRecord(
+            id=step.id,
+            display_name=step.display_name,
+            ecosystem=step.ecosystem,
+            manager=step.manager,
+            directory=str(step.cwd),
+            report_directory=str(self.report_dir),
+        )
+
+    def run_step(self, index: int, total: int, step: Step) -> None:
+        self.current_step_id = step.id
+        self.current_substep_id = None
+        self.step_statuses[step.id] = STATUS_RUNNING
+        self.write_checkpoint(event=f"step_started:{step.id}")
+        self.record_event(
+            "step_started",
+            {
+                "step_id": step.id,
+                "step_index": index,
+                "step_total": total,
+                "cwd": str(step.cwd),
+            },
+        )
+
+        record = self.create_step_record(step)
+        record.started_at = utc_now()
+        self.step_records[step.id] = record
+        started = time.monotonic()
+        self.print_step_banner(index, total, step)
+
+        before = self.snapshot_dependencies(step)
+        if not step.cwd.exists():
+            record.status = STATUS_SKIPPED
+            record.ended_at = utc_now()
+            record.duration_seconds = elapsed_seconds(started)
+            record.failure = {"message": f"Missing directory: {step.cwd}"}
+            self.step_statuses[step.id] = STATUS_SKIPPED
+            self.record_event(
+                "step_skipped",
+                {"step_id": step.id, "reason": "missing_directory", "cwd": str(step.cwd)},
+            )
+            self.write_checkpoint(event=f"step_skipped:{step.id}")
+            self.close_github_group()
+            print(
+                colorize(
+                    f"{STATUS_SKIPPED} {step.id} in {record.duration_seconds:.3f}s",
+                    BLUE,
+                    self.use_color,
+                )
+            )
+            return
+
+        manual_reasons: list[str] = []
+        try:
+            for substep_index, substep_id in enumerate(step.substeps, start=1):
+                try:
+                    substep_record = self.run_substep(
+                        step=step,
+                        substep_id=substep_id,
+                        substep_index=substep_index,
+                        substep_total=len(step.substeps),
+                    )
+                except Exception:
+                    failed_record = self.failed_substep_records.get(
+                        f"{step.id}:{substep_id}"
+                    )
+                    if failed_record:
+                        record.substeps.append(failed_record)
+                        manual_reasons.extend(
+                            failed_record.get("manual_review_reasons", [])
+                        )
+                    manual_reasons.append("Step failed")
+                    raise
+                else:
+                    record.substeps.append(substep_record)
+                    manual_reasons.extend(
+                        substep_record.get("manual_review_reasons", [])
+                    )
+        finally:
+            after = self.snapshot_dependencies(step)
+            dependency_report = self.build_dependency_report(
+                step, before, after, manual_reasons
+            )
+            record.dependency_changes = dependency_report
+            self.dependency_reports.append(dependency_report)
+            record.manual_review = dependency_report["manual_review"]
+
+        if manual_reasons:
+            record.status = STATUS_MANUAL
+        else:
+            record.status = STATUS_COMPLETED
+        record.ended_at = utc_now()
+        record.duration_seconds = elapsed_seconds(started)
+        self.step_statuses[step.id] = record.status
+        self.record_event(
+            "step_finished",
+            {
+                "step_id": step.id,
+                "status": record.status,
+                "duration_seconds": record.duration_seconds,
+            },
+        )
+        self.write_checkpoint(event=f"step_finished:{step.id}")
+        self.close_github_group()
+        print(
+            colorize(
+                f"{record.status} {step.id} in {record.duration_seconds:.3f}s",
+                GREEN if record.status == STATUS_COMPLETED else BLUE,
+                self.use_color,
+            )
+        )
+
+    def run_substep(
+        self,
+        *,
+        step: Step,
+        substep_id: str,
+        substep_index: int,
+        substep_total: int,
+    ) -> dict[str, Any]:
+        self.current_substep_id = substep_id
+        self.write_checkpoint(event=f"substep_started:{step.id}:{substep_id}")
+        self.record_event(
+            "substep_started",
+            {
+                "step_id": step.id,
+                "substep_id": substep_id,
+                "substep_index": substep_index,
+                "substep_total": substep_total,
+            },
+        )
+        self.print_substep_banner(substep_index, substep_total, step, substep_id)
+
+        started = time.monotonic()
+        substep_record: dict[str, Any] = {
+            "id": substep_id,
+            "status": STATUS_RUNNING,
+            "started_at": utc_now(),
+            "ended_at": None,
+            "duration_seconds": None,
+            "manual_review_reasons": [],
+        }
+        try:
+            self.dispatch_substep(step, substep_id, substep_record)
+            if substep_record["status"] == STATUS_RUNNING:
+                substep_record["status"] = STATUS_COMPLETED
+        except Exception as exc:
+            substep_record["status"] = STATUS_FAILED
+            substep_record["failure"] = {"message": str(exc)}
+            substep_record["manual_review_reasons"].append("Step failed")
+            raise
+        finally:
+            substep_record["ended_at"] = utc_now()
+            substep_record["duration_seconds"] = elapsed_seconds(started)
+            self.current_substep_id = None
+            self.record_event(
+                "substep_finished",
+                {
+                    "step_id": step.id,
+                    "substep_id": substep_id,
+                    "status": substep_record["status"],
+                    "duration_seconds": substep_record["duration_seconds"],
+                },
+            )
+            self.write_checkpoint(event=f"substep_finished:{step.id}:{substep_id}")
+            status = substep_record["status"]
+            color = GREEN if status == STATUS_COMPLETED else RED
+            if status == STATUS_MANUAL:
+                color = BLUE
+            if status == STATUS_FAILED:
+                self.failed_substep_records[f"{step.id}:{substep_id}"] = substep_record
+            print(
+                colorize(
+                    f"{status} {step.id}/{substep_id} in "
+                    f"{substep_record['duration_seconds']:.3f}s",
+                    color,
+                    self.use_color,
+                )
             )
 
+        return substep_record
 
-def build_node_targets(repo_root: Path) -> list[tuple[Path, str]]:
-    """Build the list of Node dependency update targets."""
-    base_targets = [
-        (repo_root, "repo root"),
-        (repo_root / "system-tests", "system-tests"),
-        (repo_root / "services" / "cms", "cms"),
-        (repo_root / "services" / "example-exercise", "example-exercise"),
-        (repo_root / "services" / "main-frontend", "main-frontend"),
-        (repo_root / "services" / "quizzes", "quizzes"),
-        (repo_root / "services" / "tmc", "tmc"),
-        (repo_root / "shared-module", "shared-module"),
-        (repo_root / "shared-module" / "packages" / "common", "shared-module/common"),
-    ]
-    missing_targets = [
-        (repo_root / "storybook", "storybook"),
+    def dispatch_substep(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        handler = self.substep_handlers.get(substep_id)
+        if handler is None:
+            raise RuntimeError(f"Unknown substep: {substep_id}")
+        handler(step, substep_id, substep_record)
+
+    def substep_pnpm_install(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        self.command_runner.run(
+            ["pnpm", "install"],
+            cwd=step.cwd,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+
+    def substep_pnpm_install_all(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        self.command_runner.run(
+            [str(self.repo_root / "bin" / "pnpm-install-all")],
+            cwd=self.repo_root,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+
+    def substep_sort_package_json(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        changed = sort_package_json(step.cwd, self.use_color)
+        substep_record["changed"] = changed
+        if changed and git_has_changes_for_paths(step.cwd, ["package.json"]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["package.json"],
+                message=f"Sort package.json fields in {step.target_name}",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def substep_remove_pnpm_overrides(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        changed = remove_pnpm_overrides(step.cwd, self.use_color)
+        substep_record["changed"] = changed
+        if changed and git_has_changes_for_paths(step.cwd, ["package.json"]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["package.json"],
+                message=f"Remove pnpm.overrides from {step.target_name}",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def run_pnpm_update(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        if not self.interactive:
+            raise RuntimeError(
+                "pnpm update --latest --interactive requires an interactive terminal. "
+                "Run this step locally with a TTY or select a non-interactive step."
+            )
+        try:
+            self.command_runner.run(
+                ["pnpm", "update", "--latest", "--interactive"],
+                cwd=step.cwd,
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+        except subprocess.CalledProcessError:
+            reason = "Manual dependency update fallback was used"
+            substep_record["status"] = STATUS_MANUAL
+            substep_record["manual_review_reasons"].append(reason)
+            self.record_event(
+                "manual_prompt",
+                {"step_id": step.id, "substep_id": substep_id, "reason": reason},
+            )
+            print(
+                colorize(
+                    f"Updating dependencies for {step.target_name} failed. "
+                    f"Please do the dependency update manually in {step.cwd}",
+                    RED,
+                    self.use_color,
+                )
+            )
+            if not self.interactive:
+                raise RuntimeError(
+                    "Manual dependency update fallback requires an interactive terminal"
+                )
+            input(
+                "Press Enter when you're ready. "
+                "The script will then commit your changes..."
+            )
+
+        to_add = [
+            path
+            for path in ["package.json", "pnpm-lock.yaml"]
+            if (step.cwd / path).exists()
+        ]
+        if to_add and git_has_changes_for_paths(step.cwd, to_add):
+            self.command_runner.run(
+                ["git", "add", *to_add],
+                cwd=step.cwd,
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            commit = self.git_commit_paths(
+                cwd=step.cwd,
+                paths=to_add,
+                message=f"Update dependencies for {step.target_name}",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def run_pnpm_audit(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        audit_fix = self.command_runner.run(
+            ["pnpm", "audit", "--fix=update"],
+            check=False,
+            cwd=step.cwd,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+        if audit_fix.returncode != 0:
+            warning = f"pnpm audit --fix=update exited with {audit_fix.returncode}; continuing"
+            substep_record.setdefault("warnings", []).append(warning)
+            self.record_event(
+                "non_fatal_command_failed",
+                {
+                    "step_id": step.id,
+                    "substep_id": substep_id,
+                    "command": "pnpm audit --fix=update",
+                    "exit_code": audit_fix.returncode,
+                },
+            )
+            print(colorize(warning, BLUE, self.use_color))
+        install = self.command_runner.run(
+            ["pnpm", "install"],
+            check=False,
+            cwd=step.cwd,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+        if install.returncode != 0:
+            warning = f"pnpm install after audit exited with {install.returncode}; continuing"
+            substep_record.setdefault("warnings", []).append(warning)
+            self.record_event(
+                "non_fatal_command_failed",
+                {
+                    "step_id": step.id,
+                    "substep_id": substep_id,
+                    "command": "pnpm install",
+                    "exit_code": install.returncode,
+                },
+            )
+            print(colorize(warning, BLUE, self.use_color))
+        # Keep fix/install output live; the separate JSON pass is only for reports.
+        self.capture_pnpm_audit_json(step, substep_id)
+        if git_has_changes_for_paths(step.cwd, ["pnpm-lock.yaml"]):
+            self.command_runner.run(
+                ["git", "add", "pnpm-lock.yaml"],
+                cwd=step.cwd,
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            commit = self.git_commit_paths(
+                cwd=step.cwd,
+                paths=["pnpm-lock.yaml"],
+                message=f"pnpm audit for {step.target_name}",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def capture_pnpm_audit_json(self, step: Step, substep_id: str) -> None:
+        if "json" not in self.report_formats:
+            return
+        try:
+            cp = self.command_runner.run(
+                ["pnpm", "audit", "--json"],
+                check=False,
+                cwd=step.cwd,
+                step_id=step.id,
+                substep_id=substep_id,
+                capture_stdout=True,
+            )
+        except Exception:
+            return
+        if not cp.stdout:
+            return
+        audit_path = self.audit_dir / f"{step.id}.pnpm-audit.json"
+        audit_path.write_text(cp.stdout)
+
+    def run_cargo_upgrade(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        command = [
+            "cargo",
+            "upgrade",
+            "--incompatible",
+            "allow",
+            "--pinned",
+            "allow",
+            "--recursive",
+            "false",
+            "--ignore-rust-version",
+        ]
+        for excluded_package in step.cargo_upgrade_excludes:
+            command.extend(["--exclude", excluded_package])
+        self.command_runner.run(
+            command,
+            cwd=step.cwd,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+        self.apply_cargo_version_pins(step, substep_id)
+        if git_has_changes_for_paths(step.cwd, ["."]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["."],
+                message="Cargo upgrade",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def run_cargo_update(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        self.command_runner.run(
+            ["cargo", "update", "--recursive"],
+            cwd=step.cwd,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+        self.apply_cargo_version_pins(step, substep_id)
+        if git_has_changes_for_paths(step.cwd, ["."]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["."],
+                message="Cargo update",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def run_nix_flake_update(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        self.command_runner.run(
+            ["nix", "flake", "update"],
+            cwd=step.cwd,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+        if git_has_changes_for_paths(step.cwd, ["flake.lock"]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["flake.lock"],
+                message="Update flake.lock",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
+    def apply_cargo_version_pins(self, step: Step, substep_id: str) -> None:
+        if not step.cargo_version_pins:
+            return
+        lockfile = step.cwd / "Cargo.lock"
+        if not lockfile.exists():
+            return
+        try:
+            lockfile_text = lockfile.read_text()
+        except OSError:
+            return
+        for pin in step.cargo_version_pins:
+            needle = f'name = "{pin.name}"\nversion = "{pin.yanked_version}"'
+            if needle not in lockfile_text:
+                continue
+            print(
+                colorize(
+                    f"Pinning {pin.name} to {pin.precise_version} ({pin.reason})",
+                    BLUE,
+                    self.use_color,
+                )
+            )
+            self.command_runner.run(
+                [
+                    "cargo",
+                    "update",
+                    "-p",
+                    pin.name,
+                    "--precise",
+                    pin.precise_version,
+                ],
+                cwd=step.cwd,
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+
+    def git_commit(
+        self,
+        *,
+        cwd: Path,
+        add_args: list[str],
+        message: str,
+        step_id: str,
+        substep_id: str,
+    ) -> str:
+        self.command_runner.run(
+            ["git", "add", *add_args],
+            cwd=cwd,
+            step_id=step_id,
+            substep_id=substep_id,
+        )
+        return self.git_commit_paths(
+            cwd=cwd,
+            paths=add_args,
+            message=message,
+            step_id=step_id,
+            substep_id=substep_id,
+        )
+
+    def git_commit_paths(
+        self,
+        *,
+        cwd: Path,
+        paths: list[str],
+        message: str,
+        step_id: str,
+        substep_id: str,
+    ) -> str:
+        if not git_has_staged_changes_for_paths(cwd, paths):
+            return ""
+        self.command_runner.run(
+            ["git", "commit", "-m", message, "--no-verify", "--", *paths],
+            cwd=cwd,
+            step_id=step_id,
+            substep_id=substep_id,
+        )
+        return self.print_current_commit(cwd, step_id, substep_id)
+
+    def print_current_commit(self, cwd: Path, step_id: str, substep_id: str) -> str:
+        cp = self.command_runner.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            cwd=cwd,
+            step_id=step_id,
+            substep_id=substep_id,
+            capture_stdout=True,
+        )
+        sha = (cp.stdout or "").strip()
+        print(colorize(f"Created commit {sha}", GREEN, self.use_color))
+        return sha
+
+    def add_commit(self, step_id: str, commit: str) -> None:
+        record = self.step_records.get(step_id)
+        if record and commit:
+            record.commits.append(commit)
+
+    def mark_step_failed(
+        self, step: Step, message: str, *, interrupted: bool = False
+    ) -> None:
+        record = self.step_records.get(step.id) or self.create_step_record(step)
+        now = utc_now()
+        if record.started_at is None:
+            record.started_at = now
+        record.ended_at = now
+        record.status = STATUS_FAILED
+        record.failure = {"message": message, "interrupted": interrupted}
+        record.manual_review["required"] = True
+        reason = "Step was interrupted" if interrupted else "Step failed"
+        record.manual_review["reasons"] = sorted(
+            set([*record.manual_review.get("reasons", []), reason])
+        )
+        self.step_records[step.id] = record
+        self.step_statuses[step.id] = STATUS_FAILED
+        for report in self.dependency_reports:
+            if report.get("step_id") != step.id:
+                continue
+            reasons = set(report.get("manual_review", {}).get("reasons", []))
+            reasons.add(reason)
+            report["manual_review"] = {
+                **report.get("manual_review", {}),
+                "required": True,
+                "reasons": sorted(reasons),
+            }
+            self.manual_review_items = [
+                item
+                for item in self.manual_review_items
+                if item.get("step_id") != step.id
+            ]
+            self.manual_review_items.append(
+                {
+                    "step_id": step.id,
+                    "display_name": step.display_name,
+                    "reasons": sorted(reasons),
+                }
+            )
+        self.record_event(
+            "step_failed",
+            {
+                "step_id": step.id,
+                "message": message,
+                "interrupted": interrupted,
+            },
+        )
+        self.write_checkpoint(event=f"step_failed:{step.id}")
+
+    def manifest_set_for_step(self, step: Step) -> ManifestSet:
+        if step.kind == "node":
+            return ManifestSet(
+                manifest_files=[step.cwd / "package.json"],
+                lock_files=[step.cwd / "pnpm-lock.yaml"],
+            )
+        if step.kind == "nix":
+            return ManifestSet(
+                manifest_files=[step.cwd / "flake.nix"],
+                lock_files=[step.cwd / "flake.lock"],
+            )
+        cargo_manifests = sorted(step.cwd.glob("**/Cargo.toml"))
+        return ManifestSet(
+            manifest_files=cargo_manifests,
+            lock_files=[step.cwd / "Cargo.lock"],
+        )
+
+    def snapshot_dependencies(self, step: Step) -> DependencySnapshot:
+        manifest_set = self.manifest_set_for_step(step)
+        dependencies: dict[str, dict[str, str]] = {}
+        for manifest in manifest_set.manifest_files:
+            if step.kind == "node":
+                manifest_deps = package_json_dependencies(manifest)
+            elif step.kind == "rust":
+                manifest_deps = cargo_dependencies(manifest)
+            else:
+                # Nix flake inputs live in flake.lock; flake.nix is not parsed
+                # for individual versions, so the lock file change is the signal.
+                manifest_deps = {}
+            manifest_rel = relative_to_repo(manifest, self.repo_root)
+            for key, value in manifest_deps.items():
+                dependencies[f"{manifest_rel}:{key}"] = {
+                    **value,
+                    "manifest_file": manifest_rel,
+                }
+
+        lock_file_contents: dict[str, str | None] = {}
+        lock_files = []
+        for lock_file in manifest_set.lock_files:
+            if not lock_file.exists():
+                continue
+            lock_rel = relative_to_repo(lock_file, self.repo_root)
+            lock_files.append(lock_rel)
+            try:
+                lock_file_contents[lock_rel] = lock_file.read_text()
+            except OSError:
+                lock_file_contents[lock_rel] = None
+
+        manifest_files = [
+            relative_to_repo(path, self.repo_root)
+            for path in manifest_set.manifest_files
+            if path.exists()
+        ]
+        return DependencySnapshot(
+            dependencies=dependencies,
+            manifest_files=manifest_files,
+            lock_files=lock_files,
+            lock_file_contents=lock_file_contents,
+        )
+
+    def build_dependency_report(
+        self,
+        step: Step,
+        before: DependencySnapshot,
+        after: DependencySnapshot,
+        manual_reasons: list[str],
+    ) -> dict[str, Any]:
+        updated_dependencies = []
+        keys = sorted(set(before.dependencies) | set(after.dependencies))
+        for key in keys:
+            before_dep = before.dependencies.get(key)
+            after_dep = after.dependencies.get(key)
+            from_version = before_dep["version"] if before_dep else None
+            to_version = after_dep["version"] if after_dep else None
+            update_type = classify_update(from_version, to_version)
+            if update_type == "unchanged":
+                continue
+            dep = after_dep or before_dep or {}
+            updated_dependencies.append(
+                {
+                    "name": dep.get("name"),
+                    "dependency_type": dep.get("dependency_type"),
+                    "manifest_file": dep.get("manifest_file"),
+                    "from_version": from_version,
+                    "to_version": to_version,
+                    "update_type": update_type,
+                    "source": "manifest",
+                }
+            )
+
+        lock_file_changes = []
+        lock_files = sorted(set(before.lock_files) | set(after.lock_files))
+        for lock_file in lock_files:
+            if before.lock_file_contents.get(lock_file) != after.lock_file_contents.get(
+                lock_file
+            ):
+                lock_file_changes.append({"path": lock_file, "source": "lockfile"})
+
+        review_reasons = list(manual_reasons)
+        if updated_dependencies or lock_file_changes:
+            review_reasons.extend(step.manual_review_reasons_on_change)
+        if any(
+            item["update_type"] == "version-update:semver-major"
+            for item in updated_dependencies
+        ):
+            review_reasons.append("Semver-major direct dependency update")
+        if self.step_statuses.get(step.id) == STATUS_FAILED:
+            review_reasons.append("Step failed")
+
+        commit_sha = self.current_git_sha()
+        report = {
+            "step_id": step.id,
+            "ecosystem": step.ecosystem,
+            "directory": str(step.cwd),
+            "manager": step.manager,
+            "manifest_files": after.manifest_files or before.manifest_files,
+            "lock_files": after.lock_files or before.lock_files,
+            "lock_file_changes": lock_file_changes,
+            "updated_dependencies": updated_dependencies,
+            "commit_sha": commit_sha,
+            "manual_review": {
+                "required": bool(review_reasons),
+                "reasons": sorted(set(review_reasons)),
+                "changelog_urls": [],
+                "release_note_urls": [],
+            },
+        }
+        if report["manual_review"]["required"]:
+            self.manual_review_items.append(
+                {
+                    "step_id": step.id,
+                    "display_name": step.display_name,
+                    "reasons": report["manual_review"]["reasons"],
+                }
+            )
+        return report
+
+    def current_git_sha(self) -> str | None:
+        try:
+            cp = self.command_runner.run(
+                ["git", "rev-parse", "HEAD"],
+                cwd=self.repo_root,
+                step_id=self.current_step_id,
+                substep_id=self.current_substep_id,
+                capture_stdout=True,
+            )
+        except Exception:
+            return None
+        return (cp.stdout or "").strip() or None
+
+    def print_step_banner(self, index: int, total: int, step: Step) -> None:
+        title = f"{STATUS_RUNNING} step {index}/{total}: {step.id}"
+        line = "=" * max(72, len(title) + 4)
+        print(colorize(line, BOLD, self.use_color))
+        print(colorize(title, BOLD, self.use_color))
+        print(f"Name: {step.display_name}")
+        print(f"Working directory: {step.cwd}")
+        print(f"Report directory: {self.report_dir}")
+        print(colorize(line, BOLD, self.use_color))
+        if self.github_actions:
+            print(f"::group::{step.id} {step.display_name}")
+
+    def print_substep_banner(
+        self, index: int, total: int, step: Step, substep_id: str
+    ) -> None:
+        print(
+            colorize(
+                f"-- {STATUS_RUNNING} substep {index}/{total}: "
+                f"{step.id}/{substep_id}",
+                BOLD,
+                self.use_color,
+            )
+        )
+        print(f"Working directory: {step.cwd}")
+        print(f"Report directory: {self.report_dir}")
+
+    def close_github_group(self) -> None:
+        if self.github_actions:
+            print("::endgroup::")
+
+    def finalize(self) -> None:
+        status = STATUS_COMPLETED
+        if any(value == STATUS_FAILED for value in self.step_statuses.values()):
+            status = STATUS_FAILED
+        elif any(value == STATUS_MANUAL for value in self.step_statuses.values()):
+            status = STATUS_MANUAL
+
+        ended_at = utc_now()
+        duration = elapsed_seconds(self.start_monotonic)
+        run_report = {
+            "run_id": self.run_id,
+            "status": status,
+            "repo_root": str(self.repo_root),
+            "report_dir": str(self.report_dir),
+            "started_at": self.started_at,
+            "ended_at": ended_at,
+            "duration_seconds": duration,
+            "selected_step_ids": [step.id for step in self.selected_steps],
+            "all_step_ids": [step.id for step in self.steps],
+            "report_formats": sorted(self.report_formats),
+            "steps": [
+                self.step_record_to_dict(self.step_records[step.id])
+                for step in self.selected_steps
+                if step.id in self.step_records
+            ],
+            "commands": self.commands,
+            "manual_review": {
+                "required": bool(self.manual_review_items),
+                "items": self.manual_review_items,
+            },
+        }
+        if "json" in self.report_formats:
+            write_json(self.report_dir / "run.json", run_report)
+            write_json(
+                self.report_dir / "dependency-changes.json",
+                {
+                    "run_id": self.run_id,
+                    "generated_at": ended_at,
+                    "targets": self.dependency_reports,
+                },
+            )
+        if "md" in self.report_formats:
+            summary_markdown = self.build_summary_markdown(run_report)
+            (self.report_dir / "summary.md").write_text(summary_markdown)
+        if "junit" in self.report_formats:
+            self.write_junit()
+        self.write_checkpoint(event="run_finalized")
+        self.append_github_step_summary()
+
+    def step_record_to_dict(self, record: StepRecord) -> dict[str, Any]:
+        return {
+            "id": record.id,
+            "display_name": record.display_name,
+            "ecosystem": record.ecosystem,
+            "manager": record.manager,
+            "directory": record.directory,
+            "report_directory": record.report_directory,
+            "status": record.status,
+            "started_at": record.started_at,
+            "ended_at": record.ended_at,
+            "duration_seconds": record.duration_seconds,
+            "substeps": record.substeps,
+            "commits": record.commits,
+            "manual_review": record.manual_review,
+            "dependency_changes": record.dependency_changes,
+            "failure": record.failure,
+        }
+
+    def build_summary_markdown(self, run_report: dict[str, Any]) -> str:
+        steps = run_report["steps"]
+        groups = {
+            STATUS_COMPLETED: [step for step in steps if step["status"] == STATUS_COMPLETED],
+            STATUS_MANUAL: [step for step in steps if step["status"] == STATUS_MANUAL],
+            STATUS_SKIPPED: [step for step in steps if step["status"] == STATUS_SKIPPED],
+            STATUS_FAILED: [step for step in steps if step["status"] == STATUS_FAILED],
+        }
+        direct_changes, lockfile_changes = self.dependency_change_counts()
+        lines = [
+            "# Dependency Update Summary",
+            "",
+            f"- Run id: `{run_report['run_id']}`",
+            f"- Status: `{run_report['status']}`",
+            f"- Duration: `{run_report['duration_seconds']:.3f}s`",
+            f"- Report directory: `{run_report['report_dir']}`",
+            "",
+        ]
+        for status, items in groups.items():
+            lines.append(f"## {status.title()}")
+            if not items:
+                lines.append("- None")
+            else:
+                for item in items:
+                    lines.append(f"- `{item['id']}` ({item['display_name']})")
+            lines.append("")
+
+        lines.append("## Dependency Changes")
+        lines.append(f"- Direct dependency changes: {direct_changes}")
+        lines.append(f"- Lockfile changes: {lockfile_changes}")
+        lines.append("")
+
+        lines.append("## Manual Review")
+        if not self.manual_review_items:
+            lines.append("- None")
+        else:
+            for item in self.manual_review_items:
+                reasons = "; ".join(item["reasons"])
+                lines.append(f"- `{item['step_id']}`: {reasons}")
+        lines.append("")
+        return "\n".join(lines)
+
+    def write_junit(self) -> None:
+        records = [self.step_records[step.id] for step in self.selected_steps if step.id in self.step_records]
+        suite = ET.Element(
+            "testsuite",
+            {
+                "name": "update-dependencies-part-1",
+                "tests": str(len(records)),
+                "failures": str(sum(1 for record in records if record.status == STATUS_FAILED)),
+                "skipped": str(sum(1 for record in records if record.status == STATUS_SKIPPED)),
+                "time": f"{elapsed_seconds(self.start_monotonic):.3f}",
+            },
+        )
+        for record in records:
+            testcase = ET.SubElement(
+                suite,
+                "testcase",
+                {
+                    "classname": record.ecosystem,
+                    "name": record.id,
+                    "time": f"{record.duration_seconds or 0:.3f}",
+                },
+            )
+            if record.status == STATUS_FAILED:
+                failure = ET.SubElement(testcase, "failure", {"message": "step failed"})
+                failure.text = json.dumps(record.failure or {})
+            elif record.status == STATUS_SKIPPED:
+                skipped = ET.SubElement(testcase, "skipped", {"message": "step skipped"})
+                skipped.text = json.dumps(record.failure or {})
+        tree = ET.ElementTree(suite)
+        tree.write(self.report_dir / "junit.xml", encoding="utf-8", xml_declaration=True)
+
+    def append_github_step_summary(self) -> None:
+        if not self.github_actions:
+            return
+        if "md" not in self.report_formats:
+            return
+        summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if not summary_path:
+            return
+        try:
+            with open(summary_path, "a") as f:
+                f.write((self.report_dir / "summary.md").read_text())
+                f.write("\n")
+        except OSError:
+            return
+
+    def print_final_summary(self) -> None:
+        duration = elapsed_seconds(self.start_monotonic)
+        counts = {
+            STATUS_COMPLETED: 0,
+            STATUS_MANUAL: 0,
+            STATUS_SKIPPED: 0,
+            STATUS_FAILED: 0,
+        }
+        for status in self.step_statuses.values():
+            if status in counts:
+                counts[status] += 1
+
+        total_direct_changes, total_lockfile_changes = self.dependency_change_counts()
+        print(colorize("Final summary", BOLD, self.use_color))
+        print(f"Total duration: {duration:.3f}s")
+        print(
+            "Steps: "
+            f"{counts[STATUS_COMPLETED]} completed, "
+            f"{counts[STATUS_MANUAL]} manual, "
+            f"{counts[STATUS_SKIPPED]} skipped, "
+            f"{counts[STATUS_FAILED]} failed"
+        )
+        print(f"Report directory: {self.report_dir}")
+        print(
+            "Dependency changes: "
+            f"{total_direct_changes} direct manifest changes, "
+            f"{total_lockfile_changes} lockfile changes"
+        )
+        print("Manual review checklist:")
+        if not self.manual_review_items:
+            print("- None")
+        else:
+            for item in self.manual_review_items:
+                print(f"- {item['step_id']}: {'; '.join(item['reasons'])}")
+        if self.failed_step_id:
+            self.print_resume_command(self.failed_step_id)
+
+    def dependency_change_counts(self) -> tuple[int, int]:
+        direct_changes = sum(
+            len(target.get("updated_dependencies", []))
+            for target in self.dependency_reports
+        )
+        lockfile_changes = sum(
+            len(target.get("lock_file_changes", []))
+            for target in self.dependency_reports
+        )
+        return direct_changes, lockfile_changes
+
+    def print_resume_command(self, step_id: str) -> None:
+        script = self.repo_root / "bin" / "update-dependencies-part-1"
+        command = (
+            f"{shlex.quote(str(script))} --resume {shlex.quote(str(self.report_dir))} "
+            f"--from-step {shlex.quote(step_id)}"
+        )
+        print(colorize(f"Resume command: {command}", BLUE, self.use_color))
+
+
+def validate_step_substeps(steps: list[Step]) -> None:
+    unknown = sorted(
+        {
+            substep
+            for step in steps
+            for substep in step.substeps
+            if substep not in KNOWN_SUBSTEPS
+        }
+    )
+    if unknown:
+        raise ValueError(f"Unknown substep id(s): {', '.join(unknown)}")
+
+
+def build_steps(repo_root: Path) -> list[Step]:
+    node_review_rules = {
+        "node:cms": ["CMS updates require changelog review"],
+    }
+    node_targets = [
+        ("node:repo-root", repo_root, "repo root", "repo root", True),
+        ("node:system-tests", repo_root / "system-tests", "system-tests", "system-tests", False),
+        ("node:cms", repo_root / "services" / "cms", "cms", "cms", False),
         (
+            "node:example-exercise",
+            repo_root / "services" / "example-exercise",
+            "example-exercise",
+            "example-exercise",
+            False,
+        ),
+        (
+            "node:main-frontend",
+            repo_root / "services" / "main-frontend",
+            "main-frontend",
+            "main-frontend",
+            False,
+        ),
+        ("node:quizzes", repo_root / "services" / "quizzes", "quizzes", "quizzes", False),
+        ("node:tmc", repo_root / "services" / "tmc", "tmc", "tmc", False),
+        (
+            "node:shared-module",
+            repo_root / "shared-module",
+            "shared-module",
+            "shared-module",
+            False,
+        ),
+        (
+            "node:shared-module-common",
+            repo_root / "shared-module" / "packages" / "common",
+            "shared-module/common",
+            "shared-module/common",
+            False,
+        ),
+        ("node:storybook", repo_root / "storybook", "storybook", "storybook", False),
+        (
+            "node:shared-module-components",
             repo_root / "shared-module" / "packages" / "components",
             "shared-module/components",
+            "shared-module/components",
+            False,
         ),
         (
+            "node:shared-module-create-exercise-service",
             repo_root / "shared-module" / "packages" / "create-exercise-service",
             "shared-module/create-exercise-service",
+            "shared-module/create-exercise-service",
+            False,
         ),
     ]
-    return [*base_targets, *missing_targets]
+
+    steps: list[Step] = []
+    for step_id, cwd, display_name, target_name, setup_workspace in node_targets:
+        substeps = []
+        if setup_workspace:
+            substeps.extend(["pnpm-install", "pnpm-install-all"])
+        substeps.extend(
+            [
+                "sort-package-json",
+                "remove-pnpm-overrides",
+                "pnpm-update",
+                "pnpm-audit",
+            ]
+        )
+        steps.append(
+            Step(
+                id=step_id,
+                display_name=display_name,
+                cwd=cwd,
+                ecosystem="node",
+                manager="pnpm",
+                kind="node",
+                target_name=target_name,
+                substeps=substeps,
+                setup_workspace=setup_workspace,
+                manual_review_reasons_on_change=node_review_rules.get(step_id, []),
+            )
+        )
+
+    steps.append(
+        Step(
+            id="rust:headless-lms",
+            display_name="headless-lms",
+            cwd=repo_root / "services" / "headless-lms",
+            ecosystem="rust",
+            manager="cargo",
+            kind="rust",
+            target_name="headless-lms",
+            substeps=["cargo-upgrade", "cargo-update"],
+            # 2026-06-03: this backend update pass keeps azure_core on the
+            # locked line until its transitive API breakage has been reviewed.
+            cargo_upgrade_excludes=["azure_core"],
+            # 2026-06-03: constant_time_eq 0.4.3 is yanked on crates.io; keep
+            # this pin discoverable here so it can be retired when no longer hit.
+            cargo_version_pins=[
+                CargoVersionPin(
+                    name="constant_time_eq",
+                    yanked_version="0.4.3",
+                    precise_version="0.4.2",
+                    reason="0.4.3 is yanked on crates.io",
+                )
+            ],
+        )
+    )
+
+    steps.append(
+        Step(
+            id="nix:flake",
+            display_name="flake.nix",
+            cwd=repo_root,
+            ecosystem="nix",
+            manager="nix",
+            kind="nix",
+            target_name="flake.nix",
+            substeps=["nix-flake-update"],
+            # Opt-in: only runs when --update-flake is passed or the step is
+            # selected explicitly via --only-step/--from-step/--to-step.
+            opt_in=True,
+        )
+    )
+    validate_step_substeps(steps)
+    return steps
 
 
-def main() -> int:
+def build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Update Node and Rust dependencies (part 1).",
+    )
+    parser.add_argument(
+        "--list-steps",
+        action="store_true",
+        help="Print ordered step ids and exit.",
+    )
+    parser.add_argument(
+        "--update-flake",
+        action="store_true",
+        help=(
+            "Also run `nix flake update` and commit flake.lock (the nix:flake "
+            "step). This step is opt-in and otherwise skipped."
+        ),
+    )
+    parser.add_argument("--from-step", help="Start at a specific step id.")
+    parser.add_argument("--to-step", help="Stop after a specific step id.")
+    parser.add_argument("--only-step", help="Run exactly one step id.")
+    parser.add_argument(
+        "--resume",
+        nargs="?",
+        const=LATEST_RESUME,
+        help="Resume from a run id or run directory. Without a value, use the latest run.",
+    )
+    parser.add_argument(
+        "--run-id",
+        help="Use .local/update-dependencies-part-1/NAME instead of generating a run id.",
+    )
+    parser.add_argument("--no-color", action="store_true", help="Disable ANSI output.")
+    parser.add_argument(
+        "--report-format",
+        default="json,md",
+        help="Comma-separated report formats. Valid values: json, md, junit.",
+    )
+    parser.add_argument(
+        "-r",
+        "--resume-from-headless-lms",
+        action="store_true",
+        help=(
+            "Backwards-compatible alias for --from-step rust:headless-lms. "
+            "Skips Node/pnpm updates."
+        ),
+    )
+    return parser
+
+
+def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
+    return build_arg_parser().parse_args(argv)
+
+
+def validate_report_formats(parser: argparse.ArgumentParser, value: str) -> set[str]:
+    formats = {item.strip() for item in value.split(",") if item.strip()}
+    unknown = sorted(formats - VALID_REPORT_FORMATS)
+    if unknown:
+        parser.error(
+            f"Unknown report format(s): {', '.join(unknown)}. "
+            f"Valid formats: {', '.join(sorted(VALID_REPORT_FORMATS))}"
+        )
+    return formats or {"json", "md"}
+
+
+def validate_step_id(
+    parser: argparse.ArgumentParser,
+    step_id: str | None,
+    valid_ids: list[str],
+    option: str,
+) -> None:
+    if step_id is None or step_id in valid_ids:
+        return
+    parser.error(
+        f"Unknown step id for {option}: {step_id}\n"
+        f"Valid step ids: {', '.join(valid_ids)}"
+    )
+
+
+def select_steps(
+    parser: argparse.ArgumentParser,
+    args: argparse.Namespace,
+    steps: list[Step],
+    checkpoint: dict[str, Any] | None,
+) -> list[Step]:
+    valid_ids = [step.id for step in steps]
+    has_range_selector = bool(args.from_step or args.to_step or args.resume_from_headless_lms)
+    if args.only_step and has_range_selector:
+        parser.error("--only-step cannot be combined with --from-step, --to-step, or --resume-from-headless-lms")
+    if args.resume_from_headless_lms:
+        if args.from_step:
+            parser.error("--resume-from-headless-lms cannot be combined with --from-step")
+        args.from_step = "rust:headless-lms"
+
+    validate_step_id(parser, args.from_step, valid_ids, "--from-step")
+    validate_step_id(parser, args.to_step, valid_ids, "--to-step")
+    validate_step_id(parser, args.only_step, valid_ids, "--only-step")
+
+    if args.only_step:
+        return [step for step in steps if step.id == args.only_step]
+
+    checkpoint_ids = None
+    if args.resume and not args.from_step and not args.to_step:
+        raw_ids = (checkpoint or {}).get("selected_step_ids")
+        if isinstance(raw_ids, list) and all(isinstance(item, str) for item in raw_ids):
+            checkpoint_ids = [item for item in raw_ids if item in valid_ids]
+
+    if checkpoint_ids:
+        selected = [step for step in steps if step.id in checkpoint_ids]
+    else:
+        selected = list(steps)
+
+    if args.from_step:
+        from_index = valid_ids.index(args.from_step)
+        selected = [step for step in selected if valid_ids.index(step.id) >= from_index]
+    if args.to_step:
+        to_index = valid_ids.index(args.to_step)
+        selected = [step for step in selected if valid_ids.index(step.id) <= to_index]
+    if args.from_step and args.to_step and valid_ids.index(args.from_step) > valid_ids.index(args.to_step):
+        parser.error("--from-step must come before or equal --to-step")
+
+    # Opt-in steps (e.g. nix:flake) only run when explicitly enabled or named.
+    explicit_ids = {
+        step_id for step_id in (args.from_step, args.to_step) if step_id
+    }
+    selected = [
+        step
+        for step in selected
+        if not step.opt_in or args.update_flake or step.id in explicit_ids
+    ]
+    return selected
+
+
+def generated_run_id() -> str:
+    return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+
+def resolve_report_dir(
+    parser: argparse.ArgumentParser,
+    repo_root: Path,
+    args: argparse.Namespace,
+) -> tuple[Path, dict[str, Any] | None]:
+    base = repo_root / REPORT_BASE
+    if args.resume and args.run_id:
+        parser.error("--resume cannot be combined with --run-id")
+
+    if not args.resume:
+        run_id = args.run_id or generated_run_id()
+        return base / run_id, None
+
+    if args.resume == LATEST_RESUME:
+        if not base.exists():
+            parser.error(f"No previous runs found under {base}")
+        candidates = [path for path in base.iterdir() if path.is_dir()]
+        if not candidates:
+            parser.error(f"No previous runs found under {base}")
+        report_dir = max(candidates, key=lambda path: path.stat().st_mtime)
+    else:
+        raw = Path(args.resume)
+        if raw.is_absolute() or os.sep in args.resume or raw.exists():
+            report_dir = raw if raw.is_absolute() else (repo_root / raw).resolve()
+        else:
+            report_dir = base / args.resume
+    checkpoint_path = report_dir / "checkpoint.json"
+    if not checkpoint_path.exists():
+        parser.error(f"Cannot resume: checkpoint not found at {checkpoint_path}")
+    return report_dir, safe_read_json(checkpoint_path)
+
+
+def missing_required_tools(selected_steps: list[Step]) -> list[str]:
+    required = {"git"}
+    if any(step.kind == "node" for step in selected_steps):
+        required.add("pnpm")
+    if any(step.kind == "rust" for step in selected_steps):
+        required.update({"cargo", "cargo-upgrade"})
+    if any(step.kind == "nix" for step in selected_steps):
+        required.add("nix")
+    return sorted(tool for tool in required if shutil.which(tool) is None)
+
+
+def required_tool_label(tool: str) -> str:
+    if tool == "cargo-upgrade":
+        return "cargo-upgrade (installed by cargo-edit)"
+    return tool
+
+
+def selected_pending_steps(
+    selected_steps: list[Step],
+    checkpoint: dict[str, Any] | None,
+    resume: bool,
+) -> list[Step]:
+    if not resume:
+        return selected_steps
+    statuses = (checkpoint or {}).get("step_statuses")
+    if not isinstance(statuses, dict):
+        return selected_steps
+    complete_statuses = {STATUS_COMPLETED, STATUS_MANUAL, STATUS_SKIPPED}
+    return [step for step in selected_steps if statuses.get(step.id) not in complete_statuses]
+
+
+def requires_interactive_updates(
+    selected_steps: list[Step],
+    checkpoint: dict[str, Any] | None,
+    resume: bool,
+) -> bool:
+    pending_steps = selected_pending_steps(selected_steps, checkpoint, resume)
+    return any("pnpm-update" in step.substeps for step in pending_steps)
+
+
+def requires_tomllib(selected_steps: list[Step]) -> bool:
+    return any(step.kind == "rust" for step in selected_steps)
+
+
+def pending_steps_require_tomllib(
+    selected_steps: list[Step],
+    checkpoint: dict[str, Any] | None,
+    resume: bool,
+) -> bool:
+    return requires_tomllib(selected_pending_steps(selected_steps, checkpoint, resume))
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = build_arg_parser()
+    args = parser.parse_args(argv)
+    report_formats = validate_report_formats(parser, args.report_format)
+
     script_dir = Path(__file__).resolve().parent
     repo_root = (script_dir / "..").resolve()
+    steps = build_steps(repo_root)
 
-    run(["pwd"], check=False)
-    run(["bash", "-lc", f"cd {shlex.quote(str(repo_root))} && pwd"], check=False)
+    if args.list_steps:
+        for index, step in enumerate(steps, start=1):
+            print(f"{index:02d} {step.id}\t{step.display_name}\t{step.cwd}")
+        return 0
+
+    report_dir, checkpoint = resolve_report_dir(parser, repo_root, args)
+    selected_steps = select_steps(parser, args, steps, checkpoint)
+
+    runner = StepRunner(
+        repo_root=repo_root,
+        steps=steps,
+        selected_steps=selected_steps,
+        report_dir=report_dir,
+        report_formats=report_formats,
+        use_color=not args.no_color,
+        resume=bool(args.resume),
+        checkpoint=checkpoint,
+    )
+
     os.chdir(repo_root)
 
-    if git_has_changes(repo_root):
+    missing_tools = missing_required_tools(selected_steps)
+    if missing_tools:
+        runner.record_event(
+            "preflight_failed",
+            {"reason": "missing_tools", "tools": missing_tools},
+        )
+        runner.write_checkpoint(event="preflight_failed:missing_tools")
+        print("Missing required tool(s):")
+        for tool in missing_tools:
+            print(f"- {required_tool_label(tool)}")
+        return 1
+
+    if pending_steps_require_tomllib(selected_steps, checkpoint, bool(args.resume)) and tomllib is None:
+        runner.record_event(
+            "preflight_failed",
+            {
+                "reason": "python_too_old",
+                "required": "Python 3.11+ stdlib tomllib",
+                "python": sys.version.split()[0],
+            },
+        )
+        runner.write_checkpoint(event="preflight_failed:python_too_old")
         print(
-            "You have uncommitted changes. Please commit them before running this script."
+            "Selected Rust steps require Python 3.11+ for stdlib tomllib. "
+            "Run via `nix develop --command bin/update-dependencies-part-1 ...`."
         )
         return 1
 
-    run(["pnpm", "install"])
-    run([str(repo_root / "bin" / "pnpm-install-all")])
-
-    node_targets = build_node_targets(repo_root)
-
-    for folder, name in node_targets:
-        if folder.exists():
-            update_node_deps(folder, name)
-        else:
-            print(f"{BLUE}Skipping {name} (missing at {folder}){RESET}")
-
-    headless_lms = repo_root / "services" / "headless-lms"
-    if headless_lms.exists():
-        with pushd(headless_lms):
-            run(
-                [
-                    "cargo",
-                    "upgrade",
-                    "--incompatible",
-                    "allow",
-                    "--pinned",
-                    "allow",
-                    "--recursive",
-                    "true",
-                    "--ignore-rust-version",
-                ]
+    if not is_worktree_clean(repo_root):
+        if args.resume:
+            runner.record_event(
+                "preflight_warning",
+                {
+                    "reason": "dirty_worktree_allowed_for_resume",
+                    "repo_root": str(repo_root),
+                },
             )
-            if git_has_changes():
-                run(["git", "add", "."])
-                run(["git", "commit", "-m", "Cargo upgrade", "--no-verify"])
+            print(
+                colorize(
+                    "Resuming with a dirty worktree; assuming it contains partial state "
+                    "from the failed run.",
+                    BLUE,
+                    runner.use_color,
+                )
+            )
+        else:
+            runner.record_event(
+                "preflight_failed",
+                {"reason": "dirty_worktree", "repo_root": str(repo_root)},
+            )
+            runner.write_checkpoint(event="preflight_failed:dirty_worktree")
+            print(
+                "You have uncommitted changes. Please commit them before running this script."
+            )
+            return 1
 
-            run(["cargo", "update", "--recursive"])
-            if git_has_changes():
-                run(["git", "add", "."])
-                run(["git", "commit", "-m", "Cargo update", "--no-verify"])
-    else:
-        print(f"{BLUE}Skipping Rust update (missing at {headless_lms}){RESET}")
+    if requires_interactive_updates(selected_steps, checkpoint, bool(args.resume)) and not runner.interactive:
+        runner.record_event(
+            "preflight_failed",
+            {
+                "reason": "non_interactive_pnpm_update",
+                "repo_root": str(repo_root),
+            },
+        )
+        runner.write_checkpoint(event="preflight_failed:non_interactive_pnpm_update")
+        print(
+            "Selected steps include pnpm update --latest --interactive, but stdin is not "
+            "an interactive terminal. Run locally with a TTY, or select only non-Node "
+            "steps such as --only-step rust:headless-lms."
+        )
+        return 1
 
-    print(f"{GREEN}{BOLD}All done!{RESET}")
-    return 0
+    return runner.run()
 
 
 if __name__ == "__main__":

@@ -6,12 +6,24 @@
       {
         "ordinal": 0,
         "name": "starts_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_instances",
+            "name": "starts_at"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "ends_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_instances",
+            "name": "ends_at"
+          }
+        }
       }
     ],
     "parameters": {

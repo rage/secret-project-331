@@ -2,24 +2,18 @@ engineStrict: true
 
 linkWorkspacePackages: true
 
-managePackageManagerVersions: true
+pmOnFail: download
 
-minimumReleaseAgeExclude:
-  - next
-  - react
-  - react-dom
-  - '@next/*'
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 22.20.0
-
-onlyBuiltDependencies: []
+nodeVersion: 24.16.0
 
 overrides:
   picomatch@<2.3.2: '>=2.3.2'
   picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
   yaml@>=1.0.0 <1.10.3: '>=1.10.3'
-
-packageManagerStrictVersion: true
 
 preferFrozenLockfile: true
 
@@ -35,8 +29,18 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
+allowBuilds:
+  node: false
+  sharp: false
+  unrs-resolver: true
+
+trustLockfile: true
+
+confirmModulesPurge: false
+
 updateNotifier: false
 
-useNodeVersion: 22.20.0
-
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - postcss@8.5.10

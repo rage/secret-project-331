@@ -5,15 +5,21 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",
   "main": "src/index.js",
-  "packageManager": "pnpm@10.30.3",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.16.0"
+    }
+  },
   "scripts": {
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@inquirer/prompts": "^8.4.2"
+    "@inquirer/prompts": "^8.5.0"
   },
   "devDependencies": {
-    "tsx": "^4.21.0",
+    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }
 }

@@ -97,12 +97,9 @@ function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
 }
 
 function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQuiz {
-  let modelSolution: ModelSolutionQuiz | null = null
-  if (isOldQuiz(quiz)) {
-    modelSolution = migrateModelSolutionSpecQuiz(quiz as OldQuiz)
-  } else {
-    modelSolution = quiz as ModelSolutionQuiz
-  }
+  const modelSolution: ModelSolutionQuiz | null = isOldQuiz(quiz)
+    ? migrateModelSolutionSpecQuiz(quiz as OldQuiz)
+    : (quiz as ModelSolutionQuiz)
   if (modelSolution === null) {
     throw new Error("Model solution was null")
   }

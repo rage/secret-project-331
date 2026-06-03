@@ -20,7 +20,7 @@ pub async fn insert(
         "
 INSERT INTO join_code_uses (id, user_id, course_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         user_id,

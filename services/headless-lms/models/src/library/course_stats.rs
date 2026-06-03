@@ -439,7 +439,7 @@ cohort AS (
     first_active_at AS cohort_start
   FROM first_activity
 )
-SELECT c.cohort_start AS "cohort_start",
+SELECT c.cohort_start,
   DATE_TRUNC($6, s.created_at) AS "activity_period",
   CASE
     WHEN $6 = 'day' THEN EXTRACT(

@@ -6,37 +6,79 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "deleted_at"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "text_html",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "text_html"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "text_slug",
-        "type_info": "Text"
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "course_custom_privacy_policy_checkbox_texts",
+            "name": "text_slug"
+          }
+        }
       }
     ],
     "parameters": {

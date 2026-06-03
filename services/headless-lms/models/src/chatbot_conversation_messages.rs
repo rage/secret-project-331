@@ -209,13 +209,7 @@ pub async fn get_by_conversation_id(
     let mut msgs: Vec<ChatbotConversationMessageRow> = sqlx::query_as!(
         ChatbotConversationMessageRow,
         r#"
-SELECT
-    id,
-    created_at,
-    updated_at,
-    deleted_at,
-    conversation_id,
-    order_number
+SELECT *
 FROM chatbot_conversation_messages
 WHERE conversation_id = $1
 AND deleted_at IS NULL

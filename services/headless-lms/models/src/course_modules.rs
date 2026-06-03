@@ -382,15 +382,32 @@ pub async fn get_by_exercise_id(
 ) -> ModelResult<CourseModule> {
     let res = sqlx::query_as!(
         CourseModulesSchema,
-        "
-SELECT course_modules.*
+        r#"
+SELECT
+    course_modules.id AS "id!",
+    course_modules.created_at AS "created_at!",
+    course_modules.updated_at AS "updated_at!",
+    course_modules.deleted_at,
+    course_modules.name,
+    course_modules.course_id AS "course_id!",
+    course_modules.order_number AS "order_number!",
+    course_modules.copied_from,
+    course_modules.uh_course_code,
+    course_modules.automatic_completion AS "automatic_completion!",
+    course_modules.automatic_completion_number_of_exercises_attempted_treshold,
+    course_modules.automatic_completion_number_of_points_treshold,
+    course_modules.automatic_completion_requires_exam AS "automatic_completion_requires_exam!",
+    course_modules.completion_registration_link_override,
+    course_modules.ects_credits,
+    course_modules.enable_registering_completion_to_uh_open_university AS "enable_registering_completion_to_uh_open_university!",
+    course_modules.certification_enabled AS "certification_enabled!"
 FROM exercises
   LEFT JOIN chapters ON (exercises.chapter_id = chapters.id)
   LEFT JOIN course_modules ON (chapters.course_module_id = course_modules.id)
 WHERE exercises.id = $1
 AND chapters.deleted_at IS NULL
 AND course_modules.deleted_at IS NULL
-        ",
+        "#,
         exercise_id,
     )
     .fetch_one(conn)

@@ -6,37 +6,79 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "research_consent_form_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "research_consent_form_id"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "question",
-        "type_info": "Varchar"
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "question"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_specific_consent_form_questions",
+            "name": "deleted_at"
+          }
+        }
       }
     ],
     "parameters": {

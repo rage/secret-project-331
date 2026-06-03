@@ -46,7 +46,7 @@ INSERT INTO peer_or_self_review_submissions (
     exercise_slide_submission_id
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         user_id,

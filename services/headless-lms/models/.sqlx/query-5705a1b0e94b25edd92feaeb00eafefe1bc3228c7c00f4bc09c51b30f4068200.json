@@ -6,42 +6,90 @@
       {
         "ordinal": 0,
         "name": "id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 2,
         "name": "page_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "page_id"
+          }
+        }
       },
       {
         "ordinal": 3,
         "name": "user_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "user_id"
+          }
+        }
       },
       {
         "ordinal": 4,
         "name": "pending",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "pending"
+          }
+        }
       },
       {
         "ordinal": 5,
         "name": "created_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "created_at"
+          }
+        }
       },
       {
         "ordinal": 6,
         "name": "updated_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "updated_at"
+          }
+        }
       },
       {
         "ordinal": 7,
         "name": "deleted_at",
-        "type_info": "Timestamptz"
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "proposed_page_edits",
+            "name": "deleted_at"
+          }
+        }
       }
     ],
     "parameters": {

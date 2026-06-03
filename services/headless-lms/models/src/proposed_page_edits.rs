@@ -81,7 +81,7 @@ pub async fn insert(
         "
 INSERT INTO proposed_page_edits (id, course_id, page_id, user_id)
 VALUES ($1, $2, $3, $4)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         course_id,
@@ -103,7 +103,7 @@ INSERT INTO proposed_block_edits (
   changed_text
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
 ",
             page_res.id,
             block_edit.block_id,
@@ -155,7 +155,7 @@ FROM pages
 WHERE pages.id = $3
   AND pages.course_id = $2
   AND pages.deleted_at IS NULL
-RETURNING id
+RETURNING *
         "#,
         pkey_policy.into_uuid(),
         course_id,
@@ -177,7 +177,7 @@ INSERT INTO proposed_block_edits (
   changed_text
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
 ",
             page_res.id,
             block_edit.block_id,
@@ -210,7 +210,7 @@ SELECT proposed_page_edits.id AS "page_proposal_id!",
   changed_text,
   proposed_page_edits.pending as "pending!",
   block_attribute,
-  proposed_block_edits.status as "block_proposal_status: ProposalStatus",
+  proposed_block_edits.status AS "block_proposal_status",
   proposed_page_edits.created_at as "created_at!",
   pages.title as "page_title!",
   pages.url_path as "page_url_path!"
@@ -390,10 +390,7 @@ pub async fn process_proposal(
 UPDATE proposed_block_edits
 SET status = 'accepted'
 WHERE id = $1
-RETURNING block_id,
-    block_attribute,
-    original_text,
-    changed_text
+RETURNING *
 ",
                     id
                 )
@@ -537,7 +534,7 @@ WHERE ppe.id = $1
 pub async fn update_page_edit_status(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
     let block_proposals = sqlx::query!(
         r#"
-SELECT status AS "status: ProposalStatus"
+SELECT *
 FROM proposed_block_edits
 WHERE proposal_id = $1
 AND deleted_at IS NULL

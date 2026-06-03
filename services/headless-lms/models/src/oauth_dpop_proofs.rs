@@ -75,14 +75,7 @@ impl OAuthDpopProof {
         let row = sqlx::query_as!(
             OAuthDpopProof,
             r#"
-            SELECT
-              jti_hash  AS "jti_hash: _",
-              seen_at   AS "seen_at: _",
-              client_id AS "client_id?",
-              jkt       AS "jkt?",
-              htm       AS "htm?",
-              htu       AS "htu?",
-              iat       AS "iat?"
+            SELECT *
             FROM oauth_dpop_proofs
             WHERE jti_hash = $1
             "#,

@@ -42,17 +42,10 @@ pub async fn get_background_questions_for_course_instance(
     let res: Vec<CourseBackgroundQuestion> = sqlx::query_as!(
         CourseBackgroundQuestion,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  course_instance_id,
-  course_id,
-  question_text,
-  question_type as "question_type: CourseBackgroundQuestionType"
-FROM course_background_questions
-WHERE deleted_at IS NULL
-  AND (
+	SELECT *
+	FROM course_background_questions
+	WHERE deleted_at IS NULL
+	  AND (
     (
       course_instance_id IS NULL
       AND course_id = $1

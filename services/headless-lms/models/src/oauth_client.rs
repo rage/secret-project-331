@@ -181,25 +181,7 @@ impl OAuthClient {
         let client = sqlx::query_as!(
             OAuthClient,
             r#"
-        SELECT
-          id,
-          client_id,
-          client_name,
-          application_type                AS "application_type: _",
-          token_endpoint_auth_method      AS "token_endpoint_auth_method: _",
-          client_secret                   AS "client_secret: _",
-          client_secret_expires_at,
-          redirect_uris,
-          post_logout_redirect_uris,
-          allowed_grant_types             AS "allowed_grant_types: _",
-          scopes,
-          require_pkce,
-          pkce_methods_allowed            AS "pkce_methods_allowed: _",
-          allowed_origins,
-          bearer_allowed,
-          created_at,
-          updated_at,
-          deleted_at
+        SELECT *
         FROM oauth_clients
         WHERE id = $1
           AND deleted_at IS NULL
@@ -225,25 +207,7 @@ impl OAuthClient {
         let client = sqlx::query_as!(
             OAuthClient,
             r#"
-    SELECT
-      id,
-      client_id,
-      client_name,
-      application_type                AS "application_type: _",
-      token_endpoint_auth_method      AS "token_endpoint_auth_method: _",
-      client_secret                   AS "client_secret: _",
-      client_secret_expires_at,
-      redirect_uris,
-      post_logout_redirect_uris,
-      allowed_grant_types             AS "allowed_grant_types: _",   -- or "grant_type[]"
-      scopes,
-      require_pkce,
-      pkce_methods_allowed            AS "pkce_methods_allowed: _",  -- or "pkce_method[]"
-      allowed_origins,
-      bearer_allowed,
-      created_at,
-      updated_at,
-      deleted_at
+    SELECT *
     FROM oauth_clients
     WHERE client_id = $1
       AND deleted_at IS NULL
@@ -295,24 +259,7 @@ impl OAuthClient {
         $13, $14
     )
     RETURNING
-      id,
-      client_id,
-      client_name,
-      application_type                AS "application_type: _",
-      token_endpoint_auth_method      AS "token_endpoint_auth_method: _",
-      client_secret                   AS "client_secret: _",
-      client_secret_expires_at,
-      redirect_uris,
-      post_logout_redirect_uris,
-      allowed_grant_types             AS "allowed_grant_types: _",
-      scopes,
-      require_pkce,
-      pkce_methods_allowed            AS "pkce_methods_allowed: _",
-      allowed_origins,
-      bearer_allowed,
-      created_at,
-      updated_at,
-      deleted_at
+      *
     "#,
             p.client_id,
             p.client_name,

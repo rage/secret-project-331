@@ -1,7 +1,7 @@
 use crate::prelude::*;
 use crate::users::get_by_id;
-use argon2::password_hash::{SaltString, rand_core::OsRng};
-use argon2::{Algorithm, Argon2, Params, PasswordHash, PasswordHasher, PasswordVerifier, Version};
+use argon2::password_hash::{PasswordHasher, PasswordVerifier, phc::PasswordHash};
+use argon2::{Algorithm, Argon2, Params, Version};
 use headless_lms_utils::tmc::TmcClient;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::LazyLock;
@@ -15,6 +15,7 @@ pub struct UserPassword {
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct PasswordResetToken {
+    pub id: Uuid,
     pub token: Uuid,
     pub user_id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -49,14 +50,13 @@ SET password_hash = EXCLUDED.password_hash,
 pub fn hash_password(
     password: &SecretString,
 ) -> Result<SecretString, argon2::password_hash::Error> {
-    let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::new(
         Algorithm::Argon2id,
         Version::V0x13,
         Params::new(65536, 3, 4, None)?,
     );
 
-    let password_hash = argon2.hash_password(password.expose_secret().as_bytes(), &salt)?;
+    let password_hash = argon2.hash_password(password.expose_secret().as_bytes())?;
     Ok(SecretString::new(password_hash.to_string().into()))
 }
 
@@ -67,7 +67,7 @@ pub async fn verify_user_password(
 ) -> ModelResult<bool> {
     let user_password = match sqlx::query!(
         r#"
-SELECT password_hash
+SELECT *
 FROM user_passwords
 WHERE user_id = $1
   AND deleted_at IS NULL
@@ -83,9 +83,8 @@ WHERE user_id = $1
             // This mitigates timing attack vulnerabilities.
 
             static DUMMY_HASH: LazyLock<String> = LazyLock::new(|| {
-                let salt = SaltString::generate(&mut OsRng);
                 Argon2::default()
-                    .hash_password(b"dummy-password", &salt)
+                    .hash_password(b"dummy-password")
                     .expect("failed to create dummy hash")
                     .to_string()
             });
@@ -158,7 +157,7 @@ WHERE user_id = $1
         r#"
       INSERT INTO password_reset_tokens (token, user_id)
 VALUES ($1, $2)
-RETURNING token
+RETURNING *
         "#,
         token,
         user_id
@@ -179,13 +178,7 @@ pub async fn get_unused_reset_password_token_with_user_id(
     let record = sqlx::query_as!(
         PasswordResetToken,
         r#"
-SELECT token,
-  user_id,
-  created_at,
-  updated_at,
-  used_at,
-  deleted_at,
-  expires_at
+SELECT *
 FROM password_reset_tokens
 WHERE user_id = $1
   AND deleted_at IS NULL
@@ -236,7 +229,7 @@ pub async fn change_user_password_with_password_reset_token(
     // Check if token is valid
     let record = sqlx::query!(
         r#"
-SELECT user_id
+SELECT *
 FROM password_reset_tokens
 WHERE token = $1
   AND deleted_at IS NULL

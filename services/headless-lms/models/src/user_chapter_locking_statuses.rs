@@ -37,7 +37,7 @@ async fn get_or_init_status_row(
     let res = sqlx::query_as!(
         UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND chapter_id = $2
@@ -150,7 +150,7 @@ INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, statu
 VALUES ($1, $2, $3, 'unlocked'::chapter_locking_status, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'unlocked'::chapter_locking_status, deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+RETURNING *
         "#,
         user_id,
         chapter_id,
@@ -178,7 +178,7 @@ INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, statu
 VALUES ($1, $2, $3, 'completed_and_locked'::chapter_locking_status, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = 'completed_and_locked'::chapter_locking_status, deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+RETURNING *
         "#,
         user_id,
         chapter_id,
@@ -207,7 +207,7 @@ INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, statu
 VALUES ($1, $2, $3, $4, NULL)
 ON CONFLICT ON CONSTRAINT idx_user_chapter_locking_statuses_user_chapter_active DO UPDATE
 SET status = $4, deleted_at = NULL
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+RETURNING *
         "#,
         user_id,
         chapter_id,
@@ -263,7 +263,7 @@ ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
         let rows = sqlx::query_as!(
             UserChapterLockingStatus,
             r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND course_id = $2
@@ -305,7 +305,7 @@ pub async fn get_all_for_course(
     let rows = sqlx::query_as!(
         UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE course_id = $1
   AND deleted_at IS NULL
@@ -331,7 +331,7 @@ pub async fn get_for_user_and_course(
     let rows = sqlx::query_as!(
         UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND course_id = $2
@@ -361,7 +361,7 @@ pub async fn ensure_not_unlocked_yet_status(
 INSERT INTO user_chapter_locking_statuses (user_id, chapter_id, course_id, status, deleted_at)
 VALUES ($1, $2, $3, 'not_unlocked_yet'::chapter_locking_status, NULL)
 ON CONFLICT (user_id, chapter_id, deleted_at) DO NOTHING
-RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+RETURNING *
         "#,
         user_id,
         chapter_id,
@@ -377,7 +377,7 @@ RETURNING id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id
     let retrieved = sqlx::query_as!(
         UserChapterLockingStatus,
         r#"
-SELECT id, created_at, updated_at, deleted_at, user_id, chapter_id, course_id, status as "status: ChapterLockingStatus"
+SELECT *
 FROM user_chapter_locking_statuses
 WHERE user_id = $1
   AND chapter_id = $2

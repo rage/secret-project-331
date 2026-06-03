@@ -35,21 +35,11 @@ const useExerciseServiceOutputState = <OutputType, SelectorReturnType>(
         // Selected is a draft too because it is a subset of the draft variable
         func(selected)
       })
-      let message: CurrentStateMessage | null = null
-      if (wrapper) {
-        message = {
-          data: { [wrapper]: nextState },
-          // eslint-disable-next-line i18next/no-literal-string
-          message: "current-state",
-          valid: validate(nextState),
-        }
-      } else {
-        message = {
-          data: nextState,
-          // eslint-disable-next-line i18next/no-literal-string
-          message: "current-state",
-          valid: validate(nextState),
-        }
+      const message: CurrentStateMessage = {
+        data: wrapper ? { [wrapper]: nextState } : nextState,
+        // eslint-disable-next-line i18next/no-literal-string
+        message: "current-state",
+        valid: validate(nextState),
       }
       port.postMessage(message)
       _rawSetOutputState(nextState)

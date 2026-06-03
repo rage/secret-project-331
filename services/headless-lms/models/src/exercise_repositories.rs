@@ -28,7 +28,7 @@ SELECT id,
   url,
   course_id,
   exam_id,
-  status AS "status: ExerciseRepositoryStatus",
+  status,
   error_message
 FROM exercise_repositories
 WHERE id = $1
@@ -128,7 +128,7 @@ SELECT id,
   url,
   course_id,
   exam_id,
-  status AS "status: ExerciseRepositoryStatus",
+  status,
   error_message
 FROM exercise_repositories
 WHERE (

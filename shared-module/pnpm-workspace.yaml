@@ -2,23 +2,16 @@ engineStrict: true
 
 linkWorkspacePackages: true
 
-managePackageManagerVersions: true
+pmOnFail: download
 
-minimumReleaseAgeExclude:
-  - next
-  - react
-  - react-dom
-  - '@next/*'
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.14.0
-
-onlyBuiltDependencies:
-  - esbuild
+nodeVersion: 24.16.0
 
 overrides:
   picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
-
-packageManagerStrictVersion: true
 
 preferFrozenLockfile: true
 
@@ -34,8 +27,15 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-updateNotifier: false
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  node: false
 
-useNodeVersion: 24.14.0
+trustLockfile: true
+
+confirmModulesPurge: false
+
+updateNotifier: false
 
 verifyDepsBeforeRun: install

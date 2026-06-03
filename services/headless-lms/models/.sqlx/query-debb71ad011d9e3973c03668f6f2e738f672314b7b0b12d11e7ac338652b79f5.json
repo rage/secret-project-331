@@ -6,12 +6,24 @@
       {
         "ordinal": 0,
         "name": "course_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "course_id"
+          }
+        }
       },
       {
         "ordinal": 1,
         "name": "exam_id",
-        "type_info": "Uuid"
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "exercise_slide_submissions",
+            "name": "exam_id"
+          }
+        }
       }
     ],
     "parameters": {

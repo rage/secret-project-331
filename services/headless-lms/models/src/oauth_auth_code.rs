@@ -35,6 +35,8 @@ pub struct OAuthAuthCode {
 
     pub used: bool,
     pub expires_at: DateTime<Utc>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
     pub metadata: serde_json::Value,
 }
 
@@ -136,20 +138,7 @@ impl OAuthAuthCode {
                AND client_id = $2
                AND used = false
                AND expires_at > now()
-            RETURNING
-              digest                   as "digest: _",
-              user_id,
-              client_id,
-              redirect_uri,
-              scopes,
-              jti,
-              nonce,
-              code_challenge,
-              code_challenge_method    as "code_challenge_method: PkceMethod",
-              dpop_jkt,
-              used,
-              expires_at,
-              metadata
+            RETURNING *
             "#,
             digest.as_bytes(),
             client_id
@@ -183,20 +172,7 @@ impl OAuthAuthCode {
                AND redirect_uri = $3
                AND used = false
                AND expires_at > now()
-            RETURNING
-              digest                   as "digest: _",
-              user_id,
-              client_id,
-              redirect_uri,
-              scopes,
-              jti,
-              nonce,
-              code_challenge,
-              code_challenge_method    as "code_challenge_method: PkceMethod",
-              dpop_jkt,
-              used,
-              expires_at,
-              metadata
+            RETURNING *
             "#,
             digest.as_bytes(),
             client_id,

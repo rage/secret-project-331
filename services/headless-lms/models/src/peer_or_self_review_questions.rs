@@ -68,7 +68,7 @@ INSERT INTO peer_or_self_review_questions (
     question_type
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         new_peer_review_question.peer_or_self_review_config_id,
@@ -85,16 +85,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<PeerOrS
     let res = sqlx::query_as!(
         PeerOrSelfReviewQuestion,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  peer_or_self_review_config_id,
-  order_number,
-  question,
-  question_type AS "question_type: _",
-  answer_required,
-  weight
+SELECT *
 FROM peer_or_self_review_questions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -113,16 +104,7 @@ pub async fn get_by_ids(
     let res = sqlx::query_as!(
         PeerOrSelfReviewQuestion,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  peer_or_self_review_config_id,
-  order_number,
-  question,
-  question_type AS "question_type: _",
-  answer_required,
-  weight
+SELECT *
 FROM peer_or_self_review_questions
 WHERE id IN (
     SELECT UNNEST($1::uuid [])
@@ -143,16 +125,7 @@ pub async fn get_by_peer_or_self_review_configs_id(
     let res = sqlx::query_as!(
         PeerOrSelfReviewQuestion,
         r#"
-SELECT id,
-    created_at,
-    updated_at,
-    deleted_at,
-    peer_or_self_review_config_id,
-    order_number,
-    question,
-    question_type AS "question_type: _",
-    answer_required,
-    weight
+SELECT *
 FROM peer_or_self_review_questions
 WHERE peer_or_self_review_config_id = $1
   AND deleted_at IS NULL;
@@ -171,16 +144,7 @@ pub async fn get_all_by_peer_or_self_review_config_id(
     let res = sqlx::query_as!(
         PeerOrSelfReviewQuestion,
         r#"
-SELECT id,
-    created_at,
-    updated_at,
-    deleted_at,
-    peer_or_self_review_config_id,
-    order_number,
-    question,
-    question_type AS "question_type: _",
-    answer_required,
-    weight
+SELECT *
 FROM peer_or_self_review_questions
 WHERE peer_or_self_review_config_id = $1
     AND deleted_at IS NULL;
@@ -215,7 +179,7 @@ SELECT prq.id as id,
   prq.peer_or_self_review_config_id as peer_or_self_review_config_id,
   prq.order_number as order_number,
   prq.question as question,
-  prq.question_type AS "question_type: _",
+  prq.question_type,
   prq.answer_required as answer_required,
   prq.weight
 from pages p
@@ -246,7 +210,7 @@ UPDATE peer_or_self_review_questions
 SET deleted_at = now()
 WHERE peer_or_self_review_config_id = ANY ($1)
 AND deleted_at IS NULL
-RETURNING id;
+RETURNING *;
     ",
         peer_or_self_review_config_ids
     )
@@ -268,7 +232,7 @@ pub async fn get_course_default_cms_peer_or_self_review_questions(
 SELECT id,
   peer_or_self_review_config_id,
   order_number,
-  question_type AS "question_type: _",
+  question_type,
   question,
   answer_required,
   weight
@@ -328,7 +292,7 @@ SELECT id,
   peer_or_self_review_config_id,
   order_number,
   question,
-  question_type AS "question_type: _",
+  question_type,
   answer_required,
   weight
 from peer_or_self_review_questions

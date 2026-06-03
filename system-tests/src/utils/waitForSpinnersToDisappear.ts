@@ -20,6 +20,6 @@ export default async function waitForSpinnersToDisappear(
     }
   } catch (e) {
     console.warn(`Spinner did not disappear: ${e}`)
-    throw new Error(failureMessage)
+    throw new Error(failureMessage, { cause: e })
   }
 }

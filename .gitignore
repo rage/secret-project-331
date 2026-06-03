@@ -3,6 +3,9 @@
 .direnv/
 .local/
 
+# Python bytecode cache
+__pycache__/
+
 # Local TLS certs/keys (do not commit)
 project-331.local.pem
 project-331.local-key.pem

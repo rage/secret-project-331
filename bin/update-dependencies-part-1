@@ -3,6 +3,7 @@
 Update Node and Rust dependencies with resumable package-level reporting.
 
 Requires: git, pnpm, cargo, cargo-edit (for `cargo upgrade`).
+Optionally requires: nix (only when `--update-flake` is passed).
 """
 
 from __future__ import annotations
@@ -53,6 +54,7 @@ KNOWN_SUBSTEPS = frozenset(
         "pnpm-audit",
         "cargo-upgrade",
         "cargo-update",
+        "nix-flake-update",
     }
 )
 
@@ -451,6 +453,7 @@ class Step:
     target_name: str
     substeps: list[str]
     setup_workspace: bool = False
+    opt_in: bool = False
     cargo_upgrade_excludes: list[str] = field(default_factory=list)
     cargo_version_pins: list[CargoVersionPin] = field(default_factory=list)
     manual_review_reasons_on_change: list[str] = field(default_factory=list)
@@ -590,6 +593,7 @@ class StepRunner(StepRunnerProtocol):
             "pnpm-audit": self.run_pnpm_audit,
             "cargo-upgrade": self.run_cargo_upgrade,
             "cargo-update": self.run_cargo_update,
+            "nix-flake-update": self.run_nix_flake_update,
         }
 
         self.report_dir.mkdir(parents=True, exist_ok=True)
@@ -1226,6 +1230,25 @@ class StepRunner(StepRunnerProtocol):
             )
             self.add_commit(step.id, commit)
 
+    def run_nix_flake_update(
+        self, step: Step, substep_id: str, substep_record: dict[str, Any]
+    ) -> None:
+        self.command_runner.run(
+            ["nix", "flake", "update"],
+            cwd=step.cwd,
+            step_id=step.id,
+            substep_id=substep_id,
+        )
+        if git_has_changes_for_paths(step.cwd, ["flake.lock"]):
+            commit = self.git_commit(
+                cwd=step.cwd,
+                add_args=["flake.lock"],
+                message="Update flake.lock",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
+
     def apply_cargo_version_pins(self, step: Step, substep_id: str) -> None:
         if not step.cargo_version_pins:
             return
@@ -1375,6 +1398,11 @@ class StepRunner(StepRunnerProtocol):
                 manifest_files=[step.cwd / "package.json"],
                 lock_files=[step.cwd / "pnpm-lock.yaml"],
             )
+        if step.kind == "nix":
+            return ManifestSet(
+                manifest_files=[step.cwd / "flake.nix"],
+                lock_files=[step.cwd / "flake.lock"],
+            )
         cargo_manifests = sorted(step.cwd.glob("**/Cargo.toml"))
         return ManifestSet(
             manifest_files=cargo_manifests,
@@ -1387,8 +1415,12 @@ class StepRunner(StepRunnerProtocol):
         for manifest in manifest_set.manifest_files:
             if step.kind == "node":
                 manifest_deps = package_json_dependencies(manifest)
-            else:
+            elif step.kind == "rust":
                 manifest_deps = cargo_dependencies(manifest)
+            else:
+                # Nix flake inputs live in flake.lock; flake.nix is not parsed
+                # for individual versions, so the lock file change is the signal.
+                manifest_deps = {}
             manifest_rel = relative_to_repo(manifest, self.repo_root)
             for key, value in manifest_deps.items():
                 dependencies[f"{manifest_rel}:{key}"] = {
@@ -1874,6 +1906,22 @@ def build_steps(repo_root: Path) -> list[Step]:
             ],
         )
     )
+
+    steps.append(
+        Step(
+            id="nix:flake",
+            display_name="flake.nix",
+            cwd=repo_root,
+            ecosystem="nix",
+            manager="nix",
+            kind="nix",
+            target_name="flake.nix",
+            substeps=["nix-flake-update"],
+            # Opt-in: only runs when --update-flake is passed or the step is
+            # selected explicitly via --only-step/--from-step/--to-step.
+            opt_in=True,
+        )
+    )
     validate_step_substeps(steps)
     return steps
 
@@ -1886,6 +1934,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--list-steps",
         action="store_true",
         help="Print ordered step ids and exit.",
+    )
+    parser.add_argument(
+        "--update-flake",
+        action="store_true",
+        help=(
+            "Also run `nix flake update` and commit flake.lock (the nix:flake "
+            "step). This step is opt-in and otherwise skipped."
+        ),
     )
     parser.add_argument("--from-step", help="Start at a specific step id.")
     parser.add_argument("--to-step", help="Stop after a specific step id.")
@@ -1988,6 +2044,16 @@ def select_steps(
         selected = [step for step in selected if valid_ids.index(step.id) <= to_index]
     if args.from_step and args.to_step and valid_ids.index(args.from_step) > valid_ids.index(args.to_step):
         parser.error("--from-step must come before or equal --to-step")
+
+    # Opt-in steps (e.g. nix:flake) only run when explicitly enabled or named.
+    explicit_ids = {
+        step_id for step_id in (args.from_step, args.to_step) if step_id
+    }
+    selected = [
+        step
+        for step in selected
+        if not step.opt_in or args.update_flake or step.id in explicit_ids
+    ]
     return selected
 
 
@@ -2033,6 +2099,8 @@ def missing_required_tools(selected_steps: list[Step]) -> list[str]:
         required.add("pnpm")
     if any(step.kind == "rust" for step in selected_steps):
         required.update({"cargo", "cargo-upgrade"})
+    if any(step.kind == "nix" for step in selected_steps):
+        required.add("nix")
     return sorted(tool for tool in required if shutil.which(tool) is None)
 
 

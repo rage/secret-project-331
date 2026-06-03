@@ -1,6 +1,7 @@
 .env
 .cache
 .direnv/
+.local/
 
 # Local TLS certs/keys (do not commit)
 project-331.local.pem

@@ -14,7 +14,7 @@ import CourseModuleCompletionNeedsReviewBadge from "@/components/CourseModuleCom
 import { getCourseStudentsCompletionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { CompletionGridRow } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResult } from "@/shared-module/components"
 
 type Props = { courseId: string; searchQuery: string }
 type RowObject = Record<string, unknown> & { student: string }
@@ -189,14 +189,8 @@ export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }
   if (!courseId) {
     return <ErrorBanner error={new Error("Missing courseId")} />
   }
-  if (query.isLoading) {
-    return <Spinner />
-  }
-  if (query.isError) {
-    return <ErrorBanner error={query.error} />
-  }
 
-  return (
+  const table = (
     <FloatingHeaderTable
       columns={columns}
       data={data}
@@ -204,5 +198,11 @@ export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }
       colorColumns
       colorHeaderUnderline
     />
+  )
+
+  return (
+    <QueryResult query={query} emptyFallback={table}>
+      {() => table}
+    </QueryResult>
   )
 }

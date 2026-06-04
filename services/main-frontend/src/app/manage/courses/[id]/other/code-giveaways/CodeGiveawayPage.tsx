@@ -9,11 +9,11 @@ import { useTranslation } from "react-i18next"
 import NewCodeGiveawayForm from "./NewCodeGiveawayForm"
 
 import { getCodeGiveawaysByCourseOptions } from "@/generated/api/@tanstack/react-query.generated"
+import type { CodeGiveaway } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { codeGiveawayRoute } from "@/shared-module/common/utils/routes"
+import { QueryResult } from "@/shared-module/components"
 
 interface CodeGiveawayPageProps {
   courseId: string
@@ -57,14 +57,7 @@ const CodeGiveawayPage: React.FC<CodeGiveawayPageProps> = ({ courseId }) => {
     }),
   )
 
-  if (codeGiveawayQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (codeGiveawayQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={codeGiveawayQuery.error} />
-  }
-  return (
+  const renderPage = (codeGiveaways: CodeGiveaway[]) => (
     <div>
       <h1
         className={css`
@@ -77,8 +70,8 @@ const CodeGiveawayPage: React.FC<CodeGiveawayPageProps> = ({ courseId }) => {
         {t("heading-code-giveaways")}
       </h1>
       <Content>
-        {codeGiveawayQuery.data?.length === 0 && <p>{t("no-code-giveaways")}</p>}
-        {codeGiveawayQuery.data?.map((codeGiveaway) => (
+        {codeGiveaways.length === 0 && <p>{t("no-code-giveaways")}</p>}
+        {codeGiveaways.map((codeGiveaway) => (
           <CodeGiveawayCard href={codeGiveawayRoute(codeGiveaway.id)} key={codeGiveaway.id}>
             <h2>{codeGiveaway.name}</h2>
           </CodeGiveawayCard>
@@ -102,6 +95,12 @@ const CodeGiveawayPage: React.FC<CodeGiveawayPageProps> = ({ courseId }) => {
         }}
       />
     </div>
+  )
+
+  return (
+    <QueryResult query={codeGiveawayQuery} emptyFallback={renderPage([])}>
+      {(data) => renderPage(data)}
+    </QueryResult>
   )
 }
 export default CodeGiveawayPage

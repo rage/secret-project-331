@@ -10,10 +10,9 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 export interface CourseVisitorsByCountryProps {
   courseId: string
@@ -93,38 +92,38 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
           justify-content: center;
         `}
       >
-        {query.isLoading ? (
-          <Spinner variant="medium" />
-        ) : query.isError ? (
-          <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !aggregatedData || categories.length === 0 ? (
-          <div>{t("no-data")}</div>
-        ) : (
-          <Echarts
-            height={chartHeight}
-            options={{
-              yAxis: {
-                type: "category",
-                data: categories,
-              },
-              xAxis: {
-                type: "value",
-              },
-              series: [
-                {
-                  data: values,
-                  type: "bar",
-                },
-              ],
-              tooltip: {
-                // eslint-disable-next-line i18next/no-literal-string
-                trigger: "item",
-                // eslint-disable-next-line i18next/no-literal-string
-                formatter: "{b}: {c}",
-              },
-            }}
-          />
-        )}
+        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+          {() =>
+            !aggregatedData || categories.length === 0 ? (
+              <div>{t("no-data")}</div>
+            ) : (
+              <Echarts
+                height={chartHeight}
+                options={{
+                  yAxis: {
+                    type: "category",
+                    data: categories,
+                  },
+                  xAxis: {
+                    type: "value",
+                  },
+                  series: [
+                    {
+                      data: values,
+                      type: "bar",
+                    },
+                  ],
+                  tooltip: {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    trigger: "item",
+                    // eslint-disable-next-line i18next/no-literal-string
+                    formatter: "{b}: {c}",
+                  },
+                }}
+              />
+            )
+          }
+        </QueryResult>
       </div>
     </>
   )

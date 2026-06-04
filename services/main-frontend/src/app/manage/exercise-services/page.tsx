@@ -13,13 +13,12 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { canSave } from "@/utils/canSaveExerciseService"
 import { convertToSlug } from "@/utils/convert"
 import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBackend.ts"
@@ -107,6 +106,31 @@ const ExerciseServicePage: React.FC = () => {
     setOpen(true)
   }
 
+  const renderExerciseServices = () => (
+    <>
+      <ExerciseServiceContainer
+        exerciseServices={sortedExerciseServices}
+        refetch={getExerciseServices.refetch}
+      />
+      <ExerciseServiceCreationModal
+        open={open}
+        handleClose={handleClose}
+        exercise_service={exerciseService}
+        onChange={onChangeCreationModal}
+        onChangeName={onChangeName}
+        handleSubmit={async () => {
+          if (!canSave(exerciseService)) {
+            return
+          }
+
+          await createExerciseServiceMutation.mutateAsync({
+            body: prepareExerciseServiceForBackend(exerciseService),
+          })
+        }}
+      />
+    </>
+  )
+
   return (
     <div>
       <h1>{t("title-manage-exercise-services")}</h1>
@@ -114,34 +138,9 @@ const ExerciseServicePage: React.FC = () => {
         {t("button-text-new")}
       </Button>
       <br />
-      {getExerciseServices.isError && (
-        <ErrorBanner variant={"readOnly"} error={getExerciseServices.error} />
-      )}
-      {getExerciseServices.isLoading && <Spinner variant={"medium"} />}
-      {getExerciseServices.isSuccess && (
-        <>
-          <ExerciseServiceContainer
-            exerciseServices={sortedExerciseServices}
-            refetch={getExerciseServices.refetch}
-          />
-          <ExerciseServiceCreationModal
-            open={open}
-            handleClose={handleClose}
-            exercise_service={exerciseService}
-            onChange={onChangeCreationModal}
-            onChangeName={onChangeName}
-            handleSubmit={async () => {
-              if (!canSave(exerciseService)) {
-                return
-              }
-
-              await createExerciseServiceMutation.mutateAsync({
-                body: prepareExerciseServiceForBackend(exerciseService),
-              })
-            }}
-          />
-        </>
-      )}
+      <QueryResult query={getExerciseServices} emptyFallback={renderExerciseServices()}>
+        {() => renderExerciseServices()}
+      </QueryResult>
     </div>
   )
 }

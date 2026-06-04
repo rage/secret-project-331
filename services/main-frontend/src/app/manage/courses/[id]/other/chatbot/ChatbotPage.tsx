@@ -15,11 +15,10 @@ import {
   setCourseChatbotAsNonDefaultMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { manageChatbotRoute } from "@/shared-module/common/utils/routes"
+import { QueryResult } from "@/shared-module/components"
 import { CardList, CardListItem } from "@/styles/styles"
 
 const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
@@ -74,15 +73,8 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
     setCreateChatbotVisible(false)
   }
 
-  if (getChatbotsList.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getChatbotsList.error} />
-  }
-
-  if (getChatbotsList.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
   // use memo for sorting to sort once
-  return (
+  const content = (
     <>
       <div
         className={css`
@@ -170,6 +162,12 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         closeEdit={closeDialogOpenEdit}
       />
     </>
+  )
+
+  return (
+    <QueryResult query={getChatbotsList} emptyFallback={content}>
+      {() => content}
+    </QueryResult>
   )
 }
 

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
+import type { UseMutationResult } from "@tanstack/react-query"
 import { PencilBox, Trash } from "@vectopus/atlas-icons-react"
 import type { TFunction } from "i18next"
 import { useParams, useRouter } from "next/navigation"
@@ -32,14 +32,13 @@ import type {
   UserRole,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import {
   actionButtonStyle,
   containerBase,
@@ -217,37 +216,6 @@ const ManageOrganization: React.FC = () => {
     }
   }, [organization.data])
 
-  let contents
-  if (organization.isLoading) {
-    contents = <Spinner variant={"medium"} />
-  } else if (organization.isError) {
-    contents = <ErrorBanner variant={"readOnly"} error={organization.error} />
-  } else {
-    contents = content(
-      t,
-      activeTab,
-      setActiveTab,
-      setShowAddUserPopup,
-      editMode,
-      setEditMode,
-      users,
-      handleDelete,
-      handleEdit,
-      editedName,
-      setEditedName,
-      hidden,
-      setHidden,
-      updateOrgMutation,
-      id,
-      organization,
-      showDeletePopup,
-      setShowDeletePopup,
-      deleteMutation,
-      editedSlug,
-      setEditedSlug,
-    )
-  }
-
   return (
     <div
       className={css`
@@ -262,7 +230,33 @@ const ManageOrganization: React.FC = () => {
           width: 100%;
         `}
       >
-        {contents}
+        <QueryResult query={organization}>
+          {(organizationData) =>
+            content(
+              t,
+              activeTab,
+              setActiveTab,
+              setShowAddUserPopup,
+              editMode,
+              setEditMode,
+              users,
+              handleDelete,
+              handleEdit,
+              editedName,
+              setEditedName,
+              hidden,
+              setHidden,
+              updateOrgMutation,
+              id,
+              organizationData,
+              showDeletePopup,
+              setShowDeletePopup,
+              deleteMutation,
+              editedSlug,
+              setEditedSlug,
+            )
+          }
+        </QueryResult>
         <AddUserPopup
           show={showAddUserPopup}
           onClose={() => setShowAddUserPopup(false)}
@@ -301,7 +295,7 @@ const content = (
   setHidden: React.Dispatch<React.SetStateAction<boolean>>,
   updateOrgMutation: UseMutationResult<unknown, Error, Options<UpdateOrganizationData>, unknown>,
   id: string,
-  organization: UseQueryResult<Organization>,
+  organization: Organization,
   showDeletePopup: boolean,
   setShowDeletePopup: React.Dispatch<React.SetStateAction<boolean>>,
   deleteMutation: UseMutationResult<unknown, Error, Options<SoftDeleteOrganizationData>, unknown>,
@@ -329,7 +323,7 @@ const content = (
         }
       `}
     >
-      {t("link-manage-organization-with-name", { name: organization.data?.name ?? "" })}
+      {t("link-manage-organization-with-name", { name: organization.name ?? "" })}
     </div>
 
     <div

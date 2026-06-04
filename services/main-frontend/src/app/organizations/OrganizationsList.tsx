@@ -11,12 +11,11 @@ import { createOrganizationMutation as createOrganizationMutationOptions } from 
 import useAllOrganizationsQuery from "@/hooks/useAllOrganizationsQuery"
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 const OrganizationsList: React.FC = () => {
   const { t } = useTranslation()
@@ -93,42 +92,70 @@ const OrganizationsList: React.FC = () => {
         </div>
       </OnlyRenderIfPermissions>
 
-      {allOrganizationsQuery.isError && (
-        <ErrorBanner variant={"readOnly"} error={allOrganizationsQuery.error} />
-      )}
-      {allOrganizationsQuery.isLoading && <Spinner variant={"medium"} />}
-      {allOrganizationsQuery.isSuccess && (
-        <div
-          className={css`
-            background-color: rgba(26, 35, 51, 0.05);
-            padding: 0.5rem 0rem;
-            border-radius: 0.5rem;
-            width: 95vw;
-            position: relative;
-            left: 50%;
-            right: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 0.5em;
-            margin-bottom: 0.2rem;
+      <QueryResult
+        query={allOrganizationsQuery}
+        emptyFallback={
+          <div
+            className={css`
+              background-color: rgba(26, 35, 51, 0.05);
+              padding: 0.5rem 0rem;
+              border-radius: 0.5rem;
+              width: 95vw;
+              position: relative;
+              left: 50%;
+              right: 50%;
+              transform: translateX(-50%);
+              display: flex;
+              flex-direction: column;
+              gap: 0.5em;
+              margin-bottom: 0.2rem;
 
-            ${respondToOrLarger.lg} {
-              width: auto;
-              max-width: 900px;
-              left: auto;
-              right: auto;
-              transform: none;
-              margin: 2rem auto;
-              padding: 2rem 1rem;
-            }
-          `}
-        >
-          {allOrganizationsQuery.data.map((organization) => (
-            <OrganizationBanner key={organization.id} organization={organization} />
-          ))}
-        </div>
-      )}
+              ${respondToOrLarger.lg} {
+                width: auto;
+                max-width: 900px;
+                left: auto;
+                right: auto;
+                transform: none;
+                margin: 2rem auto;
+                padding: 2rem 1rem;
+              }
+            `}
+          />
+        }
+      >
+        {(organizations) => (
+          <div
+            className={css`
+              background-color: rgba(26, 35, 51, 0.05);
+              padding: 0.5rem 0rem;
+              border-radius: 0.5rem;
+              width: 95vw;
+              position: relative;
+              left: 50%;
+              right: 50%;
+              transform: translateX(-50%);
+              display: flex;
+              flex-direction: column;
+              gap: 0.5em;
+              margin-bottom: 0.2rem;
+
+              ${respondToOrLarger.lg} {
+                width: auto;
+                max-width: 900px;
+                left: auto;
+                right: auto;
+                transform: none;
+                margin: 2rem auto;
+                padding: 2rem 1rem;
+              }
+            `}
+          >
+            {organizations.map((organization) => (
+              <OrganizationBanner key={organization.id} organization={organization} />
+            ))}
+          </div>
+        )}
+      </QueryResult>
       <CreateOrganizationPopup
         show={showCreatePopup}
         onClose={() => setShowCreatePopup(false)}

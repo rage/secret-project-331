@@ -7,8 +7,7 @@ import { useTranslation } from "react-i18next"
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 import { getCourseStudentsUsersOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResult } from "@/shared-module/components"
 
 export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }> = ({
   courseId,
@@ -47,14 +46,7 @@ export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }>
     })
   }, [allRows, searchQuery])
 
-  if (query.isLoading) {
-    return <Spinner />
-  }
-  if (query.isError) {
-    return <ErrorBanner error={query.error} />
-  }
-
-  return (
+  const table = (
     <FloatingHeaderTable
       columns={[
         {
@@ -92,5 +84,11 @@ export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }>
       ]}
       data={rows}
     />
+  )
+
+  return (
+    <QueryResult query={query} emptyFallback={table}>
+      {() => table}
+    </QueryResult>
   )
 }

@@ -12,10 +12,9 @@ import ExamListItem from "./ExamListItem"
 import NewExamDialog from "@/app/manage/exams/NewExamDialog"
 import { getOrganizationExamsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   organizationId: string
@@ -51,15 +50,7 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
     [getOrgExams.data],
   )
 
-  if (getOrgExams.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getOrgExams.error} />
-  }
-
-  if (getOrgExams.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
-  return (
+  const examListContent = (
     <div>
       <CardList>
         {activeExams.map((exam) => (
@@ -104,6 +95,12 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
         </OnlyRenderIfPermissions>
       )}
     </div>
+  )
+
+  return (
+    <QueryResult query={getOrgExams} emptyFallback={examListContent}>
+      {() => examListContent}
+    </QueryResult>
   )
 }
 export default ExamList

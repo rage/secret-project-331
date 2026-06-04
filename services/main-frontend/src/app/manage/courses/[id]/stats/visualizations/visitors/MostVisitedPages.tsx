@@ -11,10 +11,9 @@ import StatsHeader from "../../StatsHeader"
 
 import { getCoursePageVisitDatumSummaryByPagesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResults } from "@/shared-module/components"
 
 export interface MostVisitedPagesProps {
   courseId: string
@@ -86,55 +85,56 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
   }, [aggregatedData])
 
   const chartHeight = categories.length ? 200 + categories.length * 25 : DEFAULT_CHART_HEIGHT
-  const isLoading = query.isLoading || courseStructure.isLoading
 
   return (
     <>
       <StatsHeader heading={t("stats-heading-page-popularity")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-page-popularity")}</InstructionBox>
       <div className={containerStyles}>
-        {isLoading ? (
-          <Spinner variant="medium" />
-        ) : query.isError ? (
-          <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !aggregatedData || categories.length === 0 ? (
-          <div>{t("no-data")}</div>
-        ) : (
-          <div
-            className={css`
-              width: 100%;
-            `}
-          >
-            <Echarts
-              height={chartHeight}
-              options={{
-                grid: {
-                  containLabel: true,
-                  left: 0,
-                },
-                yAxis: {
-                  type: "category",
-                  data: categories,
-                },
-                xAxis: {
-                  type: "value",
-                },
-                series: [
-                  {
-                    data: values,
-                    type: "bar",
-                  },
-                ],
-                tooltip: {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  trigger: "item",
-                  // eslint-disable-next-line i18next/no-literal-string
-                  formatter: "{b}: {c}",
-                },
-              }}
-            />
-          </div>
-        )}
+        <QueryResults
+          queries={[query, courseStructure] as const}
+          emptyFallback={<div>{t("no-data")}</div>}
+          renderData={() =>
+            !aggregatedData || categories.length === 0 ? (
+              <div>{t("no-data")}</div>
+            ) : (
+              <div
+                className={css`
+                  width: 100%;
+                `}
+              >
+                <Echarts
+                  height={chartHeight}
+                  options={{
+                    grid: {
+                      containLabel: true,
+                      left: 0,
+                    },
+                    yAxis: {
+                      type: "category",
+                      data: categories,
+                    },
+                    xAxis: {
+                      type: "value",
+                    },
+                    series: [
+                      {
+                        data: values,
+                        type: "bar",
+                      },
+                    ],
+                    tooltip: {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      trigger: "item",
+                      // eslint-disable-next-line i18next/no-literal-string
+                      formatter: "{b}: {c}",
+                    },
+                  }}
+                />
+              </div>
+            )
+          }
+        />
       </div>
     </>
   )

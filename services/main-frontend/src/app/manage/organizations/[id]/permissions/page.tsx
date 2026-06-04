@@ -8,11 +8,10 @@ import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
 import { getOrganizationOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const OrganizationPermissions: React.FC = () => {
   const { t } = useTranslation()
@@ -34,22 +33,22 @@ const OrganizationPermissions: React.FC = () => {
         }
       `}
     >
-      {organization.isLoading && <Spinner variant="large" />}
-      {organization.isError && <ErrorBanner variant="readOnly" error={organization.error} />}
-      {organization.isSuccess && (
-        <>
-          <h1>
-            {t("roles-for-organization")} {organization.data.name}
-          </h1>
-          <PermissionPage
-            domain={{
-              // eslint-disable-next-line i18next/no-literal-string
-              tag: "Organization",
-              id: organization.data.id,
-            }}
-          />
-        </>
-      )}
+      <QueryResult query={organization}>
+        {(data) => (
+          <>
+            <h1>
+              {t("roles-for-organization")} {data.name}
+            </h1>
+            <PermissionPage
+              domain={{
+                // eslint-disable-next-line i18next/no-literal-string
+                tag: "Organization",
+                id: data.id,
+              }}
+            />
+          </>
+        )}
+      </QueryResult>
     </div>
   )
 }

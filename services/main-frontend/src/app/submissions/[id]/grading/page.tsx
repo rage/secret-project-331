@@ -15,13 +15,12 @@ import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
 import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 interface Block<T> {
   name: string
@@ -86,67 +85,65 @@ const Submission: React.FC = () => {
           <Breadcrumbs pieces={pieces} />
         </PageMarginOffset>
       </BreakFromCentered>
-      {getSubmissionInfo.isError && (
-        <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
-      )}
-      {getSubmissionInfo.isLoading && <Spinner variant={"medium"} />}
-      {getSubmissionInfo.isSuccess && getExam.isSuccess && (
-        <Centered variant="narrow">
-          <div>
-            <h1
-              className={css`
-                font-family: ${headingFont};
-                padding: 1.5rem 2rem;
-                font-size: 35px;
-                font-weight: ${fontWeights.semibold};
-                color: #333333;
-                opacity: 80%;
-              `}
-            >
-              {t("label-grade")} {getSubmissionInfo.data.exercise.name}
-            </h1>
-            {getSubmissionInfo.data.tasks
-              .sort((a, b) => a.order_number - b.order_number)
-              .map((task) => (
-                <div key={task.id}>
-                  <div
-                    className={css`
-                      padding: 1.5rem 2rem;
-                      display: flex;
-                    `}
-                  >
-                    {handleGetAssignments(task)}
-                  </div>
-                  <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
-                  {!getExam.data?.grade_manually && (
-                    <div
-                      className={css`
-                        padding: 1.5rem 2rem;
-                        display: flex;
-                      `}
-                    >
-                      {t("message-this-submission-has-been-graded-automatically")}:
+      <QueryResult query={getSubmissionInfo}>
+        {(submissionInfo) =>
+          getExam.isSuccess && (
+            <Centered variant="narrow">
+              <div>
+                <h1
+                  className={css`
+                    font-family: ${headingFont};
+                    padding: 1.5rem 2rem;
+                    font-size: 35px;
+                    font-weight: ${fontWeights.semibold};
+                    color: #333333;
+                    opacity: 80%;
+                  `}
+                >
+                  {t("label-grade")} {submissionInfo.exercise.name}
+                </h1>
+                {submissionInfo.tasks
+                  .sort((a, b) => a.order_number - b.order_number)
+                  .map((task) => (
+                    <div key={task.id}>
                       <div
                         className={css`
-                          padding-left: 0.5rem;
+                          padding: 1.5rem 2rem;
+                          display: flex;
                         `}
                       >
-                        {task.previous_submission_grading?.score_given} /
-                        {task.previous_submission_grading?.unscaled_score_maximum}
+                        {handleGetAssignments(task)}
                       </div>
+                      <SubmissionIFrame key={task.id} coursematerialExerciseTask={task} />
+                      {!getExam.data?.grade_manually && (
+                        <div
+                          className={css`
+                            padding: 1.5rem 2rem;
+                            display: flex;
+                          `}
+                        >
+                          {t("message-this-submission-has-been-graded-automatically")}:
+                          <div
+                            className={css`
+                              padding-left: 0.5rem;
+                            `}
+                          >
+                            {task.previous_submission_grading?.score_given} /
+                            {task.previous_submission_grading?.unscaled_score_maximum}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
-          </div>
+                  ))}
+              </div>
 
-          {getExam.data?.grade_manually && (
-            <GradeExamAnswerForm
-              submissionId={getSubmissionInfo.data.exercise_slide_submission.id}
-            />
-          )}
-        </Centered>
-      )}
+              {getExam.data?.grade_manually && (
+                <GradeExamAnswerForm submissionId={submissionInfo.exercise_slide_submission.id} />
+              )}
+            </Centered>
+          )
+        }
+      </QueryResult>
     </div>
   )
 }

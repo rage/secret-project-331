@@ -14,15 +14,16 @@ import {
   getRegradingsCountOptions,
   getRegradingsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { NewRegradingIdType, UserPointsUpdateStrategy } from "@/generated/api/types.generated"
+import type {
+  NewRegradingIdType,
+  Regrading,
+  UserPointsUpdateStrategy,
+} from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
@@ -31,6 +32,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { isUuid } from "@/shared-module/common/utils/fetching"
 import { manageRegradingRoute } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { QueryResult } from "@/shared-module/components"
 
 interface Fields {
   ids: string
@@ -81,25 +83,7 @@ const RegradingsPage: React.FC = () => {
     },
   )
 
-  if (regradingsQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={regradingsQuery.error} />
-  }
-
-  if (regradingsQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (!regradingsQuery.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void regradingsQuery.refetch()
-        }}
-      />
-    )
-  }
-
-  return (
+  const renderRegradings = (regradings: Regrading[]) => (
     <>
       <div
         className={css`
@@ -135,7 +119,7 @@ const RegradingsPage: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {regradingsQuery.data.map((regrading) => (
+            {regradings.map((regrading) => (
               <FullWidthTableRow key={regrading.id}>
                 <td>
                   <Link href={manageRegradingRoute(regrading.id)}>{regrading.id}</Link>
@@ -253,8 +237,14 @@ const RegradingsPage: React.FC = () => {
           {t("button-text-create")}
         </Button>
       </Dialog>
-      <DebugModal data={regradingsQuery.data} />
+      <DebugModal data={regradings} />
     </>
+  )
+
+  return (
+    <QueryResult query={regradingsQuery} emptyFallback={renderRegradings([])}>
+      {(regradings) => renderRegradings(regradings)}
+    </QueryResult>
   )
 }
 

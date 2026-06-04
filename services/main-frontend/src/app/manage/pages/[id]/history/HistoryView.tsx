@@ -9,10 +9,9 @@ import HistoryList from "./HistoryList"
 
 import { getPageHistoryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { PageHistory } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import MonacoDiffEditor from "@/shared-module/common/components/monaco/MonacoDiffEditor"
 import replaceUuidsWithPlaceholdersInText from "@/shared-module/common/utils/testing/replaceUuidsWithPlaceholders"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   pageId: string
@@ -74,43 +73,42 @@ const HistoryView: React.FC<React.PropsWithChildren<Props>> = ({ pageId }) => {
   }
 
   return (
-    <>
-      {getCurrentPageHistory.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCurrentPageHistory.error} />
-      )}
-      {getCurrentPageHistory.isLoading && <Spinner variant={"medium"} />}
-      {getCurrentPageHistory.isSuccess && !currentPageHistory && (
-        <div>{t("error-could-not-find-edit-history-for-page")}</div>
-      )}
-      {getCurrentPageHistory.isSuccess && currentPageHistory && (
-        <div>
-          <p
-            className={css`
-              text-align: center;
-            `}
-          >
-            {t("previous-title-current-title", {
-              "current-title": currentTitle,
-              "selected-title": selectedTitle,
-            })}
-          </p>
-          <MonacoDiffEditor
-            height="40vh"
-            // eslint-disable-next-line i18next/no-literal-string
-            language="json"
-            original={currentRevision || t("loading-text")}
-            modified={selectedRevision || t("loading-text")}
-            options={{ readOnly: true }}
-          />
-          <HistoryList
-            pageId={pageId}
-            initialSelectedRevisionId={currentPageHistory.id}
-            onCompare={onCompare}
-            onRestore={onRestore}
-          />
-        </div>
-      )}
-    </>
+    <QueryResult
+      query={getCurrentPageHistory}
+      emptyFallback={<div>{t("error-could-not-find-edit-history-for-page")}</div>}
+    >
+      {(data) => {
+        const pageHistory = data[0]
+        return (
+          <div>
+            <p
+              className={css`
+                text-align: center;
+              `}
+            >
+              {t("previous-title-current-title", {
+                "current-title": currentTitle,
+                "selected-title": selectedTitle,
+              })}
+            </p>
+            <MonacoDiffEditor
+              height="40vh"
+              // eslint-disable-next-line i18next/no-literal-string
+              language="json"
+              original={currentRevision || t("loading-text")}
+              modified={selectedRevision || t("loading-text")}
+              options={{ readOnly: true }}
+            />
+            <HistoryList
+              pageId={pageId}
+              initialSelectedRevisionId={pageHistory.id}
+              onCompare={onCompare}
+              onRestore={onRestore}
+            />
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

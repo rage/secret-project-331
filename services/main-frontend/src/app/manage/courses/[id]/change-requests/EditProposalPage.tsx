@@ -11,11 +11,9 @@ import {
   processEditProposalMutation as processProposalMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { BlockProposalInfo } from "@/generated/api/types.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { fontWeights, typography } from "@/shared-module/common/styles/typography"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -50,14 +48,6 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     method: "POST",
   })
 
-  const proposalsForDeletedBlocks = getEditProposalList.data?.filter(
-    (p) => p.block_proposals[0].type === "edited-block-no-longer-exists",
-  )
-
-  const editProposalList = getEditProposalList.data?.filter(
-    (p) => p.block_proposals[0].type === "edited-block-still-exists",
-  )
-
   async function handleProposal(
     pageId: string,
     pageProposalId: string,
@@ -74,72 +64,64 @@ const EditProposalPage: React.FC<React.PropsWithChildren<Props>> = ({
     await onChange()
   }
 
-  if (getEditProposalList.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getEditProposalList.error} />
-  }
-
-  if (getEditProposalList.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
-  if (!getEditProposalList.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void getEditProposalList.refetch()
-        }}
-      />
-    )
-  }
-
-  if (getEditProposalList.data.length === 0) {
-    return <div>{t("nothing-here")}</div>
-  }
-
   return (
-    <>
-      <ul
-        className={css`
-          list-style: none;
-          padding: 0;
-        `}
-      >
-        {editProposalList &&
-          editProposalList.map((p) => (
-            <li key={p.id}>
-              <EditProposalView proposal={p} handleProposal={handleProposal} />
-            </li>
-          ))}
-      </ul>
+    <QueryResult query={getEditProposalList} emptyFallback={<div>{t("nothing-here")}</div>}>
+      {(data) => {
+        const proposalsForDeletedBlocks = data.filter(
+          (p) => p.block_proposals[0].type === "edited-block-no-longer-exists",
+        )
 
-      {proposalsForDeletedBlocks?.length !== 0 && (
-        <>
-          {pending === true && (
-            <h5
+        const editProposalList = data.filter(
+          (p) => p.block_proposals[0].type === "edited-block-still-exists",
+        )
+
+        return (
+          <>
+            <ul
               className={css`
-                font-size: ${typography.h5};
-                font-weight: ${fontWeights.semibold};
+                list-style: none;
+                padding: 0;
               `}
             >
-              {t("change-request-for-deleted-block")}
-            </h5>
-          )}
+              {editProposalList &&
+                editProposalList.map((p) => (
+                  <li key={p.id}>
+                    <EditProposalView proposal={p} handleProposal={handleProposal} />
+                  </li>
+                ))}
+            </ul>
 
-          <ul
-            className={css`
-              list-style: none;
-              padding: 0;
-            `}
-          >
-            {proposalsForDeletedBlocks?.map((p) => (
-              <li key={p.id}>
-                <EditProposalView proposal={p} handleProposal={handleProposal} />
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-    </>
+            {proposalsForDeletedBlocks?.length !== 0 && (
+              <>
+                {pending === true && (
+                  <h5
+                    className={css`
+                      font-size: ${typography.h5};
+                      font-weight: ${fontWeights.semibold};
+                    `}
+                  >
+                    {t("change-request-for-deleted-block")}
+                  </h5>
+                )}
+
+                <ul
+                  className={css`
+                    list-style: none;
+                    padding: 0;
+                  `}
+                >
+                  {proposalsForDeletedBlocks?.map((p) => (
+                    <li key={p.id}>
+                      <EditProposalView proposal={p} handleProposal={handleProposal} />
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </>
+        )
+      }}
+    </QueryResult>
   )
 }
 

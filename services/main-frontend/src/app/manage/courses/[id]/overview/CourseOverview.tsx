@@ -6,8 +6,7 @@ import ManageCourse from "./ManageCourse"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResult } from "@/shared-module/components"
 
 const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -15,13 +14,9 @@ const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const courseQuery = useCourseQuery(courseId)
 
   return (
-    <>
-      {courseQuery.isError && <ErrorBanner error={courseQuery.error} variant={"readOnly"} />}
-      {courseQuery.isLoading && <Spinner variant={"medium"} />}
-      {courseQuery.isSuccess && (
-        <ManageCourse course={courseQuery.data} refetch={courseQuery.refetch} />
-      )}
-    </>
+    <QueryResult query={courseQuery}>
+      {(course) => <ManageCourse course={course} refetch={courseQuery.refetch} />}
+    </QueryResult>
   )
 }
 

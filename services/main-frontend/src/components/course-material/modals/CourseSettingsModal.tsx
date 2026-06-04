@@ -19,12 +19,12 @@ import useCourseInstances from "@/hooks/course-material/useCourseInstances"
 import { refetchUserChapterLocks } from "@/hooks/course-material/useUserChapterLocks"
 import useUserMarketingConsent from "@/hooks/course-material/useUserMarketingConsent"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { invalidateCourseMaterialStateQueries } from "@/state/course-material/queries"
 import {
   currentCourseIdAtom,
@@ -189,20 +189,33 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
             currentPageId={pageId}
           />
         )}
-        {getCourseInstances.isError && (
-          <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
-        )}
-        {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
-        {getCourseInstances.isSuccess && selectedLangCourseId && (
-          <SelectCourseInstanceForm
-            courseInstances={getCourseInstances.data}
-            submitMutation={handleSubmitAndCloseMutation}
-            initialSelectedInstanceId={
-              materialSettings?.current_course_instance_id ?? materialInstance?.id
+        {selectedLangCourseId && viewStatus === "ready" && (
+          <QueryResult
+            query={getCourseInstances}
+            emptyFallback={
+              <SelectCourseInstanceForm
+                courseInstances={[]}
+                submitMutation={handleSubmitAndCloseMutation}
+                initialSelectedInstanceId={
+                  materialSettings?.current_course_instance_id ?? materialInstance?.id
+                }
+                dialogLanguage={dialogLanguage}
+                selectedLangCourseId={selectedLangCourseId}
+              />
             }
-            dialogLanguage={dialogLanguage}
-            selectedLangCourseId={selectedLangCourseId}
-          />
+          >
+            {(courseInstances) => (
+              <SelectCourseInstanceForm
+                courseInstances={courseInstances}
+                submitMutation={handleSubmitAndCloseMutation}
+                initialSelectedInstanceId={
+                  materialSettings?.current_course_instance_id ?? materialInstance?.id
+                }
+                dialogLanguage={dialogLanguage}
+                selectedLangCourseId={selectedLangCourseId}
+              />
+            )}
+          </QueryResult>
         )}
       </div>
 

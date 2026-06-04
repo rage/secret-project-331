@@ -12,8 +12,8 @@ import type {
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 interface CourseMaterialPageBreadcrumbsProps {
   page: Page | null
@@ -25,7 +25,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
 > = ({ page, currentPagePath }) => {
   const isCourseFrontPage = currentPagePath === "/"
   const { t } = useTranslation()
-  const data = useQuery({
+  const pageChapterAndCourseInformationQuery = useQuery({
     queryKey: [`page-chapter-and-course-${page?.id}`, page, page?.id],
     queryFn: async (): Promise<PageChapterAndCourseInformation | null> => {
       if (!page) {
@@ -48,48 +48,46 @@ const CourseMaterialPageBreadcrumbs: React.FC<
     return null
   }
 
-  if (data.isError) {
-    return <ErrorBanner variant={"readOnly"} error={data.error} />
-  }
-
-  if (data.isLoading) {
-    return <Spinner variant={"small"} />
-  }
-
-  if (!data.data) {
-    return null
-  }
-
-  const chapterName = data.data?.chapter_name
-  const chapterNumber = data.data?.chapter_number
-  const pageOrderNumber = page.order_number
-  const chapterFrontPageId = data.data?.chapter_front_page_id
-  const isChapterFrontPage = chapterFrontPageId && page.id === chapterFrontPageId
-  // eslint-disable-next-line i18next/no-literal-string
-  const courseUrlPrefix = `/org/${data.data.organization_slug}/courses/${data.data.course_slug}`
-
-  const pieces = [{ text: data.data?.course_name ?? t("course"), url: courseUrlPrefix }]
-  if (page.chapter_id) {
-    pieces.push({
-      text: t("chapter-chapter-number-chapter-name", { chapterName, chapterNumber }),
-      url: `${courseUrlPrefix}${data.data.chapter_front_page_url_path}`,
-    })
-  }
-  if (!isChapterFrontPage && !isCourseFrontPage) {
-    if (page.chapter_id) {
-      pieces.push({
-        text: `${pageOrderNumber}: ${page.title}`,
-        url: `${courseUrlPrefix}${page.url_path}}`,
-      })
-    } else {
-      pieces.push({ text: page.title, url: `${courseUrlPrefix}${page.url_path}}` })
-    }
-  }
-
   return (
-    <BreakFromCentered sidebar={false}>
-      <Breadcrumbs pieces={pieces} />
-    </BreakFromCentered>
+    <QueryResult
+      query={pageChapterAndCourseInformationQuery}
+      treatNullAsEmpty
+      renderBlockingError={(error) => <ErrorBanner variant={"readOnly"} error={error} />}
+    >
+      {(data) => {
+        const chapterName = data?.chapter_name
+        const chapterNumber = data?.chapter_number
+        const pageOrderNumber = page.order_number
+        const chapterFrontPageId = data?.chapter_front_page_id
+        const isChapterFrontPage = chapterFrontPageId && page.id === chapterFrontPageId
+        // eslint-disable-next-line i18next/no-literal-string
+        const courseUrlPrefix = `/org/${data?.organization_slug}/courses/${data?.course_slug}`
+
+        const pieces = [{ text: data?.course_name ?? t("course"), url: courseUrlPrefix }]
+        if (page.chapter_id) {
+          pieces.push({
+            text: t("chapter-chapter-number-chapter-name", { chapterName, chapterNumber }),
+            url: `${courseUrlPrefix}${data?.chapter_front_page_url_path}`,
+          })
+        }
+        if (!isChapterFrontPage && !isCourseFrontPage) {
+          if (page.chapter_id) {
+            pieces.push({
+              text: `${pageOrderNumber}: ${page.title}`,
+              url: `${courseUrlPrefix}${page.url_path}}`,
+            })
+          } else {
+            pieces.push({ text: page.title, url: `${courseUrlPrefix}${page.url_path}}` })
+          }
+        }
+
+        return (
+          <BreakFromCentered sidebar={false}>
+            <Breadcrumbs pieces={pieces} />
+          </BreakFromCentered>
+        )
+      }}
+    </QueryResult>
   )
 }
 

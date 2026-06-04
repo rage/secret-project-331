@@ -10,13 +10,12 @@ import NewCourseDialog from "./NewCourseDialog"
 import { useOrganizationCourseCount } from "@/hooks/useOrganizationCourseCount"
 import { useOrganizationCourses } from "@/hooks/useOrganizationCourses"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { QueryResults } from "@/shared-module/components"
 
 interface Props {
   organizationId: string
@@ -46,78 +45,73 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
     }) ?? [],
   )
 
-  if (organizationCoursesQuery.isError) {
-    return <ErrorBanner variant={"readOnly"} error={organizationCoursesQuery.error} />
-  }
-
-  if (getOrgCourseCount.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getOrgCourseCount.error} />
-  }
-
-  if (
-    organizationCoursesQuery.isLoading ||
-    getOrgCourseCount.isLoading ||
-    !getOrgCourseCount.data ||
-    !organizationCoursesQuery.data
-  ) {
-    return <Spinner variant={"medium"} />
-  }
-
-  const courseCount = getOrgCourseCount.data.count
-
-  const courses = organizationCoursesQuery.data.map((course, n) => {
+  const renderLayout = (courseCount: number, courses: React.ReactNode) => {
     return (
-      <CourseCard
-        key={course.id}
-        title={course.name}
-        isDraft={course.is_draft}
-        isUnlisted={course.is_unlisted}
-        description={course.description ?? t("no-description-available")}
-        languageCode={course.language_code}
-        // eslint-disable-next-line i18next/no-literal-string
-        manageHref={`/manage/courses/${course.id}`}
-        // eslint-disable-next-line i18next/no-literal-string
-        navigateToCourseHref={`/org/${organizationSlug}/courses/${course.slug}`}
-        id={course.id}
-        showManageButton={canMangeCourse.data?.[n] === true}
-      />
+      <div>
+        {courseCount <= 0 && <p>{t("no-courses-in-org")}</p>}
+        {courseCount > 0 && <CourseGrid>{courses}</CourseGrid>}
+        <div
+          className={css`
+            display: flex;
+            justify-content: center;
+          `}
+        >
+          <Pagination
+            totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
+            paginationInfo={paginationInfo}
+          />
+        </div>
+
+        <NewCourseDialog
+          open={newCourseFormOpen}
+          onClose={() => setNewCourseFormOpen(false)}
+          organizationId={organizationId}
+        />
+
+        <br />
+        {loginStateContext.signedIn && (
+          <OnlyRenderIfPermissions
+            action={{ type: "create_courses_or_exams" }}
+            resource={{ id: organizationId, type: "organization" }}
+          >
+            <Button size="medium" variant="primary" onClick={() => setNewCourseFormOpen(true)}>
+              {t("button-text-create")}
+            </Button>
+          </OnlyRenderIfPermissions>
+        )}
+      </div>
     )
-  })
+  }
 
   return (
-    <div>
-      {courseCount <= 0 && <p>{t("no-courses-in-org")}</p>}
-      {courseCount > 0 && <CourseGrid>{courses}</CourseGrid>}
-      <div
-        className={css`
-          display: flex;
-          justify-content: center;
-        `}
-      >
-        <Pagination
-          totalPages={Math.ceil(Math.max(courseCount, 1) / paginationInfo.limit)}
-          paginationInfo={paginationInfo}
-        />
-      </div>
+    <QueryResults
+      queries={[organizationCoursesQuery, getOrgCourseCount] as const}
+      emptyFallback={renderLayout(getOrgCourseCount.data?.count ?? 0, null)}
+      renderData={([organizationCourses, orgCourseCount]) => {
+        const courseCount = orgCourseCount.count
 
-      <NewCourseDialog
-        open={newCourseFormOpen}
-        onClose={() => setNewCourseFormOpen(false)}
-        organizationId={organizationId}
-      />
+        const courses = organizationCourses.map((course, n) => {
+          return (
+            <CourseCard
+              key={course.id}
+              title={course.name}
+              isDraft={course.is_draft}
+              isUnlisted={course.is_unlisted}
+              description={course.description ?? t("no-description-available")}
+              languageCode={course.language_code}
+              // eslint-disable-next-line i18next/no-literal-string
+              manageHref={`/manage/courses/${course.id}`}
+              // eslint-disable-next-line i18next/no-literal-string
+              navigateToCourseHref={`/org/${organizationSlug}/courses/${course.slug}`}
+              id={course.id}
+              showManageButton={canMangeCourse.data?.[n] === true}
+            />
+          )
+        })
 
-      <br />
-      {loginStateContext.signedIn && (
-        <OnlyRenderIfPermissions
-          action={{ type: "create_courses_or_exams" }}
-          resource={{ id: organizationId, type: "organization" }}
-        >
-          <Button size="medium" variant="primary" onClick={() => setNewCourseFormOpen(true)}>
-            {t("button-text-create")}
-          </Button>
-        </OnlyRenderIfPermissions>
-      )}
-    </div>
+        return renderLayout(courseCount, courses)
+      }}
+    />
   )
 }
 

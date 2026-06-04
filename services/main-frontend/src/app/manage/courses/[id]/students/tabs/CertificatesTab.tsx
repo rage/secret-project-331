@@ -24,6 +24,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import { useCopyToClipboard } from "@/shared-module/common/hooks/useCopyToClipboard"
 import { formatDateForDateInputs } from "@/shared-module/common/utils/time"
+import { QueryResult } from "@/shared-module/components"
 import { buildGeneratedApiUrl } from "@/utils/generatedApiUrl"
 
 const CERTIFICATE_BY_VERIFICATION_PATH: GetCertificateByVerificationIdData["url"] =
@@ -125,13 +126,6 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
     setImageLoaded(false)
   }
 
-  if (query.isLoading) {
-    return <Spinner />
-  }
-  if (query.isError) {
-    return <ErrorBanner error={query.error} />
-  }
-
   const columns: ColumnDef<CertificateGridRow, unknown>[] = [
     // eslint-disable-next-line i18next/no-literal-string
     { header: t("label-student"), accessorKey: "student" },
@@ -206,7 +200,7 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
     },
   ]
 
-  return (
+  const content = (
     <>
       {popupUrl && verificationId && (
         <StandardDialog
@@ -412,5 +406,11 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
 
       <FloatingHeaderTable columns={columns} data={rows} />
     </>
+  )
+
+  return (
+    <QueryResult query={query} emptyFallback={content}>
+      {() => content}
+    </QueryResult>
   )
 }

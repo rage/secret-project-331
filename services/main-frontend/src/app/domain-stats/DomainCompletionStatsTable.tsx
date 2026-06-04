@@ -6,9 +6,8 @@ import { useTranslation } from "react-i18next"
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { DomainCompletionStats } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 interface DomainCompletionStatsTableProps {
   query: UseQueryResult<DomainCompletionStats[]>
@@ -21,19 +20,7 @@ const DomainCompletionStatsTable: React.FC<DomainCompletionStatsTableProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  if (query.isError) {
-    return <ErrorBanner variant="text" error={query.error} />
-  }
-
-  if (query.isLoading) {
-    return (
-      <div>
-        <Spinner variant="medium" />
-      </div>
-    )
-  }
-
-  return (
+  const renderTable = (data: DomainCompletionStats[]) => (
     <FullWidthTable>
       <thead>
         <FullWidthTableRow>
@@ -51,7 +38,7 @@ const DomainCompletionStatsTable: React.FC<DomainCompletionStatsTableProps> = ({
         </FullWidthTableRow>
       </thead>
       <tbody>
-        {query.data?.map((domain) => (
+        {data.map((domain) => (
           <FullWidthTableRow key={domain.email_domain}>
             <td>{domain.email_domain}</td>
             <td>{domain.total_completions}</td>
@@ -77,6 +64,12 @@ const DomainCompletionStatsTable: React.FC<DomainCompletionStatsTableProps> = ({
         ))}
       </tbody>
     </FullWidthTable>
+  )
+
+  return (
+    <QueryResult query={query} emptyFallback={renderTable([])}>
+      {(data) => renderTable(data)}
+    </QueryResult>
   )
 }
 

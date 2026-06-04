@@ -11,10 +11,10 @@ import {
   useTotalUsersStartedCourseByInstanceQuery,
 } from "@/hooks/stats"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { baseTheme } from "@/shared-module/common/styles"
 import { formatNumber } from "@/shared-module/common/utils/numbers"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResults } from "@/shared-module/components"
 
 interface TotalStatsByInstanceProps {
   courseId: string
@@ -53,30 +53,6 @@ const numberCellStyles = css`
   font-variant-numeric: tabular-nums;
   color: ${baseTheme.colors.green[600]};
   font-weight: 600;
-`
-
-const loadingRowStyles = css`
-  @keyframes pulse {
-    0%,
-    100% {
-      background-color: ${baseTheme.colors.gray[200]};
-    }
-    50% {
-      background-color: ${baseTheme.colors.gray[300]};
-    }
-  }
-
-  td {
-    padding: 1rem;
-    height: 53px;
-  }
-
-  .loading-placeholder {
-    height: 20px;
-    border-radius: 4px;
-    animation: pulse 1.5s ease-in-out infinite;
-    animation-delay: 500ms;
-  }
 `
 
 const getInstanceDisplayName = (
@@ -168,70 +144,59 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
 
   return (
     <div>
-      {hasError ? (
-        <ErrorBanner
-          variant="readOnly"
-          error={
-            totalUsersQuery.error ||
-            totalCompletionsQuery.error ||
-            totalReturnedExercisesQuery.error ||
-            courseInstancesQuery.error
-          }
-        />
-      ) : (
-        <table className={tableStyles}>
-          <thead>
-            <tr>
-              <th className={thStyles}>{t("stats-heading-course-instance")}</th>
-              <th className={thStyles}>{t("stats-heading-students-started-the-course")}</th>
-              <th className={thStyles}>{t("stats-heading-students-returned-exercises")}</th>
-              <th className={thStyles}>{t("stats-heading-students-completed-the-course")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading
-              ? // Loading state - show 3 loading rows
-                Array.from({ length: 3 }).map((_, i) => (
-                  <tr key={i} className={loadingRowStyles}>
-                    <td>
-                      <div className="loading-placeholder" />
-                    </td>
-                    <td>
-                      <div className="loading-placeholder" />
-                    </td>
-                    <td>
-                      <div className="loading-placeholder" />
-                    </td>
-                    <td>
-                      <div className="loading-placeholder" />
-                    </td>
-                  </tr>
-                ))
-              : allInstanceIds.map((instanceId) => (
-                  <tr key={instanceId}>
-                    <td className={tdStyles}>
-                      {getInstanceDisplayName(instanceMap.get(instanceId), instanceId, t)}
-                    </td>
-                    <td className={numberCellStyles}>
-                      {formatNumber(totalUsersQuery.data?.[instanceId]?.count || 0, i18n.language)}
-                    </td>
-                    <td className={numberCellStyles}>
-                      {formatNumber(
-                        totalReturnedExercisesQuery.data?.[instanceId]?.count || 0,
-                        i18n.language,
-                      )}
-                    </td>
-                    <td className={numberCellStyles}>
-                      {formatNumber(
-                        totalCompletionsQuery.data?.[instanceId]?.count || 0,
-                        i18n.language,
-                      )}
-                    </td>
-                  </tr>
-                ))}
-          </tbody>
-        </table>
-      )}
+      <QueryResults
+        queries={
+          [
+            totalUsersQuery,
+            totalReturnedExercisesQuery,
+            totalCompletionsQuery,
+            courseInstancesQuery,
+          ] as const
+        }
+        emptyFallback={
+          <table className={tableStyles}>
+            <thead>
+              <tr>
+                <th className={thStyles}>{t("stats-heading-course-instance")}</th>
+                <th className={thStyles}>{t("stats-heading-students-started-the-course")}</th>
+                <th className={thStyles}>{t("stats-heading-students-returned-exercises")}</th>
+                <th className={thStyles}>{t("stats-heading-students-completed-the-course")}</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        }
+        renderData={([totalUsers, totalReturnedExercises, totalCompletions]) => (
+          <table className={tableStyles}>
+            <thead>
+              <tr>
+                <th className={thStyles}>{t("stats-heading-course-instance")}</th>
+                <th className={thStyles}>{t("stats-heading-students-started-the-course")}</th>
+                <th className={thStyles}>{t("stats-heading-students-returned-exercises")}</th>
+                <th className={thStyles}>{t("stats-heading-students-completed-the-course")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allInstanceIds.map((instanceId) => (
+                <tr key={instanceId}>
+                  <td className={tdStyles}>
+                    {getInstanceDisplayName(instanceMap.get(instanceId), instanceId, t)}
+                  </td>
+                  <td className={numberCellStyles}>
+                    {formatNumber(totalUsers?.[instanceId]?.count || 0, i18n.language)}
+                  </td>
+                  <td className={numberCellStyles}>
+                    {formatNumber(totalReturnedExercises?.[instanceId]?.count || 0, i18n.language)}
+                  </td>
+                  <td className={numberCellStyles}>
+                    {formatNumber(totalCompletions?.[instanceId]?.count || 0, i18n.language)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      />
     </div>
   )
 }

@@ -16,10 +16,9 @@ import StatsHeader from "../../StatsHeader"
 import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import Accordion from "@/shared-module/common/components/Accordion"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 export interface DailyVisitCountsGroupedByUtmProps {
   courseId: string
@@ -129,51 +128,51 @@ const DailyVisitCountsGroupedByUtm: React.FC<
       <StatsHeader heading={t("stats-heading-utm-traffic-details")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-utm-traffic-details")}</InstructionBox>
       <div className={containerStyles}>
-        {query.isLoading ? (
-          <Spinner variant="medium" />
-        ) : query.isError ? (
-          <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !aggregatedData || aggregatedData.length === 0 ? (
-          <div>{t("no-data")}</div>
-        ) : (
-          <Accordion
-            className={css`
-              width: 100%;
-              margin-bottom: 0.5rem;
-            `}
-          >
-            <details>
-              <summary>{t("header-grouped-by-utm-tags")}</summary>
-              <div className={tableStyles}>
-                <table>
-                  <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <th key={header.id}>
-                            {!header.isPlaceholder &&
-                              flexRender(header.column.columnDef.header, header.getContext())}
-                          </th>
+        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+          {() =>
+            !aggregatedData || aggregatedData.length === 0 ? (
+              <div>{t("no-data")}</div>
+            ) : (
+              <Accordion
+                className={css`
+                  width: 100%;
+                  margin-bottom: 0.5rem;
+                `}
+              >
+                <details>
+                  <summary>{t("header-grouped-by-utm-tags")}</summary>
+                  <div className={tableStyles}>
+                    <table>
+                      <thead>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                          <tr key={headerGroup.id}>
+                            {headerGroup.headers.map((header) => (
+                              <th key={header.id}>
+                                {!header.isPlaceholder &&
+                                  flexRender(header.column.columnDef.header, header.getContext())}
+                              </th>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                      <tr key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
+                      </thead>
+                      <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                          <tr key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                              <td key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </details>
-          </Accordion>
-        )}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+              </Accordion>
+            )
+          }
+        </QueryResult>
       </div>
     </>
   )

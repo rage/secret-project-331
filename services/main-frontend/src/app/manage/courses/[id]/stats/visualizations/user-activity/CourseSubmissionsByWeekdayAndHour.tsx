@@ -12,12 +12,10 @@ import StatsHeader from "../../StatsHeader"
 
 import { getCourseWeekdayHourSubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { ExerciseSlideSubmissionCountByWeekAndHour } from "@/generated/api/types.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 export interface CourseSubmissionsByWeekdayAndHourProps {
   courseId: string
@@ -56,7 +54,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
   React.PropsWithChildren<CourseSubmissionsByWeekdayAndHourProps>
 > = ({ courseId }) => {
   const { t } = useTranslation()
-  const getCourseWeekdayHourSubmissionCount = useQuery({
+  const getCourseWeekdayHourSubmissionCountQuery = useQuery({
     ...getCourseWeekdayHourSubmissionCountsOptions({
       path: {
         course_id: courseId,
@@ -80,110 +78,92 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
     7: t("weekday-sunday"),
   }
 
-  if (getCourseWeekdayHourSubmissionCount.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getCourseWeekdayHourSubmissionCount.error} />
-  }
-
-  if (getCourseWeekdayHourSubmissionCount.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
-  if (!getCourseWeekdayHourSubmissionCount.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void getCourseWeekdayHourSubmissionCount.refetch()
-        }}
-      />
-    )
-  }
-
-  if (getCourseWeekdayHourSubmissionCount.data.apiData.length === 0) {
-    return <div>{t("no-data")}</div>
-  }
-
-  const dataByWeekDayOrdered = Object.entries(
-    getCourseWeekdayHourSubmissionCount.data.dataByWeekDay,
-  ).sort(([num, _a], [num2, _a2]) => Number(num) - Number(num2))
-
-  dataByWeekDayOrdered.push(["2", []])
-
   return (
-    <>
-      <StatsHeader
-        heading={t("stats-heading-submission-timing")}
-        debugData={getCourseWeekdayHourSubmissionCount.data.apiData}
-      />
-      <InstructionBox>{t("stats-instruction-submission-timing")}</InstructionBox>
-      <div
-        className={css`
-          margin-bottom: 2rem;
-          border: 3px solid ${baseTheme.colors.clear[200]};
-          border-radius: 6px;
-          padding: 1rem;
-        `}
-      >
-        <Echarts
-          height={1000}
-          options={{
-            title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
-              return {
-                // eslint-disable-next-line i18next/no-literal-string
-                textBaseline: "middle",
-                top: ((i + 0.5) * 100) / 7 + "%",
-                // @ts-expect-error: todo
-                text: isodowToWeekdayName[weekdayNumber],
-              }
-            }),
-            tooltip: {
-              // eslint-disable-next-line i18next/no-literal-string
-              position: "top",
-              formatter: (a) => {
-                return t("hourly-submissions-visualization-tooltip", {
-                  // @ts-expect-error: todo
-                  day: a.data[0],
-                  // @ts-expect-error: todo
-                  submissions: a.data[1],
-                })
-              },
-            },
-            singleAxis: dataByWeekDayOrdered.map(([_weekdayNumber, _entries], i) => {
-              return {
-                left: 150,
+    <QueryResult query={getCourseWeekdayHourSubmissionCountQuery}>
+      {(data) => {
+        if (data.apiData.length === 0) {
+          return <div>{t("no-data")}</div>
+        }
 
-                type: "category",
-                boundaryGap: false,
-                data: hours,
-                top: (i * 100) / 7 + 5 + "%",
-                height: 100 / 7 - 10 + "%",
-                axisLabel: {
-                  interval: 2,
-                },
-              }
-            }),
-            series: dataByWeekDayOrdered.map(([_weekdayNumber, entries], i) => {
-              return {
-                singleAxisIndex: i,
-                // eslint-disable-next-line i18next/no-literal-string
-                coordinateSystem: "singleAxis",
+        const dataByWeekDayOrdered = Object.entries(data.dataByWeekDay).sort(
+          ([num, _a], [num2, _a2]) => Number(num) - Number(num2),
+        )
 
-                type: "scatter",
-                // eslint-disable-next-line
+        dataByWeekDayOrdered.push(["2", []])
+
+        return (
+          <>
+            <StatsHeader heading={t("stats-heading-submission-timing")} debugData={data.apiData} />
+            <InstructionBox>{t("stats-instruction-submission-timing")}</InstructionBox>
+            <div
+              className={css`
+                margin-bottom: 2rem;
+                border: 3px solid ${baseTheme.colors.clear[200]};
+                border-radius: 6px;
+                padding: 1rem;
+              `}
+            >
+              <Echarts
+                height={1000}
+                options={{
+                  title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
+                    return {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      textBaseline: "middle",
+                      top: ((i + 0.5) * 100) / 7 + "%",
+                      // @ts-expect-error: todo
+                      text: isodowToWeekdayName[weekdayNumber],
+                    }
+                  }),
+                  tooltip: {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    position: "top",
+                    formatter: (a) => {
+                      return t("hourly-submissions-visualization-tooltip", {
+                        // @ts-expect-error: todo
+                        day: a.data[0],
+                        // @ts-expect-error: todo
+                        submissions: a.data[1],
+                      })
+                    },
+                  },
+                  singleAxis: dataByWeekDayOrdered.map(([_weekdayNumber, _entries], i) => {
+                    return {
+                      left: 150,
+
+                      type: "category",
+                      boundaryGap: false,
+                      data: hours,
+                      top: (i * 100) / 7 + 5 + "%",
+                      height: 100 / 7 - 10 + "%",
+                      axisLabel: {
+                        interval: 2,
+                      },
+                    }
+                  }),
+                  series: dataByWeekDayOrdered.map(([_weekdayNumber, entries], i) => {
+                    return {
+                      singleAxisIndex: i,
+                      // eslint-disable-next-line i18next/no-literal-string
+                      coordinateSystem: "singleAxis",
+
+                      type: "scatter",
+                      // eslint-disable-next-line
                   data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
-                symbolSize: function (dataItem) {
-                  // scaling the size so that the largest value has size maxCircleSize
-                  return (
-                    (dataItem[1] / getCourseWeekdayHourSubmissionCount.data.maxValue) *
-                    maxCircleSize
-                  )
-                },
-              }
-            }),
-          }}
-        />
-        <DebugModal data={getCourseWeekdayHourSubmissionCount.data.apiData} />
-      </div>
-    </>
+                      symbolSize: function (dataItem) {
+                        // scaling the size so that the largest value has size maxCircleSize
+                        return (dataItem[1] / data.maxValue) * maxCircleSize
+                      },
+                    }
+                  }),
+                }}
+              />
+              <DebugModal data={data.apiData} />
+            </div>
+          </>
+        )
+      }}
+    </QueryResult>
   )
 }
 

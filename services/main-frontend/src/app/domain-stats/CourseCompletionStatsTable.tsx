@@ -5,9 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import FullWidthTable, { FullWidthTableRow } from "@/components/tables/FullWidthTable"
 import { CourseCompletionStats } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 interface CourseCompletionStatsTableProps {
   query: UseQueryResult<CourseCompletionStats[]>
@@ -20,19 +19,7 @@ const CourseCompletionStatsTable: React.FC<CourseCompletionStatsTableProps> = ({
 }) => {
   const { t } = useTranslation()
 
-  if (query.isError) {
-    return <ErrorBanner variant="text" error={query.error} />
-  }
-
-  if (query.isLoading) {
-    return (
-      <div>
-        <Spinner variant="medium" />
-      </div>
-    )
-  }
-
-  return (
+  const renderTable = (data: CourseCompletionStats[]) => (
     <div>
       <h3>
         {t("courses-completed-by-users-from")} {domain}
@@ -53,7 +40,7 @@ const CourseCompletionStatsTable: React.FC<CourseCompletionStatsTableProps> = ({
           </FullWidthTableRow>
         </thead>
         <tbody>
-          {query.data?.map((course) => (
+          {data.map((course) => (
             <FullWidthTableRow key={course.course_id}>
               <td>{course.course_name}</td>
               <td>{course.total_completions}</td>
@@ -70,6 +57,12 @@ const CourseCompletionStatsTable: React.FC<CourseCompletionStatsTableProps> = ({
         </tbody>
       </FullWidthTable>
     </div>
+  )
+
+  return (
+    <QueryResult query={query} emptyFallback={renderTable([])}>
+      {(data) => renderTable(data)}
+    </QueryResult>
   )
 }
 

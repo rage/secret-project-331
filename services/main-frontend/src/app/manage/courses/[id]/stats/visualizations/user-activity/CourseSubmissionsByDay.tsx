@@ -11,10 +11,9 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 
 import { getCourseDailySubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 export interface CourseSubmissionsByDayProps {
   courseId: string
@@ -62,61 +61,61 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
           justify-content: center;
         `}
       >
-        {query.isLoading ? (
-          <Spinner variant="medium" />
-        ) : query.isError ? (
-          <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !processedData || processedData.apiData.length === 0 ? (
-          <div>{t("no-data")}</div>
-        ) : (
-          <Echarts
-            height={200 * Object.keys(processedData.eChartsData).length}
-            options={{
-              tooltip: {
-                // eslint-disable-next-line i18next/no-literal-string
-                position: "top",
-                formatter: (a) => {
-                  return t("daily-submissions-visualization-tooltip", {
-                    // @ts-expect-error: todo
-                    day: a.data[0],
-                    // @ts-expect-error: todo
-                    submissions: a.data[1],
-                  })
-                },
-              },
-              visualMap: {
-                show: false,
-                min: 0,
-                max: processedData.maxValue,
-              },
-              calendar: Object.entries(processedData.eChartsData).map(
-                ([year, _submissionCounts], i) => {
-                  return {
-                    range: year,
+        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+          {() =>
+            !processedData ? (
+              <div>{t("no-data")}</div>
+            ) : (
+              <Echarts
+                height={200 * Object.keys(processedData.eChartsData).length}
+                options={{
+                  tooltip: {
                     // eslint-disable-next-line i18next/no-literal-string
-                    cellSize: ["auto", 20],
-                    dayLabel: {
-                      firstDay: 1,
+                    position: "top",
+                    formatter: (a) => {
+                      return t("daily-submissions-visualization-tooltip", {
+                        // @ts-expect-error: todo
+                        day: a.data[0],
+                        // @ts-expect-error: todo
+                        submissions: a.data[1],
+                      })
                     },
-                    top: 190 * i + 40,
-                  }
-                },
-              ),
-              series: Object.entries(processedData.eChartsData).map(
-                ([_year, submissionCounts], i) => {
-                  return {
-                    type: "heatmap",
-                    // eslint-disable-next-line i18next/no-literal-string
-                    coordinateSystem: "calendar",
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
-                    calendarIndex: i,
-                  }
-                },
-              ),
-            }}
-          />
-        )}
+                  },
+                  visualMap: {
+                    show: false,
+                    min: 0,
+                    max: processedData.maxValue,
+                  },
+                  calendar: Object.entries(processedData.eChartsData).map(
+                    ([year, _submissionCounts], i) => {
+                      return {
+                        range: year,
+                        // eslint-disable-next-line i18next/no-literal-string
+                        cellSize: ["auto", 20],
+                        dayLabel: {
+                          firstDay: 1,
+                        },
+                        top: 190 * i + 40,
+                      }
+                    },
+                  ),
+                  series: Object.entries(processedData.eChartsData).map(
+                    ([_year, submissionCounts], i) => {
+                      return {
+                        type: "heatmap",
+                        // eslint-disable-next-line i18next/no-literal-string
+                        coordinateSystem: "calendar",
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
+                        calendarIndex: i,
+                      }
+                    },
+                  ),
+                }}
+              />
+            )
+          }
+        </QueryResult>
       </div>
     </>
   )

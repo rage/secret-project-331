@@ -171,6 +171,27 @@ pub enum OutputItem {
     },
 }
 
+impl From<OutputItem> for ChatStreamEvent {
+    fn from(value: OutputItem) -> Self {
+        match value {
+            OutputItem::Reasoning { .. } => ChatStreamEvent::Reasoning,
+            OutputItem::AzureAiSearchCall { arguments, .. } => ChatStreamEvent::ToolCall {
+                tool_name: "azure search".to_string(),
+                arguments,
+            },
+            OutputItem::FunctionCall {
+                tool_name,
+                arguments,
+                ..
+            } => ChatStreamEvent::ToolCall {
+                tool_name,
+                arguments,
+            },
+            _ => ChatStreamEvent::None,
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(tag = "type")]
 #[serde(rename_all = "snake_case")]
@@ -449,11 +470,19 @@ pub struct ChatResponse {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(tag = "type", content = "data")]
 pub enum ChatStreamEvent {
-    Delta { text: String },
+    Delta {
+        text: String,
+    },
     Reasoning,
-    ToolCall { tool_name: String },
+    ToolCall {
+        tool_name: String,
+        arguments: String,
+    },
     Done,
-    Error { message: String },
+    Error {
+        message: String,
+    },
+    None,
 }
 
 /// Custom stream that encapsulates both the response stream and the cancellation guard. Makes sure that the guard is always dropped when the stream is dropped.
@@ -750,7 +779,7 @@ pub async fn parse_tool<'a>(
     conversation_id: Uuid,
     user_context: &ChatbotUserContext,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<Vec<APIOutputMessage>> {
+) -> impl Stream<Item = ChatbotResult<Lol2<'a>>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
@@ -759,18 +788,20 @@ pub async fn parse_tool<'a>(
 
     trace!("Parsing tool calls...");
 
+    Box::pin(async_stream::try_stream! {
     while let Some(val) = lines.next().await {
         let line = val?;
         let response_output = match ParsedResponseLine::parse(&line)? {
             Some(ParsedResponseLine::Event(event_type)) => {
+                trace!("Event: {event_type}");
                 match event_type.as_str() {
-                    "response.completed" => {
+                    "response.completed" | "response.incomplete" => {
                         response_received = true;
                     }
                     "response.output_text.delta" => {
-                        return Err(anyhow::anyhow!(
+                        Err(chatbot_err!(StreamingError,
                             "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
-                        ));
+                        ))?
                     }
                     "response.error" => {
                         error_incoming = true;
@@ -798,14 +829,14 @@ pub async fn parse_tool<'a>(
         if response_received {
             // the stream ended
             if function_name_id_args.is_empty() {
-                return Err(anyhow::anyhow!(
+                Err(chatbot_err!(StreamingError,
                     "The LLM response was supposed to contain function calls, but no function calls were found"
-                ));
+                ))?
             }
             if common_response_id.is_empty() {
-                return Err(anyhow::anyhow!(
+                Err(chatbot_err!(StreamingError,
                     "Received tool response but response id not found, this shouldn't happen."
-                ));
+                ))?
             };
             let mut tool_msgs = Vec::new();
 
@@ -837,8 +868,10 @@ pub async fn parse_tool<'a>(
                 .await?;
             }
             messages.extend(tool_msgs);
+            yield Lol2::C(messages);
             break;
         } else if let Some(item) = response_output.item {
+            yield Lol2::B(item.to_owned());
             match item {
                 OutputItem::FunctionCall {
                     call_id,
@@ -866,8 +899,7 @@ pub async fn parse_tool<'a>(
                 }
             }
         }
-    }
-    Ok(messages)
+    }})
 }
 
 /// Streams and parses a LLM response from Azure that contains a text response.
@@ -986,7 +1018,7 @@ pub async fn parse_and_stream_to_user<'a>(
                     OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
                     _ => {
                         let mut conn = pool.acquire().await?;
-                        let res = process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;
+                        process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;
                         yield Bytes::from(serde_json::to_string(&ChatStreamEvent::Reasoning)?);
                         yield Bytes::from("\n");
                         continue;
@@ -1008,7 +1040,7 @@ pub async fn parse_and_stream_to_user<'a>(
     Ok(Box::pin(guarded_stream))
 }
 
-pub async fn send_chat_request_and_parse_stream(
+/* pub async fn send_chat_request_and_parse_stream_old(
     conn: &mut PgConnection,
     pool: PgPool,
     app_config: &ApplicationConfiguration,
@@ -1044,7 +1076,7 @@ pub async fn send_chat_request_and_parse_stream(
 
         let new_conversation_items = match response_type {
             ResponseStreamType::Toolcall(stream) => {
-                parse_tool(conn, stream, conversation_id, &user_context, app_config).await?
+                //parse_tool(conn, stream, conversation_id, &user_context, app_config).await?
             }
             ResponseStreamType::TextResponse(stream) => {
                 return parse_and_stream_to_user(
@@ -1066,4 +1098,361 @@ pub async fn send_chat_request_and_parse_stream(
                 .collect::<ChatbotResult<Vec<APIInputMessage>>>()?,
         );
     }
+}
+ */
+pub async fn send_chat_request_and_parse_stream(
+    conn: &mut PgConnection,
+    pool: PgPool,
+    app_configuration: &ApplicationConfiguration,
+    chatbot_configuration_id: Uuid,
+    conversation_id: Uuid,
+    message: &str,
+    user_context: ChatbotUserContext,
+) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
+    let app_config = app_configuration.to_owned();
+    let (mut chat_request, request_estimated_tokens) =
+        LLMRequest::build_and_insert_incoming_message_to_db(
+            conn,
+            chatbot_configuration_id,
+            conversation_id,
+            message,
+            &app_config,
+        )
+        .await?;
+
+    let mut max_iterations_left = 15;
+
+    let done = Arc::new(AtomicBool::new(false));
+    let full_response_text = Arc::new(Mutex::new(Vec::new()));
+    // Instantiate the guard before creating the stream.
+    let mut guard = RequestCancelledGuard {
+        response_message_id: Uuid::new_v4(), // todo!!!
+        received_string: full_response_text.clone(),
+        pool: pool.clone(),
+        done: done.clone(),
+        request_estimated_tokens,
+    };
+
+    let response_stream = async_stream::try_stream! { loop
+        {
+            max_iterations_left -= 1;
+            if max_iterations_left == 0 {
+                error!("Maximum tool call iterations exceeded");
+                return Err(anyhow::anyhow!(
+                    "Maximum tool call iterations exceeded. The LLM may be stuck in a loop."
+                ))?
+            }
+
+            let lines = make_request_and_stream2(chat_request.clone(), &app_config)
+                    .await?;
+            let mut s = yielder2_1st_stream(lines);
+            let mut conn = pool.acquire().await?;
+            let (response_id, lines2);
+            loop {
+                if let Some(val) = s.next().await {
+                match val {
+                    Ok(Lol2::D(stuff)) => {(response_id, lines2) = stuff; break;},
+                    Ok(Lol2::B(item)) => {
+                        let response = ChatStreamEvent::from(item.to_owned());
+                        process_output_item(&mut conn, item, conversation_id, &app_config).await?;
+                        //if response != ChatStreamEvent::None {
+                            let event_string = serde_json::to_string(&response)?;
+                            println!("🌟{event_string}");
+                            yield Bytes::from(event_string);
+                            yield Bytes::from("\n");
+                        //};
+                    },
+                    Ok(Lol2::C(s)) => {},
+                    Ok(Lol2::A(s)) => {},
+                    Err(_) => todo!(),
+                }}
+            }
+
+
+            let mut s = match lines2 {
+                ResponseStreamType::Toolcall(stream) => {
+                    // todo yield hiere
+                    parse_tool(&mut conn, stream, conversation_id, &user_context, &app_config).await
+                }
+                ResponseStreamType::TextResponse(stream) => {
+                    let response_message = models::chatbot_conversation_messages::insert(
+                        &mut conn,
+                        ChatbotConversationMessage {
+                            conversation_id,
+                            message: Message::Text(ChatbotConversationMessageMessage {
+                                text: "".to_string(),
+                                message_role: MessageRole::Assistant,
+                                message_is_complete: false,
+                                used_tokens: request_estimated_tokens,
+                                response_id: Some(response_id.to_owned()),
+                                ..Default::default()
+                            }),
+                            ..Default::default()
+                        },
+                    )
+                    .await?;
+                    guard.response_message_id = response_message.id;
+                    models::chatbot_conversation_messages_citations::update_citation_message_ids(
+                        &mut conn,
+                        response_id,
+                        response_message.id,
+                    ).await?;
+
+                    yielder3_stream_to_user(stream, full_response_text, done, response_message.id, request_estimated_tokens, &mut conn)
+
+                }
+            };
+
+            while let Some(line) = s.next().await {
+                        let val = line?;
+                        match val {
+                            Lol2::A(delta) => {
+                                let response = ChatStreamEvent::Delta  { text: delta.clone() };
+                                let response_as_string = serde_json::to_string(&response)?;
+                                println!("🌟{response_as_string}");
+                                yield Bytes::from(response_as_string);
+                                yield Bytes::from("\n");
+                            },
+                            Lol2::B(output_item) => {
+                                let mut conn = pool.acquire().await?;
+                                process_output_item(&mut conn, output_item.to_owned(), conversation_id, &app_config).await?;
+                                let response = ChatStreamEvent::from(output_item);
+                                if response != ChatStreamEvent::None {
+                                    let event_string = serde_json::to_string(&response)?;
+                                    println!("🌟{event_string}");
+                                    yield Bytes::from(event_string);
+                                    yield Bytes::from("\n");
+                                };
+                            },
+                            _ => {},
+                        }
+                    }
+                    let event = ChatStreamEvent::Done;
+                    let event_string = serde_json::to_string(&event)?;
+                    yield Bytes::from(event_string);
+                    yield Bytes::from("\n");
+                    break;
+        }
+
+    };
+
+    // Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.
+    // This way we do cleanup only when the stream is dropped and not when this function returns.
+    let guarded_stream = GuardedStream::new(guard, response_stream);
+
+    // Box and pin the GuardedStream to satisfy the Unpin requirement
+    Ok(Box::pin(guarded_stream))
+}
+
+fn yielder2_1st_stream<'a>(
+    mut lines: PeekableLinesStream<'a>,
+) -> impl Stream<Item = Result<Lol2<'a>, anyhow::Error>> {
+    let mut response_id = "".to_string();
+    let mut response_created_incoming = false;
+    let mut output_item_incoming = false;
+
+    Box::pin(async_stream::try_stream! {
+        loop {
+        let line_res = lines.as_mut().peek().await;
+        match line_res {
+            None => {
+                break;
+            }
+            Some(Err(e)) => {
+                Err(anyhow!(
+                    "There was an error streaming response from Azure: {}",
+                    e
+                ))?;
+            }
+            Some(Result::Ok(line)) => {
+                match ParsedResponseLine::parse(line)? {
+                    Some(ParsedResponseLine::Event(event_type)) => {
+                        trace!("Event: {event_type}");
+                        match event_type.as_str() {
+                            "response.created" => {
+                                response_created_incoming = true;
+                            }
+                            "response.output_item.done" => {
+                                output_item_incoming = true;
+                            }
+                            "response.function_call_arguments.delta" => {
+                                if response_id.is_empty() {
+                                    Err(anyhow::anyhow!(
+                                        "No response_id found! This should never happen!"
+                                    ))?;
+                                }
+                                yield Lol2::D((
+                                    response_id,
+                                    ResponseStreamType::Toolcall(lines),
+                                ));
+                                break;
+                            }
+                            "response.output_text.delta" => {
+                                yield Lol2::D((
+                                    response_id,
+                                    ResponseStreamType::TextResponse(lines),
+                                ));
+                                break;
+                            }
+                            _ => {}
+                        }
+                    }
+                    Some(ParsedResponseLine::Data(response_output)) => {
+                        if response_created_incoming {
+                            let res = response_output.response.ok_or(chatbot_err!(
+                                DeserializationError,
+                                "Expected response object"
+                            ))?;
+                            response_id = res.id;
+                            response_created_incoming = false;
+                        }
+                        if output_item_incoming {
+                            let item = response_output.item.ok_or(chatbot_err!(
+                                DeserializationError,
+                                "Expected response output item"
+                            ))?;
+                            // put in input todo!
+                            yield Lol2::B(item);
+                            output_item_incoming = false;
+                        }
+                    }
+                    None => {}
+                }
+                lines.next().await;
+                continue;
+            }
+        }
+    }
+    Err(Error::msg(
+        "The response received from Azure had an unexpected shape and couldn't be parsed"
+            .to_string(),
+    ))?
+    })
+}
+
+fn yielder3_stream_to_user<'a>(
+    mut lines: PeekableLinesStream<'a>,
+    full_response_text: Arc<Mutex<Vec<String>>>,
+    done: Arc<AtomicBool>,
+    response_message_id: Uuid,
+    request_estimated_tokens: i32,
+    conn: &mut PgConnection,
+) -> impl Stream<Item = ChatbotResult<Lol2<'a>>> {
+    trace!("Parsing stream to user...");
+
+    let mut response_received = false;
+    let mut error_incoming = false;
+
+    Box::pin(async_stream::try_stream! {
+        while let Some(val) = lines.next().await {
+            let line = val?;
+            let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
+                Some(ParsedResponseLine::Event(event_type)) => {
+                    trace!("Event: {event_type}");
+                    match event_type.as_str() {
+                        "response.completed" | "response.incomplete" => {response_received = true;},
+                        "response.output_text.delta" => {
+                            // streaming
+                        },
+                        "response.function_call_arguments.delta" => {
+                            error!("ERROR, function call received but can't be processed while streaming to user.");
+                            return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming to user")))?
+                        },
+                        "response.error" => {error_incoming = true;},
+                        _ => {},
+                    };
+                    continue;
+                },
+                Some(ParsedResponseLine::Data(data)) => data,
+                None => {continue;},
+            };
+
+            let mut full_response_text = full_response_text.lock().await;
+
+            if response_received {
+                let full_response_as_string = full_response_text.join("");
+                // todo: use the tokens given in the response
+                let estimated_cost = estimate_tokens(&full_response_as_string);
+                trace!(
+                    "End of chatbot response stream. Estimated cost: {}. Response: {}",
+                    estimated_cost, full_response_as_string
+                );
+                done.store(true, atomic::Ordering::Relaxed);
+                models::chatbot_conversation_messages::update(
+                    conn,
+                    response_message_id,
+                    &full_response_as_string,
+                    true,
+                    request_estimated_tokens + estimated_cost,
+                ).await?;
+                break;
+            }
+
+            if error_incoming &&
+                let Some(response) = &response_output.response && let Some(error) = &response.error
+            {
+                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}.", error)))?
+
+            };
+
+            if let Some(delta) = &response_output.delta {
+                full_response_text.push(delta.to_owned());
+
+                yield Lol2::A(delta.clone());
+            }
+
+            if let Some(item) = &response_output.item {
+                match item {
+                    OutputItem::Message { .. } => continue,
+                    OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
+                    _ => {
+                        yield Lol2::B(item.to_owned());
+                        continue;
+                    },
+                };
+            }
+
+        }
+        if !done.load(atomic::Ordering::Relaxed) {
+            Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
+        }
+    })
+}
+
+enum Lol2<'a> {
+    A(String),
+    B(OutputItem),
+    C(Vec<APIOutputMessage>),
+    D((String, ResponseStreamType<'a>)),
+}
+
+pub async fn make_request_and_stream2<'a>(
+    chat_request: LLMRequest,
+    app_config: &ApplicationConfiguration,
+) -> anyhow::Result<PeekableLinesStream<'a>> {
+    let response = make_streaming_llm_request(chat_request, app_config).await?;
+
+    trace!("Receiving chat response with {:?}", response.version());
+
+    if !response.status().is_success() {
+        let status = response.status();
+        let error_message = response.text().await?;
+        return Err(anyhow::anyhow!(
+            "Failed to send chat request. Status: {}. Error: {}",
+            status,
+            error_message
+        ));
+    }
+
+    let stream = response
+        .bytes_stream()
+        .map_err(std::io::Error::other)
+        .boxed();
+    let reader = StreamReader::new(stream);
+    let lines = reader.lines();
+    let lines_stream = LinesStream::new(lines);
+    let peekable_lines_stream = lines_stream.peekable();
+    let pinned_lines = Box::pin(peekable_lines_stream);
+
+    Ok(pinned_lines)
 }

@@ -62,6 +62,7 @@ export type ChatStreamEvent =
     }
   | {
       data: {
+        arguments: string
         tool_name: string
       }
       type: "ToolCall"
@@ -74,6 +75,9 @@ export type ChatStreamEvent =
         message: string
       }
       type: "Error"
+    }
+  | {
+      type: "None"
     }
 
 export type ChatbotConversation = {

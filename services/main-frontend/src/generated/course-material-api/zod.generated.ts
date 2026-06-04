@@ -76,6 +76,7 @@ export const zChatStreamEvent = z.union([
   }),
   z.object({
     data: z.object({
+      arguments: z.string(),
       tool_name: z.string(),
     }),
     type: z.enum(["ToolCall"]),
@@ -88,6 +89,9 @@ export const zChatStreamEvent = z.union([
       message: z.string(),
     }),
     type: z.enum(["Error"]),
+  }),
+  z.object({
+    type: z.enum(["None"]),
   }),
 ])
 

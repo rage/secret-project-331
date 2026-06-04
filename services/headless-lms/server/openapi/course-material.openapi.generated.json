@@ -2989,8 +2989,11 @@
             "properties": {
               "data": {
                 "type": "object",
-                "required": ["tool_name"],
+                "required": ["tool_name", "arguments"],
                 "properties": {
+                  "arguments": {
+                    "type": "string"
+                  },
                   "tool_name": {
                     "type": "string"
                   }
@@ -3028,6 +3031,16 @@
               "type": {
                 "type": "string",
                 "enum": ["Error"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["None"]
               }
             }
           }

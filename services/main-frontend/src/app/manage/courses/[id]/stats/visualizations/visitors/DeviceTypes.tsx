@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { getCoursePageVisitDatumSummaryByDeviceTypesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -114,10 +115,10 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
       />
       <InstructionBox>{t("stats-instruction-device-analytics")}</InstructionBox>
       <div className={containerStyles}>
-        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
           {() =>
             !hasData ? (
-              <div>{t("no-data")}</div>
+              <NoDataMessage />
             ) : (
               <div className={chartsContainerStyles}>
                 <div>

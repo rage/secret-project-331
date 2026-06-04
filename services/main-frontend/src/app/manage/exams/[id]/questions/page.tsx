@@ -358,7 +358,7 @@ const GradingPage: React.FC = () => {
       <BreakFromCentered sidebar={false}>
         <Breadcrumbs pieces={pieces} />
       </BreakFromCentered>
-      <QueryResult query={getExercises} emptyFallback={questionsContent}>
+      <QueryResult query={getExercises} treatEmptyAsData>
         {() => questionsContent}
       </QueryResult>
     </div>

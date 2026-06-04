@@ -29,7 +29,7 @@ const GradingPage: React.FC = () => {
 
   const getSubmissions = useExamSubmissionsInfo(id, paginationInfo.page, paginationInfo.limit)
 
-  const examId = getSubmissions.data?.data[0].exercise.exam_id
+  const examId = getSubmissions.data?.data[0]?.exercise.exam_id
   const getExam = useQuery({
     queryKey: ["getExam", examId],
     queryFn: async () =>

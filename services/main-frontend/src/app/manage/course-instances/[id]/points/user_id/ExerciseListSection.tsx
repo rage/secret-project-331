@@ -10,7 +10,6 @@ import ExerciseAccordion from "./ExerciseAccordion"
 
 import type { ExerciseStatusSummaryForUser } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -77,10 +76,7 @@ const ExerciseListSection: React.FC<ExerciseListSectionProps> = ({
   )
 
   return (
-    <QueryResult
-      query={courseStructure}
-      emptyFallback={<ErrorBanner error={new Error("Course structure not found")} />}
-    >
+    <QueryResult query={courseStructure}>
       {(courseStructureData) => {
         const sortedChapters = [...courseStructureData.chapters].sort(
           (chapterA, chapterB) => chapterA.chapter_number - chapterB.chapter_number,

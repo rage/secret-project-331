@@ -409,7 +409,7 @@ const CertificatesTabContentWithCourseId: React.FC<{ courseId: string; searchQue
   )
 
   return (
-    <QueryResult query={query} emptyFallback={content}>
+    <QueryResult query={query} treatEmptyAsData>
       {() => content}
     </QueryResult>
   )

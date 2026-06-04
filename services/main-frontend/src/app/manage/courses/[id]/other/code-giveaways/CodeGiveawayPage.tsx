@@ -98,7 +98,7 @@ const CodeGiveawayPage: React.FC<CodeGiveawayPageProps> = ({ courseId }) => {
   )
 
   return (
-    <QueryResult query={codeGiveawayQuery} emptyFallback={renderPage([])}>
+    <QueryResult query={codeGiveawayQuery} treatEmptyAsData>
       {(data) => renderPage(data)}
     </QueryResult>
   )

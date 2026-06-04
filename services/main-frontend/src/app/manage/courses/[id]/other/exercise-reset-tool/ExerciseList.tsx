@@ -281,11 +281,7 @@ const ExerciseList: React.FC<Props> = ({
     <QueryResults
       queries={[exercisesQuery, chaptersQuery, pagesQuery] as const}
       renderData={([exercises, chapters, pages]) => renderContent(exercises, chapters, pages)}
-      emptyFallback={renderContent(
-        exercisesQuery.data ?? [],
-        chaptersQuery.data ?? [],
-        pagesQuery.data ?? [],
-      )}
+      treatEmptyAsData
     />
   )
 }

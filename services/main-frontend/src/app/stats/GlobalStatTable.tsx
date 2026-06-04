@@ -212,7 +212,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
   )
 
   return (
-    <QueryResult query={query as UseQueryResult<unknown>} emptyFallback={tableShell}>
+    <QueryResult<GlobalStatEntry[] | GlobalCourseModuleStatEntry[]> query={query} treatEmptyAsData>
       {() => tableShell}
     </QueryResult>
   )

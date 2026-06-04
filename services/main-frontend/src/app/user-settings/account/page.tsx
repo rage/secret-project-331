@@ -28,15 +28,15 @@ const AccountSettingsPage: React.FC = () => {
         }
       `}
     >
-      <QueryResult query={getUserDetails} treatNullAsEmpty>
+      <QueryResult query={getUserDetails}>
         {(data) => (
           <>
             <EditUserInformationForm
-              firstName={data?.first_name ?? ""}
-              lastName={data?.last_name ?? ""}
-              country={data?.country ?? ""}
-              emailCommunicationConsent={data?.email_communication_consent ?? false}
-              email={data?.email}
+              firstName={data.first_name ?? ""}
+              lastName={data.last_name ?? ""}
+              country={data.country ?? ""}
+              emailCommunicationConsent={data.email_communication_consent ?? false}
+              email={data.email}
             />
 
             <div

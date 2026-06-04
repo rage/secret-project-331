@@ -138,7 +138,7 @@ const ExerciseServicePage: React.FC = () => {
         {t("button-text-new")}
       </Button>
       <br />
-      <QueryResult query={getExerciseServices} emptyFallback={renderExerciseServices()}>
+      <QueryResult query={getExerciseServices} treatEmptyAsData>
         {() => renderExerciseServices()}
       </QueryResult>
     </div>

@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { getCourseDailyUsersWhoSubmittedSomethingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -64,7 +65,7 @@ const CourseUsersWithSubmissionsByDay: React.FC<
           justify-content: center;
         `}
       >
-        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
           {(data) => {
             const eChartsData = groupBy(data, (o) => {
               const dateString = o.date as string | null

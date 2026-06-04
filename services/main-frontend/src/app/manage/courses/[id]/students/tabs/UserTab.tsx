@@ -87,7 +87,7 @@ export const UserTabContent: React.FC<{ courseId: string; searchQuery: string }>
   )
 
   return (
-    <QueryResult query={query} emptyFallback={table}>
+    <QueryResult query={query} treatEmptyAsData>
       {() => table}
     </QueryResult>
   )

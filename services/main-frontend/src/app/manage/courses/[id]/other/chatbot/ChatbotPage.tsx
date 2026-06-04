@@ -165,7 +165,7 @@ const ChatBotPage: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
   )
 
   return (
-    <QueryResult query={getChatbotsList} emptyFallback={content}>
+    <QueryResult query={getChatbotsList} treatEmptyAsData>
       {() => content}
     </QueryResult>
   )

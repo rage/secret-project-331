@@ -12,6 +12,7 @@ import { useTranslation } from "react-i18next"
 
 import { InstructionBox } from "../../CourseStatsPage"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
@@ -128,10 +129,10 @@ const DailyVisitCountsGroupedByUtm: React.FC<
       <StatsHeader heading={t("stats-heading-utm-traffic-details")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-utm-traffic-details")}</InstructionBox>
       <div className={containerStyles}>
-        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
           {() =>
             !aggregatedData || aggregatedData.length === 0 ? (
-              <div>{t("no-data")}</div>
+              <NoDataMessage />
             ) : (
               <Accordion
                 className={css`

@@ -130,7 +130,7 @@ const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = 
   )
 
   return (
-    <QueryResult query={exerciseRepositories} emptyFallback={renderContent([])}>
+    <QueryResult query={exerciseRepositories} treatEmptyAsData>
       {(repositories) => renderContent(repositories)}
     </QueryResult>
   )

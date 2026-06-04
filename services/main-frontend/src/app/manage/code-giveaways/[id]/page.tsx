@@ -107,7 +107,7 @@ const CodeGiveawayPage = () => {
     <QueryResults
       queries={[codeGiveawayQuery, codeGiveawayCodesQuery] as const}
       renderData={([codeGiveaway, codes]) => renderPage(codeGiveaway?.name ?? "", codes)}
-      emptyFallback={renderPage(codeGiveawayQuery.data?.name ?? "", codeGiveawayCodesQuery.data)}
+      treatEmptyAsData
     />
   )
 }

@@ -98,7 +98,7 @@ const ExamList: React.FC<React.PropsWithChildren<Props>> = ({
   )
 
   return (
-    <QueryResult query={getOrgExams} emptyFallback={examListContent}>
+    <QueryResult query={getOrgExams} treatEmptyAsData>
       {() => examListContent}
     </QueryResult>
   )

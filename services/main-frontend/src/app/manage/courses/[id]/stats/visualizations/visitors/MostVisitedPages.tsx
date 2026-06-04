@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { getCoursePageVisitDatumSummaryByPagesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
@@ -93,10 +94,10 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
       <div className={containerStyles}>
         <QueryResults
           queries={[query, courseStructure] as const}
-          emptyFallback={<div>{t("no-data")}</div>}
+          emptyFallback={<NoDataMessage />}
           renderData={() =>
             !aggregatedData || categories.length === 0 ? (
-              <div>{t("no-data")}</div>
+              <NoDataMessage />
             ) : (
               <div
                 className={css`

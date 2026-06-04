@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { getCourseDailySubmissionCountsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -61,10 +62,10 @@ const CourseSubmissionsByDay: React.FC<React.PropsWithChildren<CourseSubmissions
           justify-content: center;
         `}
       >
-        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
           {() =>
             !processedData ? (
-              <div>{t("no-data")}</div>
+              <NoDataMessage />
             ) : (
               <Echarts
                 height={200 * Object.keys(processedData.eChartsData).length}

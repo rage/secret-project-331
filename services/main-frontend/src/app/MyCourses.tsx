@@ -24,7 +24,7 @@ const MyCourses: React.FC = () => {
   return (
     <QueryResults
       queries={[myCoursesQuery, allOrganizationsQuery] as const}
-      emptyFallback={<CourseGrid></CourseGrid>}
+      treatEmptyAsData
       renderData={([myCourses, allOrganizations]) => (
         <CourseGrid>
           {myCourses.map((course, n) => {

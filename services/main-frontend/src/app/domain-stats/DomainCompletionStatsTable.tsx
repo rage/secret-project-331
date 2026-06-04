@@ -67,7 +67,7 @@ const DomainCompletionStatsTable: React.FC<DomainCompletionStatsTableProps> = ({
   )
 
   return (
-    <QueryResult query={query} emptyFallback={renderTable([])}>
+    <QueryResult query={query} treatEmptyAsData>
       {(data) => renderTable(data)}
     </QueryResult>
   )

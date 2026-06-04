@@ -201,7 +201,7 @@ export const CompletionsTabContent: React.FC<Props> = ({ courseId, searchQuery }
   )
 
   return (
-    <QueryResult query={query} emptyFallback={table}>
+    <QueryResult query={query} treatEmptyAsData>
       {() => table}
     </QueryResult>
   )

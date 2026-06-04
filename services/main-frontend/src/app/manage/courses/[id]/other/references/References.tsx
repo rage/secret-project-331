@@ -134,8 +134,8 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
     <div>
       <QueryResult
         query={getCourseReferences}
-        emptyFallback={renderReferences([])}
-        renderBlockingError={(error) => (
+        treatEmptyAsData
+        renderBlockingError={({ error }) => (
           <div
             className={css`
               margin-top: 40px;

@@ -254,7 +254,7 @@ const ExerciseTaskEditor: React.FC<
   }
 
   return (
-    <QueryResult query={exerciseServicesQuery} emptyFallback={renderEditor([])}>
+    <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
       {(exerciseServices) => renderEditor(exerciseServices)}
     </QueryResult>
   )

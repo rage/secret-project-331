@@ -26,16 +26,7 @@ const ExerciseResetLogList: React.FC<ExerciseResetLogListProps> = ({ userId }) =
   })
 
   return (
-    <QueryResult
-      query={userResetExerciseLogs}
-      emptyFallback={
-        <div
-          className={css`
-            margin-top: 1rem;
-          `}
-        />
-      }
-    >
+    <QueryResult query={userResetExerciseLogs} treatEmptyAsData>
       {(data) => {
         const groupedLogs = groupBy(data, (log) => dateToString(log.created_at))
         return (

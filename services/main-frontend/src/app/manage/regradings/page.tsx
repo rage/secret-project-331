@@ -242,7 +242,7 @@ const RegradingsPage: React.FC = () => {
   )
 
   return (
-    <QueryResult query={regradingsQuery} emptyFallback={renderRegradings([])}>
+    <QueryResult query={regradingsQuery} treatEmptyAsData>
       {(regradings) => renderRegradings(regradings)}
     </QueryResult>
   )

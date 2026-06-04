@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -73,10 +74,10 @@ const CourseVisitorsByDay: React.FC<React.PropsWithChildren<CourseVisitorsByDayP
           justify-content: center;
         `}
       >
-        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
           {() =>
             !data ? (
-              <div>{t("no-data")}</div>
+              <NoDataMessage />
             ) : (
               <Echarts
                 height={200 * Object.keys(data).length}

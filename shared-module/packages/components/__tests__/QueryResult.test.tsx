@@ -120,6 +120,22 @@ test("empty fallback when data is empty array", () => {
   expect(screen.getByText("empty-ui")).toBeInTheDocument()
 })
 
+test("treatEmptyAsData renders children with empty array data", () => {
+  renderUi(
+    <QueryResult<string[]>
+      query={makeQuery({ data: [] })}
+      themeMode="light"
+      treatEmptyAsData
+      emptyFallback={<span>empty-ui</span>}
+    >
+      {(items) => <span>count-{items.length}</span>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByText("count-0")).toBeInTheDocument()
+  expect(screen.queryByText("empty-ui")).not.toBeInTheDocument()
+})
+
 test("treatNullAsEmpty shows empty fallback for null data", () => {
   renderUi(
     <QueryResult<string | null>

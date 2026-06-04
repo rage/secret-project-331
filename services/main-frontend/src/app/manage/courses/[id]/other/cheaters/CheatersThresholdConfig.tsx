@@ -19,7 +19,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { isArray } from "@/shared-module/common/utils/fetching"
-import { QueryResults } from "@/shared-module/components"
+import { QueryResult, QueryResults } from "@/shared-module/components"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface CheatersThresholdConfigProps {
@@ -159,11 +159,20 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
           {t("configure-threshold")}
         </h5>
         <p className="description">{t("configure-threshold-description")}</p>
-        <QueryResults
-          queries={[courseStructureQuery, thresholdsQuery] as const}
-          emptyFallback={renderThresholdTable()}
-          renderData={renderThresholdTable}
-        />
+        {thresholdsQuery.isError ? (
+          // A thresholds failure should not block the table: it can be rendered from the course
+          // structure alone, with saved values simply missing.
+          <>
+            <ErrorBanner variant="readOnly" error={thresholdsQuery.error} />
+            <QueryResult query={courseStructureQuery}>{() => renderThresholdTable()}</QueryResult>
+          </>
+        ) : (
+          <QueryResults
+            queries={[courseStructureQuery, thresholdsQuery] as const}
+            treatEmptyAsData
+            renderData={renderThresholdTable}
+          />
+        )}
       </div>
     </>
   )

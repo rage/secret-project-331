@@ -190,20 +190,7 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
           />
         )}
         {selectedLangCourseId && viewStatus === "ready" && (
-          <QueryResult
-            query={getCourseInstances}
-            emptyFallback={
-              <SelectCourseInstanceForm
-                courseInstances={[]}
-                submitMutation={handleSubmitAndCloseMutation}
-                initialSelectedInstanceId={
-                  materialSettings?.current_course_instance_id ?? materialInstance?.id
-                }
-                dialogLanguage={dialogLanguage}
-                selectedLangCourseId={selectedLangCourseId}
-              />
-            }
-          >
+          <QueryResult query={getCourseInstances} treatEmptyAsData>
             {(courseInstances) => (
               <SelectCourseInstanceForm
                 courseInstances={courseInstances}

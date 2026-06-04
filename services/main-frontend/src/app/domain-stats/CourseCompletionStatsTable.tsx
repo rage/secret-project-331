@@ -60,7 +60,7 @@ const CourseCompletionStatsTable: React.FC<CourseCompletionStatsTableProps> = ({
   )
 
   return (
-    <QueryResult query={query} emptyFallback={renderTable([])}>
+    <QueryResult query={query} treatEmptyAsData>
       {(data) => renderTable(data)}
     </QueryResult>
   )

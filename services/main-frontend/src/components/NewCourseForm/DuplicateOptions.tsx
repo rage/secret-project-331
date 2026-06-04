@@ -42,11 +42,9 @@ const DuplicateOptions: React.FC<DuplicateOptionsProps> = ({ form, organizationI
           id="duplicate-course-select-menu"
           {...register("courseId")}
           onChange={(e) => handleDuplicateMenu(e.target.value)}
-          options={
-            courses?.map((course) => {
-              return { label: course.name, value: course.id }
-            }) || []
-          }
+          options={courses.map((course) => {
+            return { label: course.name, value: course.id }
+          })}
         />
       </FieldContainer>
       <FieldContainer>
@@ -78,7 +76,7 @@ const DuplicateOptions: React.FC<DuplicateOptionsProps> = ({ form, organizationI
       </FieldContainer>
       {createDuplicate && (
         <div>
-          <QueryResult query={coursesQuery} emptyFallback={renderDuplicateFields([])}>
+          <QueryResult query={coursesQuery} treatEmptyAsData>
             {(courses) => renderDuplicateFields(courses)}
           </QueryResult>
         </div>

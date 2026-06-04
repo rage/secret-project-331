@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -92,10 +93,10 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
           justify-content: center;
         `}
       >
-        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
           {() =>
             !aggregatedData || categories.length === 0 ? (
-              <div>{t("no-data")}</div>
+              <NoDataMessage />
             ) : (
               <Echarts
                 height={chartHeight}

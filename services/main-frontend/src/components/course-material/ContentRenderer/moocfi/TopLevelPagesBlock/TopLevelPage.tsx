@@ -43,26 +43,7 @@ const TopLevelPages: React.FC<React.PropsWithChildren<TopLevelPagesProps>> = ({ 
     return null
   }
   return (
-    <QueryResult
-      query={getTopLevelPages}
-      emptyFallback={
-        <Wrapper data-testid="top-level-pages-container">
-          <h2
-            className={css`
-              font-family: ${headingFont};
-              font-size: clamp(30px, 3.5vw, 46px);
-              font-weight: 700;
-              color: #1a2333;
-              text-align: center;
-              margin-bottom: 1.5rem;
-              opacity: 0.9;
-            `}
-          >
-            {t("information-pages")}
-          </h2>
-        </Wrapper>
-      }
-    >
+    <QueryResult query={getTopLevelPages} treatEmptyAsData>
       {(data) => (
         <Wrapper data-testid="top-level-pages-container">
           <h2

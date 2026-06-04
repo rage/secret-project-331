@@ -24,41 +24,7 @@ const ExerciseCustomViewEditor: React.FC<
   const exerciseType = attributes.exercise_type
 
   return (
-    <QueryResult
-      query={exerciseServicesQuery}
-      emptyFallback={
-        exerciseType ? (
-          <>
-            <ErrorBanner
-              variant="readOnly"
-              error={t("error-cannot-render-editor-for-exercise-service-x", {
-                slug: exerciseType,
-              })}
-            />
-            <DebugModal data={[]} />
-          </>
-        ) : (
-          <BlockPlaceholderWrapper
-            id={clientId}
-            title={t("exercise-custom-view-block")}
-            explanation={t("exercise-custom-view-block-explanation")}
-          >
-            <div>
-              <h2>{t("please-select-exercise-type")}</h2>
-              <ul
-                className={css`
-                  list-style: none;
-                  padding: 0;
-                  li {
-                    margin: 0.5rem 0;
-                  }
-                `}
-              />
-            </div>
-          </BlockPlaceholderWrapper>
-        )
-      }
-    >
+    <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
       {(exerciseServices) => {
         const url = exerciseServices.find((o) => o.slug === exerciseType)?.public_iframe_url
 

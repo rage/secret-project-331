@@ -18,24 +18,7 @@ const ExerciseServiceList: React.FC<React.PropsWithChildren<Props>> = ({ onChoos
   const { t } = useTranslation()
 
   return (
-    <QueryResult
-      query={exerciseServicesQuery}
-      emptyFallback={
-        <div>
-          <h2>{t("please-select-exercise-type")}</h2>
-          <ul
-            className={css`
-              list-style: none;
-              padding: 0;
-
-              li {
-                margin: 0.5rem 0;
-              }
-            `}
-          />
-        </div>
-      }
-    >
+    <QueryResult query={exerciseServicesQuery} treatEmptyAsData>
       {(data) => (
         <div>
           <h2>{t("please-select-exercise-type")}</h2>

@@ -13,7 +13,7 @@ import {
   exerciseAnswersRequiringAttentionRoute,
   exerciseSubmissionsRoute,
 } from "@/shared-module/common/utils/routes"
-import { QueryResult } from "@/shared-module/components"
+import { QueryResults } from "@/shared-module/components"
 
 export interface ExerciseListProps {
   courseId: string
@@ -25,8 +25,10 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
   const courseStructure = useCourseStructure(courseId)
 
   return (
-    <QueryResult query={courseStructure}>
-      {(structure) => {
+    <QueryResults
+      queries={[courseStructure, getCourseExercises] as const}
+      treatEmptyAsData
+      renderData={([structure, courseExercises]) => {
         const pageByChapterId = mapValues(
           groupBy(structure.pages, (page) => page.chapter_id),
           (value) => value,
@@ -34,9 +36,7 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
 
         const chapters = structure.chapters.sort((a, b) => a.chapter_number - b.chapter_number)
 
-        const renderExerciseList = (
-          courseExercises: NonNullable<typeof getCourseExercises.data>,
-        ) => (
+        return (
           <ul
             className={css`
               padding: 0;
@@ -195,14 +195,8 @@ const ExerciseList: React.FC<React.PropsWithChildren<ExerciseListProps>> = ({ co
             ))}
           </ul>
         )
-
-        return (
-          <QueryResult query={getCourseExercises} emptyFallback={renderExerciseList([])}>
-            {(courseExercises) => renderExerciseList(courseExercises)}
-          </QueryResult>
-        )
       }}
-    </QueryResult>
+    />
   )
 }
 

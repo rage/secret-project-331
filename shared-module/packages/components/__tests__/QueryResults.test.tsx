@@ -116,6 +116,26 @@ test("empty fallback when any tuple slot is empty array", () => {
   expect(screen.getByText("tuple-empty")).toBeInTheDocument()
 })
 
+test("treatEmptyAsData renders data even when a tuple slot is an empty array", () => {
+  const queries = [
+    makeQuery({ data: [] as string[] }),
+    makeQuery({ data: "x" }),
+  ] as unknown as readonly [UseQueryResult<string[], unknown>, UseQueryResult<string, unknown>]
+
+  renderUi(
+    <QueryResults
+      themeMode="light"
+      queries={queries}
+      treatEmptyAsData
+      emptyFallback={<span>tuple-empty</span>}
+      renderData={(t) => <span>count-{t[0].length}</span>}
+    />,
+  )
+
+  expect(screen.getByText("count-0")).toBeInTheDocument()
+  expect(screen.queryByText("tuple-empty")).not.toBeInTheDocument()
+})
+
 test("initial loading shows skeleton", () => {
   const queries = [
     makeQuery({ data: "a" }),

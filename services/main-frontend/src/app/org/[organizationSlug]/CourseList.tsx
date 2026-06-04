@@ -86,7 +86,7 @@ const CourseList: React.FC<React.PropsWithChildren<Props>> = ({
   return (
     <QueryResults
       queries={[organizationCoursesQuery, getOrgCourseCount] as const}
-      emptyFallback={renderLayout(getOrgCourseCount.data?.count ?? 0, null)}
+      treatEmptyAsData
       renderData={([organizationCourses, orgCourseCount]) => {
         const courseCount = orgCourseCount.count
 

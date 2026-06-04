@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import { baseTheme } from "@/shared-module/common/styles"
@@ -71,10 +72,10 @@ const TopUTMSources: React.FC<React.PropsWithChildren<TopUTMSourcesProps>> = ({ 
       <StatsHeader heading={t("header-utm-sources")} debugData={aggregatedData} />
       <InstructionBox>{t("stats-instruction-utm-sources")}</InstructionBox>
       <div className={containerStyles}>
-        <QueryResult query={query} emptyFallback={<div>{t("no-data")}</div>}>
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
           {() =>
             !aggregatedData || categories.length === 0 ? (
-              <div>{t("no-data")}</div>
+              <NoDataMessage />
             ) : (
               <div
                 className={css`

@@ -99,7 +99,7 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
   )
 
   return (
-    <QueryResult query={glossary} emptyFallback={renderGlossary([])}>
+    <QueryResult query={glossary} treatEmptyAsData>
       {(data) => renderGlossary(data)}
     </QueryResult>
   )

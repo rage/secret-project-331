@@ -98,7 +98,7 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       {duplicateExamMutation.isError && (
         <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
       )}
-      <QueryResult query={getOrgExams} emptyFallback={renderForm([])}>
+      <QueryResult query={getOrgExams} treatEmptyAsData>
         {(exams) => renderForm(exams)}
       </QueryResult>
     </StandardDialog>

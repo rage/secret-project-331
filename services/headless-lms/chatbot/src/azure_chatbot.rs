@@ -577,7 +577,7 @@ impl Drop for RequestCancelledGuard {
 /// Returns:
 ///     response id created by Azure (String),
 ///     ResponseStreamType (type: response text or tool call) containing the created stream
-pub async fn make_request_and_stream<'a>(
+pub async fn make_request_and_stream_old<'a>(
     conn: &mut PgConnection,
     chat_request: LLMRequest,
     conversation_id: Uuid,
@@ -781,7 +781,7 @@ pub async fn parse_tool<'a>(
     app_config: &ApplicationConfiguration,
 ) -> impl Stream<Item = ChatbotResult<Lol2<'a>>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
-    let mut messages = vec![];
+    let mut messages: Vec<APIOutputMessage> = vec![];
     let mut common_response_id = "".to_string();
     let mut response_received = false;
     let mut error_incoming = false;
@@ -1143,7 +1143,7 @@ pub async fn send_chat_request_and_parse_stream(
                 ))?
             }
 
-            let lines = make_request_and_stream2(chat_request.clone(), &app_config)
+            let lines = make_request_and_stream(chat_request.clone(), &app_config)
                     .await?;
             let mut s = yielder2_1st_stream(lines);
             let mut conn = pool.acquire().await?;
@@ -1168,70 +1168,70 @@ pub async fn send_chat_request_and_parse_stream(
                 }}
             }
 
-
-            let mut s = match lines2 {
-                ResponseStreamType::Toolcall(stream) => {
-                    // todo yield hiere
-                    parse_tool(&mut conn, stream, conversation_id, &user_context, &app_config).await
-                }
-                ResponseStreamType::TextResponse(stream) => {
-                    let response_message = models::chatbot_conversation_messages::insert(
-                        &mut conn,
-                        ChatbotConversationMessage {
-                            conversation_id,
-                            message: Message::Text(ChatbotConversationMessageMessage {
-                                text: "".to_string(),
-                                message_role: MessageRole::Assistant,
-                                message_is_complete: false,
-                                used_tokens: request_estimated_tokens,
-                                response_id: Some(response_id.to_owned()),
-                                ..Default::default()
-                            }),
-                            ..Default::default()
-                        },
-                    )
-                    .await?;
-                    guard.response_message_id = response_message.id;
-                    models::chatbot_conversation_messages_citations::update_citation_message_ids(
-                        &mut conn,
-                        response_id,
-                        response_message.id,
-                    ).await?;
-
-                    yielder3_stream_to_user(stream, full_response_text, done, response_message.id, request_estimated_tokens, &mut conn)
-
-                }
-            };
+            let response_message = models::chatbot_conversation_messages::insert(
+                &mut conn,
+                ChatbotConversationMessage {
+                    conversation_id,
+                    message: Message::Text(ChatbotConversationMessageMessage {
+                        text: "".to_string(),
+                        message_role: MessageRole::Assistant,
+                        message_is_complete: false,
+                        used_tokens: request_estimated_tokens,
+                        response_id: Some(response_id.to_owned()),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                },
+            )
+            .await?;
+            guard.response_message_id = response_message.id;
+            models::chatbot_conversation_messages_citations::update_citation_message_ids(
+                &mut conn,
+                response_id,
+                response_message.id,
+            ).await?;
+            let mut s =
+                    yielder3_stream(&mut conn, lines2, full_response_text, done, response_message.id, request_estimated_tokens, conversation_id, &user_context, &app_config);
 
             while let Some(line) = s.next().await {
-                        let val = line?;
-                        match val {
-                            Lol2::A(delta) => {
-                                let response = ChatStreamEvent::Delta  { text: delta.clone() };
-                                let response_as_string = serde_json::to_string(&response)?;
-                                println!("🌟{response_as_string}");
-                                yield Bytes::from(response_as_string);
-                                yield Bytes::from("\n");
-                            },
-                            Lol2::B(output_item) => {
-                                let mut conn = pool.acquire().await?;
-                                process_output_item(&mut conn, output_item.to_owned(), conversation_id, &app_config).await?;
-                                let response = ChatStreamEvent::from(output_item);
-                                if response != ChatStreamEvent::None {
-                                    let event_string = serde_json::to_string(&response)?;
-                                    println!("🌟{event_string}");
-                                    yield Bytes::from(event_string);
-                                    yield Bytes::from("\n");
-                                };
-                            },
-                            _ => {},
-                        }
-                    }
-                    let event = ChatStreamEvent::Done;
-                    let event_string = serde_json::to_string(&event)?;
-                    yield Bytes::from(event_string);
-                    yield Bytes::from("\n");
-                    break;
+                let val = line?;
+                match val {
+                    Lol2::A(delta) => {
+                        let response = ChatStreamEvent::Delta  { text: delta.clone() };
+                        let response_as_string = serde_json::to_string(&response)?;
+                        println!("🌟{response_as_string}");
+                        yield Bytes::from(response_as_string);
+                        yield Bytes::from("\n");
+                    },
+                    Lol2::B(output_item) => {
+                        let mut conn = pool.acquire().await?;
+                        process_output_item(&mut conn, output_item.to_owned(), conversation_id, &app_config).await?;
+                        let response = ChatStreamEvent::from(output_item);
+                        if response != ChatStreamEvent::None {
+                            let event_string = serde_json::to_string(&response)?;
+                            println!("🌟{event_string}");
+                            yield Bytes::from(event_string);
+                            yield Bytes::from("\n");
+                        };
+                    },
+                    Lol2::C(new_conversation_items) => {
+                        chat_request.input.extend(
+                            new_conversation_items
+                                .into_iter()
+                                .map(APIInputMessage::try_from)
+                                .collect::<ChatbotResult<Vec<APIInputMessage>>>()?,
+                        );
+                        continue;
+
+                    },
+                    _ => {},
+                }
+            }
+            let event = ChatStreamEvent::Done;
+            let event_string = serde_json::to_string(&event)?;
+            yield Bytes::from(event_string);
+            yield Bytes::from("\n");
+            break;
         }
 
     };
@@ -1251,6 +1251,7 @@ fn yielder2_1st_stream<'a>(
     let mut response_created_incoming = false;
     let mut output_item_incoming = false;
 
+    // todo! merge with yielder3?
     Box::pin(async_stream::try_stream! {
         loop {
         let line_res = lines.as_mut().peek().await;
@@ -1283,14 +1284,14 @@ fn yielder2_1st_stream<'a>(
                                 }
                                 yield Lol2::D((
                                     response_id,
-                                    ResponseStreamType::Toolcall(lines),
+                                    lines,
                                 ));
                                 break;
                             }
                             "response.output_text.delta" => {
                                 yield Lol2::D((
                                     response_id,
-                                    ResponseStreamType::TextResponse(lines),
+                                    lines,
                                 ));
                                 break;
                             }
@@ -1330,23 +1331,27 @@ fn yielder2_1st_stream<'a>(
     })
 }
 
-fn yielder3_stream_to_user<'a>(
+fn yielder3_stream<'a>(
+    conn: &mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     full_response_text: Arc<Mutex<Vec<String>>>,
     done: Arc<AtomicBool>,
     response_message_id: Uuid,
     request_estimated_tokens: i32,
-    conn: &mut PgConnection,
+    conversation_id: Uuid,
+    user_context: &ChatbotUserContext,
+    app_config: &ApplicationConfiguration,
 ) -> impl Stream<Item = ChatbotResult<Lol2<'a>>> {
-    trace!("Parsing stream to user...");
-
+    let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
+    let mut messages: Vec<APIOutputMessage> = vec![];
+    let mut common_response_id = "".to_string();
     let mut response_received = false;
     let mut error_incoming = false;
 
     Box::pin(async_stream::try_stream! {
         while let Some(val) = lines.next().await {
             let line = val?;
-            let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
+            let response_output = match ParsedResponseLine::parse(&line)? {
                 Some(ParsedResponseLine::Event(event_type)) => {
                     trace!("Event: {event_type}");
                     match event_type.as_str() {
@@ -1370,7 +1375,51 @@ fn yielder3_stream_to_user<'a>(
             let mut full_response_text = full_response_text.lock().await;
 
             if response_received {
+                if !function_name_id_args.is_empty() {
+                    if common_response_id.is_empty() {
+                        Err(chatbot_err!(StreamingError,
+                            "Received response but response id not found, this shouldn't happen."
+                        ))?
+                    };
+                    let mut tool_msgs = Vec::new();
+
+                    for (name, id, args) in function_name_id_args.iter() {
+                        let tool = get_chatbot_tool(conn, name, args, user_context).await?;
+
+                        tool_msgs.push(APIOutputMessage {
+                            message_type: OutputItem::FunctionCall {
+                                response_id: (common_response_id).to_owned(),
+                                call_id: id.to_owned(),
+                                tool_name: name.to_owned(),
+                                arguments: serde_json::to_string(tool.get_arguments())?,
+                            },
+                        });
+                        tool_msgs.push(APIOutputMessage {
+                            message_type: OutputItem::FunctionCallOutput {
+                                call_id: id.to_owned(),
+                                output: tool.get_tool_output(),
+                                response_id: (common_response_id).to_owned(),
+                            },
+                        });
+                    }
+                    // save tool_msgs to the db
+                    for m in &tool_msgs {
+                        chatbot_conversation_messages::insert(
+                            conn,
+                            m.to_chatbot_conversation_message(conversation_id)?,
+                        )
+                        .await?;
+                    }
+                    messages.extend(tool_msgs);
+                    yield Lol2::C(messages);
+                    break;
+                };
                 let full_response_as_string = full_response_text.join("");
+                if full_response_as_string.is_empty() {
+                    Err(chatbot_err!(StreamingError,
+                    "Response completed but didn't receive response text or tool calls. This shouldn't happen!"
+                ))?
+                }
                 // todo: use the tokens given in the response
                 let estimated_cost = estimate_tokens(&full_response_as_string);
                 trace!(
@@ -1397,14 +1446,25 @@ fn yielder3_stream_to_user<'a>(
 
             if let Some(delta) = &response_output.delta {
                 full_response_text.push(delta.to_owned());
-
                 yield Lol2::A(delta.clone());
             }
 
-            if let Some(item) = &response_output.item {
+            if let Some(item) = response_output.item {
                 match item {
                     OutputItem::Message { .. } => continue,
-                    OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
+                    OutputItem::FunctionCall {
+                        call_id,
+                        tool_name,
+                        arguments,
+                        response_id,
+                    } => {
+                        common_response_id = response_id;
+                        function_name_id_args.push((
+                            tool_name,
+                            call_id,
+                            serde_json::from_str::<Value>(&arguments)?,
+                        ));
+                    }
                     _ => {
                         yield Lol2::B(item.to_owned());
                         continue;
@@ -1423,10 +1483,13 @@ enum Lol2<'a> {
     A(String),
     B(OutputItem),
     C(Vec<APIOutputMessage>),
-    D((String, ResponseStreamType<'a>)),
+    D((String, PeekableLinesStream<'a>)),
 }
 
-pub async fn make_request_and_stream2<'a>(
+/// Makes a LLMRequest and creates the stream from the response.
+/// Returns:
+///     PeekableLinesStream that streams the response from Azure
+pub async fn make_request_and_stream<'a>(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
 ) -> anyhow::Result<PeekableLinesStream<'a>> {
@@ -1451,6 +1514,7 @@ pub async fn make_request_and_stream2<'a>(
     let reader = StreamReader::new(stream);
     let lines = reader.lines();
     let lines_stream = LinesStream::new(lines);
+    // todo! maybe not peekable?
     let peekable_lines_stream = lines_stream.peekable();
     let pinned_lines = Box::pin(peekable_lines_stream);
 

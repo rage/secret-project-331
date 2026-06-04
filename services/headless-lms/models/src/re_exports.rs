@@ -5,4 +5,5 @@ pub use sqlx::{Connection, FromRow, PgConnection, PgPool, Pool, Postgres, Type};
 pub use crate::{
     CourseOrExamId, HttpErrorType, ModelError, ModelErrorType, ModelResult, PKeyPolicy,
     error::TryToOptional,
+    secret::{DbSecret, OutboundSecret},
 };

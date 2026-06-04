@@ -20,8 +20,8 @@ pub struct NewUserInfo {
     pub first_name: String,
     pub last_name: String,
     pub email: String,
-    pub password: String,
-    pub password_confirmation: String,
+    pub password: SecretString,
+    pub password_confirmation: SecretString,
     pub language: String,
 }
 
@@ -156,15 +156,18 @@ impl TmcClient {
         })
     }
 
-    pub fn new(admin_access_token: String, ratelimit_api_key: String) -> UtilResult<Self> {
-        if admin_access_token.trim().is_empty() {
+    pub fn new(
+        admin_access_token: SecretString,
+        ratelimit_api_key: SecretString,
+    ) -> UtilResult<Self> {
+        if admin_access_token.expose_secret().trim().is_empty() {
             return Err(UtilError::new(
                 UtilErrorType::Other,
                 "TMC_ACCESS_TOKEN cannot be empty".to_string(),
                 None,
             ));
         }
-        if ratelimit_api_key.trim().is_empty() {
+        if ratelimit_api_key.expose_secret().trim().is_empty() {
             return Err(UtilError::new(
                 UtilErrorType::Other,
                 "RATELIMIT_PROTECTION_SAFE_API_KEY cannot be empty".to_string(),
@@ -185,8 +188,8 @@ impl TmcClient {
 
         Ok(Self {
             client,
-            admin_access_token: SecretString::new(admin_access_token.into()),
-            ratelimit_api_key: SecretString::new(ratelimit_api_key.into()),
+            admin_access_token,
+            ratelimit_api_key,
         })
     }
 
@@ -318,8 +321,8 @@ impl TmcClient {
                 "email": user_info.email,
                 "first_name": user_info.first_name,
                 "last_name": user_info.last_name,
-                "password": user_info.password,
-                "password_confirmation": user_info.password_confirmation
+                "password": user_info.password.expose_secret(),
+                "password_confirmation": user_info.password_confirmation.expose_secret()
             },
             "user_field": {
                 "first_name": user_info.first_name,

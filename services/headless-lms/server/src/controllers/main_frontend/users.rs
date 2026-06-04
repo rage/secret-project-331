@@ -6,7 +6,7 @@ use models::{
     exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,
     user_research_consents::UserResearchConsent, users::User,
 };
-use secrecy::SecretString;
+use secrecy::{ExposeSecret, SecretString};
 use utoipa::{OpenApi, ToSchema};
 
 #[derive(OpenApi)]
@@ -333,9 +333,10 @@ pub async fn send_reset_password_email(
     token.authorized_ok(web::Json(true))
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct ResetPasswordTokenPayload {
-    pub token: String,
+    #[schema(value_type = String)]
+    pub token: SecretString,
 }
 
 #[instrument(skip(pool))]
@@ -356,7 +357,7 @@ pub async fn reset_password_token_status(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let password_token = match Uuid::parse_str(&payload.token) {
+    let password_token = match Uuid::parse_str(payload.token.expose_secret()) {
         Ok(u) => u,
         Err(_) => return token.authorized_ok(web::Json(false)),
     };
@@ -367,11 +368,12 @@ pub async fn reset_password_token_status(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct ResetPasswordData {
-    pub token: String,
-    pub new_password: String,
+    #[schema(value_type = String)]
+    pub token: SecretString,
+    #[schema(value_type = String)]
+    pub new_password: SecretString,
 }
 
 #[instrument(skip(pool))]
@@ -393,11 +395,9 @@ pub async fn reset_user_password(
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
 
-    let token_uuid = Uuid::parse_str(&payload.token)?;
-    let password_hash = models::user_passwords::hash_password(&SecretString::new(
-        payload.new_password.clone().into(),
-    ))
-    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+    let token_uuid = Uuid::parse_str(payload.token.expose_secret())?;
+    let password_hash = models::user_passwords::hash_password(&payload.new_password)
+        .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
     let res = models::user_passwords::change_user_password_with_password_reset_token(
         &mut conn,
@@ -410,11 +410,12 @@ pub async fn reset_user_password(
     token.authorized_ok(web::Json(res))
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct ChangePasswordData {
-    pub old_password: String,
-    pub new_password: String,
+    #[schema(value_type = String)]
+    pub old_password: SecretString,
+    #[schema(value_type = String)]
+    pub new_password: SecretString,
 }
 
 #[instrument(skip(pool))]
@@ -435,16 +436,13 @@ pub async fn change_user_password(
 ) -> ControllerResult<web::Json<bool>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
-    let password_hash = models::user_passwords::hash_password(&SecretString::new(
-        payload.new_password.clone().into(),
-    ))
-    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
-    let old_password = SecretString::new(payload.old_password.clone().into());
+    let password_hash = models::user_passwords::hash_password(&payload.new_password)
+        .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
     let res = models::user_passwords::change_user_password_with_old_password(
         &mut conn,
         user.id,
-        &old_password,
+        &payload.old_password,
         &password_hash,
     )
     .await?;

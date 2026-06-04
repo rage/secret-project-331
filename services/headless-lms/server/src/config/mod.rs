@@ -23,7 +23,7 @@ use headless_lms_utils::{
     tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
-use secrecy::ExposeSecret;
+use secrecy::{ExposeSecret, SecretString};
 use sqlx::{PgPool, postgres::PgPoolOptions};
 use std::{
     env,
@@ -41,21 +41,23 @@ pub struct FileStoreRuntimeConfig {
 
 #[derive(Clone)]
 pub struct ServerRuntimeConfig {
-    pub database_url: String,
+    /// Database connection URL — contains credentials, so kept secret.
+    pub database_url: SecretString,
     pub oauth_application_id: String,
-    pub oauth_secret: String,
+    pub oauth_secret: SecretString,
     pub icu4x_postcard_path: String,
     pub app_conf: ApplicationConfiguration,
-    pub redis_url: String,
-    pub jwt_password: String,
-    pub private_cookie_key: String,
+    /// Redis connection URL — may contain credentials, so kept secret.
+    pub redis_url: SecretString,
+    pub jwt_password: SecretString,
+    pub private_cookie_key: SecretString,
     pub test_mode: bool,
     pub allow_no_https_for_development: bool,
     pub host: String,
     pub port: String,
     pub file_store: FileStoreRuntimeConfig,
-    pub tmc_server_secret_for_communicating_to_secret_project: String,
-    pub ratelimit_protection_safe_api_key: String,
+    pub tmc_server_secret_for_communicating_to_secret_project: SecretString,
+    pub ratelimit_protection_safe_api_key: SecretString,
     pub pod_namespace: String,
 }
 
@@ -84,16 +86,35 @@ impl ServerRuntimeConfig {
         };
 
         Ok(Self {
-            database_url: env::var("DATABASE_URL").context("DATABASE_URL must be defined")?,
+            database_url: SecretString::new(
+                env::var("DATABASE_URL")
+                    .context("DATABASE_URL must be defined")?
+                    .into(),
+            ),
             oauth_application_id: env::var("OAUTH_APPLICATION_ID")
                 .context("OAUTH_APPLICATION_ID must be defined")?,
-            oauth_secret: env::var("OAUTH_SECRET").context("OAUTH_SECRET must be defined")?,
+            oauth_secret: SecretString::new(
+                env::var("OAUTH_SECRET")
+                    .context("OAUTH_SECRET must be defined")?
+                    .into(),
+            ),
             icu4x_postcard_path: env::var("ICU4X_POSTCARD_PATH")
                 .context("ICU4X_POSTCARD_PATH must be defined")?,
-            redis_url: env::var("REDIS_URL").context("REDIS_URL must be defined")?,
-            jwt_password: env::var("JWT_PASSWORD").context("JWT_PASSWORD must be defined")?,
-            private_cookie_key: env::var("PRIVATE_COOKIE_KEY")
-                .context("PRIVATE_COOKIE_KEY must be defined")?,
+            redis_url: SecretString::new(
+                env::var("REDIS_URL")
+                    .context("REDIS_URL must be defined")?
+                    .into(),
+            ),
+            jwt_password: SecretString::new(
+                env::var("JWT_PASSWORD")
+                    .context("JWT_PASSWORD must be defined")?
+                    .into(),
+            ),
+            private_cookie_key: SecretString::new(
+                env::var("PRIVATE_COOKIE_KEY")
+                    .context("PRIVATE_COOKIE_KEY must be defined")?
+                    .into(),
+            ),
             allow_no_https_for_development: ProgramConfig::bool_flag(
                 "ALLOW_NO_HTTPS_FOR_DEVELOPMENT",
             ),
@@ -103,11 +124,16 @@ impl ServerRuntimeConfig {
                 use_google_cloud_storage: file_store_use_google_cloud_storage,
                 google_cloud_storage_bucket_name,
             },
-            tmc_server_secret_for_communicating_to_secret_project: env::var(
-                "TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT",
-            )
-            .context("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined")?,
-            ratelimit_protection_safe_api_key,
+            tmc_server_secret_for_communicating_to_secret_project: SecretString::new(
+                env::var("TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT")
+                    .context(
+                        "TMC_SERVER_SECRET_FOR_COMMUNICATING_TO_SECRET_PROJECT must be defined",
+                    )?
+                    .into(),
+            ),
+            ratelimit_protection_safe_api_key: SecretString::new(
+                ratelimit_protection_safe_api_key.into(),
+            ),
             pod_namespace: env::var("POD_NAMESPACE").unwrap_or_else(|_| "default".to_string()),
             app_conf,
             test_mode,
@@ -132,16 +158,16 @@ pub fn server_runtime_config() -> &'static ServerRuntimeConfig {
 }
 
 pub struct ServerConfigBuilder {
-    pub database_url: String,
+    pub database_url: SecretString,
     pub oauth_application_id: String,
-    pub oauth_secret: String,
+    pub oauth_secret: SecretString,
     pub auth_url: Url,
     pub token_url: Url,
     pub icu4x_postcard_path: String,
     pub file_store: Arc<dyn FileStore + Send + Sync>,
     pub app_conf: ApplicationConfiguration,
-    pub redis_url: String,
-    pub jwt_password: String,
+    pub redis_url: SecretString,
+    pub jwt_password: SecretString,
     pub tmc_client: TmcClient,
 }
 
@@ -167,11 +193,7 @@ impl ServerConfigBuilder {
             redis_url: runtime_config.redis_url.clone(),
             jwt_password: runtime_config.jwt_password.clone(),
             tmc_client: TmcClient::new(
-                runtime_config
-                    .app_conf
-                    .tmc_admin_access_token
-                    .expose_secret()
-                    .to_string(),
+                runtime_config.app_conf.tmc_admin_access_token.clone(),
                 runtime_config.ratelimit_protection_safe_api_key.clone(),
             )?,
         })
@@ -195,13 +217,15 @@ impl ServerConfigBuilder {
         let db_pool = PgPoolOptions::new()
             .max_connections(15)
             .min_connections(5)
-            .connect(&self.database_url)
+            .connect(self.database_url.expose_secret())
             .await?;
         crate::domain::internal_error_reporting::init_error_reporting(db_pool.clone());
         let db_pool = Data::new(db_pool);
 
         let oauth_client: OAuthClient = BasicClient::new(ClientId::new(self.oauth_application_id))
-            .set_client_secret(ClientSecret::new(self.oauth_secret))
+            .set_client_secret(ClientSecret::new(
+                self.oauth_secret.expose_secret().to_string(),
+            ))
             .set_auth_uri(AuthUrl::from_url(self.auth_url.clone()))
             .set_token_uri(TokenUrl::from_url(self.token_url.clone()));
         let oauth_client = Data::new(oauth_client);
@@ -214,7 +238,7 @@ impl ServerConfigBuilder {
         let ip_to_country_mapper = IpToCountryMapper::new(&app_conf)?;
         let ip_to_country_mapper = Data::new(ip_to_country_mapper);
 
-        let cache = Cache::new(&self.redis_url)?;
+        let cache = Cache::new(self.redis_url.expose_secret())?;
         let cache = Data::new(cache);
 
         let jwt_key = JwtKey::new(&self.jwt_password)?;

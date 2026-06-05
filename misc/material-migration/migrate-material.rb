@@ -56,6 +56,7 @@ class MaterialMigrator
       @inside_frontmatter = false
       @current_tag_type = ''
       @tag_depth = 0
+      @floating_image_size = nil
 
       if File.directory?(file)
         puts "skipping directory #{file}"
@@ -242,6 +243,10 @@ class MaterialMigrator
             json_block = handle_header(line, json_block, json_content)
             next
           end
+          if line.match?(/^\s*\d+\.\s+/)
+            handle_numbered_list_item(line, json_block)
+            next
+          end
         # Convert any inline markdown in the line to HTML (links, emphasis, code, ...).
         line = convert_inline_markdown(line)
         # if @current_tag_type == 'styled-text'
@@ -257,16 +262,22 @@ class MaterialMigrator
 
       # unless line.empty? || @inside_a_block
       unless line.empty? || @tag_depth > 0
-        json_content << {
-          'clientId': SecureRandom.uuid,
-          'isValid': true,
-          'name': 'core/paragraph',
-          'attributes': {
-            'content': convert_inline_markdown(line),
-            'dropCap': false,
-          },
-          'innerBlocks': [],
-        }
+        if line.start_with?('#')
+          handle_header(line, json_block, json_content)
+        elsif line.match?(/^\s*\d+\.\s+/)
+          handle_numbered_list_item(line, json_content.last || json_block)
+        else
+          json_content << {
+            'clientId': SecureRandom.uuid,
+            'isValid': true,
+            'name': 'core/paragraph',
+            'attributes': {
+              'content': convert_inline_markdown(line),
+              'dropCap': false,
+            },
+            'innerBlocks': [],
+          }
+        end
       end
     end
 
@@ -451,9 +462,11 @@ class MaterialMigrator
     result = case tag_type
     when 'styled-text'
       handle_paragraph(json_block, json_content)
-    when 'text-box' # we convert text-boxes to infoboxes
-      handle_infobox(line, json_block)
-    when 'div', 'floating-image', 'detail-tag', 'topic-hero', 'topic-content', 'details', 'ul', 'ol',
+    when 'text-box'
+      handle_text_box(line, json_block)
+    when 'floating-image'
+      handle_floating_image(line)
+    when 'div', 'detail-tag', 'topic-hero', 'topic-content', 'details', 'ul', 'ol',
          'table', 'thead', 'tbody', 'tr', 'a'
       handle_div(line, json_block)
     when 'quiz'
@@ -471,7 +484,7 @@ class MaterialMigrator
     when 'quote'
       handle_quote(line, json_block, json_content)
     when 'chart', 'area-chart', 'bar-chart', 'chart-switcher'
-      handle_chart(line, json_block, json_content)
+      handle_chart(tag_type, line, json_block, json_content)
     when 'sub-topic', 'medium-content'
       handle_sub_topic(line, json_block)
     when 'hero-section'
@@ -546,6 +559,28 @@ class MaterialMigrator
     }
   end
 
+  def handle_text_box(line, json_block)
+    json_block[:name] = 'moocfi/aside'
+    json_block[:attributes] = { backgroundColor: '#ebf5fb', separatorColor: '#007acc' }
+    title = extract_quoted_attribute(line, 'title')
+    if title && !title.empty?
+      json_block[:innerBlocks] << {
+        'clientId': SecureRandom.uuid,
+        'isValid': true,
+        'name': 'core/heading',
+        'attributes': { 'content': "<strong>#{title}</strong>", 'level': 2 },
+        'innerBlocks': [],
+      }
+    end
+    json_block[:innerBlocks] << {
+      'clientId': SecureRandom.uuid,
+      'isValid': true,
+      'name': 'core/paragraph',
+      'attributes': { 'content': '', 'dropCap': false },
+      'innerBlocks': [],
+    }
+  end
+
   def handle_div(line, json_block)
     # TODO: account for in-line styles
     json_block[:innerBlocks] << {
@@ -560,13 +595,41 @@ class MaterialMigrator
     }
   end
 
+  def handle_floating_image(line)
+    height = extract_quoted_attribute(line, 'height')
+    @floating_image_size = height ? height.to_i : 150
+  end
+
+  def handle_numbered_list_item(line, json_block)
+    content = convert_inline_markdown(line.sub(/^\s*\d+\.\s+/, '').strip)
+    list_item = {
+      'clientId': SecureRandom.uuid,
+      'isValid': true,
+      'name': 'core/list-item',
+      'attributes': { 'content': content },
+      'innerBlocks': [],
+    }
+    last = json_block[:innerBlocks].last
+    if last && last[:name] == 'core/list' && last[:attributes][:ordered]
+      last[:innerBlocks] << list_item
+    else
+      json_block[:innerBlocks] << {
+        'clientId': SecureRandom.uuid,
+        'isValid': true,
+        'name': 'core/list',
+        'attributes': { 'ordered': true, 'values': '' },
+        'innerBlocks': [list_item],
+      }
+    end
+  end
+
   def handle_header(line, json_block, json_content)
     level = line.match(/^#+/)[0].length
 
     header_block = create_new_block
     header_block[:name] = 'core/heading'
     header_block[:attributes] = {
-      'content': line.gsub(/^#+/, '').strip,
+      'content': convert_inline_markdown(line.gsub(/^#+/, '').strip),
       'level': level,
     }
 
@@ -698,6 +761,8 @@ class MaterialMigrator
   end
 
   def handle_image(line, json_block, file, json_content)
+    from_floating_image = !@floating_image_size.nil?
+
     path_to_current_file = file.rpartition('/')[0]
 
     attributes = {}
@@ -719,9 +784,14 @@ class MaterialMigrator
       end
     end
 
-    width = ''
-    width = attributes[:width] if attributes[:width]
-    width = attributes[:style].match(/width: (\d+)px/)[1] if attributes[:style] && attributes[:style].match?(/width: (\d+)px/)
+    if from_floating_image
+      width = @floating_image_size.to_s
+      @floating_image_size = nil
+    else
+      width = ''
+      width = attributes[:width].to_s.gsub(/[^0-9]/, '') if attributes[:width]
+      width = attributes[:style].match(/width: (\d+)px/)[1] if attributes[:style] && attributes[:style].match?(/width: (\d+)px/)
+    end
 
     src_path = attributes[:src]
     image_block = build_image_block(src_path, attributes[:alt], width)
@@ -1053,10 +1123,17 @@ class MaterialMigrator
     end
   end
 
-  def handle_chart(line, json_block, json_content)
-    chart_id = extract_quoted_attribute(line, 'chart') || 'unknown'
+  def handle_chart(tag_type, line, json_block, json_content)
+    content = if tag_type == 'chart-switcher'
+      chart1_id = extract_quoted_attribute(line, 'chart1') || 'unknown'
+      chart2_id = extract_quoted_attribute(line, 'chart2') || 'unknown'
+      "[Chart switcher: #{chart1_id} / #{chart2_id}]"
+    else
+      chart_id = extract_quoted_attribute(line, 'chart') || 'unknown'
+      "[Chart: #{chart_id}]"
+    end
     para = create_new_block
-    para[:attributes] = { 'content': "[Chart: #{chart_id}]", 'dropCap': false }
+    para[:attributes] = { 'content': content, 'dropCap': false }
     if @tag_depth > 1
       json_block[:innerBlocks] << para
     else
@@ -1415,7 +1492,11 @@ def convert_inline_markdown(text)
   html = Kramdown::Document.new(text).to_html.strip
 
   if html.start_with?('<p>') && html.end_with?('</p>') && html.scan('<p>').length == 1
-    return html[3..-5].strip
+    html = html[3..-5].strip
+    html = html.gsub(/(?<![="'>\/])(www\.[a-zA-Z0-9][a-zA-Z0-9\-.]*\.[a-zA-Z]{2,}(?:\/[^\s<>")\]]*)?)/) do |url|
+      "<a href=\"https://#{url}\">#{url}</a>"
+    end
+    return html
   end
 
   block_marker = text.match(/\A(\s*(?:[-*+]\s+|\d+\.\s+|>\s+|\#{1,6}\s+))/)

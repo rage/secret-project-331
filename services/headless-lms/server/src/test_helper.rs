@@ -4,7 +4,7 @@ use crate::{
 };
 use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
 
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, tmc::TmcClient};
+use headless_lms_utils::{file_store::local_file_store::LocalFileStore, services::tmc::TmcClient};
 use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};

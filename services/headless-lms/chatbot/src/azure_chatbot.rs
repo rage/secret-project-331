@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::pin::Pin;
+use std::pin::{Pin, pin};
 use std::sync::{
     Arc,
     atomic::{self, AtomicBool},
@@ -10,7 +10,7 @@ use anyhow::{Error, anyhow};
 use bytes::Bytes;
 use chrono::Utc;
 use futures::stream::{BoxStream, Peekable};
-use futures::{Stream, StreamExt, TryStreamExt};
+use futures::{Stream, StreamExt, TryStreamExt, pin_mut};
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::chatbot_configurations::{ReasoningEffortLevel, VerbosityLevel};
 use headless_lms_models::chatbot_conversation_message_messages::{
@@ -773,13 +773,13 @@ pub async fn process_output_item(
 
 /// Streams and parses a LLM response from Azure that contains function calls.
 /// Calls the functions and returns a Vec of function results to be sent to Azure.
-pub async fn parse_tool<'a>(
-    conn: &mut PgConnection,
+async fn parse_tool<'a>(
+    conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
-    user_context: &ChatbotUserContext,
-    app_config: &ApplicationConfiguration,
-) -> impl Stream<Item = ChatbotResult<Lol2<'a>>> {
+    user_context: &'a ChatbotUserContext,
+    app_config: &'a ApplicationConfiguration,
+) -> BoxStream<'a, ChatbotResult<Lol2<'a>>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
@@ -839,9 +839,10 @@ pub async fn parse_tool<'a>(
                 ))?
             };
             let mut tool_msgs = Vec::new();
+            let mut tx = conn.begin().await.map_err(|e| anyhow::anyhow!(e))?;
 
             for (name, id, args) in function_name_id_args.iter() {
-                let tool = get_chatbot_tool(conn, name, args, user_context).await?;
+                let tool = get_chatbot_tool(&mut tx, name, args, user_context).await?;
 
                 tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
@@ -862,11 +863,12 @@ pub async fn parse_tool<'a>(
             // save tool_msgs to the db
             for m in &tool_msgs {
                 chatbot_conversation_messages::insert(
-                    conn,
+                    &mut tx,
                     m.to_chatbot_conversation_message(conversation_id)?,
                 )
                 .await?;
             }
+            tx.commit().await.map_err(|e| anyhow::anyhow!(e))?;
             messages.extend(tool_msgs);
             yield Lol2::C(messages);
             break;
@@ -1101,7 +1103,6 @@ pub async fn parse_and_stream_to_user<'a>(
 }
  */
 pub async fn send_chat_request_and_parse_stream(
-    conn: &mut PgConnection,
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
     chatbot_configuration_id: Uuid,
@@ -1109,10 +1110,11 @@ pub async fn send_chat_request_and_parse_stream(
     message: &str,
     user_context: ChatbotUserContext,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
+    let mut conn = pool.acquire().await?;
     let app_config = app_configuration.to_owned();
     let (mut chat_request, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_message_to_db(
-            conn,
+            &mut conn,
             chatbot_configuration_id,
             conversation_id,
             message,
@@ -1146,7 +1148,6 @@ pub async fn send_chat_request_and_parse_stream(
             let lines = make_request_and_stream2(chat_request.clone(), &app_config)
                     .await?;
             let mut s = yielder2_1st_stream(lines);
-            let mut conn = pool.acquire().await?;
             let (response_id, lines2);
             loop {
                 if let Some(val) = s.next().await {
@@ -1171,8 +1172,9 @@ pub async fn send_chat_request_and_parse_stream(
 
             let mut s = match lines2 {
                 ResponseStreamType::Toolcall(stream) => {
+                    let lol  = parse_tool(&mut conn, stream, conversation_id, &user_context, &app_config).await;
                     // todo yield hiere
-                    parse_tool(&mut conn, stream, conversation_id, &user_context, &app_config).await
+                    lol
                 }
                 ResponseStreamType::TextResponse(stream) => {
                     let response_message = models::chatbot_conversation_messages::insert(
@@ -1198,7 +1200,8 @@ pub async fn send_chat_request_and_parse_stream(
                         response_message.id,
                     ).await?;
 
-                    yielder3_stream_to_user(stream, full_response_text, done, response_message.id, request_estimated_tokens, &mut conn)
+                    let lol = yielder3_stream_to_user(stream, full_response_text, done, response_message.id, request_estimated_tokens, &mut conn).await;
+                    lol
 
                 }
             };
@@ -1330,14 +1333,14 @@ fn yielder2_1st_stream<'a>(
     })
 }
 
-fn yielder3_stream_to_user<'a>(
+async fn yielder3_stream_to_user<'a>(
     mut lines: PeekableLinesStream<'a>,
     full_response_text: Arc<Mutex<Vec<String>>>,
     done: Arc<AtomicBool>,
     response_message_id: Uuid,
     request_estimated_tokens: i32,
-    conn: &mut PgConnection,
-) -> impl Stream<Item = ChatbotResult<Lol2<'a>>> {
+    conn: &'a mut PgConnection,
+) -> BoxStream<'a, ChatbotResult<Lol2<'a>>> {
     trace!("Parsing stream to user...");
 
     let mut response_received = false;
@@ -1414,7 +1417,7 @@ fn yielder3_stream_to_user<'a>(
 
         }
         if !done.load(atomic::Ordering::Relaxed) {
-            Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
+            Err(chatbot_err!(StreamingError,"Stream ended unexpectedly"))?;
         }
     })
 }

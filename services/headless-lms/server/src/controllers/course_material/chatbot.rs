@@ -135,7 +135,6 @@ async fn send_message(
     let mut tx = conn.begin().await?;
 
     let response_stream = send_chat_request_and_parse_stream(
-        &mut tx,
         // An Arc, cheap to clone.
         pool.get_ref().clone(),
         &app_conf,

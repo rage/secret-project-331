@@ -103,6 +103,6 @@ profiles:
         path: /manifests/kustomize
     manifests:
       rawYaml:
-        - kubernetes/dev/postgres-dev.yml
+        - kubernetes/base-data/postgres.yml
     deploy:
       kubectl: {}

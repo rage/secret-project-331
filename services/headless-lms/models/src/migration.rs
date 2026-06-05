@@ -109,7 +109,7 @@ pub async fn insert_course_page(
     let mut tx = conn.begin().await?;
 
     let page_language_group_id = crate::page_language_groups::insert(
-        &mut *tx,
+        &mut tx,
         crate::PKeyPolicy::Generate,
         course.course_language_group_id,
     )

@@ -45,60 +45,6 @@ Content-Type: application/json
 ```
 */
 
-/// Extract title from Gutenberg blocks (looks for hero-section or first heading)
-fn extract_title_from_blocks(blocks: &[GutenbergBlock]) -> Option<String> {
-    fn extract_from_block(block: &GutenbergBlock) -> Option<String> {
-        if block.name == "moocfi/hero-section" {
-            let attrs = &block.attributes;
-            if let Some(title) = attrs.get("title").and_then(|v| v.as_str()) {
-                return Some(title.trim_matches('\'').trim_matches('"').to_string());
-            }
-        }
-        if block.name.starts_with("core/heading") {
-            let attrs = &block.attributes;
-            if let Some(content) = attrs.get("content").and_then(|v| v.as_str()) {
-                // Strip HTML tags for a clean title
-                let clean = content.replace("<strong>", "").replace("</strong>", "");
-                return Some(clean.trim().to_string());
-            }
-        }
-        // Recursively check inner blocks
-        for inner in &block.inner_blocks {
-            if let Some(title) = extract_from_block(inner) {
-                return Some(title);
-            }
-        }
-        None
-    }
-
-    for block in blocks {
-        if let Some(title) = extract_from_block(block) {
-            return Some(title);
-        }
-    }
-    None
-}
-
-/// Generate a URL-safe slug from a title
-fn slugify(text: &str) -> String {
-    text.to_lowercase()
-        .chars()
-        .map(|c| {
-            if c.is_alphanumeric() {
-                c
-            } else if c.is_whitespace() {
-                '-'
-            } else {
-                '_'
-            }
-        })
-        .collect::<String>()
-        .split('-')
-        .filter(|s| !s.is_empty())
-        .collect::<Vec<_>>()
-        .join("-")
-}
-
 #[instrument(skip(pool, jwt_key, app_conf, user, cms_update_json, course_id, request_id))]
 async fn create_page(
     request_id: RequestId,
@@ -169,6 +115,60 @@ async fn create_page(
     };
 
     return token.authorized_ok(web::Json((created.id, history_id)));
+}
+
+/// Extract title from Gutenberg blocks (looks for hero-section or first heading)
+fn extract_title_from_blocks(blocks: &[GutenbergBlock]) -> Option<String> {
+    fn extract_from_block(block: &GutenbergBlock) -> Option<String> {
+        if block.name == "moocfi/hero-section" {
+            let attrs = &block.attributes;
+            if let Some(title) = attrs.get("title").and_then(|v| v.as_str()) {
+                return Some(title.trim_matches('\'').trim_matches('"').to_string());
+            }
+        }
+        if block.name.starts_with("core/heading") {
+            let attrs = &block.attributes;
+            if let Some(content) = attrs.get("content").and_then(|v| v.as_str()) {
+                // Strip HTML tags for a clean title
+                let clean = content.replace("<strong>", "").replace("</strong>", "");
+                return Some(clean.trim().to_string());
+            }
+        }
+        // Recursively check inner blocks
+        for inner in &block.inner_blocks {
+            if let Some(title) = extract_from_block(inner) {
+                return Some(title);
+            }
+        }
+        None
+    }
+
+    for block in blocks {
+        if let Some(title) = extract_from_block(block) {
+            return Some(title);
+        }
+    }
+    None
+}
+
+/// Generate a URL-safe slug from a title
+fn slugify(text: &str) -> String {
+    text.to_lowercase()
+        .chars()
+        .map(|c| {
+            if c.is_alphanumeric() {
+                c
+            } else if c.is_whitespace() {
+                '-'
+            } else {
+                '_'
+            }
+        })
+        .collect::<String>()
+        .split('-')
+        .filter(|s| !s.is_empty())
+        .collect::<Vec<_>>()
+        .join("-")
 }
 
 /**

@@ -24,6 +24,18 @@ const StyledZoomWrapper = styled.div`
   }
 `
 
+/* eslint-disable i18next/no-literal-string */
+const normalizeCssSize = (value: number | string | undefined): string | undefined => {
+  if (value === undefined || value === null) {
+    return undefined
+  }
+  if (typeof value === "number") {
+    return `${value}px`
+  }
+  return /^\d+$/.test(value) ? `${value}px` : value
+}
+/* eslint-enable i18next/no-literal-string */
+
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
 > = ({ data }) => {
@@ -53,9 +65,9 @@ const ImageBlock: React.FC<
       <img
         title={title}
         className={css`
-          width: ${width ? `${width}` : "100%"};
+          width: ${normalizeCssSize(width) ?? "100%"};
           max-width: 100%;
-          height: ${height ? `${height}` : "auto"};
+          height: ${normalizeCssSize(height) ?? "auto"};
           margin: 1rem 0;
           ${scale && `transform: scale(${scale});`}
           ${aspectRatio && `aspect-ratio: ${aspectRatio};`}

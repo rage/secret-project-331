@@ -3,6 +3,6 @@
 # `bundle exec` against this Gemfile) to install them.
 source "https://rubygems.org"
 
-gem "rest-client"
-gem "dotenv"
-gem "kramdown"
+gem "rest-client", "~> 2.1"
+gem "dotenv", "~> 3.1"
+gem "kramdown", "~> 2.4"

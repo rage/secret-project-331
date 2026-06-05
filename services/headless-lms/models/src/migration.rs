@@ -106,14 +106,15 @@ pub async fn insert_course_page(
         }
     }
 
+    let mut tx = conn.begin().await?;
+
     let page_language_group_id = crate::page_language_groups::insert(
-        &mut *conn,
+        &mut *tx,
         crate::PKeyPolicy::Generate,
         course.course_language_group_id,
     )
     .await?;
 
-    let mut tx = conn.begin().await?;
     let page_res = sqlx::query_scalar!(
         "
 INSERT INTO pages (
@@ -153,7 +154,7 @@ RETURNING id
         page_res,
         history_title.as_str(),
         &PageHistoryContent {
-            content: serde_json::Value::Array(vec![]),
+            content: serde_json::to_value(new_course_page.content.clone())?,
             exercises: vec![],
             exercise_slides: vec![],
             exercise_tasks: vec![],

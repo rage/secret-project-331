@@ -25,6 +25,14 @@ def request_json(method:, url:, payload:, headers:)
     verify_ssl: OpenSSL::SSL::VERIFY_NONE
   )
   JSON.parse(response.body)
+rescue RestClient::ExceptionWithResponse => e
+  raise "HTTP #{e.response.code} from #{method.upcase} #{url}: #{e.response.body}"
+rescue RestClient::Exceptions::OpenTimeout, RestClient::Exceptions::ReadTimeout => e
+  raise "Timeout during #{method.upcase} #{url}: #{e.message}"
+rescue SocketError, Errno::ECONNREFUSED, Errno::ECONNRESET => e
+  raise "Network error during #{method.upcase} #{url}: #{e.message}"
+rescue JSON::ParserError => e
+  raise "JSON parse error from #{method.upcase} #{url}: #{e.message}"
 end
 
 def get_json(url:, headers:)
@@ -35,6 +43,14 @@ def get_json(url:, headers:)
     verify_ssl: OpenSSL::SSL::VERIFY_NONE
   )
   JSON.parse(response.body)
+rescue RestClient::ExceptionWithResponse => e
+  raise "HTTP #{e.response.code} from GET #{url}: #{e.response.body}"
+rescue RestClient::Exceptions::OpenTimeout, RestClient::Exceptions::ReadTimeout => e
+  raise "Timeout during GET #{url}: #{e.message}"
+rescue SocketError, Errno::ECONNREFUSED, Errno::ECONNRESET => e
+  raise "Network error during GET #{url}: #{e.message}"
+rescue JSON::ParserError => e
+  raise "JSON parse error from GET #{url}: #{e.message}"
 end
 
 def block_contains_name?(blocks, name)
@@ -212,7 +228,6 @@ information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entr
     payload: page_payload,
     headers: headers,
   )
-  puts page_response.inspect
 end
 
 if home_page_entry

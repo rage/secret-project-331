@@ -11,7 +11,6 @@ class MaterialMigrator
   def initialize(directory)
     unless File.directory?(directory)
       raise ArgumentError, "#{directory} is not a directory."
-      exit
     end
 
     @directory = directory.end_with?('/') ? directory : "#{directory}/"
@@ -856,7 +855,16 @@ class MaterialMigrator
   end
 
   def fetch_quiz_details_by_id(id)
-    quiz_data = RestClient.get "https://quizzes.mooc.fi/api/v2/dashboard/quizzes/#{id}", { Authorization: ENV['TMC_TOKEN'] }
+    RestClient.get "https://quizzes.mooc.fi/api/v2/dashboard/quizzes/#{id}", { Authorization: ENV['TMC_TOKEN'] }
+  rescue RestClient::ExceptionWithResponse => e
+    puts "Failed to fetch quiz #{id}: HTTP #{e.response.code} - #{e.response.body}"
+    nil
+  rescue RestClient::Exceptions::OpenTimeout, RestClient::Exceptions::ReadTimeout => e
+    puts "Timeout fetching quiz #{id}: #{e.message}"
+    nil
+  rescue StandardError => e
+    puts "Error fetching quiz #{id}: #{e.message}"
+    nil
   end
 
   def upload_extra_file(file)
@@ -870,7 +878,7 @@ class MaterialMigrator
       payload = { file: File.new(file, 'rb') }
       response = RestClient::Request.execute(
         method: :post,
-        url: "https://project-331.local/api/v0/cms/courses/#{course_id}/upload",
+        url: "#{ENV['BASE_URL']}/api/v0/cms/courses/#{course_id}/upload",
         payload: payload,
         cookies: cookies,
         verify_ssl: OpenSSL::SSL::VERIFY_NONE
@@ -901,7 +909,7 @@ class MaterialMigrator
         payload = { file: File.new(file, 'rb') }
         response = RestClient::Request.execute(
           method: :post,
-          url: "https://project-331.local/api/v0/cms/courses/#{course_id}/upload",
+          url: "#{ENV['BASE_URL']}/api/v0/cms/courses/#{course_id}/upload",
           payload: payload,
           cookies: cookies,
           verify_ssl: OpenSSL::SSL::VERIFY_NONE
@@ -1527,8 +1535,7 @@ def append_to_last_block_content(json_block, new_content)
 end
 
 if ARGV.empty?
-  raise ArgumentError, 'Usage: ruby migrate-material.rb <path>, where path is the directory where the material is located.'
-  exit
+  abort 'Usage: ruby migrate-material.rb <path>, where path is the directory where the material is located.'
 end
 
 if __FILE__ == $PROGRAM_NAME

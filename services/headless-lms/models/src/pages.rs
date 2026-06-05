@@ -565,11 +565,12 @@ INSERT INTO pages (
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING id
 ",
-        serde_json::to_value(page.content)?,
+        serde_json::to_value(page.content.clone())?,
         page.url_path,
         page.title,
         exam_id,
-        page.content_search_language,
+        page.content_search_language
+            .unwrap_or_else(|| "simple".to_string()),
         page.hidden
     )
     .fetch_one(&mut *tx)
@@ -581,10 +582,10 @@ RETURNING id
         page_res.id,
         page.title.as_str(),
         &PageHistoryContent {
-            content: serde_json::Value::Array(vec![]),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
+            content: serde_json::to_value(page.content)?,
+            exercises: page.exercises,
+            exercise_slides: page.exercise_slides,
+            exercise_tasks: page.exercise_tasks,
             peer_or_self_review_configs: Vec::new(),
             peer_or_self_review_questions: Vec::new(),
         },
@@ -1395,7 +1396,8 @@ UPDATE pages
 SET content = $2,
   url_path = $3,
   title = $4,
-  chapter_id = $5
+  chapter_id = $5,
+  hidden = $6
 WHERE id = $1
 RETURNING id,
   created_at,
@@ -1416,7 +1418,8 @@ RETURNING id,
         serde_json::to_value(&content)?,
         normalized_url_path,
         cms_page_update.title.trim(),
-        cms_page_update.chapter_id
+        cms_page_update.chapter_id,
+        cms_page_update.hidden
     )
     .fetch_one(&mut *tx)
     .await?;

@@ -10,9 +10,9 @@ use crate::{domain::request_id::RequestId, prelude::*};
 /**
 POST `/api/v0/cms/migration/new_page/{course_id}` - Create a new page from Gutenberg blocks.
 
-Creates a new page in the CMS by accepting an array of Gutenberg blocks. The page title is extracted
-from the first hero-section or heading block. The URL path is auto-generated from the title, and the
-order number is automatically determined.
+Creates a new page in the CMS. Accepts a `CmsPageUpdate` object; if `title` or `url_path` are empty
+they are derived from the first hero-section or heading block in `content`. The order number is
+automatically determined.
 
 # Example
 
@@ -22,26 +22,35 @@ Request:
 POST /api/v0/cms/migration/new_page/aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa HTTP/1.1
 Content-Type: application/json
 
-[
-  {
-    "clientId": "...",
-    "isValid": true,
-    "name": "moocfi/hero-section",
-    "attributes": {
-      "title": "My Page Title"
+{
+  "content": [
+    {
+      "clientId": "...",
+      "isValid": true,
+      "name": "moocfi/hero-section",
+      "attributes": {
+        "title": "My Page Title"
+      },
+      "innerBlocks": []
     },
-    "innerBlocks": []
-  },
-  {
-    "clientId": "...",
-    "isValid": true,
-    "name": "core/paragraph",
-    "attributes": {
-      "content": "Page content here"
-    },
-    "innerBlocks": []
-  }
-]
+    {
+      "clientId": "...",
+      "isValid": true,
+      "name": "core/paragraph",
+      "attributes": {
+        "content": "Page content here"
+      },
+      "innerBlocks": []
+    }
+  ],
+  "exercises": [],
+  "exercise_slides": [],
+  "exercise_tasks": [],
+  "url_path": "",
+  "title": "",
+  "chapter_id": null,
+  "hidden": false
+}
 ```
 */
 

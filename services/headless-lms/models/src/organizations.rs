@@ -68,7 +68,7 @@ pub async fn insert(
         "
         INSERT INTO organizations (id, name, slug, description, hidden)
         VALUES ($1, $2, $3, $4, $5)
-        RETURNING id
+        RETURNING *
         ",
         pkey_policy.into_uuid(),
         name,

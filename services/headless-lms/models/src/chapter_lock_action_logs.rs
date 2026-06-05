@@ -34,15 +34,7 @@ INSERT INTO chapter_lock_action_logs (
     status
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id,
-  actor_user_id,
-  target_user_id,
-  course_id,
-  chapter_id,
-  status as "status: ChapterLockingStatus",
-  created_at,
-  updated_at,
-  deleted_at
+RETURNING *
         "#,
         actor_user_id,
         target_user_id,

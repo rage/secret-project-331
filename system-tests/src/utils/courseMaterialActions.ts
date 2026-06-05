@@ -94,7 +94,9 @@ export async function navigateToNextPageInMaterial(page: Page) {
             // If URL hasn't changed, try clicking again
             await nextPageLink.click()
           } else {
-            throw new Error(`Failed to navigate to next page after ${maxAttempts} attempts`)
+            throw new Error(`Failed to navigate to next page after ${maxAttempts} attempts`, {
+              cause: error,
+            })
           }
         }
       }

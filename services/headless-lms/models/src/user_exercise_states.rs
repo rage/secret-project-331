@@ -504,20 +504,7 @@ pub async fn get_or_create_user_exercise_state(
     let existing = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_id = $3 OR exam_id = $4)
@@ -539,20 +526,7 @@ WHERE user_id = $1
             r#"
     INSERT INTO user_exercise_states (user_id, exercise_id, course_id, exam_id)
     VALUES ($1, $2, $3, $4)
-    RETURNING id,
-      user_id,
-      exercise_id,
-      course_id,
-      exam_id,
-      created_at,
-      updated_at,
-      deleted_at,
-      score_given,
-      grading_progress as "grading_progress: _",
-      activity_progress as "activity_progress: _",
-      reviewing_stage AS "reviewing_stage: _",
-      selected_exercise_slide_id
-      "#,
+    RETURNING *      "#,
             user_id,
             exercise_id,
             course_id,
@@ -574,20 +548,7 @@ pub async fn get_or_create_user_exercise_state_for_users(
     let existing = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
   )
@@ -619,20 +580,7 @@ WHERE user_id IN (
         r#"
     INSERT INTO user_exercise_states (user_id, exercise_id, course_id, exam_id)
     SELECT UNNEST($1::uuid []), $2, $3, $4
-    RETURNING id,
-      user_id,
-      exercise_id,
-      course_id,
-      exam_id,
-      created_at,
-      updated_at,
-      deleted_at,
-      score_given,
-      grading_progress as "grading_progress: _",
-      activity_progress as "activity_progress: _",
-      reviewing_stage AS "reviewing_stage: _",
-      selected_exercise_slide_id
-      "#,
+    RETURNING *      "#,
         &missing_user_ids,
         exercise_id,
         course_id,
@@ -655,20 +603,7 @@ pub async fn get_by_user_ids_and_exercise_id(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id = ANY($1)
   AND exercise_id = $2
   AND deleted_at IS NULL
@@ -699,9 +634,9 @@ SELECT ues.id,
   ues.updated_at,
   ues.deleted_at,
   ues.score_given,
-  ues.grading_progress AS "grading_progress: _",
-  ues.activity_progress AS "activity_progress: _",
-  ues.reviewing_stage AS "reviewing_stage: _",
+  ues.grading_progress,
+  ues.activity_progress,
+  ues.reviewing_stage,
   ues.selected_exercise_slide_id
 FROM user_exercise_states ues
   JOIN exercises e ON e.id = ues.exercise_id
@@ -725,20 +660,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExe
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE id = $1
   AND deleted_at IS NULL
         "#,
@@ -778,20 +700,7 @@ pub async fn get_by_ids(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE id = ANY($1)
 AND deleted_at IS NULL
 "#,
@@ -856,20 +765,7 @@ pub async fn get_user_exercise_state_if_exists(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id = $1
   AND exercise_id = $2
   AND (course_id = $3 OR exam_id = $4)
@@ -927,20 +823,7 @@ pub async fn get_all_for_user_and_course_or_exam(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE user_id = $1
   AND (course_id = $2 OR exam_id = $3)
   AND deleted_at IS NULL
@@ -1035,20 +918,7 @@ SET score_given = $1,
   grading_progress = $4
 WHERE id = $5
   AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
+RETURNING *        "#,
         user_exercise_state_update.score_given,
         user_exercise_state_update.activity_progress as ActivityProgress,
         user_exercise_state_update.reviewing_stage as ReviewingStage,
@@ -1076,20 +946,7 @@ SET reviewing_stage = $5
 WHERE user_id = $1
 AND (course_id = $2 OR exam_id = $3)
 AND exercise_id = $4
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
+RETURNING *        "#,
         user_id,
         course_id,
         exam_id,
@@ -1114,20 +971,7 @@ UPDATE user_exercise_states
 SET reviewing_stage = $1
 WHERE id = $2
   AND deleted_at IS NULL
-RETURNING id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-        "#,
+RETURNING *        "#,
         reviewing_stage as ReviewingStage,
         id
     )
@@ -1428,9 +1272,9 @@ SELECT id,
   created_at,
   updated_at,
   score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
+  grading_progress,
+  activity_progress,
+  reviewing_stage,
   selected_exercise_slide_id
 FROM user_exercise_states
 WHERE course_id = ANY($1)
@@ -1448,20 +1292,7 @@ pub async fn get_all_for_course(
     let res = sqlx::query_as!(
         UserExerciseState,
         r#"
-SELECT id,
-  user_id,
-  exercise_id,
-  course_id,
-  exam_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  grading_progress AS "grading_progress: _",
-  activity_progress AS "activity_progress: _",
-  reviewing_stage AS "reviewing_stage: _",
-  selected_exercise_slide_id
-FROM user_exercise_states
+SELECT *FROM user_exercise_states
 WHERE course_id = $1
   AND deleted_at IS NULL
 "#,

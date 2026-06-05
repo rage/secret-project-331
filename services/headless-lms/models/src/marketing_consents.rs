@@ -53,15 +53,14 @@ pub struct UserEmailSubscription {
     pub user_mailchimp_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-
+#[derive(Debug, Clone)]
 pub struct MarketingMailingListAccessToken {
     pub id: Uuid,
     pub course_id: Uuid,
     pub mailchimp_mailing_list_id: String,
     pub course_language_group_id: Uuid,
     pub server_prefix: String,
-    pub access_token: String,
+    pub access_token: DbSecret,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -109,7 +108,7 @@ pub async fn upsert_marketing_consent(
         course_id = $2,
         consent = $4,
         email_subscription_in_mailchimp = $5
-      RETURNING id
+      RETURNING *
       "#,
         user_id,
         course_id,
@@ -293,7 +292,7 @@ pub async fn fetch_user_mailchimp_id_mapping(
     }
     let rows = sqlx::query!(
         r#"
-    SELECT user_id, user_mailchimp_id
+    SELECT *
     FROM user_marketing_consents
     WHERE course_language_group_id = $1 AND user_id = ANY($2::uuid[]) AND deleted_at IS NULL
     "#,
@@ -452,16 +451,7 @@ pub async fn fetch_all_marketing_mailing_list_access_tokens(
     let results = sqlx::query_as!(
         MarketingMailingListAccessToken,
         "
-    SELECT
-      id,
-      course_id,
-      course_language_group_id,
-      server_prefix,
-      access_token,
-      mailchimp_mailing_list_id,
-      created_at,
-      updated_at,
-      deleted_at
+    SELECT *
     FROM marketing_mailing_list_access_tokens
     "
     )
@@ -478,9 +468,7 @@ pub async fn fetch_tags_with_course_language_group_id_and_marketing_mailing_list
 ) -> sqlx::Result<Vec<serde_json::Value>> {
     let results = sqlx::query!(
         "
-        SELECT
-          tag_name,
-          tag_id
+        SELECT *
         FROM mailchimp_course_tags
         WHERE course_language_group_id = $1
         AND marketing_mailing_list_access_token_id = $2

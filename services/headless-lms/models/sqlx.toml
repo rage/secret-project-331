@@ -1,0 +1,61 @@
+[macros.type-overrides]
+'activity_progress' = "crate::exercises::ActivityProgress"
+'application_task' = "crate::application_task_default_language_models::ApplicationTask"
+'application_type' = "crate::oauth_client::ApplicationType"
+'certificate_paper_size' = "crate::certificate_configurations::PaperSize"
+'certificate_text_anchor' = "crate::certificate_configurations::CertificateTextAnchor"
+'chapter_locking_status' = "crate::user_chapter_locking_statuses::ChapterLockingStatus"
+'course_background_question_type' = "crate::course_background_questions::CourseBackgroundQuestionType"
+'course_designer_plan_stage_status' = "crate::course_designer_plans::CourseDesignerPlanStageStatus"
+'course_designer_plan_status' = "crate::course_designer_plans::CourseDesignerPlanStatus"
+'course_designer_stage' = "crate::course_designer_plans::CourseDesignerStage"
+'email_template_type' = "crate::email_templates::EmailTemplateType"
+'error_source' = "crate::errors::ErrorSource"
+'exercise_repository_status' = "crate::exercise_repositories::ExerciseRepositoryStatus"
+'grant_type' = "crate::library::oauth::grant_type::GrantTypeName"
+'grading_progress' = "crate::exercises::GradingProgress"
+'history_change_reason' = "crate::page_history::HistoryChangeReason"
+'message_role' = "crate::chatbot_conversation_messages::MessageRole"
+'peer_review_processing_strategy' = "crate::peer_or_self_review_configs::PeerReviewProcessingStrategy"
+'peer_review_question_type' = "crate::peer_or_self_review_questions::PeerOrSelfReviewQuestionType"
+'pkce_method' = "crate::library::oauth::pkce::PkceMethod"
+'proposal_status' = "crate::proposed_block_edits::ProposalStatus"
+'reasoning_effort_level' = "crate::chatbot_configurations::ReasoningEffortLevel"
+'report_reason' = "crate::flagged_answers::ReportReason"
+'reviewing_stage' = "crate::user_exercise_states::ReviewingStage"
+'teacher_decision_type' = "crate::teacher_grading_decisions::TeacherDecisionType"
+'token_endpoint_auth_method' = "crate::oauth_client::TokenEndpointAuthMethod"
+'token_type' = "crate::oauth_access_token::TokenType"
+'user_points_update_strategy' = "crate::exercise_task_gradings::UserPointsUpdateStrategy"
+'user_role' = "crate::roles::UserRole"
+'verbosity_level' = "crate::chatbot_configurations::VerbosityLevel"
+
+[macros.table-overrides.'email_verification_tokens']
+'email_verification_token' = "crate::secret::DbSecret"
+'code' = "crate::secret::DbSecret"
+
+[macros.table-overrides.'marketing_mailing_list_access_tokens']
+'access_token' = "crate::secret::DbSecret"
+
+# Giveaway codes are intentionally returned to the recipient over the API, so they use
+# `OutboundSecret` (serializes on the wire, but redacted in Debug/logs and zeroized).
+[macros.table-overrides.'code_giveaway_codes']
+'code' = "crate::secret::OutboundSecret"
+
+[macros.table-overrides.'oauth_clients']
+'client_secret' = "crate::library::oauth::Digest"
+'allowed_grant_types' = "Vec<crate::library::oauth::GrantTypeName>"
+'pkce_methods_allowed' = "Vec<crate::library::oauth::pkce::PkceMethod>"
+
+[macros.table-overrides.'oauth_auth_codes']
+'digest' = "crate::library::oauth::Digest"
+
+[macros.table-overrides.'oauth_access_tokens']
+'digest' = "crate::library::oauth::Digest"
+
+[macros.table-overrides.'oauth_refresh_tokens']
+'digest' = "crate::library::oauth::Digest"
+'rotated_from' = "crate::library::oauth::Digest"
+
+[macros.table-overrides.'oauth_dpop_proofs']
+'jti_hash' = "crate::library::oauth::Digest"

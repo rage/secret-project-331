@@ -54,7 +54,7 @@ Add your user to the docker group: `sudo usermod -aG docker $USER`
 
 **Node and pnpm**
 
-Install [pnpm](https://pnpm.io/installation). pnpm manages the Node version automatically.
+Install [pnpm](https://pnpm.io/installation). The root `package.json` pins the pnpm version, and pnpm manages the Node runtime declared in `devEngines.runtime`.
 
 **Rust tools**
 
@@ -81,7 +81,7 @@ brew install skaffold kubernetes-cli minikube kustomize docker postgresql action
 brew install bc jq rsync coreutils kubectx stern
 ```
 
-Install [pnpm](https://pnpm.io/installation). pnpm manages the Node version automatically.
+Install [pnpm](https://pnpm.io/installation). The root `package.json` pins the pnpm version, and pnpm manages the Node runtime declared in `devEngines.runtime`.
 
 ```bash
 # Rust
@@ -100,7 +100,7 @@ cargo install oxipng
 choco install kubernetes-cli minikube postgresql kustomize skaffold stern kubectx
 ```
 
-3. Install [pnpm](https://pnpm.io/installation). pnpm manages the Node version automatically.
+3. Install [pnpm](https://pnpm.io/installation). The root `package.json` pins the pnpm version, and pnpm manages the Node runtime declared in `devEngines.runtime`.
 
 4. Install [Rust](https://www.rust-lang.org/tools/install), then:
 

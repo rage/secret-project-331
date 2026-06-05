@@ -8,7 +8,7 @@ use headless_lms_utils::document_schema_processor::{
 use itertools::Itertools;
 use percent_encoding::{AsciiSet, CONTROLS, percent_decode_str, utf8_percent_encode};
 use serde_json::{Value, json};
-use sqlx::{Postgres, QueryBuilder, Row};
+use sqlx::{AssertSqlSafe, Postgres, QueryBuilder, Row};
 use url::Url;
 use utoipa::ToSchema;
 
@@ -378,7 +378,7 @@ pub struct PageChapterAndCourseInformation {
     pub course_slug: Option<String>,
     pub chapter_front_page_id: Option<Uuid>,
     pub chapter_front_page_url_path: Option<String>,
-    pub organization_slug: String,
+    pub organization_slug: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, FromRow, PartialEq, Clone, ToSchema)]
@@ -2071,7 +2071,7 @@ SELECT id as "id!",
   exercise_id,
   peer_reviews_to_give as "peer_reviews_to_give!",
   peer_reviews_to_receive as "peer_reviews_to_receive!",
-  processing_strategy AS "processing_strategy!: _",
+  processing_strategy AS "processing_strategy!",
   accepting_threshold "accepting_threshold!",
   points_are_all_or_nothing "points_are_all_or_nothing!",
   reset_answer_if_zero_points_from_review,
@@ -2198,7 +2198,7 @@ SELECT id AS "id!",
   order_number AS "order_number!",
   peer_or_self_review_config_id AS "peer_or_self_review_config_id!",
   question AS "question!",
-  question_type AS "question_type!: _",
+  question_type AS "question_type!",
   weight AS "weight!"
 FROM peer_or_self_review_questions
 WHERE id IN (
@@ -3303,7 +3303,9 @@ LIMIT 50;
         "#
     );
 
-    let raw_results = sqlx::query_as::<_, RawPageSearchResult>(&search_results_sql)
+    // The formatted fragments are fixed strings selected from PageSearchQueryType; all request data
+    // remains passed through bind parameters below.
+    let raw_results = sqlx::query_as::<_, RawPageSearchResult>(AssertSqlSafe(search_results_sql))
         .bind(course_id)
         .bind(content_search_language)
         .bind(&page_search_request.query)
@@ -3397,7 +3399,9 @@ ORDER BY ord;
     );
 
     Ok(
-        sqlx::query_as::<_, SearchContentHeadlineRow>(&content_headline_sql)
+        // The formatted fragments are fixed strings selected from PageSearchQueryType; all request data
+        // remains passed through bind parameters below.
+        sqlx::query_as::<_, SearchContentHeadlineRow>(AssertSqlSafe(content_headline_sql))
             .bind(content_search_language)
             .bind(query)
             .bind(last_word)
@@ -3583,7 +3587,7 @@ SELECT chapters.name as "chapter_name?",
   courses.slug as "course_slug?",
   chapters.front_page_id as "chapter_front_page_id?",
   p2.url_path as "chapter_front_page_url_path?",
-  organizations.slug as organization_slug
+  organizations.slug as "organization_slug?"
 FROM pages
   LEFT JOIN chapters on pages.chapter_id = chapters.id
   LEFT JOIN courses on pages.course_id = courses.id

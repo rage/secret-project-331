@@ -4,7 +4,10 @@ use chrono::Utc;
 use headless_lms_chatbot::azure_chatbot::{ChatbotUserContext, send_chat_request_and_parse_stream};
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
-use headless_lms_models::chatbot_conversation_messages::MessageRole;
+use headless_lms_models::chatbot_conversation_message_messages::{
+    ChatbotConversationMessageMessage, MessageRole,
+};
+use headless_lms_models::chatbot_conversation_messages::Message;
 use headless_lms_models::chatbot_conversations::{
     self, ChatbotConversation, ChatbotConversationInfo,
 };
@@ -192,13 +195,15 @@ async fn new_conversation(
                 updated_at: Utc::now(),
                 deleted_at: None,
                 conversation_id: conversation.id,
-                message: Some(configuration.initial_message.clone()),
-                message_role: MessageRole::Assistant,
-                message_is_complete: true,
-                used_tokens: estimate_tokens(&configuration.initial_message),
                 order_number: 0,
-                tool_output: None,
-                tool_call_fields: vec![],
+                message: Message::Text(ChatbotConversationMessageMessage {
+                    text: configuration.initial_message.clone(),
+                    message_role: MessageRole::Assistant,
+                    message_is_complete: true,
+                    used_tokens: estimate_tokens(&configuration.initial_message),
+                    response_id: Some("initial-message".to_string()),
+                    ..Default::default()
+                }),
             },
             user.id,
             configuration.id,
@@ -259,7 +264,7 @@ async fn current_conversation_info(
         && let Some(current_conversation_messages) = &res.current_conversation_messages
         && let Some(last_message) = current_conversation_messages.last()
     {
-        let initial_suggested_messages = if last_message.order_number == 0 {
+        let initial_suggested_messages = if last_message.order_number == 1 {
             // for the first message, get initial_suggested_messages
             let initial_suggested_messages = chatbot_configuration
                 .initial_suggested_messages

@@ -38,7 +38,7 @@ const formatErrorMessage = (
 
   return {
     boldPart: t("failed-to-send-message"),
-    normalPart: normalized.message ? `: ${normalized.message}` : `: ${normalized.title}`,
+    normalPart: normalized.messageKey ? `: ${normalized.messageKey}` : `: ${normalized.title}`,
     details,
     originalMessage: typeof normalized.raw === "string" ? normalized.raw : normalized.title,
   }

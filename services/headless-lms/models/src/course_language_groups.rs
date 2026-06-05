@@ -18,7 +18,7 @@ pub async fn insert(
         "
 INSERT INTO course_language_groups (id, slug)
 VALUES ($1, $2)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         slug,

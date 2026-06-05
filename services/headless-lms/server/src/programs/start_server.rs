@@ -15,6 +15,7 @@ use actix_web::{
 use dotenvy::dotenv;
 use listenfd::ListenFd;
 use rustls::crypto::ring;
+use secrecy::ExposeSecret;
 
 /// The entrypoint to the server.
 pub async fn main() -> anyhow::Result<()> {
@@ -52,7 +53,7 @@ pub async fn main() -> anyhow::Result<()> {
             .wrap(
                 SessionMiddleware::builder(
                     CookieSessionStore::default(),
-                    Key::from(private_cookie_key.as_bytes()),
+                    Key::from(private_cookie_key.expose_secret().as_bytes()),
                 )
                 .cookie_name("session".to_string())
                 .cookie_secure(!allow_no_https_for_development)

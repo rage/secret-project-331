@@ -43,7 +43,7 @@ UPDATE page_audio_files
 SET deleted_at = now()
 WHERE id = $1
 AND deleted_at IS NULL
-RETURNING path
+RETURNING *
       "#,
         id
     )

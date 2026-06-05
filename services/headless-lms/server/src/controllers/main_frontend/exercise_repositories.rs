@@ -4,6 +4,7 @@ use models::{
     CourseOrExamId,
     exercise_repositories::{ExerciseRepository, ExerciseRepositoryUpdate},
 };
+use secrecy::SecretString;
 use utoipa::{OpenApi, ToSchema};
 
 use crate::{domain, prelude::*};
@@ -19,7 +20,8 @@ pub struct NewExerciseRepository {
     exam_id: Option<Uuid>,
     git_url: String,
     public_key: Option<String>,
-    deploy_key: Option<String>,
+    #[schema(value_type = Option<String>)]
+    deploy_key: Option<SecretString>,
 }
 
 /**
@@ -61,7 +63,7 @@ async fn new(
         course_or_exam_id,
         &repository.git_url,
         repository.public_key.as_deref(),
-        repository.deploy_key.as_deref(),
+        repository.deploy_key.as_ref(),
     )
     .await?;
     // processing a repository may take a while, so this is done in the background
@@ -72,7 +74,7 @@ async fn new(
             new_repository_id,
             &repository.git_url,
             repository.public_key.as_deref(),
-            repository.deploy_key.as_deref(),
+            repository.deploy_key.as_ref(),
             file_store.as_ref(),
             app_conf.as_ref(),
         )

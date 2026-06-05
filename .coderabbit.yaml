@@ -61,6 +61,14 @@ reviews:
       instructions: >
         All sql queries should be written with the macros from the sqlx crate. Macros end with an exclamation mark. Example good functions: query!, query_as!, query_scalar!, query_file!, etc. Example bad functions: query, query_as, query_scalar, query_file, etc.
 
+        Prefer `SELECT *` / `RETURNING *` for single-table queries that read or write every column. Reserve explicit column lists for joins, subsets, computed columns, casts, renames, and other non-table-mirror queries.
+
+        Map Postgres enums, custom column types, and enum arrays through `services/headless-lms/models/sqlx.toml` using `[macros.type-overrides]` and `[macros.table-overrides]` instead of per-query `AS "col: Type"` or `AS "col: _"` annotations.
+
+        A struct that models a table should contain all of the table's columns. Completing such structs, including serialized API types, is encouraged when it makes a single-table query eligible for `SELECT *` / `RETURNING *`; only genuinely sensitive secrets should stay out of an externally-serialized DTO.
+
+        Do not "simplify" by replacing SQLx `!` macros with runtime SQLx APIs. Keep the existing macro kind; only the SQL string and the matching structs should change.
+
         If a transaction is started it should be committed or rolled back before the transaction goes out of scope. Example: `let mut tx = conn.begin().await?; ... tx.commit().await?;`
 
         All UPDATE queries that set `deleted_at = now()` MUST include `AND deleted_at IS NULL` in the WHERE clause to prevent overwriting timestamps for already-deleted records.

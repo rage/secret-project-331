@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{chatbot_configurations_models::ModelType, prelude::*};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
 #[sqlx(type_name = "application_task", rename_all = "kebab-case")]
@@ -38,8 +38,7 @@ pub struct TaskLMSpec {
     pub task: ApplicationTask,
     pub context_utilization: f32,
     pub model: String,
-    pub thinking: bool,
-    pub deployment_name: String,
+    pub model_type: ModelType,
     pub context_size: i32,
 }
 
@@ -58,7 +57,7 @@ RETURNING
     updated_at,
     deleted_at,
     model_id,
-    task as "task: ApplicationTask",
+    task,
     context_utilization
         "#,
         input.model_id,
@@ -94,11 +93,10 @@ pub async fn get_for_task(
         r#"
 SELECT
     a.id,
-    a.task as "task: ApplicationTask",
+    a.task,
     a.context_utilization,
     model.model,
-    model.thinking,
-    model.deployment_name,
+    model.model_type as "model_type: ModelType",
     model.context_size
 FROM application_task_default_language_models AS a
 JOIN chatbot_configurations_models AS model ON model.id = a.model_id

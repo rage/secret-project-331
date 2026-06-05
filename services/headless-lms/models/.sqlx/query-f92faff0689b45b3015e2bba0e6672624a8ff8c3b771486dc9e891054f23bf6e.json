@@ -1,0 +1,112 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT\n    c.id AS \"course_id!\",\n    c.slug AS \"course_slug!\",\n    c.name AS \"course_name!\",\n    c.description AS course_description,\n    ci.id AS course_instance_id,\n    ci.name AS course_instance_name,\n    ci.description AS course_instance_description,\n    o.name AS \"organization_name!\"\nFROM course_instances AS ci\n  LEFT JOIN courses AS c ON ci.course_id = c.id\n  LEFT JOIN organizations AS o ON o.id = c.organization_id\nWHERE ci.id = $1\n  AND ci.deleted_at IS NULL\n  AND c.deleted_at IS NULL\n  AND o.deleted_at IS NULL\n    ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "course_id!",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "course_slug!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "slug"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "course_description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_instance_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_instances",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_instance_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_instances",
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_instance_description",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_instances",
+            "name": "description"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "organization_name!",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "organizations",
+            "name": "name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true
+    ]
+  },
+  "hash": "f92faff0689b45b3015e2bba0e6672624a8ff8c3b771486dc9e891054f23bf6e"
+}

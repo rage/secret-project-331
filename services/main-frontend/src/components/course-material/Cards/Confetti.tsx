@@ -2,8 +2,12 @@
 
 /* eslint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
-import TsParticles, { initParticlesEngine } from "@tsparticles/react"
-import React, { useEffect, useState } from "react"
+import TsParticles, {
+  type ParticlesPluginRegistrar,
+  ParticlesProvider,
+  useParticlesProvider,
+} from "@tsparticles/react"
+import React from "react"
 import { loadFull } from "tsparticles"
 
 import Tick from "@/img/course-material/tick.svg"
@@ -20,18 +24,14 @@ const StyledDiv = styled.div`
   }
 `
 
-const Confetti: React.FC = () => {
-  const [isReady, setIsReady] = useState(false)
+const initParticles: ParticlesPluginRegistrar = async (engine) => {
+  await loadFull(engine)
+}
 
-  useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadFull(engine)
-    }).then(() => {
-      setIsReady(true)
-    })
-  }, [])
+const ConfettiParticles: React.FC = () => {
+  const { loaded } = useParticlesProvider()
 
-  if (!isReady) {
+  if (!loaded) {
     return null
   }
 
@@ -167,5 +167,11 @@ const Confetti: React.FC = () => {
     </StyledDiv>
   )
 }
+
+const Confetti: React.FC = () => (
+  <ParticlesProvider init={initParticles}>
+    <ConfettiParticles />
+  </ParticlesProvider>
+)
 
 export default Confetti

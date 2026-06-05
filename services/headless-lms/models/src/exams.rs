@@ -64,13 +64,18 @@ impl Exam {
 
 pub struct OrgExam {
     pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
     pub name: String,
     pub instructions: serde_json::Value,
     pub starts_at: Option<DateTime<Utc>>,
     pub ends_at: Option<DateTime<Utc>>,
+    pub language: Option<String>,
     pub time_minutes: i32,
     pub organization_id: Uuid,
     pub minimum_points_treshold: i32,
+    pub grade_manually: bool,
 }
 
 /// Returns exam identity metadata for a non-deleted exam id.
@@ -236,7 +241,7 @@ INSERT INTO exams (
     grade_manually
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         exam.name,
@@ -286,14 +291,7 @@ pub async fn get_exams_for_organization(
     let res = sqlx::query_as!(
         OrgExam,
         "
-SELECT id,
-  name,
-  instructions,
-  starts_at,
-  ends_at,
-  time_minutes,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE exams.organization_id = $1
   AND exams.deleted_at IS NULL
@@ -312,14 +310,7 @@ pub async fn get_organization_exam_with_exam_id(
     let res = sqlx::query_as!(
         OrgExam,
         "
-SELECT id,
-  name,
-  instructions,
-  starts_at,
-  ends_at,
-  time_minutes,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE exams.id = $1
   AND exams.deleted_at IS NULL
@@ -430,6 +421,9 @@ pub struct ExamEnrollment {
     pub ended_at: Option<DateTime<Utc>>,
     pub is_teacher_testing: bool,
     pub show_exercise_answers: Option<bool>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub deleted_at: Option<DateTime<Utc>>,
 }
 
 pub async fn get_enrollment(
@@ -440,12 +434,7 @@ pub async fn get_enrollment(
     let res = sqlx::query_as!(
         ExamEnrollment,
         "
-SELECT user_id,
-  exam_id,
-  started_at,
-  ended_at,
-  is_teacher_testing,
-  show_exercise_answers
+SELECT *
 FROM exam_enrollments
 WHERE exam_id = $1
   AND user_id = $2
@@ -467,12 +456,7 @@ pub async fn get_exam_enrollments_for_users(
     let enrollments = sqlx::query_as!(
         ExamEnrollment,
         "
-SELECT user_id,
-  exam_id,
-  started_at,
-  ended_at,
-  is_teacher_testing,
-  show_exercise_answers
+SELECT *
 FROM exam_enrollments
 WHERE user_id IN (
     SELECT UNNEST($1::uuid [])
@@ -499,12 +483,7 @@ pub async fn get_ongoing_exam_enrollments(
     let enrollments = sqlx::query_as!(
         ExamEnrollment,
         "
-SELECT user_id,
-  exam_id,
-  started_at,
-  ended_at,
-  is_teacher_testing,
-  show_exercise_answers
+SELECT *
 FROM exam_enrollments
 WHERE
     ended_at IS NULL
@@ -520,14 +499,7 @@ pub async fn get_exams(conn: &mut PgConnection) -> ModelResult<HashMap<Uuid, Org
     let exams = sqlx::query_as!(
         OrgExam,
         "
-SELECT id,
-  name,
-  instructions,
-  starts_at,
-  ends_at,
-  time_minutes,
-  organization_id,
-  minimum_points_treshold
+SELECT *
 FROM exams
 WHERE deleted_at IS NULL
 "
@@ -797,7 +769,7 @@ WHERE exam_id = $1
 pub async fn get_organization_id(conn: &mut PgConnection, exam_id: Uuid) -> ModelResult<Uuid> {
     let organization_id = sqlx::query!(
         "
-SELECT organization_id
+SELECT *
 FROM exams
 WHERE id = $1
 ",

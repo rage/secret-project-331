@@ -345,6 +345,7 @@ test.describe("Chapter locking feature", () => {
       await studentPage.getByRole("link", { name: "Lock Chapter Test Course" }).click()
       const chapterSelector = new ChapterSelector(studentPage)
       await chapterSelector.clickChapterByTitle("Chapter 1 - Lockable")
+      await studentPage.getByTestId("page-in-chapter-link-2").scrollIntoViewIfNeeded()
       await clickPageInChapterByTitle(studentPage, "Exercise in Chapter 1")
       await selectCourseInstanceIfPrompted(studentPage)
       await expect(

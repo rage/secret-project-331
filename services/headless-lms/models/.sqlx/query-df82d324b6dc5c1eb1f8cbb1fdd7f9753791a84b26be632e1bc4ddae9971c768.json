@@ -1,0 +1,142 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO course_module_completion_registered_to_study_registries (\n    id,\n    course_id,\n    course_module_completion_id,\n    course_module_id,\n    study_registry_registrar_id,\n    user_id,\n    real_student_number\n)\nSELECT * FROM UNNEST(\n    $1::uuid[],\n    $2::uuid[],\n    $3::uuid[],\n    $4::uuid[],\n    $5::uuid[],\n    $6::uuid[],\n    $7::text[]\n)\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "course_module_completion_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_module_completion_id"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_module_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "course_module_id"
+          }
+        }
+      },
+      {
+        "ordinal": 7,
+        "name": "study_registry_registrar_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "study_registry_registrar_id"
+          }
+        }
+      },
+      {
+        "ordinal": 8,
+        "name": "user_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "user_id"
+          }
+        }
+      },
+      {
+        "ordinal": 9,
+        "name": "real_student_number",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "course_module_completion_registered_to_study_registries",
+            "name": "real_student_number"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "UuidArray",
+        "TextArray"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "df82d324b6dc5c1eb1f8cbb1fdd7f9753791a84b26be632e1bc4ddae9971c768"
+}

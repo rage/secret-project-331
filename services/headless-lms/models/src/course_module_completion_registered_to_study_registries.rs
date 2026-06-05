@@ -49,8 +49,8 @@ VALUES (
     $5,
     $6,
     $7
-  )
-RETURNING id
+)
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         new_completion_registration.course_id,
@@ -122,7 +122,7 @@ SELECT * FROM UNNEST(
     $6::uuid[],
     $7::text[]
 )
-RETURNING id
+RETURNING *
         "#,
         &ids[..],
         &course_ids[..],

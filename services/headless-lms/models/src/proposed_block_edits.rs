@@ -82,16 +82,7 @@ pub async fn get_by_ids(
     let res = sqlx::query_as!(
         ProposedBlockEdit,
         r#"
-SELECT id,
-  proposal_id,
-  block_id,
-  block_attribute,
-  original_text,
-  changed_text,
-  status AS "status: ProposalStatus",
-  created_at,
-  updated_at,
-  deleted_at
+SELECT *
 FROM proposed_block_edits
 WHERE id = ANY($1)
   AND deleted_at IS NULL

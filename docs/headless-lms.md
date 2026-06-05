@@ -10,7 +10,7 @@ Creating new SQL queries in headless-lms using SQLx requires running `bin/sqlx-p
 
 ### SQLx data types
 
-https://docs.rs/sqlx/0.5.5/sqlx/postgres/types/index.html
+https://docs.rs/sqlx/latest/sqlx/postgres/types/index.html
 
 ### New migrations
 
@@ -56,17 +56,16 @@ If you want to reset the database, run `bin/sqlx-database-reset` followed by `bi
 
 ### Using postgres enums in SQLx queries
 
-SQLx isn't able to automatically use postgres enums in its queries; it needs a type hint. For example, given the following postgres enum
+Postgres enum columns are mapped to Rust enums with `#[derive(sqlx::Type)]` and `#[sqlx(type_name = "...")]`. Global mappings from Postgres type names to those Rust types live in [`services/headless-lms/models/sqlx.toml`](services/headless-lms/models/sqlx.toml) under `[macros.type-overrides]`. Non-enum custom column types and enum-array columns live under `[macros.table-overrides.'table']`, which lets single-table `query!` / `query_as!` calls use `SELECT *` / `RETURNING *` without per-query `AS "col: Type"` hints.
 
-```postgres
-CREATE TYPE user_role AS ENUM ('admin', 'assistant', 'teacher', 'reviewer');
-```
+A struct that models a table should contain all of that table's columns. If a table-backed query struct is missing columns and the query is otherwise a plain single-table projection, prefer completing the struct over keeping an explicit projection. Completing serialized API types is acceptable unless the missing column is a genuinely dangerous secret that should not be newly exposed through an external API.
 
-and corresponding Rust enum
+When you add a new Postgres enum or custom column type, define the Rust type and add the appropriate entry to `sqlx.toml`, then run `bin/sqlx-prepare` from the repository root (requires `services/headless-lms/models/.env`; copy from `.env.example`).
+
+Example Rust enum:
 
 ```rust
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Type)]
-
 #[sqlx(type_name = "user_role", rename_all = "snake_case")]
 pub enum UserRole {
     Admin,
@@ -76,28 +75,35 @@ pub enum UserRole {
 }
 ```
 
-you could use `sqlx::query!` like this
+Example `sqlx.toml` entry:
 
-```rust
-let role: UserRole = sqlx::query!(r#"SELECT role AS "role: UserRole" FROM roles"#)
-    .fetch_one(&mut connection) //               ^^^^^^^^^^^^^^^^^^^
-    .await?
-    .role;
+```toml
+[macros.type-overrides]
+'user_role' = "crate::roles::UserRole"
 ```
 
-The same syntax can be used with `sqlx::query_as!`
+Example `table-overrides` entry:
+
+```toml
+[macros.table-overrides.'oauth_clients']
+'client_secret' = "crate::library::oauth::Digest"
+'allowed_grant_types' = "Vec<crate::library::oauth::GrantTypeName>"
+'pkce_methods_allowed' = "Vec<crate::library::oauth::pkce::PkceMethod>"
+```
+
+You can then write:
 
 ```rust
-    let roles = sqlx::query_as!(
-        Role,
-        r#"SELECT organization_id, course_id, role AS "role: UserRole" FROM roles WHERE user_id = $1"#, user_id
-        //                                         ^^^^^^^^^^^^^^^^^^^
-    )
-    .fetch_all(&mut connection)
+let role = sqlx::query_scalar!(r#"SELECT role FROM roles WHERE user_id = $1"#, user_id)
+    .fetch_one(&mut connection)
     .await?;
 ```
 
-Here, `Role` is a struct with various fields, including a `role: UserRole` field.
+For single-table queries that read or write every column, prefer `SELECT *` / `RETURNING *`. Reserve explicit column lists for joins, subsets, computed expressions, casts, or renames.
+
+For one-off cases that truly cannot be registered globally, the older syntax still works: `column AS "alias: MyType"` or `column AS "column: _"`. Use it sparingly; for custom types and enum arrays, `sqlx.toml` is the default place to register the mapping.
+
+Models code must continue to use SQLx macros (`query!`, `query_as!`, `query_scalar!`, `query_file!`, etc.) rather than runtime SQLx query APIs.
 
 ### Analyzing SQL queries
 
@@ -287,7 +293,7 @@ The easiest way to get example response data is to write a request in a `request
 
 ## Sqlx
 
-Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/0.5.5/sqlx/macro.query.html#type-overrides-bind-parameters-postgres-only
+Passing enum values as parameters to SQL queries: https://docs.rs/sqlx/latest/sqlx/macro.query.html#type-overrides-bind-parameters-postgres-only
 
 ### Formatting inline SQL in Visual Studio Code
 

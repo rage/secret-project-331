@@ -16,6 +16,7 @@ use headless_lms_models::{
     exercise_task_submissions::ExerciseTaskSubmission,
     exercise_tasks::ExerciseTask,
 };
+use secrecy::{ExposeSecret, SecretString};
 
 use headless_lms_base::error::backend_error::BackendError;
 use jsonwebtoken::{
@@ -47,8 +48,8 @@ impl JwtKey {
         Ok(jwt_key)
     }
 
-    pub fn new(key: &str) -> anyhow::Result<Self> {
-        Ok(Self(key.as_bytes().to_vec()))
+    pub fn new(key: &SecretString) -> anyhow::Result<Self> {
+        Ok(Self(key.expose_secret().as_bytes().to_vec()))
     }
 
     #[cfg(test)]

@@ -170,7 +170,7 @@ export function parseTimeInputFromUser(
       ? normalizedInput.slice(1)
       : normalizedInput
 
-  let isoTime: Time | null = null
+  let isoTime: Time | null
   try {
     isoTime = parseTime(isoCandidate)
   } catch {

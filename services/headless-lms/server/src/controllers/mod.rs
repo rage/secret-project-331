@@ -19,6 +19,7 @@ pub mod helpers;
 pub mod langs;
 pub mod main_frontend;
 pub mod mock_azure;
+pub mod mock_document_storage;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
@@ -60,7 +61,10 @@ pub fn configure_controllers(
         .service(web::scope("/tmc-server").configure(tmc_server::_add_routes))
         .default_service(web::to(not_found));
     if app_conf.test_chatbot && app_conf.test_mode {
-        cfg.service(web::scope("/mock-azure").configure(mock_azure::_add_routes));
+        cfg.service(web::scope("/mock-azure").configure(mock_azure::_add_routes))
+            .service(
+                web::scope("/mock-document-storage").configure(mock_document_storage::_add_routes),
+            );
     }
 }
 

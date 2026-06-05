@@ -6,7 +6,7 @@
     "target": "esnext",
     "module": "esnext",
     "jsx": "react-jsx",
-    "lib": ["dom", "es2017"],
+    "lib": ["dom", "esnext"],
     "typeRoots": ["types", "./shared-module/types", "./node_modules/@types"],
     "types": ["jest", "node"],
     "moduleResolution": "bundler",

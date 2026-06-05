@@ -2,18 +2,13 @@ engineStrict: true
 
 linkWorkspacePackages: true
 
-managePackageManagerVersions: true
+pmOnFail: download
 
-minimumReleaseAgeExclude:
-  - next
-  - react
-  - react-dom
-  - '@next/*'
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.14.0
-
-onlyBuiltDependencies:
-  - esbuild unrs-resolver
+nodeVersion: 24.16.0
 
 overrides:
   brace-expansion@<1.1.13: '>=1.1.13 <2'
@@ -24,8 +19,6 @@ overrides:
   minimatch@>=9.0.0 <9.0.6: '>=9.0.7 <10'
   minimatch@>=9.0.0 <9.0.7: '>=9.0.7 <10'
   picomatch@<2.3.2: '>=2.3.2'
-
-packageManagerStrictVersion: true
 
 preferFrozenLockfile: true
 
@@ -41,8 +34,15 @@ sharedWorkspaceLockfile: false
 
 strictDepBuilds: true
 
-updateNotifier: false
+allowBuilds:
+  esbuild: true
+  node: false
+  unrs-resolver: true
 
-useNodeVersion: 24.14.0
+trustLockfile: true
+
+confirmModulesPurge: false
+
+updateNotifier: false
 
 verifyDepsBeforeRun: install

@@ -97,7 +97,7 @@ UPDATE repository_exercises
 SET deleted_at = now()
 WHERE repository_id = $1
 AND deleted_at IS NULL
-RETURNING id
+RETURNING *
 ",
         repository
     )

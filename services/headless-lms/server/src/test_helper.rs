@@ -32,9 +32,9 @@ pub async fn test_config() -> ServerConfig {
         .or_else(|_| env::var("DATABASE_URL"))
         .unwrap_or_else(|_| default_database_url_for_tests());
     ServerConfigBuilder {
-        database_url,
+        database_url: SecretString::new(database_url.into()),
         oauth_application_id: "some-id".to_string(),
-        oauth_secret: "some-secret".to_string(),
+        oauth_secret: SecretString::new("some-secret".into()),
         auth_url: "http://example.com".parse().unwrap(),
         token_url: "http://example.com/token".parse().unwrap(),
         icu4x_postcard_path: "/icu4x.postcard.2".to_string(),
@@ -53,16 +53,17 @@ pub async fn test_config() -> ServerConfig {
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
             oauth_server_configuration: OAuthServerConfiguration {
                 rsa_public_key: "temp-change-when-needed".into(),
-                rsa_private_key: "test-change".into(),
-                oauth_token_hmac_key: "pippuri".into(),
+                rsa_private_key: SecretString::new("test-change".into()),
+                oauth_token_hmac_key: SecretString::new("pippuri".into()),
                 dpop_nonce_key: std::sync::Arc::new(secrecy::SecretBox::new(Box::new(
                     "test-key".into(),
                 ))),
             },
         },
-        redis_url: "redis://example.com".to_string(),
-        jwt_password: "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS"
-            .to_string(),
+        redis_url: SecretString::new("redis://example.com".into()),
+        jwt_password: SecretString::new(
+            "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
+        ),
         tmc_client: TmcClient::mock_for_test(),
     }
     .build()

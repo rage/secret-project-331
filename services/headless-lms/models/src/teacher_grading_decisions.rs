@@ -8,6 +8,7 @@ use utoipa::ToSchema;
 pub struct TeacherGradingDecision {
     pub id: Uuid,
     pub user_exercise_state_id: Uuid,
+    pub user_id: Option<Uuid>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
@@ -59,15 +60,7 @@ INSERT INTO teacher_grading_decisions (
     hidden
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id,
-  user_exercise_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  teacher_decision AS "teacher_decision: _",
-  justification,
-  hidden;
+RETURNING *;
       "#,
         user_exercise_state_id,
         action as TeacherDecisionType,
@@ -110,11 +103,12 @@ WHERE ues.id = $1
   AND ues.deleted_at IS NULL
 RETURNING id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden;
       "#,
@@ -138,15 +132,7 @@ pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id(
     let res = sqlx::query_as!(
         TeacherGradingDecision,
         r#"
-SELECT id,
-  user_exercise_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  teacher_decision AS "teacher_decision: _",
-  justification,
-  hidden
+SELECT *
 FROM teacher_grading_decisions
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
@@ -169,11 +155,12 @@ pub async fn try_to_get_latest_grading_decision_by_user_exercise_state_id_for_us
         r#"
 SELECT DISTINCT ON (user_exercise_state_id) id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -206,11 +193,12 @@ pub async fn get_all_latest_grading_decisions_by_user_id_and_course_id(
 SELECT DISTINCT ON (user_exercise_state_id)
   id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -243,11 +231,12 @@ pub async fn get_all_latest_grading_decisions_by_user_id_and_exam_id(
 SELECT DISTINCT ON (user_exercise_state_id)
   id,
   user_exercise_state_id,
+  user_id,
   created_at,
   updated_at,
   deleted_at,
   score_given,
-  teacher_decision AS "teacher_decision: _",
+  teacher_decision,
   justification,
   hidden
 FROM teacher_grading_decisions
@@ -280,15 +269,7 @@ pub async fn update_teacher_grading_decision_hidden_field(
         UPDATE teacher_grading_decisions
         SET hidden = $1
         WHERE id = $2
-        RETURNING id,
-          user_exercise_state_id,
-          created_at,
-          updated_at,
-          deleted_at,
-          score_given,
-          teacher_decision AS "teacher_decision: _",
-          justification,
-          hidden;
+        RETURNING *;
               "#,
         hidden,
         teacher_grading_decision_id
@@ -305,15 +286,7 @@ pub async fn get_by_ids(
     let res = sqlx::query_as!(
         TeacherGradingDecision,
         r#"
-SELECT id,
-  user_exercise_state_id,
-  created_at,
-  updated_at,
-  deleted_at,
-  score_given,
-  teacher_decision AS "teacher_decision: _",
-  justification,
-  hidden
+SELECT *
 FROM teacher_grading_decisions
 WHERE id = ANY($1)
   AND deleted_at IS NULL

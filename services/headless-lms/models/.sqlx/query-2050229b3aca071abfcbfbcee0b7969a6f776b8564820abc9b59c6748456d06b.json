@@ -1,0 +1,103 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO url_redirections (id, destination_page_id, old_url_path, course_id)\nVALUES ($1, $2, $3, $4)\nON CONFLICT (old_url_path, course_id, deleted_at) DO UPDATE SET\n    destination_page_id = $2\nRETURNING *\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "url_redirections",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "created_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "url_redirections",
+            "name": "created_at"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "updated_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "url_redirections",
+            "name": "updated_at"
+          }
+        }
+      },
+      {
+        "ordinal": 3,
+        "name": "deleted_at",
+        "type_info": "Timestamptz",
+        "origin": {
+          "Table": {
+            "table": "url_redirections",
+            "name": "deleted_at"
+          }
+        }
+      },
+      {
+        "ordinal": 4,
+        "name": "destination_page_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "url_redirections",
+            "name": "destination_page_id"
+          }
+        }
+      },
+      {
+        "ordinal": 5,
+        "name": "old_url_path",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "url_redirections",
+            "name": "old_url_path"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "course_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "url_redirections",
+            "name": "course_id"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      false,
+      false,
+      false,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2050229b3aca071abfcbfbcee0b7969a6f776b8564820abc9b59c6748456d06b"
+}

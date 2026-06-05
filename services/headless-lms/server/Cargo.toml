@@ -46,15 +46,15 @@ anyhow = "1.0.102"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # A library to generate and parse UUIDs.
-uuid = { version = "1.23.1", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.23.2", features = ["serde", "v4", "v5"] }
 # A generic serialization/deserialization framework
 serde = { version = "1.0.228", features = ["derive"] }
 # Date and time library for Rust
 chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format
-serde_json = "1.0.149"
+serde_json = "1.0.150"
 # Code-first OpenAPI generation from Rust types and handlers
-utoipa = { version = "5.4.0", features = ["chrono", "uuid"] }
+utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
 # Swagger UI integration for generated OpenAPI documents
 utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
 # Adds #[derive(x)] macros for more traits
@@ -64,11 +64,11 @@ bytes = "1.11.1"
 # Extra iterator adaptors, iterator methods, free functions, and macros.
 itertools = "0.14.0"
 # the BLAKE3 hash function
-blake3 = "1.8.4"
+blake3 = "1.8.5"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # higher level HTTP client library
-reqwest = { version = "0.13.2", features = [
+reqwest = { version = "0.13.4", features = [
   "brotli",
   "gzip",
   "json",
@@ -107,7 +107,7 @@ actix-http = "3.12.1"
 # Fast CSV parsing with support for serde.
 csv = "1.4.0"
 # Email client
-lettre = "0.11.21"
+lettre = "0.11.22"
 # An implementation of regular expressions for Rust.
 regex = "1.12.3"
 # Single assignment cells and lazy values.
@@ -119,13 +119,13 @@ isbot = "0.1.3"
 # user-agent strings parser
 woothee = "0.13.0"
 # Bindings to libgit2 for interoperating with git repositories.
-git2 = "0.20.4"
+git2 = "0.21.0"
 # A library for managing temporary files and directories.
 tempfile = "3.27.0"
 #  Binding for the zstd compression library.
 zstd = "0.13.3" # matches the version from actix-http
 # A Rust implementation of a TAR file reader and writer.
-tar = "0.4.45"
+tar = "0.4.46"
 # DEFLATE compression and gzip decompression.
 flate2 = "1.1.9"
 # Utilities for random number generation
@@ -133,7 +133,7 @@ rand = "0.10.1"
 # A pure Rust implementation of the RSA public key cryptosystem.
 rsa = { version = "0.9", features = ["pem"] }
 # Another JWT crate, used for asymmetric signing for OAuth
-jsonwebtoken = { version = "10.3.0", features = ["rust_crypto"] }
+jsonwebtoken = { version = "10.4.0", features = ["rust_crypto"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac.workspace = true
 # Pure Rust implementation of the SHA-2 hash function family.
@@ -153,10 +153,10 @@ secrecy.workspace = true
 # Constant-time equality checks for secrets
 subtle = "2.6.1"
 # Password hashing using Argon2id
-argon2 = "0.5.3"
+argon2 = "0.6.0-rc.8"
 # For building an EC public key from JWK {x,y} and encoding to SPKI DER
 p256 = { version = "0.13", features = ["pkcs8"] }
-pkcs8 = "0.10"
+pkcs8 = "0.11"
 # Dpop verifying
 dpop-verifier = { version = "4.4.0", features = ["actix-web"] }
 # Kubernetes client and async controller runtime

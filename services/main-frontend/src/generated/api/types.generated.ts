@@ -305,15 +305,13 @@ export type ChatbotConfiguration = {
   initial_message: string
   initial_suggested_messages?: Array<string> | null
   maintain_azure_search_index: boolean
-  max_completion_tokens: number
+  max_output_tokens: number
   model_id: string
   presence_penalty: number
   prompt: string
   reasoning_effort: ReasoningEffortLevel
-  response_max_tokens: number
   suggest_next_messages: boolean
   temperature: number
-  thinking_model: boolean
   top_p: number
   updated_at: string
   use_azure_search: boolean
@@ -328,10 +326,9 @@ export type ChatbotConfigurationModel = {
   created_at: string
   default_model: boolean
   deleted_at?: string | null
-  deployment_name: string
   id: string
   model: string
-  thinking: boolean
+  model_type: ModelType
   updated_at: string
 }
 
@@ -1398,6 +1395,8 @@ export type MaterialReference = {
   updated_at: string
 }
 
+export type ModelType = "GPTThinking" | "GPTNonThinking" | "GPTHardThinking" | "Mistral"
+
 export type ModifiedModule = {
   completion_policy: CompletionPolicy
   completion_registration_link_override?: string | null
@@ -1443,15 +1442,13 @@ export type NewChatbotConf = {
   initial_message: string
   initial_suggested_messages?: Array<string> | null
   maintain_azure_search_index: boolean
-  max_completion_tokens: number
+  max_output_tokens: number
   model_id: string
   presence_penalty: number
   prompt: string
   reasoning_effort: ReasoningEffortLevel
-  response_max_tokens: number
   suggest_next_messages: boolean
   temperature: number
-  thinking_model: boolean
   top_p: number
   use_azure_search: boolean
   use_semantic_reranking: boolean
@@ -1914,7 +1911,7 @@ export type ProposalCount = {
 
 export type ProposalStatus = "Pending" | "Accepted" | "Rejected"
 
-export type ReasoningEffortLevel = "minimal" | "low" | "medium" | "high"
+export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high" | "xhigh"
 
 export type Regrading = {
   created_at: string

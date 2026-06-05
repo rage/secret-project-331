@@ -43,7 +43,7 @@ INSERT INTO peer_review_queue_entries (
     peer_review_priority
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         user_id,

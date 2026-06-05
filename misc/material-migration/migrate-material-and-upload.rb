@@ -27,6 +27,16 @@ def request_json(method:, url:, payload:, headers:)
   JSON.parse(response.body)
 end
 
+def get_json(url:, headers:)
+  response = RestClient::Request.execute(
+    method: :get,
+    url: url,
+    headers: headers,
+    verify_ssl: OpenSSL::SSL::VERIFY_NONE
+  )
+  JSON.parse(response.body)
+end
+
 def block_contains_name?(blocks, name)
   blocks.any? do |block|
     block['name'] == name || block['innerBlocks'].is_a?(Array) && block_contains_name?(block['innerBlocks'], name)
@@ -34,11 +44,11 @@ def block_contains_name?(blocks, name)
 end
 
 def chapter_slug_for_markdown_file(markdown_file)
-  markdown_file.match(%r{(?:^|/)(chapter-\d+)(?:/|$)})&.captures&.first
+  markdown_file.match(%r{(?:^|/)((?:chapter|part)-\d+)(?:/|$)})&.captures&.first
 end
 
 def chapter_number_for_slug(chapter_slug)
-  chapter_slug&.match(/^chapter-(\d+)$/)&.captures&.first&.to_i
+  chapter_slug&.match(/^(?:chapter|part)-(\d+)$/)&.captures&.first&.to_i
 end
 
 def page_slug_for_markdown_file(markdown_file)
@@ -57,6 +67,7 @@ markdown_files = Dir.glob(File.join(material_dir, '**', '*.md')).sort
 page_entries = []
 chapter_entries = {}
 information_page_entries = []
+home_page_entry = nil
 
 markdown_files.each do |markdown_file|
   json_file = markdown_file.sub(/\.md\z/, '.json')
@@ -73,7 +84,11 @@ markdown_files.each do |markdown_file|
   }
 
   if chapter_slug.nil? || chapter_slug.empty?
-    information_page_entries << entry
+    if page_data['home_page'] == true
+      home_page_entry = entry
+    else
+      information_page_entries << entry
+    end
   else
     page_entries << entry
 
@@ -124,6 +139,7 @@ page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
     exercise_slides: data['exercise_slides'],
     exercise_tasks: data['exercise_tasks'],
     title: data['title'],
+    subtitle: data['subtitle'],
     chapter_id: chapter_id,
     hidden: data['hidden'] || false,
   }
@@ -149,6 +165,7 @@ page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
       exercise_tasks: page_payload[:exercise_tasks],
       url_path: page_payload[:url_path],
       title: page_payload[:title],
+      subtitle: page_payload[:subtitle],
       chapter_id: chapter_id,
       hidden: data['hidden'] || false,
     }
@@ -171,8 +188,6 @@ page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
       headers: headers,
     )
   end
-
-  puts page_response.inspect
 end
 
 information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entry|
@@ -184,6 +199,7 @@ information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entr
     exercise_slides: data['exercise_slides'],
     exercise_tasks: data['exercise_tasks'],
     title: data['title'],
+    subtitle: data['subtitle'],
     url_path: data['url_path'],
     chapter_id: nil,
     hidden: data['hidden'] || false,
@@ -197,4 +213,79 @@ information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entr
     headers: headers,
   )
   puts page_response.inspect
+end
+
+if home_page_entry
+  data = home_page_entry[:data]
+
+  puts "Fetching course pages to find the course front page"
+  all_pages = get_json(
+    url: "#{base_url}/api/v0/cms/courses/#{course_id}/pages",
+    headers: headers,
+  )
+
+  course_front_page = all_pages.find { |page| page['url_path'] == '/' }
+
+  if course_front_page
+    # These blocks are LMS-specific and should be preserved from the existing frontpage.
+    # They handle course progress display, information pages, and completion congratulations.
+    lms_skeleton_block_names = %w[
+      moocfi/top-level-pages
+      moocfi/congratulations
+      moocfi/course-progress
+    ]
+
+    existing_content = course_front_page['content']
+    existing_content = JSON.parse(existing_content) if existing_content.is_a?(String)
+    existing_content = Array(existing_content)
+
+    preserved_blocks = existing_content.select do |block|
+      lms_skeleton_block_names.include?(block['name'])
+    end
+
+    # The moocfi/hero-section block from frontmatter is a chapter-level block and
+    # doesn't belong on the course frontpage — filter it out from the migrated content.
+    migrated_blocks = data['content'].reject { |block| block['name'] == 'moocfi/hero-section' }
+
+    new_content = migrated_blocks + preserved_blocks
+
+    update_payload = {
+      content: new_content,
+      exercises: data['exercises'],
+      exercise_slides: data['exercise_slides'],
+      exercise_tasks: data['exercise_tasks'],
+      url_path: '/',
+      title: data['title'],
+      chapter_id: nil,
+      hidden: data['hidden'] || false,
+    }
+
+    puts "Updating course front page (id=#{course_front_page['id']}) from #{home_page_entry[:json_file]}"
+    request_json(
+      method: :put,
+      url: "#{base_url}/api/v0/cms/pages/#{course_front_page['id']}",
+      payload: update_payload,
+      headers: headers,
+    )
+    puts "Course front page updated successfully"
+  else
+    puts "WARNING: Could not find course front page with url_path '/'. Uploading as information page instead."
+    page_payload = {
+      content: data['content'].dup,
+      exercises: data['exercises'],
+      exercise_slides: data['exercise_slides'],
+      exercise_tasks: data['exercise_tasks'],
+      title: data['title'],
+      subtitle: data['subtitle'],
+      url_path: data['url_path'],
+      chapter_id: nil,
+      hidden: data['hidden'] || false,
+    }
+    request_json(
+      method: :post,
+      url: "#{base_url}/api/v0/cms/migration/new_page/#{course_id}",
+      payload: page_payload,
+      headers: headers,
+    )
+  end
 end

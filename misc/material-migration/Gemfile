@@ -1,0 +1,8 @@
+# Dependencies for the course material migration scripts.
+# Run `bundle install` here (or via bin/migrate-material-and-upload.sh, which uses
+# `bundle exec` against this Gemfile) to install them.
+source "https://rubygems.org"
+
+gem "rest-client"
+gem "dotenv"
+gem "kramdown"

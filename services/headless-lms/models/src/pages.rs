@@ -560,9 +560,10 @@ INSERT INTO pages (
     title,
     exam_id,
     content_search_language,
-    hidden
+    hidden,
+    order_number
   )
-VALUES ($1, $2, $3, $4, $5, $6)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
 ",
         serde_json::to_value(page.content.clone())?,
@@ -571,7 +572,8 @@ RETURNING id
         exam_id,
         page.content_search_language
             .unwrap_or_else(|| "simple".to_string()),
-        page.hidden
+        page.hidden,
+        0_i32
     )
     .fetch_one(&mut *tx)
     .await?;

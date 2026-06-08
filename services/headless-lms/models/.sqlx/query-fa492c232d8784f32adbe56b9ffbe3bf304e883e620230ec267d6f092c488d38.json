@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO pages (\n    content,\n    url_path,\n    title,\n    exam_id,\n    content_search_language,\n    hidden\n  )\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING id\n",
+  "query": "\nINSERT INTO pages (\n    content,\n    url_path,\n    title,\n    exam_id,\n    content_search_language,\n    hidden,\n    order_number\n  )\nVALUES ($1, $2, $3, $4, $5, $6, $7)\nRETURNING id\n",
   "describe": {
     "columns": [
       {
@@ -22,12 +22,13 @@
         "Varchar",
         "Uuid",
         "Varchar",
-        "Bool"
+        "Bool",
+        "Int4"
       ]
     },
     "nullable": [
       false
     ]
   },
-  "hash": "e37f9b869872be808eca836c9187b29badb4610d90b64b8c5d9088c0864444e4"
+  "hash": "fa492c232d8784f32adbe56b9ffbe3bf304e883e620230ec267d6f092c488d38"
 }

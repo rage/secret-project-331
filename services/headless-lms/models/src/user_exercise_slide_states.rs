@@ -34,7 +34,7 @@ INSERT INTO user_exercise_slide_states (
     grading_progress
   )
 VALUES ($1, $2, $3, $4)
-RETURNING id
+RETURNING *
         ",
         pkey_policy.into_uuid(),
         exercise_slide_id,
@@ -50,14 +50,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<UserExe
     let res = sqlx::query_as!(
         UserExerciseSlideState,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  user_exercise_state_id,
-  score_given,
-  grading_progress AS "grading_progress: _"
+SELECT *
 FROM user_exercise_slide_states
 WHERE id = $1
   AND deleted_at IS NULL
@@ -77,14 +70,7 @@ pub async fn get_by_unique_index(
     let res = sqlx::query_as!(
         UserExerciseSlideState,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  user_exercise_state_id,
-  score_given,
-  grading_progress AS "grading_progress: _"
+SELECT *
 FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND exercise_slide_id = $2
@@ -105,14 +91,7 @@ pub async fn get_all_by_user_exercise_state_id(
     let res = sqlx::query_as!(
         UserExerciseSlideState,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  user_exercise_state_id,
-  score_given,
-  grading_progress AS "grading_progress: _"
+SELECT *
 FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
@@ -151,8 +130,7 @@ pub async fn get_grading_summary_by_user_exercise_state_id(
 ) -> ModelResult<UserExerciseSlideStateGradingSummary> {
     let res = sqlx::query!(
         r#"
-SELECT score_given,
-  grading_progress AS "grading_progress: GradingProgress"
+SELECT *
 FROM user_exercise_slide_states
 WHERE user_exercise_state_id = $1
   AND deleted_at IS NULL
@@ -206,7 +184,7 @@ UPDATE user_exercise_slide_states
 SET deleted_at = now()
 WHERE id = $1
 AND deleted_at IS NULL
-RETURNING id
+RETURNING *
     ",
         id
     )

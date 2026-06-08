@@ -1,3 +1,4 @@
+import { fixupConfigRules } from "@eslint/compat"
 import js from "@eslint/js"
 import next from "@next/eslint-plugin-next"
 import tanstackQuery from "@tanstack/eslint-plugin-query"
@@ -101,7 +102,7 @@ const config = [
   jsxA11y.flatConfigs.recommended,
   react.configs.flat.recommended,
   react.configs.flat["jsx-runtime"],
-  importPlugin.flatConfigs.recommended,
+  ...fixupConfigRules(importPlugin.flatConfigs.recommended),
   eslintPluginPrettierRecommended,
   {
     files: ["**/*.{js,jsx,ts,tsx}"],

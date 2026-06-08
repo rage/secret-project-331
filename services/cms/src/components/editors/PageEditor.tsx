@@ -194,13 +194,10 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   const chapterLockingEnabled = courseQuery.data?.chapter_locking_enabled ?? false
 
   const pageRoutingData = getNextPageRoutingData.data
-  let nextPageUrl = "/"
-
-  if (pageRoutingData && pageRoutingData.next_page) {
-    nextPageUrl = coursePageRoute(pageRoutingData.next_page.page_id)
-  } else {
-    nextPageUrl = coursePageRoute(data.id)
-  }
+  const nextPageUrl =
+    pageRoutingData && pageRoutingData.next_page
+      ? coursePageRoute(pageRoutingData.next_page.page_id)
+      : coursePageRoute(data.id)
   const saveAndReset = (
     <div>
       {pageInfo.data && pageInfo.data.organization_slug && pageInfo.data.course_slug && (

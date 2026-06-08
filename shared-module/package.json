@@ -5,7 +5,13 @@
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "keywords": [],
   "main": "index.js",
-  "packageManager": "pnpm@10.30.3",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.16.0"
+    }
+  },
   "scripts": {
     "sync": "tsx sync.ts",
     "sync-once": "tsx sync.ts --once"
@@ -21,6 +27,6 @@
   "devDependencies": {
     "@types/lodash": "^4.17.24",
     "esbuild": "^0.28.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.22.3"
   }
 }

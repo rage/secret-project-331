@@ -237,7 +237,7 @@ pub async fn insert_raw(
             verification_id
         )
         VALUES ($1, $2, $3, $4)
-        RETURNING id
+        RETURNING *
         "#,
         user_id,
         config_id,

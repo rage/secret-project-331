@@ -125,7 +125,7 @@ INSERT INTO exercise_task_submissions (
     data_json
   )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING id
+RETURNING *
         ",
         submission_data.id,
         submission_data.exercise_slide_submission_id,
@@ -156,7 +156,7 @@ INSERT INTO exercise_task_submissions (
     data_json
   )
   VALUES ($1, $2, $3, $4, $5)
-  RETURNING id
+  RETURNING *
         ",
         pkey_policy.into_uuid(),
         exercise_slide_submission_id,

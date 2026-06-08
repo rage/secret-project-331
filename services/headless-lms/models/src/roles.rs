@@ -106,7 +106,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role!: UserRole"
+  role AS "role!"
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -125,7 +125,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -145,7 +145,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -165,7 +165,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -185,7 +185,7 @@ SELECT users.id AS "user_id!",
   user_details.first_name,
   user_details.last_name,
   user_details.email,
-  role AS "role: UserRole"
+  role
 FROM users
   JOIN roles ON users.id = roles.user_id
   JOIN user_details ON users.id = user_details.user_id
@@ -213,7 +213,7 @@ pub async fn insert(
                 "
 INSERT INTO roles (user_id, role, is_global)
 VALUES ($1, $2, True)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole
@@ -227,7 +227,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, organization_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -242,7 +242,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, course_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -257,7 +257,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, course_instance_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -272,7 +272,7 @@ RETURNING id
                 "
 INSERT INTO roles (user_id, role, exam_id)
 VALUES ($1, $2, $3)
-RETURNING id
+RETURNING *
 ",
                 user_id,
                 role as UserRole,
@@ -389,7 +389,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE user_id = $1
@@ -415,7 +415,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE user_id = $1
@@ -454,7 +454,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE (
@@ -502,7 +502,7 @@ SELECT is_global,
   course_id,
   course_instance_id,
   exam_id,
-  role AS "role: UserRole",
+  role,
   user_id
 FROM roles
 WHERE (

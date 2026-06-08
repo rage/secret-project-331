@@ -24,22 +24,25 @@ use headless_lms_utils::{
     prelude::UtilErrorType,
     tmc::{NewUserInfo, TmcClient},
 };
-use secrecy::SecretString;
+use secrecy::{ExposeSecret, SecretString};
 use tracing_log::log;
 use utoipa::{OpenApi, ToSchema};
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, ToSchema)]
-
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct Login {
     pub email: String,
-    pub password: String,
+    #[schema(value_type = String)]
+    pub password: SecretString,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum LoginResponse {
     Success,
-    RequiresEmailVerification { email_verification_token: String },
+    RequiresEmailVerification {
+        #[schema(value_type = String)]
+        email_verification_token: OutboundSecret,
+    },
     Failed,
 }
 
@@ -88,15 +91,16 @@ pub async fn authorize_action_on_resource(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct CreateAccountDetails {
     pub email: String,
     pub first_name: String,
     pub last_name: String,
     pub language: String,
-    pub password: String,
-    pub password_confirmation: String,
+    #[schema(value_type = String)]
+    pub password: SecretString,
+    #[schema(value_type = String)]
+    pub password_confirmation: SecretString,
     pub country: String,
     pub email_communication_consent: bool,
 }
@@ -201,7 +205,7 @@ pub async fn signup(
                 };
             }
         };
-        let password_secret = SecretString::new(user_details.password.into());
+        let password_secret = user_details.password;
 
         let user = models::users::insert_with_upstream_id_and_moocfi_id(
             &mut conn,
@@ -342,10 +346,8 @@ async fn handle_test_mode_signup(
 
     let user = models::users::get_by_email(conn, &user_details.email).await?;
 
-    let password_hash = models::user_passwords::hash_password(&SecretString::new(
-        user_details.password.clone().into(),
-    ))
-    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+    let password_hash = models::user_passwords::hash_password(&user_details.password)
+        .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
     models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
         .await
@@ -505,7 +507,7 @@ async fn handle_test_mode_login(
     session: &Session,
     conn: &mut PgConnection,
     email: &str,
-    password: &str,
+    password: &SecretString,
     app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     warn!("Using test credentials. Normal accounts won't work.");
@@ -531,12 +533,8 @@ async fn handle_test_mode_login(
             })?;
 
     if !is_authenticated {
-        is_authenticated = models::user_passwords::verify_user_password(
-            conn,
-            user.id,
-            &SecretString::new(password.into()),
-        )
-        .await?;
+        is_authenticated =
+            models::user_passwords::verify_user_password(conn, user.id, password).await?;
     }
 
     if is_authenticated {
@@ -566,7 +564,7 @@ async fn handle_production_login(
     client: &OAuthClient,
     tmc_client: &TmcClient,
     email: &str,
-    password: &str,
+    password: &SecretString,
     app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
     let mut is_authenticated = false;
@@ -577,12 +575,8 @@ async fn handle_production_login(
         let is_password_stored =
             models::user_passwords::check_if_users_password_is_stored(conn, user.id).await?;
         if is_password_stored {
-            is_authenticated = models::user_passwords::verify_user_password(
-                conn,
-                user.id,
-                &SecretString::new(password.into()),
-            )
-            .await?;
+            is_authenticated =
+                models::user_passwords::verify_user_password(conn, user.id, password).await?;
 
             if is_authenticated {
                 info!("Authentication successful");
@@ -597,16 +591,15 @@ async fn handle_production_login(
             conn,
             client,
             email.to_string(),
-            password.to_string(),
+            password.clone(),
             tmc_client,
         )
         .await?;
 
         if let Some((user, _token)) = auth_result {
             // If user is autenticated in TMC successfully, hash password and save it to courses.mooc.fi database
-            let password_hash =
-                models::user_passwords::hash_password(&SecretString::new(password.into()))
-                    .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
+            let password_hash = models::user_passwords::hash_password(password)
+                .map_err(|e| anyhow!("Failed to hash password: {:?}", e))?;
 
             models::user_passwords::upsert_user_password(conn, user.id, &password_hash)
                 .await
@@ -738,11 +731,11 @@ pub async fn user_info(
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct SendEmailCodeData {
     pub email: String,
-    pub password: String,
+    #[schema(value_type = String)]
+    pub password: SecretString,
     pub language: String,
 }
 
@@ -772,12 +765,9 @@ pub async fn send_delete_user_email_code(
     if let Some(auth_user) = auth_user {
         let mut conn = pool.acquire().await?;
 
-        let password_ok = user_passwords::verify_user_password(
-            &mut conn,
-            auth_user.id,
-            &SecretString::new(payload.password.clone().into()),
-        )
-        .await?;
+        let password_ok =
+            user_passwords::verify_user_password(&mut conn, auth_user.id, &payload.password)
+                .await?;
 
         if !password_ok {
             info!(
@@ -948,16 +938,19 @@ async fn handle_email_verification(
 ) -> ControllerResult<web::Json<LoginResponse>> {
     let code: String = rand::rng().random_range(100_000..1_000_000).to_string();
 
-    let email_verification_token =
-        email_verification_tokens::create_email_verification_token(conn, user.id, code.clone())
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to create email verification token".to_string(),
-                    Some(anyhow!(e)),
-                )
-            })?;
+    let email_verification_token = email_verification_tokens::create_email_verification_token(
+        conn,
+        user.id,
+        DbSecret::new(code.clone()),
+    )
+    .await
+    .map_err(|e| {
+        ControllerError::new(
+            ControllerErrorType::InternalServerError,
+            "Failed to create email verification token".to_string(),
+            Some(anyhow!(e)),
+        )
+    })?;
 
     user_email_codes::insert_user_email_code(conn, user.id, code.clone())
         .await
@@ -1005,15 +998,19 @@ async fn handle_email_verification(
 
     let token = skip_authorize();
     token.authorized_ok(web::Json(LoginResponse::RequiresEmailVerification {
-        email_verification_token,
+        // Re-wrap for the wire boundary: redacted in Debug/logs, serialized once in the response.
+        email_verification_token: OutboundSecret::new(
+            email_verification_token.expose_secret().to_string(),
+        ),
     }))
 }
 
-#[derive(Debug, Serialize, Deserialize, ToSchema)]
-
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct VerifyEmailRequest {
-    pub email_verification_token: String,
-    pub code: String,
+    #[schema(value_type = String)]
+    pub email_verification_token: DbSecret,
+    #[schema(value_type = String)]
+    pub code: DbSecret,
 }
 
 /**
@@ -1077,7 +1074,7 @@ pub async fn verify_email(
 
     let user_id = token_value.user_id;
 
-    user_email_codes::mark_user_email_code_used(&mut conn, user_id, &payload.code)
+    user_email_codes::mark_user_email_code_used(&mut conn, user_id, payload.code.expose_secret())
         .await
         .map_err(|e| {
             ControllerError::new(

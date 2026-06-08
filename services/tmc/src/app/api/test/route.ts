@@ -36,7 +36,7 @@ function errorRunResult(err: unknown): RunResult {
 function reportBackgroundFailure(err: unknown, request: Request): void {
   const message = err instanceof Error ? err.message : String(err)
   const stack = err instanceof Error ? err.stack : null
-  let path: string | null = null
+  let path: string | null
   try {
     path = new URL(request.url).pathname
   } catch {

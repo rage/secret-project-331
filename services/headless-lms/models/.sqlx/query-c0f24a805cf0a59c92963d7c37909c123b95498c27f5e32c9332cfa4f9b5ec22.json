@@ -6,7 +6,13 @@
       {
         "ordinal": 0,
         "name": "is_draft",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_draft"
+          }
+        }
       }
     ],
     "parameters": {

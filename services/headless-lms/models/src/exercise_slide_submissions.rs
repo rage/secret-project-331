@@ -148,17 +148,7 @@ INSERT INTO exercise_slide_submissions (
     user_points_update_strategy
   )
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+RETURNING *
         "#,
         exercise_slide_submission.exercise_slide_id,
         exercise_slide_submission.course_id,
@@ -190,17 +180,7 @@ INSERT INTO exercise_slide_submissions (
     user_points_update_strategy
   )
 VALUES ($1, $2, $3, $4, $5, $6, $7)
-RETURNING id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+RETURNING *
         "#,
         id,
         exercise_slide_submission.exercise_slide_id,
@@ -219,17 +199,7 @@ pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<Exercis
     let exercise_slide_submission = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-created_at,
-updated_at,
-deleted_at,
-exercise_slide_id,
-course_id,
-exam_id,
-exercise_id,
-user_id,
-user_points_update_strategy AS "user_points_update_strategy: _",
-flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL;
@@ -259,7 +229,7 @@ SELECT ess.id,
   ess.exam_id,
   ess.exercise_id,
   ess.user_id,
-  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.user_points_update_strategy,
   ess.flag_count
 FROM exercise_slide_submissions ess
   JOIN exercises e ON e.id = ess.exercise_id
@@ -289,8 +259,7 @@ pub async fn get_user_ids_by_submission_ids(
     }
     let rows = sqlx::query!(
         r#"
-SELECT id,
-  user_id
+SELECT *
 FROM exercise_slide_submissions
 WHERE id = ANY($1)
   AND deleted_at IS NULL
@@ -324,7 +293,7 @@ SELECT DISTINCT ON (user_id)
   ess.exam_id,
   ess.exercise_id,
   ess.user_id,
-  ess.user_points_update_strategy AS "user_points_update_strategy: _",
+  ess.user_points_update_strategy,
   ess.flag_count
 FROM exercise_slide_submissions AS ess
 JOIN courses AS c
@@ -356,17 +325,7 @@ pub async fn get_by_exercise_id(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -390,17 +349,7 @@ pub async fn get_users_all_submissions_for_course_or_exam(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND (course_id = $2 OR exam_id = $3)
@@ -423,17 +372,7 @@ pub async fn get_users_submissions_for_exercise(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE user_id = $1
   AND exercise_id = $2
@@ -456,17 +395,7 @@ pub async fn get_users_latest_exercise_slide_submission(
     let res = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_slide_id = $1
   AND user_id = $2
@@ -498,8 +427,7 @@ pub async fn get_course_and_exam_id(
 ) -> ModelResult<CourseOrExamId> {
     let res = sqlx::query!(
         "
-SELECT course_id,
-  exam_id
+SELECT *
 FROM exercise_slide_submissions
 WHERE id = $1
   AND deleted_at IS NULL
@@ -537,17 +465,7 @@ pub async fn exercise_slide_submissions(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -617,7 +535,7 @@ pub async fn get_latest_exercise_slide_submissions_and_user_exercise_state_list_
         exam_id,
         exercise_id,
         user_id,
-        user_points_update_strategy AS "user_points_update_strategy: _",
+        user_points_update_strategy,
   flag_count
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
@@ -821,17 +739,7 @@ pub async fn exercise_slide_submissions_for_answers_requiring_attention(
     let submissions = sqlx::query_as!(
         ExerciseSlideSubmission,
         r#"
-SELECT id,
-  created_at,
-  updated_at,
-  deleted_at,
-  exercise_slide_id,
-  course_id,
-  exam_id,
-  exercise_id,
-  user_id,
-  user_points_update_strategy AS "user_points_update_strategy: _",
-  flag_count
+SELECT *
 FROM exercise_slide_submissions
 WHERE exercise_id = $1
   AND deleted_at IS NULL
@@ -859,7 +767,7 @@ pub async fn get_all_answers_requiring_attention(
         us_state.user_id,
         us_state.exercise_id,
         us_state.score_given,
-        us_state.grading_progress as "grading_progress: _",
+        us_state.grading_progress,
         t_submission.data_json,
         s_submission.created_at,
         s_submission.updated_at,

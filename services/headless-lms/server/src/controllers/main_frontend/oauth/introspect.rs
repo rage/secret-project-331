@@ -9,6 +9,7 @@ use models::{
     oauth_access_token::{OAuthAccessToken, TokenType},
     oauth_client::OAuthClient,
 };
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
 use utoipa::OpenApi;
 
@@ -151,7 +152,10 @@ pub async fn introspect(
         match &client.client_secret {
             Some(secret) => {
                 let provided_secret_digest = token_digest_sha256(
-                    &form.client_secret.clone().unwrap_or_default(),
+                    form.client_secret
+                        .as_ref()
+                        .map(|s| s.expose_secret())
+                        .unwrap_or_default(),
                     token_hmac_key,
                 );
                 secret.constant_eq(&provided_secret_digest)
@@ -184,7 +188,7 @@ pub async fn introspect(
     }
 
     // Hash the provided token to get digest
-    let token_digest = token_digest_sha256(&form.token, token_hmac_key);
+    let token_digest = token_digest_sha256(form.token.expose_secret(), token_hmac_key);
 
     // Look up the access token (only access tokens are supported)
     let access_token_result = OAuthAccessToken::find_valid(&mut conn, token_digest).await;

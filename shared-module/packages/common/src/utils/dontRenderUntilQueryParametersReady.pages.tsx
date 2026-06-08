@@ -46,11 +46,8 @@ export function dontRenderUntilQueryParametersReady<T, P = unknown>(
       if (value === undefined) {
         return null
       }
-      let queryValue = value
-      if (Array.isArray(queryValue)) {
-        queryValue = queryValue[0]
-      }
-      queryParameters[key] = value?.toString()
+      const queryValue = Array.isArray(value) ? value[0] : value
+      queryParameters[key] = queryValue?.toString()
     }
 
     return React.createElement(

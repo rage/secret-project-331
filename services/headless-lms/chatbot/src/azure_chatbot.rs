@@ -938,8 +938,7 @@ fn stream_and_detect_response_stream_type<'a>(
             }
             Some(Err(e)) => {
                 Err(anyhow!(
-                    "There was an error streaming response from Azure: {}",
-                    e
+                    "There was an error streaming response from Azure: {e}. Response id: {response_id}"
                 ))?;
             }
             Some(Result::Ok(line)) => {
@@ -976,7 +975,7 @@ fn stream_and_detect_response_stream_type<'a>(
                                 break;
                             }
                             "response.incomplete" => {
-                                break Err(anyhow::anyhow!("Response incomplete"))?
+                                break Err(anyhow::anyhow!("Response incomplete. Response id: {response_id}"))?
                             },
                             _ => {}
                         }
@@ -1017,10 +1016,9 @@ fn stream_and_detect_response_stream_type<'a>(
         lines.next().await;
         continue;
     }
-    Err(Error::msg(
-        "The response received from Azure had an unexpected shape and couldn't be parsed"
-            .to_string(),
-    ))?
+    Err(Error::msg(format!(
+        "The response received from Azure ended unexpectedly. Response id: {response_id}"
+    )))?
     })
 }
 

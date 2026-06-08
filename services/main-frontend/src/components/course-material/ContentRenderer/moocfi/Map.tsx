@@ -180,12 +180,10 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
     const eventHandler = (evt: Event) => {
       const formattedIdentifier = countryCodeCount.map((obj) => obj.code.substring(1))
 
-      let svgElement = null
-      if (evt.target instanceof Element) {
-        svgElement = evt.target
-      } else {
+      if (!(evt.target instanceof Element)) {
         return
       }
+      const svgElement = evt.target
 
       const classListArr: string[] = Array.from(svgElement.classList)
       const parentElementClassList: DOMTokenList | undefined = svgElement.parentElement?.classList

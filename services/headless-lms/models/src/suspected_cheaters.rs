@@ -60,7 +60,7 @@ pub async fn insert(
     DO UPDATE SET
       total_duration_seconds = EXCLUDED.total_duration_seconds,
       total_points = EXCLUDED.total_points
-    RETURNING is_archived
+    RETURNING *
       ",
         user_id,
         total_duration_seconds,
@@ -111,12 +111,7 @@ pub async fn get_thresholds_by_id(
     let thresholds = sqlx::query_as!(
         Threshold,
         "
-      SELECT id,
-      course_module_id,
-      duration_seconds,
-      created_at,
-      updated_at,
-      deleted_at
+      SELECT *
       FROM cheater_thresholds
       WHERE course_module_id = $1
       AND deleted_at IS NULL;
@@ -304,12 +299,7 @@ pub async fn get_thresholds_by_module_id(
     let threshold = sqlx::query_as!(
         Threshold,
         "
-      SELECT id,
-      course_module_id,
-      duration_seconds,
-      created_at,
-      updated_at,
-      deleted_at
+      SELECT *
       FROM cheater_thresholds
       WHERE course_module_id = $1
       AND deleted_at IS NULL;

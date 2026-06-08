@@ -11,7 +11,7 @@ Check if we are using the current node LTS version by comparing with https://nod
 3. Update the pull command in `bin/build-dockerfile-node-base`
 
 > [!NOTE]
-> Since this project uses pnpm, Node.js version management is handled automatically by pnpm. No `.nvmrc` files are needed.
+> Since this project uses pnpm, Node.js version management is handled through `devEngines.runtime` in package manifests. No `.nvmrc` files are needed.
 
 ## Updating node dependencies
 
@@ -22,7 +22,7 @@ Before you start: Run this: `pnpm install && bin/pnpm-install-all`
 > [!IMPORTANT]
 > This project uses **pnpm** as the package manager. Do not use `npm` or `yarn` for dependency management.
 
-One by one cd to a service and run `pnpm exec npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `pnpm exec tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `pnpm audit --fix`.
+One by one cd to a service and run `pnpm exec npm-check --update`. Read the changelogs for breaking dependencies if necessary and select all updates. After update is done, run `pnpm exec tsc --noEmit` to catch new type errors and then commit the results. Finally, you can run `pnpm audit --fix=update` so fixes prefer lockfile updates over adding overrides. Review any `minimumReleaseAgeExclude` entries it adds; those entries are allowed to bypass the one-week release-age delay for security patches.
 
 You can get a list of targets that need updating by running: `find -name 'package.json' | grep --invert-match 'node_modules\|.next'`.
 

@@ -57,7 +57,7 @@ async fn claim_code_from_code_giveaway(
     user: AuthUser,
     code_giveaway_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<String>> {
+) -> ControllerResult<web::Json<OutboundSecret>> {
     let mut conn = pool.acquire().await?;
     let token = skip_authorize();
     let code_giveaway = models::code_giveaways::get_by_id(&mut conn, *code_giveaway_id).await?;

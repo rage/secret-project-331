@@ -82,9 +82,9 @@ impl ApplicationConfiguration {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct AzureChatbotConfiguration {
-    pub api_key: String,
+    pub api_key: SecretString,
     pub api_endpoint: Url,
 }
 
@@ -101,7 +101,7 @@ impl AzureChatbotConfiguration {
             let api_endpoint = Url::parse(&api_endpoint_str)
                 .context("Invalid URL in AZURE_CHATBOT_API_ENDPOINT")?;
             Ok(Some(AzureChatbotConfiguration {
-                api_key,
+                api_key: SecretString::new(api_key.into()),
                 api_endpoint,
             }))
         } else {
@@ -110,14 +110,14 @@ impl AzureChatbotConfiguration {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct AzureSearchConfiguration {
     pub vectorizer_resource_uri: String,
     pub vectorizer_deployment_id: String,
-    pub vectorizer_api_key: String,
+    pub vectorizer_api_key: SecretString,
     pub vectorizer_model_name: String,
     pub search_endpoint: Url,
-    pub search_api_key: String,
+    pub search_api_key: SecretString,
     pub search_connection_id: String,
 }
 
@@ -157,10 +157,10 @@ impl AzureSearchConfiguration {
             Ok(Some(AzureSearchConfiguration {
                 vectorizer_resource_uri,
                 vectorizer_deployment_id,
-                vectorizer_api_key,
+                vectorizer_api_key: SecretString::new(vectorizer_api_key.into()),
                 vectorizer_model_name,
                 search_endpoint,
-                search_api_key,
+                search_api_key: SecretString::new(search_api_key.into()),
                 search_connection_id,
             }))
         } else {
@@ -169,10 +169,10 @@ impl AzureSearchConfiguration {
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct AzureBlobStorageConfiguration {
     pub storage_account: String,
-    pub access_key: String,
+    pub access_key: SecretString,
 }
 
 impl AzureBlobStorageConfiguration {
@@ -187,22 +187,30 @@ impl AzureBlobStorageConfiguration {
         if let (Some(storage_account), Some(access_key)) = (storage_account, access_key) {
             Ok(Some(AzureBlobStorageConfiguration {
                 storage_account,
-                access_key,
+                access_key: SecretString::new(access_key.into()),
             }))
         } else {
             Ok(None)
         }
     }
 
-    pub fn connection_string(&self) -> anyhow::Result<String> {
-        Ok(format!(
-            "DefaultEndpointsProtocol=https;AccountName={};AccountKey={};EndpointSuffix=core.windows.net",
-            self.storage_account, self.access_key
+    /// Builds the Azure storage connection string. The result embeds the account
+    /// access key, so it is returned wrapped in `SecretString` (zeroized on drop,
+    /// redacted from `Debug`); call `.expose_secret()` only at the point it is handed
+    /// to the Azure SDK.
+    pub fn connection_string(&self) -> anyhow::Result<SecretString> {
+        Ok(SecretString::new(
+            format!(
+                "DefaultEndpointsProtocol=https;AccountName={};AccountKey={};EndpointSuffix=core.windows.net",
+                self.storage_account,
+                self.access_key.expose_secret()
+            )
+            .into(),
         ))
     }
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone)]
 pub struct AzureConfiguration {
     pub chatbot_config: Option<AzureChatbotConfiguration>,
     pub search_config: Option<AzureSearchConfiguration>,
@@ -236,21 +244,21 @@ impl AzureConfiguration {
     pub fn mock_conf() -> anyhow::Result<Option<Self>> {
         let base_url = env::var("BASE_URL").context("BASE_URL must be defined")?;
         let chatbot_config = Some(AzureChatbotConfiguration {
-            api_key: "".to_string(),
+            api_key: SecretString::new(String::new().into()),
             api_endpoint: Url::parse(&base_url)?.join("/api/v0/mock-azure/test/v1/responses")?,
         });
         let search_config = Some(AzureSearchConfiguration {
             vectorizer_resource_uri: "".to_string(),
             vectorizer_deployment_id: "".to_string(),
-            vectorizer_api_key: "".to_string(),
+            vectorizer_api_key: SecretString::new(String::new().into()),
             vectorizer_model_name: "".to_string(),
-            search_api_key: "".to_string(),
+            search_api_key: SecretString::new(String::new().into()),
             search_endpoint: Url::from_str("https://example.com/does-not-exist/")?,
             search_connection_id: "".to_string(),
         });
         let blob_storage_config = Some(AzureBlobStorageConfiguration {
             storage_account: "".to_string(),
-            access_key: "".to_string(),
+            access_key: SecretString::new(String::new().into()),
         });
 
         Ok(Some(AzureConfiguration {
@@ -264,9 +272,11 @@ impl AzureConfiguration {
 #[derive(Clone)]
 pub struct OAuthServerConfiguration {
     pub rsa_public_key: String,
-    pub rsa_private_key: String,
+    /// RSA private key (PEM) used to sign OAuth/OIDC tokens. Secret: zeroized on drop,
+    /// redacted from `Debug`; only exposed when handed to the signing key builder.
+    pub rsa_private_key: SecretString,
     /// Secret key for HMAC-SHA-256 hashing of OAuth tokens (access tokens, refresh tokens, auth codes).
-    pub oauth_token_hmac_key: String,
+    pub oauth_token_hmac_key: SecretString,
     /// Secret key for signing DPoP nonces (HMAC).
     pub dpop_nonce_key: Arc<SecretBox<String>>,
 }
@@ -274,8 +284,9 @@ pub struct OAuthServerConfiguration {
 impl PartialEq for OAuthServerConfiguration {
     fn eq(&self, other: &Self) -> bool {
         self.rsa_public_key == other.rsa_public_key
-            && self.rsa_private_key == other.rsa_private_key
-            && self.oauth_token_hmac_key == other.oauth_token_hmac_key
+            && self.rsa_private_key.expose_secret() == other.rsa_private_key.expose_secret()
+            && self.oauth_token_hmac_key.expose_secret()
+                == other.oauth_token_hmac_key.expose_secret()
             && self.dpop_nonce_key.expose_secret() == other.dpop_nonce_key.expose_secret()
     }
 }
@@ -287,10 +298,16 @@ impl OAuthServerConfiguration {
     pub fn try_from_env() -> anyhow::Result<Self> {
         let rsa_public_key =
             env::var("OAUTH_RSA_PUBLIC_PEM").context("OAUTH_RSA_PUBLIC_KEY must be defined")?;
-        let rsa_private_key =
-            env::var("OAUTH_RSA_PRIVATE_PEM").context("OAUTH_RSA_PRIVATE_KEY must be defined")?;
-        let oauth_token_hmac_key =
-            env::var("OAUTH_TOKEN_HMAC_KEY").context("OAUTH_TOKEN_HMAC_KEY must be defined")?;
+        let rsa_private_key = SecretString::new(
+            env::var("OAUTH_RSA_PRIVATE_PEM")
+                .context("OAUTH_RSA_PRIVATE_KEY must be defined")?
+                .into(),
+        );
+        let oauth_token_hmac_key = SecretString::new(
+            env::var("OAUTH_TOKEN_HMAC_KEY")
+                .context("OAUTH_TOKEN_HMAC_KEY must be defined")?
+                .into(),
+        );
         let dpop_nonce_key = Arc::new(SecretBox::new(Box::new(
             env::var("OAUTH_DPOP_NONCE_KEY").context("OAUTH_DPOP_NONCE_KEY must be defined")?,
         )));

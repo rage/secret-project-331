@@ -6,7 +6,13 @@
       {
         "ordinal": 0,
         "name": "is_joinable_by_code_only",
-        "type_info": "Bool"
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_joinable_by_code_only"
+          }
+        }
       }
     ],
     "parameters": {

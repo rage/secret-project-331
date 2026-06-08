@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use secrecy::SecretString;
+
 use crate::{llm_utils::build_llm_headers, prelude::*};
 
 use headless_lms_models::chatbot_conversation_messages_citations::{
@@ -71,7 +73,7 @@ pub async fn chatbot_cited_documents_to_citations(
     conn: &mut PgConnection,
     test_chatbot: bool,
     mut document_urls: Vec<Url>,
-    api_key: &str,
+    api_key: &SecretString,
     conversation_message_id: Uuid,
     conversation_id: Uuid,
 ) -> anyhow::Result<Vec<ChatbotConversationMessageCitation>> {
@@ -96,7 +98,7 @@ pub async fn chatbot_cited_documents_to_citations(
 /// Get a document from the search index with a LLM-provided get url
 async fn get_course_material_document(
     endpoint: &mut Url,
-    api_key: &str,
+    api_key: &SecretString,
 ) -> anyhow::Result<CourseMaterialDocument> {
     endpoint.set_query(Some(
         "api-version=2024-07-01&$select=chunk_id,parent_id,chunk,title,url,filepath,course_id",

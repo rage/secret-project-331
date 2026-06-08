@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE suspected_cheaters\nSET is_archived = FALSE\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\nRETURNING *\n        ",
+  "query": "\nUPDATE suspected_cheaters\nSET status = 'confirmed-cheating'\nWHERE user_id = $1\n  AND course_id = $2\n  AND deleted_at IS NULL\nRETURNING *\n        ",
   "describe": {
     "columns": [
       {
@@ -93,12 +93,23 @@
       },
       {
         "ordinal": 8,
-        "name": "is_archived",
-        "type_info": "Bool",
+        "name": "status",
+        "type_info": {
+          "Custom": {
+            "name": "suspected_cheater_status",
+            "kind": {
+              "Enum": [
+                "flagged",
+                "confirmed-cheating",
+                "dismissed"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "suspected_cheaters",
-            "name": "is_archived"
+            "name": "status"
           }
         }
       }
@@ -121,5 +132,5 @@
       false
     ]
   },
-  "hash": "d5cdf185bd09685d01ccfd075491f8fffaf1a0248021cc733afb58244d556fb2"
+  "hash": "3d94aac6226b1f3d83d3da05e7f5b75cbaccc9486171e0a685c8f9935aff82d4"
 }

@@ -385,11 +385,14 @@ export const zCustomViewExerciseTasks = z.object({
 })
 
 export const zExamEnrollment = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   ended_at: z.iso.datetime().nullish(),
   exam_id: z.uuid(),
   is_teacher_testing: z.boolean(),
   show_exercise_answers: z.boolean().nullish(),
   started_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
 
@@ -643,7 +646,7 @@ export const zPageChapterAndCourseInformation = z.object({
     .nullish(),
   course_name: z.string().nullish(),
   course_slug: z.string().nullish(),
-  organization_slug: z.string(),
+  organization_slug: z.string().nullish(),
 })
 
 export const zPageRoutingData = z.object({
@@ -959,6 +962,7 @@ export const zExamEnrollmentData = z.union([
           teacher_decision: zTeacherDecisionType,
           updated_at: z.iso.datetime(),
           user_exercise_state_id: z.uuid(),
+          user_id: z.uuid().nullish(),
         }),
         z.object({
           chapter_id: z.uuid().nullish(),
@@ -1014,9 +1018,13 @@ export const zExamData = z.object({
 })
 
 export const zTerm = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
   definition: z.string(),
+  deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   term: z.string(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zTermUpdate = z.object({
@@ -1266,7 +1274,6 @@ export const zUserModuleCompletionStatus = z.object({
     .nullish(),
   module_id: z.uuid(),
   name: z.string(),
-  needs_to_be_reviewed: z.boolean(),
   order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -1541,6 +1548,24 @@ export const zGetCourseMaterialCoursePath = z.object({
  * Course
  */
 export const zGetCourseMaterialCourseResponse = zCourseMaterialCourse
+
+export const zGetAiUsageNoticeAcknowledgementPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Whether the user has acknowledged the notice
+ */
+export const zGetAiUsageNoticeAcknowledgementResponse = z.boolean()
+
+export const zAcknowledgeAiUsageNoticePath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Acknowledgement recorded
+ */
+export const zAcknowledgeAiUsageNoticeResponse = z.boolean()
 
 export const zGetCourseMaterialChaptersPath = z.object({
   course_id: z.uuid(),

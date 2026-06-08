@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT *\nFROM suspected_cheaters\nWHERE course_id = $1\n    AND is_archived = $2\n    AND deleted_at IS NULL;\n    ",
+  "query": "\nSELECT *\nFROM suspected_cheaters\nWHERE course_id = $1\n    AND status = $2\n    AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -93,12 +93,23 @@
       },
       {
         "ordinal": 8,
-        "name": "is_archived",
-        "type_info": "Bool",
+        "name": "status",
+        "type_info": {
+          "Custom": {
+            "name": "suspected_cheater_status",
+            "kind": {
+              "Enum": [
+                "flagged",
+                "confirmed-cheating",
+                "dismissed"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "suspected_cheaters",
-            "name": "is_archived"
+            "name": "status"
           }
         }
       }
@@ -106,7 +117,18 @@
     "parameters": {
       "Left": [
         "Uuid",
-        "Bool"
+        {
+          "Custom": {
+            "name": "suspected_cheater_status",
+            "kind": {
+              "Enum": [
+                "flagged",
+                "confirmed-cheating",
+                "dismissed"
+              ]
+            }
+          }
+        }
       ]
     },
     "nullable": [
@@ -121,5 +143,5 @@
       false
     ]
   },
-  "hash": "c02fc01f4a3deab551f504c5110e9e3ee5069a36fdc2b82529f96f344785d31b"
+  "hash": "26461d843ebb5af2f93ffe91759d3eccffe220f88b060f1cf184e31e42f21465"
 }

@@ -754,7 +754,6 @@ pub struct UserModuleCompletionStatus {
     pub enable_registering_completion_to_uh_open_university: bool,
     pub certification_enabled: bool,
     pub certificate_configuration_id: Option<Uuid>,
-    pub needs_to_be_reviewed: bool,
 }
 
 /// Gets course modules with user's completion status for the given instance.
@@ -789,7 +788,13 @@ pub async fn get_user_module_completion_statuses_for_course(
         .map(|module| {
             let mut certificate_configuration_id = None;
 
-            let completion = course_module_completions.get(&module.id);
+            // A completion that still needs review (e.g. because the student was auto-flagged
+            // as a suspected cheater) is hidden from the student: the module is reported as if
+            // it simply has not been completed yet. This way a flagged student cannot infer
+            // from the API that they are under suspicion.
+            let completion = course_module_completions
+                .get(&module.id)
+                .filter(|c| !c.needs_to_be_reviewed);
             let passed = completion.map(|x| x.passed);
             if module.certification_enabled && passed == Some(true) {
                 // If passed, show the user the default certificate configuration id so that they can generate their certificate.
@@ -818,7 +823,6 @@ pub async fn get_user_module_completion_statuses_for_course(
                     .enable_registering_completion_to_uh_open_university,
                 certification_enabled: module.certification_enabled,
                 certificate_configuration_id,
-                needs_to_be_reviewed: completion.is_some_and(|x| x.needs_to_be_reviewed),
             }
         })
         .collect();
@@ -887,6 +891,7 @@ mod tests {
 
     use crate::{
         exercises::{ActivityProgress, GradingProgress},
+        suspected_cheaters::SuspectedCheaterStatus,
         test_helper::*,
     };
 
@@ -1184,10 +1189,13 @@ mod tests {
             .await
             .unwrap();
 
-        let cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
-                .await
-                .unwrap();
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
         assert_eq!(cheaters.len(), 1);
         assert_eq!(cheaters[0].user_id, user);
     }
@@ -1260,10 +1268,13 @@ mod tests {
             .await
             .unwrap();
 
-        let cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
-                .await
-                .unwrap();
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
         assert_eq!(cheaters.len(), 1);
         let completion_needing_review =
             course_module_completions::get_latest_by_course_and_user_ids(
@@ -1275,7 +1286,7 @@ mod tests {
             .unwrap();
         assert!(completion_needing_review.needs_to_be_reviewed);
 
-        suspected_cheaters::archive_by_user_id_and_course_id(tx.as_mut(), user, course)
+        suspected_cheaters::dismiss_by_user_id_and_course_id(tx.as_mut(), user, course)
             .await
             .unwrap();
         let archived_completion = course_module_completions::get_latest_by_course_and_user_ids(
@@ -1296,14 +1307,20 @@ mod tests {
         .await
         .unwrap();
 
-        let visible_cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
-                .await
-                .unwrap();
-        let archived_cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, true)
-                .await
-                .unwrap();
+        let visible_cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        let archived_cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Dismissed,
+        )
+        .await
+        .unwrap();
         assert!(visible_cheaters.is_empty());
         assert_eq!(archived_cheaters.len(), 1);
         let rechecked_completion = course_module_completions::get_latest_by_course_and_user_ids(
@@ -1371,10 +1388,13 @@ mod tests {
             .await
             .unwrap();
 
-        let cheaters =
-            suspected_cheaters::get_all_suspected_cheaters_in_course(tx.as_mut(), course, false)
-                .await
-                .unwrap();
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
         assert!(cheaters.is_empty());
     }
 

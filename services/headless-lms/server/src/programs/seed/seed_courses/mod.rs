@@ -45,7 +45,7 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    url_redirections,
+    url_redirections, user_ai_usage_notice_acknowledgements,
 };
 use headless_lms_models::{certificate_configurations::DatabaseCertificateConfiguration, roles};
 use headless_lms_models::{
@@ -1708,6 +1708,10 @@ pub async fn seed_sample_course(
         )
         .await?;
 
+        // Pre-acknowledge the AI-usage notice for seeded enrollments so the dialog does not
+        // block already-enrolled users (e.g. in system tests).
+        user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, user_id, course_id).await?;
+
         submit_and_grade(
             &mut conn,
             b"8c447aeb-1791-4236-8471-204d8bc27507",
@@ -1810,6 +1814,7 @@ pub async fn seed_sample_course(
         },
     )
     .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, langs_user_id, course_id).await?;
 
     // feedback
     info!("sample feedback");
@@ -2745,6 +2750,7 @@ pub async fn seed_cs_course_material(
         },
     )
     .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, langs_user_id, course.id).await?;
 
     Ok(course.id)
 }

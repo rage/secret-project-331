@@ -1,0 +1,1 @@
+DROP TABLE user_ai_usage_notice_acknowledgements;

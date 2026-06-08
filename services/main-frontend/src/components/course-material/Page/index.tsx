@@ -17,10 +17,12 @@ import ReferenceList from "../ReferencesList"
 import Chatbot from "../chatbot/Chatbot"
 import SelectResearchConsentForm from "../forms/SelectResearchConsentForm"
 import SelectUserInformationForm from "../forms/SelectUserInformationForm"
+import AiUsageNoticeDialog from "../modals/AiUsageNoticeDialog"
 import CourseSettingsModal from "../modals/CourseSettingsModal"
 import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNotification"
 
 import { GlossaryContext, GlossaryState } from "@/contexts/course-material/GlossaryContext"
+import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
 import useChatbotConfiguration from "@/hooks/course-material/useChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
 import useGlossary from "@/hooks/course-material/useGlossary"
@@ -124,10 +126,17 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const researchFormIsLoadedAndExists =
     researchConsentFormQuery.isSuccess && researchConsentFormQuery.data !== null
 
+  // The hook only runs (and succeeds) for signed-in users, so a successful `false` result implies
+  // an enrolled, signed-in user who has not yet acknowledged the AI-usage notice.
+  const aiUsageNoticeAcknowledgementQuery = useAiUsageNoticeAcknowledgement(courseId ?? null)
+  const shouldShowAiUsageNotice =
+    aiUsageNoticeAcknowledgementQuery.isSuccess && aiUsageNoticeAcknowledgementQuery.data === false
+
   const activeStep = useDialogStep({
     shouldAnswerMissingInfoForm,
     shouldChooseInstance,
     waitingForCourseSettingsToBeFilled,
+    shouldShowAiUsageNotice,
     researchFormIsLoadedAndExists,
     showResearchConsentFormBecauseOfUrl,
     showResearchConsentFormBecauseOfMissingAnswers,
@@ -209,6 +218,15 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
               handleRefresh()
             }}
             shouldChooseInstance={true}
+          />
+        )}
+
+        {courseId && activeStep === DialogStep.AiUsageNotice && (
+          <AiUsageNoticeDialog
+            courseId={courseId}
+            onClose={() => {
+              handleRefresh()
+            }}
           />
         )}
 

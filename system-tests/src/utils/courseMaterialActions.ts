@@ -7,6 +7,35 @@ const isCourseSettingsModalOpen = async (page: Page) => {
   return courseVariantSelector.filter().isVisible()
 }
 
+const isAiUsageNoticeOpen = async (page: Page) => {
+  return page.getByTestId("ai-usage-notice-acknowledge-button").isVisible()
+}
+
+/** Acknowledges the AI-usage / academic-integrity notice if it is shown.
+ *
+ * The notice is displayed once per user per course, right after the user selects a course instance.
+ */
+export async function acknowledgeAiUsageNoticeIfPrompted(page: Page) {
+  await test.step(
+    "Acknowledge AI-usage notice if prompted",
+    async () => {
+      // The notice appears after the course settings modal closes and the page refreshes, so poll
+      // briefly for it to show up.
+      const startTime = Date.now()
+      while (!(await isAiUsageNoticeOpen(page)) && Date.now() - startTime < 5000) {
+        await page.waitForTimeout(100)
+      }
+
+      if (await isAiUsageNoticeOpen(page)) {
+        await page.getByTestId("ai-usage-notice-agree-checkbox").click()
+        await page.getByTestId("ai-usage-notice-acknowledge-button").click()
+        await page.getByTestId("ai-usage-notice-acknowledge-button").waitFor({ state: "detached" })
+      }
+    },
+    { box: true },
+  )
+}
+
 /** Waits a moment in case the select course instance modal opens, and if opened, selects a course instance.
  *
  * This should be used instead of `await page.click('button:has-text("Continue")')`. This is because we might have other system tests that use the same course with the same user and this function makes sure those tests don't race with each other.
@@ -47,6 +76,10 @@ export async function selectCourseInstanceIfPrompted(
 
         await page.getByTestId("select-course-instance-continue-button").click()
         await page.getByTestId("select-course-instance-heading").waitFor({ state: "detached" })
+
+        // After enrolling, the AI-usage notice is shown once and must be acknowledged before the
+        // user can interact with the material.
+        await acknowledgeAiUsageNoticeIfPrompted(page)
       }
     },
     { box: true },

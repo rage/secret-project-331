@@ -429,7 +429,13 @@ describe("parseText", () => {
   })
 
   describe("glossary parsing", () => {
+    const TERM_DEFAULTS = {
+      course_id: "course-1",
+      created_at: "2024-01-01T00:00:00.000Z",
+      updated_at: "2024-01-01T00:00:00.000Z",
+    }
     const term: Term = {
+      ...TERM_DEFAULTS,
       id: "term-1",
       term: "algorithm",
       definition: "A step-by-step procedure.",
@@ -474,8 +480,8 @@ describe("parseText", () => {
 
     test("replaces two different terms in one string", () => {
       const terms: Term[] = [
-        { id: "id-a", term: "algorithm", definition: "Step-by-step procedure." },
-        { id: "id-b", term: "variable", definition: "Named storage." },
+        { ...TERM_DEFAULTS, id: "id-a", term: "algorithm", definition: "Step-by-step procedure." },
+        { ...TERM_DEFAULTS, id: "id-b", term: "variable", definition: "Named storage." },
       ]
       const { parsedText, glossaryEntries } = parseText("An algorithm uses a variable.", terms)
       expect(parsedText).toBe(
@@ -510,8 +516,8 @@ describe("parseText", () => {
 
     test("first matching term wins when one term is substring of another", () => {
       const terms: Term[] = [
-        { id: "loop", term: "loop", definition: "Repetition." },
-        { id: "for-loop", term: "for loop", definition: "Loop construct." },
+        { ...TERM_DEFAULTS, id: "loop", term: "loop", definition: "Repetition." },
+        { ...TERM_DEFAULTS, id: "for-loop", term: "for loop", definition: "Loop construct." },
       ]
       const { parsedText } = parseText("Use a for loop here.", terms)
       expect(parsedText).toBe('Use a for <span data-glossary-id="loop"></span> here.')
@@ -549,6 +555,7 @@ describe("parseText", () => {
 
     test("handles glossary term with regex-special characters literally", () => {
       const specialTerm: Term = {
+        ...TERM_DEFAULTS,
         id: "term-special",
         term: "C++17",
         definition: "A C++ standard version.",

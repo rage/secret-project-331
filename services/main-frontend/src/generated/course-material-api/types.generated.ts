@@ -492,11 +492,14 @@ export type ExamData = {
 }
 
 export type ExamEnrollment = {
+  created_at: string
+  deleted_at?: string | null
   ended_at?: string | null
   exam_id: string
   is_teacher_testing: boolean
   show_exercise_answers?: boolean | null
   started_at: string
+  updated_at: string
   user_id: string
 }
 
@@ -531,6 +534,7 @@ export type ExamEnrollmentData =
             teacher_decision: TeacherDecisionType
             updated_at: string
             user_exercise_state_id: string
+            user_id?: string | null
           },
           {
             chapter_id?: string | null
@@ -777,7 +781,7 @@ export type PageChapterAndCourseInformation = {
   chapter_number?: number | null
   course_name?: string | null
   course_slug?: string | null
-  organization_slug: string
+  organization_slug?: string | null
 }
 
 export type PageNavigationInformation = {
@@ -1001,9 +1005,13 @@ export type TeacherDecisionType =
   | "RejectAndReset"
 
 export type Term = {
+  course_id: string
+  created_at: string
   definition: string
+  deleted_at?: string | null
   id: string
   term: string
+  updated_at: string
 }
 
 export type TermUpdate = {
@@ -1125,7 +1133,6 @@ export type UserModuleCompletionStatus = {
   grade?: number | null
   module_id: string
   name: string
-  needs_to_be_reviewed: boolean
   order_number: number
   passed?: boolean | null
   prerequisite_modules_completed: boolean
@@ -1680,6 +1687,50 @@ export type GetCourseMaterialCourseResponses = {
 
 export type GetCourseMaterialCourseResponse =
   GetCourseMaterialCourseResponses[keyof GetCourseMaterialCourseResponses]
+
+export type GetAiUsageNoticeAcknowledgementData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/courses/{course_id}/ai-usage-notice-acknowledgement"
+}
+
+export type GetAiUsageNoticeAcknowledgementResponses = {
+  /**
+   * Whether the user has acknowledged the notice
+   */
+  200: boolean
+}
+
+export type GetAiUsageNoticeAcknowledgementResponse =
+  GetAiUsageNoticeAcknowledgementResponses[keyof GetAiUsageNoticeAcknowledgementResponses]
+
+export type AcknowledgeAiUsageNoticeData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/courses/{course_id}/ai-usage-notice-acknowledgement"
+}
+
+export type AcknowledgeAiUsageNoticeResponses = {
+  /**
+   * Acknowledgement recorded
+   */
+  200: boolean
+}
+
+export type AcknowledgeAiUsageNoticeResponse =
+  AcknowledgeAiUsageNoticeResponses[keyof AcknowledgeAiUsageNoticeResponses]
 
 export type GetCourseMaterialChaptersData = {
   body?: never

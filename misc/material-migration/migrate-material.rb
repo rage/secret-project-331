@@ -15,8 +15,6 @@ class MaterialMigrator
 
     @directory = directory.end_with?('/') ? directory : "#{directory}/"
     @files = Dir.glob("#{@directory}**/*").sort
-    # @uuid = SecureRandom.uuid
-    # @inside_a_block = false
     @inside_frontmatter = false
     @current_tag_type = ''
     @tag_depth = 0
@@ -40,8 +38,6 @@ class MaterialMigrator
 
     puts "found #{@files.count} files and directories"
 
-    # extra_files = Dir.glob("#{@directory}**/*.{png,jpg,jpeg,svg,pdf}")
-    # @extra_files_urls = upload_extra_files
     process_files
   end
 
@@ -51,7 +47,6 @@ class MaterialMigrator
     i = 0
     @files.each do |file|
       i += 1
-      # @inside_a_block = false
       @inside_frontmatter = false
       @current_tag_type = ''
       @tag_depth = 0
@@ -97,22 +92,9 @@ class MaterialMigrator
     lines = content.split("\n")
     until lines.empty?
       line = lines.shift
-      # puts 'line: ' + line
-      # puts 'tag depth: ' + @tag_depth.to_s
-      # puts 'json block: ' + json_block.to_json
-      # puts 'json content: ' + json_content.to_json
       line = line.strip
-      # if line.empty? && @inside_a_block
       if line.empty? && @tag_depth > 0
-        # if @current_tag_type == 'styled-text'
-        #   json_block[:attributes][:content] << "\n"
-        # elsif @current_tag_type == 'quiz'
         append_to_last_block_content(json_block, "\n")
-        # if @current_tag_type == 'quiz'
-        #   json_block[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:attributes][:content] << "\n"
-        # else
-        #   json_block[:innerBlocks].last[:attributes][:content] << "\n"
-        # end
         next
       end
 
@@ -190,7 +172,6 @@ class MaterialMigrator
         end
 
         if line.start_with?('</')
-          # @inside_a_block = false
           if @known_tags.include?(@current_tag_type)
             @tag_depth = @tag_depth - 1
             if @tag_depth == 0 && @current_tag_type != 'styled-text'
@@ -203,7 +184,6 @@ class MaterialMigrator
           next
         end
 
-        # @inside_a_block = true
         @tag_depth = @tag_depth + 1
         tag_type = line.match(/<([a-zA-Z0-9_-]+)(>| [^>]*>)/)[1]
         @current_tag_type = tag_type
@@ -236,30 +216,20 @@ class MaterialMigrator
         end
       end
 
-      # if @inside_a_block
-        if @tag_depth > 0
-          if line.start_with?('#')
-            json_block = handle_header(line, json_block, json_content)
-            next
-          end
-          if line.match?(/^\s*\d+\.\s+/)
-            handle_numbered_list_item(line, json_block)
-            next
-          end
+      if @tag_depth > 0
+        if line.start_with?('#')
+          json_block = handle_header(line, json_block, json_content)
+          next
+        end
+        if line.match?(/^\s*\d+\.\s+/)
+          handle_numbered_list_item(line, json_block)
+          next
+        end
         # Convert any inline markdown in the line to HTML (links, emphasis, code, ...).
         line = convert_inline_markdown(line)
-        # if @current_tag_type == 'styled-text'
-        #   json_block[:attributes][:content] << line + "\n"
-        # elsif @current_tag_type == 'quiz'
         append_to_last_block_content(json_block, line + "\n")
-        # if @current_tag_type == 'quiz'
-        #   json_block[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:attributes][:content] << line
-        # else
-        #   json_block[:innerBlocks].last[:attributes][:content] << line + "\n"
-        # end
       end
 
-      # unless line.empty? || @inside_a_block
       unless line.empty? || @tag_depth > 0
         if line.start_with?('#')
           handle_header(line, json_block, json_content)
@@ -650,27 +620,6 @@ class MaterialMigrator
       json_content << fresh_block
     end
     return fresh_block
-    # level = line.match(/^#+/)[0].length
-    # json_block[:innerBlocks] << {
-    #   'clientId': SecureRandom.uuid,
-    #   'isValid': true,
-    #   'name': 'core/heading',
-    #   'attributes': {
-    #     'content': line.gsub(/^#+/, '').strip,
-    #     'level': level,
-    #   },
-    #   'innerBlocks': [],
-    # }
-    # json_block[:innerBlocks] << {
-    #   'clientId': SecureRandom.uuid,
-    #   'isValid': true,
-    #   'name': 'core/paragraph',
-    #   'attributes': {
-    #     'content': '',
-    #     'dropCap': false,
-    #   },
-    #   'innerBlocks': [],
-    # }
   end
 
   def handle_quiz(line, json_block, json_content)
@@ -680,83 +629,72 @@ class MaterialMigrator
       json_block = create_new_block
     end
 
-    # if oneliner
-    #   quiz_block = create_new_block
-    #   quiz_id = line.match(/id="(.+)"/)[1]
-    #   quiz_block[:attributes] = {
-    #     'content': "PLACEHOLDER FOR AN EXERCISE\nOld quizzes id: " + quiz_id,
-    #     'dropCap': false,
-    #   }
-    #   json_content << quiz_block
-    #   @tag_depth = @tag_depth - 1
-    # else
-      quiz_id = extract_quoted_attribute(line, 'id')
-      unless quiz_id
-        raise ArgumentError, "quiz tag is missing an id attribute: #{line}"
-      end
-      quiz_data = fetch_quiz_details_by_id(quiz_id)
-      parsed_quiz_data = JSON.parse(quiz_data)
-      (parsed_quiz_data['items'] || []).each do |item|
-        item['direction'] = 'column'
-      end
+    quiz_id = extract_quoted_attribute(line, 'id')
+    unless quiz_id
+      raise ArgumentError, "quiz tag is missing an id attribute: #{line}"
+    end
+    quiz_data = fetch_quiz_details_by_id(quiz_id)
+    parsed_quiz_data = JSON.parse(quiz_data)
+    (parsed_quiz_data['items'] || []).each do |item|
+      item['direction'] = 'column'
+    end
 
-      exercise_id = SecureRandom.uuid
-      exercise_slide_id = SecureRandom.uuid
-      exercise_task_id = SecureRandom.uuid
+    exercise_id = SecureRandom.uuid
+    exercise_slide_id = SecureRandom.uuid
+    exercise_task_id = SecureRandom.uuid
 
-      json_content << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'moocfi/exercise',
-        'attributes': {
-          'id': exercise_id,
-        },
-        'innerBlocks': [],
-      }
-
-      @normalized_exercises << {
+    json_content << {
+      'clientId': SecureRandom.uuid,
+      'isValid': true,
+      'name': 'moocfi/exercise',
+      'attributes': {
         'id': exercise_id,
-        'name': parsed_quiz_data['title'],
-        'order_number': @exercise_count,
-        'score_maximum': parsed_quiz_data['points'],
-        'max_tries_per_slide': nil,
-        'limit_number_of_tries': parsed_quiz_data['triesLimited'],
-        'deadline': nil,
-        'needs_peer_review': false,
-        'needs_self_review': false,
-        'peer_or_self_review_config': nil,
-        'peer_or_self_review_questions': nil,
-        'use_course_default_peer_or_self_review_config': true,
-        'teacher_reviews_answer_after_locking': true,
-      }
-      @normalized_exercise_slides << {
-        'id': exercise_slide_id,
-        'exercise_id': exercise_id,
-        'order_number': 0,
-      }
-      @normalized_exercise_tasks << {
-        'id': exercise_task_id,
-        'exercise_slide_id': exercise_slide_id,
-        'assignment': [
-          {
-            'clientId': SecureRandom.uuid,
-            'isValid': true,
-            'name': 'core/paragraph',
-            'attributes': {
-              'content': parsed_quiz_data['body'] || '',
-              'dropCap': false,
-            },
-            'innerBlocks': [],
-          },
-        ],
-        'exercise_type': 'quizzes',
-        'private_spec': parsed_quiz_data,
-        'order_number': 0,
-      }
+      },
+      'innerBlocks': [],
+    }
 
-      @exercise_count += 1
-      @tag_depth = @tag_depth - 1 if line.end_with?('</quiz>') || oneliner
-    # end
+    @normalized_exercises << {
+      'id': exercise_id,
+      'name': parsed_quiz_data['title'],
+      'order_number': @exercise_count,
+      'score_maximum': parsed_quiz_data['points'],
+      'max_tries_per_slide': nil,
+      'limit_number_of_tries': parsed_quiz_data['triesLimited'],
+      'deadline': nil,
+      'needs_peer_review': false,
+      'needs_self_review': false,
+      'peer_or_self_review_config': nil,
+      'peer_or_self_review_questions': nil,
+      'use_course_default_peer_or_self_review_config': true,
+      'teacher_reviews_answer_after_locking': true,
+    }
+    @normalized_exercise_slides << {
+      'id': exercise_slide_id,
+      'exercise_id': exercise_id,
+      'order_number': 0,
+    }
+    @normalized_exercise_tasks << {
+      'id': exercise_task_id,
+      'exercise_slide_id': exercise_slide_id,
+      'assignment': [
+        {
+          'clientId': SecureRandom.uuid,
+          'isValid': true,
+          'name': 'core/paragraph',
+          'attributes': {
+            'content': parsed_quiz_data['body'] || '',
+            'dropCap': false,
+          },
+          'innerBlocks': [],
+        },
+      ],
+      'exercise_type': 'quizzes',
+      'private_spec': parsed_quiz_data,
+      'order_number': 0,
+    }
+
+    @exercise_count += 1
+    @tag_depth = @tag_depth - 1 if line.end_with?('</quiz>') || oneliner
   end
 
   def handle_image(line, json_block, file, json_content)
@@ -815,7 +753,6 @@ class MaterialMigrator
       json_content << image_block
     end
 
-    # @inside_a_block = false
     @tag_depth = @tag_depth - 1
   end
 
@@ -948,13 +885,9 @@ class MaterialMigrator
   end
 
   def handle_br(json_block, json_content)
-    # if @inside_a_block && @current_tag_type == 'quiz'
     if @tag_depth > 0 && @current_tag_type == 'quiz'
-      # json_block[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:attributes][:content] << '<br>'
       append_to_last_block_content(json_block, '<br>')
-    # elsif @inside_a_block
     elsif @tag_depth > 0
-      #json_block[:innerBlocks].last[:attributes][:content] << '<br>'
       append_to_last_block_content(json_block, '<br>')
     else
       json_content << {
@@ -997,9 +930,6 @@ class MaterialMigrator
   end
 
   def handle_span(line, json_block, json_content)
-    # We just remove the span tag and any inline styles since secret project does styles in separate css
-
-
     styles = {}
     if (styles_string = extract_quoted_attribute(line, 'style'))
 
@@ -1007,13 +937,6 @@ class MaterialMigrator
         styles[key.strip] = value.strip
       end
     end
-
-    # styles = {}
-    # styles_string = line.match(/style="([^"]+)"/)[1]
-
-    # styles_string.scan(/([\w-]+):\s*([^;]+);?/) do |key, value|
-    #   styles[key.strip] = value.strip
-    # end
 
     if line.end_with?('</span>')
       # close the block
@@ -1024,11 +947,6 @@ class MaterialMigrator
         json_content << json_block
       else
         append_to_last_block_content(json_block, line)
-        # if json_block[:name] = 'moocfi/exercise'
-        #   json_block[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:innerBlocks].last[:attributes][:content] << line
-        # else
-        #   json_block[:innerBlocks].last[:attributes][:content] << line
-        # end
       end
     else
       # if the line doesn't end in the closing tag, don't close the block

@@ -132,7 +132,6 @@ async fn send_message(
         course_id: chatbot_configuration.course_id,
         course_name,
     };
-    let mut tx = conn.begin().await?;
 
     let response_stream = send_chat_request_and_parse_stream(
         // An Arc, cheap to clone.
@@ -144,8 +143,6 @@ async fn send_message(
         chatbot_user,
     )
     .await?;
-
-    tx.commit().await?;
 
     token.authorized_ok(
         HttpResponse::Ok()

@@ -705,7 +705,7 @@ async fn parse_tool<'a>(
         {
             Err(chatbot_err!(
                 StreamingError,
-                format!("Error received from the API: {}.", error)
+                format!("Error received from the API: {}. Response id: {}", error, response.id)
             ))?
         };
 
@@ -814,7 +814,7 @@ pub async fn parse_and_stream_to_user<'a>(
     .await?;
     models::chatbot_conversation_messages_citations::update_citation_message_ids(
         conn,
-        response_id,
+        response_id.to_owned(),
         response_message.id,
     )
     .await?;
@@ -883,7 +883,7 @@ pub async fn parse_and_stream_to_user<'a>(
             if error_incoming &&
                 let Some(response) = &response_output.response && let Some(error) = &response.error
             {
-                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}.", error)))?
+                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, &response_id)))?
             };
 
             if let Some(delta) = &response_output.delta {
@@ -909,7 +909,7 @@ pub async fn parse_and_stream_to_user<'a>(
             }
         }
         if !done.load(atomic::Ordering::Relaxed) {
-            Err(anyhow::anyhow!("Stream ended unexpectedly"))?;
+            Err(anyhow::anyhow!("Stream ended unexpectedly. Response id: {}", &response_id))?;
         }
     };
 
@@ -938,7 +938,7 @@ fn stream_and_detect_response_stream_type<'a>(
             }
             Some(Err(e)) => {
                 Err(anyhow!(
-                    "There was an error streaming response from Azure: {e}. Response id: {response_id}"
+                    "There was an error streaming response from Azure: {e}. Response id: {}", &response_id
                 ))?;
             }
             Some(Result::Ok(line)) => {
@@ -962,20 +962,20 @@ fn stream_and_detect_response_stream_type<'a>(
                                     ))?;
                                 }
                                 yield Lol2::ResponseIdStream((
-                                    response_id,
+                                    response_id.to_owned(),
                                     ResponseStreamType::Toolcall(lines),
                                 ));
                                 break;
                             }
                             "response.output_text.delta" => {
                                 yield Lol2::ResponseIdStream((
-                                    response_id,
+                                    response_id.to_owned(),
                                     ResponseStreamType::TextResponse(lines),
                                 ));
                                 break;
                             }
                             "response.incomplete" => {
-                                break Err(anyhow::anyhow!("Response incomplete. Response id: {response_id}"))?
+                                break Err(anyhow::anyhow!("Response incomplete. Response id: {}", &response_id))?
                             },
                             _ => {}
                         }
@@ -987,7 +987,7 @@ fn stream_and_detect_response_stream_type<'a>(
                                 "Expected response object"
                             ))?;
                             response_id = res.id;
-                            println!("!!!current response id: {response_id}");
+                            println!("!!!current response id: {}", &response_id);
                             response_created_incoming = false;
                         }
                         if output_item_incoming {
@@ -1017,7 +1017,7 @@ fn stream_and_detect_response_stream_type<'a>(
         continue;
     }
     Err(Error::msg(format!(
-        "The response received from Azure ended unexpectedly. Response id: {response_id}"
+        "The response received from Azure ended unexpectedly. Response id: {}", &response_id
     )))?
     })
 }
@@ -1198,6 +1198,7 @@ pub async fn send_chat_request_and_parse_stream(
         pool: pool.clone(),
         done: done.clone(),
         request_estimated_tokens,
+        // response_id?
     };
 
     let response_stream = async_stream::try_stream! { 'outer: loop

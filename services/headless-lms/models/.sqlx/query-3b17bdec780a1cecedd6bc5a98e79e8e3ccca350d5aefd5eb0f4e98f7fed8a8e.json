@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND id IN (\n    SELECT current_course_id\n    FROM user_course_settings\n    WHERE deleted_at IS NULL\n      AND user_id = $1\n  )\n",
+  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted,\n    is_joinable_by_code_only,\n    join_code,\n    ask_marketing_consent,\n    description,\n    flagged_answers_threshold,\n    flagged_answers_skip_manual_review_and_allow_retry\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17\n  )\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled\n        ",
   "describe": {
     "columns": [
       {
@@ -154,17 +154,6 @@
       },
       {
         "ordinal": 14,
-        "name": "is_unlisted",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "is_unlisted"
-          }
-        }
-      },
-      {
-        "ordinal": 15,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4",
         "origin": {
@@ -175,13 +164,24 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "can_add_chatbot"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "is_unlisted",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_unlisted"
           }
         }
       },
@@ -283,11 +283,38 @@
             "name": "chapter_locking_enabled"
           }
         }
+      },
+      {
+        "ordinal": 26,
+        "name": "cheater_detection_enabled",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "cheater_detection_enabled"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Varchar",
+        "Bool",
+        "Text",
+        "Int4",
+        "Bool"
       ]
     },
     "nullable": [
@@ -316,8 +343,9 @@
       true,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "2918a98d620c7f72294c99427c445264ff5b4ee5bd72da967966ee83e4b26a4e"
+  "hash": "3b17bdec780a1cecedd6bc5a98e79e8e3ccca350d5aefd5eb0f4e98f7fed8a8e"
 }

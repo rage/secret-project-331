@@ -81,6 +81,20 @@ pub async fn main() -> anyhow::Result<()> {
         ))
     )?;
 
+    // Suspected-cheaters detection is on by default (3-hour threshold), but seeded courses are
+    // completed in seconds by system tests, which would flag every seeded user and break the
+    // suite. Disable detection for all seeded courses except the dedicated cheaters test course
+    // (060c272f-…), which the suspected-cheaters spec relies on. Production is never seeded, so it
+    // keeps the on-by-default behavior.
+    {
+        let mut conn = db_pool.acquire().await?;
+        sqlx::query!(
+            "UPDATE courses SET cheater_detection_enabled = FALSE WHERE id <> '060c272f-8c68-4d90-946f-2d431114ed56'"
+        )
+        .execute(&mut *conn)
+        .await?;
+    }
+
     try_join!(
         run_parallelly(seed_roles::seed_roles(
             db_pool.clone(),

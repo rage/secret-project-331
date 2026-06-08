@@ -1743,6 +1743,7 @@
   "this-course-has-no-pages": "This course has no pages",
   "this-field-required": "This field is required",
   "threshold-added-successfully": "Threshold saved successfully",
+  "threshold-must-be-at-least-3-hours": "Threshold must be at least 3 hours",
   "threshold-must-be-non-negative": "Threshold must be non-negative",
   "threshold-removed-successfully": "Threshold removed successfully",
   "tick-the-box-if-you-want-email-after-credits-have-been-registered": "If you want an email notification when the credits have been registered, tick the box 'A notification of completed studies will be sent to my email (including the grade)'",

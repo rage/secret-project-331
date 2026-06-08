@@ -14,8 +14,7 @@ use crate::{
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy, CourseModule},
     courses, exams, open_university_registration_links,
     prelude::*,
-    suspected_cheaters::{self, Threshold},
-    user_course_settings,
+    suspected_cheaters, user_course_settings,
     user_details::UserDetail,
     user_exercise_states,
     users::{self, User},
@@ -46,15 +45,21 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
         )
         .await?;
 
-        if let Some(thresholds) =
-            suspected_cheaters::get_thresholds_by_module_id(&mut tx, completion.course_module_id)
-                .await?
-        {
+        if course.cheater_detection_enabled {
+            // Detection is on by default. When the course has no explicit threshold configured,
+            // fall back to the default (3 hours).
+            let threshold_seconds = suspected_cheaters::get_thresholds_by_module_id(
+                &mut tx,
+                completion.course_module_id,
+            )
+            .await?
+            .map(|t| t.duration_seconds)
+            .unwrap_or(suspected_cheaters::DEFAULT_CHEATER_THRESHOLD_SECONDS);
             check_and_insert_suspected_cheaters(
                 &mut tx,
                 user_id,
                 course.id,
-                &thresholds,
+                threshold_seconds,
                 completion,
             )
             .await?;
@@ -68,7 +73,7 @@ pub async fn check_and_insert_suspected_cheaters(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
-    thresholds: &Threshold,
+    threshold_seconds: i32,
     completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
     let total_points = user_exercise_states::get_user_total_course_points(conn, user_id, course_id)
@@ -105,7 +110,7 @@ pub async fn check_and_insert_suspected_cheaters(
         }
     };
 
-    if (student_duration_seconds as i32) < thresholds.duration_seconds {
+    if (student_duration_seconds as i32) < threshold_seconds {
         let suspicion_is_active = suspected_cheaters::insert(
             conn,
             completion.user_id,
@@ -1185,9 +1190,15 @@ mod tests {
         )
         .await
         .unwrap();
-        check_and_insert_suspected_cheaters(tx.as_mut(), user, course, &thresholds, completion)
-            .await
-            .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
 
         let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
             tx.as_mut(),
@@ -1259,14 +1270,20 @@ mod tests {
             tx.as_mut(),
             user,
             course,
-            &thresholds,
+            thresholds.duration_seconds,
             completion.clone(),
         )
         .await
         .unwrap();
-        check_and_insert_suspected_cheaters(tx.as_mut(), user, course, &thresholds, completion)
-            .await
-            .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
 
         let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
             tx.as_mut(),
@@ -1301,7 +1318,7 @@ mod tests {
             tx.as_mut(),
             user,
             course,
-            &thresholds,
+            thresholds.duration_seconds,
             archived_completion,
         )
         .await

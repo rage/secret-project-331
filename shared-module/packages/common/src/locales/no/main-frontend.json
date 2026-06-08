@@ -1458,6 +1458,7 @@
   "this-course-has-no-pages": "Dette kurset har ingen sider",
   "this-field-required": "Dette feltet er påkrevd",
   "threshold-added-successfully": "Terskelen ble lagret",
+  "threshold-must-be-at-least-3-hours": "Terskelen må være minst 3 timer",
   "threshold-must-be-non-negative": "Terskelen kan ikke være negativ",
   "threshold-removed-successfully": "Terskel fjernet",
   "tick-the-box-if-you-want-email-after-credits-have-been-registered": "Hvis du vil ha epost når poengene er blitt registrert, kryss av for 'En melding om fullførte studier vil bli sendt til min e-post (inkludert karakteren)'",

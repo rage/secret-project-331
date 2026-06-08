@@ -3477,7 +3477,8 @@
           "is_joinable_by_code_only",
           "ask_marketing_consent",
           "flagged_answers_skip_manual_review_and_allow_retry",
-          "chapter_locking_enabled"
+          "chapter_locking_enabled",
+          "cheater_detection_enabled"
         ],
         "properties": {
           "ask_marketing_consent": {
@@ -3491,6 +3492,9 @@
             "type": "boolean"
           },
           "chapter_locking_enabled": {
+            "type": "boolean"
+          },
+          "cheater_detection_enabled": {
             "type": "boolean"
           },
           "closed_additional_message": {

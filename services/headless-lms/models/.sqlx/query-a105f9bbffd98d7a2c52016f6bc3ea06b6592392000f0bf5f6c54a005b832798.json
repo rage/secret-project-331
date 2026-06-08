@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted,\n    is_joinable_by_code_only,\n    join_code,\n    ask_marketing_consent,\n    description,\n    flagged_answers_threshold,\n    flagged_answers_skip_manual_review_and_allow_retry\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17\n  )\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\n        ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled\nFROM courses\nWHERE id = $1;\n    ",
   "describe": {
     "columns": [
       {
@@ -154,17 +154,6 @@
       },
       {
         "ordinal": 14,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "base_module_completion_requires_n_submodule_completions"
-          }
-        }
-      },
-      {
-        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool",
         "origin": {
@@ -175,13 +164,24 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "is_unlisted",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "is_unlisted"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "base_module_completion_requires_n_submodule_completions"
           }
         }
       },
@@ -283,27 +283,22 @@
             "name": "chapter_locking_enabled"
           }
         }
+      },
+      {
+        "ordinal": 26,
+        "name": "cheater_detection_enabled",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "cheater_detection_enabled"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Uuid",
-        "Varchar",
-        "Varchar",
-        "Varchar",
-        "Uuid",
-        "Uuid",
-        "Bool",
-        "Int4",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Varchar",
-        "Bool",
-        "Text",
-        "Int4",
-        "Bool"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -332,8 +327,9 @@
       true,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "85d07e3377cbe1255912512424391f4152d3c11466e54dbeff5e352a51c86391"
+  "hash": "a105f9bbffd98d7a2c52016f6bc3ea06b6592392000f0bf5f6c54a005b832798"
 }

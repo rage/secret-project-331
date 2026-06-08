@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled\nFROM courses\nWHERE join_code = $1\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -283,11 +283,22 @@
             "name": "chapter_locking_enabled"
           }
         }
+      },
+      {
+        "ordinal": 26,
+        "name": "cheater_detection_enabled",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "cheater_detection_enabled"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Text"
       ]
     },
     "nullable": [
@@ -316,8 +327,9 @@
       true,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "da373b94594ceba236b1ec2dc13c9bd8db859d598dbb4d50f6f0cd81dfbbec82"
+  "hash": "83199760e8e4b3e60653505e36e4214481d8e1b236f2a873def6e5252fd18200"
 }

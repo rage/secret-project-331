@@ -1480,6 +1480,7 @@
   "this-course-has-no-pages": "Цей курс не має сторінок",
   "this-field-required": "Це поле є обов'язковим",
   "threshold-added-successfully": "Поріг успішно додано",
+  "threshold-must-be-at-least-3-hours": "Поріг має бути не менше 3 годин",
   "threshold-must-be-non-negative": "Поріг має бути невід'ємним",
   "threshold-removed-successfully": "Поріг успішно видалено",
   "tick-the-box-if-you-want-email-after-credits-have-been-registered": "Якщо ви хочете отримувати сповіщення електронною поштою, коли кредити будуть зареєстровані, поставте прапорець «Повідомлення про завершені навчання буде надіслано на мою електронну адресу (включно з оцінкою)»",

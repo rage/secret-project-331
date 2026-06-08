@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled\nFROM courses\nWHERE deleted_at IS NULL;\n",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled\nFROM courses\nWHERE slug = $1\n  AND deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -154,17 +154,6 @@
       },
       {
         "ordinal": 14,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "base_module_completion_requires_n_submodule_completions"
-          }
-        }
-      },
-      {
-        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool",
         "origin": {
@@ -175,13 +164,24 @@
         }
       },
       {
-        "ordinal": 16,
+        "ordinal": 15,
         "name": "is_unlisted",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "is_unlisted"
+          }
+        }
+      },
+      {
+        "ordinal": 16,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "base_module_completion_requires_n_submodule_completions"
           }
         }
       },
@@ -283,10 +283,23 @@
             "name": "chapter_locking_enabled"
           }
         }
+      },
+      {
+        "ordinal": 26,
+        "name": "cheater_detection_enabled",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "cheater_detection_enabled"
+          }
+        }
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Text"
+      ]
     },
     "nullable": [
       false,
@@ -314,8 +327,9 @@
       true,
       true,
       true,
+      false,
       false
     ]
   },
-  "hash": "a281f2e8b0bedd9109983a3d68bdc0d4905af55ac6c16e9fa77056f1d98cfdac"
+  "hash": "38d20ba73f685a82248ddd129861c2a1b96f3f39f26e081425a48b81ecf44263"
 }

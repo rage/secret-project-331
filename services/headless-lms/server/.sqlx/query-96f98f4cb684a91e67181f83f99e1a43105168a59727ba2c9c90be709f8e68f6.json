@@ -1,0 +1,12 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "UPDATE courses SET cheater_detection_enabled = FALSE WHERE id <> '060c272f-8c68-4d90-946f-2d431114ed56'",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": []
+  },
+  "hash": "96f98f4cb684a91e67181f83f99e1a43105168a59727ba2c9c90be709f8e68f6"
+}

@@ -1231,6 +1231,7 @@ mod tests {
                 closed_additional_message: None,
                 closed_course_successor_id: None,
                 chapter_locking_enabled: false,
+                cheater_detection_enabled: true,
             }
         }
 

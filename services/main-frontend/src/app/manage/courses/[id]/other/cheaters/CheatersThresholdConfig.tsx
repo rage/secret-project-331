@@ -239,6 +239,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                   const moduleName = module.name ?? t("default-module")
                   const hasValue = durationHours !== undefined
                   const hasSavedValue = savedDurationHours !== undefined
+                  const isBelowMinimum = hasValue && (durationHours ?? 0) < 3
                   const isRemoving = hasSavedValue && isEdited && editedDurationHours === undefined
                   const isSaved =
                     !isEdited ||
@@ -280,6 +281,10 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                             id={inputId}
                             className="duration-threshold"
                             type="number"
+                            min={3}
+                            error={
+                              isBelowMinimum ? t("threshold-must-be-at-least-3-hours") : undefined
+                            }
                             aria-labelledby={`duration-header ${labelId}`}
                             value={durationHours?.toString() ?? ""}
                             onChangeByValue={(value: string) => {
@@ -309,6 +314,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                             (!hasValue && !hasSavedValue) ||
                             postThresholdForModuleMutation.isPending ||
                             deleteThresholdForModuleMutation.isPending ||
+                            (isBelowMinimum && !isRemoving) ||
                             isSaved
                           }
                           onClick={() => handleUpdateThreshold(module.id, durationHours)}

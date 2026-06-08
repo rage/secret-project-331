@@ -518,6 +518,7 @@ export type Course = {
   base_module_completion_requires_n_submodule_completions: number
   can_add_chatbot: boolean
   chapter_locking_enabled: boolean
+  cheater_detection_enabled: boolean
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null

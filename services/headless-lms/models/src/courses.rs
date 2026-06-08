@@ -54,6 +54,7 @@ pub struct Course {
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub chapter_locking_enabled: bool,
+    pub cheater_detection_enabled: bool,
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
@@ -270,7 +271,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -312,7 +314,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -361,7 +364,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -422,7 +426,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
@@ -468,7 +473,8 @@ SELECT
     c.closed_at,
     c.closed_additional_message,
     c.closed_course_successor_id,
-    c.chapter_locking_enabled
+    c.chapter_locking_enabled,
+    c.cheater_detection_enabled
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -539,7 +545,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE id = $1;
     "#,
@@ -583,7 +590,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE id = $1
   AND join_code = $2
@@ -699,7 +707,8 @@ SELECT courses.id,
   courses.closed_at,
   courses.closed_additional_message,
   courses.closed_course_successor_id,
-  courses.chapter_locking_enabled
+  courses.chapter_locking_enabled,
+  courses.cheater_detection_enabled
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -822,7 +831,8 @@ RETURNING id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
     "#,
         course_update.name,
         course_update.description,
@@ -843,6 +853,23 @@ RETURNING id,
     .fetch_one(conn)
     .await?;
     Ok(res)
+}
+
+/// Enables or disables suspected-cheaters detection for a course. Used by the seed to opt
+/// seeded/system-test courses out of the on-by-default detection.
+pub async fn set_cheater_detection_enabled(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    enabled: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "UPDATE courses SET cheater_detection_enabled = $2 WHERE id = $1",
+        course_id,
+        enabled,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
 }
 
 pub async fn update_course_base_module_completion_count_requirement(
@@ -898,7 +925,8 @@ RETURNING id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
     "#,
         course_id
     )
@@ -936,7 +964,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
@@ -1033,7 +1062,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   AND deleted_at IS NULL
@@ -1077,7 +1107,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1141,7 +1172,8 @@ SELECT id,
   closed_at,
   closed_additional_message,
   closed_course_successor_id,
-  chapter_locking_enabled
+  chapter_locking_enabled,
+  cheater_detection_enabled
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;

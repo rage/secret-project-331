@@ -365,6 +365,7 @@ export const zCourse = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   can_add_chatbot: z.boolean(),
   chapter_locking_enabled: z.boolean(),
+  cheater_detection_enabled: z.boolean(),
   closed_additional_message: z.string().nullish(),
   closed_at: z.iso.datetime().nullish(),
   closed_course_successor_id: z.uuid().nullish(),

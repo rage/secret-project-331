@@ -2,6 +2,12 @@ use crate::prelude::*;
 use crate::{course_module_completions, course_modules};
 use utoipa::ToSchema;
 
+/// 3 hours, in seconds. Default threshold used when a course has no explicit threshold
+/// configured but cheater detection is enabled.
+pub const DEFAULT_CHEATER_THRESHOLD_SECONDS: i32 = 3 * 60 * 60;
+/// Teachers cannot configure a threshold below this (3 hours).
+pub const MINIMUM_CHEATER_THRESHOLD_SECONDS: i32 = 3 * 60 * 60;
+
 /// Review state of a suspected cheater.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "suspected_cheater_status", rename_all = "kebab-case")]

@@ -256,6 +256,14 @@ async fn insert_threshold_for_module(
     )
     .await?;
 
+    if new_threshold.duration_seconds < suspected_cheaters::MINIMUM_CHEATER_THRESHOLD_SECONDS {
+        return Err(ControllerError::new(
+            ControllerErrorType::BadRequest,
+            "The threshold must be at least 3 hours.",
+            None,
+        ));
+    }
+
     suspected_cheaters::insert_thresholds_by_module_id(
         &mut conn,
         course_module_id,

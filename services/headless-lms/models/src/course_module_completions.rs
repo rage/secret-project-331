@@ -793,6 +793,9 @@ FROM course_module_completions
 WHERE course_module_id = ANY($1)
   AND prerequisite_modules_completed
   AND eligible_for_ects IS TRUE
+  -- Completions still awaiting suspected-cheater review are withheld from study-registry
+  -- registration until a teacher dismisses or confirms them.
+  AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
   AND id NOT IN (
     SELECT course_module_completion_id

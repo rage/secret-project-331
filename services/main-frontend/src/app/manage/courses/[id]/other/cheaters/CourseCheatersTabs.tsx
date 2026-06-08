@@ -1,13 +1,16 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourseSuspectedCheatersOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseFlaggedSuspectedCheatersCountQueryKey,
+  getCourseSuspectedCheatersOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
   confirmCourseSuspectedCheater,
   dismissCourseSuspectedCheater,
@@ -23,7 +26,6 @@ import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/route
 interface CourseCheatersProps {
   courseId: string
   status: SuspectedCheaterStatus
-  perPage: number
 }
 
 const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> = ({
@@ -31,6 +33,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
   status,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
 
   // Only students still awaiting review can be acted on; the confirmed and dismissed
   // lists are read-only.
@@ -75,6 +78,13 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
     {
       onSuccess: () => {
         suspectedCheaters.refetch()
+        // The acted-on student leaves the flagged set, so refresh the flagged-count badge
+        // (course tabs) and the overview review banner, which are owned by other components.
+        queryClient.invalidateQueries({
+          queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({
+            path: { course_id: courseId },
+          }),
+        })
       },
     },
   )
@@ -100,6 +110,13 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
     {
       onSuccess: () => {
         suspectedCheaters.refetch()
+        // The acted-on student leaves the flagged set, so refresh the flagged-count badge
+        // (course tabs) and the overview review banner, which are owned by other components.
+        queryClient.invalidateQueries({
+          queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({
+            path: { course_id: courseId },
+          }),
+        })
       },
     },
   )

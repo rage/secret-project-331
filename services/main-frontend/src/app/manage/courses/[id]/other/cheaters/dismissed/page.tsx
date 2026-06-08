@@ -9,7 +9,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 function CheatersDismissedPage() {
   const params = useParams<{ id: string }>()
-  return <CourseCheatersTabs courseId={params.id} status="Dismissed" perPage={4} />
+  return <CourseCheatersTabs courseId={params.id} status="Dismissed" />
 }
 
 export default withErrorBoundary(withSignedIn(CheatersDismissedPage))

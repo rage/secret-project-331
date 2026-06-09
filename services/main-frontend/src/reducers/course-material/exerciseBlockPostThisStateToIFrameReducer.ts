@@ -6,7 +6,7 @@ import {
 import {
   ExerciseIframeState,
   UserVariablesMap,
-} from "@/shared-module/common/exercise-service-protocol-types"
+} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
 

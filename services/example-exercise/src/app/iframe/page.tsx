@@ -4,16 +4,25 @@ import React, { useState } from "react"
 import ReactDOM from "react-dom"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseFeedback } from "../api/grade/route"
-
 import Renderer from "@/components/Renderer"
-import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
-import { forgivingIsSetStateMessage } from "@/shared-module/common/exercise-service-protocol-types"
-import { isSetLanguageMessage } from "@/shared-module/common/exercise-service-protocol-types.guard"
-import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import withErrorBoundary from "@/lib/withErrorBoundary"
+import HeightTrackingContainer from "@/shared-module/exercise-plugins/react/components/HeightTrackingContainer"
+import { forgivingIsSetStateMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { isSetLanguageMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types.guard"
+import useExerciseServiceParentConnection from "@/shared-module/exercise-plugins/react/hooks/useExerciseServiceParentConnection"
 import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
-import { Alternative, Answer, ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
+import {
+  Alternative,
+  Answer,
+  ExerciseFeedback,
+  ModelSolutionApi,
+  PublicAlternative,
+  isExerciseFeedback,
+  parseAnswer,
+  parseModelSolution,
+  parsePrivateSpec,
+  parsePublicSpec,
+} from "@/util/stateInterfaces"
 
 export interface SubmissionData {
   grading: ExerciseTaskGradingResult
@@ -49,21 +58,21 @@ const Iframe: React.FC = () => {
         if (messageData.view_type === "answer-exercise") {
           setState({
             view_type: messageData.view_type,
-            public_spec: messageData.data.public_spec as PublicAlternative[],
+            public_spec: parsePublicSpec(messageData.data.public_spec),
           })
         } else if (messageData.view_type === "exercise-editor") {
           setState({
             view_type: messageData.view_type,
-            private_spec: (messageData.data.private_spec as Alternative[]) || [],
+            private_spec: parsePrivateSpec(messageData.data.private_spec),
           })
         } else if (messageData.view_type === "view-submission") {
-          const userAnswer = messageData.data.user_answer as Answer
+          const feedbackJson = messageData.data.grading?.feedback_json
           setState({
             view_type: messageData.view_type,
-            public_spec: messageData.data.public_spec as PublicAlternative[],
-            answer: userAnswer,
-            feedback_json: messageData.data.grading?.feedback_json as ExerciseFeedback | null,
-            model_solution_spec: messageData.data.model_solution_spec as ModelSolutionApi | null,
+            public_spec: parsePublicSpec(messageData.data.public_spec),
+            answer: parseAnswer(messageData.data.user_answer),
+            feedback_json: isExerciseFeedback(feedbackJson) ? feedbackJson : null,
+            model_solution_spec: parseModelSolution(messageData.data.model_solution_spec),
             grading: messageData.data.grading,
           })
         } else {

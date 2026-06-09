@@ -11,7 +11,7 @@ import type {
   GetPlaygroundViewsWebsocketData,
   ReceivePlaygroundGradingData,
 } from "@/generated/api/types.generated"
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import { GradingRequest } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types-2"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
 import {

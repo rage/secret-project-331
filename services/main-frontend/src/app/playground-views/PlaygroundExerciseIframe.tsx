@@ -5,14 +5,14 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import MessageChannelIFrame from "@/shared-module/exercise-plugins/parent/MessageChannelIFrame"
 import {
   CurrentStateMessage,
   ExerciseIframeState,
   MessageToIframe,
   UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
+} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types.guard"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"

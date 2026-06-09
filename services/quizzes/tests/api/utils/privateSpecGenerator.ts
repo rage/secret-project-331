@@ -13,7 +13,7 @@ import {
   QuizItemOption,
 } from "../../../types/quizTypes/privateSpec"
 
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+import { GradingRequest } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types-2"
 
 export const MESSAGE_AFTER_SUBMISSION_CANARY_FOR_TESTS = "You should see this after a submission"
 export const ADDITIONAL_CORRECTNESS_EXPLANATION_ON_MODEL_SOLUTION_CANARY_FOR_TESTS =

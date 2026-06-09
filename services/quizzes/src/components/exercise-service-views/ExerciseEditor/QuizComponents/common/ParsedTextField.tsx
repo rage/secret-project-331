@@ -11,7 +11,7 @@ import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { OpenLinkMessage } from "@/shared-module/common/exercise-service-protocol-types"
+import { OpenLinkMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
 
 const DisplayContainer = styled.div`
   display: flex;

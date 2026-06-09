@@ -31,8 +31,8 @@ import {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
+} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { GradingRequest } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types-2"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"

@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/explicit-module-boundary-types */
-
 /*
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
@@ -285,11 +282,11 @@ export function isViewSubmissionIframeState(obj: unknown): obj is ViewSubmission
             (typedObj["data"]["grading"] !== null &&
                 typeof typedObj["data"]["grading"] === "object" ||
                 typeof typedObj["data"]["grading"] === "function") &&
-            (typedObj["data"]["grading"]["grading_progress"] === "Failed" ||
-                typedObj["data"]["grading"]["grading_progress"] === "NotReady" ||
+            (typedObj["data"]["grading"]["grading_progress"] === "Pending" ||
+                typedObj["data"]["grading"]["grading_progress"] === "Failed" ||
+                typedObj["data"]["grading"]["grading_progress"] === "FullyGraded" ||
                 typedObj["data"]["grading"]["grading_progress"] === "PendingManual" ||
-                typedObj["data"]["grading"]["grading_progress"] === "Pending" ||
-                typedObj["data"]["grading"]["grading_progress"] === "FullyGraded") &&
+                typedObj["data"]["grading"]["grading_progress"] === "NotReady") &&
             typeof typedObj["data"]["grading"]["score_given"] === "number" &&
             typeof typedObj["data"]["grading"]["score_maximum"] === "number" &&
             (typedObj["data"]["grading"]["feedback_text"] === null ||
@@ -421,10 +418,10 @@ export function isNonGenericGradingResult(obj: unknown): obj is NonGenericGradin
         (typedObj !== null &&
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
-        (typedObj["grading_progress"] === "Failed" ||
-            typedObj["grading_progress"] === "PendingManual" ||
-            typedObj["grading_progress"] === "Pending" ||
-            typedObj["grading_progress"] === "FullyGraded") &&
+        (typedObj["grading_progress"] === "Pending" ||
+            typedObj["grading_progress"] === "Failed" ||
+            typedObj["grading_progress"] === "FullyGraded" ||
+            typedObj["grading_progress"] === "PendingManual") &&
         typeof typedObj["score_given"] === "number" &&
         typeof typedObj["score_maximum"] === "number" &&
         (typedObj["feedback_text"] === null ||

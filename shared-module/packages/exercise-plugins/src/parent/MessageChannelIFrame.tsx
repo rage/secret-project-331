@@ -10,17 +10,28 @@ import {
   MessageFromIframe,
   SetLanguageMessage,
   SetStateMessage,
-} from "../exercise-service-protocol-types"
+} from "../core/exercise-service-protocol-types"
 import {
   isHeightChangedMessage,
   isMessageFromIframe,
   isOpenLinkMessage,
   isRequestIframeReloadMessage,
-} from "../exercise-service-protocol-types.guard"
-import useEventCallback from "../hooks/useEventCallback"
-import useMessageChannel from "../hooks/useMessageChannel"
+} from "../core/exercise-service-protocol-types.guard"
+import useEventCallback from "../react/hooks/useEventCallback"
+import useMessageChannel from "../react/hooks/useMessageChannel"
 
-import { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
+// Inlined from shared-module's BreakFromCentered component: only this prop type is needed
+// here, and we don't want this package to depend on a generic layout component.
+interface NoSidebar {
+  sidebar: false
+}
+interface WithSidebar {
+  sidebar: true
+  sidebarPosition: "left" | "right"
+  sidebarWidth: string
+  sidebarThreshold?: string
+}
+type BreakFromCenteredProps = NoSidebar | WithSidebar
 
 interface MessageChannelIFrameProps {
   url: string

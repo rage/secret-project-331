@@ -6,7 +6,7 @@ import React from "react"
 
 import StateRenderer from "@/components/StateRenderer"
 import { useIframeProtocol } from "@/hooks/useIframeProtocol"
-import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
+import HeightTrackingContainer from "@/shared-module/exercise-plugins/react/components/HeightTrackingContainer"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 

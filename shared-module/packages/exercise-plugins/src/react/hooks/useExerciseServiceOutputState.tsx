@@ -3,8 +3,8 @@
 import { produce } from "immer"
 import { useCallback, useContext, useMemo } from "react"
 
-import { ExerciseServiceContextType } from "../../contexts/ExerciseServiceContext"
-import { CurrentStateMessage } from "../../exercise-service-protocol-types"
+import { ExerciseServiceContextType } from "../contexts/ExerciseServiceContext"
+import { CurrentStateMessage } from "../../core/exercise-service-protocol-types"
 
 export type UpdateFunction<R> = (draftState: R | null) => void
 

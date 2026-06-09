@@ -51,7 +51,7 @@ import Timeline from "./impl-by-quiz-item-type/Timeline"
 import Unsupported from "./impl-by-quiz-item-type/Unsupported"
 
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import { UserInformation } from "@/shared-module/common/exercise-service-protocol-types"
+import { UserInformation } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
 import { baseTheme } from "@/shared-module/common/styles"
 import { COLUMN } from "@/util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"

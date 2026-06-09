@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next"
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import type { StudentExerciseTaskSubmissionResult } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import MessageChannelIFrame from "@/shared-module/exercise-plugins/parent/MessageChannelIFrame"
 import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"

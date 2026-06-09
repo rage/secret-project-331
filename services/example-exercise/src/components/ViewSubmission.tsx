@@ -3,10 +3,13 @@
 import { css } from "@emotion/css"
 import React from "react"
 
-import { ExerciseFeedback } from "../app/api/grade/route"
-
-import { baseTheme } from "@/shared-module/common/styles"
-import { Answer, ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
+import { baseTheme } from "@/styles/theme"
+import {
+  Answer,
+  ExerciseFeedback,
+  ModelSolutionApi,
+  PublicAlternative,
+} from "@/util/stateInterfaces"
 
 interface SubmissionProps {
   port: MessagePort

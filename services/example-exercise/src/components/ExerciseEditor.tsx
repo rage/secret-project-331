@@ -9,7 +9,7 @@ import { State } from "../app/iframe/page"
 
 import ButtonEditor from "./ButtonEditor"
 
-import { CurrentStateMessage } from "@/shared-module/common/exercise-service-protocol-types"
+import { CurrentStateMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
 import { Alternative } from "@/util/stateInterfaces"
 
 const CURRENT_STATE = "current-state"

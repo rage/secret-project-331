@@ -14,11 +14,11 @@ import {
 } from "@/generated/course-material-api/sdk.generated"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import MessageChannelIFrame from "@/shared-module/exercise-plugins/parent/MessageChannelIFrame"
 import {
   CustomViewIframeState,
   UserVariablesMap,
-} from "@/shared-module/common/exercise-service-protocol-types"
+} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import {
   currentPageDataAtom,

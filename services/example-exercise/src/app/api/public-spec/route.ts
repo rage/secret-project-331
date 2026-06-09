@@ -1,97 +1,27 @@
 import { NextResponse } from "next/server"
 
-import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { BadRequestError, jsonRoute, readJsonBody } from "@/lib/apiRoutes"
 import { isSpecRequest, SpecRequest } from "@/util/exerciseServiceApi"
-import { Alternative, ClientErrorResponse, PublicAlternative } from "@/util/stateInterfaces"
+import { Alternative, PublicAlternative } from "@/util/stateInterfaces"
 
-function notFound() {
-  return NextResponse.json({ message: "Not found" }, { status: 404 })
-}
-
-const SERVICE = "example-exercise"
-
-async function postImpl(req: Request): Promise<Response> {
-  try {
-    let body
-    try {
-      body = await req.json()
-    } catch (jsonError) {
-      const bodyText = await req.text()
-
-      const contentType = req.headers.get("content-type")
-      if (!contentType || !contentType.includes("application/json")) {
-        console.error("Public spec request failed: Invalid Content-Type", {
-          contentType,
-          bodyText,
-        })
-        return NextResponse.json(
-          { message: "Content-Type must be application/json" },
-          { status: 400 },
-        )
-      }
-
-      if (!bodyText || bodyText.trim() === "") {
-        console.error("Public spec request failed: Empty request body", {
-          bodyText,
-        })
-        return NextResponse.json({ message: "Request body is empty" }, { status: 400 })
-      }
-
-      console.error("Public spec request failed: Invalid JSON", {
-        bodyText,
-        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
-      })
-      return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
-    }
-
-    if (!isSpecRequest(body)) {
-      console.error("Public spec request failed: Invalid spec request", {
-        body,
-      })
-      throw new Error("Request was not valid.")
-    }
-    return handlePost(body as SpecRequest)
-  } catch (e) {
-    console.error("Public spec request failed:", e)
-    if (e instanceof Error) {
-      const err: ClientErrorResponse = {
-        message: e.message,
-      }
-      return NextResponse.json(err, { status: 500 })
-    }
-    return NextResponse.json({ message: "Internal Server Error" }, { status: 500 })
+// The public spec is what the student's browser is allowed to see. We derive it from the private
+// spec by dropping the `correct` flag so the answers don't leak to the client.
+function toPublicSpec(specRequest: SpecRequest): NextResponse<PublicAlternative[]> {
+  const privateSpec = specRequest.private_spec
+  if (!Array.isArray(privateSpec)) {
+    throw new BadRequestError("private_spec must be an array of alternatives")
   }
-}
-
-function handlePost(specRequest: SpecRequest): Response {
-  const uncheckedAlternatives: unknown = specRequest.private_spec
-  if (!Array.isArray(uncheckedAlternatives)) {
-    return NextResponse.json(
-      { message: "Malformed data:" + JSON.stringify(uncheckedAlternatives) },
-      { status: 400 },
-    )
-  }
-
-  const publicAlternatives = uncheckedAlternatives.map<PublicAlternative>((x: Alternative) => ({
-    id: x.id,
-    name: x.name,
+  const publicSpec = (privateSpec as Alternative[]).map<PublicAlternative>((alternative) => ({
+    id: alternative.id,
+    name: alternative.name,
   }))
-  return NextResponse.json(publicAlternatives, { status: 200 })
+  return NextResponse.json(publicSpec)
 }
 
-export const POST = wrapRouteHandler(postImpl, { service: SERVICE, operation: "POST /public-spec" })
-export const GET = wrapRouteHandler(notFound, { service: SERVICE, operation: "GET /public-spec" })
-export const PUT = wrapRouteHandler(notFound, { service: SERVICE, operation: "PUT /public-spec" })
-export const PATCH = wrapRouteHandler(notFound, {
-  service: SERVICE,
-  operation: "PATCH /public-spec",
+export const POST = jsonRoute(async (request) => {
+  const body = await readJsonBody(request)
+  if (!isSpecRequest(body)) {
+    throw new BadRequestError("Request was not valid.")
+  }
+  return toPublicSpec(body)
 })
-export const DELETE = wrapRouteHandler(notFound, {
-  service: SERVICE,
-  operation: "DELETE /public-spec",
-})
-export const OPTIONS = wrapRouteHandler(notFound, {
-  service: SERVICE,
-  operation: "OPTIONS /public-spec",
-})
-export const HEAD = wrapRouteHandler(notFound, { service: SERVICE, operation: "HEAD /public-spec" })

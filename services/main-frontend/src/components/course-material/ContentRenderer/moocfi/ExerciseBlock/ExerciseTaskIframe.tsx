@@ -4,12 +4,12 @@ import React, { useCallback } from "react"
 import { useTranslation } from "react-i18next"
 
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import MessageChannelIFrame from "@/shared-module/exercise-plugins/parent/MessageChannelIFrame"
 import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
-import { ExerciseIframeState } from "@/shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import { ExerciseIframeState } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types.guard"
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,

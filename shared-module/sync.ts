@@ -27,6 +27,10 @@ const SYNC_TARGETS = [
     source: "components",
     destinations: ALL_SERVICES_TARGETS,
   },
+  {
+    source: "exercise-plugins",
+    destinations: ALL_SERVICES_TARGETS,
+  },
 ]
 
 const DEBUG = false

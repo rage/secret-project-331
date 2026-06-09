@@ -3,16 +3,15 @@
 import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ExerciseFeedback } from "../app/api/grade/route"
 import { State } from "../app/iframe/page"
 
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission from "./ViewSubmission"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import withErrorBoundary from "@/lib/withErrorBoundary"
+import withNoSsr from "@/lib/withNoSsr"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-plugins/core/constants"
 
 interface RendererProps {
   state: State | null
@@ -38,16 +37,14 @@ const Renderer: React.FC<React.PropsWithChildren<RendererProps>> = ({ state, set
       </div>
     )
   } else if (state.view_type === "view-submission") {
-    const feedbackJson: unknown | null = state.grading?.feedback_json
-    const exerciseFeedback = feedbackJson ? (feedbackJson as ExerciseFeedback) : null
     return (
       <div id={EXERCISE_SERVICE_CONTENT_ID} data-view-type="view-submission">
         <ViewSubmission
           port={port}
           publicSpec={state.public_spec}
           answer={state.answer}
-          gradingFeedback={exerciseFeedback}
-          modelSolutionSpec={state.model_solution_spec ? state.model_solution_spec : null}
+          gradingFeedback={state.feedback_json}
+          modelSolutionSpec={state.model_solution_spec}
         />
       </div>
     )

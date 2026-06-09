@@ -4,13 +4,13 @@ import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import MessageChannelIFrame from "@/shared-module/exercise-plugins/parent/MessageChannelIFrame"
 import {
   CurrentStateMessage,
   ExerciseIframeState,
   UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
+} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types.guard"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 

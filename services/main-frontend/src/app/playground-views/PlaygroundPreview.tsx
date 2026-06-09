@@ -22,7 +22,7 @@ import {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
+} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"

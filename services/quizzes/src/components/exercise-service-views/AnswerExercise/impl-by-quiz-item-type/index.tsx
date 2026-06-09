@@ -42,8 +42,8 @@ import Scale from "./Scale"
 import Timeline from "./Timeline"
 import Unsupported from "./Unsupported"
 
-import { UserInformation } from "@/shared-module/common/exercise-service-protocol-types"
-import { UpdateFunction } from "@/shared-module/common/hooks/exerciseServiceHooks/useExerciseServiceOutputState"
+import { UserInformation } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { UpdateFunction } from "@/shared-module/exercise-plugins/react/hooks/useExerciseServiceOutputState"
 import { COLUMN, QUIZ_ITEM_CLASS } from "@/util/constants"
 import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"
 

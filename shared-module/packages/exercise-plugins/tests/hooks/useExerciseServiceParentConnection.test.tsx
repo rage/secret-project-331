@@ -2,7 +2,7 @@
 
 import { act, renderHook } from "@testing-library/react"
 
-import useExerciseServiceParentConnection from "../../src/hooks/useExerciseServiceParentConnection"
+import useExerciseServiceParentConnection from "../../src/react/hooks/useExerciseServiceParentConnection"
 import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 
 describe("useExerciseServiceParentConnection", () => {

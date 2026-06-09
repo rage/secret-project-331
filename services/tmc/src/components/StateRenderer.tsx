@@ -9,8 +9,8 @@ import ViewSubmission, { normalizeSubmission } from "./ViewSubmission"
 
 import { UploadResultMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-plugins/core/constants"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import withErrorBoundary from "@/shared-module/exercise-plugins/react/components/withErrorBoundary"
+import withNoSsr from "@/shared-module/exercise-plugins/react/components/withNoSsr"
 import { RunResult } from "@/tmc/cli"
 import { ExerciseIframeState } from "@/util/stateInterfaces"
 

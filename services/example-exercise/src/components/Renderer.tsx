@@ -9,8 +9,8 @@ import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission from "./ViewSubmission"
 
+import withErrorBoundary from "@/lib/withErrorBoundary"
 import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-plugins/core/constants"
-import withErrorBoundary from "@/shared-module/exercise-plugins/react/components/withErrorBoundary"
 import withNoSsr from "@/shared-module/exercise-plugins/react/components/withNoSsr"
 
 interface RendererProps {

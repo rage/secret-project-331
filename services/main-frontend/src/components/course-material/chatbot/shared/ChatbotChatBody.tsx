@@ -12,6 +12,7 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
+import StatusIndicator from "./StatusIndicator"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
@@ -134,7 +135,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   useEffect(() => {
     scrollToBottom()
-  }, [scrollToBottom, messages])
+  }, [scrollToBottom, messages, messageState.responseStatus])
 
   const canSubmit = useMemo(
     () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
@@ -219,6 +220,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             )
           }
         })}
+        {messageState.responseStatus && <StatusIndicator status={messageState.responseStatus} />}
         <div
           className={css`
             display: flex;

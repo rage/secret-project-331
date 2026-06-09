@@ -19,11 +19,13 @@ const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
 export interface MessageState {
   optimisticMessage: string | null
   streamingMessage: string | null
+  responseStatus: string | null
 }
 
 export type MessageAction =
   | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
   | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
+  | { type: "SET_STATUS"; payload: string | null }
   | { type: "RESET_MESSAGES" }
 
 const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
@@ -32,8 +34,10 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
       return { ...state, optimisticMessage: action.payload }
     case "APPEND_STREAMING_MESSAGE":
       return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
+    case "SET_STATUS":
+      return { ...state, responseStatus: action.payload }
     case "RESET_MESSAGES":
-      return { optimisticMessage: null, streamingMessage: null }
+      return { optimisticMessage: null, streamingMessage: null, responseStatus: null }
     default:
       return state
   }
@@ -68,6 +72,7 @@ const useChatbotStateAndData = (
   const [messageState, dispatch] = useReducer(messageReducer, {
     optimisticMessage: null,
     streamingMessage: null,
+    responseStatus: null,
   })
 
   const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId)
@@ -121,6 +126,9 @@ const useChatbotStateAndData = (
               console.log(parsedValue)
               if (parsedValue.type === "Delta") {
                 dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.data.text })
+              } else if (parsedValue.type === "Reasoning" || parsedValue.type === "ToolCall") {
+                const payload = parsedValue.data.finished ? null : parsedValue.type
+                dispatch({ type: "SET_STATUS", payload })
               }
             } catch (e) {
               console.error(e)

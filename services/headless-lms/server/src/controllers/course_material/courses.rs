@@ -13,6 +13,7 @@ use headless_lms_models::{
 };
 use headless_lms_models::{partner_block::PartnersBlock, privacy_link::PrivacyLink};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
+use headless_lms_utils::services::sisu::SisuCourseInfoElement;
 use isbot::Bots;
 use models::{
     chapters::ChapterWithStatus,
@@ -45,6 +46,7 @@ use crate::{
     },
     prelude::*,
 };
+use headless_lms_utils::services::sisu::SisuClient;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -76,7 +78,8 @@ use crate::{
     get_partners_block,
     get_privacy_link,
     get_custom_privacy_policy_checkbox_texts,
-    get_user_chapter_locks
+    get_user_chapter_locks,
+    get_sisu_course_codes
 ))]
 pub(crate) struct CourseMaterialCoursesApiDoc;
 
@@ -1501,6 +1504,42 @@ async fn get_user_chapter_locks(
 }
 
 /**
+GET `/api/v0/course-material/courses/:course_id/sisu-course-info` - Get Sisu course info
+
+Returns all course info for specific course.
+**/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/sisu-course-info",
+    operation_id = "getCourseMaterialSisuCourseInfo",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Sisu course info", body = Vec<SisuCourseInfoElement>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_sisu_course_info(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<SisuCourseInfoElement>>> {
+    let mut conn = pool.acquire().await?;
+    let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+
+    let uh_course_codes: Vec<String> = course_modules
+        .iter()
+        .filter_map(|course_module| course_module.clone().uh_course_code)
+        .collect::<Vec<String>>();
+    let course_codes = SisuClient::get_course_codes(uh_course_codes).await?;
+
+    let course_info = SisuClient::get_course_info(course_codes).await?;
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(course_info))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1602,5 +1641,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/user-chapter-locks",
             web::get().to(get_user_chapter_locks),
+        )
+        .route(
+            "/{course_id}/sisu-course-info",
+            web::get().to(get_sisu_course_info),
         );
 }

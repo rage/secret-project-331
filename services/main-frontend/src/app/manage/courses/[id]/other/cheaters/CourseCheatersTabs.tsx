@@ -78,7 +78,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       return confirmCourseSuspectedCheater({
         path: {
           course_id: courseId,
-          id,
+          user_id: id,
         },
       })
     },
@@ -99,7 +99,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       return dismissCourseSuspectedCheater({
         path: {
           course_id: courseId,
-          id,
+          user_id: id,
         },
       })
     },

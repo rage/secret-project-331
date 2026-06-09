@@ -5835,12 +5835,12 @@ export type ConfirmCourseSuspectedCheaterData = {
      */
     course_id: string
     /**
-     * Suspected cheater user id
+     * Suspected cheater's user id
      */
-    id: string
+    user_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{id}"
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{user_id}"
 }
 
 export type ConfirmCourseSuspectedCheaterResponses = {
@@ -5858,12 +5858,12 @@ export type DismissCourseSuspectedCheaterData = {
      */
     course_id: string
     /**
-     * Suspected cheater user id
+     * Suspected cheater's user id
      */
-    id: string
+    user_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{id}"
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{user_id}"
 }
 
 export type DismissCourseSuspectedCheaterResponses = {

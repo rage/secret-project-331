@@ -855,6 +855,29 @@ RETURNING id,
     Ok(res)
 }
 
+/// Enables or disables suspected-cheater detection for a single course. Used by the seed routine to
+/// turn detection off for seeded courses (which are completed in seconds and would otherwise flag
+/// every seeded user); production courses keep the on-by-default value set at creation.
+pub async fn set_cheater_detection_enabled(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    enabled: bool,
+) -> ModelResult<()> {
+    sqlx::query!(
+        "
+UPDATE courses
+SET cheater_detection_enabled = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+        ",
+        enabled,
+        course_id,
+    )
+    .execute(conn)
+    .await?;
+    Ok(())
+}
+
 pub async fn update_course_base_module_completion_count_requirement(
     conn: &mut PgConnection,
     id: Uuid,

@@ -4244,12 +4244,12 @@ export const zGetCourseSuspectedCheatersResponse = z.array(zSuspectedCheaters)
 
 export const zConfirmCourseSuspectedCheaterPath = z.object({
   course_id: z.uuid(),
-  id: z.uuid(),
+  user_id: z.uuid(),
 })
 
 export const zDismissCourseSuspectedCheaterPath = z.object({
   course_id: z.uuid(),
-  id: z.uuid(),
+  user_id: z.uuid(),
 })
 
 export const zGetCourseFlaggedSuspectedCheatersCountPath = z.object({

@@ -3772,7 +3772,7 @@ export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:id - confirms the student cheated (sets status to 'confirmed-cheating') and fails the student.
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
  */
 export const confirmCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
   options: Options<ConfirmCourseSuspectedCheaterData, ThrowOnError>,
@@ -3784,13 +3784,13 @@ export const confirmCourseSuspectedCheater = <ThrowOnError extends boolean = tru
     "data"
   >({
     responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{id}",
+    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{user_id}",
     ...options,
   })
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:id - dismisses the suspicion as a false alarm (sets status to 'dismissed').
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
  */
 export const dismissCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
   options: Options<DismissCourseSuspectedCheaterData, ThrowOnError>,
@@ -3802,7 +3802,7 @@ export const dismissCourseSuspectedCheater = <ThrowOnError extends boolean = tru
     "data"
   >({
     responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{id}",
+    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{user_id}",
     ...options,
   })
 

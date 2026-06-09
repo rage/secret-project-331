@@ -13,7 +13,7 @@ interface UseAiUsageNoticeAcknowledgementOptions {
 
 /**
  * Whether the current user has acknowledged the AI-usage / academic-integrity notice for the
- * given course. Only runs when signed in.
+ * given course. Only runs when signed in and a non-null `courseId` is provided.
  */
 const useAiUsageNoticeAcknowledgement = (
   courseId: string | null,

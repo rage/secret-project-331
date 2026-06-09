@@ -5823,10 +5823,10 @@
         }
       }
     },
-    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{id}": {
+    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{user_id}": {
       "post": {
         "tags": ["courses"],
-        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:id - confirms the student cheated (sets status to 'confirmed-cheating') and fails the student.",
+        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.",
         "operationId": "confirmCourseSuspectedCheater",
         "parameters": [
           {
@@ -5840,9 +5840,9 @@
             }
           },
           {
-            "name": "id",
+            "name": "user_id",
             "in": "path",
-            "description": "Suspected cheater user id",
+            "description": "Suspected cheater's user id",
             "required": true,
             "schema": {
               "type": "string",
@@ -5857,10 +5857,10 @@
         }
       }
     },
-    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{id}": {
+    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{user_id}": {
       "post": {
         "tags": ["courses"],
-        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:id - dismisses the suspicion as a false alarm (sets status to 'dismissed').",
+        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').",
         "operationId": "dismissCourseSuspectedCheater",
         "parameters": [
           {
@@ -5874,9 +5874,9 @@
             }
           },
           {
-            "name": "id",
+            "name": "user_id",
             "in": "path",
-            "description": "Suspected cheater user id",
+            "description": "Suspected cheater's user id",
             "required": true,
             "schema": {
               "type": "string",

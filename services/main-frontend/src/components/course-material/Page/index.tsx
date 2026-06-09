@@ -126,8 +126,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   const researchFormIsLoadedAndExists =
     researchConsentFormQuery.isSuccess && researchConsentFormQuery.data !== null
 
-  // The hook only runs (and succeeds) for signed-in users, so a successful `false` result implies
-  // an enrolled, signed-in user who has not yet acknowledged the AI-usage notice.
+  // The hook only runs (and succeeds) for signed-in users with a courseId, so a successful `false`
+  // result means a signed-in user who has not yet acknowledged the AI-usage notice. Enrollment is
+  // not part of this gate.
   const aiUsageNoticeAcknowledgementQuery = useAiUsageNoticeAcknowledgement(courseId ?? null)
   const shouldShowAiUsageNotice =
     aiUsageNoticeAcknowledgementQuery.isSuccess && aiUsageNoticeAcknowledgementQuery.data === false

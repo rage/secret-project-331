@@ -2332,16 +2332,16 @@ async fn get_all_thresholds(
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:id - dismisses the suspicion as a false alarm (sets status to 'dismissed').
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
 */
 #[utoipa::path(
     post,
-    path = "/{course_id}/suspected-cheaters/dismiss/{id}",
+    path = "/{course_id}/suspected-cheaters/dismiss/{user_id}",
     operation_id = "dismissCourseSuspectedCheater",
     tag = "courses",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("id" = Uuid, Path, description = "Suspected cheater user id")
+        ("user_id" = Uuid, Path, description = "Suspected cheater's user id")
     ),
     responses(
         (status = 200, description = "Suspicion dismissed")
@@ -2365,16 +2365,16 @@ async fn teacher_dismiss_suspected_cheater(
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:id - confirms the student cheated (sets status to 'confirmed-cheating') and fails the student.
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
 */
 #[utoipa::path(
     post,
-    path = "/{course_id}/suspected-cheaters/confirm/{id}",
+    path = "/{course_id}/suspected-cheaters/confirm/{user_id}",
     operation_id = "confirmCourseSuspectedCheater",
     tag = "courses",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("id" = Uuid, Path, description = "Suspected cheater user id")
+        ("user_id" = Uuid, Path, description = "Suspected cheater's user id")
     ),
     responses(
         (status = 200, description = "Cheating confirmed")
@@ -2804,11 +2804,11 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_flagged_suspected_cheaters_count),
         )
         .route(
-            "/{course_id}/suspected-cheaters/dismiss/{id}",
+            "/{course_id}/suspected-cheaters/dismiss/{user_id}",
             web::post().to(teacher_dismiss_suspected_cheater),
         )
         .route(
-            "/{course_id}/suspected-cheaters/confirm/{id}",
+            "/{course_id}/suspected-cheaters/confirm/{user_id}",
             web::post().to(teacher_confirm_suspected_cheater),
         )
         .route(

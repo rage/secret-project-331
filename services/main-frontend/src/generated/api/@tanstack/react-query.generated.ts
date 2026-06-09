@@ -4944,7 +4944,7 @@ export const getCourseSuspectedCheatersOptions = (
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:id - confirms the student cheated (sets status to 'confirmed-cheating') and fails the student.
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
  */
 export const confirmCourseSuspectedCheaterMutation = (
   options?: Partial<Options<ConfirmCourseSuspectedCheaterData>>,
@@ -4966,7 +4966,7 @@ export const confirmCourseSuspectedCheaterMutation = (
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:id - dismisses the suspicion as a false alarm (sets status to 'dismissed').
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
  */
 export const dismissCourseSuspectedCheaterMutation = (
   options?: Partial<Options<DismissCourseSuspectedCheaterData>>,

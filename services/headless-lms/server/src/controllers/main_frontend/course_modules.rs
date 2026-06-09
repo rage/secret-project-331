@@ -257,9 +257,10 @@ async fn insert_threshold_for_module(
     .await?;
 
     if new_threshold.duration_seconds < suspected_cheaters::MINIMUM_CHEATER_THRESHOLD_SECONDS {
+        let minimum_hours = suspected_cheaters::MINIMUM_CHEATER_THRESHOLD_SECONDS / 3600;
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            "The threshold must be at least 3 hours.",
+            format!("The threshold must be at least {minimum_hours} hours."),
             None,
         ));
     }

@@ -19,13 +19,13 @@ const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
 export interface MessageState {
   optimisticMessage: string | null
   streamingMessage: string | null
-  responseStatus: string | null
+  responseStatus: ChatbotChatStreamEvent | null
 }
 
 export type MessageAction =
   | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
   | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "SET_STATUS"; payload: string | null }
+  | { type: "SET_STATUS"; payload: ChatbotChatStreamEvent | null }
   | { type: "RESET_MESSAGES" }
 
 const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
@@ -127,7 +127,7 @@ const useChatbotStateAndData = (
               if (parsedValue.type === "Delta") {
                 dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.data.text })
               } else if (parsedValue.type === "Reasoning" || parsedValue.type === "ToolCall") {
-                const payload = parsedValue.data.finished ? null : parsedValue.type
+                const payload = parsedValue.data.finished ? null : parsedValue
                 dispatch({ type: "SET_STATUS", payload })
               }
             } catch (e) {

@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
+import { ChatbotChatStreamEvent } from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const style = css`
@@ -20,14 +21,20 @@ const style = css`
 `
 
 interface StatusIndicatorProps {
-  status: string
+  // type this better?
+  status: ChatbotChatStreamEvent
 }
 
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
   // translate stuff!
-  const statusText =
+  let statusText = ""
+  if (status.type === "Reasoning") {
     // eslint-disable-next-line i18next/no-literal-string
-    status === "Reasoning" ? "Thinking" : status === "ToolCall" ? "Calling tool" : ""
+    statusText = "Thinking"
+  } else if (status.type === "ToolCall") {
+    // eslint-disable-next-line i18next/no-literal-string
+    statusText = `Using tool "${status.data.tool_name}" with query: ${status.data.arguments}`
+  }
 
   return (
     <>

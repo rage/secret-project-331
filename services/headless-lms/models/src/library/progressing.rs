@@ -1009,6 +1009,12 @@ mod tests {
             CourseModule,
         ) {
             insert_data!(tx: tx; :user, :org, :course, :instance, :course_module, :chapter, :page, :exercise);
+            // These tests complete modules instantly, which would trip suspected-cheater detection
+            // (on by default) and hide the completion. Detection is exercised by its own tests, so
+            // disable it here to test automatic-completion granting in isolation.
+            courses::set_cheater_detection_enabled(tx.as_mut(), course, false)
+                .await
+                .unwrap();
             let automatic_completion_policy =
                 CompletionPolicy::Automatic(AutomaticCompletionRequirements {
                     course_module_id: course_module.id,

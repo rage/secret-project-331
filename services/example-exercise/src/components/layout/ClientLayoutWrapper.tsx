@@ -3,10 +3,10 @@
 import { OverlayProvider } from "@react-aria/overlays"
 import React, { useEffect } from "react"
 
-import useLanguage from "@/hooks/useLanguage"
 import initI18n from "@/i18n/initI18n"
-import withErrorBoundary from "@/lib/withErrorBoundary"
-import GlobalStyles from "@/styles/GlobalStyles"
+import GlobalStyles from "@/shared-module/exercise-plugins/react/components/GlobalStyles"
+import withErrorBoundary from "@/shared-module/exercise-plugins/react/components/withErrorBoundary"
+import useLanguage from "@/shared-module/exercise-plugins/react/hooks/useLanguage"
 
 const SERVICE_NAME = "example-exercise"
 

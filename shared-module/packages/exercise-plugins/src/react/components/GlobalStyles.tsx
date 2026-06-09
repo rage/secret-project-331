@@ -2,8 +2,8 @@
 
 import { injectGlobal } from "@emotion/css"
 
-// A small global reset for the example. Real exercise services typically share a richer reset and
-// typography setup from a common package; here we keep it minimal and dependency-free.
+// A small global reset shared by exercise services. Real services may layer a richer reset and
+// typography setup on top; this keeps the baseline minimal and dependency-free.
 injectGlobal`
   *,
   *::before,

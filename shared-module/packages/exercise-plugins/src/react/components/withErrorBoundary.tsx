@@ -9,8 +9,9 @@ interface ErrorBoundaryState {
 
 /**
  * Wraps a component in a React error boundary so that a render error shows a small message instead
- * of crashing the whole iframe. A production service would likely also report the error; the
- * example just logs it to the console.
+ * of crashing the whole iframe. A production service would likely also report the error; this
+ * shared helper just logs it to the console. Consumers must provide a `something-went-wrong`
+ * translation key.
  */
 export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {
@@ -31,7 +32,9 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       const { error } = this.state
       if (error !== undefined) {
         return (
-          <Translation>{(t) => <div role="alert">{t("something-went-wrong", { error })}</div>}</Translation>
+          <Translation>
+            {(t) => <div role="alert">{t("something-went-wrong", { error })}</div>}
+          </Translation>
         )
       }
       return <Component {...this.props} />

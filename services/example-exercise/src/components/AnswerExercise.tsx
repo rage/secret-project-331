@@ -18,6 +18,11 @@ const Exercise: React.FC<React.PropsWithChildren<Props>> = ({ port, state }) => 
   const handleSelect = (optionId: string) => {
     setSelectedId(optionId)
 
+    if (!port) {
+      console.error("Cannot send current state to parent because I don't have a port")
+      return
+    }
+
     // Report the current answer to the parent so it can be saved.
     const data: Answer = { selectedOptionId: optionId }
     const message: CurrentStateMessage = {

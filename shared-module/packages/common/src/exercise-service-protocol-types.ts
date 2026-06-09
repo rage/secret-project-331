@@ -13,6 +13,7 @@ export type MessageFromIframe =
   | FileUploadMessage
   | RequestRepositoryExercisesMessage
   | RequestIframeReloadMessage
+  | OpenDialogMessage
 
 export interface CurrentStateMessage {
   message: "current-state"
@@ -44,6 +45,29 @@ export interface RequestIframeReloadMessage {
 }
 
 /**
+ * Asks the parent to open a modal dialog and report back what the user chose. This is the
+ * protocol's request/response message: the parent answers with a `DialogResponseMessage`
+ * carrying the same `requestId`. The exercise supplies already-localized strings (it owns its
+ * own i18n and knows the active language), so the parent dialog is a generic renderer.
+ */
+export interface OpenDialogMessage {
+  message: "open-dialog"
+  /** Correlation id the parent echoes back in the matching `DialogResponseMessage`. */
+  requestId: string
+  /**
+   * "confirm" shows confirm + cancel buttons and resolves to the user's choice.
+   * "warning" shows a single acknowledge button and resolves to `true` once dismissed.
+   */
+  dialogType: "confirm" | "warning"
+  title: string
+  body: string
+  /** Already-localized confirm/acknowledge button label; parent uses a generic default if omitted. */
+  confirmButtonLabel?: string | null
+  /** Already-localized cancel button label (only used for "confirm" dialogs). */
+  cancelButtonLabel?: string | null
+}
+
+/**
  * from: Parent
  *
  * to: IFrame
@@ -54,6 +78,7 @@ export type MessageToIframe =
   | UploadResultMessage
   | RepositoryExercisesMessage
   | TestResultsMessage
+  | DialogResponseMessage
 
 export interface SetLanguageMessage {
   message: "set-language"
@@ -86,6 +111,15 @@ export type RepositoryExercisesMessage = {
 export type TestResultsMessage = {
   message: "test-results"
   test_result: unknown
+}
+
+/** The parent's response to an `OpenDialogMessage`, correlated by `requestId`. */
+export interface DialogResponseMessage {
+  message: "dialog-response"
+  /** Matches the `requestId` of the `OpenDialogMessage` this responds to. */
+  requestId: string
+  /** For "confirm": whether the user confirmed. For "warning": always `true` (acknowledged). */
+  confirmed: boolean
 }
 
 /**

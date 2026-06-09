@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
+  DialogResponseMessage,
   ExtendedIframeState,
   MessageFromIframe,
   SetLanguageMessage,
@@ -14,6 +15,7 @@ import {
 import {
   isHeightChangedMessage,
   isMessageFromIframe,
+  isOpenDialogMessage,
   isOpenLinkMessage,
   isRequestIframeReloadMessage,
 } from "../exercise-service-protocol-types.guard"
@@ -21,6 +23,7 @@ import useEventCallback from "../hooks/useEventCallback"
 import useMessageChannel from "../hooks/useMessageChannel"
 
 import { BreakFromCenteredProps } from "./Centering/BreakFromCentered"
+import { useDialog } from "./dialogs/DialogProvider"
 
 interface MessageChannelIFrameProps {
   url: string
@@ -200,6 +203,11 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
     }
   }, [])
 
+  // An exercise inside the iframe can ask us (the parent) to show a dialog and report back the
+  // user's choice. We delegate to the app's DialogProvider (every host that renders
+  // MessageChannelIFrame mounts one), which queues concurrent dialogs and handles layering.
+  const dialog = useDialog()
+
   const handlePortMessage = useEventCallback(
     (message: WindowEventMap["message"], currentMessageChannel: MessageChannel) => {
       const data = message?.data
@@ -225,6 +233,39 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         window.open(data.data, "_blank", "noopener,noreferrer")
       } else if (isRequestIframeReloadMessage(data)) {
         scheduleIframeReload()
+      } else if (isOpenDialogMessage(data)) {
+        const responsePort = currentMessageChannel.port1
+        const { requestId, dialogType, title, body, confirmButtonLabel, cancelButtonLabel } = data
+        const respond = (confirmed: boolean) => {
+          const response: DialogResponseMessage = {
+            // eslint-disable-next-line i18next/no-literal-string
+            message: "dialog-response",
+            requestId,
+            confirmed,
+          }
+          responsePort.postMessage(response)
+        }
+        const dialogBody = (
+          <div
+            className={css`
+              white-space: pre-wrap;
+            `}
+          >
+            {body}
+          </div>
+        )
+        if (dialogType === "confirm") {
+          void dialog
+            .confirm(dialogBody, title, {
+              yesButtonLabel: confirmButtonLabel ?? undefined,
+              noButtonLabel: cancelButtonLabel ?? undefined,
+            })
+            .then(respond)
+        } else {
+          void dialog
+            .alert(dialogBody, title, { okButtonLabel: confirmButtonLabel ?? undefined })
+            .then(() => respond(true))
+        }
       } else if (isMessageFromIframe(data)) {
         if (!hasSignaledReadyRef.current) {
           hasSignaledReadyRef.current = true

@@ -103,6 +103,7 @@ export type BlockRendererProps<T> = {
 } & Omit<ContentRendererProps, "data">
 
 const LatexBlock = dynamicImport(() => import("./moocfi/LatexBlock"))
+const ChartBlock = dynamicImport(() => import("./moocfi/ChartBlock"))
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {
@@ -142,6 +143,7 @@ export const blockToRendererMap: { [blockName: string]: any } = {
 
   // moocfi
   "moocfi/aside": AsideBlock,
+  "moocfi/chart-block": ChartBlock,
   "moocfi/chapter-progress": ChapterProgressBlock,
   "moocfi/chatbot": ChatbotBlock,
   "moocfi/conditional-block": ConditionalBlock,

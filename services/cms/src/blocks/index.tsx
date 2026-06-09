@@ -7,6 +7,7 @@ import AsideWithImage from "./AsideWithImage"
 import Author from "./Author"
 import AuthorInnerBlock from "./AuthorInnerBlock"
 import ChapterProgress from "./ChapterProgress"
+import ChartBlock from "./ChartBlock"
 import ChatbotBlock from "./Chatbot"
 import CodeGiveaway from "./CodeGiveaway"
 import ConditionalBlock from "./ConditionalBlock"
@@ -56,6 +57,7 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
  */
 export const blockTypeMapForPages = [
   ["moocfi/aside", Aside],
+  ["moocfi/chart-block", ChartBlock],
   ["moocfi/chapter-progress", ChapterProgress],
   ["moocfi/congratulations", Congratulations],
   ["moocfi/lock-chapter", LockChapter],

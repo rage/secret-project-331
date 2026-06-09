@@ -57,6 +57,18 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
     }),
   })
 
+  // Confirm and dismiss both move the student out of the flagged set, so they share the same
+  // cache refresh: refetch this list and invalidate the flagged-count badge (course tabs) and the
+  // overview review banner, which are owned by other components.
+  const handleActionSuccess = () => {
+    suspectedCheaters.refetch()
+    queryClient.invalidateQueries({
+      queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({
+        path: { course_id: courseId },
+      }),
+    })
+  }
+
   const handleConfirm = useToastMutation(
     (id: string) => {
       if (!id) {
@@ -75,18 +87,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       successMessage: t("cheating-confirmed-successfully"),
       method: "POST",
     },
-    {
-      onSuccess: () => {
-        suspectedCheaters.refetch()
-        // The acted-on student leaves the flagged set, so refresh the flagged-count badge
-        // (course tabs) and the overview review banner, which are owned by other components.
-        queryClient.invalidateQueries({
-          queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({
-            path: { course_id: courseId },
-          }),
-        })
-      },
-    },
+    { onSuccess: handleActionSuccess },
   )
 
   const handleDismiss = useToastMutation(
@@ -107,18 +108,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       successMessage: t("suspicion-dismissed-successfully"),
       method: "POST",
     },
-    {
-      onSuccess: () => {
-        suspectedCheaters.refetch()
-        // The acted-on student leaves the flagged set, so refresh the flagged-count badge
-        // (course tabs) and the overview review banner, which are owned by other components.
-        queryClient.invalidateQueries({
-          queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({
-            path: { course_id: courseId },
-          }),
-        })
-      },
-    },
+    { onSuccess: handleActionSuccess },
   )
 
   return (

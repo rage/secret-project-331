@@ -289,17 +289,9 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                             value={durationHours?.toString() ?? ""}
                             onChangeByValue={(value: string) => {
                               const parsed = parseInt(value)
-                              if (isNaN(parsed)) {
-                                setModuleThresholds((prev) => {
-                                  const next = new Map(prev)
-                                  next.set(module.id, undefined)
-                                  return next
-                                })
-                                return
-                              }
                               setModuleThresholds((prev) => {
                                 const next = new Map(prev)
-                                next.set(module.id, parsed)
+                                next.set(module.id, isNaN(parsed) ? undefined : parsed)
                                 return next
                               })
                             }}

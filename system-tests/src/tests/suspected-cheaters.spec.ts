@@ -75,8 +75,8 @@ test.describe("Teacher can set threshold for course", () => {
 
     // Now student 3 should see their results.
     await student3Page.reload()
-    await expect(student2Page.getByTestId("exercise-points")).toContainText("1/1")
-    await student2Page.getByText("Good job!").waitFor()
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
+    await student3Page.getByText("Good job!").waitFor()
 
     // Check if the cheaters table is rightly populated
     await teacherPage.reload()
@@ -136,6 +136,6 @@ test.describe("Teacher can set threshold for course", () => {
       "http://project-331.local/org/uh-cs/courses/course-for-suspected-cheaters",
     )
     await student3Page.getByText("Welcome to...").waitFor()
-    await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
+    await expect(student3Page.getByText("Congratulations!")).toHaveCount(0)
   })
 })

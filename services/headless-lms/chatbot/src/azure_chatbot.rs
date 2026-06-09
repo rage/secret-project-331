@@ -126,6 +126,8 @@ pub struct IncompleteReason {
 /// Streamed token of the response text
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ResponseOutput {
+    #[serde(rename = "type")]
+    pub response_type: String,
     pub delta: Option<String>,
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
@@ -171,23 +173,35 @@ pub enum OutputItem {
     },
 }
 
-impl From<OutputItem> for ChatStreamEvent {
-    fn from(value: OutputItem) -> Self {
+impl From<StreamItem> for ChatbotChatStreamEvent {
+    fn from(value: StreamItem) -> Self {
         match value {
-            OutputItem::Reasoning { .. } => ChatStreamEvent::Reasoning,
-            OutputItem::AzureAiSearchCall { arguments, .. } => ChatStreamEvent::ToolCall {
+            StreamItem {
+                item: OutputItem::Reasoning { .. },
+                finished,
+            } => ChatbotChatStreamEvent::Reasoning { finished },
+            StreamItem {
+                item: OutputItem::AzureAiSearchCall { arguments, .. },
+                finished,
+            } => ChatbotChatStreamEvent::ToolCall {
                 tool_name: "azure search".to_string(),
                 arguments,
+                finished,
             },
-            OutputItem::FunctionCall {
+            StreamItem {
+                item:
+                    OutputItem::FunctionCall {
+                        tool_name,
+                        arguments,
+                        ..
+                    },
+                finished,
+            } => ChatbotChatStreamEvent::ToolCall {
                 tool_name,
                 arguments,
-                ..
-            } => ChatStreamEvent::ToolCall {
-                tool_name,
-                arguments,
+                finished,
             },
-            _ => ChatStreamEvent::None,
+            _ => ChatbotChatStreamEvent::None,
         }
     }
 }
@@ -469,14 +483,17 @@ pub struct ChatResponse {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(tag = "type", content = "data")]
-pub enum ChatStreamEvent {
+pub enum ChatbotChatStreamEvent {
     Delta {
         text: String,
     },
-    Reasoning,
+    Reasoning {
+        finished: bool,
+    },
     ToolCall {
         tool_name: String,
         arguments: String,
+        finished: bool,
     },
     Done,
     Error {
@@ -662,12 +679,13 @@ async fn parse_tool<'a>(
     mut lines: PeekableLinesStream<'a>,
     conversation_id: Uuid,
     user_context: &'a ChatbotUserContext,
-) -> BoxStream<'a, ChatbotResult<Lol2<'a>>> {
+) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
     let mut response_received = false;
     let mut error_incoming = false;
+    // todo! item yielding better just in case
 
     trace!("Parsing tool calls...");
 
@@ -753,11 +771,10 @@ async fn parse_tool<'a>(
             }
             tx.commit().await.map_err(|e| anyhow::anyhow!(e))?;
             messages.extend(tool_msgs);
-            yield Lol2::Messages(messages);
+            yield StreamEvent::Messages(messages);
             break;
         } else if let Some(item) = response_output.item {
-            yield Lol2::Item(item.to_owned());
-            match item {
+            match item.to_owned() {
                 OutputItem::FunctionCall {
                     call_id,
                     tool_name,
@@ -770,12 +787,16 @@ async fn parse_tool<'a>(
                         call_id,
                         serde_json::from_str::<Value>(&arguments)?,
                     ));
+                    yield StreamEvent::Item(StreamItem { item, finished: false });
                 }
                 OutputItem::Message { .. } => Err(chatbot_err!(
                     StreamingError,
                     "Error: unexpected message item !!!".to_string()
                 ))?,
                 _ => {
+                    let finished = response_output.response_type == "response.output_item.done".to_string();
+                    yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished});
+
                     // add this output item to the messages to be included in the next
                     // LLMRequest
                     messages.push(APIOutputMessage { message_type: item });
@@ -784,8 +805,7 @@ async fn parse_tool<'a>(
         }
     }})
 }
-
-/// Streams and parses a LLM response from Azure that contains a text response.
+/*
 pub async fn parse_and_stream_to_user<'a>(
     conn: &mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
@@ -912,21 +932,22 @@ pub async fn parse_and_stream_to_user<'a>(
             Err(anyhow::anyhow!("Stream ended unexpectedly. Response id: {}", &response_id))?;
         }
     };
-
-    // Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.
-    // This way we do cleanup only when the stream is dropped and not when this function returns.
-    let guarded_stream = GuardedStream::new(guard, response_stream);
+ */
+// Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.
+// This way we do cleanup only when the stream is dropped and not when this function returns.
+/*     let guarded_stream = GuardedStream::new(guard, response_stream);
 
     // Box and pin the GuardedStream to satisfy the Unpin requirement
     Ok(Box::pin(guarded_stream))
-}
+} */
 
 fn stream_and_detect_response_stream_type<'a>(
     mut lines: PeekableLinesStream<'a>,
-) -> impl Stream<Item = Result<Lol2<'a>, anyhow::Error>> {
+) -> impl Stream<Item = Result<StreamEvent<'a>, anyhow::Error>> {
     let mut response_id = "".to_string();
     let mut response_created_incoming = false;
-    let mut output_item_incoming = false;
+    let mut error_incoming = false;
+    let mut output_item_added = false;
     let mut output_item_done = false;
 
     Box::pin(async_stream::try_stream! {
@@ -950,7 +971,7 @@ fn stream_and_detect_response_stream_type<'a>(
                                 response_created_incoming = true;
                             }
                             "response.output_item.added" => {
-                                output_item_incoming = true;
+                                output_item_added = true;
                             }
                             "response.output_item.done" => {
                                 output_item_done = true;
@@ -961,14 +982,14 @@ fn stream_and_detect_response_stream_type<'a>(
                                         "No response_id found! This should never happen!"
                                     ))?;
                                 }
-                                yield Lol2::ResponseIdStream((
+                                yield StreamEvent::ResponseIdStream((
                                     response_id.to_owned(),
                                     ResponseStreamType::Toolcall(lines),
                                 ));
                                 break;
                             }
                             "response.output_text.delta" => {
-                                yield Lol2::ResponseIdStream((
+                                yield StreamEvent::ResponseIdStream((
                                     response_id.to_owned(),
                                     ResponseStreamType::TextResponse(lines),
                                 ));
@@ -977,11 +998,24 @@ fn stream_and_detect_response_stream_type<'a>(
                             "response.incomplete" => {
                                 break Err(anyhow::anyhow!("Response incomplete. Response id: {}", &response_id))?
                             },
+                            "response.error" => { error_incoming = true; }
                             _ => {}
                         }
                     }
                     Some(ParsedResponseLine::Data(response_output)) => {
-                        if response_created_incoming {
+                        if error_incoming {
+                            let res = response_output.response.ok_or(chatbot_err!(
+                                DeserializationError,
+                                "Expected response object"
+                            ))?;
+                            let res_error = res.error.ok_or(chatbot_err!(
+                                DeserializationError,
+                                "Expected error object"
+                            ))?;
+
+                            break Err(anyhow::anyhow!("Error received from Azure: {} Response id: {}", res_error, &response_id))?
+                        }
+                        else if response_created_incoming {
                             let res = response_output.response.ok_or(chatbot_err!(
                                 DeserializationError,
                                 "Expected response object"
@@ -990,14 +1024,14 @@ fn stream_and_detect_response_stream_type<'a>(
                             println!("!!!current response id: {}", &response_id);
                             response_created_incoming = false;
                         }
-                        if output_item_incoming {
+                        if output_item_added {
                             let item = response_output.item.ok_or(chatbot_err!(
                                 DeserializationError,
                                 "Expected response output item"
                             ))?;
-                            // put in input todo!
-                            yield Lol2::Item(item);
-                            output_item_incoming = false;
+                            // put in input todo! yield messages
+                            yield StreamEvent::Item(StreamItem {item, finished: false});
+                            output_item_added = false;
                         }
                         else if output_item_done {
                             let item = response_output.item.ok_or(chatbot_err!(
@@ -1005,7 +1039,7 @@ fn stream_and_detect_response_stream_type<'a>(
                                 "Expected response output item"
                             ))?;
                             // put in input todo!
-                            yield Lol2::Item(item);
+                            yield StreamEvent::Item(StreamItem {item, finished: true});
                             output_item_done = false;
                         }
                     }
@@ -1022,14 +1056,15 @@ fn stream_and_detect_response_stream_type<'a>(
     })
 }
 
+/// Streams and parses an LLM response from Azure that contains a text response.
 async fn parse_text_response<'a>(
+    conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     full_response_text: Arc<Mutex<Vec<String>>>,
     done: Arc<AtomicBool>,
     response_message_id: Uuid,
     request_estimated_tokens: i32,
-    conn: &'a mut PgConnection,
-) -> BoxStream<'a, ChatbotResult<Lol2<'a>>> {
+) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
     trace!("Parsing stream to user...");
 
     let mut response_received = false;
@@ -1077,7 +1112,7 @@ async fn parse_text_response<'a>(
                     true,
                     request_estimated_tokens + estimated_cost,
                 ).await?;
-                yield Lol2::End;
+                yield StreamEvent::End;
                 break;
             }
 
@@ -1085,13 +1120,12 @@ async fn parse_text_response<'a>(
                 let Some(response) = &response_output.response && let Some(error) = &response.error
             {
                 Err(chatbot_err!(StreamingError, format!("Error received from the API: {}.", error)))?
-
             };
 
             if let Some(delta) = &response_output.delta {
                 full_response_text.push(delta.to_owned());
 
-                yield Lol2::Delta(delta.clone());
+                yield StreamEvent::Delta(delta.clone());
             }
 
             if let Some(item) = &response_output.item {
@@ -1099,7 +1133,8 @@ async fn parse_text_response<'a>(
                     OutputItem::Message { .. } => continue,
                     OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
                     _ => {
-                        yield Lol2::Item(item.to_owned());
+                        let finished = &response_output.response_type == "response.output_item.done";
+                        yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished });
                         continue;
                     },
                 };
@@ -1111,12 +1146,20 @@ async fn parse_text_response<'a>(
     })
 }
 
-enum Lol2<'a> {
+enum StreamEvent<'a> {
     Delta(String),
-    Item(OutputItem),
+    Item(StreamItem),
     Messages(Vec<APIOutputMessage>),
     ResponseIdStream((String, ResponseStreamType<'a>)),
     End,
+}
+
+#[derive(Deserialize, Serialize, Debug, Clone)]
+struct StreamItem {
+    /// Item received from Azure.
+    item: OutputItem,
+    /// Has the item, like tool call or reasoning, been completed or is it in progress.
+    finished: bool,
 }
 
 pub async fn make_request_and_create_stream<'a>(
@@ -1203,12 +1246,17 @@ pub async fn send_chat_request_and_parse_stream(
 
     let response_stream = async_stream::try_stream! { 'outer: loop
         {
+            let mut conn = pool.acquire().await?;
+
             max_iterations_left -= 1;
             if max_iterations_left == 0 {
                 error!("Maximum tool call iterations exceeded");
-                break 'outer Err(anyhow::anyhow!(
-                    "Maximum tool call iterations exceeded. The LLM may be stuck in a loop."
-                ))?
+                let err_message = "Maximum tool call iterations exceeded. The LLM may be stuck in a loop.";
+                let err = ChatbotChatStreamEvent::Error { message: err_message.to_string() };
+                let event_string = serde_json::to_string(&err)?;
+                yield Bytes::from(event_string);
+                yield Bytes::from("\n");
+                break 'outer Err(anyhow::anyhow!(err_message))?
             }
 
             let lines = make_request_and_create_stream(chat_request.clone(), &app_config)
@@ -1218,21 +1266,24 @@ pub async fn send_chat_request_and_parse_stream(
             loop {
                 if let Some(val) = s.next().await {
                 match val {
-                    Ok(Lol2::ResponseIdStream(stuff)) => {(response_id, lines2) = stuff; break;},
-                    Ok(Lol2::Item(item)) => {
-                        let response = ChatStreamEvent::from(item.to_owned());
-                        process_output_item(&mut conn, item, conversation_id, &app_config).await?;
-                        //if response != ChatStreamEvent::None {
+                    Ok(StreamEvent::ResponseIdStream(stuff)) => {(response_id, lines2) = stuff; break;},
+                    Ok(StreamEvent::Item(item)) => {
+                        if item.finished {
+                            let mut conn = pool.acquire().await?;
+                            process_output_item(&mut conn, item.item.to_owned(), conversation_id, &app_config).await?;
+                        }
+                        let response = ChatbotChatStreamEvent::from(item.to_owned());
+                        if response != ChatbotChatStreamEvent::None {
                             let event_string = serde_json::to_string(&response)?;
                             println!("🌟{event_string}");
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
-                        //};
+                        };
                     },
-                    Ok(Lol2::End) => {
+                    Ok(StreamEvent::End) => {
                         break 'outer Err(anyhow::anyhow!("This shouldn't happen, stream ended unxpectedly."))?
                     },
-                    Ok(Lol2::Messages(_)) | Ok(Lol2::Delta(_)) => {
+                    Ok(StreamEvent::Messages(_)) | Ok(StreamEvent::Delta(_)) => {
                         break 'outer Err(anyhow::anyhow!("This shouldn't happen, messages or response delta not expected."))?
                     },
                     Err(e) => break 'outer Err(anyhow::anyhow!("Stream ended unexpectedly: {e}"))?,
@@ -1250,8 +1301,7 @@ pub async fn send_chat_request_and_parse_stream(
                         response_message.id,
                     ).await?;
                     // update response_id for the message
-
-                    parse_text_response(stream, full_response_text.clone(), done.clone(), response_message.id, request_estimated_tokens, &mut conn).await
+                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message.id, request_estimated_tokens).await
 
                 }
             };
@@ -1259,38 +1309,42 @@ pub async fn send_chat_request_and_parse_stream(
             while let Some(line) = s.next().await {
                 let val = line?;
                 match val {
-                    Lol2::Delta(delta) => {
-                        let response = ChatStreamEvent::Delta  { text: delta.clone() };
+                    StreamEvent::Delta(delta) => {
+                        let response = ChatbotChatStreamEvent::Delta  { text: delta.clone() };
                         let response_as_string = serde_json::to_string(&response)?;
                         println!("🌟{response_as_string}");
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
                     },
-                    Lol2::Item(output_item) => {
-                        match output_item  {
+                    StreamEvent::Item(stream_item) => {
+                        match stream_item.item  {
                             OutputItem::Message { .. } | OutputItem::FunctionCall { .. } | OutputItem::FunctionCallOutput { .. } => {
                                 // item already processed
                             },
                             _ => {
-                                let mut conn = pool.acquire().await?;
-                                process_output_item(&mut conn, output_item.to_owned(), conversation_id, &app_config).await?;
+                                // save this item in the db if it's finished
+                                if stream_item.finished {
+                                    let mut conn = pool.acquire().await?;
+                                    process_output_item(&mut conn, stream_item.item.to_owned(), conversation_id, &app_config).await?;
+                                }
+
                             },
                         };
 
-                        let response = ChatStreamEvent::from(output_item);
-                        if response != ChatStreamEvent::None {
+                        let response = ChatbotChatStreamEvent::from(stream_item);
+                        if response != ChatbotChatStreamEvent::None {
                             let event_string = serde_json::to_string(&response)?;
                             println!("🌟{event_string}");
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
                         };
                     },
-                    Lol2::Messages(messages) => {
+                    StreamEvent::Messages(messages) => {
                         let input_messages = messages.into_iter().map(APIInputMessage::try_from).collect::<ChatbotResult<Vec<APIInputMessage>>>()?;
                         chat_request.input.extend(input_messages);
                     },
-                    Lol2::End => {
-                        let event = ChatStreamEvent::Done;
+                    StreamEvent::End => {
+                        let event = ChatbotChatStreamEvent::Done;
                         let event_string = serde_json::to_string(&event)?;
                         yield Bytes::from(event_string);
                         yield Bytes::from("\n");

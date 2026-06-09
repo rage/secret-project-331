@@ -1,4 +1,13 @@
--- Reverses the status enum back to the is_archived boolean.
+-- Reverses the changes in this migration, in the opposite order they were applied.
+
+-- Per-course toggle for suspected-cheater detection
+ALTER TABLE courses
+DROP COLUMN cheater_detection_enabled;
+
+-- AI-usage notice acknowledgements
+DROP TABLE user_ai_usage_notice_acknowledgements;
+
+-- Suspected-cheaters review: status enum back to the is_archived boolean.
 -- Both 'flagged' and 'confirmed-cheating' map back to FALSE (the original boolean
 -- could not represent the 'confirmed-cheating' state separately).
 ALTER TABLE suspected_cheaters

@@ -12469,6 +12469,10 @@
             "type": "string",
             "format": "uuid"
           },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "id": {
             "type": "string",
             "format": "uuid"
@@ -13795,8 +13799,23 @@
       },
       "ExamEnrollment": {
         "type": "object",
-        "required": ["user_id", "exam_id", "started_at", "is_teacher_testing"],
+        "required": [
+          "user_id",
+          "exam_id",
+          "started_at",
+          "is_teacher_testing",
+          "created_at",
+          "updated_at"
+        ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "ended_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -13812,6 +13831,10 @@
             "type": ["boolean", "null"]
           },
           "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
             "type": "string",
             "format": "date-time"
           },
@@ -15682,22 +15705,39 @@
         "type": "object",
         "required": [
           "id",
+          "created_at",
+          "updated_at",
           "name",
           "instructions",
           "time_minutes",
           "organization_id",
-          "minimum_points_treshold"
+          "minimum_points_treshold",
+          "grade_manually"
         ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "ends_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "grade_manually": {
+            "type": "boolean"
           },
           "id": {
             "type": "string",
             "format": "uuid"
           },
           "instructions": {},
+          "language": {
+            "type": ["string", "null"]
+          },
           "minimum_points_treshold": {
             "type": "integer",
             "format": "int32"
@@ -15716,6 +15756,10 @@
           "time_minutes": {
             "type": "integer",
             "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -15897,6 +15941,7 @@
         "required": [
           "id",
           "created_at",
+          "updated_at",
           "title",
           "content",
           "history_change_reason",
@@ -15911,6 +15956,10 @@
           "content": {},
           "created_at": {
             "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
             "format": "date-time"
           },
           "history_change_reason": {
@@ -15930,6 +15979,10 @@
           },
           "title": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -16544,8 +16597,24 @@
       },
       "PendingRole": {
         "type": "object",
-        "required": ["id", "user_email", "role", "expires_at"],
+        "required": ["id", "created_at", "updated_at", "user_email", "role", "expires_at"],
         "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "expires_at": {
             "type": "string",
             "format": "date-time"
@@ -16556,6 +16625,10 @@
           },
           "role": {
             "$ref": "#/components/schemas/UserRole"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           },
           "user_email": {
             "type": "string"
@@ -16834,6 +16907,13 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "error_message": {
+            "type": ["string", "null"]
           },
           "id": {
             "type": "string",
@@ -17309,6 +17389,10 @@
           "user_exercise_state_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           }
         }
       },
@@ -17354,10 +17438,22 @@
       },
       "Term": {
         "type": "object",
-        "required": ["id", "term", "definition"],
+        "required": ["id", "created_at", "updated_at", "term", "definition", "course_id"],
         "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "definition": {
             "type": "string"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "id": {
             "type": "string",
@@ -17365,6 +17461,10 @@
           },
           "term": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

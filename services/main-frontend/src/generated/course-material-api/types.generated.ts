@@ -50,7 +50,7 @@ export type ChaptersWithStatus = {
   modules: Array<CourseMaterialCourseModule>
 }
 
-export type ChatStreamEvent =
+export type ChatbotChatStreamEvent =
   | {
       data: {
         text: string
@@ -58,11 +58,15 @@ export type ChatStreamEvent =
       type: "Delta"
     }
   | {
+      data: {
+        finished: boolean
+      }
       type: "Reasoning"
     }
   | {
       data: {
         arguments: string
+        finished: boolean
         tool_name: string
       }
       type: "ToolCall"
@@ -522,11 +526,14 @@ export type ExamData = {
 }
 
 export type ExamEnrollment = {
+  created_at: string
+  deleted_at?: string | null
   ended_at?: string | null
   exam_id: string
   is_teacher_testing: boolean
   show_exercise_answers?: boolean | null
   started_at: string
+  updated_at: string
   user_id: string
 }
 
@@ -561,6 +568,7 @@ export type ExamEnrollmentData =
             teacher_decision: TeacherDecisionType
             updated_at: string
             user_exercise_state_id: string
+            user_id?: string | null
           },
           {
             chapter_id?: string | null
@@ -807,7 +815,7 @@ export type PageChapterAndCourseInformation = {
   chapter_number?: number | null
   course_name?: string | null
   course_slug?: string | null
-  organization_slug: string
+  organization_slug?: string | null
 }
 
 export type PageNavigationInformation = {
@@ -1031,9 +1039,13 @@ export type TeacherDecisionType =
   | "RejectAndReset"
 
 export type Term = {
+  course_id: string
+  created_at: string
   definition: string
+  deleted_at?: string | null
   id: string
   term: string
+  updated_at: string
 }
 
 export type TermUpdate = {
@@ -1399,7 +1411,7 @@ export type SendChatbotMessageResponses = {
   /**
    * Chatbot response stream
    */
-  200: ChatStreamEvent
+  200: ChatbotChatStreamEvent
 }
 
 export type SendChatbotMessageResponse =

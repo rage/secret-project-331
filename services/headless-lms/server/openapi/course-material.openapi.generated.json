@@ -371,7 +371,7 @@
             "content": {
               "text/event-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChatStreamEvent"
+                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
                 }
               }
             }
@@ -2952,7 +2952,7 @@
           }
         }
       },
-      "ChatStreamEvent": {
+      "ChatbotChatStreamEvent": {
         "oneOf": [
           {
             "type": "object",
@@ -2975,8 +2975,17 @@
           },
           {
             "type": "object",
-            "required": ["type"],
+            "required": ["data", "type"],
             "properties": {
+              "data": {
+                "type": "object",
+                "required": ["finished"],
+                "properties": {
+                  "finished": {
+                    "type": "boolean"
+                  }
+                }
+              },
               "type": {
                 "type": "string",
                 "enum": ["Reasoning"]
@@ -2989,10 +2998,13 @@
             "properties": {
               "data": {
                 "type": "object",
-                "required": ["tool_name", "arguments"],
+                "required": ["tool_name", "arguments", "finished"],
                 "properties": {
                   "arguments": {
                     "type": "string"
+                  },
+                  "finished": {
+                    "type": "boolean"
                   },
                   "tool_name": {
                     "type": "string"
@@ -4610,8 +4622,23 @@
       },
       "ExamEnrollment": {
         "type": "object",
-        "required": ["user_id", "exam_id", "started_at", "is_teacher_testing"],
+        "required": [
+          "user_id",
+          "exam_id",
+          "started_at",
+          "is_teacher_testing",
+          "created_at",
+          "updated_at"
+        ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "ended_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -4627,6 +4654,10 @@
             "type": ["boolean", "null"]
           },
           "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
             "type": "string",
             "format": "date-time"
           },
@@ -4750,6 +4781,10 @@
                         },
                         "user_exercise_state_id": {
                           "type": "string",
+                          "format": "uuid"
+                        },
+                        "user_id": {
+                          "type": ["string", "null"],
                           "format": "uuid"
                         }
                       }
@@ -5550,7 +5585,6 @@
       },
       "PageChapterAndCourseInformation": {
         "type": "object",
-        "required": ["organization_slug"],
         "properties": {
           "chapter_front_page_id": {
             "type": ["string", "null"],
@@ -5573,7 +5607,7 @@
             "type": ["string", "null"]
           },
           "organization_slug": {
-            "type": "string"
+            "type": ["string", "null"]
           }
         }
       },
@@ -6297,10 +6331,22 @@
       },
       "Term": {
         "type": "object",
-        "required": ["id", "term", "definition"],
+        "required": ["id", "created_at", "updated_at", "term", "definition", "course_id"],
         "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "definition": {
             "type": "string"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "id": {
             "type": "string",
@@ -6308,6 +6354,10 @@
           },
           "term": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

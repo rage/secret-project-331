@@ -64,7 +64,7 @@ export const zChapterWithStatus = z.object({
   updated_at: z.iso.datetime(),
 })
 
-export const zChatStreamEvent = z.union([
+export const zChatbotChatStreamEvent = z.union([
   z.object({
     data: z.object({
       text: z.string(),
@@ -72,11 +72,15 @@ export const zChatStreamEvent = z.union([
     type: z.enum(["Delta"]),
   }),
   z.object({
+    data: z.object({
+      finished: z.boolean(),
+    }),
     type: z.enum(["Reasoning"]),
   }),
   z.object({
     data: z.object({
       arguments: z.string(),
+      finished: z.boolean(),
       tool_name: z.string(),
     }),
     type: z.enum(["ToolCall"]),
@@ -416,11 +420,14 @@ export const zCustomViewExerciseTasks = z.object({
 })
 
 export const zExamEnrollment = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   ended_at: z.iso.datetime().nullish(),
   exam_id: z.uuid(),
   is_teacher_testing: z.boolean(),
   show_exercise_answers: z.boolean().nullish(),
   started_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
 
@@ -674,7 +681,7 @@ export const zPageChapterAndCourseInformation = z.object({
     .nullish(),
   course_name: z.string().nullish(),
   course_slug: z.string().nullish(),
-  organization_slug: z.string(),
+  organization_slug: z.string().nullish(),
 })
 
 export const zPageRoutingData = z.object({
@@ -990,6 +997,7 @@ export const zExamEnrollmentData = z.union([
           teacher_decision: zTeacherDecisionType,
           updated_at: z.iso.datetime(),
           user_exercise_state_id: z.uuid(),
+          user_id: z.uuid().nullish(),
         }),
         z.object({
           chapter_id: z.uuid().nullish(),
@@ -1045,9 +1053,13 @@ export const zExamData = z.object({
 })
 
 export const zTerm = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
   definition: z.string(),
+  deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   term: z.string(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zTermUpdate = z.object({
@@ -1443,7 +1455,7 @@ export const zSendChatbotMessagePath = z.object({
 /**
  * Chatbot response stream
  */
-export const zSendChatbotMessageResponse = zChatStreamEvent
+export const zSendChatbotMessageResponse = zChatbotChatStreamEvent
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),

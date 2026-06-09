@@ -4,9 +4,9 @@ import { useTranslation } from "react-i18next"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
+  ChatbotChatStreamEvent,
   ChatbotConversation,
   ChatbotConversationInfo,
-  ChatStreamEvent,
   SendChatbotMessageData,
 } from "@/generated/course-material-api/types.generated"
 import useNewConversationMutation from "@/hooks/course-material/chatbot/newConversationMutation"
@@ -117,7 +117,7 @@ const useChatbotStateAndData = (
               continue
             }
             try {
-              const parsedValue: ChatStreamEvent = JSON.parse(line)
+              const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
               console.log(parsedValue)
               if (parsedValue.type === "Delta") {
                 dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.data.text })

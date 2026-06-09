@@ -772,6 +772,7 @@ async fn parse_tool<'a>(
                 .await?;
             }
             tx.commit().await.map_err(|e| anyhow::anyhow!(e))?;
+
             messages.extend(tool_msgs);
             let input_messages = messages.into_iter().map(APIInputMessage::try_from).collect::<ChatbotResult<Vec<APIInputMessage>>>()?;
             yield StreamEvent::Messages(input_messages);
@@ -987,7 +988,7 @@ async fn parse_text_response<'a>(
                     true,
                     request_estimated_tokens + estimated_cost,
                 ).await?;
-                yield StreamEvent::End;
+                yield StreamEvent::Done;
                 break;
             }
 
@@ -999,7 +1000,6 @@ async fn parse_text_response<'a>(
 
             if let Some(delta) = &response_output.delta {
                 full_response_text.push(delta.to_owned());
-
                 yield StreamEvent::Delta(delta.clone());
             }
 
@@ -1027,7 +1027,7 @@ enum StreamEvent<'a> {
     Item(StreamItem),
     Messages(Vec<APIInputMessage>),
     ResponseIdStream((String, ResponseStreamType<'a>)),
-    End,
+    Done,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -1159,7 +1159,7 @@ pub async fn send_chat_request_and_parse_stream(
                             yield Bytes::from("\n");
                         };
                     },
-                    Ok(StreamEvent::End) => {
+                    Ok(StreamEvent::Done) => {
                         break 'outer Err(anyhow::anyhow!("This shouldn't happen, stream ended unxpectedly."))?
                     },
                     Ok(StreamEvent::Messages(_)) | Ok(StreamEvent::Delta(_)) => {
@@ -1181,7 +1181,6 @@ pub async fn send_chat_request_and_parse_stream(
                     ).await?;
                     // update response_id for the message
                     parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message.id, request_estimated_tokens).await
-
                 }
             };
 
@@ -1206,7 +1205,6 @@ pub async fn send_chat_request_and_parse_stream(
                                     let mut conn = pool.acquire().await?;
                                     process_output_item(&mut conn, stream_item.item.to_owned(), conversation_id, &app_config).await?;
                                 }
-
                             },
                         };
 
@@ -1221,7 +1219,7 @@ pub async fn send_chat_request_and_parse_stream(
                     StreamEvent::Messages(messages) => {
                         chat_request.input.extend(messages);
                     },
-                    StreamEvent::End => {
+                    StreamEvent::Done => {
                         let event = ChatbotChatStreamEvent::Done;
                         let event_string = serde_json::to_string(&event)?;
                         yield Bytes::from(event_string);

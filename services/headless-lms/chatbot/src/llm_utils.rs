@@ -2,8 +2,8 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::{
     azure_chatbot::{
-        ChatResponse, InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams,
-        OutputItem, Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
+        ChatResponse, InputItem, LLMRequest, LLMRequestParams, MessagePhase, MistralParams,
+        NonThinkingParams, OutputItem, Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
     },
     chatbot_error::ChatbotResult,
     prelude::*,
@@ -46,6 +46,7 @@ impl TryFrom<APIOutputMessage> for APIInputMessage {
                 role,
                 content,
                 response_id: _response_id,
+                ..
             } => Ok(APIInputMessage {
                 message_type: InputItem::Message { role, content },
             }),
@@ -185,6 +186,7 @@ impl APIOutputMessage {
                 role,
                 content,
                 response_id,
+                ..
             } => {
                 let text = content.get_content_text();
                 let used_tokens = estimate_tokens(&text);
@@ -317,6 +319,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                                     "Can't convert ChatbotConversationMessage into APIOutputMessage: a role='assistant' message should have a response_id, but it's missing"
                                 ))?
                         },
+                        phase: MessagePhase::FinalAnswer,
                     },
                 },
                 _ => {

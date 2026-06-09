@@ -141,6 +141,8 @@ pub enum OutputItem {
         response_id: String,
         role: MessageRole,
         content: MessageContent,
+        // todo! phase for reasoning preamble
+        phase: MessagePhase,
     },
     Reasoning {
         response_id: String,
@@ -171,6 +173,15 @@ pub enum OutputItem {
         call_id: String,
         output: String,
     },
+}
+
+/// Phase determines how to react to the message. Commentary-phase can have e.g.
+/// a reasoning preamble, and final answer is self-explanatory.
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum MessagePhase {
+    Commentary,
+    FinalAnswer,
 }
 
 impl From<StreamItem> for ChatbotChatStreamEvent {

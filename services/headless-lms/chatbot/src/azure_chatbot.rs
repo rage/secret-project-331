@@ -591,7 +591,7 @@ impl Drop for RequestCancelledGuard {
 
 /// For saving output items that are not text messages or function calls, i.e. that
 /// don't need further processing and are not streamed to the user.
-/// Saves reasoning and Azure AI items.
+/// Saves reasoning and Azure AI Search items.
 pub async fn process_output_item(
     conn: &mut PgConnection,
     item: OutputItem,
@@ -673,7 +673,9 @@ pub async fn process_output_item(
 }
 
 /// Streams and parses a LLM response from Azure that contains function calls.
-/// Calls the functions and returns a Vec of function results to be sent to Azure.
+/// Calls the functions and yields a Vec of function results to be sent to Azure.
+/// Consumes the lines (stream), because it ends when a custom function call is made.
+/// Returns a stream to be consumed in the caller.
 async fn parse_tool<'a>(
     conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
@@ -771,7 +773,8 @@ async fn parse_tool<'a>(
             }
             tx.commit().await.map_err(|e| anyhow::anyhow!(e))?;
             messages.extend(tool_msgs);
-            yield StreamEvent::Messages(messages);
+            let input_messages = messages.into_iter().map(APIInputMessage::try_from).collect::<ChatbotResult<Vec<APIInputMessage>>>()?;
+            yield StreamEvent::Messages(input_messages);
             break;
         } else if let Some(item) = response_output.item {
             match item.to_owned() {
@@ -805,142 +808,11 @@ async fn parse_tool<'a>(
         }
     }})
 }
-/*
-pub async fn parse_and_stream_to_user<'a>(
-    conn: &mut PgConnection,
-    mut lines: PeekableLinesStream<'a>,
-    conversation_id: Uuid,
-    pool: PgPool,
-    request_estimated_tokens: i32,
-    response_id: String,
-    app_config: ApplicationConfiguration,
-) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send + 'a>>> {
-    // insert the to-be-streamed bot text response to db
-    let response_message = models::chatbot_conversation_messages::insert(
-        conn,
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                text: "".to_string(),
-                message_role: MessageRole::Assistant,
-                message_is_complete: false,
-                used_tokens: request_estimated_tokens,
-                response_id: Some(response_id.to_owned()),
-                ..Default::default()
-            }),
-            ..Default::default()
-        },
-    )
-    .await?;
-    models::chatbot_conversation_messages_citations::update_citation_message_ids(
-        conn,
-        response_id.to_owned(),
-        response_message.id,
-    )
-    .await?;
 
-    let done = Arc::new(AtomicBool::new(false));
-    let full_response_text = Arc::new(Mutex::new(Vec::new()));
-    // Instantiate the guard before creating the stream.
-    let guard = RequestCancelledGuard {
-        response_message_id: response_message.id,
-        received_string: full_response_text.clone(),
-        pool: pool.clone(),
-        done: done.clone(),
-        request_estimated_tokens,
-    };
-
-    trace!("Parsing stream to user...");
-
-    let mut response_received = false;
-    let mut error_incoming = false;
-
-    let response_stream = async_stream::try_stream! {
-        while let Some(val) = lines.next().await {
-            let line = val?;
-            let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
-                Some(ParsedResponseLine::Event(event_type)) => {
-                    match event_type.as_str() {
-                        "response.completed" | "response.incomplete" => {response_received = true;},
-                        "response.output_text.delta" => {
-                            // streaming
-                        },
-                        "response.function_call_arguments.delta" => {
-                            error!("ERROR, function call received but can't be processed while streaming to user.");
-                            return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming to user")))?
-                        },
-                        "response.error" => {error_incoming = true;},
-                        _ => {},
-                    };
-                    continue;
-                },
-                Some(ParsedResponseLine::Data(data)) => data,
-                None => {continue;},
-            };
-
-            let mut full_response_text = full_response_text.lock().await;
-
-            if response_received {
-                let full_response_as_string = full_response_text.join("");
-                // todo: use the tokens given in the response
-                let estimated_cost = estimate_tokens(&full_response_as_string);
-                trace!(
-                    "End of chatbot response stream. Estimated cost: {}. Response: {}",
-                    estimated_cost, full_response_as_string
-                );
-                done.store(true, atomic::Ordering::Relaxed);
-                let mut conn = pool.acquire().await?;
-                models::chatbot_conversation_messages::update(
-                    &mut conn,
-                    response_message.id,
-                    &full_response_as_string,
-                    true,
-                    request_estimated_tokens + estimated_cost,
-                ).await?;
-                break;
-            }
-
-            if error_incoming &&
-                let Some(response) = &response_output.response && let Some(error) = &response.error
-            {
-                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, &response_id)))?
-            };
-
-            if let Some(delta) = &response_output.delta {
-                full_response_text.push(delta.to_owned());
-                let response = ChatStreamEvent::Delta  { text: delta.clone() };
-                let response_as_string = serde_json::to_string(&response)?;
-                yield Bytes::from(response_as_string);
-                yield Bytes::from("\n");
-            }
-
-            if let Some(item) = &response_output.item {
-                match item {
-                    OutputItem::Message { .. } => continue,
-                    OutputItem::FunctionCall { .. } => Err(chatbot_err!(StreamingError, "Error: unexpected function call after / during a text response.".to_string()))?,
-                    _ => {
-                        let mut conn = pool.acquire().await?;
-                        process_output_item(&mut conn, item.to_owned(), conversation_id, &app_config).await?;
-                        yield Bytes::from(serde_json::to_string(&ChatStreamEvent::Reasoning)?);
-                        yield Bytes::from("\n");
-                        continue;
-                    },
-                };
-            }
-        }
-        if !done.load(atomic::Ordering::Relaxed) {
-            Err(anyhow::anyhow!("Stream ended unexpectedly. Response id: {}", &response_id))?;
-        }
-    };
- */
-// Encapsulate the stream and the guard within GuardedStream. This moves the request guard into the stream and ensures that it is dropped when the stream is dropped.
-// This way we do cleanup only when the stream is dropped and not when this function returns.
-/*     let guarded_stream = GuardedStream::new(guard, response_stream);
-
-    // Box and pin the GuardedStream to satisfy the Unpin requirement
-    Ok(Box::pin(guarded_stream))
-} */
-
+/// Stream from Azure and return the stream when a text response or tool call response is detected.
+/// Tool calls and text responses are processed later with differing logic.
+/// Returns a stream to be consumed in the caller.
+/// Yields the lines (stream) argument, which is the Azure stream.
 fn stream_and_detect_response_stream_type<'a>(
     mut lines: PeekableLinesStream<'a>,
 ) -> impl Stream<Item = Result<StreamEvent<'a>, anyhow::Error>> {
@@ -1057,6 +929,9 @@ fn stream_and_detect_response_stream_type<'a>(
 }
 
 /// Streams and parses an LLM response from Azure that contains a text response.
+/// Consumes the lines (stream) from Azure, because the stream ends when a text response
+/// is finished.
+/// Returns a stream to be consumed in the caller.
 async fn parse_text_response<'a>(
     conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
@@ -1146,10 +1021,11 @@ async fn parse_text_response<'a>(
     })
 }
 
+/// For passing streamed events and data between streaming functions.
 enum StreamEvent<'a> {
     Delta(String),
     Item(StreamItem),
-    Messages(Vec<APIOutputMessage>),
+    Messages(Vec<APIInputMessage>),
     ResponseIdStream((String, ResponseStreamType<'a>)),
     End,
 }
@@ -1162,6 +1038,7 @@ struct StreamItem {
     finished: bool,
 }
 
+/// Makes a request to Azure and returns the resulting stream.
 pub async fn make_request_and_create_stream<'a>(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
@@ -1193,6 +1070,8 @@ pub async fn make_request_and_create_stream<'a>(
     Ok(pinned_lines)
 }
 
+/// Send and parse a Chatbot message and response and stream it to the user.
+/// Controls the whole operation.
 pub async fn send_chat_request_and_parse_stream(
     pool: PgPool,
     app_configuration: &ApplicationConfiguration,
@@ -1340,8 +1219,7 @@ pub async fn send_chat_request_and_parse_stream(
                         };
                     },
                     StreamEvent::Messages(messages) => {
-                        let input_messages = messages.into_iter().map(APIInputMessage::try_from).collect::<ChatbotResult<Vec<APIInputMessage>>>()?;
-                        chat_request.input.extend(input_messages);
+                        chat_request.input.extend(messages);
                     },
                     StreamEvent::End => {
                         let event = ChatbotChatStreamEvent::Done;

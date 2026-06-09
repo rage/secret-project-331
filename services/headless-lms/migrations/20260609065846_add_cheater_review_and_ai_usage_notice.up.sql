@@ -1,6 +1,4 @@
--- =============================================================================
--- Suspected-cheaters review: replace `is_archived` boolean with a status enum
--- =============================================================================
+-- Suspected-cheaters review: replace `is_archived` boolean with a status enum.
 -- The old boolean read backwards and conflated two states: a newly auto-flagged student
 -- awaiting review and a teacher-confirmed cheater were BOTH is_archived = FALSE, while
 -- is_archived = TRUE actually meant "dismissed as a false alarm".
@@ -28,9 +26,7 @@ WHERE is_archived = TRUE;
 
 ALTER TABLE suspected_cheaters DROP COLUMN is_archived;
 
--- =============================================================================
 -- AI-usage notice acknowledgements
--- =============================================================================
 CREATE TABLE user_ai_usage_notice_acknowledgements (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES users(id),
@@ -51,9 +47,7 @@ COMMENT ON COLUMN user_ai_usage_notice_acknowledgements.created_at IS 'Timestamp
 COMMENT ON COLUMN user_ai_usage_notice_acknowledgements.updated_at IS 'Timestamp when the record was last updated. The field is updated automatically by the set_timestamp trigger.';
 COMMENT ON COLUMN user_ai_usage_notice_acknowledgements.deleted_at IS 'Timestamp when the record was deleted. If null, the record is not deleted.';
 
--- =============================================================================
 -- Per-course toggle for suspected-cheater detection
--- =============================================================================
 ALTER TABLE courses
 ADD COLUMN cheater_detection_enabled BOOLEAN NOT NULL DEFAULT TRUE;
 COMMENT ON COLUMN courses.cheater_detection_enabled IS 'If true, the suspected-cheaters detection runs for this course: completions faster than the configured (or default 3-hour) threshold are flagged for teacher review. Disabled for seeded/system-test courses.';

@@ -2275,7 +2275,7 @@ async fn get_all_suspected_cheaters(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Number of suspected cheaters awaiting review", body = i64)
+        (status = 200, description = "Number of suspected cheaters awaiting review", body = i64, content_type = "application/json")
     )
 )]
 #[instrument(skip(pool))]

@@ -5912,7 +5912,7 @@
           "200": {
             "description": "Number of suspected cheaters awaiting review",
             "content": {
-              "text/plain": {
+              "application/json": {
                 "schema": {
                   "type": "integer",
                   "format": "int64"

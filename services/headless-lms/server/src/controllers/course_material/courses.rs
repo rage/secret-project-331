@@ -79,7 +79,7 @@ use headless_lms_utils::services::sisu::SisuClient;
     get_privacy_link,
     get_custom_privacy_policy_checkbox_texts,
     get_user_chapter_locks,
-    get_sisu_course_codes
+    get_sisu_course_info
 ))]
 pub(crate) struct CourseMaterialCoursesApiDoc;
 

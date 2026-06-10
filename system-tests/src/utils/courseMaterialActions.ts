@@ -44,6 +44,11 @@ export async function selectCourseInstanceIfPrompted(
   page: Page,
   courseVariantName?: string | undefined,
   timeout?: number,
+  /**
+   * Whether to also acknowledge the AI-usage notice that appears after enrolling. Defaults to
+   * `true`. Set to `false` in tests that need to assert on the notice themselves.
+   */
+  acknowledgeAiUsageNotice = true,
 ) {
   await test.step(
     "Select course instance if prompted",
@@ -78,8 +83,10 @@ export async function selectCourseInstanceIfPrompted(
         await page.getByTestId("select-course-instance-heading").waitFor({ state: "detached" })
 
         // After enrolling, the AI-usage notice is shown once and must be acknowledged before the
-        // user can interact with the material.
-        await acknowledgeAiUsageNoticeIfPrompted(page)
+        // user can interact with the material. Tests asserting on the notice can opt out.
+        if (acknowledgeAiUsageNotice) {
+          await acknowledgeAiUsageNoticeIfPrompted(page)
+        }
       }
     },
     { box: true },

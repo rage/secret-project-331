@@ -45,7 +45,7 @@ export function getEssayPasteWarning(pastedText: string, t: TFunction): OpenDial
   return {
     dialogType: "warning",
     title: t("essay-paste-warning-title"),
-    body: t("essay-paste-warning-body"),
+    body: t("essay-paste-warning-body").split("\n\n"),
     confirmButtonLabel: t("essay-paste-warning-acknowledge"),
   }
 }

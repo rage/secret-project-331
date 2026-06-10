@@ -27,7 +27,7 @@
   "after-completion-has-been-registered-you-can-view-completed-credits-at-url": "Efter att din slutförande har registrerats kan du se ditt slutförande i Min StudieInfo-tjänst: <4>{{url}}</4> Observera! Det finns en viss fördröjning i registreringen av slutförande och poängen som visas i Min StudieInfo",
   "ai-usage-notice-acknowledge-button": "Jag förstår",
   "ai-usage-notice-agree-checkbox": "Jag har läst meddelandet ovan och innehållet i länken, förstått dem och förbinder mig att följa reglerna.",
-  "ai-usage-notice-paragraph-1": "Användning av AI är förbjuden på MOOC-kurser om den inte uttryckligen tillåts på kursen. Om kursen tillåter användning, följ de givna anvisningarna och rapportera din användning av AI. Att bryta mot reglerna räknas som fusk. Följ <guidelinesLink>universitetets anvisningar</guidelinesLink>.",
+  "ai-usage-notice-paragraph-1": "Användning av AI är förbjuden på MOOC-kurser om den inte uttryckligen tillåts i kursmaterialet. Om användning är tillåten, följ de givna anvisningarna och rapportera din användning av AI. Att bryta mot reglerna räknas som fusk. Även om användning av AI undantagsvis är tillåten måste du ändå följa <guidelinesLink>universitetets anvisningar</guidelinesLink>. Som standard är användning inte tillåten.",
   "ai-usage-notice-paragraph-2": "Kurspersonalen granskar svaren. Vi ber om ursäkt för eventuella förseningar i slutförandet av kursen som detta manuella arbete orsakar.",
   "ai-usage-notice-title": "Användning av AI på kursen",
   "all-instances": "Alla instanser",

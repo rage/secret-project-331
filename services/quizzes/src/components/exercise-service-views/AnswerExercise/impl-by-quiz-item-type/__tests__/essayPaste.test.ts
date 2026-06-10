@@ -62,7 +62,7 @@ describe("getEssayPasteWarning", () => {
     expect(warning).toEqual({
       dialogType: "warning",
       title: "essay-paste-warning-title",
-      body: "essay-paste-warning-body",
+      body: ["essay-paste-warning-body"],
       confirmButtonLabel: "essay-paste-warning-acknowledge",
     })
   })
@@ -71,7 +71,7 @@ describe("getEssayPasteWarning", () => {
     const warning = getEssayPasteWarning(words(LARGE_PASTE_WORD_THRESHOLD), enT)
     expect(warning?.dialogType).toBe("warning")
     expect(warning?.title).toBe(enQuizzes["essay-paste-warning-title"])
-    expect(warning?.body).toBe(enQuizzes["essay-paste-warning-body"])
+    expect(warning?.body).toEqual(enQuizzes["essay-paste-warning-body"].split("\n\n"))
     expect(warning?.confirmButtonLabel).toBe(enQuizzes["essay-paste-warning-acknowledge"])
   })
 })

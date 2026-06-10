@@ -248,10 +248,22 @@ const MessageChannelIFrame: React.FC<React.PropsWithChildren<MessageChannelIFram
         const dialogBody = (
           <div
             className={css`
-              white-space: pre-wrap;
+              display: flex;
+              flex-direction: column;
+              gap: 0.5rem;
             `}
           >
-            {body}
+            {body.map((paragraph, i) => (
+              <p
+                key={i}
+                className={css`
+                  margin: 0;
+                  white-space: pre-wrap;
+                `}
+              >
+                {paragraph}
+              </p>
+            ))}
           </div>
         )
         if (dialogType === "confirm") {

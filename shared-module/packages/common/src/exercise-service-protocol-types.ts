@@ -60,7 +60,8 @@ export interface OpenDialogMessage {
    */
   dialogType: "confirm" | "warning"
   title: string
-  body: string
+  /** Body paragraphs; each entry is rendered as its own paragraph. */
+  body: string[]
   /** Already-localized confirm/acknowledge button label; parent uses a generic default if omitted. */
   confirmButtonLabel?: string | null
   /** Already-localized cancel button label (only used for "confirm" dialogs). */

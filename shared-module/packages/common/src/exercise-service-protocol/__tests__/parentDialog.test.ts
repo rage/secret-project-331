@@ -43,7 +43,7 @@ describe("ParentDialogClient", () => {
     void client.openDialog({
       dialogType: "warning",
       title: "Title",
-      body: "Body",
+      body: ["Body"],
       confirmButtonLabel: "OK",
     })
 
@@ -52,7 +52,7 @@ describe("ParentDialogClient", () => {
     expect(message.message).toBe("open-dialog")
     expect(message.dialogType).toBe("warning")
     expect(message.title).toBe("Title")
-    expect(message.body).toBe("Body")
+    expect(message.body).toEqual(["Body"])
     expect(message.confirmButtonLabel).toBe("OK")
     // omitted labels default to null rather than undefined
     expect(message.cancelButtonLabel).toBeNull()
@@ -64,7 +64,7 @@ describe("ParentDialogClient", () => {
     const fake = createFakePort()
     const client = new ParentDialogClient(fake.port)
 
-    const confirmedPromise = client.openDialog({ dialogType: "confirm", title: "t", body: "b" })
+    const confirmedPromise = client.openDialog({ dialogType: "confirm", title: "t", body: ["b"] })
     const { requestId } = lastPostedOpenDialog(fake.posted)
     const response: DialogResponseMessage = {
       message: "dialog-response",
@@ -80,7 +80,7 @@ describe("ParentDialogClient", () => {
     const fake = createFakePort()
     const client = new ParentDialogClient(fake.port)
 
-    const promise = client.openDialog({ dialogType: "confirm", title: "t", body: "b" })
+    const promise = client.openDialog({ dialogType: "confirm", title: "t", body: ["b"] })
     const { requestId } = lastPostedOpenDialog(fake.posted)
     fake.reply({ message: "dialog-response", requestId, confirmed: false })
 
@@ -91,7 +91,7 @@ describe("ParentDialogClient", () => {
     const fake = createFakePort()
     const client = new ParentDialogClient(fake.port)
 
-    const promise = client.openDialog({ dialogType: "confirm", title: "t", body: "b" })
+    const promise = client.openDialog({ dialogType: "confirm", title: "t", body: ["b"] })
     const { requestId } = lastPostedOpenDialog(fake.posted)
 
     // Wrong id: must not resolve the promise.
@@ -124,8 +124,8 @@ describe("ParentDialogClient", () => {
     const fake = createFakePort()
     const client = new ParentDialogClient(fake.port)
 
-    const first = client.openDialog({ dialogType: "confirm", title: "first", body: "b" })
-    const second = client.openDialog({ dialogType: "warning", title: "second", body: "b" })
+    const first = client.openDialog({ dialogType: "confirm", title: "first", body: ["b"] })
+    const second = client.openDialog({ dialogType: "warning", title: "second", body: ["b"] })
 
     const firstId = (fake.posted[0] as OpenDialogMessage).requestId
     const secondId = (fake.posted[1] as OpenDialogMessage).requestId
@@ -143,7 +143,7 @@ describe("ParentDialogClient", () => {
     const fake = createFakePort()
     const client = new ParentDialogClient(fake.port)
 
-    const pending = client.openDialog({ dialogType: "confirm", title: "t", body: "b" })
+    const pending = client.openDialog({ dialogType: "confirm", title: "t", body: ["b"] })
     expect(fake.hasListener()).toBe(true)
 
     client.dispose()
@@ -152,9 +152,9 @@ describe("ParentDialogClient", () => {
     await expect(pending).resolves.toBe(false)
     // openDialog after dispose resolves false and posts nothing new
     const postedCount = fake.posted.length
-    await expect(client.openDialog({ dialogType: "confirm", title: "t", body: "b" })).resolves.toBe(
-      false,
-    )
+    await expect(
+      client.openDialog({ dialogType: "confirm", title: "t", body: ["b"] }),
+    ).resolves.toBe(false)
     expect(fake.posted).toHaveLength(postedCount)
   })
 })

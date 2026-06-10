@@ -91,7 +91,10 @@ export function isOpenDialogMessage(obj: unknown): obj is OpenDialogMessage {
         (typedObj["dialogType"] === "confirm" ||
             typedObj["dialogType"] === "warning") &&
         typeof typedObj["title"] === "string" &&
-        typeof typedObj["body"] === "string" &&
+        Array.isArray(typedObj["body"]) &&
+        typedObj["body"].every((e: any) =>
+            typeof e === "string"
+        ) &&
         (typeof typedObj["confirmButtonLabel"] === "undefined" ||
             typedObj["confirmButtonLabel"] === null ||
             typeof typedObj["confirmButtonLabel"] === "string") &&

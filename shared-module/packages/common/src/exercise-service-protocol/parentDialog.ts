@@ -12,7 +12,8 @@ export interface OpenDialogOptions {
    */
   dialogType: "confirm" | "warning"
   title: string
-  body: string
+  /** Body paragraphs; each entry is rendered as its own paragraph. */
+  body: string[]
   confirmButtonLabel?: string | null
   cancelButtonLabel?: string | null
 }

@@ -27,7 +27,7 @@
   "after-completion-has-been-registered-you-can-view-completed-credits-at-url": "Etter registrert gjennomføring kan du se denne i Min StudieInfo-tjenesten: <4>{{url}}</4> Merk! Det kan ta noe tid før registrering og studiepoeng blir synlige i Min StudieInfo",
   "ai-usage-notice-acknowledge-button": "Jeg forstår",
   "ai-usage-notice-agree-checkbox": "Jeg har lest merknaden ovenfor og innholdet i lenken, forstått dem og forplikter meg til å følge reglene.",
-  "ai-usage-notice-paragraph-1": "Bruk av KI er forbudt på MOOC-kurs med mindre det er uttrykkelig tillatt på kurset. Hvis kurset tillater bruk, følg de oppgitte instruksjonene og rapporter bruken av KI. Å bryte reglene regnes som juks. Følg <guidelinesLink>universitetets retningslinjer</guidelinesLink>.",
+  "ai-usage-notice-paragraph-1": "Bruk av KI er forbudt på MOOC-kurs med mindre det er uttrykkelig tillatt i kursmaterialet. Hvis bruk er tillatt, følg de oppgitte instruksjonene og rapporter bruken av KI. Å bryte reglene regnes som juks. Selv om bruk av KI unntaksvis er tillatt, må du likevel følge <guidelinesLink>universitetets retningslinjer</guidelinesLink>. Som standard er bruk ikke tillatt.",
   "ai-usage-notice-paragraph-2": "Kurspersonalet går gjennom svarene. Vi beklager eventuelle forsinkelser i fullføringen av kurset som dette manuelle arbeidet medfører.",
   "ai-usage-notice-title": "Bruk av KI på kurset",
   "all-instances": "Alle instanser",

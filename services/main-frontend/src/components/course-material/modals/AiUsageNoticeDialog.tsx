@@ -17,9 +17,13 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Checkbox } from "@/shared-module/components"
 
 // The University of Helsinki guidelines on using AI to support learning.
-
-const GUIDELINES_URL =
+// Only fi/sv/en versions are published; other languages fall back to the English page.
+const GUIDELINES_URL_FI =
   "https://studies.helsinki.fi/ohjeet/artikkeli/tekoalyn-kayttaminen-oppimisen-tukena"
+const GUIDELINES_URL_SV =
+  "https://studies.helsinki.fi/instruktioner/artikel/anvandning-av-ai-som-stod-inlarning"
+const GUIDELINES_URL_EN =
+  "https://studies.helsinki.fi/instructions/article/using-ai-support-learning"
 
 export interface AiUsageNoticeDialogProps {
   courseId: string
@@ -34,8 +38,15 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   courseId,
   onClose,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
+
+  // studies.helsinki.fi publishes this page in fi/sv/en; other languages use the English version.
+  const guidelinesUrl = /^fi(?:-|$)/.test(i18n.language)
+    ? GUIDELINES_URL_FI
+    : /^sv(?:-|$)/.test(i18n.language)
+      ? GUIDELINES_URL_SV
+      : GUIDELINES_URL_EN
 
   const { control, watch } = useForm<AiUsageNoticeFormFields>({
     defaultValues: { agreed: false },
@@ -45,7 +56,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   // The link content is provided by the translation string via <Trans>, so the anchor has no
   // static children here.
   // eslint-disable-next-line jsx-a11y/anchor-has-content
-  const guidelinesLink = <a href={GUIDELINES_URL} target="_blank" rel="noopener noreferrer" />
+  const guidelinesLink = <a href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
 
   const acknowledgeMutation = useToastMutation<void, unknown, void>(
     async () => {

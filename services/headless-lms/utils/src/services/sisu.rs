@@ -93,19 +93,14 @@ impl Additional {
                 return false;
             }
         });
-        if let Some(best) = best {
-            if let Some(text) = &best.1 {
-                return Some(text.to_string());
-            }
-        }
-        return None;
+        return best.and_then(|o| o.1.clone());
     }
     fn as_vec(&self) -> Vec<(String, Option<String>)> {
-        let mut res = Vec::new();
-        res.push(("en".to_string(), self.en.clone()));
-        res.push(("fi".to_string(), self.fi.clone()));
-        res.push(("sv".to_string(), self.sv.clone()));
-        res
+        vec![
+            ("en".to_string(), self.en.clone()),
+            ("fi".to_string(), self.fi.clone()),
+            ("sv".to_string(), self.sv.clone()),
+        ]
     }
 }
 
@@ -160,7 +155,6 @@ pub struct SisuDescriptions {
     prerequisites: Option<String>,
     additional: Option<String>,
     learning_material: Option<String>,
-    literature: Vec<Option<serde_json::Value>>,
 }
 
 impl SisuClient {
@@ -255,7 +249,7 @@ impl SisuClient {
         course_info: Vec<SisuCourseInfoElement>,
         course_language: String,
     ) -> HashMap<String, SisuDescriptions> {
-        let course_language: String = String::from("en");
+        let course_language: String = String::from("fi");
 
         let mut course_desc: HashMap<String, SisuDescriptions> = HashMap::new();
 
@@ -282,7 +276,6 @@ impl SisuClient {
                 content: content,
                 prerequisites: preq,
                 learning_material: material,
-                literature: module.literature,
                 additional: add,
             };
             course_desc.insert(module.code, descriptions);

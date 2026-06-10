@@ -3458,123 +3458,6 @@
           }
         ]
       },
-      "Course": {
-        "type": "object",
-        "required": [
-          "id",
-          "slug",
-          "created_at",
-          "updated_at",
-          "name",
-          "organization_id",
-          "language_code",
-          "course_language_group_id",
-          "is_draft",
-          "is_test_mode",
-          "is_unlisted",
-          "base_module_completion_requires_n_submodule_completions",
-          "can_add_chatbot",
-          "is_joinable_by_code_only",
-          "ask_marketing_consent",
-          "flagged_answers_skip_manual_review_and_allow_retry",
-          "chapter_locking_enabled",
-          "cheater_detection_enabled"
-        ],
-        "properties": {
-          "ask_marketing_consent": {
-            "type": "boolean"
-          },
-          "base_module_completion_requires_n_submodule_completions": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "can_add_chatbot": {
-            "type": "boolean"
-          },
-          "chapter_locking_enabled": {
-            "type": "boolean"
-          },
-          "cheater_detection_enabled": {
-            "type": "boolean"
-          },
-          "closed_additional_message": {
-            "type": ["string", "null"]
-          },
-          "closed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "closed_course_successor_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "content_search_language": {
-            "type": ["string", "null"]
-          },
-          "copied_from": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "course_language_group_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deleted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "description": {
-            "type": ["string", "null"]
-          },
-          "flagged_answers_skip_manual_review_and_allow_retry": {
-            "type": "boolean"
-          },
-          "flagged_answers_threshold": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "is_draft": {
-            "type": "boolean"
-          },
-          "is_joinable_by_code_only": {
-            "type": "boolean"
-          },
-          "is_test_mode": {
-            "type": "boolean"
-          },
-          "is_unlisted": {
-            "type": "boolean"
-          },
-          "join_code": {
-            "type": ["string", "null"]
-          },
-          "language_code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "organization_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "CourseBackgroundQuestion": {
         "type": "object",
         "required": [
@@ -4354,7 +4237,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/Course"
+                "$ref": "#/components/schemas/CourseMaterialCourse"
               }
             ]
           },

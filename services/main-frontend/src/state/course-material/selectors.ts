@@ -6,8 +6,8 @@ import { examQueryAtom, materialQueryAtom } from "./queries"
 import { courseMaterialAtom } from "./index"
 
 import type {
-  Course,
   CourseInstance,
+  CourseMaterialCourse,
   ExamData,
   Organization,
   Page,
@@ -70,7 +70,9 @@ export const materialInstanceAtom = atom<CourseInstance | null>(
 )
 
 /** Current course data. */
-export const materialCourseAtom = atom<Course | null>((get) => get(courseMaterialAtom).course)
+export const materialCourseAtom = atom<CourseMaterialCourse | null>(
+  (get) => get(courseMaterialAtom).course,
+)
 
 /** Current organization data. */
 export const materialOrganizationAtom = atom<Organization | null>(

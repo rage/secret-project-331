@@ -280,11 +280,17 @@ pub struct Schema {
     /// Type of the schema, should be Object
     pub type_field: JSONType,
     // only array-type properties are supported for now
-    pub properties: HashMap<String, ArrayProperty>,
+    pub properties: HashMap<String, SchemaPropertyType>,
     /// All 'properties' keys must be included in this 'required' list
     pub required: Vec<String>,
     /// additionalProperties should always be 'false'
     pub additional_properties: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum SchemaPropertyType {
+    ArrayProperty(ArrayProperty),
+    Object(Schema),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]

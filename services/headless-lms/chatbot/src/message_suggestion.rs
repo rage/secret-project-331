@@ -4,7 +4,7 @@ use crate::{
     azure_chatbot::{
         ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
-        ThinkingParams,
+        SchemaPropertyType, ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
@@ -141,12 +141,12 @@ pub async fn generate_suggested_messages(
                     type_field: JSONType::Object,
                     properties: HashMap::from([(
                         "suggestions".to_string(),
-                        ArrayProperty {
+                        SchemaPropertyType::ArrayProperty(ArrayProperty {
                             type_field: JSONType::Array,
                             items: ArrayItem {
                                 type_field: JSONType::String,
                             },
-                        },
+                        }),
                     )]),
                     required: Vec::from(["suggestions".to_string()]),
                     additional_properties: false,

@@ -148,7 +148,7 @@ pub struct SearchResult {
 pub struct CourseUnitSearchResults {
     pub search_results: Vec<SearchResult>,
 }
-#[derive(Debug, ToSchema, Serialize, Deserialize)]
+#[derive(Debug, ToSchema, Serialize, Deserialize, Clone)]
 pub struct SisuDescriptions {
     outcomes: Option<String>,
     content: Option<String>,
@@ -280,7 +280,6 @@ impl SisuClient {
             };
             course_desc.insert(module.code, descriptions);
         }
-        dbg!(&course_desc);
         course_desc
     }
 }

@@ -6,6 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
+use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
@@ -1520,10 +1521,11 @@ Returns all course info for specific course.
         (status = 200, description = "Sisu course info", body = HashMap<String, SisuDescriptions>)
     )
 )]
-#[instrument(skip(pool))]
+#[instrument(skip(pool, app_conf))]
 async fn get_sisu_course_info(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<HashMap<String, SisuDescriptions>>> {
     let mut conn = pool.acquire().await?;
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
@@ -1540,6 +1542,17 @@ async fn get_sisu_course_info(
     let course_info = SisuClient::get_course_info(course_codes).await?;
     let token = skip_authorize();
     let sisu_info = SisuClient::parse_sisu_info(course_info, course_lang);
+    let message_suggest_llm = models::application_task_default_language_models::get_for_task(
+        &mut conn,
+        ApplicationTask::MessageSuggestion,
+    )
+    .await?;
+    headless_lms_chatbot::course_description_summary::generate_description(
+        &app_conf,
+        message_suggest_llm,
+        sisu_info.clone(),
+    )
+    .await;
     token.authorized_ok(web::Json(sisu_info))
 }
 

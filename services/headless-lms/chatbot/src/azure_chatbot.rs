@@ -373,7 +373,7 @@ pub struct LLMRequest {
 }
 
 impl LLMRequest {
-    pub async fn build_and_insert_incoming_message_to_db(
+    pub async fn build_and_insert_incoming_user_message_to_db(
         conn: &mut PgConnection,
         chatbot_configuration_id: Uuid,
         conversation_id: Uuid,
@@ -550,7 +550,7 @@ pub enum ResponseStreamType<'a> {
 }
 
 struct RequestCancelledGuard {
-    response_message_id: Uuid,
+    response_message_id: Arc<Mutex<Uuid>>,
     received_string: Arc<Mutex<Vec<String>>>,
     pool: PgPool,
     done: Arc<AtomicBool>,
@@ -563,7 +563,7 @@ impl Drop for RequestCancelledGuard {
             return;
         }
         warn!("Request was not cancelled. Cleaning up.");
-        let response_message_id = self.response_message_id;
+        let response_message_id = self.response_message_id.clone();
         let received_string = self.received_string.clone();
         let pool = self.pool.clone();
         let request_estimated_tokens = self.request_estimated_tokens;
@@ -571,9 +571,10 @@ impl Drop for RequestCancelledGuard {
             info!("Verifying the received message has been handled");
             let mut conn = pool.acquire().await.expect("Could not acquire connection");
             let full_response_text = received_string.lock().await;
+            let id = response_message_id.lock().await.to_owned();
             if full_response_text.is_empty() {
                 info!("No response received. Deleting the response message");
-                models::chatbot_conversation_messages::delete(&mut conn, response_message_id)
+                models::chatbot_conversation_messages::delete(&mut conn, id)
                     .await
                     .expect("Could not delete response message");
                 return;
@@ -589,7 +590,7 @@ impl Drop for RequestCancelledGuard {
             // Update with request_estimated_tokens + estimated_cost
             models::chatbot_conversation_message_messages::update(
                 &mut conn,
-                response_message_id,
+                id,
                 &full_response_as_string,
                 true,
                 request_estimated_tokens + estimated_cost,
@@ -949,8 +950,10 @@ async fn parse_text_response<'a>(
     mut lines: PeekableLinesStream<'a>,
     full_response_text: Arc<Mutex<Vec<String>>>,
     done: Arc<AtomicBool>,
-    response_message_id: Uuid,
+    response_message_id: Arc<Mutex<Uuid>>,
     request_estimated_tokens: i32,
+    conversation_id: Uuid,
+    response_id: String,
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
     trace!("Parsing stream to user...");
 
@@ -958,6 +961,32 @@ async fn parse_text_response<'a>(
     let mut error_incoming = false;
 
     Box::pin(async_stream::try_stream! {
+        let response_message = models::chatbot_conversation_messages::insert(
+        conn,
+        ChatbotConversationMessage {
+            conversation_id,
+            message: Message::Text(ChatbotConversationMessageMessage {
+                text: "".to_string(),
+                message_role: MessageRole::Assistant,
+                message_is_complete: false,
+                used_tokens: request_estimated_tokens,
+                response_id: Some(response_id.to_owned()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        },
+        )
+        .await?;
+        models::chatbot_conversation_messages_citations::update_citation_message_ids(
+            conn,
+            response_id.to_string(),
+            response_message.id,
+        ).await?;
+
+        // set the correct response_message_id
+        let mut response_message_id = response_message_id.lock().await;
+        *response_message_id = response_message.id;
+
         while let Some(val) = lines.next().await {
             let line = val?;
             let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
@@ -991,14 +1020,15 @@ async fn parse_text_response<'a>(
                     "End of chatbot response stream. Estimated cost: {}. Response: {}",
                     estimated_cost, full_response_as_string
                 );
-                done.store(true, atomic::Ordering::Relaxed);
                 models::chatbot_conversation_messages::update(
                     conn,
-                    response_message_id,
+                    response_message.id,
                     &full_response_as_string,
                     true,
                     request_estimated_tokens + estimated_cost,
                 ).await?;
+
+                done.store(true, atomic::Ordering::Relaxed);
                 yield StreamEvent::Done;
                 break;
             }
@@ -1006,7 +1036,7 @@ async fn parse_text_response<'a>(
             if error_incoming &&
                 let Some(response) = &response_output.response && let Some(error) = &response.error
             {
-                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}.", error)))?
+                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, response.id)))?
             };
 
             if let Some(delta) = &response_output.delta {
@@ -1095,7 +1125,7 @@ pub async fn send_chat_request_and_parse_stream(
     // todo! add tx?
     let app_config = app_configuration.to_owned();
     let (mut chat_request, request_estimated_tokens) =
-        LLMRequest::build_and_insert_incoming_message_to_db(
+        LLMRequest::build_and_insert_incoming_user_message_to_db(
             &mut conn,
             chatbot_configuration_id,
             conversation_id,
@@ -1103,35 +1133,24 @@ pub async fn send_chat_request_and_parse_stream(
             &app_config,
         )
         .await?;
-    let response_message = models::chatbot_conversation_messages::insert(
-        &mut conn,
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                text: "".to_string(),
-                message_role: MessageRole::Assistant,
-                message_is_complete: false,
-                used_tokens: request_estimated_tokens,
-                response_id: Some("response_id".to_owned()),
-                ..Default::default()
-            }),
-            ..Default::default()
-        },
-    )
-    .await?;
 
     let mut max_iterations_left = 15;
 
+    // response id created by Azure, can be used in figuring out what went wrong if
+    // request or streaming fails. also stored in the db.
+    let response_id = Arc::new(Mutex::new(String::new()));
+
     let done = Arc::new(AtomicBool::new(false));
     let full_response_text = Arc::new(Mutex::new(Vec::new()));
+    let response_message_id = Arc::new(Mutex::new(Uuid::nil()));
+
     // Instantiate the guard before creating the stream.
     let guard = RequestCancelledGuard {
-        response_message_id: response_message.id,
+        response_message_id: response_message_id.clone(),
         received_string: full_response_text.clone(),
         pool: pool.clone(),
         done: done.clone(),
         request_estimated_tokens,
-        // response_id?
     };
 
     let response_stream = async_stream::try_stream! { 'outer: loop
@@ -1151,12 +1170,15 @@ pub async fn send_chat_request_and_parse_stream(
 
             let lines = make_request_and_create_stream(chat_request.clone(), &app_config)
                     .await?;
-            let mut s = stream_and_detect_response_stream_type(lines);
-            let (response_id, lines2);
+            let mut response_stream = stream_and_detect_response_stream_type(lines);
+            let (received_response_id, typed_response_stream);
             loop {
-                if let Some(val) = s.next().await {
+                if let Some(val) = response_stream.next().await {
                 match val {
-                    Ok(StreamEvent::ResponseIdStream(stuff)) => {(response_id, lines2) = stuff; break;},
+                    Ok(StreamEvent::ResponseIdStream(stuff)) => {
+                        (received_response_id, typed_response_stream) = stuff;
+                        break;
+                    },
                     Ok(StreamEvent::Item(item)) => {
                         if item.finished {
                             let mut conn = pool.acquire().await?;
@@ -1176,32 +1198,30 @@ pub async fn send_chat_request_and_parse_stream(
                     Ok(StreamEvent::Messages(_)) | Ok(StreamEvent::Delta(_)) => {
                         break 'outer Err(anyhow::anyhow!("This shouldn't happen, messages or response delta not expected."))?
                     },
-                    Err(e) => break 'outer Err(anyhow::anyhow!("Stream ended unexpectedly: {e}"))?,
+                    Err(e) => break 'outer Err(anyhow::anyhow!("Stream ended unexpectedly: {e} Response id: {}", response_id.lock().await))?,
                 }}
             }
 
-            let mut s = match lines2 {
+            // update response_id once it's found.
+            let mut response_id = response_id.lock().await;
+            *response_id = received_response_id;
+
+            let mut final_stream = match typed_response_stream {
                 ResponseStreamType::Toolcall(stream) => {
                     parse_tool(&mut conn, stream, conversation_id, &user_context).await
                 }
                 ResponseStreamType::TextResponse(stream) => {
-                    models::chatbot_conversation_messages_citations::update_citation_message_ids(
-                        &mut conn,
-                        response_id,
-                        response_message.id,
-                    ).await?;
                     // update response_id for the message
-                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message.id, request_estimated_tokens).await
+                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message_id.clone(), request_estimated_tokens, conversation_id, response_id.clone()).await
                 }
             };
 
-            while let Some(line) = s.next().await {
+            while let Some(line) = final_stream.next().await {
                 let val = line?;
                 match val {
                     StreamEvent::Delta(delta) => {
                         let response = ChatbotChatStreamEvent::Delta  { text: delta.clone() };
                         let response_as_string = serde_json::to_string(&response)?;
-                        println!("🌟{response_as_string}");
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
                     },
@@ -1237,12 +1257,16 @@ pub async fn send_chat_request_and_parse_stream(
                         yield Bytes::from("\n");
                         break 'outer;
                     }
-                    _ => {},
+                    StreamEvent::ResponseIdStream(..) => {
+                        Err(anyhow::anyhow!("This shouldn't happen, response stream received while already streaming a response stream to user."))?
+                    },
                 }
             }
         }
         if !done.load(atomic::Ordering::Relaxed) {
-            Err(chatbot_err!(StreamingError,"Stream ended unexpectedly"))?;
+            // todo! can this locking fail and prevent returning the error?
+            let id = response_id.lock().await;
+            Err(chatbot_err!(StreamingError, format!("Stream ended unexpectedly. Response id: {id}")))?;
         }
     };
 

@@ -14,10 +14,10 @@ const TEMPLATE_SERVICE_NAME = "example-exercise"
 /**
  * Shared-module packages vendored into the generated project's `src/shared-module/`. The layout
  * mirrors `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve.
- * `exercise-plugins` re-exports from `@/shared-module/common/...`, so `common` is required too.
- * `components` is intentionally omitted: the template imports nothing from it.
+ * `exercise-plugins` is self-contained (it no longer imports `@/shared-module/common/...`), and the
+ * template imports nothing from `common` or `components`, so only `exercise-plugins` is vendored.
  */
-const VENDORED_PACKAGES = ["common", "exercise-plugins"]
+const VENDORED_PACKAGES = ["exercise-plugins"]
 
 /** Top-level entries in the template that must never be copied into a generated project. */
 const COPY_EXCLUDES = new Set([
@@ -140,7 +140,9 @@ async function buildPackageJson(
 
   pkg.name = projectName
   pkg.version = "0.1.0"
-  pkg.dependencies = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)))
+  pkg.dependencies = Object.fromEntries(
+    Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)),
+  )
   // The template pins an exact node version for the monorepo's controlled environment; a generated
   // standalone project should not carry that constraint.
   delete pkg.devEngines
@@ -166,31 +168,20 @@ async function renameLocales(projectPath: string, projectName: string): Promise<
 }
 
 /** Replace the service name and other template-specific values throughout the generated project. */
-async function parameterize(
-  projectPath: string,
-  projectName: string,
-): Promise<void> {
+async function parameterize(projectPath: string, projectName: string): Promise<void> {
   const nameReplacement: Array<[string, string]> = [[TEMPLATE_SERVICE_NAME, projectName]]
 
-  // SERVICE_NAME constants.
-  for (const file of [
-    "src/app/layout.tsx",
-    "src/components/layout/ClientLayoutWrapper.tsx",
-    "src/lib/apiRoutes.ts",
-  ]) {
-    await replaceInFile(join(projectPath, file), [
-      [`const SERVICE_NAME = "${TEMPLATE_SERVICE_NAME}"`, `const SERVICE_NAME = "${projectName}"`],
-    ])
-  }
+  // SERVICE_NAME constant (drives the i18next namespace; lives only in ClientLayoutWrapper).
+  await replaceInFile(join(projectPath, "src/components/layout/ClientLayoutWrapper.tsx"), [
+    [`const SERVICE_NAME = "${TEMPLATE_SERVICE_NAME}"`, `const SERVICE_NAME = "${projectName}"`],
+  ])
 
   // i18next type augmentation: import path, defaultNS and the resources key all use the namespace.
   await replaceInFile(join(projectPath, "types/i18next.d.ts"), nameReplacement)
 
   // Human-readable display name reported by the service-info endpoint (e.g. "my-exercise" -> "My
   // exercise"). Derived from the project name; the author can refine it afterwards.
-  const displayName = projectName
-    .replace(/[-_]+/g, " ")
-    .replace(/^./, (c) => c.toUpperCase())
+  const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
   await replaceInFile(join(projectPath, "src/app/api/service-info/route.ts"), [
     [`service_name: "Example exercise"`, `service_name: "${displayName}"`],
   ])
@@ -199,11 +190,6 @@ async function parameterize(
 
   // Standalone .editorconfig (the template's delegates to the monorepo root).
   await writeFile(join(projectPath, ".editorconfig"), STANDALONE_EDITORCONFIG)
-
-  // The vendored shared code pulls in the full `common` dependency set, some of which still declare
-  // legacy React peer ranges. The monorepo tolerates this via pnpm; npm needs legacy-peer-deps. The
-  // key is a no-op for pnpm/yarn, which handle peers themselves.
-  await writeFile(join(projectPath, ".npmrc"), "legacy-peer-deps=true\n")
 
   // Track the vendored shared-module snapshot instead of ignoring it (it is real source now).
   const gitignorePath = join(projectPath, ".gitignore")
@@ -215,7 +201,10 @@ async function parameterize(
 
   // Drop the monorepo-relative typeRoot; keep the local one + node_modules.
   await replaceInFile(join(projectPath, "tsconfig.json"), [
-    [`"typeRoots": ["types", "./shared-module/types", "./node_modules/@types"]`, `"typeRoots": ["types", "./node_modules/@types"]`],
+    [
+      `"typeRoots": ["types", "./shared-module/types", "./node_modules/@types"]`,
+      `"typeRoots": ["types", "./node_modules/@types"]`,
+    ],
   ])
 }
 
@@ -296,7 +285,9 @@ async function main() {
   const port = await input({
     message: "Development server port",
     default: "3002",
-    validate: (value) => (/^\d+$/.test(value) && Number(value) > 0 && Number(value) < 65536) || "Enter a valid port number",
+    validate: (value) =>
+      (/^\d+$/.test(value) && Number(value) > 0 && Number(value) < 65536) ||
+      "Enter a valid port number",
   })
   // convert projectPath to an absolute path
   const absoluteProjectPath = resolve(projectPath)

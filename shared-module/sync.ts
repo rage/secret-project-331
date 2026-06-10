@@ -18,14 +18,21 @@ const ALL_SERVICES_TARGETS = [
   "storybook/src/shared-module",
 ]
 
+// example-exercise is the standalone-capable template: it consumes only the self-contained
+// exercise-plugins package, so common and components are not synced into it.
+const EXERCISE_PLUGINS_ONLY_TARGETS = ["services/example-exercise/src/shared-module"]
+const COMMON_AND_COMPONENTS_TARGETS = ALL_SERVICES_TARGETS.filter(
+  (target) => !EXERCISE_PLUGINS_ONLY_TARGETS.includes(target),
+)
+
 const SYNC_TARGETS = [
   {
     source: "common",
-    destinations: ALL_SERVICES_TARGETS,
+    destinations: COMMON_AND_COMPONENTS_TARGETS,
   },
   {
     source: "components",
-    destinations: ALL_SERVICES_TARGETS,
+    destinations: COMMON_AND_COMPONENTS_TARGETS,
   },
   {
     source: "exercise-plugins",

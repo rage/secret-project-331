@@ -40,9 +40,6 @@ importers:
       react:
         specifier: 19.2.6
         version: 19.2.6
-      react-aria:
-        specifier: 3.48.0
-        version: 3.48.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react-dom:
         specifier: 19.2.6
         version: 19.2.6(react@19.2.6)
@@ -4426,7 +4423,6 @@ time:
   i18next@26.3.0: '2026-05-26T12:59:10.290Z'
   next@16.2.6: '2026-05-07T19:01:54.751Z'
   postcss-styled-syntax@0.7.1: '2025-01-16T21:37:40.206Z'
-  react-aria@3.48.0: '2026-04-14T22:43:36.676Z'
   react-dom@19.2.6: '2026-05-06T16:16:56.080Z'
   react-i18next@17.0.8: '2026-05-14T19:20:51.882Z'
   react@19.2.6: '2026-05-06T16:16:47.653Z'

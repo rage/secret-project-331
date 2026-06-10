@@ -8,7 +8,7 @@ use chrono::Utc;
 use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
     partner_block::PartnersBlock,
-    suspected_cheaters::{SuspectedCheaters, Threshold},
+    suspected_cheaters::{SuspectedCheaterStatus, SuspectedCheaters, Threshold},
 };
 use std::sync::Arc;
 use utoipa::OpenApi;
@@ -106,9 +106,10 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         teacher_reset_course_progress_for_themselves,
         teacher_reset_course_progress_for_everyone,
         get_all_suspected_cheaters,
+        get_flagged_suspected_cheaters_count,
         get_all_thresholds,
-        teacher_archive_suspected_cheater,
-        teacher_approve_suspected_cheater,
+        teacher_dismiss_suspected_cheater,
+        teacher_confirm_suspected_cheater,
         add_user_to_course_with_join_code,
         set_join_code_for_course,
         get_course_with_join_code,
@@ -2221,11 +2222,11 @@ pub async fn teacher_reset_course_progress_for_everyone(
 #[derive(Debug, Deserialize)]
 
 pub struct GetSuspectedCheatersQuery {
-    archive: bool,
+    status: SuspectedCheaterStatus,
 }
 
 /**
- GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.
+ GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?status=Flagged - returns the suspected cheaters in the given review state for a course.
 */
 #[utoipa::path(
     get,
@@ -2234,7 +2235,7 @@ pub struct GetSuspectedCheatersQuery {
     tag = "courses",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("archive" = bool, Query, description = "Whether to fetch archived suspected cheaters")
+        ("status" = SuspectedCheaterStatus, Query, description = "Which review state of suspected cheaters to fetch")
     ),
     responses(
         (status = 200, description = "Suspected cheaters for course", body = [SuspectedCheaters])
@@ -2255,11 +2256,47 @@ async fn get_all_suspected_cheaters(
     let course_cheaters = models::suspected_cheaters::get_all_suspected_cheaters_in_course(
         &mut conn,
         course_id,
-        query.archive,
+        query.status,
     )
     .await?;
 
     token.authorized_ok(web::Json(course_cheaters))
+}
+
+/**
+ GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/flagged-count - number of suspected cheaters awaiting review (status flagged). Used to show a review notification to teachers.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/suspected-cheaters/flagged-count",
+    operation_id = "getCourseFlaggedSuspectedCheatersCount",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Number of suspected cheaters awaiting review", body = i64, content_type = "application/json")
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_flagged_suspected_cheaters_count(
+    user: AuthUser,
+    params: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<i64>> {
+    let course_id = params.into_inner();
+
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
+
+    let count = models::suspected_cheaters::get_count_in_course_by_status(
+        &mut conn,
+        course_id,
+        SuspectedCheaterStatus::Flagged,
+    )
+    .await?;
+
+    token.authorized_ok(web::Json(count))
 }
 
 /**
@@ -2295,23 +2332,23 @@ async fn get_all_thresholds(
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
 */
 #[utoipa::path(
     post,
-    path = "/{course_id}/suspected-cheaters/archive/{id}",
-    operation_id = "archiveCourseSuspectedCheater",
+    path = "/{course_id}/suspected-cheaters/dismiss/{user_id}",
+    operation_id = "dismissCourseSuspectedCheater",
     tag = "courses",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("id" = Uuid, Path, description = "Suspected cheater user id")
+        ("user_id" = Uuid, Path, description = "Suspected cheater's user id")
     ),
     responses(
-        (status = 200, description = "Suspected cheater archived")
+        (status = 200, description = "Suspicion dismissed")
     )
 )]
 #[instrument(skip(pool))]
-async fn teacher_archive_suspected_cheater(
+async fn teacher_dismiss_suspected_cheater(
     user: AuthUser,
     path: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
@@ -2321,30 +2358,30 @@ async fn teacher_archive_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::suspected_cheaters::archive_by_user_id_and_course_id(&mut conn, user_id, course_id)
+    models::suspected_cheaters::dismiss_by_user_id_and_course_id(&mut conn, user_id, course_id)
         .await?;
 
     token.authorized_ok(web::Json(()))
 }
 
 /**
- POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
+ POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
 */
 #[utoipa::path(
     post,
-    path = "/{course_id}/suspected-cheaters/approve/{id}",
-    operation_id = "approveCourseSuspectedCheater",
+    path = "/{course_id}/suspected-cheaters/confirm/{user_id}",
+    operation_id = "confirmCourseSuspectedCheater",
     tag = "courses",
     params(
         ("course_id" = Uuid, Path, description = "Course id"),
-        ("id" = Uuid, Path, description = "Suspected cheater user id")
+        ("user_id" = Uuid, Path, description = "Suspected cheater's user id")
     ),
     responses(
-        (status = 200, description = "Suspected cheater approved")
+        (status = 200, description = "Cheating confirmed")
     )
 )]
 #[instrument(skip(pool))]
-async fn teacher_approve_suspected_cheater(
+async fn teacher_confirm_suspected_cheater(
     user: AuthUser,
     path: web::Path<(Uuid, Uuid)>,
     pool: web::Data<PgPool>,
@@ -2354,8 +2391,10 @@ async fn teacher_approve_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
-    models::suspected_cheaters::approve_by_user_id_and_course_id(&mut conn, user_id, course_id)
-        .await?;
+    models::suspected_cheaters::confirm_cheater_by_user_id_and_course_id(
+        &mut conn, user_id, course_id,
+    )
+    .await?;
 
     // Fail student
     //find by user_id and course_id
@@ -2761,12 +2800,16 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_all_suspected_cheaters),
         )
         .route(
-            "/{course_id}/suspected-cheaters/archive/{id}",
-            web::post().to(teacher_archive_suspected_cheater),
+            "/{course_id}/suspected-cheaters/flagged-count",
+            web::get().to(get_flagged_suspected_cheaters_count),
         )
         .route(
-            "/{course_id}/suspected-cheaters/approve/{id}",
-            web::post().to(teacher_approve_suspected_cheater),
+            "/{course_id}/suspected-cheaters/dismiss/{user_id}",
+            web::post().to(teacher_dismiss_suspected_cheater),
+        )
+        .route(
+            "/{course_id}/suspected-cheaters/confirm/{user_id}",
+            web::post().to(teacher_confirm_suspected_cheater),
         )
         .route(
             "/{course_id}/teacher-reset-course-progress-for-everyone",

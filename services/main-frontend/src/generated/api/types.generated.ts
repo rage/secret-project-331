@@ -518,6 +518,7 @@ export type Course = {
   base_module_completion_requires_n_submodule_completions: number
   can_add_chatbot: boolean
   chapter_locking_enabled: boolean
+  cheater_detection_enabled: boolean
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
@@ -574,6 +575,7 @@ export type CourseDesignerPlan = {
   active_stage?: null | CourseDesignerStage
   created_at: string
   created_by_user_id: string
+  deleted_at?: string | null
   id: string
   last_weekly_stage_email_sent_at?: string | null
   name?: string | null
@@ -1015,11 +1017,14 @@ export type ExamCourseInfo = {
 }
 
 export type ExamEnrollment = {
+  created_at: string
+  deleted_at?: string | null
   ended_at?: string | null
   exam_id: string
   is_teacher_testing: boolean
   show_exercise_answers?: boolean | null
   started_at: string
+  updated_at: string
   user_id: string
 }
 
@@ -1570,14 +1575,19 @@ export type NewTeacherGradingDecision = {
 }
 
 export type OrgExam = {
+  created_at: string
+  deleted_at?: string | null
   ends_at?: string | null
+  grade_manually: boolean
   id: string
   instructions: unknown
+  language?: string | null
   minimum_points_treshold: number
   name: string
   organization_id: string
   starts_at?: string | null
   time_minutes: number
+  updated_at: string
 }
 
 export type Organization = {
@@ -1642,11 +1652,13 @@ export type PageHistory = {
   author_user_id: string
   content: unknown
   created_at: string
+  deleted_at?: string | null
   history_change_reason: HistoryChangeReason
   id: string
   page_id: string
   restored_from_id?: string | null
   title: string
+  updated_at: string
 }
 
 export type PageInfo = {
@@ -1828,9 +1840,14 @@ export type PeerReviewWithQuestionsAndAnswers = {
 }
 
 export type PendingRole = {
+  course_id?: string | null
+  course_instance_id?: string | null
+  created_at: string
+  deleted_at?: string | null
   expires_at: string
   id: string
   role: UserRole
+  updated_at: string
   user_email: string
 }
 
@@ -1914,6 +1931,8 @@ export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high
 
 export type Regrading = {
   created_at: string
+  deleted_at?: string | null
+  error_message?: string | null
   id: string
   regrading_completed_at?: string | null
   regrading_started_at?: string | null
@@ -2039,12 +2058,17 @@ export type StudentsByCountryTotalsResult = {
   country?: string | null
 }
 
+/**
+ * Review state of a suspected cheater.
+ */
+export type SuspectedCheaterStatus = "Flagged" | "ConfirmedCheating" | "Dismissed"
+
 export type SuspectedCheaters = {
   course_id: string
   created_at: string
   deleted_at?: string | null
   id: string
-  is_archived?: boolean | null
+  status: SuspectedCheaterStatus
   total_duration_seconds?: number | null
   total_points: number
   updated_at?: string | null
@@ -2073,6 +2097,7 @@ export type TeacherGradingDecision = {
   teacher_decision: TeacherDecisionType
   updated_at: string
   user_exercise_state_id: string
+  user_id?: string | null
 }
 
 export type TeacherManualCompletion = {
@@ -2089,9 +2114,13 @@ export type TeacherManualCompletionRequest = {
 }
 
 export type Term = {
+  course_id: string
+  created_at: string
   definition: string
+  deleted_at?: string | null
   id: string
   term: string
+  updated_at: string
 }
 
 export type TermUpdate = {
@@ -5781,9 +5810,9 @@ export type GetCourseSuspectedCheatersData = {
   }
   query: {
     /**
-     * Whether to fetch archived suspected cheaters
+     * Which review state of suspected cheaters to fetch
      */
-    archive: boolean
+    status: SuspectedCheaterStatus
   }
   url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters"
 }
@@ -5798,7 +5827,7 @@ export type GetCourseSuspectedCheatersResponses = {
 export type GetCourseSuspectedCheatersResponse =
   GetCourseSuspectedCheatersResponses[keyof GetCourseSuspectedCheatersResponses]
 
-export type ApproveCourseSuspectedCheaterData = {
+export type ConfirmCourseSuspectedCheaterData = {
   body?: never
   path: {
     /**
@@ -5806,22 +5835,22 @@ export type ApproveCourseSuspectedCheaterData = {
      */
     course_id: string
     /**
-     * Suspected cheater user id
+     * Suspected cheater's user id
      */
-    id: string
+    user_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}"
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{user_id}"
 }
 
-export type ApproveCourseSuspectedCheaterResponses = {
+export type ConfirmCourseSuspectedCheaterResponses = {
   /**
-   * Suspected cheater approved
+   * Cheating confirmed
    */
   200: unknown
 }
 
-export type ArchiveCourseSuspectedCheaterData = {
+export type DismissCourseSuspectedCheaterData = {
   body?: never
   path: {
     /**
@@ -5829,20 +5858,42 @@ export type ArchiveCourseSuspectedCheaterData = {
      */
     course_id: string
     /**
-     * Suspected cheater user id
+     * Suspected cheater's user id
      */
-    id: string
+    user_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}"
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{user_id}"
 }
 
-export type ArchiveCourseSuspectedCheaterResponses = {
+export type DismissCourseSuspectedCheaterResponses = {
   /**
-   * Suspected cheater archived
+   * Suspicion dismissed
    */
   200: unknown
 }
+
+export type GetCourseFlaggedSuspectedCheatersCountData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/flagged-count"
+}
+
+export type GetCourseFlaggedSuspectedCheatersCountResponses = {
+  /**
+   * Number of suspected cheaters awaiting review
+   */
+  200: number
+}
+
+export type GetCourseFlaggedSuspectedCheatersCountResponse =
+  GetCourseFlaggedSuspectedCheatersCountResponses[keyof GetCourseFlaggedSuspectedCheatersCountResponses]
 
 export type ResetCourseProgressForEveryoneData = {
   body?: never

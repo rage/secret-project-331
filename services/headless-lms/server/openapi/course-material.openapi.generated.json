@@ -855,6 +855,66 @@
         }
       }
     },
+    "/api/v0/course-material/courses/{course_id}/ai-usage-notice-acknowledgement": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the\ncurrent user has acknowledged the AI-usage / academic-integrity notice for this course.",
+        "operationId": "getAiUsageNoticeAcknowledgement",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whether the user has acknowledged the notice",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["course-material-courses"],
+        "summary": "\nPOST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that\nthe current user has acknowledged the AI-usage / academic-integrity notice for this course.",
+        "operationId": "acknowledgeAiUsageNotice",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Acknowledgement recorded",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/course-material/courses/{course_id}/chapters": {
       "get": {
         "tags": ["course-material-courses"],
@@ -3398,119 +3458,6 @@
           }
         ]
       },
-      "Course": {
-        "type": "object",
-        "required": [
-          "id",
-          "slug",
-          "created_at",
-          "updated_at",
-          "name",
-          "organization_id",
-          "language_code",
-          "course_language_group_id",
-          "is_draft",
-          "is_test_mode",
-          "is_unlisted",
-          "base_module_completion_requires_n_submodule_completions",
-          "can_add_chatbot",
-          "is_joinable_by_code_only",
-          "ask_marketing_consent",
-          "flagged_answers_skip_manual_review_and_allow_retry",
-          "chapter_locking_enabled"
-        ],
-        "properties": {
-          "ask_marketing_consent": {
-            "type": "boolean"
-          },
-          "base_module_completion_requires_n_submodule_completions": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "can_add_chatbot": {
-            "type": "boolean"
-          },
-          "chapter_locking_enabled": {
-            "type": "boolean"
-          },
-          "closed_additional_message": {
-            "type": ["string", "null"]
-          },
-          "closed_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "closed_course_successor_id": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "content_search_language": {
-            "type": ["string", "null"]
-          },
-          "copied_from": {
-            "type": ["string", "null"],
-            "format": "uuid"
-          },
-          "course_language_group_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "deleted_at": {
-            "type": ["string", "null"],
-            "format": "date-time"
-          },
-          "description": {
-            "type": ["string", "null"]
-          },
-          "flagged_answers_skip_manual_review_and_allow_retry": {
-            "type": "boolean"
-          },
-          "flagged_answers_threshold": {
-            "type": ["integer", "null"],
-            "format": "int32"
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "is_draft": {
-            "type": "boolean"
-          },
-          "is_joinable_by_code_only": {
-            "type": "boolean"
-          },
-          "is_test_mode": {
-            "type": "boolean"
-          },
-          "is_unlisted": {
-            "type": "boolean"
-          },
-          "join_code": {
-            "type": ["string", "null"]
-          },
-          "language_code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "organization_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "CourseBackgroundQuestion": {
         "type": "object",
         "required": [
@@ -4290,7 +4237,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/Course"
+                "$ref": "#/components/schemas/CourseMaterialCourse"
               }
             ]
           },
@@ -4516,8 +4463,23 @@
       },
       "ExamEnrollment": {
         "type": "object",
-        "required": ["user_id", "exam_id", "started_at", "is_teacher_testing"],
+        "required": [
+          "user_id",
+          "exam_id",
+          "started_at",
+          "is_teacher_testing",
+          "created_at",
+          "updated_at"
+        ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "ended_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -4533,6 +4495,10 @@
             "type": ["boolean", "null"]
           },
           "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
             "type": "string",
             "format": "date-time"
           },
@@ -4656,6 +4622,10 @@
                         },
                         "user_exercise_state_id": {
                           "type": "string",
+                          "format": "uuid"
+                        },
+                        "user_id": {
+                          "type": ["string", "null"],
                           "format": "uuid"
                         }
                       }
@@ -5456,7 +5426,6 @@
       },
       "PageChapterAndCourseInformation": {
         "type": "object",
-        "required": ["organization_slug"],
         "properties": {
           "chapter_front_page_id": {
             "type": ["string", "null"],
@@ -5479,7 +5448,7 @@
             "type": ["string", "null"]
           },
           "organization_slug": {
-            "type": "string"
+            "type": ["string", "null"]
           }
         }
       },
@@ -6203,10 +6172,22 @@
       },
       "Term": {
         "type": "object",
-        "required": ["id", "term", "definition"],
+        "required": ["id", "created_at", "updated_at", "term", "definition", "course_id"],
         "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "definition": {
             "type": "string"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "id": {
             "type": "string",
@@ -6214,6 +6195,10 @@
           },
           "term": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -6605,8 +6590,7 @@
           "order_number",
           "prerequisite_modules_completed",
           "enable_registering_completion_to_uh_open_university",
-          "certification_enabled",
-          "needs_to_be_reviewed"
+          "certification_enabled"
         ],
         "properties": {
           "certificate_configuration_id": {
@@ -6635,9 +6619,6 @@
           },
           "name": {
             "type": "string"
-          },
-          "needs_to_be_reviewed": {
-            "type": "boolean"
           },
           "order_number": {
             "type": "integer",

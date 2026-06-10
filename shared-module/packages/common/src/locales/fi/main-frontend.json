@@ -194,6 +194,8 @@
   "chatbot-disclaimer-start": "Olet avaamassa keskustelurobotin, joka perustuu suureen kielimalliin (LLM). Käyttääksesi tätä keskustelurobotia, sinun on hyväksyttävä, että...",
   "chatbot-finished-responding": "Keskustelurobotti on vastannut",
   "chatbot-is-responding": "Keskustelurobotti on vastaamassa",
+  "chatbot-status-thinking": "Miettii",
+  "chatbot-status-using-tool": "Käytää työkaulua",
   "chatbot-student-page-info": "Chatbotin käyttöönotto mahdollistaa opiskelijoille automaattisen avun, tarjoten välittömiä vastauksia yleisimpiin kysymyksiin ja ohjausta kurssin aikana. Voit poistaa sen käytöstä milloin tahansa asetuksista.",
   "chatbots": "Keskustelurobotit",
   "cheaters": "Huijarit",

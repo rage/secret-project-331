@@ -195,7 +195,7 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                 item: OutputItem::AzureAiSearchCall { arguments, .. },
                 finished,
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name: "azure search".to_string(),
+                tool_name: "course material search".to_string(),
                 arguments,
                 finished,
             },
@@ -208,9 +208,27 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                     },
                 finished,
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name,
+                tool_name: tool_name.replace("_", " "),
                 arguments,
                 finished,
+            },
+            StreamItem {
+                item: OutputItem::AzureAiSearchCallOutput { .. },
+                ..
+            } => ChatbotChatStreamEvent::ToolCall {
+                tool_name: "course material search".to_string(),
+                arguments: "".to_string(),
+                finished: true,
+            },
+            StreamItem {
+                item: OutputItem::FunctionCallOutput { .. },
+                ..
+            } => ChatbotChatStreamEvent::ToolCall {
+                // tool name and arguments are ignored in the frontend. this StreamEvent
+                // just signals that the tool call has finished.
+                tool_name: "".to_string(),
+                arguments: "".to_string(),
+                finished: true,
             },
             _ => ChatbotChatStreamEvent::None,
         }
@@ -758,6 +776,7 @@ async fn parse_tool<'a>(
 
             for (name, id, args) in function_name_id_args.iter() {
                 let tool = get_chatbot_tool(&mut tx, name, args, user_context).await?;
+                let output = tool.get_tool_output();
 
                 tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
@@ -767,12 +786,17 @@ async fn parse_tool<'a>(
                         arguments: serde_json::to_string(tool.get_arguments())?,
                     },
                 });
-                tool_msgs.push(APIOutputMessage {
-                    message_type: OutputItem::FunctionCallOutput {
+                let function_call_output = OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
-                        output: tool.get_tool_output(),
+                        output,
                         response_id: (common_response_id).to_owned(),
-                    },
+                    };
+                tool_msgs.push(APIOutputMessage {
+                    message_type: function_call_output.to_owned(),
+                });
+                yield StreamEvent::Item(StreamItem {
+                    item: function_call_output,
+                    finished: true,
                 });
             }
             // save tool_msgs to the db
@@ -1075,7 +1099,7 @@ enum StreamEvent<'a> {
 struct StreamItem {
     /// Item received from Azure.
     item: OutputItem,
-    /// Has the item, like tool call or reasoning, been completed or is it in progress.
+    /// Has the item, like tool call or reasoning, been completed or is it in progress. When OutputItem is FunctionCallOutput, this field is ignored.
     finished: bool,
 }
 

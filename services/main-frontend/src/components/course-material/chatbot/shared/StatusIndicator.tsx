@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import { useTranslation } from "react-i18next"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
@@ -26,14 +27,14 @@ interface StatusIndicatorProps {
 }
 
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
-  // translate stuff!
+  const { t } = useTranslation()
   let statusText = ""
+
   if (status.type === "Reasoning") {
-    // eslint-disable-next-line i18next/no-literal-string
-    statusText = "Thinking"
+    statusText = t("chatbot-status-thinking")
   } else if (status.type === "ToolCall") {
-    // eslint-disable-next-line i18next/no-literal-string
-    statusText = `Using tool "${status.data.tool_name}" with query: ${status.data.arguments}`
+    const tool_arguments = status.data.arguments.length === 0 ? "" : ` ${status.data.arguments}`
+    statusText = `${t("chatbot-status-using-tool")} "${status.data.tool_name}"${tool_arguments}`
   }
 
   return (

@@ -13,7 +13,7 @@ use headless_lms_models::{
 };
 use headless_lms_models::{partner_block::PartnersBlock, privacy_link::PrivacyLink};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
-use headless_lms_utils::services::sisu::SisuCourseInfoElement;
+use headless_lms_utils::services::sisu::{SisuCourseInfoElement, SisuDescriptions};
 use isbot::Bots;
 use models::{
     chapters::ChapterWithStatus,
@@ -1517,16 +1517,19 @@ Returns all course info for specific course.
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Sisu course info", body = Vec<SisuCourseInfoElement>)
+        (status = 200, description = "Sisu course info", body = HashMap<String, SisuDescriptions>)
     )
 )]
 #[instrument(skip(pool))]
 async fn get_sisu_course_info(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<SisuCourseInfoElement>>> {
+) -> ControllerResult<web::Json<HashMap<String, SisuDescriptions>>> {
     let mut conn = pool.acquire().await?;
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+    let course_lang = models::courses::get_course(&mut conn, *course_id)
+        .await?
+        .language_code;
 
     let uh_course_codes: Vec<String> = course_modules
         .iter()
@@ -1536,7 +1539,8 @@ async fn get_sisu_course_info(
 
     let course_info = SisuClient::get_course_info(course_codes).await?;
     let token = skip_authorize();
-    token.authorized_ok(web::Json(course_info))
+    let sisu_info = SisuClient::parse_sisu_info(course_info, course_lang);
+    token.authorized_ok(web::Json(sisu_info))
 }
 
 /**

@@ -18,13 +18,13 @@ import { UseParsedPrivateSpecResult } from "@/hooks/playground/useParsedPrivateS
 import Button from "@/shared-module/common/components/Button"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import { baseTheme } from "@/shared-module/common/styles"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   CurrentStateMessage,
   IframeViewType,
   UserInformation,
-} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
-import { baseTheme } from "@/shared-module/common/styles"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { ExerciseServiceInfoApi, ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 const PUBLIC_ADDRESS = isServer ? "https://courses.mooc.fi" : new URL(window.location.href).origin

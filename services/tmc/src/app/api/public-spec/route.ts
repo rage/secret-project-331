@@ -5,8 +5,8 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-plugins/server/exerciseServices"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
+import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { buildBrowserTestScript } from "@/tmc/browserTestScript"
 import {
   compressProject,

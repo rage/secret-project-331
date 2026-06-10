@@ -4,7 +4,7 @@ import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
-import { UploadResultMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { UploadResultMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { PublicSpec } from "@/util/stateInterfaces"
 
 interface Props {

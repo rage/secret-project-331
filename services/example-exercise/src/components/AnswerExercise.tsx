@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import ExerciseBase from "./ExerciseBase"
 
-import { CurrentStateMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { Answer, PublicAlternative } from "@/util/stateInterfaces"
 
 interface Props {

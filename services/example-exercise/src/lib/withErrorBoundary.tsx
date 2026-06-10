@@ -10,8 +10,8 @@ interface ErrorBoundaryState {
 /**
  * Wraps a component in a React error boundary so that a render error shows a small message instead
  * of crashing the whole iframe. Full exercise services use the richer error boundary from the
- * common package (via exercise-plugins) which also reports the error; the example keeps a lean,
- * dependency-free version that just logs to the console.
+ * exercise-react package which also reports the error; the example keeps a lean, dependency-free
+ * version that just logs to the console.
  */
 export default function withErrorBoundary<T>(Component: ComponentType<T>): ComponentClass<T> {
   class ErrorBoundary extends React.Component<T, ErrorBoundaryState> {

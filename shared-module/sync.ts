@@ -18,11 +18,23 @@ const ALL_SERVICES_TARGETS = [
   "storybook/src/shared-module",
 ]
 
-// example-exercise is the standalone-capable template: it consumes only the self-contained
-// exercise-plugins package, so common and components are not synced into it.
-const EXERCISE_PLUGINS_ONLY_TARGETS = ["services/example-exercise/src/shared-module"]
+// The exercise-service packages are layered. Every service gets the zero-dependency protocol
+// contract; only the React-based exercise/host services additionally vendor the client engines and
+// the React adapter (exercise-react transitively imports exercise-client + exercise-protocol).
+// system-tests, headless-lms and storybook import only the protocol contract, so they no longer
+// vendor the React/emotion tree.
+const REACT_EXERCISE_TARGETS = [
+  "services/cms/src/shared-module",
+  "services/example-exercise/src/shared-module",
+  "services/main-frontend/src/shared-module",
+  "services/quizzes/src/shared-module",
+  "services/tmc/src/shared-module",
+]
+
+// example-exercise is the standalone-capable template: it consumes only the exercise-service
+// packages, so common and components are not synced into it.
 const COMMON_AND_COMPONENTS_TARGETS = ALL_SERVICES_TARGETS.filter(
-  (target) => !EXERCISE_PLUGINS_ONLY_TARGETS.includes(target),
+  (target) => target !== "services/example-exercise/src/shared-module",
 )
 
 const SYNC_TARGETS = [
@@ -35,8 +47,16 @@ const SYNC_TARGETS = [
     destinations: COMMON_AND_COMPONENTS_TARGETS,
   },
   {
-    source: "exercise-plugins",
+    source: "exercise-protocol",
     destinations: ALL_SERVICES_TARGETS,
+  },
+  {
+    source: "exercise-client",
+    destinations: REACT_EXERCISE_TARGETS,
+  },
+  {
+    source: "exercise-react",
+    destinations: REACT_EXERCISE_TARGETS,
   },
 ]
 
@@ -264,16 +284,20 @@ async function cleanUpFolders() {
     try {
       // list files and folders in the destination
       const files = await readdir(fullPathToDestination)
-      const allowedFiles = SYNC_TARGETS.map((target) => target.source)
+      // Only the sources actually synced to THIS destination are allowed; with per-source
+      // destinations a protocol-only target (e.g. system-tests) must treat the React packages as
+      // stray and wipe them. Anything else (e.g. a stale `exercise-plugins`) is also cleaned up.
+      const allowedFiles = SYNC_TARGETS.filter((syncTarget) =>
+        syncTarget.destinations.includes(target),
+      ).map((syncTarget) => syncTarget.source)
       const hasNotAllowedFiles = files.some((file) => !allowedFiles.includes(file))
-      if (!hasNotAllowedFiles) {
-        return
-      }
-      console.info("Cleaning up folders...")
-      try {
-        await exec(`rm -r '${fullPathToDestination}'`)
-      } catch (e) {
-        console.warn(`Could not remove ${fullPathToDestination}`, e)
+      if (hasNotAllowedFiles) {
+        console.info(`Cleaning up folders in ${target}...`)
+        try {
+          await exec(`rm -r '${fullPathToDestination}'`)
+        } catch (e) {
+          console.warn(`Could not remove ${fullPathToDestination}`, e)
+        }
       }
     } catch (_e) {
       // NOP

@@ -2,13 +2,13 @@
 
 import { css } from "@emotion/css"
 
-import MessageChannelIFrame from "@/shared-module/exercise-plugins/parent/MessageChannelIFrame"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   CurrentStateMessage,
   UserInformation,
-} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types.guard"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import { RepositoryExercise } from "@/utils/playgroundSchemas"
 
 interface PlaygroundExerciseEditorIframeProps {

@@ -10,8 +10,8 @@ import ExerciseEditor from "./ExerciseEditor"
 import ViewSubmission from "./ViewSubmission"
 
 import withErrorBoundary from "@/lib/withErrorBoundary"
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-plugins/core/constants"
-import withNoSsr from "@/shared-module/exercise-plugins/react/components/withNoSsr"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
+import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
 
 interface RendererProps {
   state: State | null

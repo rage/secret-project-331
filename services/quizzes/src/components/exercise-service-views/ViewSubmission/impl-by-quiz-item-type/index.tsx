@@ -5,7 +5,7 @@ import { ItemAnswerFeedback } from "../../../../../types/quizTypes/grading"
 import { ModelSolutionQuizItem } from "../../../../../types/quizTypes/modelSolutionSpec"
 import { PublicSpecQuizItem } from "../../../../../types/quizTypes/publicSpec"
 
-import { UserInformation } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { FlexDirection } from "@/util/css-sanitization"
 
 export interface QuizItemSubmissionComponentProps<

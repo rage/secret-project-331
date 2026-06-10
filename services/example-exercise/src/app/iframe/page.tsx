@@ -6,22 +6,22 @@ import { useTranslation } from "react-i18next"
 
 import Renderer from "@/components/Renderer"
 import withErrorBoundary from "@/lib/withErrorBoundary"
-import HeightTrackingContainer from "@/shared-module/exercise-plugins/react/components/HeightTrackingContainer"
-import { forgivingIsSetStateMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
-import { isSetLanguageMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types.guard"
-import useExerciseServiceParentConnection from "@/shared-module/exercise-plugins/react/hooks/useExerciseServiceParentConnection"
+import { forgivingIsSetStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { isSetLanguageMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"
+import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
 import { ExerciseTaskGradingResult } from "@/util/exerciseServiceApi"
 import {
   Alternative,
   Answer,
   ExerciseFeedback,
-  ModelSolutionApi,
-  PublicAlternative,
   isExerciseFeedback,
+  ModelSolutionApi,
   parseAnswer,
   parseModelSolution,
   parsePrivateSpec,
   parsePublicSpec,
+  PublicAlternative,
 } from "@/util/stateInterfaces"
 
 export interface SubmissionData {

@@ -3,7 +3,7 @@
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../contexts/QuizzesExerciseServiceContext"
 
-import useExerciseServiceOutputState from "@/shared-module/exercise-plugins/react/hooks/useExerciseServiceOutputState"
+import useExerciseServiceOutputState from "@/shared-module/exercise-react/react/hooks/useExerciseServiceOutputState"
 
 const PRIVATE_SPEC = "private_spec"
 

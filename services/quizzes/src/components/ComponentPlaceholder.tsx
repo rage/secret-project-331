@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import Spinner from "@/shared-module/common/components/Spinner"
-import IframeHeightContext from "@/shared-module/exercise-plugins/react/contexts/IframeHeightContext"
+import IframeHeightContext from "@/shared-module/exercise-react/react/contexts/IframeHeightContext"
 
 const QUIZZES_DYNAMIC_LOADING_SLOW_WARNING_KEY = "quizzes-dynamic-loading-slow-warning"
 const QUIZZES_DYNAMIC_LOADING_VERY_SLOW_WARNING_KEY = "quizzes-dynamic-loading-very-slow-warning"

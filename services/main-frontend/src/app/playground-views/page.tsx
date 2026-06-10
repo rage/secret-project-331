@@ -27,17 +27,17 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideChildrenInSystemTests from "@/shared-module/common/components/system-tests/HideChildrenInSystemTests"
-import {
-  CurrentStateMessage,
-  IframeViewType,
-  UserInformation,
-} from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
-import { GradingRequest } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types-2"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import {
+  CurrentStateMessage,
+  IframeViewType,
+  UserInformation,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
 import {
   ExerciseServiceInfoApi,

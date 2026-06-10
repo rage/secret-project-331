@@ -14,10 +14,12 @@ const TEMPLATE_SERVICE_NAME = "example-exercise"
 /**
  * Shared-module packages vendored into the generated project's `src/shared-module/`. The layout
  * mirrors `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve.
- * `exercise-plugins` is self-contained (it no longer imports `@/shared-module/common/...`), and the
- * template imports nothing from `common` or `components`, so only `exercise-plugins` is vendored.
+ * The exercise-service code is a self-contained layered set — `exercise-protocol` (zero-dep
+ * contract) ← `exercise-client` (framework-agnostic engines, dep: immer) ← `exercise-react` (React
+ * adapter + host) — and the template imports nothing from `common`/`components`, so only these
+ * three are vendored. (A future non-React template would vendor only protocol + client.)
  */
-const VENDORED_PACKAGES = ["exercise-plugins"]
+const VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react"]
 
 /** Top-level entries in the template that must never be copied into a generated project. */
 const COPY_EXCLUDES = new Set([
@@ -146,6 +148,17 @@ async function buildPackageJson(
   // The template pins an exact node version for the monorepo's controlled environment; a generated
   // standalone project should not carry that constraint.
   delete pkg.devEngines
+
+  // Stylelint + its postcss-styled syntax exist only for the monorepo's root CSS lint job. A
+  // generated standalone project ships no stylelint config and no lint:css script, so these are
+  // dead weight there — drop them to keep the scaffolded project minimal.
+  for (const lintOnlyDevDep of [
+    "stylelint",
+    "stylelint-config-recommended",
+    "postcss-styled-syntax",
+  ]) {
+    delete pkg.devDependencies?.[lintOnlyDevDep]
+  }
 
   if (pkg.scripts?.dev) {
     pkg.scripts.dev = pkg.scripts.dev.replace(/--port\s+\d+/, `--port ${port}`)

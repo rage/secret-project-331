@@ -3,13 +3,12 @@
 import styled from "@emotion/styled"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
 import { State } from "../app/iframe/page"
 
 import ButtonEditor from "./ButtonEditor"
 
-import { CurrentStateMessage } from "@/shared-module/exercise-plugins/core/exercise-service-protocol-types"
+import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { Alternative } from "@/util/stateInterfaces"
 
 const CURRENT_STATE = "current-state"
@@ -79,7 +78,9 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
       <NewButton
         onClick={() => {
           const newState = [...state]
-          newState.push({ name: "", correct: false, id: v4() })
+          // crypto.randomUUID is available in secure contexts (https / localhost), which
+          // covers the exercise iframe in dev and production.
+          newState.push({ name: "", correct: false, id: crypto.randomUUID() })
           // eslint-disable-next-line i18next/no-literal-string
           setState({ view_type: "exercise-editor", private_spec: newState })
         }}

@@ -3,8 +3,9 @@
 import { injectGlobal } from "@emotion/css"
 
 // A small global reset for the example. Real exercise services share a richer reset and typography
-// setup from the common package (via exercise-plugins); the example keeps it minimal and
-// dependency-free so it stays a lean, self-contained template.
+// setup from the exercise-react package; the example keeps it minimal and dependency-free so it
+// stays a lean, self-contained template.
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 injectGlobal`
   *,
   *::before,

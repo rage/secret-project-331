@@ -27,30 +27,35 @@ const style = css`
 export type ReasoningStatusProps = {
   messageType: "Reasoning"
   message: ChatbotConversationMessageReasoning
+  finished: boolean
 }
 
 export type ToolCallStatusProps = {
   messageType: "ToolCall"
   message: ChatbotConversationMessageToolCall
+  finished: boolean
 }
 
 type StatusIndicatorProps = ToolCallStatusProps | ReasoningStatusProps
 
-const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messageType, message }) => {
+const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messageType, message, finished }) => {
   const { t } = useTranslation()
   let statusText
 
   if (messageType === "Reasoning") {
-    statusText = t("chatbot-status-thinking")
+    statusText = finished ? t("chatbot-status-thinking-finished") : t("chatbot-status-thinking")
   } else {
     const tool_arguments = message.tool_arguments.length === 0 ? "" : ` ${message.tool_arguments}`
-    statusText = `${t("chatbot-status-using-tool")} "${message.tool_name}"${tool_arguments}`
+    const tool_text = finished
+      ? t("chatbot-status-using-tool-finished")
+      : t("chatbot-status-using-tool")
+    statusText = `${tool_text} "${message.tool_name.replace("_", " ")}"${tool_arguments}`
   }
 
   return (
     <>
       <span className={style}>
-        {statusText} <ThinkingIndicator />
+        {statusText} {!finished && <ThinkingIndicator />}
       </span>
     </>
   )

@@ -208,7 +208,7 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                     },
                 finished,
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name: tool_name.replace("_", " "),
+                tool_name,
                 arguments,
                 finished,
             },

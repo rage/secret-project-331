@@ -31,6 +31,11 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
+type ChatbotMessageWithStatus = {
+  message: ChatbotConversationMessage
+  finished: boolean
+}
+
 const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
   newConversationMutation,
@@ -67,110 +72,126 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   ])
 
   const messages = useMemo(() => {
-    const messages: ChatbotConversationMessage[] = [
-      ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {
-        let parseResText = zChatbotConversationMessageMessage.safeParse(m.message)
-        let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(m.message)
-        let parseResTool = zChatbotConversationMessageToolCall.safeParse(m.message)
+    const messages: ChatbotMessageWithStatus[] = [
+      ...(currentConversationInfo.data?.current_conversation_messages
+        ?.filter((m) => {
+          let parseResText = zChatbotConversationMessageMessage.safeParse(m.message)
+          let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(m.message)
+          let parseResTool = zChatbotConversationMessageToolCall.safeParse(m.message)
 
-        let result =
-          (parseResText.success &&
-            // if m.message is MessageMessage, check the message role
-            (parseResText.data.message_role === "user" ||
-              parseResText.data.message_role === "assistant")) ||
-          parseResReasoning.success ||
-          parseResTool.success
+          let result =
+            (parseResText.success &&
+              // if m.message is MessageMessage, check the message role
+              (parseResText.data.message_role === "user" ||
+                parseResText.data.message_role === "assistant")) ||
+            parseResReasoning.success ||
+            parseResTool.success
 
-        return result
-      }) ?? []),
+          return result
+        })
+        .map((m) => {
+          return { finished: true, message: m }
+        }) ?? []),
     ]
-    const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
+    const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
     if (messageState.optimisticMessage) {
       messages.push({
-        id: v4(),
         message: {
           id: v4(),
-          text: messageState.optimisticMessage,
-          // eslint-disable-next-line i18next/no-literal-string
-          message_role: "user",
+          message: {
+            id: v4(),
+            text: messageState.optimisticMessage,
+            // eslint-disable-next-line i18next/no-literal-string
+            message_role: "user",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            chatbot_conversation_message_id: v4(),
+            message_is_complete: true,
+            response_id: null,
+            used_tokens: 0,
+          },
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           deleted_at: null,
-          chatbot_conversation_message_id: v4(),
-          message_is_complete: true,
-          response_id: null,
-          used_tokens: 0,
+          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+          order_number: lastOrderNumber + 1,
         },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        deleted_at: null,
-        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        order_number: lastOrderNumber + 1,
+        finished: true,
       })
     }
     if (messageState.responseStatus) {
       if (messageState.responseStatus.type === "Reasoning") {
         messages.push({
-          id: v4(),
           message: {
             id: v4(),
+            message: {
+              id: v4(),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              deleted_at: null,
+              chatbot_conversation_message_id: v4(),
+              response_id: "",
+              used_tokens: 0,
+            },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             deleted_at: null,
-            chatbot_conversation_message_id: v4(),
-            response_id: "",
-            used_tokens: 0,
+            conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+            order_number: lastOrderNumber + 2,
           },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          deleted_at: null,
-          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-          order_number: lastOrderNumber + 2,
+          finished: messageState.responseStatus.data.finished,
         })
       }
       if (messageState.responseStatus.type === "ToolCall") {
         messages.push({
-          id: v4(),
           message: {
             id: v4(),
-            tool_arguments: messageState.responseStatus.data.arguments,
-            tool_name: messageState.responseStatus.data.tool_name,
+            message: {
+              id: v4(),
+              tool_arguments: messageState.responseStatus.data.arguments,
+              tool_name: messageState.responseStatus.data.tool_name,
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              deleted_at: null,
+              chatbot_conversation_message_id: v4(),
+              response_id: "",
+              used_tokens: 0,
+            },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
             deleted_at: null,
-            chatbot_conversation_message_id: v4(),
-            response_id: "",
-            used_tokens: 0,
+            conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+            order_number: lastOrderNumber + 3,
           },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          deleted_at: null,
-          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-          order_number: lastOrderNumber + 3,
+          finished: messageState.responseStatus.data.finished,
         })
       }
     }
     if (messageState.streamingMessage) {
       messages.push({
-        id: v4(),
         message: {
           id: v4(),
-          text: messageState.streamingMessage,
-          // eslint-disable-next-line i18next/no-literal-string
-          message_role: "assistant",
+          message: {
+            id: v4(),
+            text: messageState.streamingMessage,
+            // eslint-disable-next-line i18next/no-literal-string
+            message_role: "assistant",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            chatbot_conversation_message_id: v4(),
+            message_is_complete: false,
+            response_id: "",
+            used_tokens: 0,
+          },
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           deleted_at: null,
-          chatbot_conversation_message_id: v4(),
-          message_is_complete: false,
-          response_id: "",
-          used_tokens: 0,
+          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+          order_number: lastOrderNumber + 4,
         },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        deleted_at: null,
-        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        order_number: lastOrderNumber + 4,
+        finished: false,
       })
     }
     return messages
@@ -262,28 +283,33 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         ref={scrollContainerRef}
       >
         {messages.map((message) => {
-          let m = zChatbotConversationMessageMessage.safeParse(message.message)
+          let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
-            console.log("text")
             return (
               <MessageBubble
-                key={`chatbot-message-${message.id}`}
+                key={`chatbot-message-${message.message.id}`}
                 message={m.data.text ?? ""}
-                citations={citations.get(message.id)}
+                citations={citations.get(message.message.id)}
                 isFromChatbot={m.data.message_role === "assistant"}
                 isPending={!m.data.message_is_complete && newMessageMutation.isPending}
               />
             )
           }
-          let parseResTool = zChatbotConversationMessageToolCall.safeParse(message.message)
-          let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(message.message)
+          let parseResTool = zChatbotConversationMessageToolCall.safeParse(message.message.message)
+          let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(
+            message.message.message,
+          )
 
           let props: ReasoningStatusProps | ToolCallStatusProps | null = parseResTool.success
             ? // eslint-disable-next-line i18next/no-literal-string
-              { message: parseResTool.data, messageType: "ToolCall" }
+              { message: parseResTool.data, messageType: "ToolCall", finished: message.finished }
             : parseResReasoning.success
-              ? // eslint-disable-next-line i18next/no-literal-string
-                { message: parseResReasoning.data, messageType: "Reasoning" }
+              ? {
+                  message: parseResReasoning.data,
+                  // eslint-disable-next-line i18next/no-literal-string
+                  messageType: "Reasoning",
+                  finished: message.finished,
+                }
               : null
 
           if (props) {

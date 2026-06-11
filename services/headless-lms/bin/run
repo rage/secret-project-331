@@ -26,6 +26,6 @@ else
   # which would force every pod to recompile the server crates on startup.
   # A plain `cargo run` reuses the image's build (headless-lms-entrypoint is the
   # only binary in the workspace, so the target is unambiguous).
-  echo "\$ cargo run -- $*"
-  exec cargo run -- "$*"
+  echo "\$ cargo run --" "$@"
+  exec cargo run -- "$@"
 fi

@@ -1544,7 +1544,7 @@ async fn get_sisu_course_info(
     let sisu_info = SisuClient::parse_sisu_info(course_info, course_lang);
     let message_suggest_llm = models::application_task_default_language_models::get_for_task(
         &mut conn,
-        ApplicationTask::MessageSuggestion,
+        ApplicationTask::SisuDescriptionSummary,
     )
     .await?;
     let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(

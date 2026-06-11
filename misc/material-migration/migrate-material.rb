@@ -8,6 +8,13 @@ require 'pathname'
 require 'kramdown'
 
 class MaterialMigrator
+  # Purely structural/styling wrapper tags that handle_div treats as transparent
+  # (their styles are dropped). When one of these appears as a complete one-liner
+  # it must be unwrapped rather than opened as a container — see "Case B" below.
+  TRANSPARENT_CONTAINER_TAGS = %w[
+    div detail-tag topic-hero topic-content details ul ol table thead tbody tr a
+  ].freeze
+
   def initialize(directory)
     unless File.directory?(directory)
       raise ArgumentError, "#{directory} is not a directory."
@@ -44,29 +51,16 @@ class MaterialMigrator
   private
 
   def process_files
-    i = 0
-    @files.each do |file|
-      i += 1
+    @files.each_with_index do |file, i|
       @inside_frontmatter = false
       @current_tag_type = ''
       @tag_depth = 0
-      @floating_image_size = nil
+      @floating_image = nil
 
-      if File.directory?(file)
-        puts "skipping directory #{file}"
-        next
-      end
+      next unless file.end_with?('.md')
 
-      # TODO: handle other file types too
-      unless file.end_with?('.md', '.png', '.svg', '.jpg', '.jpeg', '.json') # TODO: remove .json, it's just for testing to ignore already created .json files
-        puts "skipping file #{file} due to file type"
-        next
-      end
-
-      if file.end_with?('.md')
-        puts "processing file #{file} (#{i}/#{@files.count})"
-        process_file(file)
-      end
+      puts "processing file #{file} (#{i + 1}/#{@files.count})"
+      process_file(file)
     end
   end
 
@@ -94,7 +88,8 @@ class MaterialMigrator
       line = lines.shift
       line = line.strip
       if line.empty? && @tag_depth > 0
-        append_to_last_block_content(json_block, "\n")
+        # Blank lines inside a <floating-image> are separators; keep them out of the leftover json_block.
+        append_to_last_block_content(json_block, "\n") unless @floating_image
         next
       end
 
@@ -111,7 +106,6 @@ class MaterialMigrator
       end
 
       if @inside_frontmatter
-        # TODO: do we want anything else from the frontmatter besides the title?
         process_frontmatter_line(line, json_block)
         next
       end
@@ -148,16 +142,20 @@ class MaterialMigrator
               img_attrs[key.to_sym] = qv if key
               img_attrs[uk.to_sym] = uv if uk
             end
-            width = img_attrs[:width] || ''
-            image_block = build_image_block(img_attrs[:src], img_attrs[:alt], width)
-            if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
-              json_content << json_block
-              json_content << image_block
-              json_content << create_new_block
-            elsif @tag_depth > 0
-              json_block[:innerBlocks] << image_block
+            if @floating_image
+              capture_floating_image(img_attrs[:src], img_attrs[:alt], img_attrs[:width])
             else
-              json_content << image_block
+              width = img_attrs[:width] || ''
+              image_block = build_image_block(img_attrs[:src], img_attrs[:alt], width)
+              if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
+                json_content << json_block
+                json_content << image_block
+                json_content << create_new_block
+              elsif @tag_depth > 0
+                json_block[:innerBlocks] << image_block
+              else
+                json_content << image_block
+              end
             end
           else
             puts "skipping oneliner tag on line #{line}"
@@ -166,12 +164,23 @@ class MaterialMigrator
         end
 
         if line.start_with?('<!--')
-          # TODO: do we want to save comments?
           puts "skipping comment on line #{line}"
           next
         end
 
         if line.start_with?('</')
+          if @floating_image && line.start_with?('</floating-image')
+            # @tag_depth still counts the floating-image itself here; > 1 means it is nested
+            # inside an enclosing container (e.g. a <text-box>), so the image belongs in that
+            # container rather than at top level.
+            nested = @tag_depth > 1
+            finalize_floating_image(json_content, json_block, nested)
+            @tag_depth -= 1 if @tag_depth > 0
+            # The script keeps no tag stack and a closing tag only decrements @tag_depth when
+            # @current_tag_type is a known tag, so restore one — '' would strand the enclosing container open.
+            @current_tag_type = 'floating-image'
+            next
+          end
           if @known_tags.include?(@current_tag_type)
             @tag_depth = @tag_depth - 1
             if @tag_depth == 0 && @current_tag_type != 'styled-text'
@@ -184,6 +193,29 @@ class MaterialMigrator
           next
         end
 
+        # A <caption-text> inside a <floating-image> is the image's caption. Intercept it
+        # before handle_caption_text, which would orphan the enclosing container.
+        if @floating_image
+          caption_oneliner = line.match(%r{\A<caption-text[^>]*>(.*)</caption-text>\z}m)
+          if caption_oneliner
+            converted = convert_inline_markdown(caption_oneliner[1].strip)
+            @floating_image[:caption_parts] << converted unless converted.strip.empty?
+            next
+          end
+        end
+
+        # Case B: a complete one-liner of a transparent container tag, e.g.
+        # "<div style=...><img ...></div>". handle_div only knows how to *open* a multi-line
+        # container — a one-liner would increment @tag_depth with no closing line to ever
+        # decrement it, stranding everything that follows. The wrappers are purely structural
+        # (styles are dropped anyway), so unwrap them and re-queue the inner content.
+        oneliner_container = line.match(%r{\A<([a-zA-Z0-9_-]+)(?:\s[^>]*)?>(.*)</\1>\z}m)
+        if oneliner_container && TRANSPARENT_CONTAINER_TAGS.include?(oneliner_container[1])
+          inner = oneliner_container[2].strip
+          lines.unshift(inner) unless inner.empty?
+          next
+        end
+
         @tag_depth = @tag_depth + 1
         tag_type = line.match(/<([a-zA-Z0-9_-]+)(>| [^>]*>)/)[1]
         @current_tag_type = tag_type
@@ -193,15 +225,12 @@ class MaterialMigrator
         next
       end
 
-      # Case A: a line that begins with a complete opening tag <tag ...> but has trailing
-      # content after it (so it didn't end with '>' and the block above missed it), where
-      # the element does NOT also close on this same line. This is a well-formed multi-line
-      # component whose body simply starts on the opening-tag line. Handle the opening tag,
-      # then re-queue the trailing content so it's processed as the block's body on the next
-      # iteration (with @tag_depth now incremented). Subsequent lines and the eventual
-      # </tag> are already handled by the existing logic. We require a known tag and skip
-      # lines where </tag> appears, so inline elements like "<a href>x</a> more" are left to
-      # the normal text path instead of being mistaken for a block open.
+      # Case A: a line that begins with a complete opening tag but carries trailing content
+      # (so it didn't end with '>' and the branch above missed it) and does not close on the
+      # same line — a multi-line component whose body starts on the opening-tag line. Handle
+      # the opening tag, then re-queue the trailing content as the block's body. Requiring a
+      # known tag with no </tag> on the line leaves inline elements like "<a href>x</a> more"
+      # to the normal text path.
       unless line.start_with?('</', '<!--')
         open_match = line.match(/\A(<([a-zA-Z0-9_-]+)(?:\s[^>]*)?>)(.+)\z/m)
         if open_match && @known_tags.include?(open_match[2]) && !line.include?("</#{open_match[2]}>")
@@ -217,6 +246,12 @@ class MaterialMigrator
       end
 
       if @tag_depth > 0
+        if @floating_image
+          # Any text inside a <floating-image> (besides the image itself) is its caption.
+          converted = convert_inline_markdown(line)
+          @floating_image[:caption_parts] << converted unless converted.strip.empty?
+          next
+        end
         if line.start_with?('#')
           json_block = handle_header(line, json_block, json_content)
           next
@@ -225,7 +260,6 @@ class MaterialMigrator
           handle_numbered_list_item(line, json_block)
           next
         end
-        # Convert any inline markdown in the line to HTML (links, emphasis, code, ...).
         line = convert_inline_markdown(line)
         append_to_last_block_content(json_block, line + "\n")
       end
@@ -255,8 +289,6 @@ class MaterialMigrator
       json_content << json_block
     end
 
-    # The placeholder body is collected into a single paragraph with <br> separators
-    # and newlines. Split it into discrete paragraph blocks so it renders correctly.
     normalize_copy_text_blocks(json_content)
 
     metadata = build_page_metadata(file, json_content)
@@ -551,7 +583,6 @@ class MaterialMigrator
   end
 
   def handle_div(line, json_block)
-    # TODO: account for in-line styles
     json_block[:innerBlocks] << {
       'clientId': SecureRandom.uuid,
       'isValid': true,
@@ -564,9 +595,59 @@ class MaterialMigrator
     }
   end
 
+  # A <floating-image> wraps an image (and usually a caption) that the old material rendered
+  # floated to the side with the following prose wrapping around it. The new system expresses
+  # that as a single core/image with align:'left' and the caption in the block's `caption`
+  # attribute, so collect the pieces here and emit one block on </floating-image>.
   def handle_floating_image(line)
     height = extract_quoted_attribute(line, 'height')
-    @floating_image_size = height ? height.to_i : 150
+    @floating_image = { size: height ? height.to_i : 150, image: nil, caption_parts: [] }
+    # Return nil — handle_block treats a Hash return as the new json_block.
+    nil
+  end
+
+  def capture_floating_image(src, alt, _explicit_width)
+    return unless @floating_image
+    # Size the image from the container's height-derived size, as the old renderer did. The <img>'s
+    # own width is intentionally ignored: it is often a small inline value (e.g. 30px on an icon)
+    # that the old renderer overrode, so honouring it would shrink images that filled the float.
+    width = @floating_image[:size].to_s
+    image_block = build_image_block(src, alt, width)
+    image_block[:attributes][:align] = 'left'
+    @floating_image[:image] = image_block
+  end
+
+  def finalize_floating_image(json_content, json_block, nested)
+    floating = @floating_image
+    @floating_image = nil
+    return unless floating && floating[:image]
+
+    caption = floating[:caption_parts].join(' ').strip
+    floating[:image][:attributes][:caption] = caption unless caption.empty?
+
+    unless nested
+      json_content << floating[:image]
+      return
+    end
+
+    # Nested inside a container (e.g. a <text-box>): place the image among the inner blocks so the
+    # body text wraps around it. The image must NOT be the trailing block, or
+    # append_to_last_block_content would later corrupt it with that body text — so keep an empty
+    # paragraph after it.
+    inner = json_block[:innerBlocks]
+    last = inner.last
+    if last && last[:name] == 'core/paragraph' && (last[:attributes][:content] || '').to_s.strip.empty?
+      inner.insert(-2, floating[:image])
+    else
+      inner << floating[:image]
+      inner << {
+        'clientId': SecureRandom.uuid,
+        'isValid': true,
+        'name': 'core/paragraph',
+        'attributes': { 'content': '', 'dropCap': false },
+        'innerBlocks': [],
+      }
+    end
   end
 
   def handle_numbered_list_item(line, json_block)
@@ -698,8 +779,6 @@ class MaterialMigrator
   end
 
   def handle_image(line, json_block, file, json_content)
-    from_floating_image = !@floating_image_size.nil?
-
     path_to_current_file = file.rpartition('/')[0]
 
     attributes = {}
@@ -707,7 +786,6 @@ class MaterialMigrator
     line.scan(/(\w+)=(["'])(.*?)\2|(\w+)=([^'">\s]+)/) do |match|
       key, _, quoted_value, unquoted_key, unquoted_value = match
 
-      # convert relative path to absolute path
       if key && quoted_value && key == 'src'
         quoted_value = File.expand_path(quoted_value, path_to_current_file)
       elsif unquoted_key == 'src'
@@ -721,14 +799,15 @@ class MaterialMigrator
       end
     end
 
-    if from_floating_image
-      width = @floating_image_size.to_s
-      @floating_image_size = nil
-    else
-      width = ''
-      width = attributes[:width].to_s.gsub(/[^0-9]/, '') if attributes[:width]
-      width = attributes[:style].match(/width: (\d+)px/)[1] if attributes[:style] && attributes[:style].match?(/width: (\d+)px/)
+    if @floating_image
+      capture_floating_image(attributes[:src], attributes[:alt], attributes[:width])
+      @tag_depth -= 1
+      return json_block
     end
+
+    width = ''
+    width = attributes[:width].to_s.gsub(/[^0-9]/, '') if attributes[:width]
+    width = attributes[:style].match(/width: (\d+)px/)[1] if attributes[:style] && attributes[:style].match?(/width: (\d+)px/)
 
     src_path = attributes[:src]
     image_block = build_image_block(src_path, attributes[:alt], width)
@@ -766,6 +845,12 @@ class MaterialMigrator
 
     alt_text = match[1]
     src_path = File.expand_path(match[2], path_to_current_file)
+
+    if @floating_image
+      capture_floating_image(src_path, alt_text, nil)
+      return
+    end
+
     image_block = build_image_block(src_path, alt_text, '')
 
     if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
@@ -908,13 +993,27 @@ class MaterialMigrator
     unless src
       raise ArgumentError, "iframe tag is missing a src attribute: #{line}"
     end
+    # Normalize protocol-relative URLs (e.g. "//www.gapminder.org/...") so the embedded
+    # frame loads over https rather than inheriting an unexpected scheme.
+    src = "https:#{src}" if src.start_with?('//')
+
     embed = build_video_embed_block(src)
     block = if embed
       embed
     else
       b = create_new_block
       b[:name] = 'moocfi/iframe'
-      b[:attributes] = { 'src': src }
+      # The moocfi/iframe block reads `url`, not `src`. Height/width are carried over from the
+      # original inline style when expressed in px (percentages fall back to defaults).
+      style = extract_quoted_attribute(line, 'style')
+      attrs = { 'url': src }
+      if style
+        height_px = style[/height:\s*(\d+)px/, 1]
+        width_px = style[/width:\s*(\d+)px/, 1]
+        attrs[:heightPx] = height_px.to_i if height_px
+        attrs[:widthPx] = width_px.to_i if width_px
+      end
+      b[:attributes] = attrs
       b
     end
 
@@ -939,18 +1038,15 @@ class MaterialMigrator
     end
 
     if line.end_with?('</span>')
-      # close the block
       @tag_depth = @tag_depth - 1
-      # if tag depth is 0, append to json content
-      # if tag depth is > 0, append to inner blocks
       if @tag_depth == 0
         json_content << json_block
       else
         append_to_last_block_content(json_block, line)
       end
     else
-      # if the line doesn't end in the closing tag, don't close the block
-      # instead create a new block and append it to inner blocks so that the content can be added to it
+      # Opening tag without its closing tag on the same line: keep the block open and collect
+      # the content into a fresh inner paragraph.
       json_block[:innerBlocks] << {
         'clientId': SecureRandom.uuid,
         'isValid': true,
@@ -1035,7 +1131,6 @@ class MaterialMigrator
       # Inside another block: use div-like behavior to preserve the outer container
       handle_div(line, json_block)
     else
-      # At top level: transform json_block into a core/quote
       json_block[:name] = 'core/quote'
       json_block[:attributes] = { 'citation': '' }
       json_block[:innerBlocks] << {
@@ -1402,16 +1497,13 @@ def extract_quoted_attribute(line, key)
   match && match[2].strip
 end
 
-# Converts inline markdown (links, emphasis, strong, code, images, escapes) to HTML
-# using kramdown, so the migration is robust across courses that use varying markdown
-# styles and mixed inline HTML.
+# Converts inline markdown (links, emphasis, code, ...) to HTML with kramdown, which is robust
+# across courses that use varying markdown styles and mixed inline HTML.
 #
-# kramdown is document-oriented and wraps output in block tags, but we only want inline
-# HTML here (content is appended into a single Gutenberg paragraph/heading). So we take
-# the contents of a single wrapping <p>. If kramdown instead interpreted the line as a
-# block construct (a list/blockquote/heading because it starts with -, *, >, #, N.), we
-# preserve the literal leading marker and convert only the inline remainder, rather than
-# injecting block-level tags into inline content.
+# kramdown is document-oriented and wraps output in block tags, but we only want inline HTML
+# (the content goes into a single Gutenberg paragraph/heading), so take the contents of a single
+# wrapping <p>. For lines kramdown parses as block constructs (starting with -, *, >, #, N.),
+# preserve the literal leading marker and convert only the inline remainder.
 def convert_inline_markdown(text)
   return text if text.nil? || text.empty?
 
@@ -1431,9 +1523,8 @@ def convert_inline_markdown(text)
     return marker + convert_inline_markdown(text[marker.length..])
   end
 
-  # kramdown produced something other than a single inline paragraph (e.g. the line
-  # starts with a raw/custom HTML tag and was treated as an HTML block). We can't safely
-  # inline-convert it, so return it untouched rather than risk mangling it.
+  # kramdown produced something other than a single inline paragraph (e.g. the line was
+  # treated as a raw HTML block); we can't safely inline-convert it, so return it untouched.
   text
 end
 

@@ -288,9 +288,11 @@ pub struct Schema {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[serde(untagged)]
 pub enum SchemaPropertyType {
     ArrayProperty(ArrayProperty),
     Object(Schema),
+    Item(JsonItem),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -301,7 +303,14 @@ pub struct ArrayProperty {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
-pub struct ArrayItem {
+#[serde(untagged)]
+pub enum ArrayItem {
+    Schema(Schema),
+    JsonItem(JsonItem),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct JsonItem {
     #[serde(rename = "type")]
     pub type_field: JSONType,
 }

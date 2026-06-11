@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
+        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         SchemaPropertyType, ThinkingParams,
     },
@@ -17,7 +17,7 @@ use crate::{
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
-    application_task_default_language_models::TaskLMSpec,
+    ModelErrorType::Json, application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole, cms_ai::ParagraphSuggestionAction,
 };
 
@@ -268,9 +268,9 @@ pub async fn generate_paragraph_suggestions(
                         "suggestions".to_string(),
                         SchemaPropertyType::ArrayProperty(ArrayProperty {
                             type_field: JSONType::Array,
-                            items: ArrayItem {
+                            items: ArrayItem::JsonItem(JsonItem {
                                 type_field: JSONType::String,
-                            },
+                            }),
                         }),
                     )]),
                     required: vec!["suggestions".to_string()],

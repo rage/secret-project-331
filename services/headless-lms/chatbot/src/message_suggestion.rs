@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
+        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         SchemaPropertyType, ThinkingParams,
     },
@@ -143,12 +143,12 @@ pub async fn generate_suggested_messages(
                         "suggestions".to_string(),
                         SchemaPropertyType::ArrayProperty(ArrayProperty {
                             type_field: JSONType::Array,
-                            items: ArrayItem {
+                            items: ArrayItem::JsonItem(JsonItem {
                                 type_field: JSONType::String,
-                            },
+                            }),
                         }),
                     )]),
-                    required: Vec::from(["suggestions".to_string()]),
+                    required: vec!["suggestions".to_string()],
                     additional_properties: false,
                 },
                 strict: true,

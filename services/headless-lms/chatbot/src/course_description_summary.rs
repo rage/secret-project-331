@@ -3,7 +3,7 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
+        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         SchemaPropertyType, ThinkingParams,
     },
@@ -97,22 +97,51 @@ pub async fn generate_description(
                 name: "ChatbotNextMessageSuggestionResponse".to_string(),
                 schema: Schema {
                     type_field: JSONType::Object,
-                    properties: HashMap::from([(
-                        "course_description".to_string(),
-                        SchemaPropertyType::ArrayProperty(ArrayProperty {
-                            type_field: JSONType::Array,
-                            items: ArrayItem {
+                    properties: HashMap::from([
+                        (
+                            "course_description".to_string(),
+                            SchemaPropertyType::Item(JsonItem {
                                 type_field: JSONType::String,
-                            },
-                        }),
-                    )]),
-                    required: Vec::from(["suggestions".to_string()]),
+                            }),
+                        ),
+                        (
+                            "modules".to_string(),
+                            SchemaPropertyType::ArrayProperty(ArrayProperty {
+                                type_field: JSONType::Array,
+                                items: ArrayItem::Schema(Schema {
+                                    type_field: JSONType::Object,
+                                    properties: HashMap::from([
+                                        (
+                                            "course_code".to_string(),
+                                            SchemaPropertyType::Item(JsonItem {
+                                                type_field: JSONType::String,
+                                            }),
+                                        ),
+                                        (
+                                            "description".to_string(),
+                                            SchemaPropertyType::Item(JsonItem {
+                                                type_field: JSONType::String,
+                                            }),
+                                        ),
+                                    ]),
+                                    required: Vec::from([
+                                        "course_code".to_string(),
+                                        "description".to_string(),
+                                    ]),
+                                    additional_properties: false,
+                                }),
+                            }),
+                        ),
+                    ]),
+                    required: Vec::from(["course_description".to_string(), "modules".to_string()]),
                     additional_properties: false,
                 },
                 strict: true,
             }),
         }),
     };
+    let json = serde_json::to_string_pretty(&chat_request).unwrap();
+    println!("{}", json);
 
     let completion = make_blocking_llm_request(chat_request, app_config)
         .await

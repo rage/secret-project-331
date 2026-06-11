@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import "react"
+import { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
@@ -26,7 +26,9 @@ const StyledZoomWrapper = styled.div`
 
 /* eslint-disable i18next/no-literal-string */
 const normalizeCssSize = (value: number | string | undefined): string | undefined => {
-  if (value === undefined || value === null) {
+  // Treat an empty string the same as "unset" because some images from material migration have
+  // width="" / height="", which would lead to invalid CSS (`width: ;`)
+  if (value === undefined || value === null || value === "") {
     return undefined
   }
   if (typeof value === "number") {
@@ -41,6 +43,15 @@ const ImageBlock: React.FC<
 > = ({ data }) => {
   const { t } = useTranslation()
   const { disableInteractivity } = useImageInteractivity()
+  const imageRef = useRef<HTMLImageElement>(null)
+  // Some SVG images from material migration declare no intrinsic dimensions (only a viewBox, or
+  // width/height="100%"). These images report naturalWidth 0 and collapse to nothing inside the
+  // shrink-wrapped (floated / inline-block / fit-content) containers below, so they don't render at
+  // all. When we detect that on load, we fall back to the content column width so the image becomes
+  // visible. The fallback has to be a concrete pixel value: a percentage width would itself
+  // collapse against the shrink-wrapping ancestors. Images that have real dimensions keep their
+  // intrinsic / explicit size.
+  const [fallbackWidthPx, setFallbackWidthPx] = useState<number | null>(null)
   const {
     alt,
     align,
@@ -60,12 +71,42 @@ const ImageBlock: React.FC<
       ? `${focalPoint.x * 100}% ${focalPoint.y * 100}%`
       : undefined
 
+  // Fall back to the measured column width only when the image collapsed for lack of intrinsic
+  // dimensions and no explicit width was given.
+  const fallbackWidth =
+    fallbackWidthPx !== null && normalizeCssSize(width) === undefined
+      ? // eslint-disable-next-line i18next/no-literal-string
+        `${fallbackWidthPx}px`
+      : undefined
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const imageWidthCss = normalizeCssSize(width) ?? fallbackWidth ?? "auto"
+  // For floated (left/right) images, constrain the whole figure to the image's width. Otherwise the
+  // wrapper is sized to the caption's natural width, and a caption wider than the image leaves room
+  // for it to flow *beside* the floated image instead of stacking underneath it.
+  // eslint-disable-next-line i18next/no-literal-string
+  const floatWidthCss = imageWidthCss === "auto" ? "fit-content" : imageWidthCss
+  const isFloated = align === "left" || align === "right"
+  // eslint-disable-next-line i18next/no-literal-string
+  const wrapperWidthCss = isFloated ? floatWidthCss : "fit-content"
+
+  const handleImageLoad = () => {
+    const image = imageRef.current
+    if (image && image.naturalWidth === 0) {
+      const column = image.closest("[data-block-name]")
+      const columnWidth = column?.clientWidth ?? 0
+      setFallbackWidthPx(columnWidth > 0 ? columnWidth : 700)
+    }
+  }
+
   const renderImage = () => (
     <>
       <img
+        ref={imageRef}
         title={title}
+        onLoad={handleImageLoad}
         className={css`
-          width: ${normalizeCssSize(width) ?? "100%"};
+          width: ${imageWidthCss};
           max-width: 100%;
           height: ${normalizeCssSize(height) ?? "auto"};
           margin: 1rem 0;
@@ -85,17 +126,18 @@ const ImageBlock: React.FC<
   const imageContent = (
     <div
       className={css`
-        width: 100%;
+        width: ${wrapperWidthCss};
         ${(align === "center" || align === undefined) &&
         `margin-left: auto;
         margin-right: auto;
         text-align: center;`}
         ${align === "right" &&
         `
-        float: ${align};`}
+        float: right;
+        margin-left: 1em;`}
         ${align === "left" &&
         `
-        float: ${align};
+        float: left;
         margin-right: 1em;`}
       `}
     >
@@ -103,12 +145,8 @@ const ImageBlock: React.FC<
         className={css`
           ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
           ${align !== "center" &&
-          `float: ${align};
-        margin-top: 3rem;
-        margin-bottom: 3rem;
-        ${align === "right" && "margin-left: 1rem;"}
-        ${align === "left" && "margin-right: 1rem;"}
-        `}
+          `margin-top: 3rem;
+        margin-bottom: 3rem;`}
         `}
       >
         <div

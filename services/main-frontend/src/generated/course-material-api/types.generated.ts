@@ -160,7 +160,7 @@ export type ChatbotConversationMessageToolCall = {
   deleted_at?: string | null
   id: string
   response_id: string
-  tool_arguments: unknown
+  tool_arguments: string
   tool_call_id: string
   tool_kind: ToolKind
   tool_name: string

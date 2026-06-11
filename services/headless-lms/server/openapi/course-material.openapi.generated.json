@@ -3362,7 +3362,9 @@
           "response_id": {
             "type": "string"
           },
-          "tool_arguments": {},
+          "tool_arguments": {
+            "type": "string"
+          },
           "tool_call_id": {
             "type": "string"
           },

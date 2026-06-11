@@ -5,7 +5,10 @@ import { useTranslation } from "react-i18next"
 
 import ThinkingIndicator from "./ThinkingIndicator"
 
-import { ChatbotChatStreamEvent } from "@/generated/course-material-api/types.generated"
+import {
+  ChatbotConversationMessageReasoning,
+  ChatbotConversationMessageToolCall,
+} from "@/generated/course-material-api/types.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const style = css`
@@ -21,20 +24,27 @@ const style = css`
   background-color: ${baseTheme.colors.blue[100]};
 `
 
-interface StatusIndicatorProps {
-  // type this better?
-  status: ChatbotChatStreamEvent
+export type ReasoningStatusProps = {
+  messageType: "Reasoning"
+  message: ChatbotConversationMessageReasoning
 }
 
-const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
-  const { t } = useTranslation()
-  let statusText = ""
+export type ToolCallStatusProps = {
+  messageType: "ToolCall"
+  message: ChatbotConversationMessageToolCall
+}
 
-  if (status.type === "Reasoning") {
+type StatusIndicatorProps = ToolCallStatusProps | ReasoningStatusProps
+
+const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messageType, message }) => {
+  const { t } = useTranslation()
+  let statusText
+
+  if (messageType === "Reasoning") {
     statusText = t("chatbot-status-thinking")
-  } else if (status.type === "ToolCall") {
-    const tool_arguments = status.data.arguments.length === 0 ? "" : ` ${status.data.arguments}`
-    statusText = `${t("chatbot-status-using-tool")} "${status.data.tool_name}"${tool_arguments}`
+  } else {
+    const tool_arguments = message.tool_arguments.length === 0 ? "" : ` ${message.tool_arguments}`
+    statusText = `${t("chatbot-status-using-tool")} "${message.tool_name}"${tool_arguments}`
   }
 
   return (

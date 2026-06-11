@@ -1075,7 +1075,7 @@ export const zChatbotConversationMessageToolCall = z.object({
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   response_id: z.string(),
-  tool_arguments: z.unknown(),
+  tool_arguments: z.string(),
   tool_call_id: z.string(),
   tool_kind: zToolKind,
   tool_name: z.string(),

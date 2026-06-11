@@ -12,7 +12,7 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
-import StatusIndicator from "./StatusIndicator"
+import StatusIndicator, { ReasoningStatusProps, ToolCallStatusProps } from "./StatusIndicator"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
@@ -20,7 +20,11 @@ import type {
   ChatbotConversationMessage,
   ChatbotConversationMessageCitation,
 } from "@/generated/course-material-api/types.generated"
-import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
+import {
+  zChatbotConversationMessageMessage,
+  zChatbotConversationMessageReasoning,
+  zChatbotConversationMessageToolCall,
+} from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
@@ -65,11 +69,19 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   const messages = useMemo(() => {
     const messages: ChatbotConversationMessage[] = [
       ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {
-        let result = zChatbotConversationMessageMessage.safeParse(m.message)
-        return (
-          result.success &&
-          (result.data.message_role === "user" || result.data.message_role === "assistant")
-        )
+        let parseResText = zChatbotConversationMessageMessage.safeParse(m.message)
+        let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(m.message)
+        let parseResTool = zChatbotConversationMessageToolCall.safeParse(m.message)
+
+        let result =
+          (parseResText.success &&
+            // if m.message is MessageMessage, check the message role
+            (parseResText.data.message_role === "user" ||
+              parseResText.data.message_role === "assistant")) ||
+          parseResReasoning.success ||
+          parseResTool.success
+
+        return result
       }) ?? []),
     ]
     const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
@@ -96,6 +108,48 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         order_number: lastOrderNumber + 1,
       })
     }
+    if (messageState.responseStatus) {
+      if (messageState.responseStatus.type === "Reasoning") {
+        messages.push({
+          id: v4(),
+          message: {
+            id: v4(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            chatbot_conversation_message_id: v4(),
+            response_id: "",
+            used_tokens: 0,
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_at: null,
+          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+          order_number: lastOrderNumber + 2,
+        })
+      }
+      if (messageState.responseStatus.type === "ToolCall") {
+        messages.push({
+          id: v4(),
+          message: {
+            id: v4(),
+            tool_arguments: messageState.responseStatus.data.arguments,
+            tool_name: messageState.responseStatus.data.tool_name,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            chatbot_conversation_message_id: v4(),
+            response_id: "",
+            used_tokens: 0,
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_at: null,
+          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
+          order_number: lastOrderNumber + 3,
+        })
+      }
+    }
     if (messageState.streamingMessage) {
       messages.push({
         id: v4(),
@@ -116,7 +170,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         updated_at: new Date().toISOString(),
         deleted_at: null,
         conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        order_number: lastOrderNumber + 2,
+        order_number: lastOrderNumber + 4,
       })
     }
     return messages
@@ -125,6 +179,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     currentConversationInfo.data?.current_conversation_messages,
     messageState.optimisticMessage,
     messageState.streamingMessage,
+    messageState.responseStatus,
   ])
 
   const scrollToBottom = useCallback(() => {
@@ -209,6 +264,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         {messages.map((message) => {
           let m = zChatbotConversationMessageMessage.safeParse(message.message)
           if (m.success) {
+            console.log("text")
             return (
               <MessageBubble
                 key={`chatbot-message-${message.id}`}
@@ -219,8 +275,21 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               />
             )
           }
+          let parseResTool = zChatbotConversationMessageToolCall.safeParse(message.message)
+          let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(message.message)
+
+          let props: ReasoningStatusProps | ToolCallStatusProps | null = parseResTool.success
+            ? // eslint-disable-next-line i18next/no-literal-string
+              { message: parseResTool.data, messageType: "ToolCall" }
+            : parseResReasoning.success
+              ? // eslint-disable-next-line i18next/no-literal-string
+                { message: parseResReasoning.data, messageType: "Reasoning" }
+              : null
+
+          if (props) {
+            return <StatusIndicator key={`chatbot-status-message-${props.message.id}`} {...props} />
+          }
         })}
-        {messageState.responseStatus && <StatusIndicator status={messageState.responseStatus} />}
         <div
           className={css`
             display: flex;

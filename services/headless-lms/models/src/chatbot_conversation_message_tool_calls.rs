@@ -19,6 +19,7 @@ pub struct ChatbotConversationMessageToolCall {
     pub deleted_at: Option<DateTime<Utc>>,
     pub chatbot_conversation_message_id: Uuid,
     pub tool_name: String,
+    #[schema(value_type = String)]
     pub tool_arguments: Value,
     pub tool_call_id: String,
     pub tool_kind: ToolKind,

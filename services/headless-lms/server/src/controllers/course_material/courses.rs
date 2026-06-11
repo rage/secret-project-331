@@ -1526,7 +1526,7 @@ async fn get_sisu_course_info(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<web::Json<HashMap<String, SisuDescriptions>>> {
+) -> ControllerResult<web::Json<serde_json::Value>> {
     let mut conn = pool.acquire().await?;
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let course_lang = models::courses::get_course(&mut conn, *course_id)
@@ -1547,13 +1547,17 @@ async fn get_sisu_course_info(
         ApplicationTask::MessageSuggestion,
     )
     .await?;
-    headless_lms_chatbot::course_description_summary::generate_description(
+    let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(
         &app_conf,
         message_suggest_llm,
         sisu_info.clone(),
     )
     .await;
-    token.authorized_ok(web::Json(sisu_info))
+
+    let parsed = serde_json::from_str::<serde_json::Value>(&llm_descriptions.unwrap()).unwrap();
+
+    println!("{:?}", parsed);
+    token.authorized_ok(web::Json(parsed))
 }
 
 /**

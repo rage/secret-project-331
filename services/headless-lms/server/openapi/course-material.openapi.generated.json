@@ -1670,6 +1670,37 @@
         }
       }
     },
+    "/api/v0/course-material/courses/{course_id}/sisu-course-llm-descriptions": {
+      "get": {
+        "tags": ["course-material-courses"],
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM\n\nReturns LLM generated descriptions for a course based on information from Sisu API.\n*",
+        "operationId": "getCourseMaterialSisuCourseLlmDescriptions",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sisu course LLM descriptions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SisuDescriptionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/course-material/courses/{course_id}/top-level-pages": {
       "get": {
         "tags": ["course-material-courses"],
@@ -4516,8 +4547,23 @@
       },
       "ExamEnrollment": {
         "type": "object",
-        "required": ["user_id", "exam_id", "started_at", "is_teacher_testing"],
+        "required": [
+          "user_id",
+          "exam_id",
+          "started_at",
+          "is_teacher_testing",
+          "created_at",
+          "updated_at"
+        ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "ended_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -4533,6 +4579,10 @@
             "type": ["boolean", "null"]
           },
           "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
             "type": "string",
             "format": "date-time"
           },
@@ -4656,6 +4706,10 @@
                         },
                         "user_exercise_state_id": {
                           "type": "string",
+                          "format": "uuid"
+                        },
+                        "user_id": {
+                          "type": ["string", "null"],
                           "format": "uuid"
                         }
                       }
@@ -5206,6 +5260,18 @@
         "type": "string",
         "enum": ["assistant", "user", "developer", "system"]
       },
+      "Module": {
+        "type": "object",
+        "required": ["course_code", "description"],
+        "properties": {
+          "course_code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
       "NewCourseBackgroundQuestionAnswer": {
         "type": "object",
         "required": ["course_background_question_id"],
@@ -5456,7 +5522,6 @@
       },
       "PageChapterAndCourseInformation": {
         "type": "object",
-        "required": ["organization_slug"],
         "properties": {
           "chapter_front_page_id": {
             "type": ["string", "null"],
@@ -5479,7 +5544,7 @@
             "type": ["string", "null"]
           },
           "organization_slug": {
-            "type": "string"
+            "type": ["string", "null"]
           }
         }
       },
@@ -6069,6 +6134,21 @@
           }
         }
       },
+      "SisuDescriptionResponse": {
+        "type": "object",
+        "required": ["course_description", "modules"],
+        "properties": {
+          "course_description": {
+            "type": "string"
+          },
+          "modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Module"
+            }
+          }
+        }
+      },
       "StudentCountry": {
         "type": "object",
         "required": [
@@ -6203,10 +6283,22 @@
       },
       "Term": {
         "type": "object",
-        "required": ["id", "term", "definition"],
+        "required": ["id", "created_at", "updated_at", "term", "definition", "course_id"],
         "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "definition": {
             "type": "string"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "id": {
             "type": "string",
@@ -6214,6 +6306,10 @@
           },
           "term": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

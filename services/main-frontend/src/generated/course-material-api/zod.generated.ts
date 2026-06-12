@@ -385,11 +385,14 @@ export const zCustomViewExerciseTasks = z.object({
 })
 
 export const zExamEnrollment = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   ended_at: z.iso.datetime().nullish(),
   exam_id: z.uuid(),
   is_teacher_testing: z.boolean(),
   show_exercise_answers: z.boolean().nullish(),
   started_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
 
@@ -561,6 +564,11 @@ export const zChatbotConversationMessageMessage = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
+export const zModule = z.object({
+  course_code: z.string(),
+  description: z.string(),
+})
+
 export const zNewCourseBackgroundQuestionAnswer = z.object({
   answer_value: z.string().nullish(),
   course_background_question_id: z.uuid(),
@@ -643,7 +651,7 @@ export const zPageChapterAndCourseInformation = z.object({
     .nullish(),
   course_name: z.string().nullish(),
   course_slug: z.string().nullish(),
-  organization_slug: z.string(),
+  organization_slug: z.string().nullish(),
 })
 
 export const zPageRoutingData = z.object({
@@ -890,6 +898,11 @@ export const zShowExerciseAnswers = z.object({
   show_exercise_answers: z.boolean(),
 })
 
+export const zSisuDescriptionResponse = z.object({
+  course_description: z.string(),
+  modules: z.array(zModule),
+})
+
 export const zStudentCountry = z.object({
   country_code: z.string(),
   course_id: z.uuid(),
@@ -959,6 +972,7 @@ export const zExamEnrollmentData = z.union([
           teacher_decision: zTeacherDecisionType,
           updated_at: z.iso.datetime(),
           user_exercise_state_id: z.uuid(),
+          user_id: z.uuid().nullish(),
         }),
         z.object({
           chapter_id: z.uuid().nullish(),
@@ -1014,9 +1028,13 @@ export const zExamData = z.object({
 })
 
 export const zTerm = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
   definition: z.string(),
+  deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   term: z.string(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zTermUpdate = z.object({
@@ -1752,6 +1770,15 @@ export const zSearchPagesWithWordsPath = z.object({
  * Matching pages
  */
 export const zSearchPagesWithWordsResponse = z.array(zPageSearchResult)
+
+export const zGetCourseMaterialSisuCourseLlmDescriptionsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Sisu course LLM descriptions
+ */
+export const zGetCourseMaterialSisuCourseLlmDescriptionsResponse = zSisuDescriptionResponse
 
 export const zGetCourseMaterialTopLevelPagesPath = z.object({
   course_id: z.uuid(),

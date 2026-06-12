@@ -492,11 +492,14 @@ export type ExamData = {
 }
 
 export type ExamEnrollment = {
+  created_at: string
+  deleted_at?: string | null
   ended_at?: string | null
   exam_id: string
   is_teacher_testing: boolean
   show_exercise_answers?: boolean | null
   started_at: string
+  updated_at: string
   user_id: string
 }
 
@@ -531,6 +534,7 @@ export type ExamEnrollmentData =
             teacher_decision: TeacherDecisionType
             updated_at: string
             user_exercise_state_id: string
+            user_id?: string | null
           },
           {
             chapter_id?: string | null
@@ -692,6 +696,11 @@ export type Message =
 
 export type MessageRole = "assistant" | "user" | "developer" | "system"
 
+export type Module = {
+  course_code: string
+  description: string
+}
+
 export type NewCourseBackgroundQuestionAnswer = {
   answer_value?: string | null
   course_background_question_id: string
@@ -777,7 +786,7 @@ export type PageChapterAndCourseInformation = {
   chapter_number?: number | null
   course_name?: string | null
   course_slug?: string | null
-  organization_slug: string
+  organization_slug?: string | null
 }
 
 export type PageNavigationInformation = {
@@ -957,6 +966,11 @@ export type ShowExerciseAnswers = {
   show_exercise_answers: boolean
 }
 
+export type SisuDescriptionResponse = {
+  course_description: string
+  modules: Array<Module>
+}
+
 export type StudentCountry = {
   country_code: string
   course_id: string
@@ -1001,9 +1015,13 @@ export type TeacherDecisionType =
   | "RejectAndReset"
 
 export type Term = {
+  course_id: string
+  created_at: string
   definition: string
+  deleted_at?: string | null
   id: string
   term: string
+  updated_at: string
 }
 
 export type TermUpdate = {
@@ -2163,6 +2181,28 @@ export type SearchPagesWithWordsResponses = {
 
 export type SearchPagesWithWordsResponse =
   SearchPagesWithWordsResponses[keyof SearchPagesWithWordsResponses]
+
+export type GetCourseMaterialSisuCourseLlmDescriptionsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/course-material/courses/{course_id}/sisu-course-llm-descriptions"
+}
+
+export type GetCourseMaterialSisuCourseLlmDescriptionsResponses = {
+  /**
+   * Sisu course LLM descriptions
+   */
+  200: SisuDescriptionResponse
+}
+
+export type GetCourseMaterialSisuCourseLlmDescriptionsResponse =
+  GetCourseMaterialSisuCourseLlmDescriptionsResponses[keyof GetCourseMaterialSisuCourseLlmDescriptionsResponses]
 
 export type GetCourseMaterialTopLevelPagesData = {
   body?: never

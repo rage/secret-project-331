@@ -574,6 +574,7 @@ export type CourseDesignerPlan = {
   active_stage?: null | CourseDesignerStage
   created_at: string
   created_by_user_id: string
+  deleted_at?: string | null
   id: string
   last_weekly_stage_email_sent_at?: string | null
   name?: string | null
@@ -1015,11 +1016,14 @@ export type ExamCourseInfo = {
 }
 
 export type ExamEnrollment = {
+  created_at: string
+  deleted_at?: string | null
   ended_at?: string | null
   exam_id: string
   is_teacher_testing: boolean
   show_exercise_answers?: boolean | null
   started_at: string
+  updated_at: string
   user_id: string
 }
 
@@ -1570,14 +1574,19 @@ export type NewTeacherGradingDecision = {
 }
 
 export type OrgExam = {
+  created_at: string
+  deleted_at?: string | null
   ends_at?: string | null
+  grade_manually: boolean
   id: string
   instructions: unknown
+  language?: string | null
   minimum_points_treshold: number
   name: string
   organization_id: string
   starts_at?: string | null
   time_minutes: number
+  updated_at: string
 }
 
 export type Organization = {
@@ -1642,11 +1651,13 @@ export type PageHistory = {
   author_user_id: string
   content: unknown
   created_at: string
+  deleted_at?: string | null
   history_change_reason: HistoryChangeReason
   id: string
   page_id: string
   restored_from_id?: string | null
   title: string
+  updated_at: string
 }
 
 export type PageInfo = {
@@ -1828,9 +1839,14 @@ export type PeerReviewWithQuestionsAndAnswers = {
 }
 
 export type PendingRole = {
+  course_id?: string | null
+  course_instance_id?: string | null
+  created_at: string
+  deleted_at?: string | null
   expires_at: string
   id: string
   role: UserRole
+  updated_at: string
   user_email: string
 }
 
@@ -1914,6 +1930,8 @@ export type ReasoningEffortLevel = "none" | "minimal" | "low" | "medium" | "high
 
 export type Regrading = {
   created_at: string
+  deleted_at?: string | null
+  error_message?: string | null
   id: string
   regrading_completed_at?: string | null
   regrading_started_at?: string | null
@@ -2073,6 +2091,7 @@ export type TeacherGradingDecision = {
   teacher_decision: TeacherDecisionType
   updated_at: string
   user_exercise_state_id: string
+  user_id?: string | null
 }
 
 export type TeacherManualCompletion = {
@@ -2089,9 +2108,13 @@ export type TeacherManualCompletionRequest = {
 }
 
 export type Term = {
+  course_id: string
+  created_at: string
   definition: string
+  deleted_at?: string | null
   id: string
   term: string
+  updated_at: string
 }
 
 export type TermUpdate = {

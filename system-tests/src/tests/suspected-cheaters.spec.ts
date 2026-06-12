@@ -2,6 +2,7 @@ import { BrowserContext, expect, test } from "@playwright/test"
 
 import { answerExercise } from "./peer-reviews/peer_review_utils"
 
+import { respondToConfirmDialog } from "@/utils/dialogs"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 test.use({
@@ -117,12 +118,15 @@ test.describe("Teacher can set threshold for course", () => {
         .first(),
     ).toBeVisible()
 
-    // Teacher confirms a suspected cheater is cheating
+    // Teacher confirms a suspected cheater is cheating. Confirming always asks for confirmation
+    // first (it fails the student's completions), so the dialog must be accepted before the
+    // mutation fires and the success toast appears.
     await teacherPage.getByRole("tab", { name: "Suspected students" }).click()
     await waitForSuccessNotification(
       teacherPage,
       async () => {
         await teacherPage.getByText("Confirm cheating", { exact: true }).click()
+        await respondToConfirmDialog(teacherPage, true)
       },
       "Cheating confirmed",
     )

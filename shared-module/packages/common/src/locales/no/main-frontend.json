@@ -1458,6 +1458,7 @@
   "this-course-has-no-pages": "Dette kurset har ingen sider",
   "this-field-required": "Dette feltet er påkrevd",
   "threshold-added-successfully": "Terskelen ble lagret",
+  "threshold-default-in-use": "Standardverdi i bruk",
   "threshold-must-be-at-least-3-hours": "Terskelen må være minst 3 timer",
   "threshold-must-be-non-negative": "Terskelen kan ikke være negativ",
   "threshold-removed-successfully": "Terskel fjernet",

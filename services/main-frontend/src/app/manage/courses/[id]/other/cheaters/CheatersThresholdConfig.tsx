@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import {
   createCourseModuleThresholdMutation,
   deleteCourseModuleThresholdMutation,
+  getCourseExercisesOptions,
   getCourseThresholdsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseModule } from "@/generated/api/types.generated"
@@ -25,6 +26,14 @@ import { validateGeneratedData } from "@/utils/validateGeneratedData"
 interface CheatersThresholdConfigProps {
   courseId: string
 }
+
+// Mirrors the constants in services/headless-lms/models/src/suspected_cheaters.rs. Modules with at
+// most this many exercises or chapters are exempt from the 3-hour minimum threshold; for them any
+// duration >= 0 is allowed, where 0 turns the duration check off.
+const SMALL_MODULE_MAX_EXERCISES = 5
+const SMALL_MODULE_MAX_CHAPTERS = 1
+/** The default used by the backend when a module has no explicit threshold row. */
+const DEFAULT_THRESHOLD_HOURS = 3
 
 interface Threshold {
   id: string
@@ -76,6 +85,40 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     )
   }, [courseStructureQuery.data?.modules])
 
+  const exercisesQuery = useQuery(
+    getCourseExercisesOptions({
+      path: {
+        course_id: courseId,
+      },
+    }),
+  )
+
+  const moduleSizeCounts = useMemo(() => {
+    const counts = new Map<string, { chapters: number; exercises: number }>()
+    const chapters = courseStructureQuery.data?.chapters
+    const exercises = exercisesQuery.data
+    if (!chapters || !exercises) {
+      return counts
+    }
+    const chapterToModule = new Map<string, string>()
+    for (const chapter of chapters) {
+      chapterToModule.set(chapter.id, chapter.course_module_id)
+      const moduleCounts = counts.get(chapter.course_module_id) ?? { chapters: 0, exercises: 0 }
+      moduleCounts.chapters += 1
+      counts.set(chapter.course_module_id, moduleCounts)
+    }
+    for (const exercise of exercises) {
+      const moduleId = exercise.chapter_id ? chapterToModule.get(exercise.chapter_id) : undefined
+      if (moduleId) {
+        const moduleCounts = counts.get(moduleId)
+        if (moduleCounts) {
+          moduleCounts.exercises += 1
+        }
+      }
+    }
+    return counts
+  }, [courseStructureQuery.data?.chapters, exercisesQuery.data])
+
   const [moduleThresholds, setModuleThresholds] = useState<Map<string, number | undefined>>(
     () => new Map(),
   )
@@ -88,7 +131,8 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
         },
       })
     }
-    const convertedDuration = durationHours * 3600
+    // Round because the backend expects whole seconds and the hours may be fractional.
+    const convertedDuration = Math.round(durationHours * 3600)
     const threshold = { duration_seconds: convertedDuration }
     return postThresholdForModuleMutation.mutate({
       path: {
@@ -154,21 +198,22 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
         {thresholdsQuery.isError && (
           <ErrorBanner variant="readOnly" error={thresholdsQuery.error} />
         )}
+        {exercisesQuery.isError && <ErrorBanner variant="readOnly" error={exercisesQuery.error} />}
         {postThresholdForModuleMutation.isError && (
           <ErrorBanner variant="readOnly" error={postThresholdForModuleMutation.error} />
         )}
         {deleteThresholdForModuleMutation.isError && (
           <ErrorBanner variant="readOnly" error={deleteThresholdForModuleMutation.error} />
         )}
-        {(courseStructureQuery.isLoading || thresholdsQuery.isLoading) && (
-          <Spinner variant="medium" />
-        )}
+        {(courseStructureQuery.isLoading ||
+          thresholdsQuery.isLoading ||
+          exercisesQuery.isLoading) && <Spinner variant="medium" />}
         <h5 className="heading">
           <Gear size={16} weight="bold" aria-hidden="true" />
           {t("configure-threshold")}
         </h5>
         <p className="description">{t("configure-threshold-description")}</p>
-        {courseStructureQuery.data && (
+        {courseStructureQuery.data && exercisesQuery.data && (
           <div
             className={css`
               margin-top: 1rem;
@@ -239,8 +284,26 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                   const moduleName = module.name ?? t("default-module")
                   const hasValue = durationHours !== undefined
                   const hasSavedValue = savedDurationHours !== undefined
-                  const isBelowMinimum = hasValue && (durationHours ?? 0) < 3
+                  const sizeCounts = moduleSizeCounts.get(module.id) ?? {
+                    chapters: 0,
+                    exercises: 0,
+                  }
+                  // Small modules can legitimately be completed fast, so the 3-hour minimum does
+                  // not apply to them. For them any value >= 0 is allowed; 0 turns the duration
+                  // check off.
+                  const requiresThreeHourMinimum =
+                    sizeCounts.exercises > SMALL_MODULE_MAX_EXERCISES &&
+                    sizeCounts.chapters > SMALL_MODULE_MAX_CHAPTERS
+                  const isInvalid =
+                    hasValue &&
+                    (requiresThreeHourMinimum ? (durationHours ?? 0) < 3 : (durationHours ?? 0) < 0)
                   const isRemoving = hasSavedValue && isEdited && editedDurationHours === undefined
+                  // When no explicit threshold row exists, the backend uses the 3-hour default.
+                  // Show it as the value instead of an empty field.
+                  const showsImplicitDefault = !hasSavedValue && !isEdited
+                  const displayedValue = showsImplicitDefault
+                    ? DEFAULT_THRESHOLD_HOURS.toString()
+                    : (durationHours?.toString() ?? "")
                   const isSaved =
                     !isEdited ||
                     (hasValue &&
@@ -281,14 +344,19 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                             id={inputId}
                             className="duration-threshold"
                             type="number"
-                            min={3}
+                            min={requiresThreeHourMinimum ? 3 : 0}
+                            step={0.01}
                             error={
-                              isBelowMinimum ? t("threshold-must-be-at-least-3-hours") : undefined
+                              isInvalid
+                                ? requiresThreeHourMinimum
+                                  ? t("threshold-must-be-at-least-3-hours")
+                                  : t("threshold-must-be-non-negative")
+                                : undefined
                             }
                             aria-labelledby={`duration-header ${labelId}`}
-                            value={durationHours?.toString() ?? ""}
+                            value={displayedValue}
                             onChangeByValue={(value: string) => {
-                              const parsed = parseInt(value)
+                              const parsed = parseFloat(value)
                               setModuleThresholds((prev) => {
                                 const next = new Map(prev)
                                 next.set(module.id, isNaN(parsed) ? undefined : parsed)
@@ -297,6 +365,17 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                             }}
                           />
                         </div>
+                        {showsImplicitDefault && (
+                          <span
+                            className={css`
+                              margin-left: 0.5rem;
+                              color: ${baseTheme.colors.gray[500]};
+                              font-size: 0.875rem;
+                            `}
+                          >
+                            {t("threshold-default-in-use")}
+                          </span>
+                        )}
                       </td>
                       <td>
                         <Button
@@ -306,7 +385,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                             (!hasValue && !hasSavedValue) ||
                             postThresholdForModuleMutation.isPending ||
                             deleteThresholdForModuleMutation.isPending ||
-                            (isBelowMinimum && !isRemoving) ||
+                            (isInvalid && !isRemoving) ||
                             isSaved
                           }
                           onClick={() => handleUpdateThreshold(module.id, durationHours)}

@@ -55,14 +55,19 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             .await?
             .map(|t| t.duration_seconds)
             .unwrap_or(suspected_cheaters::DEFAULT_CHEATER_THRESHOLD_SECONDS);
-            check_and_insert_suspected_cheaters(
-                &mut tx,
-                user_id,
-                course.id,
-                threshold_seconds,
-                completion,
-            )
-            .await?;
+            // A threshold of 0 (or less) is the documented per-module off-switch for the duration
+            // check. Only an explicitly configured 0 disables it -- the default fallback above is
+            // always positive.
+            if threshold_seconds > 0 {
+                check_and_insert_suspected_cheaters(
+                    &mut tx,
+                    user_id,
+                    course.id,
+                    threshold_seconds,
+                    completion,
+                )
+                .await?;
+            }
         }
     }
     tx.commit().await?;

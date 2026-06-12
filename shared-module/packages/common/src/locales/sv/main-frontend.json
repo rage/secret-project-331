@@ -1471,6 +1471,7 @@
   "this-course-has-no-pages": "Denna kurs har inga sidor",
   "this-field-required": "Detta fält är obligatoriskt",
   "threshold-added-successfully": "Tröskel framgångsrikt tillagd",
+  "threshold-default-in-use": "Standardvärde används",
   "threshold-must-be-at-least-3-hours": "Tröskeln måste vara minst 3 timmar",
   "threshold-must-be-non-negative": "Tröskeln måste vara icke-negativ",
   "threshold-removed-successfully": "Tröskel borttagen framgångsrikt",

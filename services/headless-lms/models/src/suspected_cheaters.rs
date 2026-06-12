@@ -7,6 +7,12 @@ use utoipa::ToSchema;
 pub const DEFAULT_CHEATER_THRESHOLD_SECONDS: i32 = 3 * 60 * 60;
 /// Teachers cannot configure a threshold below this (3 hours).
 pub const MINIMUM_CHEATER_THRESHOLD_SECONDS: i32 = 3 * 60 * 60;
+/// Modules with at most this many exercises are exempt from the minimum threshold; for them any
+/// duration >= 0 is allowed, where 0 turns the duration check off.
+pub const SMALL_MODULE_MAX_EXERCISES: i64 = 5;
+/// Modules with at most this many chapters are exempt from the minimum threshold; for them any
+/// duration >= 0 is allowed, where 0 turns the duration check off.
+pub const SMALL_MODULE_MAX_CHAPTERS: i64 = 1;
 
 /// Review state of a suspected cheater.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]

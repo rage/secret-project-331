@@ -1473,6 +1473,7 @@
   "this-course-has-no-pages": "هذه الدورة ليس لديها صفحات",
   "this-field-required": "هذا الحقل مطلوب",
   "threshold-added-successfully": "تمت إضافة العتبة بنجاح",
+  "threshold-default-in-use": "القيمة الافتراضية مستخدمة",
   "threshold-must-be-at-least-3-hours": "يجب أن تكون العتبة 3 ساعات على الأقل",
   "threshold-must-be-non-negative": "يجب أن يكون العتبة غير سلبية",
   "threshold-removed-successfully": "تم إزالة العتبة بنجاح",

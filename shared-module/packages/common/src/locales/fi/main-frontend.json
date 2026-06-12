@@ -1666,6 +1666,7 @@
   "this-course-has-no-pages": "Tällä kurssilla ei ole yhtään sivua",
   "this-field-required": "Tämä kenttä on vaadittu",
   "threshold-added-successfully": "Kynnysarvo lisätty onnistuneesti",
+  "threshold-default-in-use": "Oletusarvo käytössä",
   "threshold-must-be-at-least-3-hours": "Kynnysarvon on oltava vähintään 3 tuntia",
   "threshold-must-be-non-negative": "Kynnysarvon tulee olla ei-negatiivinen",
   "threshold-removed-successfully": "Kynnysarvo poistettu onnistuneesti",

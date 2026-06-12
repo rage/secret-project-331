@@ -1480,6 +1480,7 @@
   "this-course-has-no-pages": "Цей курс не має сторінок",
   "this-field-required": "Це поле є обов'язковим",
   "threshold-added-successfully": "Поріг успішно додано",
+  "threshold-default-in-use": "Використовується типове значення",
   "threshold-must-be-at-least-3-hours": "Поріг має бути не менше 3 годин",
   "threshold-must-be-non-negative": "Поріг має бути невід'ємним",
   "threshold-removed-successfully": "Поріг успішно видалено",

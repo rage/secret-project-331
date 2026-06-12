@@ -8,7 +8,7 @@ use chrono::Utc;
 use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
     partner_block::PartnersBlock,
-    suspected_cheaters::{SuspectedCheaterStatus, SuspectedCheaters, Threshold},
+    suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
 use std::sync::Arc;
 use utoipa::OpenApi;
@@ -2311,7 +2311,7 @@ async fn get_flagged_suspected_cheaters_count(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course thresholds", body = serde_json::Value)
+        (status = 200, description = "Course thresholds", body = Vec<CourseModuleThresholdInfo>)
     )
 )]
 #[instrument(skip(pool))]
@@ -2319,14 +2319,14 @@ async fn get_all_thresholds(
     user: AuthUser,
     params: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<Threshold>>> {
+) -> ControllerResult<web::Json<Vec<CourseModuleThresholdInfo>>> {
     let mut conn = pool.acquire().await?;
     let course_id = params.into_inner();
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     let thresholds =
-        models::suspected_cheaters::get_all_thresholds_for_course(&mut conn, course_id).await?;
+        models::suspected_cheaters::get_threshold_info_for_course(&mut conn, course_id).await?;
 
     token.authorized_ok(web::Json(thresholds))
 }

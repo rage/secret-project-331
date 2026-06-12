@@ -844,6 +844,29 @@ export type CourseModuleCompletionWithRegistrationInfo = {
   user_id: string
 }
 
+/**
+ * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+ * render and validate the threshold form. Computed server-side so the exemption rule and the
+ * minimum/default values live in one place instead of being duplicated in the frontend.
+ */
+export type CourseModuleThresholdInfo = {
+  /**
+   * The explicitly configured threshold in seconds, or `None` when the module has no threshold
+   * row and [`Self::default_duration_seconds`] applies.
+   */
+  configured_duration_seconds?: number | null
+  course_module_id: string
+  /**
+   * The threshold applied when none is configured.
+   */
+  default_duration_seconds: number
+  /**
+   * The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,
+   * otherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`].
+   */
+  minimum_duration_seconds: number
+}
+
 export type CourseStructure = {
   chapters: Array<Chapter>
   course: Course
@@ -5955,8 +5978,11 @@ export type GetCourseThresholdsResponses = {
   /**
    * Course thresholds
    */
-  200: unknown
+  200: Array<CourseModuleThresholdInfo>
 }
+
+export type GetCourseThresholdsResponse =
+  GetCourseThresholdsResponses[keyof GetCourseThresholdsResponses]
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
   body?: never

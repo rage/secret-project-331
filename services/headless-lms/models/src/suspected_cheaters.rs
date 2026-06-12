@@ -14,6 +14,25 @@ pub const SMALL_MODULE_MAX_EXERCISES: i64 = 5;
 /// duration >= 0 is allowed, where 0 turns the duration check off.
 pub const SMALL_MODULE_MAX_CHAPTERS: i64 = 1;
 
+/// Whether a module of the given size is exempt from the minimum cheater threshold. Small modules
+/// can legitimately be completed fast, so for them any duration >= 0 is allowed (0 disables the
+/// duration check). This is the single source of truth for the exemption rule -- both the save-time
+/// validation and the configuration UI derive their behaviour from it (the latter via
+/// [`get_threshold_info_for_course`]).
+pub fn module_exempt_from_minimum(chapters: i64, exercises: i64) -> bool {
+    exercises <= SMALL_MODULE_MAX_EXERCISES || chapters <= SMALL_MODULE_MAX_CHAPTERS
+}
+
+/// The smallest threshold (in seconds) a teacher may configure for a module of the given size:
+/// `0` for small (exempt) modules, otherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`].
+pub fn minimum_threshold_seconds(chapters: i64, exercises: i64) -> i32 {
+    if module_exempt_from_minimum(chapters, exercises) {
+        0
+    } else {
+        MINIMUM_CHEATER_THRESHOLD_SECONDS
+    }
+}
+
 /// Review state of a suspected cheater.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
 #[sqlx(type_name = "suspected_cheater_status", rename_all = "kebab-case")]
@@ -64,6 +83,22 @@ pub struct Threshold {
     pub duration_seconds: i32,
 }
 
+/// Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+/// render and validate the threshold form. Computed server-side so the exemption rule and the
+/// minimum/default values live in one place instead of being duplicated in the frontend.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseModuleThresholdInfo {
+    pub course_module_id: Uuid,
+    /// The explicitly configured threshold in seconds, or `None` when the module has no threshold
+    /// row and [`Self::default_duration_seconds`] applies.
+    pub configured_duration_seconds: Option<i32>,
+    /// The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,
+    /// otherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`].
+    pub minimum_duration_seconds: i32,
+    /// The threshold applied when none is configured.
+    pub default_duration_seconds: i32,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -103,6 +138,7 @@ pub async fn insert_thresholds(
     course_id: Uuid,
     duration_seconds: i32,
 ) -> ModelResult<Threshold> {
+    validate_threshold_duration(duration_seconds)?;
     let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
 
     let threshold = sqlx::query_as!(
@@ -288,11 +324,26 @@ WHERE course_id = $1
     Ok(count)
 }
 
+/// Guards the invariant that a stored threshold is never negative. `progressing.rs` treats a
+/// stored value of `<= 0` as "duration check disabled", so a stray negative write would silently
+/// turn off cheater detection; rejecting it here protects every writer, not just the HTTP handler.
+fn validate_threshold_duration(duration_seconds: i32) -> ModelResult<()> {
+    if duration_seconds < 0 {
+        return Err(ModelError::new(
+            ModelErrorType::InvalidRequest,
+            "Cheater threshold duration cannot be negative.".to_string(),
+            None,
+        ));
+    }
+    Ok(())
+}
+
 pub async fn insert_thresholds_by_module_id(
     conn: &mut PgConnection,
     course_module_id: Uuid,
     duration_seconds: i32,
 ) -> ModelResult<Threshold> {
+    validate_threshold_duration(duration_seconds)?;
     let threshold = sqlx::query_as!(
         Threshold,
         "
@@ -335,30 +386,44 @@ pub async fn get_thresholds_by_module_id(
     Ok(threshold)
 }
 
-pub async fn get_all_thresholds_for_course(
+/// Returns the configured threshold (if any) and the policy-derived minimum/default for every
+/// non-deleted module in the course. The exemption rule is applied here so the configuration UI
+/// does not have to recompute module sizes or duplicate the threshold constants.
+pub async fn get_threshold_info_for_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<Threshold>> {
-    let thresholds = sqlx::query_as!(
-        Threshold,
-        "
-      SELECT ct.id,
-      ct.course_module_id,
-      ct.duration_seconds,
-      ct.created_at,
-      ct.updated_at,
-      ct.deleted_at
-      FROM cheater_thresholds ct
-      JOIN course_modules cm ON ct.course_module_id = cm.id
-      WHERE cm.course_id = $1
-      AND ct.deleted_at IS NULL
-      AND cm.deleted_at IS NULL;
-    ",
+) -> ModelResult<Vec<CourseModuleThresholdInfo>> {
+    let rows = sqlx::query!(
+        r#"
+SELECT cm.id AS "course_module_id!",
+  ct.duration_seconds AS "configured_duration_seconds?",
+  COUNT(DISTINCT c.id) AS "chapters!",
+  COUNT(e.id) AS "exercises!"
+FROM course_modules cm
+  LEFT JOIN cheater_thresholds ct ON ct.course_module_id = cm.id
+  AND ct.deleted_at IS NULL
+  LEFT JOIN chapters c ON c.course_module_id = cm.id
+  AND c.deleted_at IS NULL
+  LEFT JOIN exercises e ON e.chapter_id = c.id
+  AND e.deleted_at IS NULL
+WHERE cm.course_id = $1
+  AND cm.deleted_at IS NULL
+GROUP BY cm.id, ct.duration_seconds
+        "#,
         course_id
     )
     .fetch_all(conn)
     .await?;
-    Ok(thresholds)
+    let info = rows
+        .into_iter()
+        .map(|row| CourseModuleThresholdInfo {
+            course_module_id: row.course_module_id,
+            configured_duration_seconds: row.configured_duration_seconds,
+            minimum_duration_seconds: minimum_threshold_seconds(row.chapters, row.exercises),
+            default_duration_seconds: DEFAULT_CHEATER_THRESHOLD_SECONDS,
+        })
+        .collect();
+    Ok(info)
 }
 
 pub async fn delete_threshold_for_module(

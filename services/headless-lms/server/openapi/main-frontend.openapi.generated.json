@@ -6007,7 +6007,12 @@
             "description": "Course thresholds",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleThresholdInfo"
+                  }
+                }
               }
             }
           }
@@ -13288,6 +13293,32 @@
             "type": "string",
             "format": "uuid",
             "description": "ID of the user for the completion."
+          }
+        }
+      },
+      "CourseModuleThresholdInfo": {
+        "type": "object",
+        "description": "Per-module threshold configuration plus the policy-derived limits the configuration UI needs to\nrender and validate the threshold form. Computed server-side so the exemption rule and the\nminimum/default values live in one place instead of being duplicated in the frontend.",
+        "required": ["course_module_id", "minimum_duration_seconds", "default_duration_seconds"],
+        "properties": {
+          "configured_duration_seconds": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The explicitly configured threshold in seconds, or `None` when the module has no threshold\nrow and [`Self::default_duration_seconds`] applies."
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default_duration_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The threshold applied when none is configured."
+          },
+          "minimum_duration_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,\notherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`]."
           }
         }
       },

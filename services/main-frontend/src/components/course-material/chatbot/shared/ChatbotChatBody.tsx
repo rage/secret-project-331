@@ -24,6 +24,7 @@ import {
   zChatbotConversationMessageMessage,
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
+  zChatbotConversationMessageToolOutput,
 } from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -31,7 +32,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
-type ChatbotMessageWithStatus = {
+type ChatbotConversationMessageWithStatus = {
   message: ChatbotConversationMessage
   finished: boolean
 }
@@ -72,20 +73,26 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   ])
 
   const messages = useMemo(() => {
-    const messages: ChatbotMessageWithStatus[] = [
+    const messages: ChatbotConversationMessageWithStatus[] = [
       ...(currentConversationInfo.data?.current_conversation_messages
         ?.filter((m) => {
           let parseResText = zChatbotConversationMessageMessage.safeParse(m.message)
-          let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(m.message)
           let parseResTool = zChatbotConversationMessageToolCall.safeParse(m.message)
+          let parseResReasoning =
+            // all messages pass the Reasoning safeParse, so make sure that the message
+            // fails ToolOutput safeParse to make sure it's actually a Reasoning message.
+            // this is adequate because we check the Message and ToolCall safeParse
+            // results *before* this, which work as intended unlike Reasoning safeParse.
+            zChatbotConversationMessageReasoning.safeParse(m.message).success &&
+            !zChatbotConversationMessageToolOutput.safeParse(m.message).success
 
           let result =
             (parseResText.success &&
               // if m.message is MessageMessage, check the message role
               (parseResText.data.message_role === "user" ||
                 parseResText.data.message_role === "assistant")) ||
-            parseResReasoning.success ||
-            parseResTool.success
+            parseResTool.success ||
+            parseResReasoning
 
           return result
         })
@@ -120,8 +127,20 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         finished: true,
       })
     }
+    return messages
+  }, [
+    currentConversationInfo.data?.current_conversation_messages,
+    currentConversationInfo.data?.current_conversation?.id,
+    messageState.optimisticMessage,
+  ])
+
+  useMemo(() => {
+    const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
     if (messageState.responseStatus) {
-      if (messageState.responseStatus.type === "Reasoning") {
+      if (
+        messageState.responseStatus.type === "Reasoning" &&
+        messageState.responseStatus.data.finished
+      ) {
         messages.push({
           message: {
             id: v4(),
@@ -138,12 +157,15 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             updated_at: new Date().toISOString(),
             deleted_at: null,
             conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-            order_number: lastOrderNumber + 2,
+            order_number: lastOrderNumber + 1,
           },
           finished: messageState.responseStatus.data.finished,
         })
       }
-      if (messageState.responseStatus.type === "ToolCall") {
+      if (
+        messageState.responseStatus.type === "ToolCall" &&
+        messageState.responseStatus.data.finished
+      ) {
         messages.push({
           message: {
             id: v4(),
@@ -151,6 +173,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               id: v4(),
               tool_arguments: messageState.responseStatus.data.arguments,
               tool_name: messageState.responseStatus.data.tool_name,
+              // eslint-disable-next-line i18next/no-literal-string
+              tool_kind: "function",
+              tool_call_id: "",
               created_at: new Date().toISOString(),
               updated_at: new Date().toISOString(),
               deleted_at: null,
@@ -162,14 +187,23 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             updated_at: new Date().toISOString(),
             deleted_at: null,
             conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-            order_number: lastOrderNumber + 3,
+            order_number: lastOrderNumber + 1,
           },
           finished: messageState.responseStatus.data.finished,
         })
       }
     }
+  }, [
+    currentConversationInfo.data?.current_conversation?.id,
+    messageState.responseStatus,
+    messages,
+  ])
+
+  let streamingMessage: ChatbotConversationMessageWithStatus | undefined = useMemo(() => {
+    const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
+
     if (messageState.streamingMessage) {
-      messages.push({
+      return {
         message: {
           id: v4(),
           message: {
@@ -189,18 +223,15 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           updated_at: new Date().toISOString(),
           deleted_at: null,
           conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-          order_number: lastOrderNumber + 4,
+          order_number: lastOrderNumber + 1,
         },
         finished: false,
-      })
+      }
     }
-    return messages
   }, [
     currentConversationInfo.data?.current_conversation?.id,
-    currentConversationInfo.data?.current_conversation_messages,
-    messageState.optimisticMessage,
+    messages,
     messageState.streamingMessage,
-    messageState.responseStatus,
   ])
 
   const scrollToBottom = useCallback(() => {
@@ -282,7 +313,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         `}
         ref={scrollContainerRef}
       >
-        {messages.map((message) => {
+        {messages.concat(streamingMessage ? [streamingMessage] : []).map((message) => {
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
             return (
@@ -313,6 +344,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               : null
 
           if (props) {
+            console.log("indicator")
             return <StatusIndicator key={`chatbot-status-message-${props.message.id}`} {...props} />
           }
         })}

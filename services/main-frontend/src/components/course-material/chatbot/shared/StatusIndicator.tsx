@@ -18,7 +18,7 @@ const style = css`
   max-width: stretch;
   color: rgb(0 0 0 / 70%);
   overflow-wrap: break-word;
-  margin: 0.5rem 0;
+  margin: 0.5rem 0 0.1rem 0;
   margin-right: 2rem;
   align-self: flex-start;
   background-color: ${baseTheme.colors.blue[100]};
@@ -45,11 +45,14 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messageType, message,
   if (messageType === "Reasoning") {
     statusText = finished ? t("chatbot-status-thinking-finished") : t("chatbot-status-thinking")
   } else {
-    const tool_arguments = message.tool_arguments.length === 0 ? "" : ` ${message.tool_arguments}`
+    const tool_arguments =
+      message.tool_arguments.replaceAll(/[{}]/g, "").length === 0
+        ? ""
+        : ` ${message.tool_arguments}`
     const tool_text = finished
       ? t("chatbot-status-using-tool-finished")
       : t("chatbot-status-using-tool")
-    statusText = `${tool_text} "${message.tool_name.replace("_", " ")}"${tool_arguments}`
+    statusText = `${tool_text} "${message.tool_name.replaceAll("_", " ")}"${tool_arguments}`
   }
 
   return (

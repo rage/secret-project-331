@@ -1362,6 +1362,118 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn confirming_then_dismissing_restores_grade() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        // A graded, passing completion so we can prove the exact grade is restored, not just pass/fail.
+        let completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(4),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
+
+        // Confirm: the student is failed and the previous grade is snapshotted.
+        suspected_cheaters::confirm_cheater_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let failed = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(!failed.passed);
+        assert_eq!(failed.grade, Some(0));
+        let confirmed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::ConfirmedCheating,
+        )
+        .await
+        .unwrap();
+        assert_eq!(confirmed.len(), 1);
+
+        // Dismiss: the confirmation is undone and the exact previous grade is restored.
+        suspected_cheaters::dismiss_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let restored = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(restored.passed);
+        assert_eq!(restored.grade, Some(4));
+        assert!(!restored.needs_to_be_reviewed);
+        let dismissed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Dismissed,
+        )
+        .await
+        .unwrap();
+        assert_eq!(dismissed.len(), 1);
+    }
+
+    #[tokio::test]
     async fn doesnt_tag_suspected_cheater() {
         insert_data!(:tx, user:user, :org, :course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
 

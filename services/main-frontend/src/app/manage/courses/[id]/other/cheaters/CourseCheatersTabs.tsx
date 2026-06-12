@@ -19,6 +19,7 @@ import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
@@ -34,10 +35,13 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
 }) => {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
+  const { confirm } = useDialog()
 
-  // Only students still awaiting review can be acted on; the confirmed and dismissed
-  // lists are read-only.
-  const showActions = status === "Flagged"
+  // Each tab can move a student to the other states. Confirm is offered on the flagged and
+  // dismissed tabs; dismiss on the flagged and confirmed tabs. (On the flagged tab both apply.)
+  const canConfirm = status === "Flagged" || status === "Dismissed"
+  const canDismiss = status === "Flagged" || status === "ConfirmedCheating"
+  const showActions = canConfirm || canDismiss
 
   const listTitle =
     status === "ConfirmedCheating"
@@ -57,9 +61,10 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
     }),
   })
 
-  // Confirm and dismiss both move the student out of the flagged set, so they share the same
-  // cache refresh: refetch this list and invalidate the flagged-count badge (course tabs) and the
-  // overview review banner, which are owned by other components.
+  // Confirm and dismiss move the student to a different status. Refetch this list (the student
+  // leaves it) and invalidate the flagged-count badge (course tabs) and overview review banner,
+  // which are owned by other components. The destination tab is a separate route that refetches on
+  // navigation, so it does not need explicit invalidation here.
   const handleActionSuccess = () => {
     suspectedCheaters.refetch()
     queryClient.invalidateQueries({
@@ -110,6 +115,32 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
     },
     { onSuccess: handleActionSuccess },
   )
+
+  // Confirming fails the student, so always ask first.
+  const onConfirmClick = async (userId: string) => {
+    const confirmed = await confirm(
+      t("confirm-cheating-dialog-message"),
+      t("confirm-cheating-dialog-title"),
+    )
+    if (confirmed) {
+      handleConfirm.mutate(userId)
+    }
+  }
+
+  // Dismissing from the confirmed tab un-fails the student and restores their grade, so ask first.
+  // Dismissing a still-flagged student is harmless and fires directly.
+  const onDismissClick = async (userId: string) => {
+    if (status === "ConfirmedCheating") {
+      const confirmed = await confirm(
+        t("dismiss-from-confirmed-dialog-message"),
+        t("dismiss-suspicion"),
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+    handleDismiss.mutate(userId)
+  }
 
   return (
     <>
@@ -210,32 +241,36 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                     </td>
                     {showActions && (
                       <td>
-                        <Button
-                          className="threshold-btn"
-                          variant="primary"
-                          size="medium"
-                          onClick={() => handleConfirm.mutate(user_id)}
-                          aria-label={t("confirm-cheating-for-student", {
-                            action: t("confirm-cheating"),
-                            label: t("student-id"),
-                            id: user_id,
-                          })}
-                        >
-                          {t("confirm-cheating")}
-                        </Button>
-                        <Button
-                          className="threshold-btn"
-                          variant="secondary"
-                          size="medium"
-                          onClick={() => handleDismiss.mutate(user_id)}
-                          aria-label={t("confirm-cheating-for-student", {
-                            action: t("dismiss-suspicion"),
-                            label: t("student-id"),
-                            id: user_id,
-                          })}
-                        >
-                          {t("dismiss-suspicion")}
-                        </Button>
+                        {canConfirm && (
+                          <Button
+                            className="threshold-btn"
+                            variant="primary"
+                            size="medium"
+                            onClick={() => onConfirmClick(user_id)}
+                            aria-label={t("confirm-cheating-for-student", {
+                              action: t("confirm-cheating"),
+                              label: t("student-id"),
+                              id: user_id,
+                            })}
+                          >
+                            {t("confirm-cheating")}
+                          </Button>
+                        )}
+                        {canDismiss && (
+                          <Button
+                            className="threshold-btn"
+                            variant="secondary"
+                            size="medium"
+                            onClick={() => onDismissClick(user_id)}
+                            aria-label={t("confirm-cheating-for-student", {
+                              action: t("dismiss-suspicion"),
+                              label: t("student-id"),
+                              id: user_id,
+                            })}
+                          >
+                            {t("dismiss-suspicion")}
+                          </Button>
+                        )}
                       </td>
                     )}
                   </tr>

@@ -2391,15 +2391,10 @@ async fn teacher_confirm_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
+    // Confirming sets the status and fails the student's completions (snapshotting the previous
+    // grade so a later dismiss can restore it); see confirm_cheater_by_user_id_and_course_id.
     models::suspected_cheaters::confirm_cheater_by_user_id_and_course_id(
         &mut conn, user_id, course_id,
-    )
-    .await?;
-
-    // Fail student
-    //find by user_id and course_id
-    models::course_module_completions::update_passed_and_grade_status(
-        &mut conn, course_id, user_id, false, 0,
     )
     .await?;
 

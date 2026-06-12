@@ -1,5 +1,5 @@
 use crate::prelude::*;
-use crate::{course_module_completions, course_modules};
+use crate::{cheating_confirmation_grade_snapshots, course_module_completions, course_modules};
 use utoipa::ToSchema;
 
 /// 3 hours, in seconds. Default threshold used when a course has no explicit threshold
@@ -207,13 +207,15 @@ WHERE user_id = $1
     Ok(cheater)
 }
 
-/// Dismisses the suspicion against a student (marks it a false alarm) and clears the
-/// "needs to be reviewed" flag on their completions.
+/// Dismisses the suspicion against a student (marks it a false alarm), clears the
+/// "needs to be reviewed" flag on their completions, and restores any grade that a prior cheating
+/// confirmation had failed (a no-op if the student was never confirmed). Atomic.
 pub async fn dismiss_by_user_id_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<SuspectedCheaters> {
+    let mut tx = conn.begin().await?;
     let cheater = sqlx::query_as!(
         SuspectedCheaters,
         r#"
@@ -227,22 +229,29 @@ RETURNING *
         user_id,
         course_id
     )
-    .fetch_one(&mut *conn)
+    .fetch_one(&mut *tx)
     .await?;
     course_module_completions::update_needs_to_be_reviewed_by_course_and_user_ids(
-        conn, course_id, user_id, false,
+        &mut tx, course_id, user_id, false,
     )
     .await?;
+    cheating_confirmation_grade_snapshots::restore_and_clear_for_user_course(
+        &mut tx, course_id, user_id,
+    )
+    .await?;
+    tx.commit().await?;
     Ok(cheater)
 }
 
-/// Confirms that a student cheated. The caller is responsible for the consequence of
-/// failing the student's completion.
+/// Confirms that a student cheated and applies the consequence: their completions in the course are
+/// failed (passed = false, grade = 0), with the previous values snapshotted so the confirmation can
+/// be undone by [`dismiss_by_user_id_and_course_id`]. Atomic.
 pub async fn confirm_cheater_by_user_id_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<SuspectedCheaters> {
+    let mut tx = conn.begin().await?;
     let cheater = sqlx::query_as!(
         SuspectedCheaters,
         r#"
@@ -256,8 +265,13 @@ RETURNING *
         user_id,
         course_id
     )
-    .fetch_one(conn)
+    .fetch_one(&mut *tx)
     .await?;
+    cheating_confirmation_grade_snapshots::snapshot_and_fail_completions(
+        &mut tx, course_id, user_id,
+    )
+    .await?;
+    tx.commit().await?;
     Ok(cheater)
 }
 

@@ -161,8 +161,7 @@ impl SisuClient {
     pub async fn get_course_codes(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
         //let course_codes = vec!["TKT21036", "TKT21037", "TKT21038"];
-        let mut id_vec: Vec<Vec<String>> = vec![];
-        //dbg!(&course_codes);
+        let mut code_vec: Vec<Vec<String>> = vec![];
         for code in course_codes {
             let url = format!(
                 "https://sisu.helsinki.fi/kori/api/course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
@@ -177,8 +176,8 @@ impl SisuClient {
             if response.status().is_success() {
                 let json: CourseUnitSearchResults =
                     serde_json::from_str(&response.text().await.unwrap())?;
-                let codes: Vec<String> = json.search_results.iter().map(|x| x.id.clone()).collect();
-                id_vec.push(codes);
+                let codes: Vec<String> = json.search_results.into_iter().map(|x| x.id).collect();
+                code_vec.push(codes);
             } else if response.status() == 404 {
                 return Err(UtilError::new(
                     UtilErrorType::Other,
@@ -188,13 +187,12 @@ impl SisuClient {
             } else {
                 return Err(UtilError::new(
                     UtilErrorType::Other,
-                    "Something went wrong".to_string(),
+                    "Something went wrong when fetching course codes".to_string(),
                     None,
                 ));
             }
         }
-        //dbg!(&id_vec);
-        Ok(id_vec)
+        Ok(code_vec)
     }
 
     pub async fn get_course_info(
@@ -202,13 +200,16 @@ impl SisuClient {
     ) -> UtilResult<Vec<SisuCourseInfoElement>> {
         //let course_codes = course_codes;
 
+        //TODO: remove
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
 
-        let course_codes = vec![
-            vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"],
-            vec!["otm-a93149ca-6bc1-4abe-b18e-ecaaa673deb9"],
-            vec!["otm-9a150d40-7a51-46db-a926-39d8e7d19141"],
-        ];
+        // let course_codes = vec![
+        //     vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"],
+        //     vec!["otm-a93149ca-6bc1-4abe-b18e-ecaaa673deb9"],
+        //     vec!["otm-9a150d40-7a51-46db-a926-39d8e7d19141"],
+        // ];
+
+        let course_codes = vec![vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"]];
 
         for code in course_codes {
             let last = code.last().unwrap();
@@ -225,18 +226,17 @@ impl SisuClient {
             if response.status().is_success() {
                 let json: SisuCourseInfoElement =
                     serde_json::from_str(&response.text().await.unwrap())?;
-                dbg!("{json:?}");
                 data_vec.push(json);
             } else if response.status() == 404 {
                 return Err(UtilError::new(
                     UtilErrorType::Other,
-                    "Course codes not found".to_string(),
+                    "Course info not found".to_string(),
                     None,
                 ));
             } else {
                 return Err(UtilError::new(
                     UtilErrorType::Other,
-                    "Something went wrong".to_string(),
+                    "Something went wrong when fetching course info".to_string(),
                     None,
                 ));
             }

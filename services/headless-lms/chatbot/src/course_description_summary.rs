@@ -7,17 +7,24 @@ use crate::{
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
         SchemaPropertyType, ThinkingParams,
     },
-    chatbot_error::ChatbotResult,
+    chatbot_error::chatbot_err,
     llm_utils::{
         APIInputMessage, MessageContent, make_blocking_llm_request, model_is_thinking,
         parse_text_completion,
     },
+    prelude::{ChatbotError, ChatbotErrorType, ChatbotResult},
 };
 use headless_lms_base::config::ApplicationConfiguration;
+use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
 };
+
+#[derive(serde::Deserialize)]
+struct SisuDescriptionResponse {
+    descriptions: String,
+}
 
 const SYSTEM_PROMPT: &str = r#"You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key. Your task is to generate a single description combining information from all different modules but also generate module specific descriptions for each module.
 
@@ -32,6 +39,7 @@ Constraints:
 - Base the summarization only on the information given to you.
 - Only output the summarized description, nothing else.
 - The maximum length for the description is 100 words.
+- If there is only one module in the course, use exactly the same description for both course description and module description.
 "#;
 
 pub const USER_PROMPT: &str = r#"Give description based on the given information."#;
@@ -41,7 +49,7 @@ pub async fn generate_description(
     task_lm: TaskLMSpec,
     sisu_course_info: HashMap<String, SisuDescriptions>,
 ) -> ChatbotResult<String> {
-    let serialized_sisu_course_info = serde_json::to_string(&sisu_course_info).unwrap();
+    let serialized_sisu_course_info = serde_json::to_string(&sisu_course_info)?;
     let system_prompt = SYSTEM_PROMPT.to_owned();
     let prompt: String =
         format!("{system_prompt} Course information: {serialized_sisu_course_info}");
@@ -134,16 +142,21 @@ pub async fn generate_description(
             }),
         }),
     };
-    //let json = serde_json::to_string_pretty(&chat_request).unwrap();
-    //println!("{}", json);
 
-    let completion = make_blocking_llm_request(chat_request, app_config)
-        .await
-        .unwrap();
+    let completion = make_blocking_llm_request(chat_request, app_config).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
+    dbg!(&completion_content);
+    /*
+    let descriptions = serde_json::from_str(completion_content).map_err(|_| {
+        chatbot_err!(
+            SisuDescriptionError,
+            "Sisu description LLM returned an incorrectly formatted response.".to_string()
+        )
+    })?;*/
     //println!("Chatbot: {completion:?}");
     //println!("{parse_text_completion:?}");
     dbg!(completion_content);
+    //Ok(descriptions.descriptions)
     Ok(completion_content.to_string())
 }

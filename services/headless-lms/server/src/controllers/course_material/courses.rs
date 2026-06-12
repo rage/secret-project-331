@@ -1534,8 +1534,8 @@ async fn get_sisu_course_info(
         .language_code;
 
     let uh_course_codes: Vec<String> = course_modules
-        .iter()
-        .filter_map(|course_module| course_module.clone().uh_course_code)
+        .into_iter()
+        .filter_map(|course_module| course_module.uh_course_code)
         .collect::<Vec<String>>();
     let course_codes = SisuClient::get_course_codes(uh_course_codes).await?;
 
@@ -1550,11 +1550,11 @@ async fn get_sisu_course_info(
     let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(
         &app_conf,
         message_suggest_llm,
-        sisu_info.clone(),
+        sisu_info,
     )
-    .await;
+    .await?;
 
-    let parsed = serde_json::from_str::<serde_json::Value>(&llm_descriptions.unwrap()).unwrap();
+    let parsed = serde_json::from_str::<serde_json::Value>(&llm_descriptions)?;
 
     println!("{:?}", parsed);
     token.authorized_ok(web::Json(parsed))

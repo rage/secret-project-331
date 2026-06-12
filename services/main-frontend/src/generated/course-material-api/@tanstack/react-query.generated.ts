@@ -7,6 +7,7 @@ import { type DefaultError, queryOptions, type UseMutationOptions } from "@tanst
 
 import { client } from "../client.generated"
 import {
+  acknowledgeAiUsageNotice,
   claimCodeFromCodeGiveaway,
   deleteCourseMaterialGlossaryTerm,
   endExamTime,
@@ -16,6 +17,7 @@ import {
   fetchExamForTesting,
   fetchPeerOrSelfReviewDataByExerciseId,
   fetchPeerReviewDataReceivedByExerciseId,
+  getAiUsageNoticeAcknowledgement,
   getChatbotCurrentConversationInfo,
   getCodeGiveawayStatus,
   getCourseMaterialAuthenticatedUserDetails,
@@ -90,6 +92,8 @@ import {
   updateShowExerciseAnswers,
 } from "../sdk.generated"
 import type {
+  AcknowledgeAiUsageNoticeData,
+  AcknowledgeAiUsageNoticeResponse,
   ClaimCodeFromCodeGiveawayData,
   ClaimCodeFromCodeGiveawayResponse,
   DeleteCourseMaterialGlossaryTermData,
@@ -105,6 +109,8 @@ import type {
   FetchPeerOrSelfReviewDataByExerciseIdResponse,
   FetchPeerReviewDataReceivedByExerciseIdData,
   FetchPeerReviewDataReceivedByExerciseIdResponse,
+  GetAiUsageNoticeAcknowledgementData,
+  GetAiUsageNoticeAcknowledgementResponse,
   GetChatbotCurrentConversationInfoData,
   GetChatbotCurrentConversationInfoResponse,
   GetCodeGiveawayStatusData,
@@ -929,6 +935,61 @@ export const getCourseMaterialCourseOptions = (options: Options<GetCourseMateria
       }),
     queryKey: getCourseMaterialCourseQueryKey(options),
   })
+
+export const getAiUsageNoticeAcknowledgementQueryKey = (
+  options: Options<GetAiUsageNoticeAcknowledgementData>,
+) => createQueryKey("getAiUsageNoticeAcknowledgement", options)
+
+/**
+ *
+ * GET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the
+ * current user has acknowledged the AI-usage / academic-integrity notice for this course.
+ */
+export const getAiUsageNoticeAcknowledgementOptions = (
+  options: Options<GetAiUsageNoticeAcknowledgementData>,
+) =>
+  queryOptions<
+    GetAiUsageNoticeAcknowledgementResponse,
+    DefaultError,
+    GetAiUsageNoticeAcknowledgementResponse,
+    ReturnType<typeof getAiUsageNoticeAcknowledgementQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getAiUsageNoticeAcknowledgement({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getAiUsageNoticeAcknowledgementQueryKey(options),
+  })
+
+/**
+ *
+ * POST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that
+ * the current user has acknowledged the AI-usage / academic-integrity notice for this course.
+ */
+export const acknowledgeAiUsageNoticeMutation = (
+  options?: Partial<Options<AcknowledgeAiUsageNoticeData>>,
+): UseMutationOptions<
+  AcknowledgeAiUsageNoticeResponse,
+  DefaultError,
+  Options<AcknowledgeAiUsageNoticeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AcknowledgeAiUsageNoticeResponse,
+    DefaultError,
+    Options<AcknowledgeAiUsageNoticeData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await acknowledgeAiUsageNotice({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCourseMaterialChaptersQueryKey = (
   options: Options<GetCourseMaterialChaptersData>,

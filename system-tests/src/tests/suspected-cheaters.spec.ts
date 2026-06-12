@@ -75,8 +75,8 @@ test.describe("Teacher can set threshold for course", () => {
 
     // Now student 3 should see their results.
     await student3Page.reload()
-    await expect(student2Page.getByTestId("exercise-points")).toContainText("1/1")
-    await student2Page.getByText("Good job!").waitFor()
+    await expect(student3Page.getByTestId("exercise-points")).toContainText("1/1")
+    await student3Page.getByText("Good job!").waitFor()
 
     // Check if the cheaters table is rightly populated
     await teacherPage.reload()
@@ -98,16 +98,16 @@ test.describe("Teacher can set threshold for course", () => {
     await student2Page.getByText("Welcome to...").waitFor()
     await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
 
-    // Navigate cheater's view and delete a suspected cheater
+    // Navigate cheater's view and dismiss a suspected cheater
     await teacherPage.goto(CHEATER_EDITOR_PAGE)
     await waitForSuccessNotification(
       teacherPage,
       async () => {
-        await targetStudentRow.getByText("Clear suspicion", { exact: true }).click()
+        await targetStudentRow.getByText("Dismiss suspicion", { exact: true }).click()
       },
-      "Suspicion cleared and archived",
+      "Suspicion dismissed",
     )
-    await teacherPage.getByRole("tab", { name: "Archived" }).click()
+    await teacherPage.getByRole("tab", { name: "Dismissed" }).click()
     await expect(
       teacherPage
         .getByRole("row")
@@ -117,15 +117,25 @@ test.describe("Teacher can set threshold for course", () => {
         .first(),
     ).toBeVisible()
 
-    // Teacher approve a suspected cheater
+    // Teacher confirms a suspected cheater is cheating
     await teacherPage.getByRole("tab", { name: "Suspected students" }).click()
-    await teacherPage.getByText("Confirm cheating", { exact: true }).click()
+    await waitForSuccessNotification(
+      teacherPage,
+      async () => {
+        await teacherPage.getByText("Confirm cheating", { exact: true }).click()
+      },
+      "Cheating confirmed",
+    )
 
-    // Ensure Congratulation block is not shown for suspected cheaters after teacher approves it
+    // The confirmed cheater now shows up under the "Confirmed cheating" tab
+    await teacherPage.getByRole("tab", { name: "Confirmed cheating" }).click()
+    await expect(teacherPage.getByRole("cell", { name: /Student ID:/ }).first()).toBeVisible()
+
+    // Ensure Congratulation block is not shown for suspected cheaters after teacher confirms it
     await student3Page.goto(
       "http://project-331.local/org/uh-cs/courses/course-for-suspected-cheaters",
     )
     await student3Page.getByText("Welcome to...").waitFor()
-    await expect(student2Page.getByText("Congratulations!")).toHaveCount(0)
+    await expect(student3Page.getByText("Congratulations!")).toHaveCount(0)
   })
 })

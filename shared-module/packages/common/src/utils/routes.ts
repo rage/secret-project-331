@@ -180,8 +180,12 @@ export function manageCourseOtherCheatersSuspectedRoute(courseId: string) {
   return `/manage/courses/${courseId}/other/cheaters/suspected`
 }
 
-export function manageCourseOtherCheatersArchivedRoute(courseId: string) {
-  return `/manage/courses/${courseId}/other/cheaters/archived`
+export function manageCourseOtherCheatersConfirmedRoute(courseId: string) {
+  return `/manage/courses/${courseId}/other/cheaters/confirmed`
+}
+
+export function manageCourseOtherCheatersDismissedRoute(courseId: string) {
+  return `/manage/courses/${courseId}/other/cheaters/dismissed`
 }
 
 export function manageCourseOtherCodeGiveawaysRoute(courseId: string) {

@@ -131,42 +131,6 @@ export const zCodeGiveawayStatus = z.union([
   }),
 ])
 
-export const zCourse = z.object({
-  ask_marketing_consent: z.boolean(),
-  base_module_completion_requires_n_submodule_completions: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  can_add_chatbot: z.boolean(),
-  chapter_locking_enabled: z.boolean(),
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  content_search_language: z.string().nullish(),
-  copied_from: z.uuid().nullish(),
-  course_language_group_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  description: z.string().nullish(),
-  flagged_answers_skip_manual_review_and_allow_retry: z.boolean(),
-  flagged_answers_threshold: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  id: z.uuid(),
-  is_draft: z.boolean(),
-  is_joinable_by_code_only: z.boolean(),
-  is_test_mode: z.boolean(),
-  is_unlisted: z.boolean(),
-  join_code: z.string().nullish(),
-  language_code: z.string(),
-  name: z.string(),
-  organization_id: z.uuid(),
-  slug: z.string(),
-  updated_at: z.iso.datetime(),
-})
-
 export const zCourseBackgroundQuestionAnswer = z.object({
   answer_value: z.string().nullish(),
   course_background_question_id: z.uuid(),
@@ -1221,7 +1185,7 @@ export const zUserCourseSettings = z.object({
 })
 
 export const zCoursePageWithUserData = z.object({
-  course: zCourse.nullish(),
+  course: zCourseMaterialCourse.nullish(),
   instance: zCourseInstance.nullish(),
   is_test_mode: z.boolean(),
   lock_chapter_content_state: zLockChapterContentState.nullish(),
@@ -1284,7 +1248,6 @@ export const zUserModuleCompletionStatus = z.object({
     .nullish(),
   module_id: z.uuid(),
   name: z.string(),
-  needs_to_be_reviewed: z.boolean(),
   order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -1559,6 +1522,24 @@ export const zGetCourseMaterialCoursePath = z.object({
  * Course
  */
 export const zGetCourseMaterialCourseResponse = zCourseMaterialCourse
+
+export const zGetAiUsageNoticeAcknowledgementPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Whether the user has acknowledged the notice
+ */
+export const zGetAiUsageNoticeAcknowledgementResponse = z.boolean()
+
+export const zAcknowledgeAiUsageNoticePath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Acknowledgement recorded
+ */
+export const zAcknowledgeAiUsageNoticeResponse = z.boolean()
 
 export const zGetCourseMaterialChaptersPath = z.object({
   course_id: z.uuid(),

@@ -2,6 +2,24 @@ use crate::prelude::*;
 use crate::{course_module_completions, course_modules};
 use utoipa::ToSchema;
 
+/// 3 hours, in seconds. Default threshold used when a course has no explicit threshold
+/// configured but cheater detection is enabled.
+pub const DEFAULT_CHEATER_THRESHOLD_SECONDS: i32 = 3 * 60 * 60;
+/// Teachers cannot configure a threshold below this (3 hours).
+pub const MINIMUM_CHEATER_THRESHOLD_SECONDS: i32 = 3 * 60 * 60;
+
+/// Review state of a suspected cheater.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, sqlx::Type, ToSchema)]
+#[sqlx(type_name = "suspected_cheater_status", rename_all = "kebab-case")]
+pub enum SuspectedCheaterStatus {
+    /// Auto-flagged by the system (completed faster than the threshold), awaiting teacher review.
+    Flagged,
+    /// A teacher confirmed the student cheated. The student is failed as a consequence.
+    ConfirmedCheating,
+    /// A teacher decided the suspicion was a false alarm.
+    Dismissed,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct SuspectedCheaters {
@@ -13,7 +31,7 @@ pub struct SuspectedCheaters {
     pub updated_at: Option<DateTime<Utc>>,
     pub total_duration_seconds: Option<i32>,
     pub total_points: i32,
-    pub is_archived: Option<bool>,
+    pub status: SuspectedCheaterStatus,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
@@ -69,7 +87,9 @@ pub async fn insert(
     )
     .fetch_one(&mut *conn)
     .await?;
-    Ok(!res.is_archived)
+    // A suspicion is "active" (still needs review) unless it has been dismissed as a false
+    // alarm. A new row defaults to Flagged; an existing row keeps its status on conflict.
+    Ok(res.status != SuspectedCheaterStatus::Dismissed)
 }
 
 pub async fn insert_thresholds(
@@ -123,34 +143,6 @@ pub async fn get_thresholds_by_id(
     Ok(thresholds)
 }
 
-pub async fn archive_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    sqlx::query!(
-        "
-      UPDATE suspected_cheaters
-      SET is_archived = TRUE
-      WHERE user_id = $1
-    ",
-        id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
-pub async fn approve_suspected_cheater(conn: &mut PgConnection, id: Uuid) -> ModelResult<()> {
-    sqlx::query!(
-        "
-      UPDATE suspected_cheaters
-      SET is_archived = FALSE
-      WHERE user_id = $1
-    ",
-        id
-    )
-    .execute(conn)
-    .await?;
-    Ok(())
-}
-
 pub async fn get_by_user_id_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -173,21 +165,23 @@ WHERE user_id = $1
     Ok(cheater)
 }
 
-pub async fn archive_by_user_id_and_course_id(
+/// Dismisses the suspicion against a student (marks it a false alarm) and clears the
+/// "needs to be reviewed" flag on their completions.
+pub async fn dismiss_by_user_id_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<SuspectedCheaters> {
     let cheater = sqlx::query_as!(
         SuspectedCheaters,
-        "
+        r#"
 UPDATE suspected_cheaters
-SET is_archived = TRUE
+SET status = 'dismissed'
 WHERE user_id = $1
   AND course_id = $2
   AND deleted_at IS NULL
 RETURNING *
-        ",
+        "#,
         user_id,
         course_id
     )
@@ -200,21 +194,23 @@ RETURNING *
     Ok(cheater)
 }
 
-pub async fn approve_by_user_id_and_course_id(
+/// Confirms that a student cheated. The caller is responsible for the consequence of
+/// failing the student's completion.
+pub async fn confirm_cheater_by_user_id_and_course_id(
     conn: &mut PgConnection,
     user_id: Uuid,
     course_id: Uuid,
 ) -> ModelResult<SuspectedCheaters> {
     let cheater = sqlx::query_as!(
         SuspectedCheaters,
-        "
+        r#"
 UPDATE suspected_cheaters
-SET is_archived = FALSE
+SET status = 'confirmed-cheating'
 WHERE user_id = $1
   AND course_id = $2
   AND deleted_at IS NULL
 RETURNING *
-        ",
+        "#,
         user_id,
         course_id
     )
@@ -245,23 +241,45 @@ pub async fn get_suspected_cheaters_by_id(
 pub async fn get_all_suspected_cheaters_in_course(
     conn: &mut PgConnection,
     course_id: Uuid,
-    archive: bool,
+    status: SuspectedCheaterStatus,
 ) -> ModelResult<Vec<SuspectedCheaters>> {
     let cheaters = sqlx::query_as!(
         SuspectedCheaters,
-        "
+        r#"
 SELECT *
 FROM suspected_cheaters
 WHERE course_id = $1
-    AND is_archived = $2
+    AND status = $2
     AND deleted_at IS NULL;
-    ",
+    "#,
         course_id,
-        archive
+        status as SuspectedCheaterStatus
     )
     .fetch_all(conn)
     .await?;
     Ok(cheaters)
+}
+
+/// Counts the suspected cheaters in a given review state for a course.
+pub async fn get_count_in_course_by_status(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    status: SuspectedCheaterStatus,
+) -> ModelResult<i64> {
+    let count = sqlx::query_scalar!(
+        r#"
+SELECT COUNT(*) AS "count!"
+FROM suspected_cheaters
+WHERE course_id = $1
+  AND status = $2
+  AND deleted_at IS NULL
+        "#,
+        course_id,
+        status as SuspectedCheaterStatus
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(count)
 }
 
 pub async fn insert_thresholds_by_module_id(

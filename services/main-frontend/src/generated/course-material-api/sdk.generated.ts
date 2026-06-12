@@ -6,6 +6,8 @@
 import type { Client, Options as Options2, TDataShape } from "./client"
 import { client } from "./client.generated"
 import type {
+  AcknowledgeAiUsageNoticeData,
+  AcknowledgeAiUsageNoticeResponses,
   ClaimCodeFromCodeGiveawayData,
   ClaimCodeFromCodeGiveawayResponses,
   DeleteCourseMaterialGlossaryTermData,
@@ -24,6 +26,8 @@ import type {
   FetchPeerOrSelfReviewDataByExerciseIdResponses,
   FetchPeerReviewDataReceivedByExerciseIdData,
   FetchPeerReviewDataReceivedByExerciseIdResponses,
+  GetAiUsageNoticeAcknowledgementData,
+  GetAiUsageNoticeAcknowledgementResponses,
   GetChatbotCurrentConversationInfoData,
   GetChatbotCurrentConversationInfoResponses,
   GetCodeGiveawayStatusData,
@@ -168,12 +172,14 @@ import type {
   UpdateShowExerciseAnswersResponses,
 } from "./types.generated"
 import {
+  zAcknowledgeAiUsageNoticeResponse,
   zClaimCodeFromCodeGiveawayResponse,
   zFetchExamEnrollmentResponse,
   zFetchExamForTestingResponse,
   zFetchExamResponse,
   zFetchPeerOrSelfReviewDataByExerciseIdResponse,
   zFetchPeerReviewDataReceivedByExerciseIdResponse,
+  zGetAiUsageNoticeAcknowledgementResponse,
   zGetChatbotCurrentConversationInfoResponse,
   zGetCodeGiveawayStatusResponse,
   zGetCourseMaterialAuthenticatedUserDetailsResponse,
@@ -745,6 +751,44 @@ export const getCourseMaterialCourse = <ThrowOnError extends boolean = true>(
     url: "/api/v0/course-material/courses/{course_id}",
     ...options,
   })
+
+/**
+ *
+ * GET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the
+ * current user has acknowledged the AI-usage / academic-integrity notice for this course.
+ */
+export const getAiUsageNoticeAcknowledgement = <ThrowOnError extends boolean = true>(
+  options: Options<GetAiUsageNoticeAcknowledgementData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    GetAiUsageNoticeAcknowledgementResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetAiUsageNoticeAcknowledgementResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/course-material/courses/{course_id}/ai-usage-notice-acknowledgement",
+    ...options,
+  })
+
+/**
+ *
+ * POST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that
+ * the current user has acknowledged the AI-usage / academic-integrity notice for this course.
+ */
+export const acknowledgeAiUsageNotice = <ThrowOnError extends boolean = true>(
+  options: Options<AcknowledgeAiUsageNoticeData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<AcknowledgeAiUsageNoticeResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zAcknowledgeAiUsageNoticeResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/course-material/courses/{course_id}/ai-usage-notice-acknowledgement",
+      ...options,
+    },
+  )
 
 /**
  *

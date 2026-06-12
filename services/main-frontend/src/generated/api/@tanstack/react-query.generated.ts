@@ -18,13 +18,12 @@ import {
   addRole,
   addTeacherGradingForExamSubmission,
   advanceCourseDesignerStage,
-  approveCourseSuspectedCheater,
   approveOauthConsent,
-  archiveCourseSuspectedCheater,
   authorizeOauthGet,
   authorizeOauthPost,
   changeUserPassword,
   configureChatbot,
+  confirmCourseSuspectedCheater,
   createChapter,
   createCodeGiveaway,
   createCourse,
@@ -70,6 +69,7 @@ import {
   deletePageAudioFile,
   deletePlaygroundExample,
   denyOauthConsent,
+  dismissCourseSuspectedCheater,
   downloadCodeGiveawayCodesCsv,
   duplicateExam,
   editCourseInstance,
@@ -122,6 +122,7 @@ import {
   getCourseExerciseStatusesForUser,
   getCourseFeedback,
   getCourseFeedbackCount,
+  getCourseFlaggedSuspectedCheatersCount,
   getCourseGlossary,
   getCourseInstance,
   getCourseInstanceCompletions,
@@ -322,16 +323,15 @@ import type {
   AddTeacherGradingForExamSubmissionResponse,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponse,
-  ApproveCourseSuspectedCheaterData,
   ApproveOauthConsentData,
   ApproveOauthConsentResponse,
-  ArchiveCourseSuspectedCheaterData,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponse,
   ConfigureChatbotData,
   ConfigureChatbotResponse,
+  ConfirmCourseSuspectedCheaterData,
   CreateChapterData,
   CreateChapterResponse,
   CreateCodeGiveawayData,
@@ -406,6 +406,7 @@ import type {
   DeletePlaygroundExampleResponse,
   DenyOauthConsentData,
   DenyOauthConsentResponse,
+  DismissCourseSuspectedCheaterData,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponse,
   DuplicateExamData,
@@ -504,6 +505,8 @@ import type {
   GetCourseFeedbackCountResponse,
   GetCourseFeedbackData,
   GetCourseFeedbackResponse,
+  GetCourseFlaggedSuspectedCheatersCountData,
+  GetCourseFlaggedSuspectedCheatersCountResponse,
   GetCourseGlossaryData,
   GetCourseGlossaryResponse,
   GetCourseInstanceCompletionsData,
@@ -4918,7 +4921,7 @@ export const getCourseSuspectedCheatersQueryKey = (
 
 /**
  *
- * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.
+ * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?status=Flagged - returns the suspected cheaters in the given review state for a course.
  */
 export const getCourseSuspectedCheatersOptions = (
   options: Options<GetCourseSuspectedCheatersData>,
@@ -4941,18 +4944,18 @@ export const getCourseSuspectedCheatersOptions = (
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
  */
-export const approveCourseSuspectedCheaterMutation = (
-  options?: Partial<Options<ApproveCourseSuspectedCheaterData>>,
-): UseMutationOptions<unknown, DefaultError, Options<ApproveCourseSuspectedCheaterData>> => {
+export const confirmCourseSuspectedCheaterMutation = (
+  options?: Partial<Options<ConfirmCourseSuspectedCheaterData>>,
+): UseMutationOptions<unknown, DefaultError, Options<ConfirmCourseSuspectedCheaterData>> => {
   const mutationOptions: UseMutationOptions<
     unknown,
     DefaultError,
-    Options<ApproveCourseSuspectedCheaterData>
+    Options<ConfirmCourseSuspectedCheaterData>
   > = {
     mutationFn: async (fnOptions) =>
-      await approveCourseSuspectedCheater({
+      await confirmCourseSuspectedCheater({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -4963,18 +4966,18 @@ export const approveCourseSuspectedCheaterMutation = (
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
  */
-export const archiveCourseSuspectedCheaterMutation = (
-  options?: Partial<Options<ArchiveCourseSuspectedCheaterData>>,
-): UseMutationOptions<unknown, DefaultError, Options<ArchiveCourseSuspectedCheaterData>> => {
+export const dismissCourseSuspectedCheaterMutation = (
+  options?: Partial<Options<DismissCourseSuspectedCheaterData>>,
+): UseMutationOptions<unknown, DefaultError, Options<DismissCourseSuspectedCheaterData>> => {
   const mutationOptions: UseMutationOptions<
     unknown,
     DefaultError,
-    Options<ArchiveCourseSuspectedCheaterData>
+    Options<DismissCourseSuspectedCheaterData>
   > = {
     mutationFn: async (fnOptions) =>
-      await archiveCourseSuspectedCheater({
+      await dismissCourseSuspectedCheater({
         ...options,
         ...fnOptions,
         throwOnError: true,
@@ -4982,6 +4985,33 @@ export const archiveCourseSuspectedCheaterMutation = (
   }
   return mutationOptions
 }
+
+export const getCourseFlaggedSuspectedCheatersCountQueryKey = (
+  options: Options<GetCourseFlaggedSuspectedCheatersCountData>,
+) => createQueryKey("getCourseFlaggedSuspectedCheatersCount", options)
+
+/**
+ *
+ * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/flagged-count - number of suspected cheaters awaiting review (status flagged). Used to show a review notification to teachers.
+ */
+export const getCourseFlaggedSuspectedCheatersCountOptions = (
+  options: Options<GetCourseFlaggedSuspectedCheatersCountData>,
+) =>
+  queryOptions<
+    GetCourseFlaggedSuspectedCheatersCountResponse,
+    DefaultError,
+    GetCourseFlaggedSuspectedCheatersCountResponse,
+    ReturnType<typeof getCourseFlaggedSuspectedCheatersCountQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseFlaggedSuspectedCheatersCount({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey(options),
+  })
 
 /**
  *

@@ -77,6 +77,8 @@ use headless_lms_utils::services::sisu::SisuClient;
     get_research_form_answers_with_user_id,
     update_marketing_consent,
     fetch_user_marketing_consent,
+    get_ai_usage_notice_acknowledgement,
+    acknowledge_ai_usage_notice,
     get_partners_block,
     get_privacy_link,
     get_custom_privacy_policy_checkbox_texts,
@@ -1349,6 +1351,71 @@ async fn update_marketing_consent(
 }
 
 /**
+GET `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Whether the
+current user has acknowledged the AI-usage / academic-integrity notice for this course.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/ai-usage-notice-acknowledgement",
+    operation_id = "getAiUsageNoticeAcknowledgement",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Whether the user has acknowledged the notice", body = bool)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_ai_usage_notice_acknowledgement(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: Option<AuthUser>,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = skip_authorize();
+    let acknowledged = match user {
+        Some(user) => {
+            models::user_ai_usage_notice_acknowledgements::has_acknowledged(
+                &mut conn, user.id, *course_id,
+            )
+            .await?
+        }
+        None => false,
+    };
+    token.authorized_ok(web::Json(acknowledged))
+}
+
+/**
+POST `/api/v0/course-material/courses/:course_id/ai-usage-notice-acknowledgement` - Records that
+the current user has acknowledged the AI-usage / academic-integrity notice for this course.
+*/
+#[utoipa::path(
+    post,
+    path = "/{course_id}/ai-usage-notice-acknowledgement",
+    operation_id = "acknowledgeAiUsageNotice",
+    tag = "course-material-courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Acknowledgement recorded", body = bool)
+    )
+)]
+#[instrument(skip(pool))]
+async fn acknowledge_ai_usage_notice(
+    pool: web::Data<PgPool>,
+    course_id: web::Path<Uuid>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<bool>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+    models::user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, user.id, *course_id)
+        .await?;
+    token.authorized_ok(web::Json(true))
+}
+
+/**
 GET `/api/v0/course-material/courses/:course_id/fetch-user-marketing-consent`
 */
 #[utoipa::path(
@@ -1652,6 +1719,14 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/fetch-user-marketing-consent",
             web::get().to(fetch_user_marketing_consent),
+        )
+        .route(
+            "/{course_id}/ai-usage-notice-acknowledgement",
+            web::get().to(get_ai_usage_notice_acknowledgement),
+        )
+        .route(
+            "/{course_id}/ai-usage-notice-acknowledgement",
+            web::post().to(acknowledge_ai_usage_notice),
         )
         .route(
             "/{course_id}/custom-privacy-policy-checkbox-texts",

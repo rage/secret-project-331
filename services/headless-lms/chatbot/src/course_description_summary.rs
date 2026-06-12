@@ -42,7 +42,7 @@ When generating the description:
 - Ignore all the information that is not relevant for the course description.
 - Ignore all the html tags inside the given information.
 - Give the final output in json format where the descriptions for the modules are behind the same module keys as in the given information. Also put the description for the whole course behind a key named course_description.
-- When generating module descriptions don't use filler words such as 'this course'.
+- When generating module descriptions don't use filler words such as 'this course', give only relevant information.
 
 Constraints:
 - Base the summarization only on the information given to you.
@@ -155,8 +155,6 @@ pub async fn generate_description(
     let completion = make_blocking_llm_request(chat_request, app_config).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
-    dbg!(&completion_content);
-    //let descriptions = serde_json::from_str::<serde_json::Value>(completion_content);
 
     let descriptions: SisuDescriptionResponse =
         serde_json::from_str(completion_content).map_err(|_| {
@@ -165,8 +163,5 @@ pub async fn generate_description(
                 "Sisu description LLM returned an incorrectly formatted response.".to_string()
             )
         })?;
-    //println!("Chatbot: {completion:?}");
-    //println!("{parse_text_completion:?}");
-    //dbg!(descriptions);
     Ok(descriptions)
 }

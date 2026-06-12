@@ -81,7 +81,7 @@ use headless_lms_utils::services::sisu::SisuClient;
     get_privacy_link,
     get_custom_privacy_policy_checkbox_texts,
     get_user_chapter_locks,
-    get_sisu_course_info
+    get_sisu_course_llm_descriptions
 ))]
 pub(crate) struct CourseMaterialCoursesApiDoc;
 
@@ -1506,24 +1506,24 @@ async fn get_user_chapter_locks(
 }
 
 /**
-GET `/api/v0/course-material/courses/:course_id/sisu-course-info` - Get Sisu course info
+GET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
 
-Returns all course info for specific course.
+Returns LLM generated descriptions for a course based on information from Sisu API.
 **/
 #[utoipa::path(
     get,
-    path = "/{course_id}/sisu-course-info",
-    operation_id = "getCourseMaterialSisuCourseInfo",
+    path = "/{course_id}/sisu-course-llm-descriptions",
+    operation_id = "getCourseMaterialSisuCourseLlmDescriptions",
     tag = "course-material-courses",
     params(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Sisu course info", body = SisuDescriptionResponse)
+        (status = 200, description = "Sisu course LLM descriptions", body = SisuDescriptionResponse)
     )
 )]
 #[instrument(skip(pool, app_conf))]
-async fn get_sisu_course_info(
+async fn get_sisu_course_llm_descriptions(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
@@ -1555,9 +1555,6 @@ async fn get_sisu_course_info(
     )
     .await?;
 
-    //let parsed = serde_json::from_str::<serde_json::Value>(&llm_descriptions)?;
-
-    println!("{:?}", llm_descriptions);
     token.authorized_ok(web::Json(llm_descriptions))
 }
 
@@ -1665,7 +1662,7 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             web::get().to(get_user_chapter_locks),
         )
         .route(
-            "/{course_id}/sisu-course-info",
-            web::get().to(get_sisu_course_info),
+            "/{course_id}/sisu-course-llm-descriptions",
+            web::get().to(get_sisu_course_llm_descriptions),
         );
 }

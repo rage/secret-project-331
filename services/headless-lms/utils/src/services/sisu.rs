@@ -203,13 +203,13 @@ impl SisuClient {
         //TODO: remove
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
 
-        // let course_codes = vec![
-        //     vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"],
-        //     vec!["otm-a93149ca-6bc1-4abe-b18e-ecaaa673deb9"],
-        //     vec!["otm-9a150d40-7a51-46db-a926-39d8e7d19141"],
-        // ];
+        let course_codes = vec![
+            vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"],
+            vec!["otm-a93149ca-6bc1-4abe-b18e-ecaaa673deb9"],
+            vec!["otm-9a150d40-7a51-46db-a926-39d8e7d19141"],
+        ];
 
-        let course_codes = vec![vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"]];
+        //let course_codes = vec![vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"]];
 
         for code in course_codes {
             let last = code.last().unwrap();
@@ -242,8 +242,6 @@ impl SisuClient {
             }
         }
         Ok(data_vec)
-
-        //dbg!(&id_vec);
     }
     pub fn parse_sisu_info(
         course_info: Vec<SisuCourseInfoElement>,

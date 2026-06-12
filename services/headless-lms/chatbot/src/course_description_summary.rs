@@ -24,14 +24,14 @@ use utoipa::ToSchema;
 
 #[derive(serde::Serialize, serde::Deserialize, ToSchema, Debug)]
 pub struct SisuDescriptionResponse {
-    course_description: String,
-    modules: Vec<Module>,
+    pub course_description: String,
+    pub modules: Vec<Module>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, ToSchema, Debug)]
 pub struct Module {
-    course_code: String,
-    description: String,
+    pub course_code: String,
+    pub description: String,
 }
 
 const SYSTEM_PROMPT: &str = r#"You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key. Your task is to generate a single description combining information from all different modules but also generate module specific descriptions for each module.

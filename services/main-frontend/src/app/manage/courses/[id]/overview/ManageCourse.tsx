@@ -1,7 +1,12 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+  useQuery,
+} from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -16,6 +21,7 @@ import {
   setCourseJoinCode,
 } from "@/generated/api/sdk.generated"
 import type { Course } from "@/generated/api/types.generated"
+import { getCourseMaterialSisuCourseLlmDescriptionsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import Button from "@/shared-module/common/components/Button"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
@@ -33,6 +39,16 @@ interface Props {
 
 const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetch }) => {
   const { confirm } = useDialog()
+
+  const courseDescriptions = useQuery(
+    getCourseMaterialSisuCourseLlmDescriptionsOptions({
+      path: {
+        course_id: course.id,
+      },
+    }),
+  )
+
+  console.log(courseDescriptions.data)
 
   const { t } = useTranslation()
   const [showForm, setShowForm] = useState(false)

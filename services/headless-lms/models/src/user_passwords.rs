@@ -18,27 +18,71 @@ fn normalize_password(password: &SecretString) -> SecretString {
     SecretString::new(password.expose_secret().nfc().collect::<String>().into())
 }
 
+/// Passwords whose hash was stored under the pre-normalization (raw byte) form are accepted until
+/// this instant; afterwards only the NFC form is checked and any not-yet-converted user must reset
+/// their password. Set to one year after the normalization rollout — ADJUST to one year after the
+/// actual deploy date.
+static LEGACY_RAW_PASSWORD_FALLBACK_UNTIL: LazyLock<DateTime<Utc>> = LazyLock::new(|| {
+    DateTime::parse_from_rfc3339("2027-06-12T00:00:00Z")
+        .expect("hardcoded fallback deadline must be valid RFC3339")
+        .with_timezone(&Utc)
+});
+
+/// Whether the legacy raw-byte password form is still accepted at `now`.
+fn legacy_raw_fallback_active(now: DateTime<Utc>) -> bool {
+    now < *LEGACY_RAW_PASSWORD_FALLBACK_UNTIL
+}
+
+/// Outcome of verifying a password against a stored Argon2 hash.
+enum PasswordVerifyResult {
+    /// No form of the password matched the stored hash.
+    NoMatch,
+    /// Matched the canonical NFC-normalized form (how hashes are written today).
+    MatchedNormalized,
+    /// Matched only the raw, pre-normalization byte form. The hash should be re-stored under NFC;
+    /// this form is accepted only while [`legacy_raw_fallback_active`] holds.
+    MatchedLegacyRaw,
+}
+
 /// Verify a password against a stored Argon2 hash, tolerant of Unicode normalization.
 ///
 /// When NFC normalization does not change the input (the common case, e.g. any pure-ASCII
-/// password) this performs a single verify. Only when normalization actually changes the bytes do
-/// we verify twice: against the NFC form (how new hashes are written) and, as a fallback, against
-/// the raw submitted bytes (how hashes created before normalization existed were written).
-fn verify_against_hash(password: &SecretString, parsed_hash: &PasswordHash) -> bool {
+/// password) this performs a single verify. Otherwise it checks the NFC form first (how hashes are
+/// written today) and, only if `try_legacy_raw` is set, falls back to the raw submitted bytes (how
+/// hashes created before normalization were written). When `try_legacy_raw` is false the raw form
+/// is not checked at all.
+fn verify_against_hash(
+    password: &SecretString,
+    parsed_hash: &PasswordHash,
+    try_legacy_raw: bool,
+) -> PasswordVerifyResult {
     let argon2 = Argon2::default();
     let raw = password.expose_secret();
     let normalized = normalize_password(password);
 
     // Normalization is a no-op for this password: there is only one form, so verify once.
     if normalized.expose_secret() == raw {
-        return argon2.verify_password(raw.as_bytes(), parsed_hash).is_ok();
+        return if argon2.verify_password(raw.as_bytes(), parsed_hash).is_ok() {
+            PasswordVerifyResult::MatchedNormalized
+        } else {
+            PasswordVerifyResult::NoMatch
+        };
     }
 
-    // Normalization changed the input, so the stored hash could be in either form.
-    argon2
+    // Canonical (NFC) form first.
+    if argon2
         .verify_password(normalized.expose_secret().as_bytes(), parsed_hash)
         .is_ok()
-        || argon2.verify_password(raw.as_bytes(), parsed_hash).is_ok()
+    {
+        return PasswordVerifyResult::MatchedNormalized;
+    }
+
+    // Legacy fallback: only attempted while still within the migration window.
+    if try_legacy_raw && argon2.verify_password(raw.as_bytes(), parsed_hash).is_ok() {
+        return PasswordVerifyResult::MatchedLegacyRaw;
+    }
+
+    PasswordVerifyResult::NoMatch
 }
 
 pub struct UserPassword {
@@ -111,7 +155,7 @@ WHERE user_id = $1
         "#,
         user_id
     )
-    .fetch_optional(conn)
+    .fetch_optional(&mut *conn)
     .await?
     {
         Some(p) => p,
@@ -146,7 +190,27 @@ WHERE user_id = $1
         }
     };
 
-    Ok(verify_against_hash(password, &parsed_hash))
+    let try_legacy = legacy_raw_fallback_active(Utc::now());
+    match verify_against_hash(password, &parsed_hash, try_legacy) {
+        PasswordVerifyResult::MatchedNormalized => Ok(true),
+        PasswordVerifyResult::NoMatch => Ok(false),
+        PasswordVerifyResult::MatchedLegacyRaw => {
+            // The stored hash is in the old raw-byte form. Re-store it under NFC so the row
+            // converges to the canonical form and survives the fallback deadline. Best-effort: a
+            // failure here is logged but must not fail an otherwise-valid login.
+            match hash_password(password) {
+                Ok(new_hash) => {
+                    if let Err(e) = upsert_user_password(conn, user_id, &new_hash).await {
+                        warn!("Failed to re-store NFC-normalized password for user {user_id}: {e}");
+                    }
+                }
+                Err(e) => {
+                    warn!("Failed to hash NFC-normalized password for user {user_id}: {e}");
+                }
+            }
+            Ok(true)
+        }
+    }
 }
 
 pub async fn check_if_users_password_is_stored(
@@ -408,7 +472,7 @@ mod tests {
     }
 
     #[test]
-    fn pre_normalization_hash_still_verifies() {
+    fn legacy_raw_hash_matches_only_when_fallback_enabled() {
         // Simulate a hash stored BEFORE normalization existed: computed from the raw NFD bytes.
         let stored = Argon2::default()
             .hash_password(NFD_PASSWORD.as_bytes())
@@ -416,12 +480,48 @@ mod tests {
             .to_string();
         let parsed = PasswordHash::new(&stored).expect("stored hash should parse");
 
-        // The user logs in with the same raw form they originally used. Even though verification
-        // now normalizes to NFC first (which would miss this hash), the raw-bytes fallback must
-        // still let them in. Without back-compat this would regress an existing user.
-        assert!(verify_against_hash(&secret(NFD_PASSWORD), &parsed));
-        // And a genuinely wrong password is still rejected.
-        assert!(!verify_against_hash(&secret("different"), &parsed));
+        // While the migration window is open, the raw form is recognized as a legacy match
+        // (the caller will then re-store it under NFC).
+        assert!(matches!(
+            verify_against_hash(&secret(NFD_PASSWORD), &parsed, true),
+            PasswordVerifyResult::MatchedLegacyRaw
+        ));
+        // After the deadline the raw form is not checked at all, so the same hash no longer matches.
+        assert!(matches!(
+            verify_against_hash(&secret(NFD_PASSWORD), &parsed, false),
+            PasswordVerifyResult::NoMatch
+        ));
+    }
+
+    #[test]
+    fn normalized_hash_matches_regardless_of_fallback() {
+        // A hash written today is NFC-normalized.
+        let stored = hash_password(&secret(NFD_PASSWORD)).expect("hashing should succeed");
+        let parsed = PasswordHash::new(stored.expose_secret()).expect("stored hash should parse");
+
+        for try_legacy in [true, false] {
+            // The NFC form matches whether or not the legacy fallback is enabled...
+            assert!(matches!(
+                verify_against_hash(&secret(NFC_PASSWORD), &parsed, try_legacy),
+                PasswordVerifyResult::MatchedNormalized
+            ));
+            // ...and a wrong password never matches.
+            assert!(matches!(
+                verify_against_hash(&secret("different"), &parsed, try_legacy),
+                PasswordVerifyResult::NoMatch
+            ));
+        }
+    }
+
+    #[test]
+    fn legacy_fallback_is_time_gated() {
+        let deadline = *LEGACY_RAW_PASSWORD_FALLBACK_UNTIL;
+        assert!(legacy_raw_fallback_active(
+            deadline - chrono::Duration::days(1)
+        ));
+        assert!(!legacy_raw_fallback_active(
+            deadline + chrono::Duration::days(1)
+        ));
     }
 
     #[test]

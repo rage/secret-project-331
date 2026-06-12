@@ -23,6 +23,7 @@
 'reasoning_effort_level' = "crate::chatbot_configurations::ReasoningEffortLevel"
 'report_reason' = "crate::flagged_answers::ReportReason"
 'reviewing_stage' = "crate::user_exercise_states::ReviewingStage"
+'suspected_cheater_status' = "crate::suspected_cheaters::SuspectedCheaterStatus"
 'teacher_decision_type' = "crate::teacher_grading_decisions::TeacherDecisionType"
 'token_endpoint_auth_method' = "crate::oauth_client::TokenEndpointAuthMethod"
 'token_type' = "crate::oauth_access_token::TokenType"

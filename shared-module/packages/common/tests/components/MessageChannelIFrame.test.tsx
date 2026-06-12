@@ -6,6 +6,7 @@ import { setupServer } from "msw/node"
 import { I18nextProvider } from "react-i18next"
 
 import MessageChannelIFrame from "../../src/components/MessageChannelIFrame"
+import { DialogProvider } from "../../src/components/dialogs/DialogProvider"
 import i18nTest from "../../src/utils/testing/i18nTest"
 import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 
@@ -59,19 +60,21 @@ describe("MessageChannelIFrame", () => {
 
     const res = render(
       <I18nextProvider i18n={i18nTest}>
-        <MessageChannelIFrame
-          url="http://example.com/example-iframe-page"
-          postThisStateToIFrame={{
-            view_type: "answer-exercise",
-            exercise_task_id: "2c75563d-4129-49dd-9515-e55e006f875d",
-            user_information: { pseudonymous_id: "id", signed_in: false },
-            data: { public_spec: {}, previous_submission: null },
-          }}
-          onMessageFromIframe={(message, responsePort) => {
-            console.info(message, responsePort)
-          }}
-          title="test"
-        />
+        <DialogProvider>
+          <MessageChannelIFrame
+            url="http://example.com/example-iframe-page"
+            postThisStateToIFrame={{
+              view_type: "answer-exercise",
+              exercise_task_id: "2c75563d-4129-49dd-9515-e55e006f875d",
+              user_information: { pseudonymous_id: "id", signed_in: false },
+              data: { public_spec: {}, previous_submission: null },
+            }}
+            onMessageFromIframe={(message, responsePort) => {
+              console.info(message, responsePort)
+            }}
+            title="test"
+          />
+        </DialogProvider>
       </I18nextProvider>,
     )
     await waitFor(() => res.container.querySelector("iframe"))
@@ -91,12 +94,14 @@ describe("MessageChannelIFrame", () => {
 
       render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -110,12 +115,14 @@ describe("MessageChannelIFrame", () => {
 
       render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -129,12 +136,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -175,12 +184,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -218,12 +229,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -282,12 +295,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={stateToPost}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={stateToPost}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -414,12 +429,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -519,12 +536,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container, getByText } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -631,12 +650,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -668,12 +689,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -705,12 +728,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -744,12 +769,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -787,12 +814,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -824,12 +853,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container, rerender } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test1"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test1"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -865,12 +896,14 @@ describe("MessageChannelIFrame", () => {
 
       rerender(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test2"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test2"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -897,12 +930,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -930,12 +965,14 @@ describe("MessageChannelIFrame", () => {
 
       render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={onMessageFromIframe}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={onMessageFromIframe}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -966,12 +1003,14 @@ describe("MessageChannelIFrame", () => {
 
       render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={onMessageFromIframe}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={onMessageFromIframe}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1000,12 +1039,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={stateToPost}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={stateToPost}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1038,12 +1079,14 @@ describe("MessageChannelIFrame", () => {
 
       const { rerender } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={stateToPost}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={stateToPost}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1055,12 +1098,14 @@ describe("MessageChannelIFrame", () => {
 
       rerender(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={stateToPost}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={stateToPost}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1076,12 +1121,14 @@ describe("MessageChannelIFrame", () => {
 
       const { unmount } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1111,12 +1158,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1171,12 +1220,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1234,12 +1285,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={null}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={null}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 
@@ -1294,12 +1347,14 @@ describe("MessageChannelIFrame", () => {
 
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
-          <MessageChannelIFrame
-            url="http://example.com/test"
-            postThisStateToIFrame={stateToPost}
-            onMessageFromIframe={jest.fn()}
-            title="test"
-          />
+          <DialogProvider>
+            <MessageChannelIFrame
+              url="http://example.com/test"
+              postThisStateToIFrame={stateToPost}
+              onMessageFromIframe={jest.fn()}
+              title="test"
+            />
+          </DialogProvider>
         </I18nextProvider>,
       )
 

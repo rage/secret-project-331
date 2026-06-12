@@ -466,6 +466,12 @@ impl CourseBuilder {
         }
         tx.commit().await.context("committing transaction")?;
 
+        // Seeded courses are completed in seconds by system tests, which would flag every seeded
+        // user and break the suite, so disable cheater detection for builder-created courses.
+        courses::set_cheater_detection_enabled(conn, course.id, false)
+            .await
+            .context("disabling cheater detection")?;
+
         if self.chapter_locking_enabled || self.flagged_answers_skip_manual_review_and_allow_retry {
             use headless_lms_models::courses::CourseUpdate;
             let course_update = CourseUpdate {

@@ -8,6 +8,7 @@ import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/Ro
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import {
   courseChatbotSettingsRoute,
@@ -45,6 +46,7 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
   useRegisterBreadcrumbs({ key: `course:${courseId}:other`, order: 30, crumbs })
 
   const showChatbotTab = courseQuery.data?.can_add_chatbot === true
+  const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base: RouteTabDefinition[] = [
@@ -71,6 +73,7 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
         key: KEY_CHEATERS,
         title: t("link-cheaters"),
         href: manageCourseOtherCheatersSuspectedRoute(courseId),
+        countHook: flaggedCheaterCountHook,
       },
       {
         key: KEY_CODE_GIVEAWAYS,
@@ -84,7 +87,7 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
       },
     )
     return base
-  }, [courseId, t, showChatbotTab])
+  }, [courseId, t, showChatbotTab, flaggedCheaterCountHook])
 
   return (
     <RouteTabListProvider tabs={tabs}>

@@ -20,10 +20,18 @@ use headless_lms_models::{
     application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole,
 };
+use utoipa::ToSchema;
 
-#[derive(serde::Deserialize)]
-struct SisuDescriptionResponse {
-    descriptions: String,
+#[derive(serde::Serialize, serde::Deserialize, ToSchema, Debug)]
+pub struct SisuDescriptionResponse {
+    course_description: String,
+    modules: Vec<Module>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize, ToSchema, Debug)]
+pub struct Module {
+    course_code: String,
+    description: String,
 }
 
 const SYSTEM_PROMPT: &str = r#"You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key. Your task is to generate a single description combining information from all different modules but also generate module specific descriptions for each module.
@@ -34,6 +42,7 @@ When generating the description:
 - Ignore all the information that is not relevant for the course description.
 - Ignore all the html tags inside the given information.
 - Give the final output in json format where the descriptions for the modules are behind the same module keys as in the given information. Also put the description for the whole course behind a key named course_description.
+- When generating module descriptions don't use filler words such as 'this course'.
 
 Constraints:
 - Base the summarization only on the information given to you.
@@ -48,7 +57,7 @@ pub async fn generate_description(
     app_config: &ApplicationConfiguration,
     task_lm: TaskLMSpec,
     sisu_course_info: HashMap<String, SisuDescriptions>,
-) -> ChatbotResult<String> {
+) -> ChatbotResult<SisuDescriptionResponse> {
     let serialized_sisu_course_info = serde_json::to_string(&sisu_course_info)?;
     let system_prompt = SYSTEM_PROMPT.to_owned();
     let prompt: String =
@@ -147,16 +156,17 @@ pub async fn generate_description(
 
     let completion_content: &String = &parse_text_completion(completion)?;
     dbg!(&completion_content);
-    /*
-    let descriptions = serde_json::from_str(completion_content).map_err(|_| {
-        chatbot_err!(
-            SisuDescriptionError,
-            "Sisu description LLM returned an incorrectly formatted response.".to_string()
-        )
-    })?;*/
+    //let descriptions = serde_json::from_str::<serde_json::Value>(completion_content);
+
+    let descriptions: SisuDescriptionResponse =
+        serde_json::from_str(completion_content).map_err(|_| {
+            chatbot_err!(
+                SisuDescriptionError,
+                "Sisu description LLM returned an incorrectly formatted response.".to_string()
+            )
+        })?;
     //println!("Chatbot: {completion:?}");
     //println!("{parse_text_completion:?}");
-    dbg!(completion_content);
-    //Ok(descriptions.descriptions)
-    Ok(completion_content.to_string())
+    //dbg!(descriptions);
+    Ok(descriptions)
 }

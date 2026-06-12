@@ -6,6 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
+use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
 use headless_lms_models::{
@@ -1518,7 +1519,7 @@ Returns all course info for specific course.
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Sisu course info", body = HashMap<String, SisuDescriptions>)
+        (status = 200, description = "Sisu course info", body = SisuDescriptionResponse)
     )
 )]
 #[instrument(skip(pool, app_conf))]
@@ -1526,7 +1527,7 @@ async fn get_sisu_course_info(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
-) -> ControllerResult<web::Json<serde_json::Value>> {
+) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
     let mut conn = pool.acquire().await?;
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let course_lang = models::courses::get_course(&mut conn, *course_id)
@@ -1554,10 +1555,10 @@ async fn get_sisu_course_info(
     )
     .await?;
 
-    let parsed = serde_json::from_str::<serde_json::Value>(&llm_descriptions)?;
+    //let parsed = serde_json::from_str::<serde_json::Value>(&llm_descriptions)?;
 
-    println!("{:?}", parsed);
-    token.authorized_ok(web::Json(parsed))
+    println!("{:?}", llm_descriptions);
+    token.authorized_ok(web::Json(llm_descriptions))
 }
 
 /**

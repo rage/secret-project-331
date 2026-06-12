@@ -694,6 +694,28 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
   user_id: z.uuid(),
 })
 
+/**
+ * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+ * render and validate the threshold form. Computed server-side so the exemption rule and the
+ * minimum/default values live in one place instead of being duplicated in the frontend.
+ */
+export const zCourseModuleThresholdInfo = z.object({
+  configured_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_module_id: z.uuid(),
+  default_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  minimum_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
 export const zCourseUpdate = z.object({
   ask_marketing_consent: z.boolean(),
   can_add_chatbot: z.boolean(),
@@ -4289,6 +4311,11 @@ export const zResetCourseProgressForTeacherThemselvesResponse = z.boolean()
 export const zGetCourseThresholdsPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * Course thresholds
+ */
+export const zGetCourseThresholdsResponse = z.array(zCourseModuleThresholdInfo)
 
 export const zUpdateCoursePeerReviewQueueReviewsReceivedPath = z.object({
   course_id: z.uuid(),

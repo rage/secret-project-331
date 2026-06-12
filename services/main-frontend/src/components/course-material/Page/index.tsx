@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useAtomValue, useSetAtom } from "jotai"
 import { useRouter, useSearchParams } from "next/navigation"
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useContext, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ClosedCourseWarningDialog from "../ClosedCourseWarningDialog"
@@ -34,11 +34,16 @@ import { useUserDetails } from "@/hooks/course-material/useUserDetails"
 import AudioSpeaker from "@/img/course-material/audio-player/audio-speaker.svg"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
-import { isMaterialPageAtom, refetchViewAtom } from "@/state/course-material/selectors"
+import {
+  isMaterialPageAtom,
+  refetchViewAtom,
+  viewIsFetchingAtom,
+} from "@/state/course-material/selectors"
 import { inlineColorStyles } from "@/styles/course-material/inlineColorStyles"
 import { Block } from "@/types/courseMaterialBlock"
 
@@ -67,7 +72,9 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const isMaterialPage = useAtomValue(isMaterialPageAtom)
+  const viewIsFetching = useAtomValue(viewIsFetchingAtom)
   const triggerRefetch = useSetAtom(refetchViewAtom)
+  const loginState = useContext(LoginStateContext)
 
   // Use refetch atom if onRefresh is not provided
   const handleRefresh =
@@ -144,6 +151,26 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
     hasAnsweredForm,
   })
 
+  // Whether the logic above has finished deciding which dialog (if any) to show. This is exposed as a
+  // data attribute (see the sentinel in the render below) so system tests can wait for a deterministic
+  // signal instead of polling for dialogs that may still be appearing. It is `true` only once every
+  // input to `useDialogStep` has settled and no page/exam (re)fetch is in flight that could still
+  // change the answer. The query conditions mirror each hook's enable condition (`signedIn` /
+  // `signedIn && courseId`) so a query that has just been enabled but not yet fetched does not count
+  // as settled.
+  const signedIn = loginState.signedIn === true
+  const courseScopedQueriesShouldRun = signedIn && Boolean(courseId)
+  const querySettled = (query: { isSuccess: boolean; isError: boolean }) =>
+    query.isSuccess || query.isError
+  const decisionReady =
+    courseMaterialState.status !== "loading" &&
+    !viewIsFetching &&
+    (!signedIn || querySettled(userDetailsQuery)) &&
+    (!courseScopedQueriesShouldRun ||
+      (querySettled(aiUsageNoticeAcknowledgementQuery) &&
+        querySettled(researchConsentFormQuery) &&
+        querySettled(researchConsentFormAnswerQuery)))
+
   useMemo(() => {
     if (
       userDetailsQuery.data?.country === null ||
@@ -205,6 +232,15 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
   return (
     <GlossaryContext.Provider value={glossaryState}>
       <>
+        {/* Hidden sentinel exposing the dialog decision so system tests can wait deterministically.
+            `data-dialogs-ready` flips to "true" once the decision has settled; `data-active-dialog`
+            holds the currently shown DialogStep ("none" when no dialog is shown). */}
+        <div
+          data-testid="dialog-decision-state"
+          data-dialogs-ready={decisionReady ? "true" : "false"}
+          data-active-dialog={activeStep}
+          hidden
+        />
         {courseMaterialState.settings &&
           courseMaterialState.settings.current_course_instance_id !==
             courseMaterialState.instance?.id && (

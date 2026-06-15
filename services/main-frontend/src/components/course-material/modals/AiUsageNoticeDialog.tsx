@@ -76,6 +76,15 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   // the general university-guidelines link is omitted. Otherwise (false / unknown) the link is shown.
   const showGuidelinesLink = courseMaterialAiInstructions !== true
 
+  // Whether any guidelines link is actually rendered: always in the default message, and in the
+  // adapted message only when the course material has no instructions of its own. The agree
+  // checkbox only mentions "the linked guidelines" when such a link is present.
+  const guidelinesLinkShown = aiPolicy === "NotSet" || showGuidelinesLink
+
+  // The manual-review apology fits policies that restrict AI, but reads oddly where AI use is
+  // encouraged, so it is hidden for the permissive policies.
+  const showStaffReviewNote = aiPolicy !== "FullUse" && aiPolicy !== "Required"
+
   // The paragraph describing the teacher-selected policy. Only used when a policy is set; when it is
   // `NotSet` the dialog shows the generic default message instead.
   const policyParagraph = (): string | null => {
@@ -138,8 +147,8 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
         ) : (
           <>
             <p className={paragraphStyle}>{policyParagraph()}</p>
-            <p className={paragraphStyle}>
-              {showGuidelinesLink ? (
+            {showGuidelinesLink ? (
+              <p className={paragraphStyle}>
                 <Trans
                   t={t}
                   i18nKey="ai-usage-notice-follow-guidelines"
@@ -147,22 +156,33 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
                     guidelinesLink,
                   }}
                 />
-              ) : (
-                t("ai-usage-notice-see-course-instructions")
-              )}
-            </p>
+              </p>
+            ) : (
+              // The course material holds the exact policy; point students to it.
+              <p className={paragraphStyle}>{t("ai-usage-notice-see-course-instructions")}</p>
+            )}
           </>
         )}
-        <p
-          className={css`
-            margin: 0;
-            color: ${baseTheme.colors.gray[600]};
-          `}
-        >
-          {t("ai-usage-notice-paragraph-2")}
-        </p>
+        {showStaffReviewNote && (
+          <p
+            className={css`
+              margin: 0;
+              color: ${baseTheme.colors.gray[600]};
+            `}
+          >
+            {t("ai-usage-notice-paragraph-2")}
+          </p>
+        )}
         <div data-testid="ai-usage-notice-agree-checkbox">
-          <Checkbox name="agreed" control={control} label={t("ai-usage-notice-agree-checkbox")} />
+          <Checkbox
+            name="agreed"
+            control={control}
+            label={
+              guidelinesLinkShown
+                ? t("ai-usage-notice-agree-checkbox")
+                : t("ai-usage-notice-agree-checkbox-no-link")
+            }
+          />
         </div>
         <div
           className={css`

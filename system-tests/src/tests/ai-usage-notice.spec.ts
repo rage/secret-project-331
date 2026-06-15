@@ -84,10 +84,10 @@ test("AI-usage notice adapts to the teacher-selected policy", async ({ browser, 
 
       await page.getByTestId("ai-usage-notice-acknowledge-button").waitFor({ state: "visible" })
       // Policy-specific paragraph for "Limited".
-      await expect(page.getByText("AI may be used only for specific tasks")).toBeVisible()
-      // Points to the course material's own instructions...
+      await expect(page.getByText("use AI only for specific tasks")).toBeVisible()
+      // Points to the course material as the source of the exact policy...
       await expect(
-        page.getByText("Follow the AI instructions given in the course material"),
+        page.getByText("The exact rules for using AI on this course are in the course material"),
       ).toBeVisible()
       // ...and therefore does not show the general university-guidelines link.
       await expect(page.getByRole("link", { name: /guidelines/i })).toHaveCount(0)

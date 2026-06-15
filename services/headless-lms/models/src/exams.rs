@@ -2,10 +2,7 @@ use chrono::Duration;
 use std::collections::HashMap;
 use utoipa::ToSchema;
 
-use crate::{
-    courses::{Course, CourseAiPolicy},
-    prelude::*,
-};
+use crate::{courses::Course, prelude::*};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -166,7 +163,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy AS \"ai_policy: CourseAiPolicy\",\n  course_material_ai_instructions\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
+  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted,\n    is_joinable_by_code_only,\n    join_code,\n    ask_marketing_consent,\n    description,\n    flagged_answers_threshold,\n    flagged_answers_skip_manual_review_and_allow_retry,\n    cheater_detection_enabled,\n    chapter_locking_enabled,\n    ai_policy,\n    course_material_ai_instructions\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17,\n    $18,\n    $19,\n    $20,\n    $21\n  )\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy,\n  course_material_ai_instructions\n        ",
   "describe": {
     "columns": [
       {
@@ -154,6 +154,17 @@
       },
       {
         "ordinal": 14,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "base_module_completion_requires_n_submodule_completions"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool",
         "origin": {
@@ -164,24 +175,13 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "is_unlisted",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "is_unlisted"
-          }
-        }
-      },
-      {
-        "ordinal": 16,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "base_module_completion_requires_n_submodule_completions"
           }
         }
       },
@@ -297,7 +297,7 @@
       },
       {
         "ordinal": 27,
-        "name": "ai_policy: CourseAiPolicy",
+        "name": "ai_policy",
         "type_info": {
           "Custom": {
             "name": "course_ai_policy",
@@ -334,7 +334,41 @@
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "Varchar",
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Uuid",
+        "Bool",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        "Varchar",
+        "Bool",
+        "Text",
+        "Int4",
+        "Bool",
+        "Bool",
+        "Bool",
+        {
+          "Custom": {
+            "name": "course_ai_policy",
+            "kind": {
+              "Enum": [
+                "not_set",
+                "no_ai",
+                "planning_only",
+                "limited",
+                "full_use",
+                "required"
+              ]
+            }
+          }
+        },
+        "Bool"
       ]
     },
     "nullable": [
@@ -369,5 +403,5 @@
       true
     ]
   },
-  "hash": "d3ad28eed0b072e460a2d531498483e99fe3c589c450c98609e8bae925ef4b13"
+  "hash": "6412bbabbe2b6759e87010a728ad1ddd4a95410ce936f72c485b8dc99cf58944"
 }

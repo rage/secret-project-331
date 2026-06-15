@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET name = $1,\n  description = $2,\n  is_draft = $3,\n  is_test_mode = $4,\n  can_add_chatbot = $5,\n  is_unlisted = $6,\n  is_joinable_by_code_only = $7,\n  ask_marketing_consent = $8,\n  flagged_answers_threshold = $9,\n  flagged_answers_skip_manual_review_and_allow_retry = $10,\n  closed_at = $11,\n  closed_additional_message = $12,\n  closed_course_successor_id = $13,\n  chapter_locking_enabled = $14,\n  ai_policy = $15,\n  course_material_ai_instructions = $16\nWHERE id = $17\n  AND deleted_at IS NULL\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy AS \"ai_policy: CourseAiPolicy\",\n  course_material_ai_instructions\n    ",
+  "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy,\n  course_material_ai_instructions\n    ",
   "describe": {
     "columns": [
       {
@@ -297,7 +297,7 @@
       },
       {
         "ordinal": 27,
-        "name": "ai_policy: CourseAiPolicy",
+        "name": "ai_policy",
         "type_info": {
           "Custom": {
             "name": "course_ai_policy",
@@ -334,36 +334,6 @@
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Text",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Int4",
-        "Bool",
-        "Timestamptz",
-        "Text",
-        "Uuid",
-        "Bool",
-        {
-          "Custom": {
-            "name": "course_ai_policy",
-            "kind": {
-              "Enum": [
-                "not_set",
-                "no_ai",
-                "planning_only",
-                "limited",
-                "full_use",
-                "required"
-              ]
-            }
-          }
-        },
-        "Bool",
         "Uuid"
       ]
     },
@@ -399,5 +369,5 @@
       true
     ]
   },
-  "hash": "0b41d721065ed63aaad5e8f7456f16b6383ed366d430e2ab8d505d90329f8fb0"
+  "hash": "c34d21dcb86b47a969425e383423369f6e588756eced5eab56276b6a787ef0ac"
 }

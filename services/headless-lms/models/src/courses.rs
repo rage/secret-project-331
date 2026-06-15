@@ -301,7 +301,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE deleted_at IS NULL;
@@ -346,7 +346,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE courses.deleted_at IS NULL
@@ -398,7 +398,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE courses.deleted_at IS NULL
@@ -462,7 +462,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE course_language_group_id = $1
@@ -511,7 +511,7 @@ SELECT
     c.closed_course_successor_id,
     c.chapter_locking_enabled,
     c.cheater_detection_enabled,
-    c.ai_policy AS "ai_policy: CourseAiPolicy",
+    c.ai_policy,
     c.course_material_ai_instructions
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
@@ -585,7 +585,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE id = $1;
@@ -632,7 +632,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE id = $1
@@ -751,7 +751,7 @@ SELECT courses.id,
   courses.closed_course_successor_id,
   courses.chapter_locking_enabled,
   courses.cheater_detection_enabled,
-  courses.ai_policy AS "ai_policy: CourseAiPolicy",
+  courses.ai_policy,
   courses.course_material_ai_instructions
 FROM courses
 WHERE courses.organization_id = $1
@@ -881,7 +881,7 @@ RETURNING id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
     "#,
         course_update.name,
@@ -985,7 +985,7 @@ RETURNING id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
     "#,
         course_id
@@ -1026,7 +1026,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE slug = $1
@@ -1126,7 +1126,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
@@ -1173,7 +1173,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE organization_id = $1
@@ -1240,7 +1240,7 @@ SELECT id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
 FROM courses
 WHERE join_code = $1

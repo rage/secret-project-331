@@ -134,7 +134,7 @@ RETURNING id,
   closed_course_successor_id,
   chapter_locking_enabled,
   cheater_detection_enabled,
-  ai_policy AS "ai_policy: CourseAiPolicy",
+  ai_policy,
   course_material_ai_instructions
         "#,
         new_course.name,

@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy AS \"ai_policy: CourseAiPolicy\",\n  course_material_ai_instructions\nFROM courses\nWHERE id = $1\n  AND join_code = $2\n  AND deleted_at IS NULL;\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy,\n  course_material_ai_instructions\nFROM courses\nWHERE id = $1\n  AND join_code = $2\n  AND deleted_at IS NULL;\n    ",
   "describe": {
     "columns": [
       {
@@ -297,7 +297,7 @@
       },
       {
         "ordinal": 27,
-        "name": "ai_policy: CourseAiPolicy",
+        "name": "ai_policy",
         "type_info": {
           "Custom": {
             "name": "course_ai_policy",
@@ -370,5 +370,5 @@
       true
     ]
   },
-  "hash": "3b16abf244101a683210d1b3c3b868df203876c94ddd90973d39253070f1a376"
+  "hash": "22aa81f76020224fca813142df3657036c0df1a34948bd421a6021e8c8955e6f"
 }

@@ -8,6 +8,7 @@ import { Trans, useTranslation } from "react-i18next"
 
 import { getAiUsageNoticeAcknowledgementQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { acknowledgeAiUsageNotice } from "@/generated/course-material-api/sdk.generated"
+import type { CourseAiPolicy } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -27,6 +28,13 @@ const GUIDELINES_URL_EN =
 
 export interface AiUsageNoticeDialogProps {
   courseId: string
+  /** The teacher-selected AI policy; `NotSet` shows the generic default message. */
+  aiPolicy: CourseAiPolicy
+  /**
+   * Whether the course material itself contains AI instructions: `true` = yes, `false` = no,
+   * `null`/`undefined` = unknown. Controls the guidelines link.
+   */
+  courseMaterialAiInstructions: boolean | null | undefined
   onClose: () => void
 }
 
@@ -36,6 +44,8 @@ interface AiUsageNoticeFormFields {
 
 const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogProps>> = ({
   courseId,
+  aiPolicy,
+  courseMaterialAiInstructions,
   onClose,
 }) => {
   const { t, i18n } = useTranslation()
@@ -57,6 +67,33 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   // static children here.
   // eslint-disable-next-line jsx-a11y/anchor-has-content
   const guidelinesLink = <a href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
+
+  const paragraphStyle = css`
+    margin: 0;
+  `
+
+  // When the course material has its own AI instructions (true), students are pointed to those and
+  // the general university-guidelines link is omitted. Otherwise (false / unknown) the link is shown.
+  const showGuidelinesLink = courseMaterialAiInstructions !== true
+
+  // The paragraph describing the teacher-selected policy. Only used when a policy is set; when it is
+  // `NotSet` the dialog shows the generic default message instead.
+  const policyParagraph = (): string | null => {
+    switch (aiPolicy) {
+      case "NoAi":
+        return t("ai-usage-notice-policy-no-ai")
+      case "PlanningOnly":
+        return t("ai-usage-notice-policy-planning-only")
+      case "Limited":
+        return t("ai-usage-notice-policy-limited")
+      case "FullUse":
+        return t("ai-usage-notice-policy-full-use")
+      case "Required":
+        return t("ai-usage-notice-policy-required")
+      default:
+        return null
+    }
+  }
 
   const acknowledgeMutation = useToastMutation<void, unknown, void>(
     async () => {
@@ -88,19 +125,34 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
         {acknowledgeMutation.isError && (
           <ErrorBanner variant={"readOnly"} error={acknowledgeMutation.error} />
         )}
-        <p
-          className={css`
-            margin: 0;
-          `}
-        >
-          <Trans
-            t={t}
-            i18nKey="ai-usage-notice-paragraph-1"
-            components={{
-              guidelinesLink,
-            }}
-          />
-        </p>
+        {aiPolicy === "NotSet" ? (
+          <p className={paragraphStyle}>
+            <Trans
+              t={t}
+              i18nKey="ai-usage-notice-paragraph-1"
+              components={{
+                guidelinesLink,
+              }}
+            />
+          </p>
+        ) : (
+          <>
+            <p className={paragraphStyle}>{policyParagraph()}</p>
+            <p className={paragraphStyle}>
+              {showGuidelinesLink ? (
+                <Trans
+                  t={t}
+                  i18nKey="ai-usage-notice-follow-guidelines"
+                  components={{
+                    guidelinesLink,
+                  }}
+                />
+              ) : (
+                t("ai-usage-notice-see-course-instructions")
+              )}
+            </p>
+          </>
+        )}
         <p
           className={css`
             margin: 0;

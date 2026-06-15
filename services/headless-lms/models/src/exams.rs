@@ -2,7 +2,10 @@ use chrono::Duration;
 use std::collections::HashMap;
 use utoipa::ToSchema;
 
-use crate::{courses::Course, prelude::*};
+use crate::{
+    courses::{Course, CourseAiPolicy},
+    prelude::*,
+};
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 
 #[derive(Debug, Serialize, ToSchema)]
@@ -135,7 +138,7 @@ WHERE exams.id = $1
 
     let courses = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   slug,
   courses.created_at,
@@ -162,13 +165,15 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
   JOIN course_exams ON courses.id = course_exams.course_id
 WHERE course_exams.exam_id = $1
   AND courses.deleted_at IS NULL
   AND course_exams.deleted_at IS NULL
-",
+"#,
         id
     )
     .fetch_all(&mut *conn)

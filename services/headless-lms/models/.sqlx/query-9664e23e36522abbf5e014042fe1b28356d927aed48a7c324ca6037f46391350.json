@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND (\n    id IN (\n      SELECT course_id\n      FROM roles\n      WHERE deleted_at IS NULL\n        AND user_id = $1\n        AND course_id IS NOT NULL\n    )\n    OR (\n      id IN (\n        SELECT ci.course_id\n        FROM course_instances ci\n          JOIN ROLES r ON r.course_instance_id = ci.id\n        WHERE r.user_id = $1\n          AND r.deleted_at IS NULL\n          AND ci.deleted_at IS NULL\n      )\n    )\n  ) ",
+  "query": "\nSELECT id,\n  slug,\n  courses.created_at,\n  courses.updated_at,\n  courses.deleted_at,\n  name,\n  description,\n  organization_id,\n  language_code,\n  copied_from,\n  content_search_language::text,\n  course_language_group_id,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy AS \"ai_policy: CourseAiPolicy\",\n  course_material_ai_instructions\nFROM courses\n  JOIN course_exams ON courses.id = course_exams.course_id\nWHERE course_exams.exam_id = $1\n  AND courses.deleted_at IS NULL\n  AND course_exams.deleted_at IS NULL\n",
   "describe": {
     "columns": [
       {
@@ -16,12 +16,12 @@
       },
       {
         "ordinal": 1,
-        "name": "name",
+        "name": "slug",
         "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "courses",
-            "name": "name"
+            "name": "slug"
           }
         }
       },
@@ -49,17 +49,6 @@
       },
       {
         "ordinal": 4,
-        "name": "organization_id",
-        "type_info": "Uuid",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "organization_id"
-          }
-        }
-      },
-      {
-        "ordinal": 5,
         "name": "deleted_at",
         "type_info": "Timestamptz",
         "origin": {
@@ -70,21 +59,37 @@
         }
       },
       {
-        "ordinal": 6,
-        "name": "slug",
+        "ordinal": 5,
+        "name": "name",
         "type_info": "Varchar",
         "origin": {
           "Table": {
             "table": "courses",
-            "name": "slug"
+            "name": "name"
+          }
+        }
+      },
+      {
+        "ordinal": 6,
+        "name": "description",
+        "type_info": "Text",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "description"
           }
         }
       },
       {
         "ordinal": 7,
-        "name": "content_search_language",
-        "type_info": "Text",
-        "origin": "Expression"
+        "name": "organization_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "organization_id"
+          }
+        }
       },
       {
         "ordinal": 8,
@@ -110,23 +115,18 @@
       },
       {
         "ordinal": 10,
+        "name": "content_search_language",
+        "type_info": "Text",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 11,
         "name": "course_language_group_id",
         "type_info": "Uuid",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "course_language_group_id"
-          }
-        }
-      },
-      {
-        "ordinal": 11,
-        "name": "description",
-        "type_info": "Text",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "description"
           }
         }
       },
@@ -154,6 +154,17 @@
       },
       {
         "ordinal": 14,
+        "name": "base_module_completion_requires_n_submodule_completions",
+        "type_info": "Int4",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "base_module_completion_requires_n_submodule_completions"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
         "name": "can_add_chatbot",
         "type_info": "Bool",
         "origin": {
@@ -164,24 +175,13 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "is_unlisted",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "is_unlisted"
-          }
-        }
-      },
-      {
-        "ordinal": 16,
-        "name": "base_module_completion_requires_n_submodule_completions",
-        "type_info": "Int4",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "base_module_completion_requires_n_submodule_completions"
           }
         }
       },
@@ -294,6 +294,42 @@
             "name": "cheater_detection_enabled"
           }
         }
+      },
+      {
+        "ordinal": 27,
+        "name": "ai_policy: CourseAiPolicy",
+        "type_info": {
+          "Custom": {
+            "name": "course_ai_policy",
+            "kind": {
+              "Enum": [
+                "not_set",
+                "no_ai",
+                "planning_only",
+                "limited",
+                "full_use",
+                "required"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "ai_policy"
+          }
+        }
+      },
+      {
+        "ordinal": 28,
+        "name": "course_material_ai_instructions",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "course_material_ai_instructions"
+          }
+        }
       }
     ],
     "parameters": {
@@ -306,14 +342,14 @@
       false,
       false,
       false,
+      true,
       false,
       true,
       false,
+      false,
+      true,
       null,
       false,
-      true,
-      false,
-      true,
       false,
       false,
       false,
@@ -328,8 +364,10 @@
       true,
       true,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "fda32ff78184f95c430d2d68f0f01260958267eb0c2e354e5e9037d718dfa731"
+  "hash": "9664e23e36522abbf5e014042fe1b28356d927aed48a7c324ca6037f46391350"
 }

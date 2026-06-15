@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nUPDATE courses\nSET deleted_at = now()\nWHERE id = $1\nAND deleted_at IS NULL\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled\n    ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  can_add_chatbot,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy AS \"ai_policy: CourseAiPolicy\",\n  course_material_ai_instructions\nFROM courses\nWHERE id IN (SELECT * FROM UNNEST($1::uuid[]))\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -294,11 +294,47 @@
             "name": "cheater_detection_enabled"
           }
         }
+      },
+      {
+        "ordinal": 27,
+        "name": "ai_policy: CourseAiPolicy",
+        "type_info": {
+          "Custom": {
+            "name": "course_ai_policy",
+            "kind": {
+              "Enum": [
+                "not_set",
+                "no_ai",
+                "planning_only",
+                "limited",
+                "full_use",
+                "required"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "ai_policy"
+          }
+        }
+      },
+      {
+        "ordinal": 28,
+        "name": "course_material_ai_instructions",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "course_material_ai_instructions"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Uuid"
+        "UuidArray"
       ]
     },
     "nullable": [
@@ -328,8 +364,10 @@
       true,
       true,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "efe1f7a3da4a0cbb7f333964096e02bc262a29816056bcdefaa672d86f59b6fe"
+  "hash": "2aeb0af9e4c369b30f2f2dadfd379fce9d8d809065669aa6ee93ed9610d891cf"
 }

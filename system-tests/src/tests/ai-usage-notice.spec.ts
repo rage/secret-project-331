@@ -43,3 +43,66 @@ test("AI-usage notice is shown after enrolling and must be acknowledged", async 
     await expect(page.getByTestId("ai-usage-notice-acknowledge-button")).toHaveCount(0)
   })
 })
+
+/**
+ * When a teacher selects an AI policy, the notice adapts: it shows the policy-specific text and,
+ * because the course material is marked as containing its own AI instructions, points students to
+ * those instructions instead of showing the general university-guidelines link.
+ *
+ * The course's policy is reset at the end so this test does not affect the default-message test above.
+ */
+test("AI-usage notice adapts to the teacher-selected policy", async ({ browser, page }) => {
+  // Manage id of the seeded "Accessibility course".
+  const courseManageUrl =
+    "http://project-331.local/manage/courses/883c8ed0-08db-4cd1-a0a4-5cc79c69bdfe"
+
+  const teacherContext = await browser.newContext({
+    storageState: "src/states/teacher@example.com.json",
+  })
+  const teacherPage = await teacherContext.newPage()
+
+  try {
+    await test.step("Teacher sets a 'Limited' policy and marks the material as having AI instructions", async () => {
+      await teacherPage.goto(courseManageUrl)
+      await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
+      const dialog = teacherPage.getByLabel("Edit course")
+      await dialog.getByRole("radio", { name: "Yes", exact: true }).check()
+      await dialog.getByRole("radio", { name: "Limited / collaboration" }).check()
+      await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
+      await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
+    })
+
+    await test.step("A fresh student sees the adapted notice and no guidelines link", async () => {
+      await signUp(page, {
+        firstName: "AiPolicy",
+        lastName: "Tester",
+        email: "ai-policy-notice-tester@example.com",
+        password: "ai-policy-notice-tester",
+        returnTo: "/org/uh-mathstat/courses/accessibility-course",
+      })
+      await selectCourseInstanceIfPrompted(page, undefined, undefined, false)
+
+      await page.getByTestId("ai-usage-notice-acknowledge-button").waitFor({ state: "visible" })
+      // Policy-specific paragraph for "Limited".
+      await expect(page.getByText("AI may be used only for specific tasks")).toBeVisible()
+      // Points to the course material's own instructions...
+      await expect(
+        page.getByText("Follow the AI instructions given in the course material"),
+      ).toBeVisible()
+      // ...and therefore does not show the general university-guidelines link.
+      await expect(page.getByRole("link", { name: /guidelines/i })).toHaveCount(0)
+    })
+  } finally {
+    await test.step("Reset the course AI policy to the default", async () => {
+      await teacherPage.goto(courseManageUrl)
+      await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
+      const dialog = teacherPage.getByLabel("Edit course")
+      await dialog.getByRole("radio", { name: "Unknown", exact: true }).check()
+      await dialog.getByRole("radio", { name: "Not set" }).check()
+      await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
+      await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
+    })
+
+    await teacherContext.close()
+  }
+})

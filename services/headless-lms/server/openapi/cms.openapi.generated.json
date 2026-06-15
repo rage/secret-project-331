@@ -1617,9 +1617,13 @@
           "ask_marketing_consent",
           "flagged_answers_skip_manual_review_and_allow_retry",
           "chapter_locking_enabled",
-          "cheater_detection_enabled"
+          "cheater_detection_enabled",
+          "ai_policy"
         ],
         "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/CourseAiPolicy"
+          },
           "ask_marketing_consent": {
             "type": "boolean"
           },
@@ -1657,6 +1661,9 @@
           "course_language_group_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "course_material_ai_instructions": {
+            "type": ["boolean", "null"]
           },
           "created_at": {
             "type": "string",
@@ -1713,6 +1720,11 @@
             "format": "date-time"
           }
         }
+      },
+      "CourseAiPolicy": {
+        "type": "string",
+        "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
+        "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
       },
       "CourseInstance": {
         "type": "object",

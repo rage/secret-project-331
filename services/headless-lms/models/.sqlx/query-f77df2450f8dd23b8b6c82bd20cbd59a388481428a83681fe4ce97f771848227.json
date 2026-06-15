@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft,\n  courses.is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  courses.is_unlisted,\n  courses.is_joinable_by_code_only,\n  courses.join_code,\n  courses.ask_marketing_consent,\n  courses.flagged_answers_threshold,\n  courses.flagged_answers_skip_manual_review_and_allow_retry,\n  courses.closed_at,\n  courses.closed_additional_message,\n  courses.closed_course_successor_id,\n  courses.chapter_locking_enabled,\n  courses.cheater_detection_enabled\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    (\n      courses.is_draft IS FALSE\n      AND courses.is_unlisted IS FALSE\n    )\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nORDER BY courses.name\nLIMIT $3 OFFSET $4;\n",
+  "query": "\nSELECT courses.id,\n  courses.name,\n  courses.created_at,\n  courses.updated_at,\n  courses.organization_id,\n  courses.deleted_at,\n  courses.slug,\n  courses.content_search_language::text,\n  courses.language_code,\n  courses.copied_from,\n  courses.course_language_group_id,\n  courses.description,\n  courses.is_draft,\n  courses.is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  courses.is_unlisted,\n  courses.is_joinable_by_code_only,\n  courses.join_code,\n  courses.ask_marketing_consent,\n  courses.flagged_answers_threshold,\n  courses.flagged_answers_skip_manual_review_and_allow_retry,\n  courses.closed_at,\n  courses.closed_additional_message,\n  courses.closed_course_successor_id,\n  courses.chapter_locking_enabled,\n  courses.cheater_detection_enabled,\n  courses.ai_policy AS \"ai_policy: CourseAiPolicy\",\n  courses.course_material_ai_instructions\nFROM courses\nWHERE courses.organization_id = $1\n  AND (\n    (\n      courses.is_draft IS FALSE\n      AND courses.is_unlisted IS FALSE\n    )\n    OR EXISTS (\n      SELECT id\n      FROM roles\n      WHERE user_id = $2\n        AND (\n          course_id = courses.id\n          OR roles.organization_id = courses.organization_id\n          OR roles.is_global IS TRUE\n        )\n    )\n  )\n  AND courses.deleted_at IS NULL\nORDER BY courses.name\nLIMIT $3 OFFSET $4;\n",
   "describe": {
     "columns": [
       {
@@ -294,6 +294,42 @@
             "name": "cheater_detection_enabled"
           }
         }
+      },
+      {
+        "ordinal": 27,
+        "name": "ai_policy: CourseAiPolicy",
+        "type_info": {
+          "Custom": {
+            "name": "course_ai_policy",
+            "kind": {
+              "Enum": [
+                "not_set",
+                "no_ai",
+                "planning_only",
+                "limited",
+                "full_use",
+                "required"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "ai_policy"
+          }
+        }
+      },
+      {
+        "ordinal": 28,
+        "name": "course_material_ai_instructions",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "course_material_ai_instructions"
+          }
+        }
       }
     ],
     "parameters": {
@@ -331,8 +367,10 @@
       true,
       true,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "c28eba5244902112d7f1d2f8bc83a61227562392af642d1646f49f51d1031a70"
+  "hash": "f77df2450f8dd23b8b6c82bd20cbd59a388481428a83681fe4ce97f771848227"
 }

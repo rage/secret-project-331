@@ -25,6 +25,28 @@ pub struct CourseContextData {
     pub is_test_mode: bool,
 }
 
+/// The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+/// AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+#[derive(
+    Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy, Default, sqlx::Type, ToSchema,
+)]
+#[sqlx(type_name = "course_ai_policy", rename_all = "snake_case")]
+pub enum CourseAiPolicy {
+    /// No policy selected; the notice shows the generic default message.
+    #[default]
+    NotSet,
+    /// AI is not allowed at any point.
+    NoAi,
+    /// AI may be used for planning (brainstorming/outlining) but not in the final work.
+    PlanningOnly,
+    /// AI may be used for specific tasks only, with disclosure.
+    Limited,
+    /// AI may be used freely; the student directs it and discloses their use.
+    FullUse,
+    /// AI use is expected or mandatory.
+    Required,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct Course {
@@ -55,6 +77,8 @@ pub struct Course {
     pub closed_course_successor_id: Option<Uuid>,
     pub chapter_locking_enabled: bool,
     pub cheater_detection_enabled: bool,
+    pub ai_policy: CourseAiPolicy,
+    pub course_material_ai_instructions: Option<bool>,
 }
 
 /** A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials. */
@@ -80,6 +104,8 @@ pub struct CourseMaterialCourse {
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub chapter_locking_enabled: bool,
+    pub ai_policy: CourseAiPolicy,
+    pub course_material_ai_instructions: Option<bool>,
 }
 
 impl From<Course> for CourseMaterialCourse {
@@ -105,6 +131,8 @@ impl From<Course> for CourseMaterialCourse {
             closed_additional_message: course.closed_additional_message,
             closed_course_successor_id: course.closed_course_successor_id,
             chapter_locking_enabled: course.chapter_locking_enabled,
+            ai_policy: course.ai_policy,
+            course_material_ai_instructions: course.course_material_ai_instructions,
         }
     }
 }
@@ -272,7 +300,9 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE deleted_at IS NULL;
 "#
@@ -315,7 +345,9 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND id IN (
@@ -365,7 +397,9 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE courses.deleted_at IS NULL
   AND (
@@ -400,7 +434,7 @@ pub async fn get_all_language_versions_of_course(
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   name,
   created_at,
@@ -427,11 +461,13 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE course_language_group_id = $1
 AND deleted_at IS NULL
-        ",
+        "#,
         course.course_language_group_id,
     )
     .fetch_all(conn)
@@ -474,7 +510,9 @@ SELECT
     c.closed_additional_message,
     c.closed_course_successor_id,
     c.chapter_locking_enabled,
-    c.cheater_detection_enabled
+    c.cheater_detection_enabled,
+    c.ai_policy AS "ai_policy: CourseAiPolicy",
+    c.course_material_ai_instructions
 FROM courses as c
     LEFT JOIN course_instances as ci on c.id = ci.course_id
 WHERE
@@ -546,7 +584,9 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE id = $1;
     "#,
@@ -591,7 +631,9 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE id = $1
   AND join_code = $2
@@ -708,7 +750,9 @@ SELECT courses.id,
   courses.closed_additional_message,
   courses.closed_course_successor_id,
   courses.chapter_locking_enabled,
-  courses.cheater_detection_enabled
+  courses.cheater_detection_enabled,
+  courses.ai_policy AS "ai_policy: CourseAiPolicy",
+  courses.course_material_ai_instructions
 FROM courses
 WHERE courses.organization_id = $1
   AND (
@@ -779,6 +823,8 @@ pub struct CourseUpdate {
     pub closed_additional_message: Option<String>,
     pub closed_course_successor_id: Option<Uuid>,
     pub chapter_locking_enabled: bool,
+    pub ai_policy: CourseAiPolicy,
+    pub course_material_ai_instructions: Option<bool>,
 }
 
 pub async fn update_course(
@@ -803,8 +849,10 @@ SET name = $1,
   closed_at = $11,
   closed_additional_message = $12,
   closed_course_successor_id = $13,
-  chapter_locking_enabled = $14
-WHERE id = $15
+  chapter_locking_enabled = $14,
+  ai_policy = $15,
+  course_material_ai_instructions = $16
+WHERE id = $17
   AND deleted_at IS NULL
 RETURNING id,
   name,
@@ -832,7 +880,9 @@ RETURNING id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
     "#,
         course_update.name,
         course_update.description,
@@ -848,6 +898,8 @@ RETURNING id,
         course_update.closed_additional_message,
         course_update.closed_course_successor_id,
         course_update.chapter_locking_enabled,
+        course_update.ai_policy as CourseAiPolicy,
+        course_update.course_material_ai_instructions,
         course_id
     )
     .fetch_one(conn)
@@ -932,7 +984,9 @@ RETURNING id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
     "#,
         course_id
     )
@@ -944,7 +998,7 @@ RETURNING id,
 pub async fn get_course_by_slug(conn: &mut PgConnection, course_slug: &str) -> ModelResult<Course> {
     let course = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   name,
   created_at,
@@ -971,11 +1025,13 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE slug = $1
   AND deleted_at IS NULL
-",
+"#,
         course_slug,
     )
     .fetch_one(conn)
@@ -1042,7 +1098,7 @@ pub(crate) async fn get_by_ids(
 ) -> ModelResult<Vec<Course>> {
     let courses = sqlx::query_as!(
         Course,
-        "
+        r#"
 SELECT id,
   name,
   created_at,
@@ -1069,11 +1125,13 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE id IN (SELECT * FROM UNNEST($1::uuid[]))
   AND deleted_at IS NULL
-        ",
+        "#,
         course_ids
     )
     .fetch_all(conn)
@@ -1114,7 +1172,9 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE organization_id = $1
   AND deleted_at IS NULL
@@ -1179,7 +1239,9 @@ SELECT id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy AS "ai_policy: CourseAiPolicy",
+  course_material_ai_instructions
 FROM courses
 WHERE join_code = $1
   AND deleted_at IS NULL;
@@ -1302,6 +1364,75 @@ mod test {
                 flagged_answers_threshold: Some(3),
                 can_add_chatbot: false,
             }
+        }
+    }
+
+    mod ai_policy {
+        use super::*;
+
+        #[tokio::test]
+        async fn update_course_round_trips_ai_policy_fields() {
+            insert_data!(:tx, user: _user, :org);
+            let course_language_group_id = course_language_groups::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("a1b2c3d4-0000-0000-0000-000000000001").unwrap()),
+                "test-clg-ai-policy",
+            )
+            .await
+            .unwrap();
+            let new_course = NewCourse {
+                name: "AI policy course".to_string(),
+                slug: "ai-policy-course".to_string(),
+                organization_id: org,
+                language_code: "en-US".to_string(),
+                teacher_in_charge_name: "teacher".to_string(),
+                teacher_in_charge_email: "teacher@example.com".to_string(),
+                description: "description".to_string(),
+                is_draft: false,
+                is_test_mode: false,
+                is_unlisted: false,
+                copy_user_permissions: false,
+                is_joinable_by_code_only: false,
+                join_code: None,
+                ask_marketing_consent: false,
+                flagged_answers_threshold: Some(3),
+                can_add_chatbot: false,
+            };
+            let course_id = courses::insert(
+                tx.as_mut(),
+                PKeyPolicy::Fixed(Uuid::parse_str("a1b2c3d4-0000-0000-0000-000000000002").unwrap()),
+                course_language_group_id,
+                &new_course,
+            )
+            .await
+            .unwrap();
+
+            // New courses default to the generic notice (NotSet / Unknown).
+            let created = courses::get_course(tx.as_mut(), course_id).await.unwrap();
+            assert_eq!(created.ai_policy, CourseAiPolicy::NotSet);
+            assert_eq!(created.course_material_ai_instructions, None);
+
+            // A teacher selects a policy and indicates the material has its own AI instructions.
+            let updated = courses::update_course(
+                tx.as_mut(),
+                course_id,
+                CourseUpdate {
+                    name: created.name.clone(),
+                    flagged_answers_threshold: 3,
+                    ai_policy: CourseAiPolicy::Limited,
+                    course_material_ai_instructions: Some(true),
+                    ..Default::default()
+                },
+            )
+            .await
+            .unwrap();
+            assert_eq!(updated.ai_policy, CourseAiPolicy::Limited);
+            assert_eq!(updated.course_material_ai_instructions, Some(true));
+
+            // The change is persisted for subsequent reads (which feed the student dialog).
+            let reread = courses::get_course(tx.as_mut(), course_id).await.unwrap();
+            assert_eq!(reread.ai_policy, CourseAiPolicy::Limited);
+            assert_eq!(reread.course_material_ai_instructions, Some(true));
         }
     }
 }

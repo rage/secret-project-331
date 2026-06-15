@@ -24,18 +24,16 @@ import type {
   AddTeacherGradingForExamSubmissionResponses,
   AdvanceCourseDesignerStageData,
   AdvanceCourseDesignerStageResponses,
-  ApproveCourseSuspectedCheaterData,
-  ApproveCourseSuspectedCheaterResponses,
   ApproveOauthConsentData,
   ApproveOauthConsentResponses,
-  ArchiveCourseSuspectedCheaterData,
-  ArchiveCourseSuspectedCheaterResponses,
   AuthorizeOauthGetData,
   AuthorizeOauthPostData,
   ChangeUserPasswordData,
   ChangeUserPasswordResponses,
   ConfigureChatbotData,
   ConfigureChatbotResponses,
+  ConfirmCourseSuspectedCheaterData,
+  ConfirmCourseSuspectedCheaterResponses,
   CreateChapterData,
   CreateChapterResponses,
   CreateCodeGiveawayData,
@@ -128,6 +126,8 @@ import type {
   DeletePlaygroundExampleResponses,
   DenyOauthConsentData,
   DenyOauthConsentResponses,
+  DismissCourseSuspectedCheaterData,
+  DismissCourseSuspectedCheaterResponses,
   DownloadCodeGiveawayCodesCsvData,
   DownloadCodeGiveawayCodesCsvResponses,
   DuplicateExamData,
@@ -232,6 +232,8 @@ import type {
   GetCourseFeedbackCountResponses,
   GetCourseFeedbackData,
   GetCourseFeedbackResponses,
+  GetCourseFlaggedSuspectedCheatersCountData,
+  GetCourseFlaggedSuspectedCheatersCountResponses,
   GetCourseGlossaryData,
   GetCourseGlossaryErrors,
   GetCourseGlossaryResponses,
@@ -697,6 +699,7 @@ import {
   zGetCourseExerciseStatusesForUserResponse,
   zGetCourseFeedbackCountResponse,
   zGetCourseFeedbackResponse,
+  zGetCourseFlaggedSuspectedCheatersCountResponse,
   zGetCourseGlossaryResponse,
   zGetCourseInstanceCompletionsResponse,
   zGetCourseInstanceDefaultCertificateConfigurationsResponse,
@@ -728,6 +731,7 @@ import {
   zGetCourseStudentsUsersResponse,
   zGetCourseSubmissionCountsByExerciseResponse,
   zGetCourseSuspectedCheatersResponse,
+  zGetCourseThresholdsResponse,
   zGetCourseUsersCountsByExerciseResponse,
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
@@ -3847,7 +3851,7 @@ export const getCourseSubmissionCountsByExercise = <ThrowOnError extends boolean
 
 /**
  *
- * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.
+ * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?status=Flagged - returns the suspected cheaters in the given review state for a course.
  */
 export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseSuspectedCheatersData, ThrowOnError>,
@@ -3866,37 +3870,57 @@ export const getCourseSuspectedCheaters = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.
  */
-export const approveCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
-  options: Options<ApproveCourseSuspectedCheaterData, ThrowOnError>,
-): RequestResult<ApproveCourseSuspectedCheaterResponses, unknown, ThrowOnError, "data"> =>
+export const confirmCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
+  options: Options<ConfirmCourseSuspectedCheaterData, ThrowOnError>,
+): RequestResult<ConfirmCourseSuspectedCheaterResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<
-    ApproveCourseSuspectedCheaterResponses,
+    ConfirmCourseSuspectedCheaterResponses,
     unknown,
     ThrowOnError,
     "data"
   >({
     responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}",
+    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{user_id}",
     ...options,
   })
 
 /**
  *
- * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.
+ * POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').
  */
-export const archiveCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
-  options: Options<ArchiveCourseSuspectedCheaterData, ThrowOnError>,
-): RequestResult<ArchiveCourseSuspectedCheaterResponses, unknown, ThrowOnError, "data"> =>
+export const dismissCourseSuspectedCheater = <ThrowOnError extends boolean = true>(
+  options: Options<DismissCourseSuspectedCheaterData, ThrowOnError>,
+): RequestResult<DismissCourseSuspectedCheaterResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<
-    ArchiveCourseSuspectedCheaterResponses,
+    DismissCourseSuspectedCheaterResponses,
     unknown,
     ThrowOnError,
     "data"
   >({
     responseStyle: "data",
-    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}",
+    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{user_id}",
+    ...options,
+  })
+
+/**
+ *
+ * GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/flagged-count - number of suspected cheaters awaiting review (status flagged). Used to show a review notification to teachers.
+ */
+export const getCourseFlaggedSuspectedCheatersCount = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseFlaggedSuspectedCheatersCountData, ThrowOnError>,
+): RequestResult<GetCourseFlaggedSuspectedCheatersCountResponses, unknown, ThrowOnError, "data"> =>
+  (options.client ?? client).get<
+    GetCourseFlaggedSuspectedCheatersCountResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) =>
+      await zGetCourseFlaggedSuspectedCheatersCountResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/flagged-count",
     ...options,
   })
 
@@ -3952,6 +3976,7 @@ export const getCourseThresholds = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseThresholdsData, ThrowOnError>,
 ): RequestResult<GetCourseThresholdsResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCourseThresholdsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseThresholdsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/thresholds",
     ...options,

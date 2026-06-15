@@ -365,6 +365,7 @@ export const zCourse = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   can_add_chatbot: z.boolean(),
   chapter_locking_enabled: z.boolean(),
+  cheater_detection_enabled: z.boolean(),
   closed_additional_message: z.string().nullish(),
   closed_at: z.iso.datetime().nullish(),
   closed_course_successor_id: z.uuid().nullish(),
@@ -691,6 +692,28 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
   prerequisite_modules_completed: z.boolean(),
   registered: z.boolean(),
   user_id: z.uuid(),
+})
+
+/**
+ * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+ * render and validate the threshold form. Computed server-side so the exemption rule and the
+ * minimum/default values live in one place instead of being duplicated in the frontend.
+ */
+export const zCourseModuleThresholdInfo = z.object({
+  configured_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_module_id: z.uuid(),
+  default_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  minimum_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zCourseUpdate = z.object({
@@ -2249,12 +2272,17 @@ export const zStudentsByCountryTotalsResult = z.object({
   country: z.string().nullish(),
 })
 
+/**
+ * Review state of a suspected cheater.
+ */
+export const zSuspectedCheaterStatus = z.enum(["Flagged", "ConfirmedCheating", "Dismissed"])
+
 export const zSuspectedCheaters = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
-  is_archived: z.boolean().nullish(),
+  status: zSuspectedCheaterStatus,
   total_duration_seconds: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -4228,7 +4256,7 @@ export const zGetCourseSuspectedCheatersPath = z.object({
 })
 
 export const zGetCourseSuspectedCheatersQuery = z.object({
-  archive: z.boolean(),
+  status: zSuspectedCheaterStatus,
 })
 
 /**
@@ -4236,15 +4264,31 @@ export const zGetCourseSuspectedCheatersQuery = z.object({
  */
 export const zGetCourseSuspectedCheatersResponse = z.array(zSuspectedCheaters)
 
-export const zApproveCourseSuspectedCheaterPath = z.object({
+export const zConfirmCourseSuspectedCheaterPath = z.object({
   course_id: z.uuid(),
-  id: z.uuid(),
+  user_id: z.uuid(),
 })
 
-export const zArchiveCourseSuspectedCheaterPath = z.object({
+export const zDismissCourseSuspectedCheaterPath = z.object({
   course_id: z.uuid(),
-  id: z.uuid(),
+  user_id: z.uuid(),
 })
+
+export const zGetCourseFlaggedSuspectedCheatersCountPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Number of suspected cheaters awaiting review
+ */
+export const zGetCourseFlaggedSuspectedCheatersCountResponse = z.coerce
+  .bigint()
+  .min(BigInt("-9223372036854775808"), {
+    error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+  })
+  .max(BigInt("9223372036854775807"), {
+    error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+  })
 
 export const zResetCourseProgressForEveryonePath = z.object({
   course_id: z.uuid(),
@@ -4267,6 +4311,11 @@ export const zResetCourseProgressForTeacherThemselvesResponse = z.boolean()
 export const zGetCourseThresholdsPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * Course thresholds
+ */
+export const zGetCourseThresholdsResponse = z.array(zCourseModuleThresholdInfo)
 
 export const zUpdateCoursePeerReviewQueueReviewsReceivedPath = z.object({
   course_id: z.uuid(),

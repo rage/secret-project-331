@@ -518,6 +518,7 @@ export type Course = {
   base_module_completion_requires_n_submodule_completions: number
   can_add_chatbot: boolean
   chapter_locking_enabled: boolean
+  cheater_detection_enabled: boolean
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
@@ -841,6 +842,29 @@ export type CourseModuleCompletionWithRegistrationInfo = {
    * ID of the user for the completion.
    */
   user_id: string
+}
+
+/**
+ * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+ * render and validate the threshold form. Computed server-side so the exemption rule and the
+ * minimum/default values live in one place instead of being duplicated in the frontend.
+ */
+export type CourseModuleThresholdInfo = {
+  /**
+   * The explicitly configured threshold in seconds, or `None` when the module has no threshold
+   * row and [`Self::default_duration_seconds`] applies.
+   */
+  configured_duration_seconds?: number | null
+  course_module_id: string
+  /**
+   * The threshold applied when none is configured.
+   */
+  default_duration_seconds: number
+  /**
+   * The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,
+   * otherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`].
+   */
+  minimum_duration_seconds: number
 }
 
 export type CourseStructure = {
@@ -2057,12 +2081,17 @@ export type StudentsByCountryTotalsResult = {
   country?: string | null
 }
 
+/**
+ * Review state of a suspected cheater.
+ */
+export type SuspectedCheaterStatus = "Flagged" | "ConfirmedCheating" | "Dismissed"
+
 export type SuspectedCheaters = {
   course_id: string
   created_at: string
   deleted_at?: string | null
   id: string
-  is_archived?: boolean | null
+  status: SuspectedCheaterStatus
   total_duration_seconds?: number | null
   total_points: number
   updated_at?: string | null
@@ -5804,9 +5833,9 @@ export type GetCourseSuspectedCheatersData = {
   }
   query: {
     /**
-     * Whether to fetch archived suspected cheaters
+     * Which review state of suspected cheaters to fetch
      */
-    archive: boolean
+    status: SuspectedCheaterStatus
   }
   url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters"
 }
@@ -5821,7 +5850,7 @@ export type GetCourseSuspectedCheatersResponses = {
 export type GetCourseSuspectedCheatersResponse =
   GetCourseSuspectedCheatersResponses[keyof GetCourseSuspectedCheatersResponses]
 
-export type ApproveCourseSuspectedCheaterData = {
+export type ConfirmCourseSuspectedCheaterData = {
   body?: never
   path: {
     /**
@@ -5829,22 +5858,22 @@ export type ApproveCourseSuspectedCheaterData = {
      */
     course_id: string
     /**
-     * Suspected cheater user id
+     * Suspected cheater's user id
      */
-    id: string
+    user_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}"
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{user_id}"
 }
 
-export type ApproveCourseSuspectedCheaterResponses = {
+export type ConfirmCourseSuspectedCheaterResponses = {
   /**
-   * Suspected cheater approved
+   * Cheating confirmed
    */
   200: unknown
 }
 
-export type ArchiveCourseSuspectedCheaterData = {
+export type DismissCourseSuspectedCheaterData = {
   body?: never
   path: {
     /**
@@ -5852,20 +5881,42 @@ export type ArchiveCourseSuspectedCheaterData = {
      */
     course_id: string
     /**
-     * Suspected cheater user id
+     * Suspected cheater's user id
      */
-    id: string
+    user_id: string
   }
   query?: never
-  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}"
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{user_id}"
 }
 
-export type ArchiveCourseSuspectedCheaterResponses = {
+export type DismissCourseSuspectedCheaterResponses = {
   /**
-   * Suspected cheater archived
+   * Suspicion dismissed
    */
   200: unknown
 }
+
+export type GetCourseFlaggedSuspectedCheatersCountData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/flagged-count"
+}
+
+export type GetCourseFlaggedSuspectedCheatersCountResponses = {
+  /**
+   * Number of suspected cheaters awaiting review
+   */
+  200: number
+}
+
+export type GetCourseFlaggedSuspectedCheatersCountResponse =
+  GetCourseFlaggedSuspectedCheatersCountResponses[keyof GetCourseFlaggedSuspectedCheatersCountResponses]
 
 export type ResetCourseProgressForEveryoneData = {
   body?: never
@@ -5927,8 +5978,11 @@ export type GetCourseThresholdsResponses = {
   /**
    * Course thresholds
    */
-  200: unknown
+  200: Array<CourseModuleThresholdInfo>
 }
+
+export type GetCourseThresholdsResponse =
+  GetCourseThresholdsResponses[keyof GetCourseThresholdsResponses]
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
   body?: never

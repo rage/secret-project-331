@@ -23,6 +23,7 @@ type DialogBase = {
 
 type AlertDialogType = DialogBase & {
   type: "alert"
+  okButtonLabel?: string
   resolve: () => void
 }
 
@@ -70,6 +71,10 @@ type ConfirmDialogOptions = {
   noButtonLabel?: string
 }
 
+type AlertDialogOptions = {
+  okButtonLabel?: string
+}
+
 type ConfirmDialogControls = {
   setConfirmDisabled: (disabled: boolean) => void
 }
@@ -78,7 +83,11 @@ const ConfirmDialogControlsContext = createContext<ConfirmDialogControls | undef
 
 const DialogContext = createContext<
   | {
-      alert: (message: React.ReactNode, title?: string) => Promise<void>
+      alert: (
+        message: React.ReactNode,
+        title?: string,
+        options?: AlertDialogOptions,
+      ) => Promise<void>
       confirm: (
         message: React.ReactNode,
         title?: string,
@@ -119,9 +128,15 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   }, [])
 
   const alert = useCallback(
-    (message: React.ReactNode, title?: string): Promise<void> => {
+    (message: React.ReactNode, title?: string, options?: AlertDialogOptions): Promise<void> => {
       return new Promise((resolve) => {
-        pushDialog({ type: "alert", title, message, resolve })
+        pushDialog({
+          type: "alert",
+          title,
+          message,
+          resolve,
+          okButtonLabel: options?.okButtonLabel,
+        })
       })
     },
     [pushDialog],
@@ -171,6 +186,7 @@ export const DialogProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 open
                 title={dialog.title ?? t("dialog-title-alert")}
                 message={dialog.message}
+                okButtonLabel={dialog.okButtonLabel}
                 onClose={() => {
                   dialog.resolve()
                   removeDialog(dialog.id)

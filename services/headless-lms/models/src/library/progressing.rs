@@ -629,11 +629,18 @@ pub async fn add_manual_completions(
                     .try_into()?,
             )
             .await?;
+        }
 
-            // Adding a manual completion vouches for the student, so any cheating suspicion for this
-            // course (flagged or confirmed) is cleared and any grade a confirmation had failed is
-            // restored. The existence check is needed because `dismiss_...` errors when no row exists.
-            if suspected_cheaters::get_by_user_id_and_course_id(
+        // Granting a *passing* manual completion vouches for the student, so any cheating suspicion
+        // for this course (flagged or confirmed) is cleared and any grade a confirmation had failed
+        // is restored. This runs regardless of `skip_duplicate_completions` (a teacher vouching for
+        // an already-completed student should still clear the flag), and only for a passing grade,
+        // so that manually FAILING a student does not exonerate them. `granting_passing_completion`
+        // mirrors the `passed` value used in the insert above. The existence check is needed because
+        // `dismiss_...` errors when no suspicion row exists.
+        let granting_passing_completion = completion.grade != Some(0) && completion.passed;
+        if granting_passing_completion
+            && suspected_cheaters::get_by_user_id_and_course_id(
                 &mut tx,
                 completion.user_id,
                 course.id,
@@ -641,14 +648,13 @@ pub async fn add_manual_completions(
             .await
             .optional()?
             .is_some()
-            {
-                suspected_cheaters::dismiss_by_user_id_and_course_id(
-                    &mut tx,
-                    completion.user_id,
-                    course.id,
-                )
-                .await?;
-            }
+        {
+            suspected_cheaters::dismiss_by_user_id_and_course_id(
+                &mut tx,
+                completion.user_id,
+                course.id,
+            )
+            .await?;
         }
     }
     tx.commit().await?;

@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { signUp } from "@/utils/flows/signup.flow"
+import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 /**
  * The AI-usage / academic-integrity notice is shown once per user per course, right after the user
@@ -68,8 +69,9 @@ test("AI-usage notice adapts to the teacher-selected policy", async ({ browser, 
       const dialog = teacherPage.getByLabel("Edit course")
       await dialog.getByRole("radio", { name: "Yes", exact: true }).check()
       await dialog.getByRole("radio", { name: "Limited:" }).check()
-      await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
-      await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
+      })
     })
 
     await test.step("A fresh student sees the adapted notice and no guidelines link", async () => {
@@ -99,8 +101,9 @@ test("AI-usage notice adapts to the teacher-selected policy", async ({ browser, 
       const dialog = teacherPage.getByLabel("Edit course")
       await dialog.getByRole("radio", { name: "Unknown", exact: true }).check()
       await dialog.getByRole("radio", { name: "Not set" }).check()
-      await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
-      await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
+      await waitForSuccessNotification(teacherPage, async () => {
+        await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
+      })
     })
 
     await teacherContext.close()

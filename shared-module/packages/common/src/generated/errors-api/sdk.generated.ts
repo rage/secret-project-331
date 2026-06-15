@@ -3,7 +3,7 @@
 //
 // Since this file is auto-generated, any changes you make to it will be overwritten by the next run of bin/generate-bindings.
 
-import type { Client, Options as Options2, TDataShape } from "./client"
+import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from "./client"
 import { client } from "./client.generated"
 import type { PostErrorData, PostErrorResponses } from "./types.generated"
 import { zPostErrorResponse } from "./zod.generated"
@@ -23,7 +23,7 @@ export type Options<
    * You can pass arbitrary values through the `meta` object. This can be
    * used to access values that aren't defined as part of the SDK function.
    */
-  meta?: Record<string, unknown>
+  meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
 
 /**
@@ -34,7 +34,7 @@ export type Options<
  */
 export const postError = <ThrowOnError extends boolean = true>(
   options: Options<PostErrorData, ThrowOnError>,
-) =>
+): RequestResult<PostErrorResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<PostErrorResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zPostErrorResponse.parseAsync(data),
     responseStyle: "data",

@@ -19,6 +19,7 @@ use headless_lms_models::chatbot_conversation_message_messages::{
 use headless_lms_models::chatbot_conversation_messages::{
     self, ChatbotConversationMessage, Message,
 };
+use headless_lms_utils::utoipa::DiscriminatorAddon;
 use pin_project::pin_project;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -28,7 +29,7 @@ use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use tracing::trace;
 use url::Url;
-use utoipa::ToSchema;
+use utoipa::{OpenApi, ToSchema};
 
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
@@ -510,8 +511,9 @@ pub struct ChatResponse {
     pub text: String,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema, OpenApi)]
 #[serde(tag = "type", content = "data")]
+#[openapi(modifiers(&DiscriminatorAddon))]
 pub enum ChatbotChatStreamEvent {
     Delta {
         text: String,

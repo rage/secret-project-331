@@ -72,21 +72,11 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
     margin: 0;
   `
 
-  // When the course material has its own AI instructions (true), students are pointed to those and
-  // the general university-guidelines link is omitted. Otherwise (false / unknown) the link is shown.
-  const showGuidelinesLink = courseMaterialAiInstructions !== true
+  // When the course material has its own AI instructions, students are pointed to those and the
+  // general university-guidelines link is omitted. (false / unknown -> the link is shown.)
+  const materialHasOwnInstructions = courseMaterialAiInstructions === true
 
-  // Whether any guidelines link is actually rendered: always in the default message, and in the
-  // adapted message only when the course material has no instructions of its own. The agree
-  // checkbox only mentions "the linked guidelines" when such a link is present.
-  const guidelinesLinkShown = aiPolicy === "NotSet" || showGuidelinesLink
-
-  // The manual-review apology fits policies that restrict AI, but reads oddly where AI use is
-  // encouraged, so it is hidden for the permissive policies.
-  const showStaffReviewNote = aiPolicy !== "FullUse" && aiPolicy !== "Required"
-
-  // The paragraph describing the teacher-selected policy. Only used when a policy is set; when it is
-  // `NotSet` the dialog shows the generic default message instead.
+  // The paragraph describing the teacher-selected policy, or null when no specific policy applies.
   const policyParagraph = (): string | null => {
     switch (aiPolicy) {
       case "NoAi":
@@ -103,6 +93,21 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
         return null
     }
   }
+  const policyText = policyParagraph()
+
+  // Fall back to the generic default notice whenever there is no specific policy paragraph. This
+  // covers `NotSet` and any unrecognised/future policy value, so the notice is never left without
+  // its core academic-integrity message.
+  const showsDefaultMessage = policyText === null
+
+  // A guidelines link is rendered in the default message, and in the adapted message only when the
+  // course material has no instructions of its own. Drives the agree-checkbox wording (the checkbox
+  // only mentions "the linked guidelines" when such a link is present).
+  const aGuidelinesLinkIsShown = showsDefaultMessage || !materialHasOwnInstructions
+
+  // The manual-review apology fits policies that restrict AI, but reads oddly where AI use is
+  // encouraged, so it is hidden for the permissive policies.
+  const showStaffReviewNote = aiPolicy !== "FullUse" && aiPolicy !== "Required"
 
   const acknowledgeMutation = useToastMutation<void, unknown, void>(
     async () => {
@@ -134,7 +139,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
         {acknowledgeMutation.isError && (
           <ErrorBanner variant={"readOnly"} error={acknowledgeMutation.error} />
         )}
-        {aiPolicy === "NotSet" ? (
+        {showsDefaultMessage ? (
           <p className={paragraphStyle}>
             <Trans
               t={t}
@@ -146,8 +151,11 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
           </p>
         ) : (
           <>
-            <p className={paragraphStyle}>{policyParagraph()}</p>
-            {showGuidelinesLink ? (
+            <p className={paragraphStyle}>{policyText}</p>
+            {materialHasOwnInstructions ? (
+              // The course material holds the exact policy; point students to it.
+              <p className={paragraphStyle}>{t("ai-usage-notice-see-course-instructions")}</p>
+            ) : (
               <p className={paragraphStyle}>
                 <Trans
                   t={t}
@@ -157,9 +165,6 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
                   }}
                 />
               </p>
-            ) : (
-              // The course material holds the exact policy; point students to it.
-              <p className={paragraphStyle}>{t("ai-usage-notice-see-course-instructions")}</p>
             )}
           </>
         )}
@@ -178,7 +183,7 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
             name="agreed"
             control={control}
             label={
-              guidelinesLinkShown
+              aGuidelinesLinkIsShown
                 ? t("ai-usage-notice-agree-checkbox")
                 : t("ai-usage-notice-agree-checkbox-no-link")
             }

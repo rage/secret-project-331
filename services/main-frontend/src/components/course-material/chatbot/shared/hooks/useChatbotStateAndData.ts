@@ -26,6 +26,7 @@ export type MessageAction =
   | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
   | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
   | { type: "SET_STATUS"; payload: ChatbotChatStreamEvent | null }
+  | { type: "SET_STATUS_EVENT_FINISHED"; payload: boolean }
   | { type: "RESET_MESSAGES" }
 
 const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
@@ -36,6 +37,25 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
       return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
     case "SET_STATUS":
       return { ...state, responseStatus: action.payload }
+    case "SET_STATUS_EVENT_FINISHED":
+      if (
+        state.responseStatus &&
+        "data" in state.responseStatus &&
+        "finished" in state.responseStatus.data &&
+        (state.responseStatus.type === "Reasoning" || state.responseStatus.type === "ToolCall")
+      ) {
+        const responseStatus = state.responseStatus
+        const responseStatusData = state.responseStatus.data satisfies { finished: boolean }
+        return {
+          ...state,
+          responseStatus: {
+            type: responseStatus.type,
+            data: { ...responseStatusData, finished: action.payload },
+          },
+        }
+      } else {
+        return state
+      }
     case "RESET_MESSAGES":
       return { optimisticMessage: null, streamingMessage: null, responseStatus: null }
     default:
@@ -127,7 +147,25 @@ const useChatbotStateAndData = (
               if (parsedValue.type === "Delta") {
                 dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.data.text })
               } else if (parsedValue.type === "Reasoning" || parsedValue.type === "ToolCall") {
-                const payload = parsedValue.data.finished ? null : parsedValue
+                // todo!
+                let payload: ChatbotChatStreamEvent = parsedValue
+                if (parsedValue.data.finished) {
+                  if (messageState.responseStatus) {
+                    // ugly repetitive code to make the typescript compiler understand
+                    // that this typing is valid
+                    if (messageState.responseStatus.type === "Reasoning") {
+                      let data = messageState.responseStatus.data
+                      let type = messageState.responseStatus.type
+                      data.finished = true
+                      payload = { data, type }
+                    } else if (messageState.responseStatus.type === "ToolCall") {
+                      let data = messageState.responseStatus.data
+                      let type = messageState.responseStatus.type
+                      data.finished = true
+                      payload = { data, type }
+                    }
+                  }
+                }
                 dispatch({ type: "SET_STATUS", payload })
               }
             } catch (e) {

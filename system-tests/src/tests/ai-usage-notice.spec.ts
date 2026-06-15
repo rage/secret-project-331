@@ -67,7 +67,7 @@ test("AI-usage notice adapts to the teacher-selected policy", async ({ browser, 
       await teacherPage.getByRole("button", { name: "Edit", exact: true }).click()
       const dialog = teacherPage.getByLabel("Edit course")
       await dialog.getByRole("radio", { name: "Yes", exact: true }).check()
-      await dialog.getByRole("radio", { name: "Limited / collaboration" }).check()
+      await dialog.getByRole("radio", { name: "Limited:" }).check()
       await teacherPage.getByRole("button", { name: "Update", exact: true }).click()
       await expect(teacherPage.getByText("Success", { exact: true })).toBeVisible()
     })

@@ -51,6 +51,15 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 `
 
+// pnpm does not run dependencies' build scripts unless they are allow-listed. The generated
+// Next.js project needs esbuild and sharp built; without this, `pnpm install` warns and exits
+// non-zero. The monorepo configures this in its own pnpm-workspace.yaml (excluded from the copy),
+// so we write a minimal standalone one. npm and yarn ignore this file.
+const STANDALONE_PNPM_WORKSPACE = `allowBuilds:
+  esbuild: true
+  sharp: true
+`
+
 interface PackageJson {
   name?: string
   version?: string
@@ -203,6 +212,10 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
 
   // Standalone .editorconfig (the template's delegates to the monorepo root).
   await writeFile(join(projectPath, ".editorconfig"), STANDALONE_EDITORCONFIG)
+
+  // Standalone pnpm-workspace.yaml (the template's is excluded from the copy). Allows the build
+  // scripts the generated project needs so `pnpm install` succeeds.
+  await writeFile(join(projectPath, "pnpm-workspace.yaml"), STANDALONE_PNPM_WORKSPACE)
 
   // Track the vendored shared-module snapshot instead of ignoring it (it is real source now).
   const gitignorePath = join(projectPath, ".gitignore")

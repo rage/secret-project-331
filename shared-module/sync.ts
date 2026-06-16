@@ -286,7 +286,8 @@ async function cleanUpFolders() {
       const files = await readdir(fullPathToDestination)
       // Only the sources actually synced to THIS destination are allowed; with per-source
       // destinations a protocol-only target (e.g. system-tests) must treat the React packages as
-      // stray and wipe them. Anything else (e.g. a stale `exercise-plugins`) is also cleaned up.
+      // stray and wipe them. Any other leftover (e.g. a package left behind after a rename) is
+      // also cleaned up.
       const allowedFiles = SYNC_TARGETS.filter((syncTarget) =>
         syncTarget.destinations.includes(target),
       ).map((syncTarget) => syncTarget.source)

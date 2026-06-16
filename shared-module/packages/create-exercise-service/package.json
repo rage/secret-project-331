@@ -14,7 +14,8 @@
     }
   },
   "scripts": {
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.0"

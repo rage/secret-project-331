@@ -371,7 +371,7 @@
             "content": {
               "text/event-stream": {
                 "schema": {
-                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
+                  "$ref": "#/components/schemas/DiscriminatingWrapperChatbotChatStreamEvent"
                 }
               }
             }
@@ -4520,6 +4520,121 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/CustomViewExerciseTaskSubmission"
+            }
+          }
+        }
+      },
+      "DiscriminatingWrapperChatbotChatStreamEvent": {
+        "type": "object",
+        "required": ["inner"],
+        "properties": {
+          "inner": {
+            "oneOf": [
+              {
+                "type": "object",
+                "required": ["data", "type"],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": ["text"],
+                    "properties": {
+                      "text": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["Delta"]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["data", "type"],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": ["finished"],
+                    "properties": {
+                      "finished": {
+                        "type": "boolean"
+                      }
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["Reasoning"]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["data", "type"],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": ["tool_name", "arguments", "finished"],
+                    "properties": {
+                      "arguments": {
+                        "type": "string"
+                      },
+                      "finished": {
+                        "type": "boolean"
+                      },
+                      "tool_name": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["ToolCall"]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["Done"]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["data", "type"],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "required": ["message"],
+                    "properties": {
+                      "message": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": ["Error"]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "required": ["type"],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["None"]
+                  }
+                }
+              }
+            ],
+            "discriminator": {
+              "propertyName": "type"
             }
           }
         }

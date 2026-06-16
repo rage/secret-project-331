@@ -21,7 +21,6 @@ pub mod strings;
 pub mod tmc;
 pub mod url_encoding;
 pub mod url_to_oembed_endpoint;
-pub mod utoipa;
 
 #[macro_use]
 extern crate tracing;

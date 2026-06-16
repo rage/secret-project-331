@@ -2,7 +2,8 @@ use actix_web::http::header::ContentType;
 use chrono::Utc;
 
 use headless_lms_chatbot::azure_chatbot::{
-    ChatbotChatStreamEvent, ChatbotUserContext, send_chat_request_and_parse_stream,
+    ChatbotChatStreamEvent, ChatbotUserContext, DiscriminatingWrapper,
+    send_chat_request_and_parse_stream,
 };
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
@@ -65,6 +66,8 @@ async fn get_default_chatbot_configuration_for_course(
     token.authorized_ok(web::Json(res))
 }
 
+type DiscriminatingChatbotChatStreamEvent = DiscriminatingWrapper<ChatbotChatStreamEvent>;
+
 /**
 POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`
 
@@ -87,7 +90,7 @@ Sends a new chat message to the chatbot.
         (
             status = 200,
             description = "Chatbot response stream",
-            body = ChatbotChatStreamEvent,
+            body = DiscriminatingChatbotChatStreamEvent,
             content_type = "text/event-stream"
         )
     )

@@ -37,7 +37,6 @@ export function postCurrentStateMessage(
 ): void {
   const message: CurrentStateMessage = {
     data: wrapper ? { [wrapper]: nextState } : nextState,
-    // eslint-disable-next-line i18next/no-literal-string
     message: "current-state",
     valid,
   }

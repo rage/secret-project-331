@@ -490,6 +490,8 @@ impl CourseBuilder {
                 closed_additional_message: course.closed_additional_message.clone(),
                 closed_course_successor_id: course.closed_course_successor_id,
                 chapter_locking_enabled: self.chapter_locking_enabled,
+                ai_policy: course.ai_policy,
+                course_material_ai_instructions: course.course_material_ai_instructions,
             };
             let updated_course = courses::update_course(conn, course.id, course_update)
                 .await

@@ -544,6 +544,33 @@ WHERE course_module_id = $1
     Ok(res)
 }
 
+/// True if the user has at least one non-deleted, teacher-granted (manual) completion in the
+/// course. A manual completion means a teacher vouched for the student, which exempts them from
+/// automatic cheating suspicion for the whole course.
+pub async fn user_has_manual_completion_in_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        r#"
+SELECT EXISTS (
+  SELECT 1
+  FROM course_module_completions
+  WHERE user_id = $1
+    AND course_id = $2
+    AND completion_granter_user_id IS NOT NULL
+    AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        user_id,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.exists)
+}
+
 pub async fn update_completion_registration_attempt_date(
     conn: &mut PgConnection,
     id: Uuid,

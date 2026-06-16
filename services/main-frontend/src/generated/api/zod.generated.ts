@@ -357,7 +357,21 @@ export const zCountResult = z.object({
   period: z.iso.datetime().nullish(),
 })
 
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export const zCourseAiPolicy = z.enum([
+  "NotSet",
+  "NoAi",
+  "PlanningOnly",
+  "Limited",
+  "FullUse",
+  "Required",
+])
+
 export const zCourse = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   base_module_completion_requires_n_submodule_completions: z
     .int()
@@ -372,6 +386,7 @@ export const zCourse = z.object({
   content_search_language: z.string().nullish(),
   copied_from: z.uuid().nullish(),
   course_language_group_id: z.uuid(),
+  course_material_ai_instructions: z.boolean().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   description: z.string().nullish(),
@@ -717,12 +732,14 @@ export const zCourseModuleThresholdInfo = z.object({
 })
 
 export const zCourseUpdate = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   can_add_chatbot: z.boolean(),
   chapter_locking_enabled: z.boolean(),
   closed_additional_message: z.string().nullish(),
   closed_at: z.iso.datetime().nullish(),
   closed_course_successor_id: z.uuid().nullish(),
+  course_material_ai_instructions: z.boolean().nullish(),
   description: z.string().nullish(),
   flagged_answers_skip_manual_review_and_allow_retry: z.boolean(),
   flagged_answers_threshold: z

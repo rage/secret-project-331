@@ -1913,5 +1913,6 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion.",
   "your-code-code": "Your code is: {{code}}",
   "your-name": "Your name",
-  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect."
+  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect.",
+  "missing-uh-course-code-notification": "You need to set all of the University of Helsinki course codes to modules to generate AI description."
 }

@@ -37,6 +37,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   onClose,
 }) => {
   const { t } = useTranslation()
+
   const { error, data } = useQuery(
     getCourseMaterialSisuCourseLlmDescriptionsOptions({
       path: {
@@ -50,7 +51,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
       setValue("description", data.course_description)
     }
   }, [data])
-  console.log(course.mod)
+
   const methods = useForm<EditCourseFormValues>({
     defaultValues: {
       name: course.name,
@@ -81,8 +82,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     watch,
     setValue,
   } = methods
-
-  const draftStatus = watch("is_draft")
 
   const updateCourseMutation = useToastMutation(
     async (data: EditCourseFormValues) => {

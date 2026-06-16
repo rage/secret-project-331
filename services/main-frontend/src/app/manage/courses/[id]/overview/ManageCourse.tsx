@@ -1,12 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import {
-  QueryObserverResult,
-  RefetchOptions,
-  RefetchQueryFilters,
-  useQuery,
-} from "@tanstack/react-query"
+import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -156,7 +151,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         <p>
           <b>{t("text-field-label-description")}</b>: {course.description}
         </p>
-        <CourseDescription course={course}></CourseDescription>
+        <CourseDescription course={course} refetch={refetch}></CourseDescription>
       </div>
       <OnlyRenderIfPermissions
         action={{

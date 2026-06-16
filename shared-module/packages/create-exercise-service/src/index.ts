@@ -355,5 +355,14 @@ create-exercise-service (or copy the packages over manually) to update it.
 
 // Only run the interactive CLI when executed directly, not when imported (e.g. by tests).
 if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
-  main()
+  main().catch((error) => {
+    // @inquirer/prompts rejects with ExitPromptError when the user aborts a prompt with Ctrl+C;
+    // exit quietly instead of printing an unhandled-rejection stack trace.
+    if (error instanceof Error && error.name === "ExitPromptError") {
+      process.exitCode = 130
+      return
+    }
+    console.error(error instanceof Error ? error.message : error)
+    process.exitCode = 1
+  })
 }

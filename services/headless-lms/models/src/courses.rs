@@ -588,7 +588,8 @@ SELECT id,
   ai_policy,
   course_material_ai_instructions
 FROM courses
-WHERE id = $1;
+WHERE id = $1
+  AND deleted_at IS NULL;
     "#,
         course_id
     )
@@ -661,7 +662,8 @@ SELECT courses.id as course_id,
   organizations.name as organization_name
 FROM courses
   JOIN organizations ON (courses.organization_id = organizations.id)
-WHERE courses.id = $1;
+WHERE courses.id = $1
+  AND courses.deleted_at IS NULL;
     "#,
         course_id
     )

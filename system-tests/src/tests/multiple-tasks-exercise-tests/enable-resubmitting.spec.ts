@@ -70,7 +70,11 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await page.locator(`text=Second question.`).waitFor()
   await page.locator(`text=Third question.`).waitFor()
 
-  await page.getByRole("button", { name: "try again" }).click()
+  const tryAgainButton = page.getByRole("button", { name: "try again" })
+  // Wait for the button to render and settle before clicking; the quiz above is still
+  // re-rendering, so clicking immediately can race a shifting element.
+  await tryAgainButton.waitFor({ state: "visible" })
+  await tryAgainButton.click()
   await scrollLocatorsParentIframeToViewIfNeeded(
     page
       .frameLocator('iframe[title="Exercise 1\\, task 3 content"]')

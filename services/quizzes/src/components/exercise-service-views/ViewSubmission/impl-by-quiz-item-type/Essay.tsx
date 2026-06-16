@@ -32,7 +32,7 @@ const EssayFeedback: React.FC<
         <pre
           className={css`
             display: block;
-            font-family: Raleway, sans-serif;
+            font-family: "Inter Variable", Inter, sans-serif;
             color: #676e7b;
             font-size: 1.125rem;
             font-weight: 500;
@@ -49,7 +49,7 @@ const EssayFeedback: React.FC<
         className={css`
           display: flex;
           white-space: pre-wrap;
-          font-family: Raleway, sans-serif;
+          font-family: "Inter Variable", Inter, sans-serif;
           font-weight: 600;
           font-size: 1.125rem;
           color: #4c5868;

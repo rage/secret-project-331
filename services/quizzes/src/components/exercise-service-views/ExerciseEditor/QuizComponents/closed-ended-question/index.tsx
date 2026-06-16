@@ -17,7 +17,7 @@ import Button from "@/shared-module/common/components/Button"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { primaryFont } from "@/shared-module/common/styles"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 interface ClosedEndedQuestionEditorProps {
   quizItemId: string

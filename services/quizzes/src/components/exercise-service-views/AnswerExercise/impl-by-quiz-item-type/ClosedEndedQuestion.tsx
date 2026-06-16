@@ -73,7 +73,7 @@ const ClosedEndedQuestion: React.FC<
             label {
               font-weight: 500;
               color: #4c5868;
-              font-family: "Raleway", sans-serif;
+              font-family: "Inter Variable", Inter, sans-serif;
               font-size: 0.938rem;
               margin-bottom: 1rem;
             }

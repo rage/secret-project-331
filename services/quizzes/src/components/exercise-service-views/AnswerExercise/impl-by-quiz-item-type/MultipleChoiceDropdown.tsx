@@ -76,7 +76,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
                   font-size: ${quizTheme.quizTitleFontSize} !important;
                   font-weight: 500;
                   color: #4c5868;
-                  font-family: "Raleway", sans-serif;
+                  font-family: "Inter Variable", Inter, sans-serif;
                   margin-bottom: 1rem;
                 `}
               >

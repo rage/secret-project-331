@@ -55,7 +55,7 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
 export const QUIZ_TITLE_STYLE = `
   font-weight: 500;
   color: #4c5868;
-  font-family: "Raleway", sans-serif;
+  font-family: "Inter Variable", Inter, sans-serif;
   font-size: 1.25rem;
   margin-bottom: 1rem;
 `

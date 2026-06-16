@@ -199,7 +199,7 @@ const MatrixSubmission: React.FC<
                 margin-top: 0.563rem;
 
                 p {
-                  font-family: Raleway, sans-serif;
+                  font-family: "Inter Variable", Inter, sans-serif;
                   color: #4c5868;
                   font-weight: 500;
                   font-size: 1rem;

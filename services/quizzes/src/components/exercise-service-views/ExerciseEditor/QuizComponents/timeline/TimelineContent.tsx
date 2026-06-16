@@ -14,7 +14,7 @@ import useQuizzesExerciseServiceOutputState from "../../../../../hooks/useQuizze
 import findQuizItem from "../../utils/general"
 
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/exercise-react/styles"
 
 interface TimelineContentProps {
   quizItemId: string

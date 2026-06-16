@@ -43,7 +43,7 @@ const Scale: React.FC<
             flex: 5;
             margin: 0.5rem 0;
             color: #4c5868;
-            font-family: "Raleway", sans-serif;
+            font-family: "Inter Variable", Inter, sans-serif;
             font-size: 1.25rem;
             margin-bottom: 1rem;
             font-weight: 500;

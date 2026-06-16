@@ -1,5 +1,5 @@
-import { OpenDialogMessage } from "../exercise-service-protocol-types"
-import { isDialogResponseMessage } from "../exercise-service-protocol-types.guard"
+import { OpenDialogMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { isDialogResponseMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 
 /**
  * Options for a dialog an exercise asks the parent to show. Strings are expected to be already

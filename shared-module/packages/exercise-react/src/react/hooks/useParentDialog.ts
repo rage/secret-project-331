@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef } from "react"
 
-import { OpenDialogOptions, ParentDialogClient } from "../exercise-service-protocol/parentDialog"
+import {
+  OpenDialogOptions,
+  ParentDialogClient,
+} from "@/shared-module/exercise-client/client/parentDialog"
 
 /**
  * React hook for exercise services running inside the iframe: wraps a {@link ParentDialogClient} for

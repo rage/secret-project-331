@@ -13,10 +13,10 @@ import { getEssayPasteWarning } from "./essayPaste"
 import { QuizItemComponentProps } from "."
 
 import TextArea from "@/shared-module/common/components/InputFields/TextAreaField"
-import useParentDialog from "@/shared-module/common/hooks/useParentDialog"
 import { headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import useParentDialog from "@/shared-module/exercise-react/react/hooks/useParentDialog"
 
 export const container = css`
   font-size: 0.563rem;

@@ -484,42 +484,6 @@ export type CustomViewExerciseTasks = {
   task_submissions: Array<CustomViewExerciseTaskSubmission>
 }
 
-export type DiscriminatingWrapperChatbotChatStreamEvent = {
-  inner:
-    | {
-        data: {
-          text: string
-        }
-        type: "Delta"
-      }
-    | {
-        data: {
-          finished: boolean
-        }
-        type: "Reasoning"
-      }
-    | {
-        data: {
-          arguments: string
-          finished: boolean
-          tool_name: string
-        }
-        type: "ToolCall"
-      }
-    | {
-        type: "Done"
-      }
-    | {
-        data: {
-          message: string
-        }
-        type: "Error"
-      }
-    | {
-        type: "None"
-      }
-}
-
 export type ExamData = {
   ended: boolean
   ends_at: string
@@ -1417,7 +1381,7 @@ export type SendChatbotMessageResponses = {
   /**
    * Chatbot response stream
    */
-  200: DiscriminatingWrapperChatbotChatStreamEvent
+  200: ChatbotChatStreamEvent
 }
 
 export type SendChatbotMessageResponse =

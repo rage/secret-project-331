@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::pin::Pin;
 use std::sync::{
@@ -29,8 +28,7 @@ use tokio_stream::wrappers::LinesStream;
 use tokio_util::io::StreamReader;
 use tracing::trace;
 use url::Url;
-use utoipa::openapi::RefOr;
-use utoipa::{PartialSchema, ToSchema};
+use utoipa::ToSchema;
 
 use crate::chatbot_error::ChatbotResult;
 use crate::chatbot_tools::provider_tools::azure_ai_search::get_azure_ai_search_tool_definition;
@@ -531,94 +529,6 @@ pub enum ChatbotChatStreamEvent {
         message: String,
     },
     None,
-}
-
-#[derive(Serialize, Deserialize)]
-pub struct DiscriminatingWrapper<T: ToSchema + Serialize> {
-    inner: T,
-}
-
-impl<T: ToSchema + Serialize + for<'a> Deserialize<'a>> ToSchema for DiscriminatingWrapper<T> {
-    fn name() -> Cow<'static, str> {
-        let full_type_name = std::any::type_name::<Self>();
-        let inner_name = T::name();
-
-        let type_name_without_generic = full_type_name
-            .split_once("<")
-            .map(|(s1, _)| s1)
-            .unwrap_or(full_type_name);
-        let type_name = type_name_without_generic
-            .rsplit_once("::")
-            .map(|(_, tn)| tn)
-            .unwrap_or(type_name_without_generic);
-
-        let x = [type_name, inner_name.as_ref()].join("");
-
-        //("Discriminating".to_owned() + generic_type_name).as_str()
-        Cow::from(x)
-    }
-
-    fn schemas(
-        schemas: &mut Vec<(
-            String,
-            utoipa::openapi::RefOr<utoipa::openapi::schema::Schema>,
-        )>,
-    ) {
-        schemas.push((T::name().into(), T::schema()));
-        <T as ToSchema>::schemas(schemas);
-    }
-}
-
-impl<T: ToSchema + Serialize + for<'a> Deserialize<'a>> PartialSchema for DiscriminatingWrapper<T> {
-    fn schema() -> RefOr<utoipa::openapi::schema::Schema> {
-        use utoipa::openapi::{Discriminator, ObjectBuilder, RefOr, Schema};
-        let inner_schema: RefOr<Schema> = T::schema();
-
-        info!("Making discriminator schema");
-
-        let schema: RefOr<Schema> = match inner_schema {
-            RefOr::Ref(_) => panic!("WTF do i do with a ref"),
-            RefOr::T(schema) => {
-                // modify the schema to add a discriminator
-                match &schema {
-                    Schema::OneOf(one_of) => {
-                        let mut new_one_of = one_of.to_owned();
-                        new_one_of.discriminator = Some(Discriminator {
-                            property_name: "type".to_string(),
-                            ..Default::default()
-                        });
-                        Schema::OneOf(new_one_of)
-                    }
-                    Schema::AllOf(all_of) => {
-                        let mut new_all_of = all_of.to_owned();
-                        new_all_of.discriminator = Some(Discriminator {
-                            property_name: "type".to_string(),
-                            ..Default::default()
-                        });
-                        Schema::AllOf(new_all_of)
-                    }
-                    Schema::AnyOf(any_of) => {
-                        let mut new_any_of = any_of.to_owned();
-                        new_any_of.discriminator = Some(Discriminator {
-                            property_name: "type".to_string(),
-                            ..Default::default()
-                        });
-                        Schema::AnyOf(new_any_of)
-                    }
-                    _ => schema,
-                }
-            }
-        }
-        .into();
-
-        // create schema for this type
-        RefOr::T(Schema::Object(
-            ObjectBuilder::new()
-                .property("inner".to_string(), schema.to_owned())
-                .required("inner")
-                .build(),
-        ))
-    }
 }
 
 /// Custom stream that encapsulates both the response stream and the cancellation guard. Makes sure that the guard is always dropped when the stream is dropped.
@@ -1276,7 +1186,7 @@ pub async fn send_chat_request_and_parse_stream(
                 error!("Maximum tool call iterations exceeded");
                 let err_message = "Maximum tool call iterations exceeded. The LLM may be stuck in a loop.";
                 let err = ChatbotChatStreamEvent::Error { message: err_message.to_string() };
-                let event_string = serde_json::to_string(&DiscriminatingWrapper { inner: err})?;
+                let event_string = serde_json::to_string(&err)?;
                 yield Bytes::from(event_string);
                 yield Bytes::from("\n");
                 break 'outer Err(anyhow::anyhow!(err_message))?
@@ -1300,7 +1210,7 @@ pub async fn send_chat_request_and_parse_stream(
                         }
                         let response =  ChatbotChatStreamEvent::from(item.to_owned());
                         if response != ChatbotChatStreamEvent::None {
-                            let event_string = serde_json::to_string(&DiscriminatingWrapper{ inner: response})?;
+                            let event_string = serde_json::to_string(&response)?;
                             println!("🌟{event_string}");
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
@@ -1335,7 +1245,7 @@ pub async fn send_chat_request_and_parse_stream(
                 match val {
                     StreamEvent::Delta(delta) => {
                         let response =  ChatbotChatStreamEvent::Delta  { text: delta.clone() };
-                        let response_as_string = serde_json::to_string(&DiscriminatingWrapper { inner: response})?;
+                        let response_as_string = serde_json::to_string(&response)?;
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
                     },
@@ -1355,7 +1265,7 @@ pub async fn send_chat_request_and_parse_stream(
 
                         let response = ChatbotChatStreamEvent::from(stream_item);
                         if response != ChatbotChatStreamEvent::None {
-                            let event_string = serde_json::to_string(&DiscriminatingWrapper { inner: response})?;
+                            let event_string = serde_json::to_string(&response)?;
                             println!("🌟{event_string}");
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
@@ -1366,7 +1276,7 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     StreamEvent::Done => {
                         let event =  ChatbotChatStreamEvent::Done;
-                        let event_string = serde_json::to_string(&DiscriminatingWrapper { inner: event})?;
+                        let event_string = serde_json::to_string(&event)?;
                         yield Bytes::from(event_string);
                         yield Bytes::from("\n");
                         break 'outer;

@@ -383,43 +383,6 @@ export const zCustomViewExerciseTasks = z.object({
   task_submissions: z.array(zCustomViewExerciseTaskSubmission),
 })
 
-export const zDiscriminatingWrapperChatbotChatStreamEvent = z.object({
-  inner: z.union([
-    z.object({
-      data: z.object({
-        text: z.string(),
-      }),
-      type: z.enum(["Delta"]),
-    }),
-    z.object({
-      data: z.object({
-        finished: z.boolean(),
-      }),
-      type: z.enum(["Reasoning"]),
-    }),
-    z.object({
-      data: z.object({
-        arguments: z.string(),
-        finished: z.boolean(),
-        tool_name: z.string(),
-      }),
-      type: z.enum(["ToolCall"]),
-    }),
-    z.object({
-      type: z.enum(["Done"]),
-    }),
-    z.object({
-      data: z.object({
-        message: z.string(),
-      }),
-      type: z.enum(["Error"]),
-    }),
-    z.object({
-      type: z.enum(["None"]),
-    }),
-  ]),
-})
-
 export const zExamEnrollment = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
@@ -1455,7 +1418,7 @@ export const zSendChatbotMessagePath = z.object({
 /**
  * Chatbot response stream
  */
-export const zSendChatbotMessageResponse = zDiscriminatingWrapperChatbotChatStreamEvent
+export const zSendChatbotMessageResponse = zChatbotChatStreamEvent
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),

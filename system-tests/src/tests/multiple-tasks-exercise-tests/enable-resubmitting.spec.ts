@@ -71,9 +71,9 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await page.locator(`text=Third question.`).waitFor()
 
   const tryAgainButton = page.getByRole("button", { name: "try again" })
-  // Wait for the button to render and settle before clicking; the quiz above is still
-  // re-rendering, so clicking immediately can race a shifting element.
-  await tryAgainButton.waitFor({ state: "visible" })
+  // The quiz above is still re-rendering, so wait for the button to be stable (stop shifting)
+  // immediately before clicking. scrollIntoViewIfNeeded performs Playwright's "Stable" check.
+  await tryAgainButton.scrollIntoViewIfNeeded()
   await tryAgainButton.click()
   await scrollLocatorsParentIframeToViewIfNeeded(
     page

@@ -127,6 +127,35 @@ SET password_hash = EXCLUDED.password_hash,
     Ok(result.rows_affected() > 0)
 }
 
+/// Re-stores `new_hash` for the user only if the currently stored hash still equals
+/// `expected_current_hash` (a compare-and-swap). Returns `true` if the row was updated and `false`
+/// if the stored hash had already changed (e.g. a concurrent password change) or no active row
+/// matched, in which case nothing is written. Used by the legacy-rehash path so that a concurrent
+/// password change is never clobbered by re-storing a hash derived from the old password.
+async fn update_password_hash_if_unchanged(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    new_hash: &SecretString,
+    expected_current_hash: &str,
+) -> ModelResult<bool> {
+    let result = sqlx::query!(
+        r#"
+UPDATE user_passwords
+SET password_hash = $2
+WHERE user_id = $1
+  AND password_hash = $3
+  AND deleted_at IS NULL
+        "#,
+        user_id,
+        new_hash.expose_secret(),
+        expected_current_hash,
+    )
+    .execute(conn)
+    .await?;
+
+    Ok(result.rows_affected() > 0)
+}
+
 pub fn hash_password(
     password: &SecretString,
 ) -> Result<SecretString, argon2::password_hash::Error> {
@@ -197,13 +226,29 @@ WHERE user_id = $1
         PasswordVerifyResult::MatchedLegacyRaw => {
             // The stored hash is in the old raw-byte form. Re-store it under NFC so the row
             // converges to the canonical form and survives the fallback deadline. Best-effort: a
-            // failure here is logged but must not fail an otherwise-valid login.
+            // failure here is logged but must not fail an otherwise-valid login. The re-store is a
+            // compare-and-swap against the hash we just read, so a password change committed
+            // concurrently (between the read above and this write) is never overwritten by this
+            // rehash of the old password.
             match hash_password(password) {
-                Ok(new_hash) => {
-                    if let Err(e) = upsert_user_password(conn, user_id, &new_hash).await {
+                Ok(new_hash) => match update_password_hash_if_unchanged(
+                    conn,
+                    user_id,
+                    &new_hash,
+                    &user_password.password_hash,
+                )
+                .await
+                {
+                    Ok(true) => {}
+                    Ok(false) => {
+                        info!(
+                            "Skipped legacy password rehash for user {user_id}: stored hash changed concurrently"
+                        );
+                    }
+                    Err(e) => {
                         warn!("Failed to re-store NFC-normalized password for user {user_id}: {e}");
                     }
-                }
+                },
                 Err(e) => {
                     warn!("Failed to hash NFC-normalized password for user {user_id}: {e}");
                 }

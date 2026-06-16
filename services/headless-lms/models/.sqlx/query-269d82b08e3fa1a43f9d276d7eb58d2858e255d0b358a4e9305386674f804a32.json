@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE cheating_confirmation_grade_snapshots s\nSET deleted_at = now()\nWHERE s.deleted_at IS NULL\n  AND s.course_module_completion_id IN (\n    SELECT cmc.id\n    FROM course_module_completions cmc\n    WHERE cmc.user_id = $1\n      AND cmc.course_id = $2\n      AND cmc.deleted_at IS NULL\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "269d82b08e3fa1a43f9d276d7eb58d2858e255d0b358a4e9305386674f804a32"
+}

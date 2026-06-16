@@ -14,6 +14,7 @@ import {
 } from "@/generated/course-material-api/sdk.generated"
 import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import {
   CustomViewIframeState,
@@ -43,6 +44,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   title,
 }) => {
   const { t } = useTranslation()
+  const dialog = useDialog()
   const userInfo = useUserInfo()
   const pageData = useAtomValue(currentPageDataAtom)
   const materialInstance = useAtomValue(materialInstanceAtom)
@@ -192,6 +194,7 @@ const CustomViewIframe: React.FC<React.PropsWithChildren<CustomViewIframeProps>>
   }
   return (
     <MessageChannelIFrame
+      dialog={dialog}
       url={url}
       postThisStateToIFrame={postThisStateToIFrame}
       onMessageFromIframe={async (_messageContainer, _responsePort) => {

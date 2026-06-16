@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   CurrentStateMessage,
@@ -49,6 +50,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
   userInformation,
 }) => {
   const { t } = useTranslation()
+  const dialog = useDialog()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
@@ -79,6 +81,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
       `}
     >
       <MessageChannelIFrame
+        dialog={dialog}
         key={iframeKey}
         url={url}
         postThisStateToIFrame={iframeState}

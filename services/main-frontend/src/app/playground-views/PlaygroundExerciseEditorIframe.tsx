@@ -2,6 +2,7 @@
 
 import { css } from "@emotion/css"
 
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   CurrentStateMessage,
@@ -39,6 +40,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
 }) => {
   // Makes sure the iframe renders again when the data changes
   const iframeKey = url + JSON.stringify(privateSpec) + disableSandbox
+  const dialog = useDialog()
   return (
     <div
       className={css`
@@ -46,6 +48,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
       `}
     >
       <MessageChannelIFrame
+        dialog={dialog}
         key={iframeKey}
         url={url}
         postThisStateToIFrame={{

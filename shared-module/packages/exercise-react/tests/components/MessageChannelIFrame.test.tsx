@@ -9,6 +9,13 @@ import MessageChannelIFrame from "../../src/parent/MessageChannelIFrame"
 import i18nTest from "../testing/i18nTest"
 import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 
+// MessageChannelIFrame now takes its dialog controller via prop (the host injects
+// common's useDialog()); no test exercises the open-dialog path, so a stub suffices.
+const mockDialog = {
+  alert: jest.fn(() => Promise.resolve()),
+  confirm: jest.fn(() => Promise.resolve(true)),
+}
+
 const server = setupServer(
   http.get("/example-iframe-page", (_info) => {
     return new HttpResponse("<html>Hello from iframe</html>")
@@ -60,6 +67,7 @@ describe("MessageChannelIFrame", () => {
     const res = render(
       <I18nextProvider i18n={i18nTest}>
         <MessageChannelIFrame
+          dialog={mockDialog}
           url="http://example.com/example-iframe-page"
           postThisStateToIFrame={{
             view_type: "answer-exercise",
@@ -92,6 +100,7 @@ describe("MessageChannelIFrame", () => {
       render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -111,6 +120,7 @@ describe("MessageChannelIFrame", () => {
       render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -130,6 +140,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -176,6 +187,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -219,6 +231,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -283,6 +296,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={stateToPost}
             onMessageFromIframe={jest.fn()}
@@ -415,6 +429,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -520,6 +535,7 @@ describe("MessageChannelIFrame", () => {
       const { container, getByText } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -632,6 +648,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -669,6 +686,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -706,6 +724,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -745,6 +764,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -788,6 +808,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -825,6 +846,7 @@ describe("MessageChannelIFrame", () => {
       const { container, rerender } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test1"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -866,6 +888,7 @@ describe("MessageChannelIFrame", () => {
       rerender(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test2"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -898,6 +921,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -931,6 +955,7 @@ describe("MessageChannelIFrame", () => {
       render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={onMessageFromIframe}
@@ -967,6 +992,7 @@ describe("MessageChannelIFrame", () => {
       render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={onMessageFromIframe}
@@ -1001,6 +1027,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={stateToPost}
             onMessageFromIframe={jest.fn()}
@@ -1039,6 +1066,7 @@ describe("MessageChannelIFrame", () => {
       const { rerender } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={stateToPost}
             onMessageFromIframe={jest.fn()}
@@ -1056,6 +1084,7 @@ describe("MessageChannelIFrame", () => {
       rerender(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={stateToPost}
             onMessageFromIframe={jest.fn()}
@@ -1077,6 +1106,7 @@ describe("MessageChannelIFrame", () => {
       const { unmount } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -1112,6 +1142,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -1172,6 +1203,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -1235,6 +1267,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={null}
             onMessageFromIframe={jest.fn()}
@@ -1295,6 +1328,7 @@ describe("MessageChannelIFrame", () => {
       const { container } = render(
         <I18nextProvider i18n={i18nTest}>
           <MessageChannelIFrame
+            dialog={mockDialog}
             url="http://example.com/test"
             postThisStateToIFrame={stateToPost}
             onMessageFromIframe={jest.fn()}

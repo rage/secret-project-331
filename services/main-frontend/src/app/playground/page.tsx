@@ -16,6 +16,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
@@ -27,6 +28,7 @@ const TITLE = "PLAYGROUND"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
+  const dialog = useDialog()
   const [exampleUrl, setExampleUrl] = useState<string>("")
   const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
   const [exampleData, setExampleData] = useState<string>("")
@@ -298,6 +300,7 @@ const Home: React.FC = () => {
           `}
         >
           <MessageChannelIFrame
+            dialog={dialog}
             key={combinedUrl + exampleData}
             url={combinedUrl}
             postThisStateToIFrame={{

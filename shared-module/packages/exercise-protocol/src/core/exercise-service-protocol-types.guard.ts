@@ -2,7 +2,7 @@
  * Generated type guards for "exercise-service-protocol-types.ts".
  * WARNING: Do not manually change this file.
  */
-import { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
+import { MessageFromIframe, CurrentStateMessage, HeightChangedMessage, OpenLinkMessage, FileUploadMessage, RequestRepositoryExercisesMessage, RequestIframeReloadMessage, OpenDialogMessage, MessageToIframe, SetLanguageMessage, SetStateMessage, UploadResultMessage, RepositoryExercisesMessage, TestResultsMessage, DialogResponseMessage, UserInformation, UserVariablesMap, AnswerExerciseIframeState, ViewSubmissionIframeState, ExerciseEditorIframeState, CustomViewIframeState, ExerciseIframeState, ExtendedIframeState, IframeViewType, NonGenericGradingRequest, NonGenericGradingResult } from "./exercise-service-protocol-types";
 
 export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
     const typedObj = obj as MessageFromIframe
@@ -11,7 +11,8 @@ export function isMessageFromIframe(obj: unknown): obj is MessageFromIframe {
             isHeightChangedMessage(typedObj) as boolean ||
             isFileUploadMessage(typedObj) as boolean ||
             isRequestRepositoryExercisesMessage(typedObj) as boolean ||
-            isRequestIframeReloadMessage(typedObj) as boolean)
+            isRequestIframeReloadMessage(typedObj) as boolean ||
+            isOpenDialogMessage(typedObj) as boolean)
     )
 }
 
@@ -79,6 +80,30 @@ export function isRequestIframeReloadMessage(obj: unknown): obj is RequestIframe
     )
 }
 
+export function isOpenDialogMessage(obj: unknown): obj is OpenDialogMessage {
+    const typedObj = obj as OpenDialogMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "open-dialog" &&
+        typeof typedObj["requestId"] === "string" &&
+        (typedObj["dialogType"] === "confirm" ||
+            typedObj["dialogType"] === "warning") &&
+        typeof typedObj["title"] === "string" &&
+        Array.isArray(typedObj["body"]) &&
+        typedObj["body"].every((e: any) =>
+            typeof e === "string"
+        ) &&
+        (typeof typedObj["confirmButtonLabel"] === "undefined" ||
+            typedObj["confirmButtonLabel"] === null ||
+            typeof typedObj["confirmButtonLabel"] === "string") &&
+        (typeof typedObj["cancelButtonLabel"] === "undefined" ||
+            typedObj["cancelButtonLabel"] === null ||
+            typeof typedObj["cancelButtonLabel"] === "string")
+    )
+}
+
 export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
     const typedObj = obj as MessageToIframe
     return (
@@ -122,7 +147,8 @@ export function isMessageToIframe(obj: unknown): obj is MessageToIframe {
             typedObj["success"] === false &&
             typeof typedObj["error"] === "string" ||
             isRepositoryExercisesMessage(typedObj) as boolean ||
-            isTestResultsMessage(typedObj) as boolean)
+            isTestResultsMessage(typedObj) as boolean ||
+            isDialogResponseMessage(typedObj) as boolean)
     )
 }
 
@@ -220,6 +246,18 @@ export function isTestResultsMessage(obj: unknown): obj is TestResultsMessage {
             typeof typedObj === "object" ||
             typeof typedObj === "function") &&
         typedObj["message"] === "test-results"
+    )
+}
+
+export function isDialogResponseMessage(obj: unknown): obj is DialogResponseMessage {
+    const typedObj = obj as DialogResponseMessage
+    return (
+        (typedObj !== null &&
+            typeof typedObj === "object" ||
+            typeof typedObj === "function") &&
+        typedObj["message"] === "dialog-response" &&
+        typeof typedObj["requestId"] === "string" &&
+        typeof typedObj["confirmed"] === "boolean"
     )
 }
 

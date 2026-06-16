@@ -2,43 +2,66 @@
 import { test } from "@playwright/test"
 import { Page } from "playwright"
 
-const isCourseSettingsModalOpen = async (page: Page) => {
-  const courseVariantSelector = page.getByTestId("select-course-instance-heading")
-  return courseVariantSelector.filter().isVisible()
+// The course material Page component renders a hidden sentinel carrying the result of its dialog
+// decision. `data-dialogs-ready="true"` means the frontend has finished deciding which dialog (if
+// any) to show; `data-active-dialog` then names that dialog. Waiting on this is deterministic, so we
+// avoid polling for dialogs that might still be on their way in.
+const DIALOG_STATE_SELECTOR = `[data-testid="dialog-decision-state"]`
+
+/** Waits until the frontend has finished deciding which course-material dialog (if any) to show. */
+async function waitForDialogDecision(page: Page, timeout?: number) {
+  await page
+    .locator(`${DIALOG_STATE_SELECTOR}[data-dialogs-ready="true"]`)
+    .waitFor({ state: "attached", timeout })
 }
 
-/** Waits a moment in case the select course instance modal opens, and if opened, selects a course instance.
+/** The dialog the frontend has currently decided to show, e.g. "choose-instance", "ai-usage-notice"
+ * or "none". Only meaningful once {@link waitForDialogDecision} has resolved. */
+function activeDialog(page: Page) {
+  return page.locator(DIALOG_STATE_SELECTOR).getAttribute("data-active-dialog")
+}
+
+/** Acknowledges the AI-usage / academic-integrity notice if it is shown.
+ *
+ * The notice is displayed once per user per course, right after the user selects a course instance.
+ */
+export async function acknowledgeAiUsageNoticeIfPrompted(page: Page) {
+  await test.step(
+    "Acknowledge AI-usage notice if prompted",
+    async () => {
+      await waitForDialogDecision(page)
+      if ((await activeDialog(page)) === "ai-usage-notice") {
+        await page.getByTestId("ai-usage-notice-agree-checkbox").click()
+        await page.getByTestId("ai-usage-notice-acknowledge-button").click()
+        await page.getByTestId("ai-usage-notice-acknowledge-button").waitFor({ state: "detached" })
+      }
+    },
+    { box: true },
+  )
+}
+
+/** Waits for the frontend to decide whether the select course instance modal should open, and if so,
+ * selects a course instance.
  *
  * This should be used instead of `await page.click('button:has-text("Continue")')`. This is because we might have other system tests that use the same course with the same user and this function makes sure those tests don't race with each other.
  */
 export async function selectCourseInstanceIfPrompted(
   page: Page,
   courseVariantName?: string | undefined,
+  /** Maximum time to wait for the frontend to finish deciding which dialog to show. */
   timeout?: number,
+  /**
+   * Whether to also acknowledge the AI-usage notice that appears after enrolling. Defaults to
+   * `true`. Set to `false` in tests that need to assert on the notice themselves.
+   */
+  acknowledgeAiUsageNotice = true,
 ) {
   await test.step(
     "Select course instance if prompted",
     async () => {
-      // Wait until some blocks have rendered on the page. This is to make sure the page has actually loaded. Would not work on pages with no blocks.
-      await page.locator(`.course-material-block`).first().waitFor({ state: "attached" })
-      // Give a moment for the dialog to appear
-      if (!(await isCourseSettingsModalOpen(page))) {
-        if (timeout !== undefined) {
-          // If timeout is specified, retry until timeout
-          const startTime = Date.now()
-          while (!(await isCourseSettingsModalOpen(page)) && Date.now() - startTime < timeout) {
-            await page.waitForTimeout(100)
-          }
-        } else {
-          // If no timeout specified, do wait a moment
-          await page.waitForTimeout(100)
-          if (!(await isCourseSettingsModalOpen(page))) {
-            await page.waitForTimeout(100)
-          }
-        }
-      }
+      await waitForDialogDecision(page, timeout)
 
-      if (await isCourseSettingsModalOpen(page)) {
+      if ((await activeDialog(page)) === "choose-instance") {
         if (courseVariantName === undefined) {
           await page.getByTestId("default-course-instance-radiobutton").click()
         } else {
@@ -46,7 +69,15 @@ export async function selectCourseInstanceIfPrompted(
         }
 
         await page.getByTestId("select-course-instance-continue-button").click()
+        // The heading only detaches once the post-enrollment refetch resolves and the dialog step
+        // changes, so this also waits out that refetch before we look for the next dialog.
         await page.getByTestId("select-course-instance-heading").waitFor({ state: "detached" })
+      }
+
+      // After enrolling, the AI-usage notice is shown once and must be acknowledged before the
+      // user can interact with the material. Tests asserting on the notice can opt out.
+      if (acknowledgeAiUsageNotice) {
+        await acknowledgeAiUsageNoticeIfPrompted(page)
       }
     },
     { box: true },

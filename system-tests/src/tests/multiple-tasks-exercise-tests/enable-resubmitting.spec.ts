@@ -5,6 +5,7 @@ import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialAction
 import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLocators"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+import { waitForLocatorToBeStable } from "@/utils/waitForLocatorToBeStable"
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -71,9 +72,9 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
   await page.locator(`text=Third question.`).waitFor()
 
   const tryAgainButton = page.getByRole("button", { name: "try again" })
-  // The quiz above is still re-rendering, so wait for the button to be stable (stop shifting)
-  // immediately before clicking. scrollIntoViewIfNeeded performs Playwright's "Stable" check.
-  await tryAgainButton.scrollIntoViewIfNeeded()
+  // The quiz above is still re-rendering, which can shift the button mid-click. Wait for it to
+  // stop moving (without scrolling) just before clicking.
+  await waitForLocatorToBeStable(tryAgainButton)
   await tryAgainButton.click()
   await scrollLocatorsParentIframeToViewIfNeeded(
     page

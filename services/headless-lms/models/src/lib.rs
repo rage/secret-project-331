@@ -22,6 +22,7 @@ pub mod chatbot_conversation_messages_citations;
 pub mod chatbot_conversation_suggested_messages;
 pub mod chatbot_conversations;
 pub mod chatbot_page_sync_statuses;
+pub mod cheating_confirmation_grade_snapshots;
 pub mod cms_ai;
 pub mod code_giveaway_codes;
 pub mod code_giveaways;

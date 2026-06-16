@@ -1668,6 +1668,8 @@ mod test {
                 closed_additional_message: existing_course.closed_additional_message,
                 closed_course_successor_id: existing_course.closed_course_successor_id,
                 chapter_locking_enabled: true,
+                ai_policy: existing_course.ai_policy,
+                course_material_ai_instructions: existing_course.course_material_ai_instructions,
             },
         )
         .await

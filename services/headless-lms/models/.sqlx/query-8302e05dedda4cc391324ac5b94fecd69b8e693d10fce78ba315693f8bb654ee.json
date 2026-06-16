@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nINSERT INTO cheating_confirmation_grade_snapshots (course_module_completion_id, passed, grade)\nSELECT cmc.id, cmc.passed, cmc.grade\nFROM course_module_completions cmc\nWHERE cmc.user_id = $1\n  AND cmc.course_id = $2\n  AND cmc.deleted_at IS NULL\n  AND NOT EXISTS (\n    SELECT 1\n    FROM cheating_confirmation_grade_snapshots s\n    WHERE s.course_module_completion_id = cmc.id\n      AND s.deleted_at IS NULL\n  )\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8302e05dedda4cc391324ac5b94fecd69b8e693d10fce78ba315693f8bb654ee"
+}

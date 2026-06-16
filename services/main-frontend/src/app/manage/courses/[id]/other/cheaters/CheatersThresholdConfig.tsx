@@ -11,7 +11,7 @@ import {
   deleteCourseModuleThresholdMutation,
   getCourseThresholdsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseModule } from "@/generated/api/types.generated"
+import type { CourseModule, CourseModuleThresholdInfo } from "@/generated/api/types.generated"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -19,27 +19,15 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { isArray } from "@/shared-module/common/utils/fetching"
-import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface CheatersThresholdConfigProps {
   courseId: string
 }
 
-interface Threshold {
-  id: string
-  course_module_id: string
-  duration_seconds: number
-  created_at: string
-  updated_at: string
-  deleted_at: string | null
-}
-
-const isThreshold = (data: unknown): data is Threshold =>
-  typeof data === "object" &&
-  data !== null &&
-  "course_module_id" in data &&
-  "duration_seconds" in data
+const SECONDS_PER_HOUR = 3600
+// The backend stores the threshold as a 32-bit signed integer number of seconds, so reject
+// anything that would overflow it before sending the request.
+const MAX_DURATION_SECONDS = 2_147_483_647
 
 /** Renders threshold configuration UI for the cheaters section. */
 export default function CheatersThresholdConfig({ courseId }: CheatersThresholdConfigProps) {
@@ -47,24 +35,23 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
 
   const courseStructureQuery = useCourseStructure(courseId)
 
-  const thresholdsQuery = useQuery({
-    ...getCourseThresholdsOptions({
+  const thresholdsQuery = useQuery(
+    getCourseThresholdsOptions({
       path: {
         course_id: courseId,
       },
     }),
-    select: (data) => validateGeneratedData(data, isArray(isThreshold)),
-  })
+  )
 
-  const savedThresholds = useMemo(() => {
-    if (!thresholdsQuery.data) {
-      return new Map<string, number | undefined>()
+  // The backend computes, per module, the configured threshold plus the policy-derived minimum and
+  // default. Keeping those on the server means the exemption rule and the constants live in one
+  // place instead of being mirrored (and able to drift) here.
+  const thresholdInfoByModule = useMemo(() => {
+    const map = new Map<string, CourseModuleThresholdInfo>()
+    for (const info of thresholdsQuery.data ?? []) {
+      map.set(info.course_module_id, info)
     }
-    const thresholdsMap = new Map<string, number | undefined>()
-    thresholdsQuery.data.forEach((t: { course_module_id: string; duration_seconds: number }) => {
-      thresholdsMap.set(t.course_module_id, t.duration_seconds / 3600)
-    })
-    return thresholdsMap
+    return map
   }, [thresholdsQuery.data])
 
   const sortedModules = useMemo(() => {
@@ -80,34 +67,55 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
     () => new Map(),
   )
 
-  const handleUpdateThreshold = async (moduleId: string, durationHours: number | undefined) => {
-    if (durationHours === undefined) {
+  const handleUpdateThreshold = (moduleId: string, durationSeconds: number | undefined) => {
+    if (durationSeconds === undefined) {
       return deleteThresholdForModuleMutation.mutate({
         path: {
           course_module_id: moduleId,
         },
       })
     }
-    const convertedDuration = durationHours * 3600
-    const threshold = { duration_seconds: convertedDuration }
     return postThresholdForModuleMutation.mutate({
       path: {
         course_module_id: moduleId,
       },
-      body: threshold,
+      body: { duration_seconds: durationSeconds },
+    })
+  }
+
+  // Drop the in-progress edit once it is persisted so the row reflects the refetched saved state
+  // (otherwise a removed threshold would stay "edited" and never show the implicit default again).
+  const clearEditedThreshold = (moduleId: string) => {
+    setModuleThresholds((prev) => {
+      if (!prev.has(moduleId)) {
+        return prev
+      }
+      const next = new Map(prev)
+      next.delete(moduleId)
+      return next
     })
   }
 
   const postThresholdForModuleMutation = useToastMutationOptions(
     createCourseModuleThresholdMutation(),
     { notify: true, successMessage: t("threshold-added-successfully"), method: "POST" },
-    { onSuccess: () => thresholdsQuery.refetch() },
+    {
+      onSuccess: (_data, variables) => {
+        clearEditedThreshold(variables.path.course_module_id)
+        thresholdsQuery.refetch()
+      },
+    },
   )
 
   const deleteThresholdForModuleMutation = useToastMutationOptions(
     deleteCourseModuleThresholdMutation(),
     { notify: true, successMessage: t("threshold-removed-successfully"), method: "DELETE" },
-    { onSuccess: () => thresholdsQuery.refetch() },
+    {
+      onSuccess: (_data, variables) => {
+        clearEditedThreshold(variables.path.course_module_id)
+        thresholdsQuery.refetch()
+      },
+    },
   )
 
   return (
@@ -168,7 +176,7 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
           {t("configure-threshold")}
         </h5>
         <p className="description">{t("configure-threshold-description")}</p>
-        {courseStructureQuery.data && (
+        {courseStructureQuery.data && thresholdsQuery.data && (
           <div
             className={css`
               margin-top: 1rem;
@@ -231,22 +239,54 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
               </thead>
               <tbody>
                 {sortedModules.map((module: CourseModule) => {
-                  const savedDurationHours = savedThresholds.get(module.id)
+                  const info = thresholdInfoByModule.get(module.id)
+                  const configuredSeconds = info?.configured_duration_seconds ?? undefined
+                  const minimumSeconds = info?.minimum_duration_seconds ?? 0
+                  const defaultSeconds = info?.default_duration_seconds ?? 0
+                  const configuredHours =
+                    configuredSeconds !== undefined
+                      ? configuredSeconds / SECONDS_PER_HOUR
+                      : undefined
                   const isEdited = moduleThresholds.has(module.id)
-                  const editedDurationHours = moduleThresholds.get(module.id)
-                  const durationHours = isEdited ? editedDurationHours : savedDurationHours
+                  const editedHours = moduleThresholds.get(module.id)
+                  const durationHours = isEdited ? editedHours : configuredHours
                   const isDefault = module.name === null
                   const moduleName = module.name ?? t("default-module")
                   const hasValue = durationHours !== undefined
-                  const hasSavedValue = savedDurationHours !== undefined
-                  const isBelowMinimum = hasValue && (durationHours ?? 0) < 3
-                  const isRemoving = hasSavedValue && isEdited && editedDurationHours === undefined
+                  const hasConfiguredValue = configuredSeconds !== undefined
+                  // Validate in seconds, mirroring the backend, so the hours->seconds rounding and
+                  // the saved-value comparison use the exact value that will be stored. This also
+                  // means a tiny positive value that rounds to 0 is treated as 0 (check off) rather
+                  // than silently saved as a different number.
+                  const durationSeconds = hasValue
+                    ? Math.round((durationHours as number) * SECONDS_PER_HOUR)
+                    : undefined
+                  const isInvalid =
+                    durationSeconds !== undefined &&
+                    (durationSeconds < minimumSeconds || durationSeconds > MAX_DURATION_SECONDS)
+                  const errorMessage = !isInvalid
+                    ? undefined
+                    : durationSeconds !== undefined && durationSeconds > MAX_DURATION_SECONDS
+                      ? t("threshold-too-large")
+                      : minimumSeconds > 0
+                        ? t("threshold-must-be-at-least-3-hours")
+                        : t("threshold-must-be-non-negative")
+                  // A small (exempt) module with an effective threshold of 0 has its duration check
+                  // turned off; surface that explicitly so saving 0 is never a silent no-op.
+                  const disablesCheck =
+                    minimumSeconds === 0 && durationSeconds !== undefined && durationSeconds === 0
+                  const isRemoving = hasConfiguredValue && isEdited && editedHours === undefined
+                  // With thresholdsQuery resolved, no configured value means the backend default
+                  // applies; show it as the value instead of an empty field.
+                  const showsImplicitDefault = !hasConfiguredValue && !isEdited
+                  const displayedValue = showsImplicitDefault
+                    ? (defaultSeconds / SECONDS_PER_HOUR).toString()
+                    : (durationHours?.toString() ?? "")
                   const isSaved =
                     !isEdited ||
-                    (hasValue &&
-                      hasSavedValue &&
-                      Math.abs((durationHours ?? 0) - (savedDurationHours ?? 0)) < 0.01) ||
-                    (!hasValue && !hasSavedValue)
+                    (durationSeconds !== undefined && durationSeconds === configuredSeconds) ||
+                    (!hasValue && !hasConfiguredValue)
+                  const minHours = minimumSeconds / SECONDS_PER_HOUR
                   // eslint-disable-next-line i18next/no-literal-string
                   const inputId = `duration-input-${module.id}`
                   // eslint-disable-next-line i18next/no-literal-string
@@ -281,35 +321,56 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                             id={inputId}
                             className="duration-threshold"
                             type="number"
-                            min={3}
-                            error={
-                              isBelowMinimum ? t("threshold-must-be-at-least-3-hours") : undefined
-                            }
+                            min={minHours}
+                            step={0.01}
+                            error={errorMessage}
                             aria-labelledby={`duration-header ${labelId}`}
-                            value={durationHours?.toString() ?? ""}
+                            value={displayedValue}
                             onChangeByValue={(value: string) => {
-                              const parsed = parseInt(value)
+                              const parsed = parseFloat(value)
                               setModuleThresholds((prev) => {
                                 const next = new Map(prev)
-                                next.set(module.id, isNaN(parsed) ? undefined : parsed)
+                                next.set(module.id, Number.isFinite(parsed) ? parsed : undefined)
                                 return next
                               })
                             }}
                           />
                         </div>
+                        {showsImplicitDefault && (
+                          <span
+                            className={css`
+                              margin-left: 0.5rem;
+                              color: ${baseTheme.colors.gray[500]};
+                              font-size: 0.875rem;
+                            `}
+                          >
+                            {t("threshold-default-in-use")}
+                          </span>
+                        )}
+                        {disablesCheck && (
+                          <span
+                            className={css`
+                              margin-left: 0.5rem;
+                              color: ${baseTheme.colors.gray[500]};
+                              font-size: 0.875rem;
+                            `}
+                          >
+                            {t("cheater-detection-disabled")}
+                          </span>
+                        )}
                       </td>
                       <td>
                         <Button
                           variant={isSaved ? "secondary" : isRemoving ? "reject" : "primary"}
                           size="medium"
                           disabled={
-                            (!hasValue && !hasSavedValue) ||
+                            (!hasValue && !hasConfiguredValue) ||
                             postThresholdForModuleMutation.isPending ||
                             deleteThresholdForModuleMutation.isPending ||
-                            (isBelowMinimum && !isRemoving) ||
+                            (isInvalid && !isRemoving) ||
                             isSaved
                           }
-                          onClick={() => handleUpdateThreshold(module.id, durationHours)}
+                          onClick={() => handleUpdateThreshold(module.id, durationSeconds)}
                           className={css`
                             min-width: 140px;
                           `}

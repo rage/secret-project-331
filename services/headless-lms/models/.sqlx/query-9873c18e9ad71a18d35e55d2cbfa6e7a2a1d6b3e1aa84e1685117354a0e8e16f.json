@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nINSERT INTO courses (\n    name,\n    organization_id,\n    slug,\n    content_search_language,\n    language_code,\n    copied_from,\n    course_language_group_id,\n    is_draft,\n    base_module_completion_requires_n_submodule_completions,\n    can_add_chatbot,\n    is_unlisted,\n    is_joinable_by_code_only,\n    join_code,\n    ask_marketing_consent,\n    description,\n    flagged_answers_threshold,\n    flagged_answers_skip_manual_review_and_allow_retry,\n    cheater_detection_enabled,\n    chapter_locking_enabled\n  )\nVALUES (\n    $1,\n    $2,\n    $3,\n    $4,\n    $5,\n    $6,\n    $7,\n    $8,\n    $9,\n    $10,\n    $11,\n    $12,\n    $13,\n    $14,\n    $15,\n    $16,\n    $17,\n    $18,\n    $19\n  )\nRETURNING id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_unlisted,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled\n        ",
+  "query": "\nSELECT id,\n  name,\n  created_at,\n  updated_at,\n  organization_id,\n  deleted_at,\n  slug,\n  content_search_language::text,\n  language_code,\n  copied_from,\n  course_language_group_id,\n  description,\n  is_draft,\n  is_test_mode,\n  is_unlisted,\n  base_module_completion_requires_n_submodule_completions,\n  can_add_chatbot,\n  is_joinable_by_code_only,\n  join_code,\n  ask_marketing_consent,\n  flagged_answers_threshold,\n  flagged_answers_skip_manual_review_and_allow_retry,\n  closed_at,\n  closed_additional_message,\n  closed_course_successor_id,\n  chapter_locking_enabled,\n  cheater_detection_enabled,\n  ai_policy,\n  course_material_ai_instructions\nFROM courses\nWHERE courses.deleted_at IS NULL\n  AND id IN (\n    SELECT current_course_id\n    FROM user_course_settings\n    WHERE deleted_at IS NULL\n      AND user_id = $1\n  )\n",
   "describe": {
     "columns": [
       {
@@ -154,6 +154,17 @@
       },
       {
         "ordinal": 14,
+        "name": "is_unlisted",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "is_unlisted"
+          }
+        }
+      },
+      {
+        "ordinal": 15,
         "name": "base_module_completion_requires_n_submodule_completions",
         "type_info": "Int4",
         "origin": {
@@ -164,24 +175,13 @@
         }
       },
       {
-        "ordinal": 15,
+        "ordinal": 16,
         "name": "can_add_chatbot",
         "type_info": "Bool",
         "origin": {
           "Table": {
             "table": "courses",
             "name": "can_add_chatbot"
-          }
-        }
-      },
-      {
-        "ordinal": 16,
-        "name": "is_unlisted",
-        "type_info": "Bool",
-        "origin": {
-          "Table": {
-            "table": "courses",
-            "name": "is_unlisted"
           }
         }
       },
@@ -294,29 +294,47 @@
             "name": "cheater_detection_enabled"
           }
         }
+      },
+      {
+        "ordinal": 27,
+        "name": "ai_policy",
+        "type_info": {
+          "Custom": {
+            "name": "course_ai_policy",
+            "kind": {
+              "Enum": [
+                "not_set",
+                "no_ai",
+                "planning_only",
+                "limited",
+                "full_use",
+                "required"
+              ]
+            }
+          }
+        },
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "ai_policy"
+          }
+        }
+      },
+      {
+        "ordinal": 28,
+        "name": "course_material_ai_instructions",
+        "type_info": "Bool",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "course_material_ai_instructions"
+          }
+        }
       }
     ],
     "parameters": {
       "Left": [
-        "Varchar",
-        "Uuid",
-        "Varchar",
-        "Varchar",
-        "Varchar",
-        "Uuid",
-        "Uuid",
-        "Bool",
-        "Int4",
-        "Bool",
-        "Bool",
-        "Bool",
-        "Varchar",
-        "Bool",
-        "Text",
-        "Int4",
-        "Bool",
-        "Bool",
-        "Bool"
+        "Uuid"
       ]
     },
     "nullable": [
@@ -346,8 +364,10 @@
       true,
       true,
       false,
-      false
+      false,
+      false,
+      true
     ]
   },
-  "hash": "29d774919f2559207c9a74b2a39ccc58752ebd11b8e0df7e3cc38803bd09bfc8"
+  "hash": "9873c18e9ad71a18d35e55d2cbfa6e7a2a1d6b3e1aa84e1685117354a0e8e16f"
 }

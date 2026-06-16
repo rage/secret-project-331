@@ -729,6 +729,7 @@ import {
   zGetCourseStudentsUsersResponse,
   zGetCourseSubmissionCountsByExerciseResponse,
   zGetCourseSuspectedCheatersResponse,
+  zGetCourseThresholdsResponse,
   zGetCourseUsersCountsByExerciseResponse,
   zGetCourseUserSettingsForUserResponse,
   zGetCourseWeekdayHourSubmissionCountsResponse,
@@ -3878,6 +3879,7 @@ export const getCourseThresholds = <ThrowOnError extends boolean = true>(
   options: Options<GetCourseThresholdsData, ThrowOnError>,
 ) =>
   (options.client ?? client).get<GetCourseThresholdsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseThresholdsResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/thresholds",
     ...options,

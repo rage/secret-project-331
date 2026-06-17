@@ -5,8 +5,8 @@ import React, { useEffect } from "react"
 
 import initI18n from "@/i18n/initI18n"
 import withErrorBoundary from "@/lib/withErrorBoundary"
+import GlobalStyles from "@/shared-module/exercise-react/react/components/GlobalStyles"
 import useLanguage from "@/shared-module/exercise-react/react/hooks/useLanguage"
-import GlobalStyles from "@/styles/GlobalStyles"
 
 const SERVICE_NAME = "example-exercise"
 

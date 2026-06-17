@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { parseISO } from "date-fns"
@@ -58,6 +59,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     if (data) {
       setValue("description", data.course_description)
     }
+    console.log(data?.course_description)
   }, [data])
 
   const methods = useForm<EditCourseFormValues>({
@@ -139,7 +141,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
       <StandardDialog
         open={open}
         onClose={onClose}
-        title={t("generate-ai-description")}
+        title={t("ai-description-form-title")}
         buttons={[
           {
             onClick: onSubmit,
@@ -150,7 +152,13 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
         ]}
       >
         <div>
-          <span>{t("current-course-description-title")}</span>
+          <span
+            className={css`
+              font-weight: 500;
+            `}
+          >
+            {t("current-course-description-title")}
+          </span>
           <FieldContainer>{course.description}</FieldContainer>
           <FieldContainer>
             {!isLoading ? (

@@ -198,7 +198,6 @@ impl SisuClient {
         course_codes: Vec<Vec<String>>,
     ) -> UtilResult<Vec<SisuCourseInfoElement>> {
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
-
         for code in course_codes {
             if let Some(first) = code.first() {
                 let url = format!("https://sisu.helsinki.fi/kori/api/course-units/v1/{first}");

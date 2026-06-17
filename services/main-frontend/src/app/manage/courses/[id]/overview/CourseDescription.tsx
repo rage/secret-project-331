@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanstack/react-query"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -24,7 +25,7 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
 
   const courseStructure = useCourseStructure(course.id)
 
-  const defaultModule = courseStructure.data?.modules[0]
+  const defaultModule = courseStructure.data?.modules.find((module) => module.order_number === 0)
 
   const hasCourseCode = defaultModule?.uh_course_code !== null
 
@@ -35,12 +36,27 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
   return (
     <div>
       {hasCourseCode ? (
-        <Button variant="primary" size="medium" onClick={() => setShowForm(true)}>
+        <Button
+          className={css`
+            margin: 0.5rem 0;
+          `}
+          variant="primary"
+          size="medium"
+          onClick={() => setShowForm(true)}
+        >
           {t("generate-ai-description")}
         </Button>
       ) : (
         <div>
-          <Button disabled variant="primary" size="medium" onClick={() => setShowForm(true)}>
+          <Button
+            className={css`
+              margin: 0.5rem 0;
+            `}
+            disabled
+            variant="primary"
+            size="medium"
+            onClick={() => setShowForm(true)}
+          >
             {t("generate-ai-description")}
           </Button>
           <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>

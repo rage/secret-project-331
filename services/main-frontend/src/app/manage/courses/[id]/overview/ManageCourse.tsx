@@ -151,7 +151,6 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         <p>
           <b>{t("text-field-label-description")}</b>: {course.description}
         </p>
-        <CourseDescription course={course} refetch={refetch}></CourseDescription>
       </div>
       <OnlyRenderIfPermissions
         action={{
@@ -204,14 +203,46 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       )}
       <div
         className={css`
-          border: 3px dotted ${baseTheme.colors.gray[300]};
           color: ${baseTheme.colors.gray[500]};
-          padding: 20rem 0;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
           margin: 2rem 0;
           text-align: center;
+          gap: 0.5rem;
         `}
       >
-        <p>{t("placeholder-text-reserved-for-course-overview")}</p>
+        <div
+          className={css`
+            padding: 1rem;
+            border: 3px solid #ebedee;
+            color: #1a2333;
+          `}
+        >
+          <h4
+            className={css`
+              font-size: 1rem;
+            `}
+          >
+            {t("suggest-description-card-title")}
+          </h4>
+          <CourseDescription course={course} refetch={refetch}></CourseDescription>
+        </div>
+        <div
+          className={css`
+            border: 3px dotted ${baseTheme.colors.gray[300]};
+          `}
+        ></div>
+        <div
+          className={css`
+            border: 3px dotted ${baseTheme.colors.gray[300]};
+            padding: 4.5rem 0;
+          `}
+        ></div>
+        <div
+          className={css`
+            border: 3px dotted ${baseTheme.colors.gray[300]};
+          `}
+        ></div>
       </div>
 
       <OnlyRenderIfPermissions

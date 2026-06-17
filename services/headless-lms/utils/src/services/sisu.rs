@@ -160,7 +160,6 @@ pub struct SisuDescriptions {
 impl SisuClient {
     pub async fn get_course_codes(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
-        //let course_codes = vec!["TKT21036", "TKT21037", "TKT21038"];
         let mut code_vec: Vec<Vec<String>> = vec![];
         for code in course_codes {
             let url = format!(
@@ -198,45 +197,39 @@ impl SisuClient {
     pub async fn get_course_info(
         course_codes: Vec<Vec<String>>,
     ) -> UtilResult<Vec<SisuCourseInfoElement>> {
-        //let course_codes = course_codes;
-
-        //TODO: remove
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
 
-        let course_codes = vec![
-            vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"],
-            vec!["otm-a93149ca-6bc1-4abe-b18e-ecaaa673deb9"],
-            vec!["otm-9a150d40-7a51-46db-a926-39d8e7d19141"],
-        ];
-
-        //let course_codes = vec![vec!["otm-bf6ac455-c74b-48a9-8079-1e26272d8594"]];
-
         for code in course_codes {
-            let last = code.last().unwrap();
-            //"https://sisu.helsinki.fi/kori/api/course-units/v1/otm-a93149ca-6bc1-4abe-b18e-ecaaa673deb9"
+            if let Some(first) = code.first() {
+                let url = format!("https://sisu.helsinki.fi/kori/api/course-units/v1/{first}");
+                let response = REQWEST_CLIENT
+                    .get(url)
+                    .header("Content-Type", "application/json")
+                    .send()
+                    .await
+                    .map_err(|e| util_err!(Other, "Request to Sisu failed", e))?;
 
-            let url = format!("https://sisu.helsinki.fi/kori/api/course-units/v1/{last}");
-            let response = REQWEST_CLIENT
-                .get(url)
-                .header("Content-Type", "application/json")
-                .send()
-                .await
-                .map_err(|e| util_err!(Other, "Request to Sisu failed", e))?;
-
-            if response.status().is_success() {
-                let json: SisuCourseInfoElement =
-                    serde_json::from_str(&response.text().await.unwrap())?;
-                data_vec.push(json);
-            } else if response.status() == 404 {
-                return Err(UtilError::new(
-                    UtilErrorType::Other,
-                    "Course info not found".to_string(),
-                    None,
-                ));
+                if response.status().is_success() {
+                    let json: SisuCourseInfoElement =
+                        serde_json::from_str(&response.text().await.unwrap())?;
+                    data_vec.push(json);
+                } else if response.status() == 404 {
+                    return Err(UtilError::new(
+                        UtilErrorType::Other,
+                        "Course info not found".to_string(),
+                        None,
+                    ));
+                } else {
+                    return Err(UtilError::new(
+                        UtilErrorType::Other,
+                        "Something went wrong when fetching course info".to_string(),
+                        None,
+                    ));
+                }
             } else {
                 return Err(UtilError::new(
                     UtilErrorType::Other,
-                    "Something went wrong when fetching course info".to_string(),
+                    "No courses found with course code".to_string(),
                     None,
                 ));
             }
@@ -247,8 +240,6 @@ impl SisuClient {
         course_info: Vec<SisuCourseInfoElement>,
         course_language: String,
     ) -> HashMap<String, SisuDescriptions> {
-        let course_language: String = String::from("fi");
-
         let mut course_desc: HashMap<String, SisuDescriptions> = HashMap::new();
 
         for module in course_info {

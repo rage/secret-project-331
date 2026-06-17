@@ -1,6 +1,9 @@
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { v4 } from "uuid"
+
+import { ChatbotConversationMessageWithStatus } from "../ChatbotChatBody"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
@@ -16,16 +19,65 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
   "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message"
 
+const StreamEventToMessage = (
+  e: ChatbotChatStreamEvent,
+): ChatbotConversationMessageWithStatus | undefined => {
+  if (e.type === "ToolCall") {
+    return {
+      finished: e.data.finished,
+      message: {
+        conversation_id: v4(),
+        id: v4(),
+        order_number: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        message: {
+          chatbot_conversation_message_id: v4(),
+          created_at: new Date().toISOString(),
+          deleted_at: null,
+          id: v4(),
+          response_id: "",
+          tool_arguments: e.data.arguments,
+          tool_call_id: "",
+          tool_kind: "function",
+          tool_name: e.data.tool_name,
+          updated_at: new Date().toISOString(),
+        },
+      },
+    }
+  } else if (e.type === "Reasoning") {
+    return {
+      finished: e.data.finished,
+      message: {
+        conversation_id: v4(),
+        id: v4(),
+        order_number: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        message: {
+          chatbot_conversation_message_id: v4(),
+          created_at: new Date().toISOString(),
+          deleted_at: null,
+          id: v4(),
+          response_id: "",
+          updated_at: new Date().toISOString(),
+        },
+      },
+    }
+  }
+}
+
 export interface MessageState {
   optimisticMessage: string | null
   streamingMessage: string | null
-  responseStatus: ChatbotChatStreamEvent | null
+  responseStatus: ChatbotConversationMessageWithStatus | null
 }
 
 export type MessageAction =
   | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
   | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "SET_STATUS"; payload: ChatbotChatStreamEvent | null }
+  | { type: "SET_STATUS"; payload: ChatbotChatStreamEvent }
+  | { type: "SET_STATUS_NULL" }
   | { type: "SET_STATUS_EVENT_FINISHED"; payload: boolean }
   | { type: "RESET_MESSAGES" }
 
@@ -36,23 +88,18 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
     case "APPEND_STREAMING_MESSAGE":
       return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
     case "SET_STATUS":
-      return { ...state, responseStatus: action.payload }
+      return {
+        ...state,
+        responseStatus: StreamEventToMessage(action.payload) ?? state.responseStatus,
+      }
+    case "SET_STATUS_NULL":
+      return {
+        ...state,
+        responseStatus: null,
+      }
     case "SET_STATUS_EVENT_FINISHED":
-      if (
-        state.responseStatus &&
-        "data" in state.responseStatus &&
-        "finished" in state.responseStatus.data &&
-        (state.responseStatus.type === "Reasoning" || state.responseStatus.type === "ToolCall")
-      ) {
-        const responseStatus = state.responseStatus
-        const responseStatusData = state.responseStatus.data satisfies { finished: boolean }
-        return {
-          ...state,
-          responseStatus: {
-            type: responseStatus.type,
-            data: { ...responseStatusData, finished: action.payload },
-          },
-        }
+      if (state.responseStatus) {
+        return { ...state, responseStatus: { ...state.responseStatus, finished: action.payload } }
       } else {
         return state
       }
@@ -150,23 +197,11 @@ const useChatbotStateAndData = (
                 // todo!
                 let payload: ChatbotChatStreamEvent = parsedValue
                 if (parsedValue.data.finished) {
-                  if (messageState.responseStatus) {
-                    // ugly repetitive code to make the typescript compiler understand
-                    // that this typing is valid
-                    if (messageState.responseStatus.type === "Reasoning") {
-                      let data = messageState.responseStatus.data
-                      let type = messageState.responseStatus.type
-                      data.finished = true
-                      payload = { data, type }
-                    } else if (messageState.responseStatus.type === "ToolCall") {
-                      let data = messageState.responseStatus.data
-                      let type = messageState.responseStatus.type
-                      data.finished = true
-                      payload = { data, type }
-                    }
-                  }
+                  dispatch({ type: "SET_STATUS_EVENT_FINISHED", payload: true })
+                  dispatch({ type: "SET_STATUS_NULL" })
+                } else {
+                  dispatch({ type: "SET_STATUS", payload })
                 }
-                dispatch({ type: "SET_STATUS", payload })
               }
             } catch (e) {
               console.error(e)

@@ -10,10 +10,12 @@ import { useTranslation } from "react-i18next"
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, UpdateCourseData } from "@/generated/api/types.generated"
 import { getCourseMaterialSisuCourseLlmDescriptionsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
+import { TextArea } from "@/shared-module/components"
+import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const FieldContainer = styled.div`
   margin-bottom: 1rem;
@@ -38,11 +40,17 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
 }) => {
   const { t } = useTranslation()
 
-  const { error, data } = useQuery(
-    getCourseMaterialSisuCourseLlmDescriptionsOptions({
-      path: {
-        course_id: course.id,
-      },
+  const courseId = course.id
+  const { error, data, isLoading } = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: open,
+      build: (courseId) =>
+        getCourseMaterialSisuCourseLlmDescriptionsOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
     }),
   )
 
@@ -76,10 +84,10 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   })
 
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
-    watch,
     setValue,
   } = methods
 
@@ -142,12 +150,19 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
         ]}
       >
         <div>
+          <span>{t("current-course-description-title")}</span>
           <FieldContainer>{course.description}</FieldContainer>
           <FieldContainer>
-            <TextAreaField
-              label={t("text-field-label-ai-description")}
-              {...register("description")}
-            />
+            {!isLoading ? (
+              <TextArea
+                control={control}
+                label={t("text-field-label-ai-description")}
+                autoResize={true}
+                {...register("description")}
+              />
+            ) : (
+              <Spinner variant="medium" />
+            )}
           </FieldContainer>
         </div>
       </StandardDialog>

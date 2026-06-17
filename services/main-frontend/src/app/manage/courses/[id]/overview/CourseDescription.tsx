@@ -24,9 +24,10 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
 
   const courseStructure = useCourseStructure(course.id)
 
-  const hasCourseCode = courseStructure.data?.modules.every(
-    (cm) => cm.uh_course_code !== null && cm.uh_course_code !== "",
-  )
+  const defaultModule = courseStructure.data?.modules[0]
+
+  const hasCourseCode = defaultModule?.uh_course_code !== null
+
   const handleOnUpdateCourse = async () => {
     await refetch()
   }

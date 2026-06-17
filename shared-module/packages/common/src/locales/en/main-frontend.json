@@ -585,6 +585,7 @@
   "credit-will-be-registered-within-few-days": "Credits will be registered within a few days.",
   "credits-n-ects": "Credits: {{n}} ECTS",
   "current": "Current",
+  "current-course-description-title": "Current description:",
   "current-page-unavailable-in-the-new-language-taking-you-to-the-front-page": "The current page is not available in the language version you are switching to. You will be taken to the front page of the course.",
   "currently": "currently",
   "custom-points-description": "Give custom points for the entire exercise. This will override all previous grading for this exercise.",
@@ -1210,6 +1211,7 @@
   "message-your-email-has-been-verified": "Your email has been verified.",
   "minutes": "minutes",
   "missing-name": "(Missing Name)",
+  "missing-uh-course-code-notification": "You need to set all of the University of Helsinki course codes to modules to generate AI description.",
   "mode-duplicate": "Duplicate",
   "mode-existing-language-group": "Existing language group",
   "mode-same-language-group": "Same language group",
@@ -1913,6 +1915,5 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion.",
   "your-code-code": "Your code is: {{code}}",
   "your-name": "Your name",
-  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect.",
-  "missing-uh-course-code-notification": "You need to set all of the University of Helsinki course codes to modules to generate AI description."
+  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect."
 }

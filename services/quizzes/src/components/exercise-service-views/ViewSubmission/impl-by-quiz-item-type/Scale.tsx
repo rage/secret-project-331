@@ -11,6 +11,7 @@ import { QuizItemSubmissionComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const Scale: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemScale, UserItemAnswerScale>
@@ -43,7 +44,7 @@ const Scale: React.FC<
             flex: 5;
             margin: 0.5rem 0;
             color: #4c5868;
-            font-family: "Inter Variable", Inter, sans-serif;
+            font-family: ${primaryFont};
             font-size: 1.25rem;
             margin-bottom: 1rem;
             font-weight: 500;

@@ -12,6 +12,7 @@ import { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const SelectInputIcon = () => {
   return (
@@ -76,7 +77,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
                   font-size: ${quizTheme.quizTitleFontSize} !important;
                   font-weight: 500;
                   color: #4c5868;
-                  font-family: "Inter Variable", Inter, sans-serif;
+                  font-family: ${primaryFont};
                   margin-bottom: 1rem;
                 `}
               >

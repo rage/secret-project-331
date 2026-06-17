@@ -1,5 +1,7 @@
 "use client"
 
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
 export const TWO_DIMENSIONAL_BUTTON_STYLES = `
   position: relative;
   align-items: center;
@@ -55,7 +57,7 @@ export const TWO_DIMENSIONAL_BUTTON_STYLES = `
 export const QUIZ_TITLE_STYLE = `
   font-weight: 500;
   color: #4c5868;
-  font-family: "Inter Variable", Inter, sans-serif;
+  font-family: ${primaryFont};
   font-size: 1.25rem;
   margin-bottom: 1rem;
 `

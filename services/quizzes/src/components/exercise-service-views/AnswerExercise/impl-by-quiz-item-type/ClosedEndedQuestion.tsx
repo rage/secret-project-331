@@ -14,6 +14,7 @@ import { QuizItemComponentProps } from "."
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { stripNonPrintableCharacters } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const ClosedEndedQuestion: React.FC<
   QuizItemComponentProps<PublicSpecQuizItemClosedEndedQuestion, UserItemAnswerClosedEndedQuestion>
@@ -73,7 +74,7 @@ const ClosedEndedQuestion: React.FC<
             label {
               font-weight: 500;
               color: #4c5868;
-              font-family: "Inter Variable", Inter, sans-serif;
+              font-family: ${primaryFont};
               font-size: 0.938rem;
               margin-bottom: 1rem;
             }

@@ -9,7 +9,7 @@ import { useStatusPods } from "@/hooks/useStatusPods"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import Spinner from "@/shared-module/common/components/Spinner"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
 const StatusPodLogs: React.FC = () => {
   const { t } = useTranslation()
@@ -76,7 +76,7 @@ const StatusPodLogs: React.FC = () => {
             padding: 1rem;
             background-color: ${baseTheme.colors.gray[700]};
             color: ${baseTheme.colors.gray[300]};
-            font-family: "Courier New", monospace;
+            font-family: ${monospaceFont};
             font-size: 12px;
             max-height: 600px;
             overflow-y: auto;

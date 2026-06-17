@@ -10,6 +10,7 @@ import ButtonEditor from "./ButtonEditor"
 
 import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { Alternative } from "@/util/stateInterfaces"
+import { generateUuid } from "@/util/uuid"
 
 const CURRENT_STATE = "current-state"
 interface Props {
@@ -78,9 +79,7 @@ const Editor: React.FC<React.PropsWithChildren<Props>> = ({ state, setState, por
       <NewButton
         onClick={() => {
           const newState = [...state]
-          // crypto.randomUUID is available in secure contexts (https / localhost), which
-          // covers the exercise iframe in dev and production.
-          newState.push({ name: "", correct: false, id: crypto.randomUUID() })
+          newState.push({ name: "", correct: false, id: generateUuid() })
           // eslint-disable-next-line i18next/no-literal-string
           setState({ view_type: "exercise-editor", private_spec: newState })
         }}

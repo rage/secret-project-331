@@ -17,6 +17,7 @@ import { QuizItemSubmissionComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const SelectIcon = () => {
   return (
@@ -83,7 +84,7 @@ const MultipleChoiceDropdownFeedback: React.FC<
                     font-size: ${quizTheme.quizTitleFontSize} !important;
                     font-weight: 500;
                     color: #4c5868;
-                    font-family: "Raleway", sans-serif;
+                    font-family: ${primaryFont};
                     margin-bottom: 1rem;
                   `}
                 >

@@ -4,8 +4,7 @@ use utoipa::ToSchema;
 
 use crate::prelude::*;
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
-
+#[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
 pub struct CodeGiveawayCode {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -14,7 +13,8 @@ pub struct CodeGiveawayCode {
     pub code_giveaway_id: Uuid,
     pub code_given_to_user_id: Option<Uuid>,
     pub added_by_user_id: Uuid,
-    pub code: String,
+    #[schema(value_type = String)]
+    pub code: OutboundSecret,
 }
 
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<CodeGiveawayCode> {
@@ -221,6 +221,7 @@ SELECT EXISTS(
 mod tests {
     use super::*;
     use crate::{code_giveaways::NewCodeGiveaway, test_helper::*};
+    use secrecy::ExposeSecret;
 
     #[tokio::test]
     async fn test_insert_many_empty() {
@@ -273,7 +274,9 @@ mod tests {
 
         assert_eq!(insert_result.len(), codes.len());
         for code in &codes {
-            let found = insert_result.iter().find(|c| c.code == *code);
+            let found = insert_result
+                .iter()
+                .find(|c| c.code.expose_secret() == code.as_str());
             assert!(found.is_some());
         }
         // Double checking
@@ -282,7 +285,9 @@ mod tests {
             .unwrap();
         assert_eq!(all_codes.len(), codes.len());
         for code in &codes {
-            let found = all_codes.iter().find(|c| c.code == *code);
+            let found = all_codes
+                .iter()
+                .find(|c| c.code.expose_secret() == code.as_str());
             assert!(found.is_some());
         }
     }

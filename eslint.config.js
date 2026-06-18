@@ -301,6 +301,8 @@ const config = [
               "slot",
               "tag",
               "themeMode",
+              "status",
+              "name",
             ],
           },
           words: {

@@ -1,3 +1,5 @@
+use secrecy::{ExposeSecret, SecretString};
+
 use crate::{
     azure_chatbot::{
         ChatResponse, InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams,
@@ -493,13 +495,14 @@ pub struct LLMResponse {
 }
 
 /// Builds common headers for LLM requests
-#[instrument(skip(api_key), fields(api_key_length = api_key.len()))]
-pub fn build_llm_headers(api_key: &str) -> anyhow::Result<HeaderMap> {
+#[instrument(skip(api_key), fields(api_key_length = api_key.expose_secret().len()))]
+pub fn build_llm_headers(api_key: &SecretString) -> anyhow::Result<HeaderMap> {
     trace!("Building LLM request headers");
     let mut headers = HeaderMap::new();
     headers.insert(
         "api-key",
-        api_key.parse().map_err(|_e| {
+        // Exposed only here, at the point the header value is constructed.
+        api_key.expose_secret().parse().map_err(|_e| {
             error!("Failed to parse API key");
             anyhow::anyhow!("Invalid API key")
         })?,
@@ -547,7 +550,7 @@ pub fn estimate_tokens(text: &str) -> i32 {
 async fn make_llm_request(
     chat_request: LLMRequest,
     endpoint: &url::Url,
-    api_key: &str,
+    api_key: &SecretString,
 ) -> anyhow::Result<LLMResponse> {
     debug!(
         "Preparing LLM request with {} messages",

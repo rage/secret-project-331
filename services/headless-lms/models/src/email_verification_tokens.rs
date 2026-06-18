@@ -1,13 +1,14 @@
 use crate::prelude::*;
 use rand::RngExt;
 use rand::distr::{Alphanumeric, SampleString};
+use secrecy::ExposeSecret;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct EmailVerificationToken {
     pub id: Uuid,
-    pub email_verification_token: String,
+    pub email_verification_token: DbSecret,
     pub user_id: Uuid,
-    pub code: String,
+    pub code: DbSecret,
     pub code_sent: bool,
     pub expires_at: DateTime<Utc>,
     pub used_at: Option<DateTime<Utc>>,
@@ -41,11 +42,11 @@ WHERE expires_at < NOW()
 pub async fn create_email_verification_token(
     conn: &mut PgConnection,
     user_id: Uuid,
-    code: String,
-) -> ModelResult<String> {
+    code: DbSecret,
+) -> ModelResult<DbSecret> {
     maybe_cleanup_expired(conn).await?;
 
-    let email_verification_token = Alphanumeric.sample_string(&mut rand::rng(), 128);
+    let email_verification_token = DbSecret::new(Alphanumeric.sample_string(&mut rand::rng(), 128));
 
     let result = sqlx::query!(
         r#"
@@ -58,9 +59,9 @@ INSERT INTO email_verification_tokens (
 VALUES ($1, $2, $3, NOW() + INTERVAL '15 minutes')
 RETURNING *
         "#,
-        email_verification_token,
+        email_verification_token.expose_secret(),
         user_id,
-        code
+        code.expose_secret()
     )
     .fetch_one(conn)
     .await?;
@@ -70,7 +71,7 @@ RETURNING *
 
 pub async fn get_by_email_verification_token(
     conn: &mut PgConnection,
-    token: &str,
+    token: &DbSecret,
 ) -> ModelResult<Option<EmailVerificationToken>> {
     maybe_cleanup_expired(conn).await?;
 
@@ -84,7 +85,7 @@ WHERE email_verification_token = $1
   AND deleted_at IS NULL
   AND used_at IS NULL
         "#,
-        token
+        token.expose_secret()
     )
     .fetch_optional(conn)
     .await?;
@@ -94,20 +95,20 @@ WHERE email_verification_token = $1
 
 pub async fn verify_code(
     conn: &mut PgConnection,
-    email_verification_token: &str,
-    code: &str,
+    email_verification_token: &DbSecret,
+    code: &DbSecret,
 ) -> ModelResult<bool> {
     let token = get_by_email_verification_token(conn, email_verification_token).await?;
 
     match token {
-        Some(t) => Ok(t.code == code),
+        Some(t) => Ok(t.code.expose_secret() == code.expose_secret()),
         None => Ok(false),
     }
 }
 
 pub async fn mark_as_used(
     conn: &mut PgConnection,
-    email_verification_token: &str,
+    email_verification_token: &DbSecret,
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -118,7 +119,7 @@ WHERE email_verification_token = $1
   AND used_at IS NULL
   AND expires_at > NOW()
         "#,
-        email_verification_token
+        email_verification_token.expose_secret()
     )
     .execute(conn)
     .await?;
@@ -128,7 +129,7 @@ WHERE email_verification_token = $1
 
 pub async fn mark_code_sent(
     conn: &mut PgConnection,
-    email_verification_token: &str,
+    email_verification_token: &DbSecret,
 ) -> ModelResult<()> {
     sqlx::query!(
         r#"
@@ -137,7 +138,7 @@ SET code_sent = TRUE
 WHERE email_verification_token = $1
   AND deleted_at IS NULL
         "#,
-        email_verification_token
+        email_verification_token.expose_secret()
     )
     .execute(conn)
     .await?;

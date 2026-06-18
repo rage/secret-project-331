@@ -14,18 +14,20 @@ import {
 import type { PlaygroundExample } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { QueryResult } from "@/shared-module/components"
+import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
 const TITLE = "PLAYGROUND"
 
 const Home: React.FC = () => {
   const { t } = useTranslation()
+  const dialog = useDialog()
   const [exampleUrl, setExampleUrl] = useState<string>("")
   const [exampleWidth, setExampleWidth] = useState<number>(narrowContainerWidthPx)
   const [exampleData, setExampleData] = useState<string>("")
@@ -295,6 +297,7 @@ const Home: React.FC = () => {
           `}
         >
           <MessageChannelIFrame
+            dialog={dialog}
             key={combinedUrl + exampleData}
             url={combinedUrl}
             postThisStateToIFrame={{

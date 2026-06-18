@@ -5,7 +5,7 @@ use headless_lms_models::{
     chatbot_configurations::{self, NewChatbotConf},
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
-    courses::NewCourse,
+    courses::{self, NewCourse},
     library::{self, content_management::CreateNewCourseFixedIds, copying::copy_course},
     organizations,
     roles::{self, RoleDomain, UserRole},
@@ -122,6 +122,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, statistics_course.id, false).await?;
     let _statistics_course_instance = course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("c4a99a18-fd43-491a-9500-4673cb900be0")?),
@@ -156,7 +157,7 @@ pub async fn seed_organization_uh_mathstat(
         flagged_answers_threshold: Some(3),
         can_add_chatbot: false,
     };
-    library::content_management::create_new_course(
+    let (draft_course_created, _, _, _) = library::content_management::create_new_course(
         &mut conn,
         PKeyPolicy::Fixed(CreateNewCourseFixedIds {
             course_id: Uuid::parse_str("963a9caf-1e2d-4560-8c88-9c6d20794da3")?,
@@ -168,6 +169,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, draft_course_created.id, false).await?;
 
     let (cody_only_course, _, _, _) = library::content_management::create_new_course(
         &mut conn,
@@ -200,6 +202,7 @@ pub async fn seed_organization_uh_mathstat(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, cody_only_course.id, false).await?;
 
     roles::insert(
         &mut conn,
@@ -322,6 +325,9 @@ pub async fn seed_organization_uh_mathstat(
         seed_users_result,
     )
     .await?;
+    // This course is the one the suspected-cheaters system-test spec relies on, so it keeps
+    // detection on (seed_sample_course disables it by default for every other seeded course).
+    courses::set_cheater_detection_enabled(&mut conn, suspected_cheaters_course_id, true).await?;
 
     // configure automatic completions
     let automatic_default_module =

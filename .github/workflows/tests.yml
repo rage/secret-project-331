@@ -261,3 +261,117 @@ jobs:
             echo "- **Status**: ${{ job.status }}"
             echo "- **Service**: Main Frontend"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  shared-module-exercise-client:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/exercise-client
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/exercise-client
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-client
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧩 Exercise Client Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Exercise Client"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  shared-module-exercise-react:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/exercise-react
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/exercise-react
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-react
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## ⚛️ Exercise React Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Exercise React"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  shared-module-exercise-protocol:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/exercise-protocol
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/exercise-protocol
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+        working-directory: ./shared-module/packages/exercise-protocol
+      - name: Check generated guards are up to date
+        run: |
+          pnpm run generate-guards
+          git diff --exit-code src/core/exercise-service-protocol-types.guard.ts
+        working-directory: ./shared-module/packages/exercise-protocol
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 📜 Exercise Protocol Checks"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Exercise Protocol"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  create-exercise-service:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/create-exercise-service
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/create-exercise-service
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./shared-module/packages/create-exercise-service
+      - name: Scaffold a project from the template
+        run: pnpm exec tsx scripts/scaffold-to.ts "${{ runner.temp }}/smoke-exercise" smoke-exercise 3002
+        working-directory: ./shared-module/packages/create-exercise-service
+      - name: Install the generated project
+        run: pnpm install
+        working-directory: ${{ runner.temp }}/smoke-exercise
+      - name: Typecheck the generated project
+        run: pnpm exec tsc --noEmit
+        working-directory: ${{ runner.temp }}/smoke-exercise
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🏗️ Create Exercise Service Checks"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Create Exercise Service"
+          } >> "$GITHUB_STEP_SUMMARY"

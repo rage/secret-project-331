@@ -34,7 +34,7 @@ const CongratulationsBlock: React.FC = () => {
     >
       {(modules) =>
         // This block is only visible after the default module is completed.
-        modules.some((x) => x.default && x.completed && !x.needs_to_be_reviewed) ? (
+        modules.some((x) => x.default && x.completed) ? (
           <BreakFromCentered sidebar={false}>
             <Congratulations modules={modules} />
           </BreakFromCentered>

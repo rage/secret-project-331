@@ -18,7 +18,7 @@ use crate::{
         self, Chapter, DatabaseChapter, course_chapters, get_chapter, get_chapter_by_page_id,
     },
     course_instances::{self, CourseInstance},
-    courses::{self, Course, CourseContextData},
+    courses::{self, Course, CourseContextData, CourseMaterialCourse},
     exercise_service_info::{self, ExerciseServiceInfoApi},
     exercise_services::{get_internal_public_spec_url, get_model_solution_url},
     exercise_slides::ExerciseSlide,
@@ -98,7 +98,7 @@ pub struct CoursePageWithUserData {
     pub page: Page,
     pub instance: Option<CourseInstance>,
     pub settings: Option<UserCourseSettings>,
-    pub course: Option<Course>,
+    pub course: Option<CourseMaterialCourse>,
     pub organization: Option<Organization>,
     pub lock_chapter_content_state: Option<LockChapterContentState>,
     /// If true, the frontend needs to update the url in the browser to match the path in the page object without reloading the page.
@@ -1034,7 +1034,7 @@ pub async fn get_course_page_with_user_data_from_selected_page(
             page: filtered_page,
             instance,
             settings,
-            course: Some(course),
+            course: Some(course.into()),
             was_redirected,
             is_test_mode,
             organization: Some(organization),
@@ -4217,6 +4217,9 @@ mod test {
                 closed_at: course_before_update.closed_at,
                 closed_additional_message: course_before_update.closed_additional_message,
                 closed_course_successor_id: course_before_update.closed_course_successor_id,
+                ai_policy: course_before_update.ai_policy,
+                course_material_ai_instructions: course_before_update
+                    .course_material_ai_instructions,
             },
         )
         .await

@@ -5,6 +5,7 @@
 'certificate_paper_size' = "crate::certificate_configurations::PaperSize"
 'certificate_text_anchor' = "crate::certificate_configurations::CertificateTextAnchor"
 'chapter_locking_status' = "crate::user_chapter_locking_statuses::ChapterLockingStatus"
+'course_ai_policy' = "crate::courses::CourseAiPolicy"
 'course_background_question_type' = "crate::course_background_questions::CourseBackgroundQuestionType"
 'course_designer_plan_stage_status' = "crate::course_designer_plans::CourseDesignerPlanStageStatus"
 'course_designer_plan_status' = "crate::course_designer_plans::CourseDesignerPlanStatus"
@@ -23,12 +24,25 @@
 'reasoning_effort_level' = "crate::chatbot_configurations::ReasoningEffortLevel"
 'report_reason' = "crate::flagged_answers::ReportReason"
 'reviewing_stage' = "crate::user_exercise_states::ReviewingStage"
+'suspected_cheater_status' = "crate::suspected_cheaters::SuspectedCheaterStatus"
 'teacher_decision_type' = "crate::teacher_grading_decisions::TeacherDecisionType"
 'token_endpoint_auth_method' = "crate::oauth_client::TokenEndpointAuthMethod"
 'token_type' = "crate::oauth_access_token::TokenType"
 'user_points_update_strategy' = "crate::exercise_task_gradings::UserPointsUpdateStrategy"
 'user_role' = "crate::roles::UserRole"
 'verbosity_level' = "crate::chatbot_configurations::VerbosityLevel"
+
+[macros.table-overrides.'email_verification_tokens']
+'email_verification_token' = "crate::secret::DbSecret"
+'code' = "crate::secret::DbSecret"
+
+[macros.table-overrides.'marketing_mailing_list_access_tokens']
+'access_token' = "crate::secret::DbSecret"
+
+# Giveaway codes are intentionally returned to the recipient over the API, so they use
+# `OutboundSecret` (serializes on the wire, but redacted in Debug/logs and zeroized).
+[macros.table-overrides.'code_giveaway_codes']
+'code' = "crate::secret::OutboundSecret"
 
 [macros.table-overrides.'oauth_clients']
 'client_secret' = "crate::library::oauth::Digest"

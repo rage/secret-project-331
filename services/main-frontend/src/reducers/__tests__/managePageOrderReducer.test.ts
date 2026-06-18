@@ -70,6 +70,9 @@ const createCourse = (overrides: Partial<Course>): Course => ({
   closed_additional_message: null,
   closed_course_successor_id: null,
   chapter_locking_enabled: false,
+  cheater_detection_enabled: true,
+  ai_policy: "NotSet",
+  course_material_ai_instructions: null,
   ...overrides,
 })
 

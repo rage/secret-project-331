@@ -30,7 +30,7 @@ use headless_lms_models::{
     course_instance_enrollments::NewCourseInstanceEnrollment,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, NewCourseModule},
-    courses::NewCourse,
+    courses::{self, NewCourse},
     feedback,
     feedback::{FeedbackBlock, NewFeedback},
     file_uploads, glossary, library,
@@ -45,7 +45,7 @@ use headless_lms_models::{
     proposed_block_edits::NewProposedBlockEdit,
     proposed_page_edits,
     proposed_page_edits::NewProposedPageEdits,
-    url_redirections,
+    url_redirections, user_ai_usage_notice_acknowledgements,
 };
 use headless_lms_models::{certificate_configurations::DatabaseCertificateConfiguration, roles};
 use headless_lms_models::{
@@ -130,6 +130,10 @@ pub async fn seed_sample_course(
             models_requests::fetch_service_info,
         )
         .await?;
+    // Seeded courses are completed in seconds by system tests, which would flag every seeded user
+    // and break the suite, so disable cheater detection. Callers that need detection on (e.g. the
+    // dedicated suspected-cheaters course) re-enable it after seeding.
+    courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
     course_modules::update_enable_registering_completion_to_uh_open_university(
         &mut conn,
         default_module.id,
@@ -1708,6 +1712,10 @@ pub async fn seed_sample_course(
         )
         .await?;
 
+        // Pre-acknowledge the AI-usage notice for seeded enrollments so the dialog does not
+        // block already-enrolled users (e.g. in system tests).
+        user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, user_id, course_id).await?;
+
         submit_and_grade(
             &mut conn,
             b"8c447aeb-1791-4236-8471-204d8bc27507",
@@ -1810,6 +1818,7 @@ pub async fn seed_sample_course(
         },
     )
     .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, langs_user_id, course_id).await?;
 
     // feedback
     info!("sample feedback");
@@ -2052,6 +2061,7 @@ pub async fn seed_cs_course_material(
             models_requests::fetch_service_info,
         )
         .await?;
+    courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
 
     // Exercises
     let (
@@ -2745,6 +2755,7 @@ pub async fn seed_cs_course_material(
         },
     )
     .await?;
+    user_ai_usage_notice_acknowledgements::acknowledge(&mut conn, langs_user_id, course.id).await?;
 
     Ok(course.id)
 }
@@ -2802,6 +2813,7 @@ pub async fn seed_peer_review_course_without_submissions(
         models_requests::fetch_service_info,
     )
     .await?;
+    courses::set_cheater_detection_enabled(&mut conn, course.id, false).await?;
 
     course_instances::insert(
         &mut conn,

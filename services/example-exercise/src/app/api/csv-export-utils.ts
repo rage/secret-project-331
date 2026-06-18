@@ -1,4 +1,5 @@
-import { Alternative } from "@/util/stateInterfaces"
+import { BadRequestError } from "@/lib/apiRoutes"
+import { Alternative, isAlternative } from "@/util/stateInterfaces"
 
 export type CsvScalar = string | number | boolean | null
 
@@ -16,21 +17,30 @@ export interface CsvExportResponse {
   results: CsvExportResult[]
 }
 
-export function isAlternative(value: unknown): value is Alternative {
-  if (!value || typeof value !== "object") {
-    return false
-  }
-  const typedValue = value as Record<string, unknown>
-  return (
-    typeof typedValue.id === "string" &&
-    typeof typedValue.name === "string" &&
-    typeof typedValue.correct === "boolean"
-  )
+export interface CsvExportRequest<T> {
+  items: T[]
 }
 
-export function parsePrivateSpec(value: unknown): Alternative[] {
-  if (!Array.isArray(value) || !value.every((item) => isAlternative(item))) {
-    throw new Error("Invalid private_spec: expected an array of alternatives")
+/** Validates that the body is `{ items: [...] }`, throwing a 400 otherwise. */
+export function parseItemsRequest<T>(body: unknown): CsvExportRequest<T> {
+  if (
+    !body ||
+    typeof body !== "object" ||
+    !Array.isArray((body as Record<string, unknown>).items)
+  ) {
+    throw new BadRequestError("Invalid request body: items must be an array")
+  }
+  return body as CsvExportRequest<T>
+}
+
+/**
+ * Validates that the value is the exercise's private spec, throwing a 400 otherwise. This is the
+ * strict counterpart to the forgiving `parsePrivateSpec` in `stateInterfaces.ts`: the export
+ * endpoints reject malformed specs, while the iframe view tolerates them.
+ */
+export function parsePrivateSpecStrict(value: unknown): Alternative[] {
+  if (!Array.isArray(value) || !value.every(isAlternative)) {
+    throw new BadRequestError("Invalid private_spec: expected an array of alternatives")
   }
   return value
 }
@@ -49,14 +59,6 @@ export function parseNumberField(value: unknown, fieldName: string): number | nu
   }
   const typedValue = value as Record<string, unknown>
   return typeof typedValue[fieldName] === "number" ? (typedValue[fieldName] as number) : null
-}
-
-export function parseBooleanField(value: unknown, fieldName: string): boolean | null {
-  if (!value || typeof value !== "object") {
-    return null
-  }
-  const typedValue = value as Record<string, unknown>
-  return typeof typedValue[fieldName] === "boolean" ? (typedValue[fieldName] as boolean) : null
 }
 
 export function parseBooleanFieldFromObject(

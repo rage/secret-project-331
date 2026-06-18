@@ -1,6 +1,7 @@
 use headless_lms_models::marketing_consents::MarketingMailingListAccessToken;
 use headless_lms_utils::http::REQWEST_CLIENT;
 use reqwest::Method;
+use secrecy::ExposeSecret;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::time::Duration;
@@ -77,9 +78,10 @@ async fn execute_direct(
             "https://{}.api.mailchimp.com/3.0{}",
             token.server_prefix, op.path
         );
-        let mut request = REQWEST_CLIENT
-            .request(op.method.clone(), &url)
-            .header("Authorization", format!("apikey {}", token.access_token));
+        let mut request = REQWEST_CLIENT.request(op.method.clone(), &url).header(
+            "Authorization",
+            format!("apikey {}", token.access_token.expose_secret()),
+        );
         if let Some(body) = op.body.clone() {
             request = request.json(&body);
         }

@@ -103,7 +103,7 @@ WHERE user_id = $1
 pub async fn mark_user_email_code_used(
     conn: &mut PgConnection,
     user_id: Uuid,
-    code: &String,
+    code: &str,
 ) -> ModelResult<bool> {
     let result = sqlx::query!(
         r#"

@@ -443,6 +443,7 @@ fn calculate_peer_review_weighted_points(
 mod tests {
     use super::*;
     use crate::courses::Course;
+    use crate::courses::CourseAiPolicy;
 
     mod derive_new_user_exercise_state {
         use chrono::TimeZone;
@@ -1231,6 +1232,9 @@ mod tests {
                 closed_additional_message: None,
                 closed_course_successor_id: None,
                 chapter_locking_enabled: false,
+                cheater_detection_enabled: true,
+                ai_policy: CourseAiPolicy::NotSet,
+                course_material_ai_instructions: None,
             }
         }
 

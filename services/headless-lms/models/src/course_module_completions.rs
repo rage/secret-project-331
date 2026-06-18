@@ -544,6 +544,33 @@ WHERE course_module_id = $1
     Ok(res)
 }
 
+/// True if the user has at least one non-deleted, teacher-granted (manual) completion in the
+/// course. A manual completion means a teacher vouched for the student, which exempts them from
+/// automatic cheating suspicion for the whole course.
+pub async fn user_has_manual_completion_in_course(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+) -> ModelResult<bool> {
+    let res = sqlx::query!(
+        r#"
+SELECT EXISTS (
+  SELECT 1
+  FROM course_module_completions
+  WHERE user_id = $1
+    AND course_id = $2
+    AND completion_granter_user_id IS NOT NULL
+    AND deleted_at IS NULL
+) AS "exists!"
+        "#,
+        user_id,
+        course_id,
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res.exists)
+}
+
 pub async fn update_completion_registration_attempt_date(
     conn: &mut PgConnection,
     id: Uuid,
@@ -576,28 +603,6 @@ WHERE id = $2 AND deleted_at IS NULL
     ",
         prerequisite_modules_completed,
         id
-    )
-    .execute(conn)
-    .await?;
-    Ok(res.rows_affected() > 0)
-}
-
-pub async fn update_passed_and_grade_status(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    user_id: Uuid,
-    passed: bool,
-    grade: i32,
-) -> ModelResult<bool> {
-    let res = sqlx::query!(
-        "
-UPDATE course_module_completions SET passed = $1, grade = $2
-WHERE user_id = $3 AND course_id = $4 AND deleted_at IS NULL
-    ",
-        passed,
-        grade,
-        user_id,
-        course_id
     )
     .execute(conn)
     .await?;
@@ -793,6 +798,9 @@ FROM course_module_completions
 WHERE course_module_id = ANY($1)
   AND prerequisite_modules_completed
   AND eligible_for_ects IS TRUE
+  -- Completions still awaiting suspected-cheater review are withheld from study-registry
+  -- registration until a teacher dismisses or confirms them.
+  AND needs_to_be_reviewed = FALSE
   AND deleted_at IS NULL
   AND id NOT IN (
     SELECT course_module_completion_id

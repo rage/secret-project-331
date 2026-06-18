@@ -17,6 +17,7 @@ use headless_lms_base::config::ApplicationConfiguration;
 use models::{
     library::oauth::token_digest_sha256, oauth_access_token::TokenType, oauth_client::OAuthClient,
 };
+use secrecy::ExposeSecret;
 use sqlx::PgPool;
 use utoipa::OpenApi;
 
@@ -134,7 +135,10 @@ pub async fn token(
             Some(ref secret) => {
                 let token_hmac_key = &app_conf.oauth_server_configuration.oauth_token_hmac_key;
                 if !secret.constant_eq(&token_digest_sha256(
-                    &form.client_secret.clone().unwrap_or_default(),
+                    form.client_secret
+                        .as_ref()
+                        .map(|s| s.expose_secret())
+                        .unwrap_or_default(),
                     token_hmac_key,
                 )) {
                     return Err(oauth_invalid_client("invalid client secret"));

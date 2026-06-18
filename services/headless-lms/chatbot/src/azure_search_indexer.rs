@@ -1,4 +1,5 @@
 use crate::prelude::*;
+use secrecy::ExposeSecret;
 use serde_json::json;
 
 const API_VERSION: &str = "2024-07-01";
@@ -55,7 +56,7 @@ pub async fn does_search_indexer_exist(
     let response = REQWEST_CLIENT
         .get(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .send()
         .await?;
 
@@ -126,7 +127,7 @@ pub async fn create_search_indexer(
     let response = REQWEST_CLIENT
         .put(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .json(&indexer_definition)
         .send()
         .await?;
@@ -163,7 +164,7 @@ pub async fn run_search_indexer_now(
     let response = REQWEST_CLIENT
         .post(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .send()
         .await?;
 
@@ -212,7 +213,7 @@ pub async fn check_search_indexer_status(
     let response = REQWEST_CLIENT
         .get(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .send()
         .await?;
 

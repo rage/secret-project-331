@@ -1,3 +1,4 @@
+use secrecy::ExposeSecret;
 use serde_json::json;
 
 use crate::prelude::*;
@@ -22,7 +23,7 @@ pub async fn does_azure_datasource_exist(
     let response = REQWEST_CLIENT
         .get(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .send()
         .await?;
 
@@ -72,7 +73,7 @@ pub async fn create_azure_datasource(
             "name": container_name,
         },
         "credentials": {
-            "connectionString": connection_string,
+            "connectionString": connection_string.expose_secret(),
         },
         "dataDeletionDetectionPolicy": {
             "@odata.type": "#Microsoft.Azure.Search.NativeBlobSoftDeleteDeletionDetectionPolicy",
@@ -82,7 +83,7 @@ pub async fn create_azure_datasource(
     let response = REQWEST_CLIENT
         .put(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .json(&datasource_definition)
         .send()
         .await?;

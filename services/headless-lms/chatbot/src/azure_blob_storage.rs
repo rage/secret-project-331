@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use secrecy::ExposeSecret;
+
 use crate::prelude::*;
 use anyhow::Context;
 use azure_core::prelude::Metadata;
@@ -34,7 +36,11 @@ impl AzureBlobClient {
 
         let container_name = container_name.to_string();
 
-        let storage_credentials = StorageCredentials::access_key(&storage_account, access_key);
+        // Azure SDK takes ownership of the key string; expose only here at the SDK boundary.
+        let storage_credentials = StorageCredentials::access_key(
+            &storage_account,
+            access_key.expose_secret().to_string(),
+        );
         let blob_service_client = BlobServiceClient::new(storage_account, storage_credentials);
         let container_client = blob_service_client.container_client(container_name.clone());
 

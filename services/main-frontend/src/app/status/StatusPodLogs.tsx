@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next"
 import { useStatusPodLogs } from "@/hooks/useStatusPodLogs"
 import { useStatusPods } from "@/hooks/useStatusPods"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { QueryResult } from "@/shared-module/components"
 
 const StatusPodLogs: React.FC = () => {
@@ -75,7 +75,7 @@ const StatusPodLogs: React.FC = () => {
             padding: 1rem;
             background-color: ${baseTheme.colors.gray[700]};
             color: ${baseTheme.colors.gray[300]};
-            font-family: "Courier New", monospace;
+            font-family: ${monospaceFont};
             font-size: 12px;
             max-height: 600px;
             overflow-y: auto;

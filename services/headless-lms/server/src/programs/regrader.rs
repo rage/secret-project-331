@@ -15,7 +15,7 @@ pub async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     crate::setup_tracing()?;
     let db_url = ProgramConfig::database_url_with_default();
-    let jwt_password = ProgramConfig::required("JWT_PASSWORD")?;
+    let jwt_password = secrecy::SecretString::new(ProgramConfig::required("JWT_PASSWORD")?.into());
     let jwt_key = Arc::new(JwtKey::new(&jwt_password)?);
 
     let mut interval = tokio::time::interval(Duration::from_secs(10));

@@ -3,6 +3,7 @@
 import React from "react"
 
 import ManageCourse from "./ManageCourse"
+import SuspectedCheatersReviewBanner from "./SuspectedCheatersReviewBanner"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
@@ -14,9 +15,12 @@ const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProp
   const courseQuery = useCourseQuery(courseId)
 
   return (
-    <QueryResult query={courseQuery}>
-      {(course) => <ManageCourse course={course} refetch={courseQuery.refetch} />}
-    </QueryResult>
+    <>
+      <SuspectedCheatersReviewBanner courseId={courseId} />
+      <QueryResult query={courseQuery}>
+        {(course) => <ManageCourse course={course} refetch={courseQuery.refetch} />}
+      </QueryResult>
+    </>
   )
 }
 

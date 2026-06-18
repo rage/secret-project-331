@@ -53,15 +53,14 @@ pub struct UserEmailSubscription {
     pub user_mailchimp_id: Option<String>,
 }
 
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
-
+#[derive(Debug, Clone)]
 pub struct MarketingMailingListAccessToken {
     pub id: Uuid,
     pub course_id: Uuid,
     pub mailchimp_mailing_list_id: String,
     pub course_language_group_id: Uuid,
     pub server_prefix: String,
-    pub access_token: String,
+    pub access_token: DbSecret,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,

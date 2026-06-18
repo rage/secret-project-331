@@ -11,6 +11,9 @@ headless-lms-base = { path = "../base" }
 headless-lms-utils = { path = "../utils" }
 headless-lms-models = { path = "../models" }
 
+# Wrapper types (SecretString/SecretBox) for sensitive values such as API keys.
+secrecy.workspace = true
+
 # Date and time library for Rust
 chrono = { version = "0.4.44", features = ["serde"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…

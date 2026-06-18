@@ -1,18 +1,23 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useQuery } from "@tanstack/react-query"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
-import { getCourseSuspectedCheatersOptions } from "@/generated/api/@tanstack/react-query.generated"
 import {
-  approveCourseSuspectedCheater,
-  archiveCourseSuspectedCheater,
+  getCourseFlaggedSuspectedCheatersCountQueryKey,
+  getCourseSuspectedCheatersOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import {
+  confirmCourseSuspectedCheater,
+  dismissCourseSuspectedCheater,
 } from "@/generated/api/sdk.generated"
+import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
@@ -20,15 +25,29 @@ import { QueryResult } from "@/shared-module/components"
 
 interface CourseCheatersProps {
   courseId: string
-  archive: boolean
-  perPage: number
+  status: SuspectedCheaterStatus
 }
 
 const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> = ({
   courseId,
-  archive,
+  status,
 }) => {
   const { t } = useTranslation()
+  const queryClient = useQueryClient()
+  const { confirm } = useDialog()
+
+  // Each tab can move a student to the other states. Confirm is offered on the flagged and
+  // dismissed tabs; dismiss on the flagged and confirmed tabs. (On the flagged tab both apply.)
+  const canConfirm = status === "Flagged" || status === "Dismissed"
+  const canDismiss = status === "Flagged" || status === "ConfirmedCheating"
+  const showActions = canConfirm || canDismiss
+
+  const listTitle =
+    status === "ConfirmedCheating"
+      ? t("confirmed-cheaters-list")
+      : status === "Dismissed"
+        ? t("dismissed-cheaters-list")
+        : t("cheaters-list")
 
   const suspectedCheaters = useQuery({
     ...getCourseSuspectedCheatersOptions({
@@ -36,60 +55,91 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
         course_id: courseId,
       },
       query: {
-        archive,
+        status,
       },
     }),
   })
 
-  const handleApproval = useToastMutation(
+  // Confirm and dismiss move the student to a different status. Refetch this list (the student
+  // leaves it) and invalidate the flagged-count badge (course tabs) and overview review banner,
+  // which are owned by other components. The destination tab is a separate route that refetches on
+  // navigation, so it does not need explicit invalidation here.
+  const handleActionSuccess = () => {
+    suspectedCheaters.refetch()
+    queryClient.invalidateQueries({
+      queryKey: getCourseFlaggedSuspectedCheatersCountQueryKey({
+        path: { course_id: courseId },
+      }),
+    })
+  }
+
+  const handleConfirm = useToastMutation(
     (id: string) => {
       if (!id) {
         throw Error("Student ID undefined")
       }
 
-      return approveCourseSuspectedCheater({
+      return confirmCourseSuspectedCheater({
         path: {
           course_id: courseId,
-          id,
+          user_id: id,
         },
       })
     },
     {
       notify: true,
-      successMessage: t("suspect-approved-successfully"),
+      successMessage: t("cheating-confirmed-successfully"),
       method: "POST",
     },
-    {
-      onSuccess: () => {
-        suspectedCheaters.refetch()
-      },
-    },
+    { onSuccess: handleActionSuccess },
   )
 
-  const handleArchive = useToastMutation(
+  const handleDismiss = useToastMutation(
     (id: string) => {
       if (!id) {
         throw Error("Student ID undefined")
       }
 
-      return archiveCourseSuspectedCheater({
+      return dismissCourseSuspectedCheater({
         path: {
           course_id: courseId,
-          id,
+          user_id: id,
         },
       })
     },
     {
       notify: true,
-      successMessage: t("suspect-archived-successfully"),
+      successMessage: t("suspicion-dismissed-successfully"),
       method: "POST",
     },
-    {
-      onSuccess: () => {
-        suspectedCheaters.refetch()
-      },
-    },
+    { onSuccess: handleActionSuccess },
   )
+
+  // Confirming fails the student, so always ask first.
+  const onConfirmClick = async (userId: string) => {
+    const confirmed = await confirm(
+      t("confirm-cheating-dialog-message"),
+      t("confirm-cheating-dialog-title"),
+    )
+    if (confirmed) {
+      handleConfirm.mutate(userId)
+    }
+  }
+
+  // Dismissing from the confirmed tab un-fails the student and restores their grade, so ask first.
+  // Dismissing a still-flagged student is harmless and fires directly.
+  const onDismissClick = async (userId: string) => {
+    if (status === "ConfirmedCheating") {
+      const confirmed = await confirm(
+        t("dismiss-from-confirmed-dialog-message"),
+        t("dismiss-suspicion"),
+      )
+      if (!confirmed) {
+        return
+      }
+    }
+    handleDismiss.mutate(userId)
+  }
 
   return (
     <>
@@ -99,7 +149,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
           margin-bottom: 0.8rem;
         `}
       >
-        {archive ? t("deleted-cheaters-list") : t("cheaters-list")}
+        {listTitle}
       </h5>
       <QueryResult
         query={suspectedCheaters}
@@ -154,7 +204,7 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                 padding: 0.8rem;
               }
             `}
-            aria-label={archive ? t("deleted-cheaters-list") : t("cheaters-list")}
+            aria-label={listTitle}
           >
             <caption
               className={css`
@@ -164,14 +214,14 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                 caption-side: top;
               `}
             >
-              {archive ? t("deleted-cheaters-list") : t("cheaters-list")}
+              {listTitle}
             </caption>
             <thead>
               <tr>
                 <th scope="col">{t("student-id")}</th>
                 <th scope="col">{t("points")}</th>
                 <th scope="col">{t("duration")}</th>
-                {!archive && <th scope="col">{t("actions")}</th>}
+                {showActions && <th scope="col">{t("actions")}</th>}
               </tr>
             </thead>
             <tbody>
@@ -209,34 +259,38 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                           : `0${t("hours-short")}`}
                       </span>
                     </td>
-                    {!archive && (
+                    {showActions && (
                       <td>
-                        <Button
-                          className="threshold-btn"
-                          variant="primary"
-                          size="medium"
-                          onClick={() => handleApproval.mutate(user_id)}
-                          aria-label={t("confirm-cheating-for-student", {
-                            action: t("confirm-cheating"),
-                            label: t("student-id"),
-                            id: user_id,
-                          })}
-                        >
-                          {t("confirm-cheating")}
-                        </Button>
-                        <Button
-                          className="threshold-btn"
-                          variant="secondary"
-                          size="medium"
-                          onClick={() => handleArchive.mutate(user_id)}
-                          aria-label={t("confirm-cheating-for-student", {
-                            action: t("clear-suspicion"),
-                            label: t("student-id"),
-                            id: user_id,
-                          })}
-                        >
-                          {t("clear-suspicion")}
-                        </Button>
+                        {canConfirm && (
+                          <Button
+                            className="threshold-btn"
+                            variant="primary"
+                            size="medium"
+                            onClick={() => onConfirmClick(user_id)}
+                            aria-label={t("confirm-cheating-for-student", {
+                              action: t("confirm-cheating"),
+                              label: t("student-id"),
+                              id: user_id,
+                            })}
+                          >
+                            {t("confirm-cheating")}
+                          </Button>
+                        )}
+                        {canDismiss && (
+                          <Button
+                            className="threshold-btn"
+                            variant="secondary"
+                            size="medium"
+                            onClick={() => onDismissClick(user_id)}
+                            aria-label={t("confirm-cheating-for-student", {
+                              action: t("dismiss-suspicion"),
+                              label: t("student-id"),
+                              id: user_id,
+                            })}
+                          >
+                            {t("dismiss-suspicion")}
+                          </Button>
+                        )}
                       </td>
                     )}
                   </tr>

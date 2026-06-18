@@ -1,3 +1,4 @@
+use secrecy::ExposeSecret;
 use serde_json::json;
 
 use crate::prelude::*;
@@ -24,7 +25,7 @@ pub async fn does_skillset_exist(
     let response = REQWEST_CLIENT
         .get(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .send()
         .await?;
 
@@ -55,8 +56,6 @@ pub async fn create_skillset(
     let search_config = azure_config.search_config.as_ref().ok_or_else(|| {
         anyhow::anyhow!("Azure search configuration is missing from the Azure configuration")
     })?;
-
-    let azure_openai_api_key = search_config.vectorizer_api_key.clone();
 
     let mut url = search_config.search_endpoint.clone();
     url.set_path(&format!("skillsets/{}", skillset_name));
@@ -99,7 +98,7 @@ pub async fn create_skillset(
                 "description": null,
                 "context": "/document/pages/*",
                 "resourceUri": search_config.vectorizer_resource_uri.clone(),
-                "apiKey": azure_openai_api_key,
+                "apiKey": search_config.vectorizer_api_key.expose_secret(),
                 "deploymentId": search_config.vectorizer_deployment_id.clone(),
                 "dimensions": 1536,
                 "modelName": search_config.vectorizer_model_name.clone(),
@@ -190,7 +189,7 @@ pub async fn create_skillset(
     let response = REQWEST_CLIENT
         .put(url)
         .header("Content-Type", "application/json")
-        .header("api-key", search_config.search_api_key.clone())
+        .header("api-key", search_config.search_api_key.expose_secret())
         .json(&skillset_definition)
         .send()
         .await?;

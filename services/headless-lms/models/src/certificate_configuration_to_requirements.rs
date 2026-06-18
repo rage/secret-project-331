@@ -37,6 +37,10 @@ impl CertificateAllRequirements {
 
         let all_completed_course_module_ids = all_users_completions
             .iter()
+            // A completion still awaiting suspected-cheater review is withheld until a teacher
+            // dismisses (restores it) or confirms (fails the student), so it must not count
+            // toward certificate eligibility.
+            .filter(|o| !o.needs_to_be_reviewed)
             .map(|o| o.course_module_id)
             .collect::<Vec<_>>();
         // Compare the vecs of completed stuff to the requirements

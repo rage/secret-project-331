@@ -4,8 +4,8 @@ import { temporaryDirectory, temporaryFile } from "tempy"
 
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
-import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
+import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import {
   compressProject,
   extractProject,

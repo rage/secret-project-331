@@ -25,18 +25,18 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import HideChildrenInSystemTests from "@/shared-module/common/components/system-tests/HideChildrenInSystemTests"
-import {
-  CurrentStateMessage,
-  IframeViewType,
-  UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { GradingRequest } from "@/shared-module/common/exercise-service-protocol-types-2"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 import { QueryResult } from "@/shared-module/components"
+import {
+  CurrentStateMessage,
+  IframeViewType,
+  UserInformation,
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
 import { buildGeneratedApiUrl, buildGeneratedWebSocketUrl } from "@/utils/generatedApiUrl"
 import {
   ExerciseServiceInfoApi,

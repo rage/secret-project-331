@@ -13,6 +13,7 @@ function makeQuery<T, E = unknown>(partial: Partial<UseQueryResult<T, E>>): UseQ
     error: null,
     isError: false,
     isPending: false,
+    isFetching: false,
     isRefetching: false,
     refetch: jest.fn(),
     ...partial,
@@ -139,7 +140,7 @@ test("treatEmptyAsData renders data even when a tuple slot is an empty array", (
 test("initial loading shows skeleton", () => {
   const queries = [
     makeQuery({ data: "a" }),
-    makeQuery({ isPending: true }),
+    makeQuery({ isPending: true, isFetching: true }),
   ] as unknown as readonly [UseQueryResult<string, unknown>, UseQueryResult<string, unknown>]
 
   renderUi(<QueryResults themeMode="light" queries={queries} renderData={() => null} />)
@@ -148,10 +149,23 @@ test("initial loading shows skeleton", () => {
   expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument()
 })
 
+test("a disabled query in the tuple does not force an infinite skeleton", () => {
+  const queries = [
+    makeQuery({ data: "a" }),
+    makeQuery({ data: undefined, isPending: true, isFetching: false }),
+  ] as unknown as readonly [UseQueryResult<string, unknown>, UseQueryResult<string, unknown>]
+
+  renderUi(
+    <QueryResults themeMode="light" queries={queries} renderData={() => <span>data</span>} />,
+  )
+
+  expect(screen.queryByTestId("query-skeleton-blocks")).not.toBeInTheDocument()
+})
+
 test("refreshing announces status", () => {
   const queries = [
     makeQuery({ data: "a" }),
-    makeQuery({ data: "b", isRefetching: true }),
+    makeQuery({ data: "b", isFetching: true }),
   ] as unknown as readonly [UseQueryResult<string, unknown>, UseQueryResult<string, unknown>]
 
   renderUi(

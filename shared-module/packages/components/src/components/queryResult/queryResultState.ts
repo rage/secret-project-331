@@ -120,8 +120,8 @@ export function getSingleQueryState<T, E>(query: UseQueryResult<T, E>): SingleQu
   return {
     hasData,
     data: hasData ? query.data : undefined,
-    initialLoading: query.isPending && !hasData,
-    refreshing: hasData && query.isRefetching,
+    initialLoading: query.isFetching && !hasData,
+    refreshing: hasData && query.isFetching,
     blockingError: query.isError && !hasData,
     staleError: query.isError && hasData,
     error: query.error ?? undefined,
@@ -149,8 +149,8 @@ export function getMultiQueryState<E, TQueries extends QueryTuple<E>>(
   return {
     allHaveData,
     dataTuple: allHaveData ? getDataTupleFromLoadedQueries(queries) : undefined,
-    initialLoading: !allHaveData && list.some((q) => q.data === undefined && q.isPending),
-    refreshing: allHaveData && list.some((q) => q.isRefetching),
+    initialLoading: !allHaveData && list.some((q) => q.data === undefined && q.isFetching),
+    refreshing: allHaveData && list.some((q) => q.isFetching),
     blockingError: blockingErr !== undefined,
     staleError: allHaveData && staleErr !== undefined,
     error,

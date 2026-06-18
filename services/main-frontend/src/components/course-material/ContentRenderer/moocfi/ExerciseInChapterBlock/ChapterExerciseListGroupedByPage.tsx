@@ -108,8 +108,8 @@ const ChapterExerciseListGroupedByPage: React.FC<
     )
   }
 
-  // When the query is not enabled (e.g. logged out or no course instance), it stays pending
-  // forever, so render content directly instead of showing an infinite loading skeleton.
+  // When the query is disabled (e.g. logged out or no course instance) it never fetches and has no
+  // data, so QueryResult would render nothing. Render the exercises directly (without progress) instead.
   if (!courseInstanceId) {
     return renderContent(undefined)
   }

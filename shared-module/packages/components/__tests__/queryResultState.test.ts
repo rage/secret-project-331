@@ -22,10 +22,24 @@ test("tuple empty detection", () => {
 test("single query loading", () => {
   const state = getSingleQueryState({
     isPending: true,
+    isFetching: true,
     data: undefined,
     isError: false,
     isRefetching: false,
   } as UseQueryResult<unknown, unknown>)
 
   expect(state.initialLoading).toBe(true)
+})
+
+test("disabled query is not treated as loading", () => {
+  // enabled: false / skipToken queries stay isPending forever but never fetch.
+  const state = getSingleQueryState({
+    isPending: true,
+    isFetching: false,
+    data: undefined,
+    isError: false,
+    isRefetching: false,
+  } as UseQueryResult<unknown, unknown>)
+
+  expect(state.initialLoading).toBe(false)
 })

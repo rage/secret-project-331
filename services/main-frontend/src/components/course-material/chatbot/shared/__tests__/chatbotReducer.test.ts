@@ -12,13 +12,45 @@ describe("chatbotReducer", () => {
       type: "RECEIVED_CONVERSATION_MESSAGES",
       payload: newMessages,
     })
-    const expectedState = {
+    const expectedState: ChatbotState = {
       messages: [
-        { finished: true, message: messageFactory() },
-        { finished: true, message: messageFactory() },
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
       ],
     }
     expect(newState).toStrictEqual(expectedState)
+  })
+  it("works with USER_SENDS_MESSAGE when there's no messages", () => {
+    const initialState: ChatbotState = { messages: [] }
+    const newState = chatbotReducer(initialState, {
+      type: "USER_SENDS_MESSAGE",
+      payload: "Lol",
+    })
+
+    expect(newState.messages.length).toBe(1)
+    expect(newState.messages[0].optimistic).toBe(true)
+    expect(newState.messages[0]).toMatchObject({ optimistic: true, finished: true })
+    expect(newState.messages[0].message.message).toMatchObject({
+      text: "Lol",
+      message_role: "user",
+    })
+  })
+  it("works with USER_SENDS_MESSAGE when there's no messages", () => {
+    const initialState: ChatbotState = {
+      messages: [{ finished: true, message: messageFactory(), optimistic: false }],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "USER_SENDS_MESSAGE",
+      payload: "Lol",
+    })
+
+    expect(newState.messages.length).toBe(2)
+    expect(newState.messages[1].optimistic).toBe(true)
+    expect(newState.messages[1]).toMatchObject({ optimistic: true, finished: true })
+    expect(newState.messages[1].message.message).toMatchObject({
+      text: "Lol",
+      message_role: "user",
+    })
   })
 })
 

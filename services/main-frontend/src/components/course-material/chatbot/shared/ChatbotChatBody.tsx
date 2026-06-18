@@ -80,25 +80,11 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     const messages: ChatbotConversationMessageWithStatus[] = [
       ...(currentConversationInfo.data?.current_conversation_messages
         ?.filter((m) => {
-          let parseResText = zChatbotConversationMessageMessage.safeParse(m.message)
-          let parseResTool = zChatbotConversationMessageToolCall.safeParse(m.message)
-          let parseResReasoning =
-            // all messages pass the Reasoning safeParse, so make sure that the message
-            // fails ToolOutput safeParse to make sure it's actually a Reasoning message.
-            // this is adequate because we check the Message and ToolCall safeParse
-            // results *before* this, which work as intended unlike Reasoning safeParse.
-            zChatbotConversationMessageReasoning.safeParse(m.message).success &&
-            !zChatbotConversationMessageToolOutput.safeParse(m.message).success
-
-          let result =
-            (parseResText.success &&
-              // if m.message is MessageMessage, check the message role
-              (parseResText.data.message_role === "user" ||
-                parseResText.data.message_role === "assistant")) ||
-            parseResTool.success ||
-            parseResReasoning
-
-          return result
+          let result = zChatbotConversationMessageMessage.safeParse(m.message)
+          return (
+            result.success &&
+            (result.data.message_role === "user" || result.data.message_role === "assistant")
+          )
         })
         .map((m) => {
           return { finished: true, message: m }
@@ -138,8 +124,14 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     messageState.optimisticMessage,
   ])
 
-  useMemo(() => {
-    const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
+  let toolStatusStuffItems = useMemo(() => {
+    // get all ubique response ids
+    // collect all tool and reasoning items with the same response id
+    //merge with messages and sort by order number
+    const lol: ChatbotConversationMessage[] = [
+      ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {}) ?? []),
+    ]
+    /* const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
     if (messageState.responseStatus) {
       if (messageState.responseStatus.finished) {
         let status = messageState.responseStatus
@@ -151,7 +143,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
       } else {
         setStreamingStatusMessage(messageState.responseStatus)
       }
-    }
+    } */
   }, [
     currentConversationInfo.data?.current_conversation?.id,
     messageState.responseStatus,
@@ -288,6 +280,8 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                 />
               )
             }
+          })}
+        {/*
             let parseResTool = zChatbotConversationMessageToolCall.safeParse(
               message.message.message,
             )
@@ -313,7 +307,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                 <StatusIndicator key={`chatbot-status-message-${props.message.id}`} {...props} />
               )
             }
-          })}
+          })} */}
         <div
           className={css`
             display: flex;

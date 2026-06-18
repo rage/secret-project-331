@@ -18,19 +18,19 @@ import { PublicSpecQuiz } from "../../../types/quizTypes/publicSpec"
 
 import Renderer from "@/components/exercise-service-views/Renderer"
 import MessagePortContext from "@/contexts/MessagePortContext"
-import HeightTrackingContainer from "@/shared-module/common/components/HeightTrackingContainer"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   forgivingIsSetStateMessage,
   UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import {
   isAnswerExerciseIframeState,
   isExerciseEditorIframeState,
   isSetLanguageMessage,
   isViewSubmissionIframeState,
-} from "@/shared-module/common/exercise-service-protocol-types.guard"
-import useExerciseServiceParentConnection from "@/shared-module/common/hooks/useExerciseServiceParentConnection"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import HeightTrackingContainer from "@/shared-module/exercise-react/react/components/HeightTrackingContainer"
+import useExerciseServiceParentConnection from "@/shared-module/exercise-react/react/hooks/useExerciseServiceParentConnection"
 import { migrateQuiz } from "@/util/migrate"
 import { isOldQuiz } from "@/util/migration/migrationSettings"
 import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"

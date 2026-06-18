@@ -6,9 +6,9 @@ import { useTranslation } from "react-i18next"
 import { State } from "../../app/iframe/page"
 import DynamicallyLoadingComponentPlaceholder from "../ComponentPlaceholder"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
+import withErrorBoundary from "@/shared-module/exercise-react/react/components/withErrorBoundary"
+import withNoSsr from "@/shared-module/exercise-react/react/components/withNoSsr"
 import dynamicWithIframeReload from "@/utils/dynamicWithIframeReload"
 
 // Dynamic imports for different view types to keep the bundle size down

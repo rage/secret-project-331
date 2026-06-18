@@ -2,6 +2,15 @@ import { expect } from "@playwright/test"
 import { Locator, Page } from "playwright"
 
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
+
+/**
+ * Builds the selector that matches the nth exercise service `<iframe>` element by its `src`.
+ * Shared by the helpers that look inside the frame and the ones that target the frame element itself.
+ */
+function exerciseServiceIframeSelector(exerciseServiceSlug: string, n: number): string {
+  return `:nth-match(iframe[src*="http://project-331.local/${exerciseServiceSlug}/iframe"], ${n})`
+}
+
 /**
  * Helper function to help interacting with exercise service iframes in the tests.
  * @param page Current page in the test
@@ -15,7 +24,7 @@ export async function getLocatorForNthExerciseServiceIframe(
   n: number,
 ) {
   const locatorForLocatingInsideIFrame = page.frameLocator(
-    `:nth-match(iframe[src*="http://project-331.local/${exerciseServiceSlug}/iframe"], ${n})`,
+    exerciseServiceIframeSelector(exerciseServiceSlug, n),
   )
 
   // Assuming all iframes have one body tag. This way we can use the same locator for a) finding stuff inside iframes and b) taking screenshots of the frames.
@@ -28,6 +37,78 @@ export async function getLocatorForNthExerciseServiceIframe(
     }
   }).toPass({ timeout: 10000 })
   return iframeBodyLocator
+}
+
+/**
+ * Returns a locator for the exercise service `<iframe>` **element** in the parent page (as opposed
+ * to {@link getLocatorForNthExerciseServiceIframe}, which returns a locator for the `body` *inside*
+ * the frame). Useful for asserting on the frame element itself, e.g. waiting for its height to settle.
+ *
+ * @param page Current page in the test
+ * @param exerciseServiceSlug the exercise service slug, e.g. "example-exercise" or "quizzes".
+ * @param n Nth match to get selected. Starts from 1.
+ */
+export function getLocatorForNthExerciseServiceIframeElement(
+  page: Page,
+  exerciseServiceSlug: string,
+  n: number,
+): Locator {
+  return page.locator(exerciseServiceIframeSelector(exerciseServiceSlug, n))
+}
+
+/**
+ * Waits until an exercise service iframe has stopped resizing.
+ *
+ * Exercise iframes measure their own content and report the height to the parent, which writes it to
+ * the `<iframe>` element's height and `data-iframe-height` attribute on every change (see
+ * `MessageChannelIFrame`). After a view switch or after adding content the height arrives as a burst
+ * of messages, so the frame keeps growing for a few frames. Clicking inside the frame during that
+ * window is racy: the frame (and everything in it) is still moving, so a click can miss its target
+ * even though Playwright considers the inner element "stable" — Playwright's stability check runs in
+ * the frame's own coordinate space and cannot see the cross-frame resize.
+ *
+ * This polls the height the parent reported via `data-iframe-height` until it is BOTH unchanged
+ * between two consecutive checks (spaced `pollIntervalMs` apart so a brief pause mid-burst is not
+ * mistaken for "settled") AND at least `minHeightPx` tall. The minimum guards against treating the
+ * freshly-created, not-yet-sized iframe (which starts at `0px`) — or a transient sub-content height
+ * during layout — as already settled. Reading the attribute (rather than `boundingBox()`) also works
+ * when the iframe is scrolled out of view.
+ *
+ * @param page Current page in the test
+ * @param exerciseServiceSlug the exercise service slug, e.g. "example-exercise" or "quizzes".
+ * @param n Nth match to wait for. Starts from 1.
+ */
+export async function waitForExerciseServiceIframeToBeStable(
+  page: Page,
+  exerciseServiceSlug: string,
+  n: number,
+  {
+    minHeightPx = 5,
+    pollIntervalMs = 500,
+    timeout = 15000,
+  }: { minHeightPx?: number; pollIntervalMs?: number; timeout?: number } = {},
+): Promise<void> {
+  const iframeElement = getLocatorForNthExerciseServiceIframeElement(page, exerciseServiceSlug, n)
+  let previousHeight: number | null = null
+  await expect
+    .poll(
+      async () => {
+        const rawHeight = await iframeElement.getAttribute("data-iframe-height")
+        const height = rawHeight === null ? NaN : Number(rawHeight)
+        if (!Number.isFinite(height) || height < minHeightPx) {
+          // Not sized yet (or too small to hold real content): reset so we don't count it as stable.
+          previousHeight = null
+          return false
+        }
+        const isStable = previousHeight !== null && height === previousHeight
+        previousHeight = height
+        return isStable
+      },
+      // Longer gaps between reads so two equal samples mean the resize burst has actually finished,
+      // not just paused between two quick polls.
+      { intervals: [pollIntervalMs], timeout },
+    )
+    .toBe(true)
 }
 
 /**

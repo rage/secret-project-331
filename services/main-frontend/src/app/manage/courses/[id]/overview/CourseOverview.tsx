@@ -3,6 +3,7 @@
 import React from "react"
 
 import ManageCourse from "./ManageCourse"
+import SuspectedCheatersReviewBanner from "./SuspectedCheatersReviewBanner"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
@@ -16,6 +17,7 @@ const CourseOverview: React.FC<React.PropsWithChildren<CourseManagementPagesProp
 
   return (
     <>
+      <SuspectedCheatersReviewBanner courseId={courseId} />
       {courseQuery.isError && <ErrorBanner error={courseQuery.error} variant={"readOnly"} />}
       {courseQuery.isLoading && <Spinner variant={"medium"} />}
       {courseQuery.isSuccess && (

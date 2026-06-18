@@ -13,6 +13,16 @@ External examples:
 - https://github.com/rage/language-exercise-service
 - https://github.com/rage/factor-analysis-exercise-service
 
+## Creating a new exercise service
+
+The fastest way to start a new plugin is the scaffolding CLI. From a checkout of this repo, run:
+
+```bash
+bin/create-exercise-service
+```
+
+It generates a standalone Next.js service from `services/example-exercise`, with the shared exercise code vendored into `src/shared-module/`. See `shared-module/packages/create-exercise-service/README.md` for the prompts and what gets generated. The rest of this document explains the protocol the generated service implements.
+
 ## Overview
 
 Plugins add new exercise types to the system. Each plugin is an independent web application hosted on a separate server and must implement the following:

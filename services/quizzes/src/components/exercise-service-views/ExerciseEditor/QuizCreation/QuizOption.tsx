@@ -8,7 +8,7 @@ import { PrivateSpecQuiz, QuizItemType } from "../../../../../types/quizTypes/pr
 import useQuizzesExerciseServiceOutputState from "../../../../hooks/useQuizzesExerciseServiceOutputState"
 import { createEmptyQuizItem } from "../utils/general"
 
-import { headingFont } from "@/shared-module/common/styles"
+import { headingFont } from "@/shared-module/exercise-react/styles"
 
 export interface QuizOption {
   type: QuizItemType

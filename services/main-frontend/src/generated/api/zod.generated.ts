@@ -357,7 +357,21 @@ export const zCountResult = z.object({
   period: z.iso.datetime().nullish(),
 })
 
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export const zCourseAiPolicy = z.enum([
+  "NotSet",
+  "NoAi",
+  "PlanningOnly",
+  "Limited",
+  "FullUse",
+  "Required",
+])
+
 export const zCourse = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   base_module_completion_requires_n_submodule_completions: z
     .int()
@@ -365,12 +379,14 @@ export const zCourse = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
   can_add_chatbot: z.boolean(),
   chapter_locking_enabled: z.boolean(),
+  cheater_detection_enabled: z.boolean(),
   closed_additional_message: z.string().nullish(),
   closed_at: z.iso.datetime().nullish(),
   closed_course_successor_id: z.uuid().nullish(),
   content_search_language: z.string().nullish(),
   copied_from: z.uuid().nullish(),
   course_language_group_id: z.uuid(),
+  course_material_ai_instructions: z.boolean().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   description: z.string().nullish(),
@@ -518,6 +534,7 @@ export const zCourseDesignerPlan = z.object({
   active_stage: zCourseDesignerStage.nullish(),
   created_at: z.iso.datetime(),
   created_by_user_id: z.uuid(),
+  deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   last_weekly_stage_email_sent_at: z.iso.datetime().nullish(),
   name: z.string().nullish(),
@@ -692,13 +709,37 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
   user_id: z.uuid(),
 })
 
+/**
+ * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+ * render and validate the threshold form. Computed server-side so the exemption rule and the
+ * minimum/default values live in one place instead of being duplicated in the frontend.
+ */
+export const zCourseModuleThresholdInfo = z.object({
+  configured_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_module_id: z.uuid(),
+  default_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  minimum_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
 export const zCourseUpdate = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   can_add_chatbot: z.boolean(),
   chapter_locking_enabled: z.boolean(),
   closed_additional_message: z.string().nullish(),
   closed_at: z.iso.datetime().nullish(),
   closed_course_successor_id: z.uuid().nullish(),
+  course_material_ai_instructions: z.boolean().nullish(),
   description: z.string().nullish(),
   flagged_answers_skip_manual_review_and_allow_retry: z.boolean(),
   flagged_answers_threshold: z
@@ -921,11 +962,14 @@ export const zExamCourseInfo = z.object({
 })
 
 export const zExamEnrollment = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   ended_at: z.iso.datetime().nullish(),
   exam_id: z.uuid(),
   is_teacher_testing: z.boolean(),
   show_exercise_answers: z.boolean().nullish(),
   started_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
 
@@ -1536,9 +1580,13 @@ export const zModuleUpdates = z.object({
 export const zNewRegradingIdType = z.enum(["ExerciseTaskSubmissionId", "ExerciseId"])
 
 export const zOrgExam = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   ends_at: z.iso.datetime().nullish(),
+  grade_manually: z.boolean(),
   id: z.uuid(),
   instructions: z.unknown(),
+  language: z.string().nullish(),
   minimum_points_treshold: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -1550,6 +1598,7 @@ export const zOrgExam = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  updated_at: z.iso.datetime(),
 })
 
 export const zOrganization = z.object({
@@ -1624,11 +1673,13 @@ export const zPageHistory = z.object({
   author_user_id: z.uuid(),
   content: z.unknown(),
   created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   history_change_reason: zHistoryChangeReason,
   id: z.uuid(),
   page_id: z.uuid(),
   restored_from_id: z.uuid().nullish(),
   title: z.string(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zPageInfo = z.object({
@@ -2239,12 +2290,17 @@ export const zStudentsByCountryTotalsResult = z.object({
   country: z.string().nullish(),
 })
 
+/**
+ * Review state of a suspected cheater.
+ */
+export const zSuspectedCheaterStatus = z.enum(["Flagged", "ConfirmedCheating", "Dismissed"])
+
 export const zSuspectedCheaters = z.object({
   course_id: z.uuid(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
-  is_archived: z.boolean().nullish(),
+  status: zSuspectedCheaterStatus,
   total_duration_seconds: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -2290,6 +2346,7 @@ export const zTeacherGradingDecision = z.object({
   teacher_decision: zTeacherDecisionType,
   updated_at: z.iso.datetime(),
   user_exercise_state_id: z.uuid(),
+  user_id: z.uuid().nullish(),
 })
 
 export const zTeacherManualCompletion = z.object({
@@ -2310,9 +2367,13 @@ export const zTeacherManualCompletionRequest = z.object({
 })
 
 export const zTerm = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
   definition: z.string(),
+  deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   term: z.string(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zTermUpdate = z.object({
@@ -2576,6 +2637,8 @@ export const zNewRegrading = z.object({
 
 export const zRegrading = z.object({
   created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  error_message: z.string().nullish(),
   id: z.uuid(),
   regrading_completed_at: z.iso.datetime().nullish(),
   regrading_started_at: z.iso.datetime().nullish(),
@@ -2611,9 +2674,14 @@ export const zUserRole = z.enum([
 ])
 
 export const zPendingRole = z.object({
+  course_id: z.uuid().nullish(),
+  course_instance_id: z.uuid().nullish(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   expires_at: z.iso.datetime(),
   id: z.uuid(),
   role: zUserRole,
+  updated_at: z.iso.datetime(),
   user_email: z.string(),
 })
 
@@ -4206,7 +4274,7 @@ export const zGetCourseSuspectedCheatersPath = z.object({
 })
 
 export const zGetCourseSuspectedCheatersQuery = z.object({
-  archive: z.boolean(),
+  status: zSuspectedCheaterStatus,
 })
 
 /**
@@ -4214,15 +4282,31 @@ export const zGetCourseSuspectedCheatersQuery = z.object({
  */
 export const zGetCourseSuspectedCheatersResponse = z.array(zSuspectedCheaters)
 
-export const zApproveCourseSuspectedCheaterPath = z.object({
+export const zConfirmCourseSuspectedCheaterPath = z.object({
   course_id: z.uuid(),
-  id: z.uuid(),
+  user_id: z.uuid(),
 })
 
-export const zArchiveCourseSuspectedCheaterPath = z.object({
+export const zDismissCourseSuspectedCheaterPath = z.object({
   course_id: z.uuid(),
-  id: z.uuid(),
+  user_id: z.uuid(),
 })
+
+export const zGetCourseFlaggedSuspectedCheatersCountPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Number of suspected cheaters awaiting review
+ */
+export const zGetCourseFlaggedSuspectedCheatersCountResponse = z.coerce
+  .bigint()
+  .min(BigInt("-9223372036854775808"), {
+    error: "Invalid value: Expected int64 to be >= -9223372036854775808",
+  })
+  .max(BigInt("9223372036854775807"), {
+    error: "Invalid value: Expected int64 to be <= 9223372036854775807",
+  })
 
 export const zResetCourseProgressForEveryonePath = z.object({
   course_id: z.uuid(),
@@ -4245,6 +4329,11 @@ export const zResetCourseProgressForTeacherThemselvesResponse = z.boolean()
 export const zGetCourseThresholdsPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * Course thresholds
+ */
+export const zGetCourseThresholdsResponse = z.array(zCourseModuleThresholdInfo)
 
 export const zUpdateCoursePeerReviewQueueReviewsReceivedPath = z.object({
   course_id: z.uuid(),

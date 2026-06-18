@@ -368,8 +368,7 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
-        working-directory: ./system-tests/
+        run: bin/playwright-install --with-deps
 
       - name: Run system tests
         run: pnpm run test

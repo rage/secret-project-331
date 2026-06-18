@@ -5783,7 +5783,7 @@
     "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters": {
       "get": {
         "tags": ["courses"],
-        "summary": "\n GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?archive=true - returns all suspected cheaters related to a course instance.",
+        "summary": "\n GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters?status=Flagged - returns the suspected cheaters in the given review state for a course.",
         "operationId": "getCourseSuspectedCheaters",
         "parameters": [
           {
@@ -5797,12 +5797,12 @@
             }
           },
           {
-            "name": "archive",
+            "name": "status",
             "in": "query",
-            "description": "Whether to fetch archived suspected cheaters",
+            "description": "Which review state of suspected cheaters to fetch",
             "required": true,
             "schema": {
-              "type": "boolean"
+              "$ref": "#/components/schemas/SuspectedCheaterStatus"
             }
           }
         ],
@@ -5823,11 +5823,11 @@
         }
       }
     },
-    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/approve/{id}": {
+    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/confirm/{user_id}": {
       "post": {
         "tags": ["courses"],
-        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/approve/:id - UPDATE is_archived to FALSE.",
-        "operationId": "approveCourseSuspectedCheater",
+        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/confirm/:user_id - confirms the student cheated (sets status to 'ConfirmedCheating') and fails the student.",
+        "operationId": "confirmCourseSuspectedCheater",
         "parameters": [
           {
             "name": "course_id",
@@ -5840,9 +5840,9 @@
             }
           },
           {
-            "name": "id",
+            "name": "user_id",
             "in": "path",
-            "description": "Suspected cheater user id",
+            "description": "Suspected cheater's user id",
             "required": true,
             "schema": {
               "type": "string",
@@ -5852,16 +5852,16 @@
         ],
         "responses": {
           "200": {
-            "description": "Suspected cheater approved"
+            "description": "Cheating confirmed"
           }
         }
       }
     },
-    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/archive/{id}": {
+    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/dismiss/{user_id}": {
       "post": {
         "tags": ["courses"],
-        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/archive/:id - UPDATE is_archived to TRUE.",
-        "operationId": "archiveCourseSuspectedCheater",
+        "summary": "\n POST /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/dismiss/:user_id - dismisses the suspicion as a false alarm (sets status to 'Dismissed').",
+        "operationId": "dismissCourseSuspectedCheater",
         "parameters": [
           {
             "name": "course_id",
@@ -5874,9 +5874,9 @@
             }
           },
           {
-            "name": "id",
+            "name": "user_id",
             "in": "path",
-            "description": "Suspected cheater user id",
+            "description": "Suspected cheater's user id",
             "required": true,
             "schema": {
               "type": "string",
@@ -5886,7 +5886,39 @@
         ],
         "responses": {
           "200": {
-            "description": "Suspected cheater archived"
+            "description": "Suspicion dismissed"
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/courses/{course_id}/suspected-cheaters/flagged-count": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\n GET /api/v0/main-frontend/courses/${course.id}/suspected-cheaters/flagged-count - number of suspected cheaters awaiting review (status flagged). Used to show a review notification to teachers.",
+        "operationId": "getCourseFlaggedSuspectedCheatersCount",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Number of suspected cheaters awaiting review",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            }
           }
         }
       }
@@ -5975,7 +6007,12 @@
             "description": "Course thresholds",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleThresholdInfo"
+                  }
+                }
               }
             }
           }
@@ -12250,9 +12287,14 @@
           "is_joinable_by_code_only",
           "ask_marketing_consent",
           "flagged_answers_skip_manual_review_and_allow_retry",
-          "chapter_locking_enabled"
+          "chapter_locking_enabled",
+          "cheater_detection_enabled",
+          "ai_policy"
         ],
         "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/CourseAiPolicy"
+          },
           "ask_marketing_consent": {
             "type": "boolean"
           },
@@ -12264,6 +12306,9 @@
             "type": "boolean"
           },
           "chapter_locking_enabled": {
+            "type": "boolean"
+          },
+          "cheater_detection_enabled": {
             "type": "boolean"
           },
           "closed_additional_message": {
@@ -12287,6 +12332,9 @@
           "course_language_group_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "course_material_ai_instructions": {
+            "type": ["boolean", "null"]
           },
           "created_at": {
             "type": "string",
@@ -12343,6 +12391,11 @@
             "format": "date-time"
           }
         }
+      },
+      "CourseAiPolicy": {
+        "type": "string",
+        "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
+        "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
       },
       "CourseBreadcrumbInfo": {
         "type": "object",
@@ -12468,6 +12521,10 @@
           "created_by_user_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "id": {
             "type": "string",
@@ -13251,6 +13308,32 @@
           }
         }
       },
+      "CourseModuleThresholdInfo": {
+        "type": "object",
+        "description": "Per-module threshold configuration plus the policy-derived limits the configuration UI needs to\nrender and validate the threshold form. Computed server-side so the exemption rule and the\nminimum/default values live in one place instead of being duplicated in the frontend.",
+        "required": ["course_module_id", "minimum_duration_seconds", "default_duration_seconds"],
+        "properties": {
+          "configured_duration_seconds": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The explicitly configured threshold in seconds, or `None` when the module has no threshold\nrow and [`Self::default_duration_seconds`] applies."
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default_duration_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The threshold applied when none is configured."
+          },
+          "minimum_duration_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,\notherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`]."
+          }
+        }
+      },
       "CourseStructure": {
         "type": "object",
         "required": ["course", "pages", "chapters", "modules"],
@@ -13290,9 +13373,13 @@
           "ask_marketing_consent",
           "flagged_answers_threshold",
           "flagged_answers_skip_manual_review_and_allow_retry",
-          "chapter_locking_enabled"
+          "chapter_locking_enabled",
+          "ai_policy"
         ],
         "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/CourseAiPolicy"
+          },
           "ask_marketing_consent": {
             "type": "boolean"
           },
@@ -13312,6 +13399,9 @@
           "closed_course_successor_id": {
             "type": ["string", "null"],
             "format": "uuid"
+          },
+          "course_material_ai_instructions": {
+            "type": ["boolean", "null"]
           },
           "description": {
             "type": ["string", "null"]
@@ -13795,8 +13885,23 @@
       },
       "ExamEnrollment": {
         "type": "object",
-        "required": ["user_id", "exam_id", "started_at", "is_teacher_testing"],
+        "required": [
+          "user_id",
+          "exam_id",
+          "started_at",
+          "is_teacher_testing",
+          "created_at",
+          "updated_at"
+        ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "ended_at": {
             "type": ["string", "null"],
             "format": "date-time"
@@ -13812,6 +13917,10 @@
             "type": ["boolean", "null"]
           },
           "started_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
             "type": "string",
             "format": "date-time"
           },
@@ -15686,22 +15795,39 @@
         "type": "object",
         "required": [
           "id",
+          "created_at",
+          "updated_at",
           "name",
           "instructions",
           "time_minutes",
           "organization_id",
-          "minimum_points_treshold"
+          "minimum_points_treshold",
+          "grade_manually"
         ],
         "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "ends_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          },
+          "grade_manually": {
+            "type": "boolean"
           },
           "id": {
             "type": "string",
             "format": "uuid"
           },
           "instructions": {},
+          "language": {
+            "type": ["string", "null"]
+          },
           "minimum_points_treshold": {
             "type": "integer",
             "format": "int32"
@@ -15720,6 +15846,10 @@
           "time_minutes": {
             "type": "integer",
             "format": "int32"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -15901,6 +16031,7 @@
         "required": [
           "id",
           "created_at",
+          "updated_at",
           "title",
           "content",
           "history_change_reason",
@@ -15915,6 +16046,10 @@
           "content": {},
           "created_at": {
             "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
             "format": "date-time"
           },
           "history_change_reason": {
@@ -15934,6 +16069,10 @@
           },
           "title": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -16548,8 +16687,24 @@
       },
       "PendingRole": {
         "type": "object",
-        "required": ["id", "user_email", "role", "expires_at"],
+        "required": ["id", "created_at", "updated_at", "user_email", "role", "expires_at"],
         "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
           "expires_at": {
             "type": "string",
             "format": "date-time"
@@ -16560,6 +16715,10 @@
           },
           "role": {
             "$ref": "#/components/schemas/UserRole"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           },
           "user_email": {
             "type": "string"
@@ -16838,6 +16997,13 @@
           "created_at": {
             "type": "string",
             "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "error_message": {
+            "type": ["string", "null"]
           },
           "id": {
             "type": "string",
@@ -17204,9 +17370,14 @@
           }
         }
       },
+      "SuspectedCheaterStatus": {
+        "type": "string",
+        "description": "Review state of a suspected cheater.",
+        "enum": ["Flagged", "ConfirmedCheating", "Dismissed"]
+      },
       "SuspectedCheaters": {
         "type": "object",
-        "required": ["id", "user_id", "course_id", "created_at", "total_points"],
+        "required": ["id", "user_id", "course_id", "created_at", "total_points", "status"],
         "properties": {
           "course_id": {
             "type": "string",
@@ -17224,8 +17395,8 @@
             "type": "string",
             "format": "uuid"
           },
-          "is_archived": {
-            "type": ["boolean", "null"]
+          "status": {
+            "$ref": "#/components/schemas/SuspectedCheaterStatus"
           },
           "total_duration_seconds": {
             "type": ["integer", "null"],
@@ -17313,6 +17484,10 @@
           "user_exercise_state_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "user_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
           }
         }
       },
@@ -17358,10 +17533,22 @@
       },
       "Term": {
         "type": "object",
-        "required": ["id", "term", "definition"],
+        "required": ["id", "created_at", "updated_at", "term", "definition", "course_id"],
         "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
           "definition": {
             "type": "string"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
           },
           "id": {
             "type": "string",
@@ -17369,6 +17556,10 @@
           },
           "term": {
             "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

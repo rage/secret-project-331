@@ -81,6 +81,8 @@ reqwest = { version = "0.13.4", features = ["json"] }
 secrecy.workspace = true
 # Password hashing using Argon2id
 argon2 = "0.6.0-rc.8"
+# Unicode normalization (NFC) so passwords hash to identical bytes regardless of input form
+unicode-normalization = "0.1.25"
 
 [dev-dependencies]
 # Overwrite `assert_eq!` and `assert_ne!` with drop-in replacements, adding colorful diffs.

@@ -2687,6 +2687,7 @@ dependencies = [
  "tracing",
  "tracing-error",
  "ts-rs",
+ "unicode-normalization",
  "url",
  "utoipa",
  "uuid",

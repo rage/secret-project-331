@@ -5,9 +5,9 @@ import React, { useContext } from "react"
 
 import Congratulations from "./Congratulations"
 
+import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import useUserModuleCompletions from "@/hooks/course-material/useUserModuleCompletions"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -28,10 +28,7 @@ const CongratulationsBlock: React.FC = () => {
   }
 
   return (
-    <QueryResult
-      query={getModuleCompletions}
-      renderBlockingError={({ error }) => <ErrorBanner error={error} variant="readOnly" />}
-    >
+    <QueryResult query={getModuleCompletions} renderBlockingError={renderReadOnlyBlockingError}>
       {(modules) =>
         // This block is only visible after the default module is completed.
         modules.some((x) => x.default && x.completed) ? (

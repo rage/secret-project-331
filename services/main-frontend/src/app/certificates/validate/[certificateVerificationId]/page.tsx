@@ -5,9 +5,12 @@ import { useQuery } from "@tanstack/react-query"
 import { useParams, useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 
+import {
+  renderReadOnlyBlockingError,
+  renderReadOnlyStaleError,
+} from "@/components/queryResultErrorRenderers"
 import { getCertificateByVerificationIdOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -44,8 +47,8 @@ const ModuleCertificateVerification: React.FC = () => {
   return (
     <QueryResult
       query={certificate}
-      renderBlockingError={({ error }) => <ErrorBanner error={error} variant={"readOnly"} />}
-      renderStaleError={({ error }) => <ErrorBanner error={error} variant={"readOnly"} />}
+      renderBlockingError={renderReadOnlyBlockingError}
+      renderStaleError={renderReadOnlyStaleError}
     >
       {(data) => (
         <div>

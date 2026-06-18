@@ -233,7 +233,7 @@ const StatusPods: React.FC = () => {
               `}
             >
               <QueryResult query={logsQuery} themeMode="dark">
-                {(logs) => <div>{parseAnsiToReact(logs)}</div>}
+                {(logs) => <>{logs && <div>{parseAnsiToReact(logs)}</div>}</>}
               </QueryResult>
             </div>
           </div>

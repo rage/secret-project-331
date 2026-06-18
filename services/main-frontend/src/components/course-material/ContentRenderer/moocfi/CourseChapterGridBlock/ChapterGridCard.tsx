@@ -6,10 +6,10 @@ import { useAtomValue } from "jotai"
 import { useTranslation } from "react-i18next"
 
 import Card from "@/components/Card"
+import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import { getCourseMaterialPageUrlPath } from "@/generated/course-material-api/sdk.generated"
 import type { ChapterWithStatus } from "@/generated/course-material-api/types.generated"
 import { useChapterProgress } from "@/hooks/course-material/useChapterProgress"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Circle from "@/shared-module/common/img/card-defualt-bg/circle.svg"
 import Cross from "@/shared-module/common/img/card-defualt-bg/cross.svg"
 import DotCircle from "@/shared-module/common/img/card-defualt-bg/dot-circle.svg"
@@ -81,10 +81,7 @@ const ChapterGridCard: React.FC<React.PropsWithChildren<ChapterProps>> = ({
   const getChapterProgress = useChapterProgress(courseInstance?.id, chapter.id)
 
   return (
-    <QueryResult
-      query={getChapterPageUrl}
-      renderBlockingError={({ error }) => <ErrorBanner variant={"readOnly"} error={error} />}
-    >
+    <QueryResult query={getChapterPageUrl} renderBlockingError={renderReadOnlyBlockingError}>
       {(chapterPageUrl) => {
         let date = undefined
         let time = undefined

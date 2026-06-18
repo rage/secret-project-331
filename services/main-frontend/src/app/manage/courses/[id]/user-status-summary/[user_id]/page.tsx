@@ -12,13 +12,13 @@ import CourseInstanceProgressSection from "@/app/manage/course-instances/[id]/po
 import CourseInstanceUserInfoBox from "@/app/manage/course-instances/[id]/points/user_id/CourseInstanceUserInfoBox"
 import CourseModuleCompletionsSection from "@/app/manage/course-instances/[id]/points/user_id/CourseModuleCompletionsSection"
 import ExerciseListSection from "@/app/manage/course-instances/[id]/points/user_id/ExerciseListSection"
+import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import {
   getCourseStudentChapterLockingStatusesOptions,
   teacherSetStudentChapterStatusMutation,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
 import { useExerciseStatusSummaries } from "@/hooks/useExerciseStatusSummaries"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { courseExerciseResetToolRoute } from "@/shared-module/common/utils/routes"
@@ -80,7 +80,7 @@ const CourseExerciseStatusList: React.FC = () => {
     <QueryResults
       queries={[exerciseStatusSummariesQuery, lockStatusesQuery] as const}
       treatEmptyAsData
-      renderBlockingError={({ error }) => <ErrorBanner variant={"readOnly"} error={error} />}
+      renderBlockingError={renderReadOnlyBlockingError}
       renderData={([exerciseStatusSummaries, lockStatuses]) => {
         const groupedByChapter = Object.entries(
           groupBy(exerciseStatusSummaries, (exerciseStatus) => exerciseStatus.exercise.chapter_id),

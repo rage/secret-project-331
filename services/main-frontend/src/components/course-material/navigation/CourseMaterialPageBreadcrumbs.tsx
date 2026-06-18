@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { renderReadOnlyBlockingError } from "@/components/queryResultErrorRenderers"
 import { getCourseMaterialPageChapterAndCourseInformation } from "@/generated/course-material-api/sdk.generated"
 import type {
   Page,
@@ -11,7 +12,6 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
@@ -52,7 +52,7 @@ const CourseMaterialPageBreadcrumbs: React.FC<
     <QueryResult
       query={pageChapterAndCourseInformationQuery}
       treatNullAsEmpty
-      renderBlockingError={({ error }) => <ErrorBanner variant={"readOnly"} error={error} />}
+      renderBlockingError={renderReadOnlyBlockingError}
     >
       {(data) => {
         if (data === null) {

@@ -78,17 +78,6 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
   const totalReturnedExercisesQuery = useTotalUsersReturnedExercisesByInstanceQuery(courseId)
   const courseInstancesQuery = useCourseInstancesQuery(courseId)
 
-  const hasError =
-    totalUsersQuery.error ||
-    totalCompletionsQuery.error ||
-    totalReturnedExercisesQuery.error ||
-    courseInstancesQuery.error
-  const isLoading =
-    totalUsersQuery.isLoading ||
-    totalCompletionsQuery.isLoading ||
-    totalReturnedExercisesQuery.isLoading ||
-    courseInstancesQuery.isLoading
-
   const instanceMap = useMemo(() => {
     if (!courseInstancesQuery.data) {
       return new Map()
@@ -97,9 +86,6 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
   }, [courseInstancesQuery.data])
 
   const allInstanceIds = useMemo(() => {
-    if (isLoading || hasError) {
-      return []
-    }
     const instanceIds = new Set<string>()
     if (totalUsersQuery.data) {
       Object.keys(totalUsersQuery.data).forEach((id) => instanceIds.add(id))
@@ -136,8 +122,6 @@ const TotalStatsByInstance: React.FC<React.PropsWithChildren<TotalStatsByInstanc
     totalUsersQuery.data,
     totalCompletionsQuery.data,
     totalReturnedExercisesQuery.data,
-    isLoading,
-    hasError,
     instanceMap,
     t,
   ])

@@ -146,6 +146,10 @@ export function getMultiQueryState<E, TQueries extends QueryTuple<E>>(
   const staleErr = allHaveData ? list.find((q) => q.data !== undefined && q.isError) : undefined
   const error = (blockingErr?.error ?? staleErr?.error) as E | undefined
 
+  // A disabled/idle query in the tuple (no data, not fetching, not error) keeps
+  // allHaveData=false, so the combined view stays blank even if other queries
+  // succeeded — callers must guard disabled queries before QueryResults,
+  // mirroring the single-query contract.
   return {
     allHaveData,
     dataTuple: allHaveData ? getDataTupleFromLoadedQueries(queries) : undefined,

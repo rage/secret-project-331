@@ -1,4 +1,5 @@
 import { merge } from "lodash"
+import { v4 } from "uuid"
 
 import chatbotReducer, { ChatbotState } from "../chatbotReducer"
 
@@ -52,6 +53,48 @@ describe("chatbotReducer", () => {
       message_role: "user",
     })
   })
+  it("works with RECEIVED_TEXT_DELTA when there's no streamed message", () => {
+    const initialState: ChatbotState = {
+      messages: [{ finished: true, message: messageFactory(), optimistic: false }],
+    }
+    const streamingMessageId = v4()
+    const newState = chatbotReducer(initialState, {
+      type: "RECEIVED_TEXT_DELTA",
+      payload: { text: "Lol", message_id: streamingMessageId },
+    })
+    expect(newState.messages.length).toBe(2)
+    expect(newState.messages[1]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[1].message).toMatchObject({
+      id: streamingMessageId,
+      message: { text: "Lol", message_role: "assistant" },
+    })
+  })
+  it("works with RECEIVED_TEXT_DELTA when there is a streamed message", () => {
+    const streamingMessageId = v4()
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({
+            id: streamingMessageId,
+            message: { text: "Lo", message_role: "assistant" },
+          }),
+          optimistic: false,
+        },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "RECEIVED_TEXT_DELTA",
+      payload: { text: "l", message_id: streamingMessageId },
+    })
+    expect(newState.messages.length).toBe(2)
+    expect(newState.messages[1]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[1].message).toMatchObject({
+      id: streamingMessageId,
+      message: { text: "Lol", message_role: "assistant" },
+    })
+  })
 })
 
 /// Allows to you to set only some  fields of an object and leave others empty
@@ -64,27 +107,30 @@ type RecursivePartial<T> = {
       : T[P]
 }
 
+const time = new Date(1781790266 * 1000).toISOString()
+
 function messageFactory(
   lol?: RecursivePartial<ChatbotConversationMessage>,
 ): ChatbotConversationMessage {
   const defaultMessage: ChatbotConversationMessage = {
-    conversation_id: "",
-    created_at: "",
     id: "",
     message: {
-      chatbot_conversation_message_id: "",
-      created_at: "",
-      deleted_at: undefined,
-      id: "",
-      message_is_complete: false,
-      message_role: "assistant",
-      response_id: undefined,
+      id: "22d5ea64-3766-4fcb-89df-5d5f439587c2",
       text: "",
-      updated_at: "",
+      message_role: "assistant",
+      created_at: time,
+      updated_at: time,
+      deleted_at: null,
+      chatbot_conversation_message_id: "71832a5f-b79b-4af3-8a00-07368262b2af",
+      message_is_complete: true,
+      response_id: null,
       used_tokens: 0,
     },
+    created_at: time,
+    updated_at: time,
+    deleted_at: null,
+    conversation_id: "",
     order_number: 0,
-    updated_at: "",
   }
   return merge(defaultMessage, lol) as ChatbotConversationMessage
 }

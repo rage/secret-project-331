@@ -38,3 +38,19 @@ export function modifyEmbedBlockAttributes(settings: any, name: string): any {
   }
   return settings
 }
+
+/**
+ * Adds a `language` attribute to core/code so the author can pick the syntax-highlighting language
+ * instead of relying on highlight.js auto-detection. An empty/missing value means auto-detect.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function modifyCodeBlockAttributes(settings: any, name: string): any {
+  if (name === "core/code") {
+    settings.attributes = assign(settings.attributes, {
+      language: {
+        type: "string",
+      },
+    })
+  }
+  return settings
+}

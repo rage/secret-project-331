@@ -158,9 +158,10 @@ pub struct SisuDescriptions {
 }
 
 impl SisuClient {
-    pub async fn get_course_codes(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
+    pub async fn get_course_ids(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
-        let mut code_vec: Vec<Vec<String>> = vec![];
+        let mut course_ids: Vec<Vec<String>> = vec![];
+        let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
             let url = format!(
                 "https://sisu.helsinki.fi/kori/api/course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
@@ -175,23 +176,36 @@ impl SisuClient {
             if response.status().is_success() {
                 let json: CourseUnitSearchResults =
                     serde_json::from_str(&response.text().await.unwrap())?;
-                let codes: Vec<String> = json.search_results.into_iter().map(|x| x.id).collect();
-                code_vec.push(codes);
+                let ids: Vec<String> = json.search_results.into_iter().map(|x| x.id).collect();
+
+                if ids.is_empty() {
+                    invalid_codes.push(code);
+                } else {
+                    course_ids.push(ids);
+                }
             } else if response.status() == 404 {
                 return Err(UtilError::new(
                     UtilErrorType::Other,
-                    "Course codes not found".to_string(),
+                    "Course ids not found".to_string(),
                     None,
                 ));
             } else {
                 return Err(UtilError::new(
                     UtilErrorType::Other,
-                    "Something went wrong when fetching course codes".to_string(),
+                    "Something went wrong when fetching course ids".to_string(),
                     None,
                 ));
             }
         }
-        Ok(code_vec)
+
+        if !invalid_codes.is_empty() {
+            return Err(UtilError::new(
+                UtilErrorType::Other,
+                format!("No data found with codes: {invalid_codes:?}"),
+                None,
+            ));
+        }
+        Ok(course_ids)
     }
 
     pub async fn get_course_info(
@@ -235,7 +249,7 @@ impl SisuClient {
         }
         Ok(data_vec)
     }
-    pub fn parse_sisu_info(
+    pub fn parse_course_info(
         course_info: Vec<SisuCourseInfoElement>,
         course_language: String,
     ) -> HashMap<String, SisuDescriptions> {

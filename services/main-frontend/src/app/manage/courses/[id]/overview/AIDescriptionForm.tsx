@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next"
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, UpdateCourseData } from "@/generated/api/types.generated"
 import { getCourseMaterialSisuCourseLlmDescriptionsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -42,7 +43,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   const { t } = useTranslation()
 
   const courseId = course.id
-  const { error, data, isLoading } = useQuery(
+  const { error, data, isLoading, isFetching, isError } = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: open,
@@ -147,7 +148,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
             onClick: onSubmit,
             children: t("button-text-replace-description"),
             variant: "primary",
-            disabled: updateCourseMutation.isPending,
+            disabled: isFetching || isError,
           },
         ]}
       >
@@ -160,18 +161,25 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
             {t("current-course-description-title")}
           </span>
           <FieldContainer>{course.description}</FieldContainer>
-          <FieldContainer>
-            {!isLoading ? (
-              <TextArea
-                control={control}
-                label={t("text-field-label-ai-description")}
-                autoResize={true}
-                {...register("description")}
-              />
-            ) : (
-              <Spinner variant="medium" />
-            )}
-          </FieldContainer>
+          {isError ? (
+            <ErrorBanner
+              variant={"readOnly"}
+              error={t("error-cannot-generate-description", { error: error.message })}
+            />
+          ) : (
+            <FieldContainer>
+              {!isFetching ? (
+                <TextArea
+                  control={control}
+                  label={t("text-field-label-ai-description")}
+                  autoResize={true}
+                  {...register("description")}
+                />
+              ) : (
+                <Spinner variant="medium" />
+              )}
+            </FieldContainer>
+          )}
         </div>
       </StandardDialog>
     </FormProvider>

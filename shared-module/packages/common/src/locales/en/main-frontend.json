@@ -690,6 +690,7 @@
   "enter-your-email": "Enter your email",
   "enter-your-new-password": "Enter your new password",
   "enter-your-password": "Enter your password",
+  "error-cannot-generate-description": "Could not generate description: {{error}}",
   "error-cannot-load-with-the-given-inputs": "Cannot load with the given inputs",
   "error-cannot-render-exercise-task-missing-submission": "Cannot render exercise task, missing submission.",
   "error-cannot-render-exercise-task-missing-url": "Cannot render exercise task, missing url.",

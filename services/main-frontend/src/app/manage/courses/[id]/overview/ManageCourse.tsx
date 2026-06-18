@@ -133,7 +133,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           `}
         >
           {t("wiki-link-text")}
-          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>.
+          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>
         </p>
         <h1
           className={css`

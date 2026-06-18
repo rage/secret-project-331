@@ -1595,58 +1595,67 @@ async fn get_sisu_course_llm_descriptions(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
-    // let mut conn = pool.acquire().await?;
-    // let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
-    // let course_lang = models::courses::get_course(&mut conn, *course_id)
-    //     .await?
-    //     .language_code;
+    let mut conn = pool.acquire().await?;
+    let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+    let course_lang = models::courses::get_course(&mut conn, *course_id)
+        .await?
+        .language_code;
 
-    // let uh_course_codes: Vec<String> = course_modules
-    //     .into_iter()
-    //     .filter_map(|course_module| course_module.uh_course_code)
-    //     .collect::<Vec<String>>();
-    // let course_codes = SisuClient::get_course_codes(uh_course_codes).await?;
+    let uh_course_codes: Vec<String> = course_modules
+        .into_iter()
+        .filter_map(|course_module| course_module.uh_course_code)
+        .collect::<Vec<String>>();
+    let course_ids = SisuClient::get_course_ids(uh_course_codes).await?;
 
-    // let course_info = SisuClient::get_course_info(course_codes).await?;
+    let course_info = SisuClient::get_course_info(course_ids).await?;
+
     let token = skip_authorize();
-    // let sisu_info = SisuClient::parse_sisu_info(course_info, course_lang);
-    // let message_suggest_llm = models::application_task_default_language_models::get_for_task(
-    //     &mut conn,
-    //     ApplicationTask::SisuDescriptionSummary,
-    // )
-    // .await?;
-    // let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(
-    //     &app_conf,
-    //     message_suggest_llm,
-    //     sisu_info,
-    // )
-    // .await?;
 
-    let llm_descriptions = SisuDescriptionResponse {
-        course_description: String::from(
-            "Introductory DevOps with Docker sequence covering containerization with Docker, Docker images, volumes and port mapping; docker-compose orchestration, networks, single-host deployments, web service components such as reverse proxies, caches and databases; and production-ready practices including image optimization, multi-stage builds, deployment pipelines and other orchestration solutions. Students learn to run, containerize, share, compose, scale and automatically deploy containerized applications.",
-        ),
-        modules: vec![
-            Module {
-                course_code: String::from("TKT21036"),
-                description: String::from(
-                    "Introductory DevOps with Docker sequence covering containerization with Docker, Docker images, volumes and port mapping; docker-compose orchestration, networks, single-host deployments, web service components such as reverse proxies, caches and databases; and production-ready practices including image optimization, multi-stage builds, deployment pipelines and other orchestration solutions. Students learn to run, containerize, share, compose, scale and automatically deploy containerized applications.",
-                ),
-            },
-            Module {
-                course_code: String::from("TKT21037"),
-                description: String::from(
-                    "Introductory container orchestration with docker-compose for single-host deployments, including docker networks and the parts of web services such as reverse proxies, caches and databases. Students learn to run interacting containerized applications via HTTP and volumes, manually scale applications and use third-party services such as databases inside containers.",
-                ),
-            },
-            Module {
-                course_code: String::from("TKT21038"),
-                description: String::from(
-                    "Final part of DevOps with Docker, focusing on production-ready practices such as container optimization and deployment pipelines. Students learn to critically examine images, reduce container size and image build time using methods such as multi-stage builds, automatically deploy containers and become familiar with other container orchestration solutions.",
-                ),
-            },
-        ],
-    };
+    let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
+    let message_suggest_llm = models::application_task_default_language_models::get_for_task(
+        &mut conn,
+        ApplicationTask::SisuDescriptionSummary,
+    )
+    .await?;
+    let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(
+        &app_conf,
+        message_suggest_llm,
+        parsed_course_info,
+    )
+    .await?;
+
+    // use std::{thread, time};
+
+    // let ten_millis = time::Duration::from_secs(3);
+    // let now = time::Instant::now();
+
+    // thread::sleep(ten_millis);
+
+    // let llm_descriptions = SisuDescriptionResponse {
+    //     course_description: String::from(
+    //         "Introductory DevOps with Docker sequence covering containerization with Docker, Docker images, volumes and port mapping; docker-compose orchestration, networks, single-host deployments, web service components such as reverse proxies, caches and databases; and production-ready practices including image optimization, multi-stage builds, deployment pipelines and other orchestration solutions. Students learn to run, containerize, share, compose, scale and automatically deploy containerized applications.",
+    //     ),
+    //     modules: vec![
+    //         Module {
+    //             course_code: String::from("TKT21036"),
+    //             description: String::from(
+    //                 "Introductory DevOps with Docker sequence covering containerization with Docker, Docker images, volumes and port mapping; docker-compose orchestration, networks, single-host deployments, web service components such as reverse proxies, caches and databases; and production-ready practices including image optimization, multi-stage builds, deployment pipelines and other orchestration solutions. Students learn to run, containerize, share, compose, scale and automatically deploy containerized applications.",
+    //             ),
+    //         },
+    //         Module {
+    //             course_code: String::from("TKT21037"),
+    //             description: String::from(
+    //                 "Introductory container orchestration with docker-compose for single-host deployments, including docker networks and the parts of web services such as reverse proxies, caches and databases. Students learn to run interacting containerized applications via HTTP and volumes, manually scale applications and use third-party services such as databases inside containers.",
+    //             ),
+    //         },
+    //         Module {
+    //             course_code: String::from("TKT21038"),
+    //             description: String::from(
+    //                 "Final part of DevOps with Docker, focusing on production-ready practices such as container optimization and deployment pipelines. Students learn to critically examine images, reduce container size and image build time using methods such as multi-stage builds, automatically deploy containers and become familiar with other container orchestration solutions.",
+    //             ),
+    //         },
+    //     ],
+    // };
 
     token.authorized_ok(web::Json(llm_descriptions))
 }

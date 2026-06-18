@@ -2642,25 +2642,93 @@ pub async fn seed_cs_course_material(
     )
     .await?;
 
-    let page_content = include_str!("../../../assets/example-page.json");
-    let parse_page_content = serde_json::from_str(page_content)?;
-    create_page(
-        &mut conn,
-        course.id,
-        teacher_user_id,
-        Some(chapter_2.id),
-        CmsPageUpdate {
-            content: parse_page_content,
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
-            url_path: "/chapter-2/content-rendering".to_string(),
-            title: "Content rendering".to_string(),
-            chapter_id: Some(chapter_2.id),
-            hidden: false,
-        },
-    )
-    .await?;
+    let content_rendering_pages: [(&str, &str, &str); 13] = [
+        (
+            "/chapter-2/content-rendering-paragraphs",
+            "Content rendering: Paragraphs",
+            include_str!("../../../assets/content-rendering/paragraphs.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-headings",
+            "Content rendering: Headings",
+            include_str!("../../../assets/content-rendering/headings.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-lists",
+            "Content rendering: Lists",
+            include_str!("../../../assets/content-rendering/lists.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-quotes",
+            "Content rendering: Quotes",
+            include_str!("../../../assets/content-rendering/quotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-images",
+            "Content rendering: Images",
+            include_str!("../../../assets/content-rendering/images.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-code",
+            "Content rendering: Code and preformatted",
+            include_str!("../../../assets/content-rendering/code.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-pullquotes",
+            "Content rendering: Pullquotes",
+            include_str!("../../../assets/content-rendering/pullquotes.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-callouts",
+            "Content rendering: Info boxes",
+            include_str!("../../../assets/content-rendering/callouts.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-tables",
+            "Content rendering: Tables",
+            include_str!("../../../assets/content-rendering/tables.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-verse",
+            "Content rendering: Verse",
+            include_str!("../../../assets/content-rendering/verse.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-buttons",
+            "Content rendering: Buttons",
+            include_str!("../../../assets/content-rendering/buttons.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-separators",
+            "Content rendering: Separators",
+            include_str!("../../../assets/content-rendering/separators.json"),
+        ),
+        (
+            "/chapter-2/content-rendering-columns",
+            "Content rendering: Columns",
+            include_str!("../../../assets/content-rendering/columns.json"),
+        ),
+    ];
+    for (url_path, title, page_content) in content_rendering_pages {
+        let parsed_page_content = serde_json::from_str(page_content)?;
+        create_page(
+            &mut conn,
+            course.id,
+            teacher_user_id,
+            Some(chapter_2.id),
+            CmsPageUpdate {
+                content: parsed_page_content,
+                exercises: vec![],
+                exercise_slides: vec![],
+                exercise_tasks: vec![],
+                url_path: url_path.to_string(),
+                title: title.to_string(),
+                chapter_id: Some(chapter_2.id),
+                hidden: false,
+            },
+        )
+        .await?;
+    }
 
     // Multiple choice
 

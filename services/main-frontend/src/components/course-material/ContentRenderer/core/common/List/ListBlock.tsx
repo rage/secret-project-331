@@ -4,6 +4,8 @@ import { css, cx } from "@emotion/css"
 
 import { BlockRendererProps } from "../../.."
 
+import ListFontSizeContext from "./listFontSizeContext"
+
 import { ListAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
 import ParsedText from "@/components/course-material/ParsedText"
@@ -82,12 +84,18 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 
   if (ordered) {
     return (
-      <ol className={listItemClass} {...(start && { start: start })} reversed={reversed}>
-        {children}
-      </ol>
+      <ListFontSizeContext.Provider value={fontSize}>
+        <ol className={listItemClass} {...(start && { start: start })} reversed={reversed}>
+          {children}
+        </ol>
+      </ListFontSizeContext.Provider>
     )
   } else {
-    return <ul className={listItemClass}>{children}</ul>
+    return (
+      <ListFontSizeContext.Provider value={fontSize}>
+        <ul className={listItemClass}>{children}</ul>
+      </ListFontSizeContext.Provider>
+    )
   }
 }
 

@@ -38,25 +38,28 @@ const normalizeCssSize = (value: number | string | undefined): string | undefine
 }
 /* eslint-enable i18next/no-literal-string */
 
+/** Strips HTML tags from a rich-text caption to get a plain-text fallback label. */
+const stripTags = (html: string): string => html.replace(/<[^>]*>/g, "").trim()
+
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
 > = ({ data }) => {
   const { t } = useTranslation()
   const { disableInteractivity } = useImageInteractivity()
   const imageRef = useRef<HTMLImageElement>(null)
-  // Some SVG images from material migration declare no intrinsic dimensions (only a viewBox, or
-  // width/height="100%"). These images report naturalWidth 0 and collapse to nothing inside the
-  // shrink-wrapped (floated / inline-block / fit-content) containers below, so they don't render at
-  // all. When we detect that on load, we fall back to the content column width so the image becomes
-  // visible. The fallback has to be a concrete pixel value: a percentage width would itself
-  // collapse against the shrink-wrapping ancestors. Images that have real dimensions keep their
-  // intrinsic / explicit size.
+  // SVGs without intrinsic dimensions (only a viewBox, or width/height="100%") report naturalWidth
+  // 0 and collapse to nothing inside the shrink-wrapped containers below. We fall back to the
+  // column width on load. It must be a concrete pixel value; a percentage would collapse too.
   const [fallbackWidthPx, setFallbackWidthPx] = useState<number | null>(null)
   const {
     alt,
     align,
     caption,
+    className,
     height,
+    href,
+    rel,
+    linkDestination,
     linkTarget,
     title,
     url,
@@ -66,13 +69,27 @@ const ImageBlock: React.FC<
     focalPoint,
   } = data.attributes
 
+  const isRounded = Boolean(className?.includes("is-style-rounded"))
+
+  // Gutenberg links the image when a destination is set (custom URL, the media file, etc.). The
+  // image must then be wrapped in an anchor; otherwise the `href` is silently dropped.
+  const hasLink = Boolean(href) && linkDestination !== "none"
+  const linkRel =
+    linkTarget && linkTarget.includes("_blank")
+      ? // eslint-disable-next-line i18next/no-literal-string
+        [rel, "noreferrer noopener"].filter(Boolean).join(" ")
+      : rel
+  // Fallback accessible name for a linked image with no alt text (used by the link below).
+  const captionText = caption ? stripTags(caption) : undefined
+  const linkFallbackName = captionText || title || href
+  const opensInNewTab = Boolean(linkTarget?.includes("_blank"))
+
   const focalPointPos =
     focalPoint && typeof focalPoint.x === "number" && typeof focalPoint.y === "number"
       ? `${focalPoint.x * 100}% ${focalPoint.y * 100}%`
       : undefined
 
-  // Fall back to the measured column width only when the image collapsed for lack of intrinsic
-  // dimensions and no explicit width was given.
+  // Only use the fallback when no explicit width was given.
   const fallbackWidth =
     fallbackWidthPx !== null && normalizeCssSize(width) === undefined
       ? // eslint-disable-next-line i18next/no-literal-string
@@ -81,14 +98,26 @@ const ImageBlock: React.FC<
 
   // eslint-disable-next-line i18next/no-literal-string
   const imageWidthCss = normalizeCssSize(width) ?? fallbackWidth ?? "auto"
-  // For floated (left/right) images, constrain the whole figure to the image's width. Otherwise the
-  // wrapper is sized to the caption's natural width, and a caption wider than the image leaves room
-  // for it to flow *beside* the floated image instead of stacking underneath it.
+  // Constrain a floated figure to the image's width, else a caption wider than the image flows
+  // beside the float instead of stacking under it.
   // eslint-disable-next-line i18next/no-literal-string
   const floatWidthCss = imageWidthCss === "auto" ? "fit-content" : imageWidthCss
   const isFloated = align === "left" || align === "right"
   // eslint-disable-next-line i18next/no-literal-string
   const wrapperWidthCss = isFloated ? floatWidthCss : "fit-content"
+
+  // Width can shrink to the container (max-width: 100%), so height follows via aspect-ratio, not a
+  // fixed px height that would distort on narrow screens. Cropped images (object-fit via `scale`)
+  // pin the crop-box ratio (Gutenberg's aspectRatio, else author's width:height); uncropped keep
+  // their intrinsic ratio with height: auto.
+  const widthNumber = typeof width === "number" ? width : parseFloat(width ?? "")
+  const heightNumber = typeof height === "number" ? height : parseFloat(height ?? "")
+  const gutenbergAspectRatio = aspectRatio && aspectRatio !== "auto" ? aspectRatio : undefined
+  const cropAspectRatio =
+    scale && Number.isFinite(widthNumber) && Number.isFinite(heightNumber)
+      ? `${widthNumber} / ${heightNumber}`
+      : undefined
+  const effectiveAspectRatio = gutenbergAspectRatio ?? cropAspectRatio
 
   const handleImageLoad = () => {
     const image = imageRef.current
@@ -99,8 +128,8 @@ const ImageBlock: React.FC<
     }
   }
 
-  const renderImage = () => (
-    <>
+  const renderImage = () => {
+    const image = (
       <img
         ref={imageRef}
         title={title}
@@ -108,20 +137,33 @@ const ImageBlock: React.FC<
         className={css`
           width: ${imageWidthCss};
           max-width: 100%;
-          height: ${normalizeCssSize(height) ?? "auto"};
+          height: auto;
           margin: 1rem 0;
-          ${scale && `transform: scale(${scale});`}
-          ${aspectRatio && `aspect-ratio: ${aspectRatio};`}
-          ${focalPointPos && `object-fit: cover; object-position: ${focalPointPos};`}
+          ${isRounded && `border-radius: 9999px;`}
+          ${scale && `object-fit: ${scale};`}
+          ${effectiveAspectRatio && `aspect-ratio: ${effectiveAspectRatio};`}
+          ${focalPointPos && `object-position: ${focalPointPos};`}
         `}
         src={url}
         alt={alt}
       />
-      {linkTarget && linkTarget.includes("_blank") && (
-        <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
-      )}
-    </>
-  )
+    )
+    if (!hasLink) {
+      return image
+    }
+    // The link's accessible name comes from the image's alt; when that's empty we supply a name with
+    // visually-hidden text, and append the "opens in a new tab" hint inside the link so it's part of
+    // the announced name rather than detached sibling text.
+    return (
+      <a href={href} target={linkTarget} rel={linkRel}>
+        {image}
+        {!alt && <span className="screen-reader-only">{linkFallbackName}</span>}
+        {opensInNewTab && (
+          <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
+        )}
+      </a>
+    )
+  }
 
   const imageContent = (
     <div
@@ -134,7 +176,7 @@ const ImageBlock: React.FC<
         ${align === "right" &&
         `
         float: right;
-        margin-left: 1em;`}
+        margin-left: 1rem;`}
         ${align === "left" &&
         `
         float: left;
@@ -174,7 +216,8 @@ const ImageBlock: React.FC<
     </div>
   )
 
-  return disableInteractivity ? (
+  // A linked image should navigate on click, so it must not be wrapped in the zoom interaction.
+  return disableInteractivity || hasLink ? (
     imageContent
   ) : (
     <StyledZoomWrapper>

@@ -192,11 +192,15 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                 finished,
             } => ChatbotChatStreamEvent::Reasoning { finished },
             StreamItem {
-                item: OutputItem::AzureAiSearchCall { arguments, .. },
+                item:
+                    OutputItem::AzureAiSearchCall {
+                        arguments, call_id, ..
+                    },
                 finished,
             } => ChatbotChatStreamEvent::ToolCall {
                 tool_name: "course material search".to_string(),
                 arguments,
+                tool_call_id: call_id,
                 finished,
             },
             StreamItem {
@@ -204,30 +208,34 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                     OutputItem::FunctionCall {
                         tool_name,
                         arguments,
+                        call_id,
                         ..
                     },
                 finished,
             } => ChatbotChatStreamEvent::ToolCall {
                 tool_name,
                 arguments,
+                tool_call_id: call_id,
                 finished,
             },
             StreamItem {
-                item: OutputItem::AzureAiSearchCallOutput { .. },
+                item: OutputItem::AzureAiSearchCallOutput { call_id, .. },
                 ..
             } => ChatbotChatStreamEvent::ToolCall {
                 tool_name: "course material search".to_string(),
                 arguments: "".to_string(),
+                tool_call_id: call_id,
                 finished: true,
             },
             StreamItem {
-                item: OutputItem::FunctionCallOutput { .. },
+                item: OutputItem::FunctionCallOutput { call_id, .. },
                 ..
             } => ChatbotChatStreamEvent::ToolCall {
                 // tool name and arguments are ignored in the frontend. this StreamEvent
                 // just signals that the tool call has finished.
                 tool_name: "".to_string(),
                 arguments: "".to_string(),
+                tool_call_id: call_id,
                 finished: true,
             },
             _ => ChatbotChatStreamEvent::None,
@@ -515,6 +523,7 @@ pub struct ChatResponse {
 pub enum ChatbotChatStreamEvent {
     Delta {
         text: String,
+        message_id: Uuid,
     },
     Reasoning {
         finished: bool,
@@ -522,6 +531,7 @@ pub enum ChatbotChatStreamEvent {
     ToolCall {
         tool_name: String,
         arguments: String,
+        tool_call_id: String,
         finished: bool,
     },
     Done,
@@ -1240,11 +1250,12 @@ pub async fn send_chat_request_and_parse_stream(
                 }
             };
 
+            let message_id = response_message_id.lock().await.clone();
             while let Some(line) = final_stream.next().await {
                 let val = line?;
                 match val {
                     StreamEvent::Delta(delta) => {
-                        let response =  ChatbotChatStreamEvent::Delta  { text: delta.clone() };
+                        let response =  ChatbotChatStreamEvent::Delta  { text: delta.clone(), message_id };
                         let response_as_string = serde_json::to_string(&response)?;
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");

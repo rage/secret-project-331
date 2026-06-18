@@ -53,6 +53,7 @@ export type ChaptersWithStatus = {
 export type ChatbotChatStreamEvent =
   | {
       data: {
+        message_id: string
         text: string
       }
       type: "Delta"
@@ -67,6 +68,7 @@ export type ChatbotChatStreamEvent =
       data: {
         arguments: string
         finished: boolean
+        tool_call_id: string
         tool_name: string
       }
       type: "ToolCall"

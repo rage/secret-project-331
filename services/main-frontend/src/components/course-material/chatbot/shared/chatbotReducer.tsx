@@ -21,6 +21,7 @@ export type ChatbotState = {
   messages: ChatbotConversationMessageWithStatus[]
 }
 
+// todo: accpt chat stream events?
 export type ChatbotAction =
   | {
       type: "RECEIVED_CONVERSATION_MESSAGES"
@@ -34,6 +35,19 @@ export type ChatbotAction =
         text: string
       }
     }
+  | {
+      type: "TOOL_CALL_IN_PROGRESS"
+      payload: {
+        arguments: string
+        finished: boolean
+        tool_call_id: string
+        tool_name: string
+      }
+    }
+  | { type: "TOOL_CALL_FINISHED" }
+  | { type: "REASONING_IN_PROGRESS" }
+  | { type: "REASONING_FINISHED" }
+  | { type: "RESPONSE_COMPLETED" }
 
 const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotState => {
   return produce(state, (draftState) => {
@@ -107,6 +121,52 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
               message_is_complete: true,
               response_id: null,
               used_tokens: 0,
+            },
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            conversation_id: "",
+            order_number: lastOrderNumber + 1,
+          },
+          finished: false,
+          optimistic: false,
+        })
+      }
+    }
+    if (action.type === "TOOL_CALL_IN_PROGRESS") {
+      const toolCallMessageIdx = draftState.messages.findIndex((m) => {
+        let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+        return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
+      })
+      if (toolCallMessageIdx !== -1) {
+        // tool call found
+        let toolCall = draftState.messages[toolCallMessageIdx].message.message
+        let res = zChatbotConversationMessageToolCall.safeParse(toolCall)
+        if (!res.success) {
+          return
+        }
+        // update arguments for the tool call
+        res.data.tool_arguments = action.payload.arguments
+        draftState.messages[toolCallMessageIdx].message.message = res.data
+      } else {
+        // create new message
+        const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
+
+        draftState.messages.push({
+          message: {
+            id: v4(),
+            message: {
+              id: v4(),
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+              deleted_at: null,
+              chatbot_conversation_message_id: v4(),
+              response_id: "",
+              tool_arguments: action.payload.arguments,
+              tool_call_id: action.payload.tool_call_id,
+              // eslint-disable-next-line i18next/no-literal-string
+              tool_kind: "function",
+              tool_name: action.payload.tool_name,
             },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),

@@ -3020,8 +3020,12 @@
             "properties": {
               "data": {
                 "type": "object",
-                "required": ["text"],
+                "required": ["text", "message_id"],
                 "properties": {
+                  "message_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
                   "text": {
                     "type": "string"
                   }
@@ -3058,13 +3062,16 @@
             "properties": {
               "data": {
                 "type": "object",
-                "required": ["tool_name", "arguments", "finished"],
+                "required": ["tool_name", "arguments", "tool_call_id", "finished"],
                 "properties": {
                   "arguments": {
                     "type": "string"
                   },
                   "finished": {
                     "type": "boolean"
+                  },
+                  "tool_call_id": {
+                    "type": "string"
                   },
                   "tool_name": {
                     "type": "string"

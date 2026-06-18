@@ -67,6 +67,7 @@ export const zChapterWithStatus = z.object({
 export const zChatbotChatStreamEvent = z.union([
   z.object({
     data: z.object({
+      message_id: z.uuid(),
       text: z.string(),
     }),
     type: z.enum(["Delta"]),
@@ -81,6 +82,7 @@ export const zChatbotChatStreamEvent = z.union([
     data: z.object({
       arguments: z.string(),
       finished: z.boolean(),
+      tool_call_id: z.string(),
       tool_name: z.string(),
     }),
     type: z.enum(["ToolCall"]),

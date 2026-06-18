@@ -95,6 +95,12 @@ describe("chatbotReducer", () => {
       message: { text: "Lol", message_role: "assistant" },
     })
   })
+  it("works with TOOL_CALL_IN_PROGRESS when there is no tool call in progress", () => {
+    // put a finished tool call in the state
+  })
+  it("works with TOOL_CALL_IN_PROGRESS when there is a tool call in progress", () => {
+    // put a finished tool call in the state
+  })
 })
 
 /// Allows to you to set only some  fields of an object and leave others empty
@@ -110,7 +116,7 @@ type RecursivePartial<T> = {
 const time = new Date(1781790266 * 1000).toISOString()
 
 function messageFactory(
-  lol?: RecursivePartial<ChatbotConversationMessage>,
+  messageFields?: RecursivePartial<ChatbotConversationMessage>,
 ): ChatbotConversationMessage {
   const defaultMessage: ChatbotConversationMessage = {
     id: "",
@@ -132,5 +138,5 @@ function messageFactory(
     conversation_id: "",
     order_number: 0,
   }
-  return merge(defaultMessage, lol) as ChatbotConversationMessage
+  return merge(defaultMessage, messageFields) as ChatbotConversationMessage
 }

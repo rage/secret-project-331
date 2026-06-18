@@ -22,8 +22,8 @@ use crate::{
     domain::models_requests::{self, JwtKey},
     programs::seed::{
         seed_courses::{
-            CommonCourseData, seed_cs_course_material, seed_glossary, seed_graded_course,
-            seed_peer_review_course_without_submissions, seed_sample_course,
+            CommonCourseData, seed_cs_course_material, seed_generated_description, seed_glossary,
+            seed_graded_course, seed_peer_review_course_without_submissions, seed_sample_course,
         },
         seed_file_storage::SeedFileStorageResult,
         seed_helpers::{create_exam, get_seed_spec_fetcher},
@@ -242,6 +242,12 @@ pub async fn seed_organization_uh_cs(
             "glossary-course",
             cs_data.clone(),
             seed_users_result,
+        )),
+        run_parallelly(seed_generated_description(
+            Uuid::parse_str("84d392c8-3d44-4109-bff1-938fec5cd642")?,
+            "Description generation course",
+            "description-generation-course",
+            cs_data.clone(),
         )),
         run_parallelly(seed_sample_course(
             Uuid::parse_str("a2002fc3-2c87-4aae-a5e5-9d14617aad2b")?,

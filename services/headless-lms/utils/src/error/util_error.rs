@@ -29,6 +29,7 @@ pub enum UtilErrorType {
     DeserializationError,
     TmcHttpError,
     TmcErrorResponse,
+    SisuClientError,
 }
 
 /**

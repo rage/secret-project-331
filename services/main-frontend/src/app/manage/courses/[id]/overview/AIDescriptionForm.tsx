@@ -137,6 +137,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     updateCourseMutation.mutate(data)
   })
 
+  //error={t("error-cannot-generate-description", { error: error.message })}
   return (
     <FormProvider {...methods}>
       <StandardDialog
@@ -162,10 +163,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
           </span>
           <FieldContainer>{course.description}</FieldContainer>
           {isError ? (
-            <ErrorBanner
-              variant={"readOnly"}
-              error={t("error-cannot-generate-description", { error: error.message })}
-            />
+            <ErrorBanner variant={"readOnly"} error={error} contextMessage={error.message} />
           ) : (
             <FieldContainer>
               {!isFetching ? (

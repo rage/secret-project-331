@@ -1595,6 +1595,7 @@ async fn get_sisu_course_llm_descriptions(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
 ) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
+    let is_mock_sisu = app_conf.test_sisu;
     let mut conn = pool.acquire().await?;
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let course_lang = models::courses::get_course(&mut conn, *course_id)
@@ -1605,7 +1606,7 @@ async fn get_sisu_course_llm_descriptions(
         .into_iter()
         .filter_map(|course_module| course_module.uh_course_code)
         .collect::<Vec<String>>();
-    let course_ids = SisuClient::get_course_ids(uh_course_codes).await?;
+    let course_ids = SisuClient::get_course_ids(is_mock_sisu, uh_course_codes).await?;
 
     let course_info = SisuClient::get_course_info(course_ids).await?;
 

@@ -23,6 +23,7 @@ pub struct ApplicationConfiguration {
     pub base_url: String,
     pub test_mode: bool,
     pub test_chatbot: bool,
+    pub test_sisu: bool,
     pub development_uuid_login: bool,
     pub enable_admin_email_verification: bool,
     pub azure_configuration: Option<AzureConfiguration>,
@@ -42,6 +43,8 @@ impl ApplicationConfiguration {
         let test_chatbot = test_mode
             && (bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
                 || env::var("AZURE_CHATBOT_API_KEY").is_err());
+
+        let test_sisu = test_mode && (bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT"));
 
         let azure_configuration = if test_chatbot {
             AzureConfiguration::mock_conf()?
@@ -72,6 +75,7 @@ impl ApplicationConfiguration {
             base_url,
             test_mode,
             test_chatbot,
+            test_sisu,
             development_uuid_login,
             enable_admin_email_verification,
             azure_configuration,

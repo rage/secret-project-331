@@ -140,7 +140,7 @@ pub struct SisuCourseInfoValidityPeriod {
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SearchResult {
-    id: String,
+    pub id: String,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -158,14 +158,22 @@ pub struct SisuDescriptions {
 }
 
 impl SisuClient {
-    pub async fn get_course_ids(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
+    pub async fn get_course_ids(
+        is_mock_sisu: bool,
+        course_modules: Vec<String>,
+    ) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
         let mut course_ids: Vec<Vec<String>> = vec![];
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
-            let url = format!(
-                "https://sisu.helsinki.fi/kori/api/course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
-            );
+            let url = if is_mock_sisu {
+                format!("/api/v0/mock_sisu/kori/api/{code}")
+            } else {
+                format!(
+                    "https://sisu.helsinki.fi/kori/api/course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
+                )
+            };
+
             let response = REQWEST_CLIENT
                 .get(url)
                 .header("Content-Type", "application/json")

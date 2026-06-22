@@ -20,6 +20,7 @@ pub mod langs;
 pub mod main_frontend;
 pub mod mock_azure;
 pub mod mock_document_storage;
+pub mod mock_sisu;
 pub mod other_domain_redirects;
 pub mod study_registry;
 pub mod tmc_server;
@@ -65,6 +66,9 @@ pub fn configure_controllers(
             .service(
                 web::scope("/mock-document-storage").configure(mock_document_storage::_add_routes),
             );
+    }
+    if app_conf.test_sisu && app_conf.test_mode && app_conf.test_chatbot {
+        cfg.service(web::scope("/mock-sisu").configure(mock_sisu::_add_routes));
     }
 }
 

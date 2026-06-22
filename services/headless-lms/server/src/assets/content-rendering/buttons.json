@@ -294,18 +294,6 @@
         "innerBlocks": []
       },
       {
-        "clientId": "0a1f2e3d-1111-4abc-8def-700000000003",
-        "isValid": true,
-        "name": "core/button",
-        "attributes": {
-          "tagName": "a",
-          "type": "button",
-          "className": "is-style-material-primary-button",
-          "text": "Math <math data-latex=\"\\frac{x}{y}\"><semantics><mfrac><mi>x</mi><mi>y</mi></mfrac>\\frac{x}{y}</semantics></math>"
-        },
-        "innerBlocks": []
-      },
-      {
         "clientId": "0a1f2e3d-1111-4abc-8def-700000000004",
         "isValid": true,
         "name": "core/button",

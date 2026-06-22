@@ -2,10 +2,9 @@
 
 import { css } from "@emotion/css"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
@@ -24,7 +23,6 @@ import {
   zChatbotConversationMessageMessage,
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
-  zChatbotConversationMessageToolOutput,
 } from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
@@ -50,9 +48,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-  const [streamingStatusMessage, setStreamingStatusMessage] =
-    useState<ChatbotConversationMessageWithStatus | null>(null)
-  console.log("status: ", messageState.responseStatus)
+  console.log("status: ", messageState.messages)
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
@@ -76,114 +72,25 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   ])
 
   const messages = useMemo(() => {
-    setStreamingStatusMessage(null)
     const messages: ChatbotConversationMessageWithStatus[] = [
       ...(currentConversationInfo.data?.current_conversation_messages
         ?.filter((m) => {
-          let result = zChatbotConversationMessageMessage.safeParse(m.message)
-          return (
-            result.success &&
-            (result.data.message_role === "user" || result.data.message_role === "assistant")
-          )
+          const messageResult = zChatbotConversationMessageMessage.safeParse(m.message)
+          let messageSuccess =
+            messageResult.success &&
+            (messageResult.data.message_role === "user" ||
+              messageResult.data.message_role === "assistant")
+          const toolCallResult = zChatbotConversationMessageToolCall.safeParse(m.message)
+          const reasoningResult = zChatbotConversationMessageReasoning.safeParse(m.message)
+          return messageSuccess || toolCallResult.success || reasoningResult.success
         })
         .map((m) => {
           return { finished: true, message: m }
         }) ?? []),
     ]
-    const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
-    if (messageState.optimisticMessage) {
-      messages.push({
-        message: {
-          id: v4(),
-          message: {
-            id: v4(),
-            text: messageState.optimisticMessage,
-            // eslint-disable-next-line i18next/no-literal-string
-            message_role: "user",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            deleted_at: null,
-            chatbot_conversation_message_id: v4(),
-            message_is_complete: true,
-            response_id: null,
-            used_tokens: 0,
-          },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          deleted_at: null,
-          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-          order_number: lastOrderNumber + 1,
-        },
-        finished: true,
-      })
-    }
+
     return messages
-  }, [
-    currentConversationInfo.data?.current_conversation_messages,
-    currentConversationInfo.data?.current_conversation?.id,
-    messageState.optimisticMessage,
-  ])
-
-  let toolStatusStuffItems = useMemo(() => {
-    // get all ubique response ids
-    // collect all tool and reasoning items with the same response id
-    //merge with messages and sort by order number
-    const lol: ChatbotConversationMessage[] = [
-      ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {}) ?? []),
-    ]
-    /* const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
-    if (messageState.responseStatus) {
-      if (messageState.responseStatus.finished) {
-        let status = messageState.responseStatus
-        status.message.conversation_id =
-          currentConversationInfo.data?.current_conversation?.id ?? ""
-        status.message.order_number = lastOrderNumber + 1
-        messages.push(status)
-        setStreamingStatusMessage(null)
-      } else {
-        setStreamingStatusMessage(messageState.responseStatus)
-      }
-    } */
-  }, [
-    currentConversationInfo.data?.current_conversation?.id,
-    messageState.responseStatus,
-    messages,
-    setStreamingStatusMessage,
-  ])
-
-  let streamingMessage: ChatbotConversationMessageWithStatus | undefined = useMemo(() => {
-    const lastOrderNumber = Math.max(...messages.map((m) => m.message.order_number), 0)
-    if (messageState.streamingMessage) {
-      return {
-        message: {
-          id: v4(),
-          message: {
-            id: v4(),
-            text: messageState.streamingMessage,
-            // eslint-disable-next-line i18next/no-literal-string
-            message_role: "assistant",
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-            deleted_at: null,
-            chatbot_conversation_message_id: v4(),
-            message_is_complete: false,
-            response_id: "",
-            used_tokens: 0,
-          },
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          deleted_at: null,
-          conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-          order_number: lastOrderNumber + 2,
-        },
-        finished: false,
-      }
-    }
-  }, [
-    currentConversationInfo.data?.current_conversation?.id,
-    messages,
-    messageState.streamingMessage,
-  ])
+  }, [currentConversationInfo.data?.current_conversation_messages])
 
   const scrollToBottom = useCallback(() => {
     if (scrollContainerRef.current) {
@@ -193,7 +100,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   useEffect(() => {
     scrollToBottom()
-  }, [scrollToBottom, messages, messageState.responseStatus])
+  }, [scrollToBottom, messages, messageState.messages])
 
   const canSubmit = useMemo(
     () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
@@ -234,7 +141,6 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
             variant="secondary"
             onClick={() => {
               newConversationMutation.mutate()
-              dispatch({ type: "RESET_MESSAGES" })
             }}
             disabled={newConversationMutation.isPending}
           >
@@ -264,50 +170,42 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         `}
         ref={scrollContainerRef}
       >
-        {messages
-          .concat(streamingStatusMessage ? [streamingStatusMessage] : [])
-          .concat(streamingMessage ? [streamingMessage] : [])
-          .map((message) => {
-            let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
-            if (m.success) {
-              return (
-                <MessageBubble
-                  key={`chatbot-message-${message.message.id}`}
-                  message={m.data.text ?? ""}
-                  citations={citations.get(message.message.id)}
-                  isFromChatbot={m.data.message_role === "assistant"}
-                  isPending={!m.data.message_is_complete && newMessageMutation.isPending}
-                />
-              )
-            }
-          })}
-        {/*
-            let parseResTool = zChatbotConversationMessageToolCall.safeParse(
-              message.message.message,
+        {messages.concat(messageState.messages).map((message) => {
+          let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
+          if (m.success) {
+            return (
+              <MessageBubble
+                key={`chatbot-message-${message.message.id}`}
+                message={m.data.text ?? ""}
+                citations={citations.get(message.message.id)}
+                isFromChatbot={m.data.message_role === "assistant"}
+                isPending={!m.data.message_is_complete && newMessageMutation.isPending}
+              />
             )
-            let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(
-              message.message.message,
-            )
+          }
 
-            let props: ReasoningStatusProps | ToolCallStatusProps | null = parseResTool.success
-              ? // eslint-disable-next-line i18next/no-literal-string
-                { message: parseResTool.data, messageType: "ToolCall", finished: message.finished }
-              : parseResReasoning.success
-                ? {
-                    message: parseResReasoning.data,
-                    // eslint-disable-next-line i18next/no-literal-string
-                    messageType: "Reasoning",
-                    finished: message.finished,
-                  }
-                : null
+          let parseResTool = zChatbotConversationMessageToolCall.safeParse(message.message.message)
+          let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(
+            message.message.message,
+          )
 
-            if (props) {
-              console.log("props type: ", props.messageType)
-              return (
-                <StatusIndicator key={`chatbot-status-message-${props.message.id}`} {...props} />
-              )
-            }
-          })} */}
+          let props: ReasoningStatusProps | ToolCallStatusProps | null = parseResTool.success
+            ? // eslint-disable-next-line i18next/no-literal-string
+              { message: parseResTool.data, messageType: "ToolCall", finished: message.finished }
+            : parseResReasoning.success
+              ? {
+                  message: parseResReasoning.data,
+                  // eslint-disable-next-line i18next/no-literal-string
+                  messageType: "Reasoning",
+                  finished: message.finished,
+                }
+              : null
+
+          if (props) {
+            console.log("props type: ", props.messageType)
+            return <StatusIndicator key={`chatbot-status-message-${props.message.id}`} {...props} />
+          }
+        })}
         <div
           className={css`
             display: flex;

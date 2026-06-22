@@ -8,7 +8,6 @@ import {
   zChatbotConversationMessageMessage,
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
-  zChatbotConversationMessageToolOutput,
 } from "@/generated/course-material-api/zod.generated"
 
 export type ChatbotConversationMessageWithStatus = {
@@ -230,6 +229,9 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         // error
         return
       }
+    }
+    if (action.type === "RESPONSE_COMPLETED") {
+      draftState.messages = []
     }
   })
 }

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { v4 } from "uuid"
 
 import { ChatbotConversationMessageWithStatus } from "../ChatbotChatBody"
+import chatbotReducer, { ChatbotAction, ChatbotState } from "../chatbotReducer"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
@@ -60,6 +61,7 @@ const StreamEventToMessage = (
           deleted_at: null,
           id: v4(),
           response_id: "",
+          reasoning_id: e.data.reasoning_id,
           updated_at: new Date().toISOString(),
         },
       },
@@ -67,7 +69,7 @@ const StreamEventToMessage = (
   }
 }
 
-export interface MessageState {
+/* export interface MessageState {
   optimisticMessage: string | null
   streamingMessage: string | null
   responseStatus: ChatbotConversationMessageWithStatus | null
@@ -108,7 +110,7 @@ const messageReducer = (state: MessageState, action: MessageAction): MessageStat
     default:
       return state
   }
-}
+} */
 
 /// Queries, state and data needed for chatbot functionality
 export interface ChatbotStateAndData {
@@ -116,8 +118,8 @@ export interface ChatbotStateAndData {
   newMessage: string
   setNewMessage: React.Dispatch<React.SetStateAction<string>>
   error: unknown | null
-  messageState: MessageState
-  dispatch: (action: MessageAction) => void
+  messageState: ChatbotState
+  dispatch: (action: ChatbotAction) => void
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   chatbotMessageAnnouncement: string
   newMessageMutation: UseMutationResult<
@@ -136,10 +138,8 @@ const useChatbotStateAndData = (
   const [newMessage, setNewMessage] = useState("")
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  const [messageState, dispatch] = useReducer(messageReducer, {
-    optimisticMessage: null,
-    streamingMessage: null,
-    responseStatus: null,
+  const [messageState, dispatch] = useReducer(chatbotReducer, {
+    messages: [],
   })
 
   const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId)
@@ -158,7 +158,7 @@ const useChatbotStateAndData = (
       }
       setChatbotMessageAnnouncement(t("chatbot-is-responding"))
       const message = messageToSend.trim()
-      dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
+      dispatch({ type: "USER_SENDS_MESSAGE", payload: message })
       setNewMessage("")
       const stream = await courseMaterialClient.post<
         ReadableStream<Uint8Array>,
@@ -192,15 +192,30 @@ const useChatbotStateAndData = (
               const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
               console.log(parsedValue)
               if (parsedValue.type === "Delta") {
-                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.data.text })
-              } else if (parsedValue.type === "Reasoning" || parsedValue.type === "ToolCall") {
-                // todo!
-                let payload: ChatbotChatStreamEvent = parsedValue
+                dispatch({
+                  type: "RECEIVED_TEXT_DELTA",
+                  payload: { text: parsedValue.data.text, message_id: parsedValue.data.message_id },
+                })
+              } else if (parsedValue.type === "Reasoning") {
                 if (parsedValue.data.finished) {
-                  dispatch({ type: "SET_STATUS_EVENT_FINISHED", payload: true })
-                  dispatch({ type: "SET_STATUS_NULL" })
+                  dispatch({
+                    type: "REASONING_FINISHED",
+                    payload: { reasoning_id: parsedValue.data.reasoning_id },
+                  })
                 } else {
-                  dispatch({ type: "SET_STATUS", payload })
+                  dispatch({
+                    type: "REASONING_IN_PROGRESS",
+                    payload: { reasoning_id: parsedValue.data.reasoning_id },
+                  })
+                }
+              } else if (parsedValue.type === "ToolCall") {
+                if (parsedValue.data.finished) {
+                  dispatch({
+                    type: "TOOL_CALL_FINISHED",
+                    payload: { tool_call_id: parsedValue.data.tool_call_id },
+                  })
+                } else {
+                  dispatch({ type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } })
                 }
               }
             } catch (e) {
@@ -215,13 +230,13 @@ const useChatbotStateAndData = (
     {
       onSuccess: async () => {
         await currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
+        dispatch({ type: "RESPONSE_COMPLETED" })
         setError(null)
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {
         setError(error)
-        dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
+        dispatch({ type: "RESPONSE_COMPLETED" })
         await currentConversationInfo.refetch()
       },
     },

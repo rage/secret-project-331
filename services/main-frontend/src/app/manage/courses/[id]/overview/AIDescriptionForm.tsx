@@ -163,7 +163,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
           </span>
           <FieldContainer>{course.description}</FieldContainer>
           {isError ? (
-            <ErrorBanner variant={"readOnly"} error={error} contextMessage={error.message} />
+            <ErrorBanner variant={"readOnly"} error={error} />
           ) : (
             <FieldContainer>
               {!isFetching ? (

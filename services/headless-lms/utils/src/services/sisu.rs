@@ -1,4 +1,4 @@
-use crate::prelude::*;
+use crate::{error::util_error::SisuErrorVariant, prelude::*};
 pub struct SisuClient {}
 
 use regex::Regex;
@@ -171,7 +171,13 @@ impl SisuClient {
                 .header("Content-Type", "application/json")
                 .send()
                 .await
-                .map_err(|e| util_err!(SisuClientError, "Request to Sisu failed", e))?;
+                .map_err(|e| {
+                    util_err!(
+                        SisuClientError(SisuErrorVariant::GenericSisuError),
+                        "Request to Sisu failed",
+                        e
+                    )
+                })?;
 
             if response.status().is_success() {
                 let json: CourseUnitSearchResults =
@@ -185,13 +191,13 @@ impl SisuClient {
                 }
             } else if response.status() == 404 {
                 return Err(UtilError::new(
-                    UtilErrorType::SisuClientError,
+                    UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
                     "Course ids not found".to_string(),
                     None,
                 ));
             } else {
                 return Err(UtilError::new(
-                    UtilErrorType::SisuClientError,
+                    UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
                     "Something went wrong when fetching course ids".to_string(),
                     None,
                 ));
@@ -200,7 +206,7 @@ impl SisuClient {
 
         if !invalid_codes.is_empty() {
             return Err(UtilError::new(
-                UtilErrorType::SisuClientError,
+                UtilErrorType::SisuClientError(SisuErrorVariant::InvalidCourseCode),
                 format!("No data found with codes: {invalid_codes:?}"),
                 None,
             ));
@@ -220,7 +226,13 @@ impl SisuClient {
                     .header("Content-Type", "application/json")
                     .send()
                     .await
-                    .map_err(|e| util_err!(SisuClientError, "Request to Sisu failed", e))?;
+                    .map_err(|e| {
+                        util_err!(
+                            SisuClientError(SisuErrorVariant::GenericSisuError),
+                            "Request to Sisu failed",
+                            e
+                        )
+                    })?;
 
                 if response.status().is_success() {
                     let json: SisuCourseInfoElement =
@@ -228,20 +240,20 @@ impl SisuClient {
                     data_vec.push(json);
                 } else if response.status() == 404 {
                     return Err(UtilError::new(
-                        UtilErrorType::SisuClientError,
+                        UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
                         "Course info not found".to_string(),
                         None,
                     ));
                 } else {
                     return Err(UtilError::new(
-                        UtilErrorType::SisuClientError,
+                        UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
                         "Something went wrong when fetching course info".to_string(),
                         None,
                     ));
                 }
             } else {
                 return Err(UtilError::new(
-                    UtilErrorType::SisuClientError,
+                    UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
                     "No courses found with course code".to_string(),
                     None,
                 ));

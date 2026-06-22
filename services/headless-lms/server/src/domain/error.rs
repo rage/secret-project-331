@@ -14,8 +14,8 @@ use headless_lms_base::error::{
     backend_error::BackendError, backtrace_formatter::format_backtrace,
 };
 use headless_lms_chatbot::prelude::ChatbotError;
-use headless_lms_models::{ModelError, ModelErrorType};
-use headless_lms_utils::error::util_error::UtilError;
+use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
+use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
 use serde::{Deserialize, Serialize};
 use tracing_error::SpanTrace;
 
@@ -65,6 +65,10 @@ pub enum ControllerErrorType {
     /// Varied response based on error
     #[display("OAuthError")]
     OAuthError(Box<OAuthErrorData>),
+
+    /// SISUERROR
+    #[display("SisuError")]
+    SisuError(SisuErrorType),
 }
 
 #[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
@@ -84,6 +88,25 @@ impl UnauthorizedReason {
             Self::AuthenticationRequiredForExamExercise => {
                 "authentication_required_for_exam_exercise"
             }
+        }
+    }
+}
+
+#[derive(Debug, Display, Serialize, Deserialize, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum SisuErrorType {
+    #[display("invalid course code")]
+    InvalidCourseCode,
+    #[display("generic sisu error")]
+    GenericSisuError,
+}
+
+impl SisuErrorType {
+    /// Returns the stable message key for this unauthorized reason.
+    fn message_key(self) -> &'static str {
+        match self {
+            Self::InvalidCourseCode => "invalid_course_code",
+            Self::GenericSisuError => "generic_sisu_error",
         }
     }
 }
@@ -453,6 +476,7 @@ impl error::ResponseError for ControllerError {
             errors,
             metadata: metadata_json,
         };
+        dbg!(&error_response);
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())
@@ -472,6 +496,7 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
+            ControllerErrorType::SisuError(_) => StatusCode::BAD_REQUEST,
         }
     }
 }
@@ -491,6 +516,7 @@ impl ControllerError {
             }
             ControllerErrorType::Forbidden => ("forbidden", "forbidden"),
             ControllerErrorType::OAuthError(_) => ("oauth_error", "oauth_error"),
+            ControllerErrorType::SisuError(error_type) => ("sisu_error", error_type.message_key()),
         }
     }
 
@@ -697,13 +723,34 @@ impl From<UtilError> for ControllerError {
                 _ => Backtrace::new(),
             };
         let span_trace = err.span_trace().clone();
-        Self::new_with_traces(
-            ControllerErrorType::InternalServerError,
-            err.to_string(),
-            Some(err.into()),
-            backtrace,
-            span_trace,
-        )
+
+        match err.error_type() {
+            UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError) => {
+                Self::new_with_traces(
+                    ControllerErrorType::SisuError(SisuErrorType::GenericSisuError),
+                    err.to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+            }
+            UtilErrorType::SisuClientError(SisuErrorVariant::InvalidCourseCode) => {
+                Self::new_with_traces(
+                    ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode),
+                    err.to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+            }
+            _ => Self::new_with_traces(
+                ControllerErrorType::InternalServerError,
+                err.to_string(),
+                Some(err.into()),
+                backtrace,
+                span_trace,
+            ),
+        }
     }
 }
 

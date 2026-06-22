@@ -80,9 +80,17 @@
       "message": "You do not have permission for this action.",
       "title": "Forbidden"
     },
+    "generic_sisu_error": {
+      "message": "Something went wrong in generating description",
+      "title": "Could not generate description"
+    },
     "internal_error": {
       "message": "Please try again in a moment.",
       "title": "Something went wrong"
+    },
+    "invalid_course_code": {
+      "message": "Make sure that the course codes are valid",
+      "title": "Could not generate description"
     },
     "not_found": {
       "message": "The requested resource could not be found.",

@@ -44,7 +44,7 @@ export type ChatbotAction =
         tool_name: string
       }
     }
-  | { type: "TOOL_CALL_FINISHED" }
+  | { type: "TOOL_CALL_FINISHED"; payload: { tool_call_id: string } }
   | { type: "REASONING_IN_PROGRESS" }
   | { type: "REASONING_FINISHED" }
   | { type: "RESPONSE_COMPLETED" }
@@ -177,6 +177,20 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
           finished: false,
           optimistic: false,
         })
+      }
+    }
+    if (action.type === "TOOL_CALL_FINISHED") {
+      const toolCallMessageIdx = draftState.messages.findIndex((m) => {
+        let res = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+        return res.success && res.data.tool_call_id === action.payload.tool_call_id && !m.finished
+      })
+      if (toolCallMessageIdx !== -1) {
+        // tool call found
+        // set the tool call as finished
+        draftState.messages[toolCallMessageIdx].finished = true
+      } else {
+        // error
+        return
       }
     }
   })

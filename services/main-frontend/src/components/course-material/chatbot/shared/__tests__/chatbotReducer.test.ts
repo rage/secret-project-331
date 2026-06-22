@@ -96,10 +96,97 @@ describe("chatbotReducer", () => {
     })
   })
   it("works with TOOL_CALL_IN_PROGRESS when there is no tool call in progress", () => {
-    // put a finished tool call in the state
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory({}, "toolCall"), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "TOOL_CALL_IN_PROGRESS",
+      payload: { arguments: "", tool_call_id: "id", tool_name: "test_tool", finished: false },
+    })
+    expect(newState.messages.length).toBe(5)
+    expect(newState.messages[4]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[4].message).toMatchObject({
+      message: { tool_call_id: "id", tool_name: "test_tool" },
+    })
   })
   it("works with TOOL_CALL_IN_PROGRESS when there is a tool call in progress", () => {
-    // put a finished tool call in the state
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: false, message: messageFactory({}, "toolCall"), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "TOOL_CALL_IN_PROGRESS",
+      payload: { arguments: "", tool_call_id: "id", tool_name: "test_tool", finished: false },
+    })
+    expect(newState.messages.length).toBe(5)
+    expect(newState.messages[4]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[4].message).toMatchObject({
+      message: { tool_call_id: "id", tool_name: "test_tool" },
+    })
+  })
+  it("works with TOOL_CALL_FINISHED when there is a tool call in progress", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { tool_call_id: "test_id" } }, "toolCall"),
+          optimistic: false,
+        },
+        { finished: true, message: messageFactory(), optimistic: false },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "TOOL_CALL_FINISHED",
+      payload: { tool_call_id: "test_id" },
+    })
+    expect(newState.messages.length).toBe(4)
+    expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
+    expect(newState.messages[2].message).toMatchObject({
+      message: { tool_call_id: "test_id" },
+    })
+  })
+  it("works with TOOL_CALL_FINISHED when there is more than one tool call in progress", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { tool_call_id: "test_id_1" } }, "toolCall"),
+          optimistic: false,
+        },
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { tool_call_id: "test_id_2" } }, "toolCall"),
+          optimistic: false,
+        },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "TOOL_CALL_FINISHED",
+      payload: { tool_call_id: "test_id_1" },
+    })
+    expect(newState.messages.length).toBe(5)
+    expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
+    expect(newState.messages[2].message).toMatchObject({
+      message: { tool_call_id: "test_id_1" },
+    })
+    expect(newState.messages[4]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[4].message).toMatchObject({
+      message: { tool_call_id: "test_id_2" },
+    })
   })
 })
 
@@ -113,30 +200,79 @@ type RecursivePartial<T> = {
       : T[P]
 }
 
+type MessageType = "text" | "toolCall" | "reasoning"
+
 const time = new Date(1781790266 * 1000).toISOString()
 
 function messageFactory(
   messageFields?: RecursivePartial<ChatbotConversationMessage>,
+  /// Defaults to text message (ChatbotConversationMessageMessage)
+  type?: MessageType,
 ): ChatbotConversationMessage {
-  const defaultMessage: ChatbotConversationMessage = {
-    id: "",
-    message: {
-      id: "22d5ea64-3766-4fcb-89df-5d5f439587c2",
-      text: "",
-      message_role: "assistant",
-      created_at: time,
-      updated_at: time,
-      deleted_at: null,
-      chatbot_conversation_message_id: "71832a5f-b79b-4af3-8a00-07368262b2af",
-      message_is_complete: true,
-      response_id: null,
-      used_tokens: 0,
-    },
-    created_at: time,
-    updated_at: time,
-    deleted_at: null,
-    conversation_id: "",
-    order_number: 0,
+  let defaultMessage: ChatbotConversationMessage
+  switch (type) {
+    case "reasoning":
+      defaultMessage = {
+        id: "",
+        message: {
+          id: "22d5ea64-3766-4fcb-89df-5d5f439587c2",
+          created_at: time,
+          updated_at: time,
+          deleted_at: null,
+          chatbot_conversation_message_id: "71832a5f-b79b-4af3-8a00-07368262b2af",
+          response_id: "",
+        },
+        created_at: time,
+        updated_at: time,
+        deleted_at: null,
+        conversation_id: "",
+        order_number: 0,
+      }
+      break
+    case "toolCall":
+      defaultMessage = {
+        id: "",
+        message: {
+          id: "22d5ea64-3766-4fcb-89df-5d5f439587c2",
+          created_at: time,
+          updated_at: time,
+          deleted_at: null,
+          chatbot_conversation_message_id: "71832a5f-b79b-4af3-8a00-07368262b2af",
+          response_id: "",
+          tool_arguments: "",
+          tool_call_id: "call_id",
+          tool_kind: "function",
+          tool_name: "my_tool",
+        },
+        created_at: time,
+        updated_at: time,
+        deleted_at: null,
+        conversation_id: "",
+        order_number: 0,
+      }
+      break
+    default:
+      defaultMessage = {
+        id: "",
+        message: {
+          id: "22d5ea64-3766-4fcb-89df-5d5f439587c2",
+          text: "",
+          message_role: "assistant",
+          created_at: time,
+          updated_at: time,
+          deleted_at: null,
+          chatbot_conversation_message_id: "71832a5f-b79b-4af3-8a00-07368262b2af",
+          message_is_complete: true,
+          response_id: null,
+          used_tokens: 0,
+        },
+        created_at: time,
+        updated_at: time,
+        deleted_at: null,
+        conversation_id: "",
+        order_number: 0,
+      }
   }
+
   return merge(defaultMessage, messageFields) as ChatbotConversationMessage
 }

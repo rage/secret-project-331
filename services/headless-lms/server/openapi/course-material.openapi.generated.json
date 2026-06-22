@@ -3043,10 +3043,13 @@
             "properties": {
               "data": {
                 "type": "object",
-                "required": ["finished"],
+                "required": ["finished", "reasoning_id"],
                 "properties": {
                   "finished": {
                     "type": "boolean"
+                  },
+                  "reasoning_id": {
+                    "type": "string"
                   }
                 }
               },
@@ -3365,6 +3368,7 @@
           "chatbot_conversation_message_id",
           "created_at",
           "updated_at",
+          "reasoning_id",
           "response_id"
         ],
         "properties": {
@@ -3383,6 +3387,9 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "reasoning_id": {
+            "type": "string"
           },
           "response_id": {
             "type": "string"

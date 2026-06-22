@@ -9,6 +9,7 @@ pub struct ChatbotConversationMessageReasoning {
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub summary: Option<String>,
+    pub reasoning_id: String,
     pub response_id: String,
 }
 
@@ -21,6 +22,7 @@ impl Default for ChatbotConversationMessageReasoning {
             updated_at: Default::default(),
             deleted_at: None,
             summary: None,
+            reasoning_id: Default::default(),
             response_id: Default::default(),
         }
     }
@@ -37,14 +39,16 @@ pub async fn insert(
 INSERT INTO chatbot_conversation_message_reasoning (
     chatbot_conversation_message_id,
     summary,
-    response_id
+    response_id,
+    reasoning_id
   )
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4)
 RETURNING *
         "#,
         msg_id,
         input.summary,
         input.response_id,
+        input.reasoning_id,
     )
     .fetch_one(conn)
     .await?;

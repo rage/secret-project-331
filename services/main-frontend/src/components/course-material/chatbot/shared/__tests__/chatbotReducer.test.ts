@@ -188,6 +188,91 @@ describe("chatbotReducer", () => {
       message: { tool_call_id: "test_id_2" },
     })
   })
+  it("works with REASONING_IN_PROGRESS when there is no reasoning in progress", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "REASONING_IN_PROGRESS",
+      payload: { reasoning_id: "id" },
+    })
+    expect(newState.messages.length).toBe(4)
+    expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[3].message).toMatchObject({ message: { reasoning_id: "id" } })
+  })
+  it("works with REASONING_IN_PROGRESS when there is a reasoning in progress", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { reasoning_id: "id_1" } }, "reasoning"),
+          optimistic: false,
+        },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "REASONING_IN_PROGRESS",
+      payload: { reasoning_id: "id_2" },
+    })
+    expect(newState.messages.length).toBe(4)
+    expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[3].message).toMatchObject({ message: { reasoning_id: "id_2" } })
+    expect(newState.messages[2]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
+  })
+  it("works with REASONING_IN_PROGRESS when there is a reasoning in progress", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { reasoning_id: "id_1" } }, "reasoning"),
+          optimistic: false,
+        },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "REASONING_FINISHED",
+      payload: { reasoning_id: "id_1" },
+    })
+    expect(newState.messages.length).toBe(3)
+    expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
+    expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
+  })
+  it("works with REASONING_IN_PROGRESS when there is more than one reasoning in progress", () => {
+    const initialState: ChatbotState = {
+      messages: [
+        { finished: true, message: messageFactory(), optimistic: false },
+        { finished: true, message: messageFactory(), optimistic: false },
+        {
+          finished: false,
+          message: messageFactory({ message: { reasoning_id: "id_1" } }, "reasoning"),
+          optimistic: false,
+        },
+        {
+          finished: false,
+          message: messageFactory({ message: { reasoning_id: "id_2" } }, "reasoning"),
+          optimistic: false,
+        },
+      ],
+    }
+    const newState = chatbotReducer(initialState, {
+      type: "REASONING_FINISHED",
+      payload: { reasoning_id: "id_1" },
+    })
+    expect(newState.messages.length).toBe(4)
+    expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
+    expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
+    expect(newState.messages[3]).toMatchObject({ finished: false, optimistic: false })
+    expect(newState.messages[3].message).toMatchObject({ message: { reasoning_id: "id_2" } })
+  })
 })
 
 /// Allows to you to set only some  fields of an object and leave others empty
@@ -221,6 +306,7 @@ function messageFactory(
           deleted_at: null,
           chatbot_conversation_message_id: "71832a5f-b79b-4af3-8a00-07368262b2af",
           response_id: "",
+          reasoning_id: "",
         },
         created_at: time,
         updated_at: time,

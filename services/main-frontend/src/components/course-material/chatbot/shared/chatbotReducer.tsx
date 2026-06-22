@@ -45,8 +45,8 @@ export type ChatbotAction =
       }
     }
   | { type: "TOOL_CALL_FINISHED"; payload: { tool_call_id: string } }
-  | { type: "REASONING_IN_PROGRESS" }
-  | { type: "REASONING_FINISHED" }
+  | { type: "REASONING_IN_PROGRESS"; payload: { reasoning_id: string } }
+  | { type: "REASONING_FINISHED"; payload: { reasoning_id: string } }
   | { type: "RESPONSE_COMPLETED" }
 
 const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotState => {
@@ -188,6 +188,44 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         // tool call found
         // set the tool call as finished
         draftState.messages[toolCallMessageIdx].finished = true
+      } else {
+        // error
+        return
+      }
+    }
+    if (action.type === "REASONING_IN_PROGRESS") {
+      const lastOrderNumber = Math.max(...state.messages.map((m) => m.message.order_number), 0)
+
+      draftState.messages.push({
+        message: {
+          id: v4(),
+          message: {
+            id: v4(),
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            deleted_at: null,
+            chatbot_conversation_message_id: v4(),
+            response_id: "",
+            reasoning_id: action.payload.reasoning_id,
+          },
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          deleted_at: null,
+          conversation_id: "",
+          order_number: lastOrderNumber + 1,
+        },
+        finished: false,
+        optimistic: false,
+      })
+    }
+    if (action.type === "REASONING_FINISHED") {
+      const reasoningMessageIdx = draftState.messages.findIndex((m) => {
+        let res = zChatbotConversationMessageReasoning.safeParse(m.message.message)
+        return res.success && res.data.reasoning_id === action.payload.reasoning_id && !m.finished
+      })
+      if (reasoningMessageIdx !== -1) {
+        // found
+        draftState.messages[reasoningMessageIdx].finished = true
       } else {
         // error
         return

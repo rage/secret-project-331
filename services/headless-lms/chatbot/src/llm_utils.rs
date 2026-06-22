@@ -274,6 +274,7 @@ impl APIOutputMessage {
             OutputItem::Reasoning {
                 summary,
                 response_id,
+                id,
             } => {
                 let text = if !summary.is_empty() {
                     Some(
@@ -291,6 +292,7 @@ impl APIOutputMessage {
                     message: Message::Reasoning(ChatbotConversationMessageReasoning {
                         summary: text,
                         response_id,
+                        reasoning_id: id,
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -371,6 +373,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                                 text,
                             }],
                             response_id: reasoning.response_id,
+                            id: reasoning.reasoning_id,
                         },
                     }
                 } else {
@@ -378,6 +381,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                         message_type: OutputItem::Reasoning {
                             summary: vec![],
                             response_id: reasoning.response_id,
+                            id: reasoning.reasoning_id,
                         },
                     }
                 }

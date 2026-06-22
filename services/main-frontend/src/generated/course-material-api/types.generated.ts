@@ -61,6 +61,7 @@ export type ChatbotChatStreamEvent =
   | {
       data: {
         finished: boolean
+        reasoning_id: string
       }
       type: "Reasoning"
     }
@@ -151,6 +152,7 @@ export type ChatbotConversationMessageReasoning = {
   created_at: string
   deleted_at?: string | null
   id: string
+  reasoning_id: string
   response_id: string
   summary?: string | null
   updated_at: string

@@ -75,6 +75,7 @@ export const zChatbotChatStreamEvent = z.union([
   z.object({
     data: z.object({
       finished: z.boolean(),
+      reasoning_id: z.string(),
     }),
     type: z.enum(["Reasoning"]),
   }),
@@ -137,6 +138,7 @@ export const zChatbotConversationMessageReasoning = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
+  reasoning_id: z.string(),
   response_id: z.string(),
   summary: z.string().nullish(),
   updated_at: z.iso.datetime(),

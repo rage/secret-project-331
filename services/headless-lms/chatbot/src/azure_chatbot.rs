@@ -146,6 +146,7 @@ pub enum OutputItem {
     },
     Reasoning {
         response_id: String,
+        id: String,
         summary: Vec<ReasoningOutput>,
     },
     AzureAiSearchCall {
@@ -188,9 +189,12 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
     fn from(value: StreamItem) -> Self {
         match value {
             StreamItem {
-                item: OutputItem::Reasoning { .. },
+                item: OutputItem::Reasoning { id, .. },
                 finished,
-            } => ChatbotChatStreamEvent::Reasoning { finished },
+            } => ChatbotChatStreamEvent::Reasoning {
+                finished,
+                reasoning_id: id,
+            },
             StreamItem {
                 item:
                     OutputItem::AzureAiSearchCall {
@@ -527,6 +531,7 @@ pub enum ChatbotChatStreamEvent {
     },
     Reasoning {
         finished: bool,
+        reasoning_id: String,
     },
     ToolCall {
         tool_name: String,

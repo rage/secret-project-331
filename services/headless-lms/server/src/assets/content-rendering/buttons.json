@@ -309,33 +309,6 @@
     ]
   },
   {
-    "clientId": "0a1f2e3d-1111-4abc-8def-800000000001",
-    "isValid": true,
-    "name": "core/buttons",
-    "attributes": {
-      "layout": {
-        "type": "flex",
-        "justifyContent": "right",
-        "verticalAlignment": "bottom"
-      }
-    },
-    "innerBlocks": [
-      {
-        "clientId": "0a1f2e3d-1111-4abc-8def-800000000002",
-        "isValid": true,
-        "name": "core/button",
-        "attributes": {
-          "tagName": "a",
-          "type": "button",
-          "className": "is-style-material-secondary-button",
-          "text": "<strong><em><mark style=\"background-color:#adfffa;color:#ff0000\" class=\"has-inline-color\"><s><code>lol<sup>led</sup></code>lolled</s><kbd><sub>asd</sub></kbd><bdo lang=\"zh\" dir=\"ltr\">as</bdo></mark></em></strong>d<math data-latex=\"\\frac{x}{y}\"><semantics><mfrac><mi>x</mi><mi>y</mi></mfrac>\\frac{x}{y}</semantics></math>",
-          "url": "https://www.google.com"
-        },
-        "innerBlocks": []
-      }
-    ]
-  },
-  {
     "clientId": "0a1f2e3d-1111-4abc-8def-900000000001",
     "isValid": true,
     "name": "core/buttons",

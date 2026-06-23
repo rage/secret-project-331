@@ -10,6 +10,7 @@ async fn mock_sisu_id_query(
     code: web::Path<String>,
 ) -> ControllerResult<String> {
     assert!(app_conf.test_mode && app_conf.test_sisu);
+
     let res = match code.as_str() {
         "TEST001" => {
             let sisu_ids: Vec<SearchResult> = vec![
@@ -56,7 +57,10 @@ async fn mock_sisu_id_query(
                 }),
             )
         }
-        _ => Ok("{}".to_string()),
+
+        _ => serde_json::to_string(&(CourseUnitSearchResults {
+            search_results: vec![],
+        },)),
     }?;
     let token = skip_authorize();
     token.authorized_ok(res)

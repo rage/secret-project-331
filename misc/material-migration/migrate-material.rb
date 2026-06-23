@@ -715,6 +715,9 @@ class MaterialMigrator
       raise ArgumentError, "quiz tag is missing an id attribute: #{line}"
     end
     quiz_data = fetch_quiz_details_by_id(quiz_id)
+    if quiz_data.nil?
+      raise "Aborting: failed to fetch quiz #{quiz_id} (see the logged error above for the cause)"
+    end
     parsed_quiz_data = JSON.parse(quiz_data)
     (parsed_quiz_data['items'] || []).each do |item|
       item['direction'] = 'column'

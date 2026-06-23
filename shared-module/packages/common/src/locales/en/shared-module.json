@@ -89,7 +89,7 @@
       "title": "Something went wrong"
     },
     "invalid_course_code": {
-      "message": "Make sure that the course codes are valid",
+      "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
       "title": "Could not generate description"
     },
     "not_found": {

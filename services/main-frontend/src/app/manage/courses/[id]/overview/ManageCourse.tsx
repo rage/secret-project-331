@@ -205,7 +205,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         className={css`
           color: ${baseTheme.colors.gray[500]};
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
           margin: 2rem 0;
           text-align: center;
           gap: 0.5rem;
@@ -218,18 +218,19 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
             color: #1a2333;
           `}
         >
-          <h4
+          <p
             className={css`
               font-size: 1rem;
             `}
           >
             {t("suggest-description-card-title")}
-          </h4>
+          </p>
           <CourseDescription course={course} refetch={refetch}></CourseDescription>
         </div>
         <div
           className={css`
             border: 3px dotted ${baseTheme.colors.gray[300]};
+            padding: 4.5rem 0;
           `}
         ></div>
         <div
@@ -241,6 +242,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         <div
           className={css`
             border: 3px dotted ${baseTheme.colors.gray[300]};
+            padding: 4.5rem 0;
           `}
         ></div>
       </div>

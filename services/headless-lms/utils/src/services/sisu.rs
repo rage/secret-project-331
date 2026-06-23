@@ -11,40 +11,40 @@ pub type SisuCourseInfo = Vec<SisuCourseInfoElement>;
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SisuCourseInfoElement {
-    id: String,
-    university_org_ids: Vec<String>,
-    group_id: String,
-    credits: Credits,
-    completion_methods: Vec<Option<serde_json::Value>>,
-    name: Name,
-    code: String,
-    abbreviation: Option<String>,
-    validity_period: SisuCourseInfoValidityPeriod,
-    grade_scale_id: String,
-    tweet_text: Option<serde_json::Value>,
-    outcomes: Option<Additional>,
-    prerequisites: Option<Additional>,
-    content: Option<Additional>,
-    additional: Option<Additional>,
-    learning_material: Option<Additional>,
-    literature: Vec<Option<serde_json::Value>>,
-    study_level: String,
-    course_unit_type: String,
-    subject: Option<serde_json::Value>,
-    cefr_level: Option<serde_json::Value>,
-    organisations: Vec<Organisation>,
-    possible_attainment_languages: Vec<String>,
-    part_of_degree: Option<serde_json::Value>,
+    pub id: String,
+    pub university_org_ids: Vec<String>,
+    pub group_id: String,
+    pub credits: Credits,
+    pub completion_methods: Vec<Option<serde_json::Value>>,
+    pub name: Name,
+    pub code: String,
+    pub abbreviation: Option<String>,
+    pub validity_period: SisuCourseInfoValidityPeriod,
+    pub grade_scale_id: String,
+    pub tweet_text: Option<serde_json::Value>,
+    pub outcomes: Option<Additional>,
+    pub prerequisites: Option<Additional>,
+    pub content: Option<Additional>,
+    pub additional: Option<Additional>,
+    pub learning_material: Option<Additional>,
+    pub literature: Vec<Option<serde_json::Value>>,
+    pub study_level: String,
+    pub course_unit_type: String,
+    pub subject: Option<serde_json::Value>,
+    pub cefr_level: Option<serde_json::Value>,
+    pub organisations: Vec<Organisation>,
+    pub possible_attainment_languages: Vec<String>,
+    pub part_of_degree: Option<serde_json::Value>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct Additional {
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    fi: Option<String>,
+    pub fi: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    en: Option<String>,
+    pub en: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none", default)]
-    sv: Option<String>,
+    pub sv: Option<String>,
 }
 
 impl Additional {
@@ -106,25 +106,25 @@ impl Additional {
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct Credits {
-    min: Option<i64>,
-    max: Option<i64>,
+    pub min: Option<i64>,
+    pub max: Option<i64>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 pub struct Name {
-    en: Option<String>,
-    fi: Option<String>,
-    sv: Option<String>,
+    pub en: Option<String>,
+    pub fi: Option<String>,
+    pub sv: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct Organisation {
-    organisation_id: Option<String>,
-    educational_institution_urn: Option<serde_json::Value>,
-    role_urn: String,
-    share: i64,
-    validity_period: Option<OrganisationValidityPeriod>,
+    pub organisation_id: Option<String>,
+    pub educational_institution_urn: Option<serde_json::Value>,
+    pub role_urn: String,
+    pub share: i64,
+    pub validity_period: Option<OrganisationValidityPeriod>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -133,8 +133,8 @@ pub struct OrganisationValidityPeriod {}
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct SisuCourseInfoValidityPeriod {
-    start_date: Option<String>,
-    end_date: Option<String>,
+    pub start_date: Option<String>,
+    pub end_date: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -160,6 +160,7 @@ pub struct SisuDescriptions {
 impl SisuClient {
     pub async fn get_course_ids(
         is_mock_sisu: bool,
+        base_url: &String,
         course_modules: Vec<String>,
     ) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
@@ -167,7 +168,7 @@ impl SisuClient {
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
             let url = if is_mock_sisu {
-                format!("/api/v0/mock_sisu/kori/api/{code}")
+                format!("{base_url}/api/v0/mock-sisu/kori/api/{code}")
             } else {
                 format!(
                     "https://sisu.helsinki.fi/kori/api/course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
@@ -223,12 +224,19 @@ impl SisuClient {
     }
 
     pub async fn get_course_info(
+        is_mock_sisu: bool,
+        base_url: &String,
         course_codes: Vec<Vec<String>>,
     ) -> UtilResult<Vec<SisuCourseInfoElement>> {
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
         for code in course_codes {
             if let Some(first) = code.first() {
-                let url = format!("https://sisu.helsinki.fi/kori/api/course-units/v1/{first}");
+                let url = if is_mock_sisu {
+                    format!("{base_url}/api/v0/mock-sisu/kori/api/course-units/{first}")
+                } else {
+                    format!("https://sisu.helsinki.fi/kori/api/course-units/v1/{first}")
+                };
+
                 let response = REQWEST_CLIENT
                     .get(url)
                     .header("Content-Type", "application/json")

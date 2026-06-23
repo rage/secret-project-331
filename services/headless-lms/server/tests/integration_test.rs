@@ -94,6 +94,7 @@ pub async fn test_config() -> ServerConfig {
             enable_admin_email_verification: false,
             azure_configuration: None,
             test_chatbot: false,
+            test_sisu: false,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
             oauth_server_configuration: OAuthServerConfiguration {

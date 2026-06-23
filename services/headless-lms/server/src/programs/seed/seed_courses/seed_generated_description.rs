@@ -1,15 +1,10 @@
 use crate::programs::seed::builder::chapter::ChapterBuilder;
 use crate::programs::seed::builder::context::SeedContext;
 use crate::programs::seed::builder::course::{CourseBuilder, CourseInstanceConfig};
-use crate::programs::seed::builder::exercise::{ExerciseBuilder, ExerciseIds};
-use crate::programs::seed::builder::json_source::JsonSource;
 use crate::programs::seed::builder::module::ModuleBuilder;
-use crate::programs::seed::builder::page::PageBuilder;
 use crate::programs::seed::seed_courses::CommonCourseData;
 use anyhow::Result;
 use headless_lms_models::roles::UserRole;
-use headless_lms_utils::{attributes, document_schema_processor::GutenbergBlock};
-use serde_json::json;
 use tracing::info;
 use uuid::Uuid;
 
@@ -56,7 +51,7 @@ pub async fn seed_generated_description(
         .module(
             ModuleBuilder::new()
                 .order(0)
-                .uh_course_code("TKT21036".to_string())
+                .uh_course_code("TEST001".to_string())
                 .chapter(ChapterBuilder::new(1, "Chapter 1").fixed_ids(
                     cx.v5(b"71f85e9a-bf0e-4062-9212-6b05a425a018"),
                     cx.v5(b"f808c4a7-0bde-4347-b8c3-0f2e32ffe85a"),

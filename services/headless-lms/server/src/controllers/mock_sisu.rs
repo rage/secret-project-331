@@ -11,7 +11,7 @@ async fn mock_sisu_id_query(
 ) -> ControllerResult<String> {
     assert!(app_conf.test_mode && app_conf.test_sisu);
     let res = match code.as_str() {
-        "TKT21036" => {
+        "TEST001" => {
             let sisu_ids: Vec<SearchResult> = vec![
                 SearchResult {
                     id: "mock-id-1-1".to_string(),
@@ -26,7 +26,7 @@ async fn mock_sisu_id_query(
                 }),
             )
         }
-        "TKT21037" => {
+        "TEST002" => {
             let sisu_ids: Vec<SearchResult> = vec![
                 SearchResult {
                     id: "mock-id-2-1".to_string(),
@@ -41,7 +41,7 @@ async fn mock_sisu_id_query(
                 }),
             )
         }
-        "TKT21038" => {
+        "TEST003" => {
             let sisu_ids: Vec<SearchResult> = vec![
                 SearchResult {
                     id: "mock-id-3-1".to_string(),
@@ -58,7 +58,6 @@ async fn mock_sisu_id_query(
         }
         _ => Ok("{}".to_string()),
     }?;
-    println!("MOCKIN SISÄLLÄ: {res:?}");
     let token = skip_authorize();
     token.authorized_ok(res)
 }
@@ -84,7 +83,7 @@ async fn mock_sisu_course_info(
                     fi: None,
                     sv: None,
                 },
-                code: "TKT20136".to_string(),
+                code: "TEST001".to_string(),
                 abbreviation: None,
                 validity_period: SisuCourseInfoValidityPeriod {
                     start_date: None,
@@ -142,7 +141,7 @@ async fn mock_sisu_course_info(
                     fi: None,
                     sv: None,
                 },
-                code: "TKT20137".to_string(),
+                code: "TEST002".to_string(),
                 abbreviation: None,
                 validity_period: SisuCourseInfoValidityPeriod {
                     start_date: None,
@@ -200,7 +199,7 @@ async fn mock_sisu_course_info(
                     fi: None,
                     sv: None,
                 },
-                code: "TKT20138".to_string(),
+                code: "TEST003".to_string(),
                 abbreviation: None,
                 validity_period: SisuCourseInfoValidityPeriod {
                     start_date: None,
@@ -246,7 +245,6 @@ async fn mock_sisu_course_info(
 
         _ => Ok("{}".to_string()),
     }?;
-    println!("SISU INFO MOCKISSA {res:?}");
     let token = skip_authorize();
     token.authorized_ok(res)
 }

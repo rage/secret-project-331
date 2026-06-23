@@ -9,11 +9,10 @@ use crate::{
     prelude::*,
 };
 
-/// Creates a new course page from a CMS update payload.
+/// Creates a new course page from a CMS update payload and returns its id.
 ///
 /// When `title` or `url_path` are empty they are derived from the page content
-/// (the first hero-section or heading block, slugified respectively). Returns
-/// the new page id together with the id of its latest page history entry.
+/// (the first hero-section or heading block, slugified respectively).
 pub async fn create_page(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -21,7 +20,7 @@ pub async fn create_page(
     author: Uuid,
     spec_fetcher: impl SpecFetcher,
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
-) -> ModelResult<(Uuid, Uuid)> {
+) -> ModelResult<Uuid> {
     if cms_update.title.trim().is_empty() {
         cms_update.title = extract_title_from_blocks(&cms_update.content)
             .unwrap_or_else(|| "Untitled Page".to_string());
@@ -57,14 +56,7 @@ pub async fn create_page(
     )
     .await?;
 
-    let latest_map =
-        crate::page_history::get_latest_page_history_ids_by_course_ids(conn, &[course_id]).await?;
-    let history_id = latest_map
-        .get(&created.id)
-        .cloned()
-        .ok_or_else(|| model_err!(NotFound, "page history not found".to_string()))?;
-
-    Ok((created.id, history_id))
+    Ok(created.id)
 }
 
 /// Extract title from Gutenberg blocks (looks for hero-section or first heading)

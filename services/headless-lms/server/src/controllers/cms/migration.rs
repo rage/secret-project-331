@@ -62,7 +62,7 @@ async fn create_page(
     jwt_key: web::Data<JwtKey>,
     app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
-) -> ControllerResult<web::Json<(Uuid, Uuid)>> {
+) -> ControllerResult<web::Json<Uuid>> {
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
 

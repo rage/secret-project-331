@@ -26,7 +26,11 @@ pub async fn create_page(
             .unwrap_or_else(|| "Untitled Page".to_string());
     }
     if cms_update.url_path.trim().is_empty() {
-        cms_update.url_path = format!("/{}", slugify(&cms_update.title));
+        let mut slug = slugify(&cms_update.title);
+        if slug.is_empty() {
+            slug = "untitled-page".to_string();
+        }
+        cms_update.url_path = format!("/{}", slug);
     }
 
     cms_update.validate_exercise_data()?;
@@ -62,10 +66,15 @@ pub async fn create_page(
 /// Extract title from Gutenberg blocks (looks for hero-section or first heading)
 fn extract_title_from_blocks(blocks: &[GutenbergBlock]) -> Option<String> {
     fn extract_from_block(block: &GutenbergBlock) -> Option<String> {
+        // Blank candidates fall through (not returned) so the search continues to the
+        // next block; if nothing usable is found the caller defaults to "Untitled Page".
         if block.name == "moocfi/hero-section" {
             let attrs = &block.attributes;
             if let Some(title) = attrs.get("title").and_then(|v| v.as_str()) {
-                return Some(title.trim_matches('\'').trim_matches('"').to_string());
+                let title = title.trim_matches('\'').trim_matches('"').trim();
+                if !title.is_empty() {
+                    return Some(title.to_string());
+                }
             }
         }
         if block.name.starts_with("core/heading") {
@@ -73,7 +82,10 @@ fn extract_title_from_blocks(blocks: &[GutenbergBlock]) -> Option<String> {
             if let Some(content) = attrs.get("content").and_then(|v| v.as_str()) {
                 // Strip HTML tags for a clean title
                 let clean = content.replace("<strong>", "").replace("</strong>", "");
-                return Some(clean.trim().to_string());
+                let clean = clean.trim();
+                if !clean.is_empty() {
+                    return Some(clean.to_string());
+                }
             }
         }
         // Recursively check inner blocks

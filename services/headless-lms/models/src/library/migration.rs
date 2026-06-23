@@ -1,5 +1,7 @@
 use futures::future::BoxFuture;
-use headless_lms_utils::document_schema_processor::GutenbergBlock;
+use headless_lms_utils::document_schema_processor::{
+    GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
+};
 use url::Url;
 
 use crate::{
@@ -34,6 +36,15 @@ pub async fn create_page(
     }
 
     cms_update.validate_exercise_data()?;
+
+    if cms_update.chapter_id.is_none()
+        && contains_blocks_not_allowed_in_top_level_pages(&cms_update.content)
+    {
+        return Err(model_err!(
+            Generic,
+            "Top level pages cannot contain exercises, exercise tasks or a list of exercises in the chapter".to_string()
+        ));
+    }
 
     let new_page = NewPage {
         exercises: cms_update.exercises,

@@ -69,7 +69,7 @@ const References: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> 
         fetchCourseReferences={getCourseReferences}
       />
       <ul>
-        {data
+        {[...data]
           .sort((o1, o2) => o1.citation_key.localeCompare(o2.citation_key))
           .map((r, idx) => {
             try {

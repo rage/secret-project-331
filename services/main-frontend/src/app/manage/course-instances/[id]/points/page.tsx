@@ -226,7 +226,10 @@ const CourseInstancePointsList: React.FC = () => {
                           <td>{user.email}</td>
                           <td>
                             {roundDown(totalPoints, 2)}/{instanceTotalPoints} (
-                            {roundDown((totalPoints / instanceTotalPoints) * 100, 0)}%)
+                            {instanceTotalPoints > 0
+                              ? roundDown((totalPoints / instanceTotalPoints) * 100, 0)
+                              : 0}
+                            %)
                           </td>
 
                           {data.chapter_points.map((c) => {

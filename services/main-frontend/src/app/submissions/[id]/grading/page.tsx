@@ -102,7 +102,7 @@ const Submission: React.FC = () => {
                 >
                   {t("label-grade")} {submissionInfo.exercise.name}
                 </h1>
-                {submissionInfo.tasks
+                {[...submissionInfo.tasks]
                   .sort((a, b) => a.order_number - b.order_number)
                   .map((task) => (
                     <div key={task.id}>

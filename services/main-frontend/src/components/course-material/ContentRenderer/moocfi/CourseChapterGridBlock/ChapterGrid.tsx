@@ -91,7 +91,7 @@ const ChapterGrid: React.FC<React.PropsWithChildren<{ courseId: string }>> = ({ 
         <QueryResult query={getChaptersInCourse}>
           {(data) => (
             <>
-              {data.modules
+              {[...data.modules]
                 .sort((a, b) => a.order_number - b.order_number)
                 .map((module) => {
                   const randomNumber = stringToRandomNumber(module.id) % COLORS_ARRAY.length

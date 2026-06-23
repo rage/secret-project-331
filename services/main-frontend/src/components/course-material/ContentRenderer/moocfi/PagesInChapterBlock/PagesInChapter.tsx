@@ -64,7 +64,7 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
           <QueryResult query={getPagesInChapterExcludeFrontpage}>
             {(data) => (
               <>
-                {data
+                {[...data]
                   .sort((a, b) => a.order_number - b.order_number)
                   .map((page) => (
                     <PagesInChapterBox

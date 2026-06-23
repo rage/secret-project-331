@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useParams, useSearchParams } from "next/navigation"
+import React, { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -50,24 +51,37 @@ const ModuleCertificateVerification: React.FC = () => {
       renderBlockingError={renderReadOnlyBlockingError}
       renderStaleError={renderReadOnlyStaleError}
     >
-      {(data) => (
-        <div>
-          <img
-            id="certificate-image"
-            alt={t("certificate-for-completing-a-course-module")}
-            src={URL.createObjectURL(data)}
-            className={css`
-              border: 1px solid black;
-            `}
-          />
-          <a href={URL.createObjectURL(data)} download="certificate.png">
-            <Button variant="primary" size="medium">
-              {t("save-as-png")}
-            </Button>
-          </a>
-        </div>
-      )}
+      {(data) => <CertificateImage certificateBlob={data} />}
     </QueryResult>
+  )
+}
+
+const CertificateImage: React.FC<{ certificateBlob: Blob }> = ({ certificateBlob }) => {
+  const { t } = useTranslation()
+  const objectUrl = useMemo(() => URL.createObjectURL(certificateBlob), [certificateBlob])
+
+  useEffect(() => {
+    return () => {
+      URL.revokeObjectURL(objectUrl)
+    }
+  }, [objectUrl])
+
+  return (
+    <div>
+      <img
+        id="certificate-image"
+        alt={t("certificate-for-completing-a-course-module")}
+        src={objectUrl}
+        className={css`
+          border: 1px solid black;
+        `}
+      />
+      <a href={objectUrl} download="certificate.png">
+        <Button variant="primary" size="medium">
+          {t("save-as-png")}
+        </Button>
+      </a>
+    </div>
   )
 }
 

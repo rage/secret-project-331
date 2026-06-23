@@ -180,15 +180,14 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   return (
     <QueryResult query={getChatbotModelsList}>
       {(chatbotModels) => {
-        // once the query has finished, selectedModel cannot be null
-        const selectedModel = assertNotNullOrUndefined(
-          chatbotModels.find((m) => {
-            return m.id === modelFieldValue
-          }),
-        )
-        const selectedModelThinking = ["GPTThinking", "GPTHardThinking"].includes(
-          selectedModel.model_type,
-        )
+        // The selected model might no longer be present in the list (e.g. stale config),
+        // so look it up safely and degrade gracefully instead of crashing the form.
+        const selectedModel = chatbotModels.find((m) => {
+          return m.id === modelFieldValue
+        })
+        const selectedModelThinking = selectedModel
+          ? ["GPTThinking", "GPTHardThinking"].includes(selectedModel.model_type)
+          : false
 
         return (
           <div>

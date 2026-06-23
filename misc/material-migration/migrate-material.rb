@@ -917,6 +917,10 @@ class MaterialMigrator
       puts "An error occurred while uploading #{file}: #{e.message}"
     end
 
+    if url.nil?
+      raise "Aborting: failed to upload #{file} (see the logged error above for the cause)"
+    end
+
     url
   end
 

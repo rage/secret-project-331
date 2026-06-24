@@ -170,6 +170,12 @@ export type CodeGiveawayStatus =
       tag: "AlreadyGottenCode"
     }
 
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
+
 export type CourseBackgroundQuestion = {
   course_id: string
   course_instance_id?: string | null
@@ -249,6 +255,7 @@ export type CourseLanguageVersionNavigationInfo = {
  * A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials.
  */
 export type CourseMaterialCourse = {
+  ai_policy: CourseAiPolicy
   ask_marketing_consent: boolean
   base_module_completion_requires_n_submodule_completions: number
   chapter_locking_enabled: boolean
@@ -258,6 +265,7 @@ export type CourseMaterialCourse = {
   content_search_language?: string | null
   copied_from?: string | null
   course_language_group_id: string
+  course_material_ai_instructions?: boolean | null
   description?: string | null
   id: string
   is_draft: boolean

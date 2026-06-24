@@ -6007,7 +6007,12 @@
             "description": "Course thresholds",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseModuleThresholdInfo"
+                  }
+                }
               }
             }
           }
@@ -12283,9 +12288,13 @@
           "ask_marketing_consent",
           "flagged_answers_skip_manual_review_and_allow_retry",
           "chapter_locking_enabled",
-          "cheater_detection_enabled"
+          "cheater_detection_enabled",
+          "ai_policy"
         ],
         "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/CourseAiPolicy"
+          },
           "ask_marketing_consent": {
             "type": "boolean"
           },
@@ -12323,6 +12332,9 @@
           "course_language_group_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "course_material_ai_instructions": {
+            "type": ["boolean", "null"]
           },
           "created_at": {
             "type": "string",
@@ -12379,6 +12391,11 @@
             "format": "date-time"
           }
         }
+      },
+      "CourseAiPolicy": {
+        "type": "string",
+        "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
+        "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
       },
       "CourseBreadcrumbInfo": {
         "type": "object",
@@ -13291,6 +13308,32 @@
           }
         }
       },
+      "CourseModuleThresholdInfo": {
+        "type": "object",
+        "description": "Per-module threshold configuration plus the policy-derived limits the configuration UI needs to\nrender and validate the threshold form. Computed server-side so the exemption rule and the\nminimum/default values live in one place instead of being duplicated in the frontend.",
+        "required": ["course_module_id", "minimum_duration_seconds", "default_duration_seconds"],
+        "properties": {
+          "configured_duration_seconds": {
+            "type": ["integer", "null"],
+            "format": "int32",
+            "description": "The explicitly configured threshold in seconds, or `None` when the module has no threshold\nrow and [`Self::default_duration_seconds`] applies."
+          },
+          "course_module_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "default_duration_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The threshold applied when none is configured."
+          },
+          "minimum_duration_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,\notherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`]."
+          }
+        }
+      },
       "CourseStructure": {
         "type": "object",
         "required": ["course", "pages", "chapters", "modules"],
@@ -13330,9 +13373,13 @@
           "ask_marketing_consent",
           "flagged_answers_threshold",
           "flagged_answers_skip_manual_review_and_allow_retry",
-          "chapter_locking_enabled"
+          "chapter_locking_enabled",
+          "ai_policy"
         ],
         "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/CourseAiPolicy"
+          },
           "ask_marketing_consent": {
             "type": "boolean"
           },
@@ -13352,6 +13399,9 @@
           "closed_course_successor_id": {
             "type": ["string", "null"],
             "format": "uuid"
+          },
+          "course_material_ai_instructions": {
+            "type": ["boolean", "null"]
           },
           "description": {
             "type": ["string", "null"]

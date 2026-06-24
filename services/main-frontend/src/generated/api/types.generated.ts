@@ -514,6 +514,7 @@ export type CountResult = {
 }
 
 export type Course = {
+  ai_policy: CourseAiPolicy
   ask_marketing_consent: boolean
   base_module_completion_requires_n_submodule_completions: number
   can_add_chatbot: boolean
@@ -525,6 +526,7 @@ export type Course = {
   content_search_language?: string | null
   copied_from?: string | null
   course_language_group_id: string
+  course_material_ai_instructions?: boolean | null
   created_at: string
   deleted_at?: string | null
   description?: string | null
@@ -542,6 +544,12 @@ export type Course = {
   slug: string
   updated_at: string
 }
+
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
 
 export type CourseBreadcrumbInfo = {
   course_id: string
@@ -844,6 +852,29 @@ export type CourseModuleCompletionWithRegistrationInfo = {
   user_id: string
 }
 
+/**
+ * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+ * render and validate the threshold form. Computed server-side so the exemption rule and the
+ * minimum/default values live in one place instead of being duplicated in the frontend.
+ */
+export type CourseModuleThresholdInfo = {
+  /**
+   * The explicitly configured threshold in seconds, or `None` when the module has no threshold
+   * row and [`Self::default_duration_seconds`] applies.
+   */
+  configured_duration_seconds?: number | null
+  course_module_id: string
+  /**
+   * The threshold applied when none is configured.
+   */
+  default_duration_seconds: number
+  /**
+   * The smallest threshold a teacher may save for this module: `0` for small (exempt) modules,
+   * otherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`].
+   */
+  minimum_duration_seconds: number
+}
+
 export type CourseStructure = {
   chapters: Array<Chapter>
   course: Course
@@ -852,12 +883,14 @@ export type CourseStructure = {
 }
 
 export type CourseUpdate = {
+  ai_policy: CourseAiPolicy
   ask_marketing_consent: boolean
   can_add_chatbot: boolean
   chapter_locking_enabled: boolean
   closed_additional_message?: string | null
   closed_at?: string | null
   closed_course_successor_id?: string | null
+  course_material_ai_instructions?: boolean | null
   description?: string | null
   flagged_answers_skip_manual_review_and_allow_retry: boolean
   flagged_answers_threshold: number
@@ -5955,8 +5988,11 @@ export type GetCourseThresholdsResponses = {
   /**
    * Course thresholds
    */
-  200: unknown
+  200: Array<CourseModuleThresholdInfo>
 }
+
+export type GetCourseThresholdsResponse =
+  GetCourseThresholdsResponses[keyof GetCourseThresholdsResponses]
 
 export type UpdateCoursePeerReviewQueueReviewsReceivedData = {
   body?: never

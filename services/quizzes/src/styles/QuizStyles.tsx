@@ -4,7 +4,7 @@
 
 import { css } from "@emotion/css"
 
-import { baseTheme } from "@/shared-module/common/styles"
+import { baseTheme } from "@/shared-module/exercise-react/styles"
 
 export const quizTheme = {
   gradingCorrectItemBackground: "#d5eadf",

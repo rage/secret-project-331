@@ -1,0 +1,1 @@
+DROP TABLE cheating_confirmation_grade_snapshots;

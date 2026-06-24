@@ -357,7 +357,21 @@ export const zCountResult = z.object({
   period: z.iso.datetime().nullish(),
 })
 
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export const zCourseAiPolicy = z.enum([
+  "NotSet",
+  "NoAi",
+  "PlanningOnly",
+  "Limited",
+  "FullUse",
+  "Required",
+])
+
 export const zCourse = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   base_module_completion_requires_n_submodule_completions: z
     .int()
@@ -372,6 +386,7 @@ export const zCourse = z.object({
   content_search_language: z.string().nullish(),
   copied_from: z.uuid().nullish(),
   course_language_group_id: z.uuid(),
+  course_material_ai_instructions: z.boolean().nullish(),
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   description: z.string().nullish(),
@@ -694,13 +709,37 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
   user_id: z.uuid(),
 })
 
+/**
+ * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
+ * render and validate the threshold form. Computed server-side so the exemption rule and the
+ * minimum/default values live in one place instead of being duplicated in the frontend.
+ */
+export const zCourseModuleThresholdInfo = z.object({
+  configured_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  course_module_id: z.uuid(),
+  default_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  minimum_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
 export const zCourseUpdate = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   can_add_chatbot: z.boolean(),
   chapter_locking_enabled: z.boolean(),
   closed_additional_message: z.string().nullish(),
   closed_at: z.iso.datetime().nullish(),
   closed_course_successor_id: z.uuid().nullish(),
+  course_material_ai_instructions: z.boolean().nullish(),
   description: z.string().nullish(),
   flagged_answers_skip_manual_review_and_allow_retry: z.boolean(),
   flagged_answers_threshold: z
@@ -4289,6 +4328,11 @@ export const zResetCourseProgressForTeacherThemselvesResponse = z.boolean()
 export const zGetCourseThresholdsPath = z.object({
   course_id: z.uuid(),
 })
+
+/**
+ * Course thresholds
+ */
+export const zGetCourseThresholdsResponse = z.array(zCourseModuleThresholdInfo)
 
 export const zUpdateCoursePeerReviewQueueReviewsReceivedPath = z.object({
   course_id: z.uuid(),

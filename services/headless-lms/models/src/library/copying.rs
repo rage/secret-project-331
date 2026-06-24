@@ -6,6 +6,7 @@ use crate::course_instances;
 use crate::course_instances::NewCourseInstance;
 use crate::course_language_groups;
 use crate::courses::Course;
+use crate::courses::CourseAiPolicy;
 use crate::courses::NewCourse;
 use crate::courses::get_course;
 use crate::exams;
@@ -79,7 +80,9 @@ INSERT INTO courses (
     flagged_answers_threshold,
     flagged_answers_skip_manual_review_and_allow_retry,
     cheater_detection_enabled,
-    chapter_locking_enabled
+    chapter_locking_enabled,
+    ai_policy,
+    course_material_ai_instructions
   )
 VALUES (
     $1,
@@ -100,7 +103,9 @@ VALUES (
     $16,
     $17,
     $18,
-    $19
+    $19,
+    $20,
+    $21
   )
 RETURNING id,
   name,
@@ -128,7 +133,9 @@ RETURNING id,
   closed_additional_message,
   closed_course_successor_id,
   chapter_locking_enabled,
-  cheater_detection_enabled
+  cheater_detection_enabled,
+  ai_policy,
+  course_material_ai_instructions
         "#,
         new_course.name,
         new_course.organization_id,
@@ -148,7 +155,9 @@ RETURNING id,
         parent_course.flagged_answers_threshold,
         parent_course.flagged_answers_skip_manual_review_and_allow_retry,
         parent_course.cheater_detection_enabled,
-        parent_course.chapter_locking_enabled
+        parent_course.chapter_locking_enabled,
+        parent_course.ai_policy as CourseAiPolicy,
+        parent_course.course_material_ai_instructions
     )
     .fetch_one(&mut *tx)
     .await?;

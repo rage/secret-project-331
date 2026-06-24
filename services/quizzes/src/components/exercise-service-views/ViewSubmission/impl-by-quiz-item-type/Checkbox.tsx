@@ -9,8 +9,8 @@ import { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publi
 
 import { QuizItemSubmissionComponentProps } from "."
 
-import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { baseTheme } from "@/shared-module/exercise-react/styles"
 
 interface StyledProps {
   checked: boolean

@@ -256,11 +256,28 @@ async fn insert_threshold_for_module(
     )
     .await?;
 
-    if new_threshold.duration_seconds < suspected_cheaters::MINIMUM_CHEATER_THRESHOLD_SECONDS {
-        let minimum_hours = suspected_cheaters::MINIMUM_CHEATER_THRESHOLD_SECONDS / 3600;
+    // Small modules are exempt from the minimum threshold: they can legitimately be completed
+    // fast, so any duration >= 0 is allowed for them, where 0 turns the duration check off. The
+    // exemption rule lives in suspected_cheaters::minimum_threshold_seconds so the save-time check
+    // and the configuration UI cannot drift. The exemption is checked at save time only -- a module
+    // that later grows past these limits keeps its existing below-minimum threshold until the next
+    // save.
+    let counts =
+        course_modules::get_chapter_and_exercise_counts(&mut conn, course_module_id).await?;
+    let minimum_seconds =
+        suspected_cheaters::minimum_threshold_seconds(counts.chapters, counts.exercises);
+    if new_threshold.duration_seconds < minimum_seconds {
+        let message = if minimum_seconds > 0 {
+            format!(
+                "The threshold must be at least {} hours.",
+                minimum_seconds / 3600
+            )
+        } else {
+            "The threshold cannot be negative.".to_string()
+        };
         return Err(ControllerError::new(
             ControllerErrorType::BadRequest,
-            format!("The threshold must be at least {minimum_hours} hours."),
+            message,
             None,
         ));
     }

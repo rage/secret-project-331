@@ -4217,6 +4217,9 @@ mod test {
                 closed_at: course_before_update.closed_at,
                 closed_additional_message: course_before_update.closed_additional_message,
                 closed_course_successor_id: course_before_update.closed_course_successor_id,
+                ai_policy: course_before_update.ai_policy,
+                course_material_ai_instructions: course_before_update
+                    .course_material_ai_instructions,
             },
         )
         .await

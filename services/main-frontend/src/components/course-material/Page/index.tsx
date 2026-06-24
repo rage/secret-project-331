@@ -258,9 +258,13 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
           />
         )}
 
-        {courseId && activeStep === DialogStep.AiUsageNotice && (
+        {courseId && courseMaterialState.course && activeStep === DialogStep.AiUsageNotice && (
           <AiUsageNoticeDialog
             courseId={courseId}
+            aiPolicy={courseMaterialState.course.ai_policy}
+            courseMaterialAiInstructions={
+              courseMaterialState.course.course_material_ai_instructions
+            }
             onClose={() => {
               handleRefresh()
             }}

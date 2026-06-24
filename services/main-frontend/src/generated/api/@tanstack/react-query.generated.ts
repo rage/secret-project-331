@@ -573,6 +573,7 @@ import type {
   GetCourseSuspectedCheatersData,
   GetCourseSuspectedCheatersResponse,
   GetCourseThresholdsData,
+  GetCourseThresholdsResponse,
   GetCourseUsersCountsByExerciseData,
   GetCourseUsersCountsByExerciseResponse,
   GetCourseUserSettingsForUserData,
@@ -5077,7 +5078,12 @@ export const getCourseThresholdsQueryKey = (options: Options<GetCourseThresholds
  * GET /api/v0/main-frontend/courses/${course.id}/thresholds - get all thresholds for all modules in a course.
  */
 export const getCourseThresholdsOptions = (options: Options<GetCourseThresholdsData>) =>
-  queryOptions<unknown, DefaultError, unknown, ReturnType<typeof getCourseThresholdsQueryKey>>({
+  queryOptions<
+    GetCourseThresholdsResponse,
+    DefaultError,
+    GetCourseThresholdsResponse,
+    ReturnType<typeof getCourseThresholdsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) =>
       await getCourseThresholds({
         ...options,

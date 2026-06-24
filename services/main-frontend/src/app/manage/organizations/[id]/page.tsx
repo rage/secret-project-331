@@ -37,6 +37,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { allOrganizationsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -321,7 +322,7 @@ const content = (
   >
     <div
       className={css`
-        font-family: "Inter", sans-serif;
+        font-family: ${primaryFont};
         color: #1a2333;
         font-size: 24px;
         ${respondToOrLarger.lg} {
@@ -338,7 +339,7 @@ const content = (
         gap: 24px;
         margin: 20px 0 0 0px;
         border-bottom: 2px solid rgba(26, 35, 51, 0.2);
-        font-family: "Inter", sans-serif;
+        font-family: ${primaryFont};
 
         ${respondToOrLarger.lg} {
           margin: 40px 0 0 40px;
@@ -625,7 +626,7 @@ const designContent = (
             <span
               className={css`
                 font-size: 14px;
-                font-family: "Inter", sans-serif;
+                font-family: ${primaryFont};
                 line-height: 20px;
                 color: #1a2333;
               `}

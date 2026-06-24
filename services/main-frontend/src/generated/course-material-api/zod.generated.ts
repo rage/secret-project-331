@@ -131,6 +131,19 @@ export const zCodeGiveawayStatus = z.union([
   }),
 ])
 
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export const zCourseAiPolicy = z.enum([
+  "NotSet",
+  "NoAi",
+  "PlanningOnly",
+  "Limited",
+  "FullUse",
+  "Required",
+])
+
 export const zCourseBackgroundQuestionAnswer = z.object({
   answer_value: z.string().nullish(),
   course_background_question_id: z.uuid(),
@@ -210,6 +223,7 @@ export const zCourseLanguageVersionNavigationInfo = z.object({
  * A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials.
  */
 export const zCourseMaterialCourse = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   base_module_completion_requires_n_submodule_completions: z
     .int()
@@ -222,6 +236,7 @@ export const zCourseMaterialCourse = z.object({
   content_search_language: z.string().nullish(),
   copied_from: z.uuid().nullish(),
   course_language_group_id: z.uuid(),
+  course_material_ai_instructions: z.boolean().nullish(),
   description: z.string().nullish(),
   id: z.uuid(),
   is_draft: z.boolean(),

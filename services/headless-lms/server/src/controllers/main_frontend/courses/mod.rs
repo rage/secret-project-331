@@ -8,7 +8,7 @@ use chrono::Utc;
 use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
 use headless_lms_models::{
     partner_block::PartnersBlock,
-    suspected_cheaters::{SuspectedCheaterStatus, SuspectedCheaters, Threshold},
+    suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
 use std::sync::Arc;
 use utoipa::OpenApi;
@@ -2311,7 +2311,7 @@ async fn get_flagged_suspected_cheaters_count(
         ("course_id" = Uuid, Path, description = "Course id")
     ),
     responses(
-        (status = 200, description = "Course thresholds", body = serde_json::Value)
+        (status = 200, description = "Course thresholds", body = Vec<CourseModuleThresholdInfo>)
     )
 )]
 #[instrument(skip(pool))]
@@ -2319,14 +2319,14 @@ async fn get_all_thresholds(
     user: AuthUser,
     params: web::Path<Uuid>,
     pool: web::Data<PgPool>,
-) -> ControllerResult<web::Json<Vec<Threshold>>> {
+) -> ControllerResult<web::Json<Vec<CourseModuleThresholdInfo>>> {
     let mut conn = pool.acquire().await?;
     let course_id = params.into_inner();
 
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
     let thresholds =
-        models::suspected_cheaters::get_all_thresholds_for_course(&mut conn, course_id).await?;
+        models::suspected_cheaters::get_threshold_info_for_course(&mut conn, course_id).await?;
 
     token.authorized_ok(web::Json(thresholds))
 }
@@ -2391,15 +2391,10 @@ async fn teacher_confirm_suspected_cheater(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Teach, Some(user.id), Res::Course(course_id)).await?;
 
+    // Confirming sets the status and fails the student's completions (snapshotting the previous
+    // grade so a later dismiss can restore it); see confirm_cheater_by_user_id_and_course_id.
     models::suspected_cheaters::confirm_cheater_by_user_id_and_course_id(
         &mut conn, user_id, course_id,
-    )
-    .await?;
-
-    // Fail student
-    //find by user_id and course_id
-    models::course_module_completions::update_passed_and_grade_status(
-        &mut conn, course_id, user_id, false, 0,
     )
     .await?;
 

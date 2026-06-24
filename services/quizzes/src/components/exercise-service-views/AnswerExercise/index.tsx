@@ -8,7 +8,7 @@ import QuizzesUserItemAnswerContext from "../../../contexts/QuizzesUserItemAnswe
 
 import AnswerExerciseImpl from "./impl-by-quiz-item-type"
 
-import { UserInformation } from "@/shared-module/common/exercise-service-protocol-types"
+import { UserInformation } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 export interface ExerciseProps {
   port: MessagePort

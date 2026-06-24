@@ -436,6 +436,35 @@ where c.id = $1
     Ok(res)
 }
 
+/// How many chapters and exercises a course module contains. Used for deciding whether the module
+/// is small enough to be exempt from the minimum cheater threshold.
+pub struct ModuleSizeCounts {
+    pub chapters: i64,
+    pub exercises: i64,
+}
+
+pub async fn get_chapter_and_exercise_counts(
+    conn: &mut PgConnection,
+    course_module_id: Uuid,
+) -> ModelResult<ModuleSizeCounts> {
+    let res = sqlx::query_as!(
+        ModuleSizeCounts,
+        r#"
+SELECT COUNT(DISTINCT c.id) AS "chapters!",
+  COUNT(e.id) AS "exercises!"
+FROM chapters c
+  LEFT JOIN exercises e ON e.chapter_id = c.id
+  AND e.deleted_at IS NULL
+WHERE c.course_module_id = $1
+  AND c.deleted_at IS NULL
+        "#,
+        course_module_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(res)
+}
+
 pub async fn get_default_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,

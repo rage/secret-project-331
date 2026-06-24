@@ -1,0 +1,11 @@
+{
+  "could-not-find-requested-resource": "Could not find requested resource",
+  "feedback-text": "feedback",
+  "input-placeholder-option-text": "Option text",
+  "new": "New",
+  "not-found": "Not Found",
+  "score-given": "score given",
+  "something-went-wrong": "Something went wrong: {{error}}",
+  "waiting-for-content": "Waiting for content...",
+  "waiting-for-port": "Waiting for port..."
+}

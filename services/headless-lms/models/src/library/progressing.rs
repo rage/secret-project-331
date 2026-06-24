@@ -55,14 +55,19 @@ pub async fn update_automatic_completion_status_and_grant_if_eligible(
             .await?
             .map(|t| t.duration_seconds)
             .unwrap_or(suspected_cheaters::DEFAULT_CHEATER_THRESHOLD_SECONDS);
-            check_and_insert_suspected_cheaters(
-                &mut tx,
-                user_id,
-                course.id,
-                threshold_seconds,
-                completion,
-            )
-            .await?;
+            // A threshold of 0 (or less) is the documented per-module off-switch for the duration
+            // check. Only an explicitly configured 0 disables it -- the default fallback above is
+            // always positive.
+            if threshold_seconds > 0 {
+                check_and_insert_suspected_cheaters(
+                    &mut tx,
+                    user_id,
+                    course.id,
+                    threshold_seconds,
+                    completion,
+                )
+                .await?;
+            }
         }
     }
     tx.commit().await?;
@@ -76,6 +81,14 @@ pub async fn check_and_insert_suspected_cheaters(
     threshold_seconds: i32,
     completion: CourseModuleCompletion,
 ) -> ModelResult<()> {
+    // A teacher-granted (manual) completion means the teacher has vouched for the student, so they
+    // are not subject to automatic cheating suspicion for this course.
+    if course_module_completions::user_has_manual_completion_in_course(conn, user_id, course_id)
+        .await?
+    {
+        return Ok(());
+    }
+
     let total_points = user_exercise_states::get_user_total_course_points(conn, user_id, course_id)
         .await?
         .unwrap_or(0.0);
@@ -614,6 +627,25 @@ pub async fn add_manual_completions(
                 course
                     .base_module_completion_requires_n_submodule_completions
                     .try_into()?,
+            )
+            .await?;
+        }
+
+        // Adding a manual completion vouches for the student, so any cheating suspicion for this
+        // course (flagged or confirmed) is cleared and any grade a confirmation had failed is
+        // restored. This runs regardless of `skip_duplicate_completions` (a teacher vouching for an
+        // already-completed student should still clear the flag) and regardless of the completion's
+        // grade (recording any manual completion defers the decision to the teacher). The existence
+        // check is needed because `dismiss_...` errors when no suspicion row exists.
+        if suspected_cheaters::get_by_user_id_and_course_id(&mut tx, completion.user_id, course.id)
+            .await
+            .optional()?
+            .is_some()
+        {
+            suspected_cheaters::dismiss_by_user_id_and_course_id(
+                &mut tx,
+                completion.user_id,
+                course.id,
             )
             .await?;
         }
@@ -1354,6 +1386,343 @@ mod tests {
         .await
         .unwrap();
         assert!(!rechecked_completion.needs_to_be_reviewed);
+    }
+
+    #[tokio::test]
+    async fn confirming_then_dismissing_restores_grade() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        // A graded, passing completion so we can prove the exact grade is restored, not just pass/fail.
+        let completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(4),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
+
+        // Confirm: the student is failed and the previous grade is snapshotted.
+        suspected_cheaters::confirm_cheater_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let failed = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(!failed.passed);
+        assert_eq!(failed.grade, Some(0));
+        let confirmed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::ConfirmedCheating,
+        )
+        .await
+        .unwrap();
+        assert_eq!(confirmed.len(), 1);
+
+        // Dismiss: the confirmation is undone and the exact previous grade is restored.
+        suspected_cheaters::dismiss_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+        let restored = course_module_completions::get_latest_by_course_and_user_ids(
+            tx.as_mut(),
+            course_module.id,
+            user,
+        )
+        .await
+        .unwrap();
+        assert!(restored.passed);
+        assert_eq!(restored.grade, Some(4));
+        assert!(!restored.needs_to_be_reviewed);
+        let dismissed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Dismissed,
+        )
+        .await
+        .unwrap();
+        assert_eq!(dismissed.len(), 1);
+    }
+
+    #[tokio::test]
+    async fn manual_completion_prevents_flagging() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+
+        // A teacher has manually granted a completion for this student.
+        let teacher = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "teacher-vouching@example.com",
+            Some("Teacher"),
+            Some("McVouch"),
+        )
+        .await
+        .unwrap();
+        course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now(),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(5),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::User(teacher),
+        )
+        .await
+        .unwrap();
+
+        // An automatic completion well inside the threshold would normally flag the student.
+        let automatic_completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: None,
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            automatic_completion,
+        )
+        .await
+        .unwrap();
+
+        // The teacher's manual completion exempts the student, so no suspicion is created.
+        let cheaters = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        assert!(cheaters.is_empty());
+    }
+
+    #[tokio::test]
+    async fn adding_manual_completion_dismisses_confirmed_suspicion_and_restores_grade() {
+        insert_data!(:tx, user:user, :org, course:course, instance:instance, course_module:course_module, :chapter, :page, :exercise);
+
+        crate::library::course_instances::enroll(tx.as_mut(), user, instance.id, &[])
+            .await
+            .unwrap();
+        let state = user_exercise_states::get_or_create_user_exercise_state(
+            tx.as_mut(),
+            user,
+            exercise,
+            Some(course),
+            None,
+        )
+        .await
+        .unwrap();
+        user_exercise_states::update(
+            tx.as_mut(),
+            UserExerciseStateUpdate {
+                id: state.id,
+                score_given: Some(10.0),
+                activity_progress: ActivityProgress::Completed,
+                reviewing_stage: ReviewingStage::NotStarted,
+                grading_progress: GradingProgress::FullyGraded,
+            },
+        )
+        .await
+        .unwrap();
+
+        // Flag the student via a fast automatic completion, then confirm cheating (fails the grade).
+        let completion = course_module_completions::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            &NewCourseModuleCompletion {
+                course_id: course,
+                course_module_id: course_module.id,
+                user_id: user,
+                completion_date: Utc::now() + Duration::days(1),
+                completion_registration_attempt_date: None,
+                completion_language: "en-US".to_string(),
+                eligible_for_ects: false,
+                email: "email".to_string(),
+                grade: Some(4),
+                passed: true,
+            },
+            CourseModuleCompletionGranter::Automatic,
+        )
+        .await
+        .unwrap();
+        let thresholds = suspected_cheaters::insert_thresholds_by_module_id(
+            tx.as_mut(),
+            course_module.id,
+            259200,
+        )
+        .await
+        .unwrap();
+        check_and_insert_suspected_cheaters(
+            tx.as_mut(),
+            user,
+            course,
+            thresholds.duration_seconds,
+            completion,
+        )
+        .await
+        .unwrap();
+        suspected_cheaters::confirm_cheater_by_user_id_and_course_id(tx.as_mut(), user, course)
+            .await
+            .unwrap();
+
+        // A teacher manually adds a completion for the same student. `skip_duplicate_completions` is
+        // false so the completion is inserted even though the module is already completed.
+        let teacher = users::insert(
+            tx.as_mut(),
+            PKeyPolicy::Generate,
+            "teacher-vouching@example.com",
+            Some("Teacher"),
+            Some("McVouch"),
+        )
+        .await
+        .unwrap();
+        add_manual_completions(
+            tx.as_mut(),
+            teacher,
+            &instance,
+            &TeacherManualCompletionRequest {
+                course_module_id: course_module.id,
+                new_completions: vec![TeacherManualCompletion {
+                    user_id: user,
+                    grade: Some(5),
+                    passed: true,
+                    completion_date: None,
+                }],
+                skip_duplicate_completions: false,
+            },
+        )
+        .await
+        .unwrap();
+
+        // The suspicion is dismissed and the confirmed-cheating grade failure is undone.
+        let flagged = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Flagged,
+        )
+        .await
+        .unwrap();
+        let confirmed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::ConfirmedCheating,
+        )
+        .await
+        .unwrap();
+        let dismissed = suspected_cheaters::get_all_suspected_cheaters_in_course(
+            tx.as_mut(),
+            course,
+            SuspectedCheaterStatus::Dismissed,
+        )
+        .await
+        .unwrap();
+        assert!(flagged.is_empty());
+        assert!(confirmed.is_empty());
+        assert_eq!(dismissed.len(), 1);
+
+        // The automatic completion's failed grade is restored and its review flag is cleared.
+        let restored =
+            course_module_completions::get_automatic_completion_by_course_module_course_and_user_ids(
+                tx.as_mut(),
+                course_module.id,
+                course,
+                user,
+            )
+            .await
+            .unwrap();
+        assert!(restored.passed);
+        assert_eq!(restored.grade, Some(4));
+        assert!(!restored.needs_to_be_reviewed);
     }
 
     #[tokio::test]

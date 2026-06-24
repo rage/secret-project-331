@@ -8,6 +8,7 @@ import { Trans, useTranslation } from "react-i18next"
 
 import { getAiUsageNoticeAcknowledgementQueryKey } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import { acknowledgeAiUsageNotice } from "@/generated/course-material-api/sdk.generated"
+import type { CourseAiPolicy } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
@@ -27,6 +28,13 @@ const GUIDELINES_URL_EN =
 
 export interface AiUsageNoticeDialogProps {
   courseId: string
+  /** The teacher-selected AI policy; `NotSet` shows the generic default message. */
+  aiPolicy: CourseAiPolicy
+  /**
+   * Whether the course material itself contains AI instructions: `true` = yes, `false` = no,
+   * `null`/`undefined` = unknown. Controls the guidelines link.
+   */
+  courseMaterialAiInstructions: boolean | null | undefined
   onClose: () => void
 }
 
@@ -36,6 +44,8 @@ interface AiUsageNoticeFormFields {
 
 const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogProps>> = ({
   courseId,
+  aiPolicy,
+  courseMaterialAiInstructions,
   onClose,
 }) => {
   const { t, i18n } = useTranslation()
@@ -57,6 +67,47 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
   // static children here.
   // eslint-disable-next-line jsx-a11y/anchor-has-content
   const guidelinesLink = <a href={guidelinesUrl} target="_blank" rel="noopener noreferrer" />
+
+  const paragraphStyle = css`
+    margin: 0;
+  `
+
+  // When the course material has its own AI instructions, students are pointed to those and the
+  // general university-guidelines link is omitted. (false / unknown -> the link is shown.)
+  const materialHasOwnInstructions = courseMaterialAiInstructions === true
+
+  // The paragraph describing the teacher-selected policy, or null when no specific policy applies.
+  const policyParagraph = (): string | null => {
+    switch (aiPolicy) {
+      case "NoAi":
+        return t("ai-usage-notice-policy-no-ai")
+      case "PlanningOnly":
+        return t("ai-usage-notice-policy-planning-only")
+      case "Limited":
+        return t("ai-usage-notice-policy-limited")
+      case "FullUse":
+        return t("ai-usage-notice-policy-full-use")
+      case "Required":
+        return t("ai-usage-notice-policy-required")
+      default:
+        return null
+    }
+  }
+  const policyText = policyParagraph()
+
+  // Fall back to the generic default notice whenever there is no specific policy paragraph. This
+  // covers `NotSet` and any unrecognised/future policy value, so the notice is never left without
+  // its core academic-integrity message.
+  const showsDefaultMessage = policyText === null
+
+  // A guidelines link is rendered in the default message, and in the adapted message only when the
+  // course material has no instructions of its own. Drives the agree-checkbox wording (the checkbox
+  // only mentions "the linked guidelines" when such a link is present).
+  const aGuidelinesLinkIsShown = showsDefaultMessage || !materialHasOwnInstructions
+
+  // The manual-review apology fits policies that restrict AI, but reads oddly where AI use is
+  // encouraged, so it is hidden for the permissive policies.
+  const showStaffReviewNote = aiPolicy !== "FullUse" && aiPolicy !== "Required"
 
   const acknowledgeMutation = useToastMutation<void, unknown, void>(
     async () => {
@@ -88,29 +139,55 @@ const AiUsageNoticeDialog: React.FC<React.PropsWithChildren<AiUsageNoticeDialogP
         {acknowledgeMutation.isError && (
           <ErrorBanner variant={"readOnly"} error={acknowledgeMutation.error} />
         )}
-        <p
-          className={css`
-            margin: 0;
-          `}
-        >
-          <Trans
-            t={t}
-            i18nKey="ai-usage-notice-paragraph-1"
-            components={{
-              guidelinesLink,
-            }}
-          />
-        </p>
-        <p
-          className={css`
-            margin: 0;
-            color: ${baseTheme.colors.gray[600]};
-          `}
-        >
-          {t("ai-usage-notice-paragraph-2")}
-        </p>
+        {showsDefaultMessage ? (
+          <p className={paragraphStyle}>
+            <Trans
+              t={t}
+              i18nKey="ai-usage-notice-paragraph-1"
+              components={{
+                guidelinesLink,
+              }}
+            />
+          </p>
+        ) : (
+          <>
+            <p className={paragraphStyle}>{policyText}</p>
+            {materialHasOwnInstructions ? (
+              // The course material holds the exact policy; point students to it.
+              <p className={paragraphStyle}>{t("ai-usage-notice-see-course-instructions")}</p>
+            ) : (
+              <p className={paragraphStyle}>
+                <Trans
+                  t={t}
+                  i18nKey="ai-usage-notice-follow-guidelines"
+                  components={{
+                    guidelinesLink,
+                  }}
+                />
+              </p>
+            )}
+          </>
+        )}
+        {showStaffReviewNote && (
+          <p
+            className={css`
+              margin: 0;
+              color: ${baseTheme.colors.gray[600]};
+            `}
+          >
+            {t("ai-usage-notice-paragraph-2")}
+          </p>
+        )}
         <div data-testid="ai-usage-notice-agree-checkbox">
-          <Checkbox name="agreed" control={control} label={t("ai-usage-notice-agree-checkbox")} />
+          <Checkbox
+            name="agreed"
+            control={control}
+            label={
+              aGuidelinesLinkIsShown
+                ? t("ai-usage-notice-agree-checkbox")
+                : t("ai-usage-notice-agree-checkbox-no-link")
+            }
+          />
         </div>
         <div
           className={css`

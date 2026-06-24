@@ -6,13 +6,14 @@ import { useTranslation } from "react-i18next"
 import type { CourseMaterialExerciseTask } from "@/generated/api/types.generated"
 import type { StudentExerciseTaskSubmissionResult } from "@/generated/course-material-api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
 import ThrottledChildRenderer, {
   type ChildFactoryWithCallback,
 } from "@/shared-module/common/components/ThrottledChildRenderer"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import {
   EXERCISE_IFRAME_QUEUE_CONFIG,
   EXERCISE_IFRAME_QUEUE_ID,
@@ -38,6 +39,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
 }) => {
   const loginStateContext = useContext(LoginStateContext)
   const { t } = useTranslation()
+  const dialog = useDialog()
   const handleMessageFromIframe = useCallback(
     (messageContainer: unknown, _responsePort: MessagePort) => {
       console.info(messageContainer)
@@ -96,6 +98,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
   const throttledChildFactory = useCallback<ChildFactoryWithCallback>(
     (onReady) => (
       <MessageChannelIFrame
+        dialog={dialog}
         url={url}
         onMessageFromIframe={handleMessageFromIframe}
         postThisStateToIFrame={postThisStateToIFrame}
@@ -103,7 +106,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
         onReady={onReady}
       />
     ),
-    [url, handleMessageFromIframe, postThisStateToIFrame],
+    [url, handleMessageFromIframe, postThisStateToIFrame, dialog],
   )
 
   if (missingUrl) {
@@ -143,6 +146,7 @@ const SubmissionIFrame: React.FC<React.PropsWithChildren<SubmissionIFrameProps>>
 
   return (
     <MessageChannelIFrame
+      dialog={dialog}
       url={url}
       onMessageFromIframe={handleMessageFromIframe}
       postThisStateToIFrame={postThisStateToIFrame}

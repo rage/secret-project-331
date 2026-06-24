@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nSELECT COUNT(DISTINCT c.id) AS \"chapters!\",\n  COUNT(e.id) AS \"exercises!\"\nFROM chapters c\n  LEFT JOIN exercises e ON e.chapter_id = c.id\n  AND e.deleted_at IS NULL\nWHERE c.course_module_id = $1\n  AND c.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chapters!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      },
+      {
+        "ordinal": 1,
+        "name": "exercises!",
+        "type_info": "Int8",
+        "origin": "Expression"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Uuid"
+      ]
+    },
+    "nullable": [
+      null,
+      null
+    ]
+  },
+  "hash": "270b15500ebc77f99132b7b08ec6ec344a5d7296ecc290635cea057fcbaaa4ef"
+}

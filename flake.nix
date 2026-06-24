@@ -95,6 +95,56 @@
           exit 2
         '';
 
+        # The `playwright-cli` command from the @playwright/cli npm package
+        # (https://playwright.dev/agent-cli/introduction). Not the @playwright/test runner
+        # used by system-tests, and not in nixpkgs, so we assemble it from its three npm
+        # tarballs and drive it with the nixpkgs Chromium baked into the wrapper, avoiding
+        # any browser download. Bump all three hashes together when raising the version.
+        playwrightCliVersion = "0.1.14";
+        playwrightAlpha = "1.61.0-alpha-1781023400000";
+        playwrightCli = pkgs.stdenvNoCC.mkDerivation {
+          pname = "playwright-cli";
+          version = playwrightCliVersion;
+          dontUnpack = true;
+
+          nativeBuildInputs = [ pkgs.makeWrapper ];
+
+          srcCli = pkgs.fetchurl {
+            url = "https://registry.npmjs.org/@playwright/cli/-/cli-${playwrightCliVersion}.tgz";
+            hash = "sha512-DoKzrzEN/ivdxFy61Kbqzsz/U4+6F6Nk1Psu9hSYYYriqhzifW57VuNciuXjFS5Xuyhb8aXcy5hCgbDdqr3EIg==";
+          };
+          srcPlaywright = pkgs.fetchurl {
+            url = "https://registry.npmjs.org/playwright/-/playwright-${playwrightAlpha}.tgz";
+            hash = "sha512-8TRUG3IvwaAhuVm6k3C5vB7CwC5Fxq76DCCxOgPr6r1dpTedDwxlmdOBUkSZ0zxfxP14jcuPxi86/Trq4eA03w==";
+          };
+          srcPlaywrightCore = pkgs.fetchurl {
+            url = "https://registry.npmjs.org/playwright-core/-/playwright-core-${playwrightAlpha}.tgz";
+            hash = "sha512-UdtUd9qnCO0zvb8p3OvOZpelY6mA40mTb3NmWGuMtrD+hqqWuorWCPlSGwj7jw/LEB9AxvYLHTL1CJi2flvksg==";
+          };
+
+          installPhase = ''
+            runHook preInstall
+
+            modules="$out/lib/node_modules"
+            mkdir -p "$modules/@playwright/cli" "$modules/playwright" "$modules/playwright-core"
+            tar -xzf "$srcCli"           --strip-components=1 -C "$modules/@playwright/cli"
+            tar -xzf "$srcPlaywright"    --strip-components=1 -C "$modules/playwright"
+            tar -xzf "$srcPlaywrightCore" --strip-components=1 -C "$modules/playwright-core"
+
+            makeWrapper ${pkgs.nodejs_24}/bin/node "$out/bin/playwright-cli" \
+              --add-flags "$modules/@playwright/cli/playwright-cli.js" \
+              --set-default PLAYWRIGHT_MCP_EXECUTABLE_PATH ${pkgs.chromium}/bin/chromium
+
+            runHook postInstall
+          '';
+
+          meta = {
+            description = "Playwright CLI (@playwright/cli) for coding agents, driving the nixpkgs Chromium";
+            mainProgram = "playwright-cli";
+            platforms = pkgs.lib.platforms.linux;
+          };
+        };
+
         projectCliPackages = [
           pkgs.actionlint
           pkgs.kubectl
@@ -112,6 +162,7 @@
         ];
         linuxOnlyPackages = lib.optionals pkgs.stdenv.isLinux [
           getentCompat
+          playwrightCli
           pkgs.minikube
           pkgs.mold
         ];

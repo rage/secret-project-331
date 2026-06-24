@@ -17,7 +17,7 @@ use crate::{
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_base::error::backend_error::BackendError;
 use headless_lms_models::{
-    ModelErrorType::Json, application_task_default_language_models::TaskLMSpec,
+    application_task_default_language_models::TaskLMSpec,
     chatbot_conversation_message_messages::MessageRole, cms_ai::ParagraphSuggestionAction,
 };
 

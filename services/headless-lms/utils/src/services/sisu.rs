@@ -63,7 +63,7 @@ impl Additional {
             if o2.0 == "en" {
                 return Ordering::Greater;
             }
-            return Ordering::Equal;
+            Ordering::Equal
         });
         let strip_html_regex = Regex::new(r"<[^>]*>").unwrap();
         let max_length = vec
@@ -71,7 +71,7 @@ impl Additional {
             .map(|n| {
                 let value = &n.1;
                 if let Some(value) = value {
-                    let cleaned = strip_html_regex.replace_all(&value, "");
+                    let cleaned = strip_html_regex.replace_all(value, "");
                     cleaned.len()
                 } else {
                     0
@@ -83,17 +83,17 @@ impl Additional {
         let best = vec.iter().find(|o| {
             let text = &o.1;
             if let Some(text) = text {
-                let cleaned = strip_html_regex.replace_all(&text, "");
+                let cleaned = strip_html_regex.replace_all(text, "");
                 let len = cleaned.len();
                 if len < max_length / 2 {
                     return false;
                 }
-                return true;
+                true
             } else {
-                return false;
+                false
             }
         });
-        return best.and_then(|o| o.1.clone());
+        best.and_then(|o| o.1.clone())
     }
     fn as_vec(&self) -> Vec<(String, Option<String>)> {
         vec![
@@ -303,7 +303,7 @@ impl SisuClient {
 
             let descriptions = SisuDescriptions {
                 outcomes: outcome,
-                content: content,
+                content,
                 prerequisites: preq,
                 learning_material: material,
                 additional: add,

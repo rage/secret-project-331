@@ -1,6 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
 
@@ -30,6 +31,8 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     // style,
     // type,
   } = props.data.attributes
+
+  const parentFontSize = useContext(ListFontSizeContext)
 
   const listItemClass = cx(
     css`
@@ -84,7 +87,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
 
   if (ordered) {
     return (
-      <ListFontSizeContext.Provider value={fontSize}>
+      <ListFontSizeContext.Provider value={fontSize ?? parentFontSize}>
         <ol className={listItemClass} {...(start && { start: start })} reversed={reversed}>
           {children}
         </ol>
@@ -92,7 +95,7 @@ const ListBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListAttribu
     )
   } else {
     return (
-      <ListFontSizeContext.Provider value={fontSize}>
+      <ListFontSizeContext.Provider value={fontSize ?? parentFontSize}>
         <ul className={listItemClass}>{children}</ul>
       </ListFontSizeContext.Provider>
     )

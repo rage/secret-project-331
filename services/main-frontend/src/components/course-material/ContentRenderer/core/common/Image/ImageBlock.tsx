@@ -122,9 +122,10 @@ const ImageBlock: React.FC<
   const handleImageLoad = () => {
     const image = imageRef.current
     if (image && image.naturalWidth === 0) {
-      const column = image.closest("[data-block-name]")
-      const columnWidth = column?.clientWidth ?? 0
-      setFallbackWidthPx(columnWidth > 0 ? columnWidth : 700)
+      // The full-width block wrapper's clientWidth is the content/column width available here.
+      const blockWrapper = image.closest("[data-block-name]")
+      const wrapperWidth = blockWrapper?.clientWidth ?? 0
+      setFallbackWidthPx(wrapperWidth > 0 ? wrapperWidth : 700)
     }
   }
 

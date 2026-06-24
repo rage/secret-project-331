@@ -147,7 +147,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     ) {
       setExerciseAttributes({ use_course_default_peer_review: true })
     }
-  })
+  }, [exerciseAttributes.use_course_default_peer_review, setExerciseAttributes])
 
   useEffect(() => {
     if (isInitialMount.current) {
@@ -182,18 +182,35 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     }),
   )
 
-  let parsedPeerOrSelfReviewConfig: CmsPeerOrSelfReviewConfig | null = JSON.parse(
-    exerciseAttributes.peer_or_self_review_config ?? "null",
-  )
+  // Parse the stored config, falling back to a generated default for rendering. The default is
+  // memoized so its random id stays stable across renders instead of being regenerated every render.
+  const parsedPeerOrSelfReviewConfig: CmsPeerOrSelfReviewConfig = useMemo(() => {
+    const parsed: CmsPeerOrSelfReviewConfig | null = JSON.parse(
+      exerciseAttributes.peer_or_self_review_config ?? "null",
+    )
+    return parsed ?? defaultPeerOrSelfReviewConfig(exerciseId, courseId)
+  }, [exerciseAttributes.peer_or_self_review_config, exerciseId, courseId])
 
-  if (parsedPeerOrSelfReviewConfig === null) {
-    const defaultConfig = defaultPeerOrSelfReviewConfig(exerciseId, courseId)
-    parsedPeerOrSelfReviewConfig = defaultConfig
-    setExerciseAttributes({
-      ...exerciseAttributes,
-      peer_or_self_review_config: JSON.stringify(defaultConfig),
-    })
-  }
+  // Persist the generated default so it gets a stable id, but only when the exercise uses its own
+  // config. While "use course default" is enabled the config is intentionally null; writing to it
+  // here used to happen during render, which fought toggleUseDefaultPeerOrSelfReviewConfig and spun
+  // the component into an infinite update loop (React error #185).
+  useEffect(() => {
+    if (
+      !exerciseAttributes.use_course_default_peer_review &&
+      (exerciseAttributes.peer_or_self_review_config == null ||
+        exerciseAttributes.peer_or_self_review_config === "null")
+    ) {
+      setExerciseAttributes({
+        peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),
+      })
+    }
+  }, [
+    exerciseAttributes.use_course_default_peer_review,
+    exerciseAttributes.peer_or_self_review_config,
+    parsedPeerOrSelfReviewConfig,
+    setExerciseAttributes,
+  ])
 
   const parsedPeerOrSelfReviewQuestionConfig: CmsPeerOrSelfReviewQuestion[] = useMemo(() => {
     const res = JSON.parse(exerciseAttributes.peer_or_self_review_questions_config ?? "[]")

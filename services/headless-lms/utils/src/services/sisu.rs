@@ -65,7 +65,7 @@ impl Additional {
             }
             Ordering::Equal
         });
-        let strip_html_regex = Regex::new(r"<[^>]*>").unwrap();
+        let strip_html_regex = Regex::new(r"<[^>]*>").expect("invalid regex");
         let max_length = vec
             .iter()
             .map(|n| {
@@ -190,7 +190,7 @@ impl SisuClient {
 
             if response.status().is_success() {
                 let json: CourseUnitSearchResults =
-                    serde_json::from_str(&response.text().await.unwrap())?;
+                    serde_json::from_str(&response.text().await.unwrap_or("{}".to_string()))?;
                 let ids: Vec<String> = json.search_results.into_iter().map(|x| x.id).collect();
 
                 if ids.is_empty() {
@@ -252,7 +252,7 @@ impl SisuClient {
 
                 if response.status().is_success() {
                     let json: SisuCourseInfoElement =
-                        serde_json::from_str(&response.text().await.unwrap())?;
+                        serde_json::from_str(&response.text().await.unwrap_or("{}".to_string()))?;
                     data_vec.push(json);
                 } else if response.status() == 404 {
                     return Err(UtilError::new(

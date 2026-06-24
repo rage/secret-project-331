@@ -30,6 +30,7 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const SORT_KEY_NAME = "name"
 const SORT_KEY_EMAIL = "email"
@@ -177,275 +178,269 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
     },
   )
 
-  let userList
-  if (roleQuery.isLoading) {
-    userList = <div>{t("loading-text")}</div>
-  }
-  if (roleQuery.isError) {
-    userList = <ErrorBanner variant="readOnly" error={roleQuery.error} />
-  }
-  if (roleQuery.isSuccess && roleQuery.data.length == 0) {
-    userList = <div>{t("no-roles-found")}</div>
-  }
-  if (roleQuery.isSuccess && roleQuery.data.length > 0) {
-    userList = (
-      <div
-        className={css`
-          overflow: auto;
-        `}
-      >
-        <table
+  const userList = (
+    <QueryResult query={roleQuery} emptyFallback={<div>{t("no-roles-found")}</div>}>
+      {(roleData) => (
+        <div
           className={css`
-            th {
-              font-weight: 500;
-              opacity: 0.7;
-            }
-
-            margin-top: 67px;
-            border-spacing: 0 10px;
-            th:not(:first-child),
-            td {
-              padding-left: 61px;
-            }
-            width: 100%;
+            overflow: auto;
           `}
         >
-          <thead>
-            <tr
-              className={css`
-                text-align: left;
-              `}
-            >
-              <th>
-                {t("text-field-label-name")}
-                <button
-                  className={css`
-                    cursor: pointer;
-                    background-color: transparent;
-                    border: 0;
-                  `}
-                  aria-label={t("sort-by-name")}
-                  onClick={(ev) => {
-                    const params = new URLSearchParams(searchParams)
-                    params.set("sort", SORT_KEY_NAME)
-                    router.replace(`?${params.toString()}`)
-                    ev.preventDefault()
-                    setSorting(SORT_KEY_NAME)
-                  }}
-                >
-                  <CaretArrowDown
-                    className={css`
-                      margin-bottom: 2px;
-                      margin-left: 2px;
-                      transform: scale(1.2);
-                      path {
-                        fill: #000;
-                      }
-                    `}
-                  />{" "}
-                </button>
-              </th>
-              <th>
-                {t("label-email")}
-                <button
-                  className={css`
-                    cursor: pointer;
-                    background-color: transparent;
-                    border: 0;
-                  `}
-                  aria-label={t("sort-by-email")}
-                  onClick={(ev) => {
-                    const params = new URLSearchParams(searchParams)
-                    params.set("sort", SORT_KEY_EMAIL)
-                    router.replace(`?${params.toString()}`)
-                    ev.preventDefault()
-                    setSorting(SORT_KEY_EMAIL)
-                  }}
-                >
-                  <CaretArrowDown
-                    className={css`
-                      margin-bottom: 2px;
-                      margin-left: 2px;
-                      transform: scale(1.2);
-                      path {
-                        fill: #000;
-                      }
-                    `}
-                  />
-                </button>
-              </th>
-              <th>
-                <label htmlFor={"editing-role"}>{t("label-role")}</label>
-                <button
-                  className={css`
-                    cursor: pointer;
-                    background-color: transparent;
-                    border: 0;
-                  `}
-                  aria-label={t("sort-by-role")}
-                  onClick={(ev) => {
-                    const params = new URLSearchParams(searchParams)
-                    params.set("sort", SORT_KEY_ROLE)
-                    router.replace(`?${params.toString()}`)
-                    ev.preventDefault()
-                    setSorting(SORT_KEY_ROLE)
-                  }}
-                >
-                  <CaretArrowDown
-                    className={css`
-                      margin-bottom: 2px;
-                      margin-left: 2px;
-                      transform: scale(1.2);
-                      path {
-                        fill: #000;
-                      }
-                    `}
-                  />
-                </button>
-              </th>
-              <th>{t("label-action")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {roleQuery.data.sort(sortRoles).map((ur) => (
+          <table
+            className={css`
+              th {
+                font-weight: 500;
+                opacity: 0.7;
+              }
+
+              margin-top: 67px;
+              border-spacing: 0 10px;
+              th:not(:first-child),
+              td {
+                padding-left: 61px;
+              }
+              width: 100%;
+            `}
+          >
+            <thead>
               <tr
                 className={css`
-                  background: #ffffff;
-                  td {
-                    padding-top: 16px;
-                    padding-bottom: 16px;
-                    background: #f5f6f7;
-                    font-size: 16px;
-                    line-height: 20px;
-                    color: #1a2333;
-                  }
-                  & td:first-child {
-                    padding-left: 24px;
-                  }
-                  & td:last-child {
-                    padding-right: 24px;
-                  }
-                  td:first-child {
-                    border-top-left-radius: 4px;
-                  }
-
-                  td:last-child {
-                    border-top-right-radius: 4px;
-                  }
-
-                  td:first-child {
-                    border-bottom-left-radius: 4px;
-                  }
-
-                  td:last-child {
-                    border-bottom-right-radius: 4px;
-                  }
+                  text-align: left;
                 `}
-                key={ur.user_id + ur.role}
               >
-                <td>{ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name}</td>
-                <td>{ur.email}</td>
-                {!(editingRole?.userId === ur.user_id && editingRole?.currentRole === ur.role) && (
-                  <>
-                    <td>{ur.role}</td>
-                    <td>
-                      <button
-                        aria-label={t("edit-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                          margin-right: 8px;
-                        `}
-                        onClick={() =>
-                          setEditingRole({
-                            userId: ur.user_id,
-                            currentRole: ur.role,
-                            newRole: ur.role,
-                          })
+                <th>
+                  {t("text-field-label-name")}
+                  <button
+                    className={css`
+                      cursor: pointer;
+                      background-color: transparent;
+                      border: 0;
+                    `}
+                    aria-label={t("sort-by-name")}
+                    onClick={(ev) => {
+                      const params = new URLSearchParams(searchParams)
+                      params.set("sort", SORT_KEY_NAME)
+                      router.replace(`?${params.toString()}`)
+                      ev.preventDefault()
+                      setSorting(SORT_KEY_NAME)
+                    }}
+                  >
+                    <CaretArrowDown
+                      className={css`
+                        margin-bottom: 2px;
+                        margin-left: 2px;
+                        transform: scale(1.2);
+                        path {
+                          fill: #000;
                         }
-                      >
-                        <Pencil size={20} color={"#1A2333"} />
-                      </button>
-                      <button
-                        aria-label={t("remove-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                        `}
-                        onClick={() =>
-                          removeMutation.mutate({
-                            body: { email: ur.email, role: ur.role, domain },
-                          })
+                      `}
+                    />{" "}
+                  </button>
+                </th>
+                <th>
+                  {t("label-email")}
+                  <button
+                    className={css`
+                      cursor: pointer;
+                      background-color: transparent;
+                      border: 0;
+                    `}
+                    aria-label={t("sort-by-email")}
+                    onClick={(ev) => {
+                      const params = new URLSearchParams(searchParams)
+                      params.set("sort", SORT_KEY_EMAIL)
+                      router.replace(`?${params.toString()}`)
+                      ev.preventDefault()
+                      setSorting(SORT_KEY_EMAIL)
+                    }}
+                  >
+                    <CaretArrowDown
+                      className={css`
+                        margin-bottom: 2px;
+                        margin-left: 2px;
+                        transform: scale(1.2);
+                        path {
+                          fill: #000;
                         }
-                      >
-                        <XmarkCircle size={20} color={"#1A2333"} />
-                      </button>
-                    </td>
-                  </>
-                )}
-                {editingRole?.userId === ur.user_id && editingRole?.currentRole === ur.role && (
-                  <>
-                    <td>
-                      <SelectField
-                        id={"editing-role"}
-                        onChangeByValue={(role) => {
-                          setEditingRole({
-                            userId: ur.user_id,
-                            currentRole: ur.role,
-                            newRole: role as UserRole,
-                          })
-                        }}
-                        options={options(t)}
-                        defaultValue={ur.role}
-                      />
-                    </td>
-                    <td>
-                      <button
-                        aria-label={t("save-edited-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                          margin-right: 8px;
-                        `}
-                        onClick={() => {
-                          editMutation.mutate({
-                            email: ur.email,
-                            oldRole: editingRole.currentRole,
-                            newRole: editingRole.newRole,
-                          })
-                          setEditingRole(null)
-                        }}
-                      >
-                        <CheckCircle />
-                      </button>{" "}
-                      <button
-                        aria-label={t("cancel-editing-role")}
-                        className={css`
-                          cursor: pointer;
-                          background-color: transparent;
-                          border: 0;
-                          height: 100%;
-                        `}
-                        onClick={() => setEditingRole(null)}
-                      >
-                        <XmarkCircle />
-                      </button>
-                    </td>
-                  </>
-                )}
+                      `}
+                    />
+                  </button>
+                </th>
+                <th>
+                  <label htmlFor={"editing-role"}>{t("label-role")}</label>
+                  <button
+                    className={css`
+                      cursor: pointer;
+                      background-color: transparent;
+                      border: 0;
+                    `}
+                    aria-label={t("sort-by-role")}
+                    onClick={(ev) => {
+                      const params = new URLSearchParams(searchParams)
+                      params.set("sort", SORT_KEY_ROLE)
+                      router.replace(`?${params.toString()}`)
+                      ev.preventDefault()
+                      setSorting(SORT_KEY_ROLE)
+                    }}
+                  >
+                    <CaretArrowDown
+                      className={css`
+                        margin-bottom: 2px;
+                        margin-left: 2px;
+                        transform: scale(1.2);
+                        path {
+                          fill: #000;
+                        }
+                      `}
+                    />
+                  </button>
+                </th>
+                <th>{t("label-action")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
-  }
+            </thead>
+            <tbody>
+              {roleData.sort(sortRoles).map((ur) => (
+                <tr
+                  className={css`
+                    background: #ffffff;
+                    td {
+                      padding-top: 16px;
+                      padding-bottom: 16px;
+                      background: #f5f6f7;
+                      font-size: 16px;
+                      line-height: 20px;
+                      color: #1a2333;
+                    }
+                    & td:first-child {
+                      padding-left: 24px;
+                    }
+                    & td:last-child {
+                      padding-right: 24px;
+                    }
+                    td:first-child {
+                      border-top-left-radius: 4px;
+                    }
+
+                    td:last-child {
+                      border-top-right-radius: 4px;
+                    }
+
+                    td:first-child {
+                      border-bottom-left-radius: 4px;
+                    }
+
+                    td:last-child {
+                      border-bottom-right-radius: 4px;
+                    }
+                  `}
+                  key={ur.user_id + ur.role}
+                >
+                  <td>{ur.first_name ? `${ur.first_name} ${ur.last_name}` : ur.last_name}</td>
+                  <td>{ur.email}</td>
+                  {!(
+                    editingRole?.userId === ur.user_id && editingRole?.currentRole === ur.role
+                  ) && (
+                    <>
+                      <td>{ur.role}</td>
+                      <td>
+                        <button
+                          aria-label={t("edit-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                            margin-right: 8px;
+                          `}
+                          onClick={() =>
+                            setEditingRole({
+                              userId: ur.user_id,
+                              currentRole: ur.role,
+                              newRole: ur.role,
+                            })
+                          }
+                        >
+                          <Pencil size={20} color={"#1A2333"} />
+                        </button>
+                        <button
+                          aria-label={t("remove-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                          `}
+                          onClick={() =>
+                            removeMutation.mutate({
+                              body: { email: ur.email, role: ur.role, domain },
+                            })
+                          }
+                        >
+                          <XmarkCircle size={20} color={"#1A2333"} />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                  {editingRole?.userId === ur.user_id && editingRole?.currentRole === ur.role && (
+                    <>
+                      <td>
+                        <SelectField
+                          id={"editing-role"}
+                          onChangeByValue={(role) => {
+                            setEditingRole({
+                              userId: ur.user_id,
+                              currentRole: ur.role,
+                              newRole: role as UserRole,
+                            })
+                          }}
+                          options={options(t)}
+                          defaultValue={ur.role}
+                        />
+                      </td>
+                      <td>
+                        <button
+                          aria-label={t("save-edited-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                            margin-right: 8px;
+                          `}
+                          onClick={() => {
+                            editMutation.mutate({
+                              email: ur.email,
+                              oldRole: editingRole.currentRole,
+                              newRole: editingRole.newRole,
+                            })
+                            setEditingRole(null)
+                          }}
+                        >
+                          <CheckCircle />
+                        </button>{" "}
+                        <button
+                          aria-label={t("cancel-editing-role")}
+                          className={css`
+                            cursor: pointer;
+                            background-color: transparent;
+                            border: 0;
+                            height: 100%;
+                          `}
+                          onClick={() => setEditingRole(null)}
+                        >
+                          <XmarkCircle />
+                        </button>
+                      </td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </QueryResult>
+  )
 
   return (
     <>

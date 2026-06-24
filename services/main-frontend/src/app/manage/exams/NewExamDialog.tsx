@@ -13,6 +13,7 @@ import type { NewExam, OrgExam } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { QueryResult } from "@/shared-module/components"
 
 interface ExamDialogProps {
   organizationId: string
@@ -64,9 +65,30 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
     close()
   }
 
-  if (!getOrgExams.data) {
-    return null
-  }
+  const renderForm = (exams: OrgExam[]) => (
+    <NewExamForm
+      exams={exams}
+      initialData={null}
+      organizationId={organizationId}
+      onCancel={close}
+      onCreateNewExam={(newExam) =>
+        createExamMutation.mutate({
+          body: newExam,
+          path: {
+            organization_id: organizationId,
+          },
+        })
+      }
+      onDuplicateExam={(parentId: string, newExam: NewExam) =>
+        duplicateExamMutation.mutate({
+          path: {
+            id: parentId,
+          },
+          body: newExam,
+        })
+      }
+    />
+  )
 
   return (
     <StandardDialog open={open} onClose={onClose} title={t("new-exam")}>
@@ -76,28 +98,9 @@ const NewExamDialog: React.FC<React.PropsWithChildren<ExamDialogProps>> = ({
       {duplicateExamMutation.isError && (
         <ErrorBanner variant={"readOnly"} error={duplicateExamMutation.error} />
       )}
-      <NewExamForm
-        exams={getOrgExams.data}
-        initialData={null}
-        organizationId={organizationId}
-        onCancel={close}
-        onCreateNewExam={(newExam) =>
-          createExamMutation.mutate({
-            body: newExam,
-            path: {
-              organization_id: organizationId,
-            },
-          })
-        }
-        onDuplicateExam={(parentId: string, newExam: NewExam) =>
-          duplicateExamMutation.mutate({
-            path: {
-              id: parentId,
-            },
-            body: newExam,
-          })
-        }
-      />
+      <QueryResult query={getOrgExams} treatEmptyAsData>
+        {(exams) => renderForm(exams)}
+      </QueryResult>
     </StandardDialog>
   )
 }

@@ -6,11 +6,9 @@ import { useTranslation } from "react-i18next"
 import FeedbackPage from "./FeedbackPage"
 
 import { getCourseFeedbackCountOptions } from "@/generated/api/@tanstack/react-query.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -29,40 +27,28 @@ const FeedbackList: React.FC<React.PropsWithChildren<Props>> = ({ courseId, read
     }),
   })
 
-  if (getFeedbackCount.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getFeedbackCount.error} />
-  }
-
-  if (getFeedbackCount.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
-  if (!getFeedbackCount.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void getFeedbackCount.refetch()
-        }}
-      />
-    )
-  }
-
-  const items = read ? getFeedbackCount.data.read : getFeedbackCount.data.unread
-  if (items <= 0) {
-    return <div>{t("no-feedback")}</div>
-  }
-  const pageCount = Math.ceil(items / paginationInfo.limit)
   return (
-    <div>
-      <FeedbackPage
-        courseId={courseId}
-        page={paginationInfo.page}
-        read={read}
-        paginationInfo={paginationInfo}
-        onChange={getFeedbackCount.refetch}
-      />
-      <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
-    </div>
+    <QueryResult query={getFeedbackCount}>
+      {(data) => {
+        const items = read ? data.read : data.unread
+        if (items <= 0) {
+          return <div>{t("no-feedback")}</div>
+        }
+        const pageCount = Math.ceil(items / paginationInfo.limit)
+        return (
+          <div>
+            <FeedbackPage
+              courseId={courseId}
+              page={paginationInfo.page}
+              read={read}
+              paginationInfo={paginationInfo}
+              onChange={getFeedbackCount.refetch}
+            />
+            <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

@@ -30,6 +30,7 @@ import {
 } from "@/shared-module/common/utils/routes"
 import { dateToString } from "@/shared-module/common/utils/time"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -111,183 +112,177 @@ const Submission: React.FC = () => {
 
   return (
     <div>
-      {getSubmissionInfo.isError && (
-        <ErrorBanner variant={"readOnly"} error={getSubmissionInfo.error} />
-      )}
-      {getSubmissionInfo.isLoading && <Spinner variant={"medium"} />}
-      {getSubmissionInfo.isSuccess && breadcrumbPieces.length > 0 && (
-        <Breadcrumbs pieces={breadcrumbPieces} />
-      )}
-      {getSubmissionInfo.isSuccess && (
-        <>
-          {getSubmissionInfo.data.tasks.some((task) => task.deleted_at !== null) && (
-            <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
-          )}
+      <QueryResult query={getSubmissionInfo}>
+        {(submissionInfo) => (
+          <>
+            {breadcrumbPieces.length > 0 && <Breadcrumbs pieces={breadcrumbPieces} />}
+            {submissionInfo.tasks.some((task) => task.deleted_at !== null) && (
+              <GenericInfobox>{t("message-this-task-has-been-deleted")}</GenericInfobox>
+            )}
 
-          <h1
-            className={css`
-              margin-bottom: 2rem;
-            `}
-          >
-            <HideTextInSystemTests
-              text={t("title-submission-id", { id })}
-              testPlaceholder={t("title-submission-id", {
-                id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-              })}
-            />
-          </h1>
+            <h1
+              className={css`
+                margin-bottom: 2rem;
+              `}
+            >
+              <HideTextInSystemTests
+                text={t("title-submission-id", { id })}
+                testPlaceholder={t("title-submission-id", {
+                  id: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                })}
+              />
+            </h1>
 
-          {/* User Information Section */}
-          {userDetails.isLoading && <Spinner variant="medium" />}
-          {userDetails.isSuccess && (
-            <KeyValueCard
-              sections={[
-                {
-                  title: t("submission-details"),
-                  items: [
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "submission-id",
-                      label: t("submission-id"),
-                      colSpan: 3,
-                      value: (
-                        <HideTextInSystemTests
-                          text={getSubmissionInfo.data.exercise_slide_submission.id}
-                          testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                        />
-                      ),
-                    },
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "submission-created",
-                      label: t("submission-created"),
-                      colSpan: 3,
-                      value: dateToString(
-                        getSubmissionInfo.data.exercise_slide_submission.created_at,
-                      ),
-                    },
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "points",
-                      label: t("points-from-whole-exercise"),
-                      value: pointsFromWholeExercise,
-                      colSpan: 2,
-                    },
-                    {
-                      // eslint-disable-next-line i18next/no-literal-string
-                      key: "max-points",
-                      label: t("max-points"),
-                      value: getSubmissionInfo.data.exercise.score_maximum,
-                    },
-                  ],
-                },
-                ...(user
-                  ? [
+            {/* User Information Section */}
+            {userDetails.isLoading && <Spinner variant="medium" />}
+            {userDetails.isSuccess && (
+              <KeyValueCard
+                sections={[
+                  {
+                    title: t("submission-details"),
+                    items: [
                       {
-                        title: t("user-information"),
-                        items: [
-                          {
-                            // eslint-disable-next-line i18next/no-literal-string
-                            key: "first-name",
-                            label: t("first-name"),
-                            value: user.first_name,
-                          },
-                          {
-                            // eslint-disable-next-line i18next/no-literal-string
-                            key: "last-name",
-                            label: t("last-name"),
-                            value: user.last_name,
-                          },
-                          {
-                            // eslint-disable-next-line i18next/no-literal-string
-                            key: "email",
-                            label: t("email"),
-                            value: user.email,
-                          },
-                          {
-                            // eslint-disable-next-line i18next/no-literal-string
-                            key: "user-id",
-                            label: t("user-id"),
-                            colSpan: 3,
-                            value: (
-                              <HideTextInSystemTests
-                                text={getSubmissionInfo.data.exercise_slide_submission.user_id}
-                                testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                              />
-                            ),
-                          },
-                        ],
+                        // eslint-disable-next-line i18next/no-literal-string
+                        key: "submission-id",
+                        label: t("submission-id"),
+                        colSpan: 3,
+                        value: (
+                          <HideTextInSystemTests
+                            text={submissionInfo.exercise_slide_submission.id}
+                            testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                          />
+                        ),
                       },
-                    ]
-                  : []),
-              ]}
-              actionButtons={
-                getSubmissionInfo.data?.exercise.course_id
-                  ? [
-                      <Link
-                        key="course-status"
-                        href={courseUserStatusSummaryRoute(
-                          getSubmissionInfo.data.exercise.course_id,
-                          getSubmissionInfo.data.exercise_slide_submission.user_id,
-                        )}
-                      >
-                        <Button variant="tertiary" size="medium">
-                          {t("course-status-summary")}
-                        </Button>
-                      </Link>,
-                    ]
-                  : []
-              }
+                      {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        key: "submission-created",
+                        label: t("submission-created"),
+                        colSpan: 3,
+                        value: dateToString(submissionInfo.exercise_slide_submission.created_at),
+                      },
+                      {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        key: "points",
+                        label: t("points-from-whole-exercise"),
+                        value: pointsFromWholeExercise,
+                        colSpan: 2,
+                      },
+                      {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        key: "max-points",
+                        label: t("max-points"),
+                        value: submissionInfo.exercise.score_maximum,
+                      },
+                    ],
+                  },
+                  ...(user
+                    ? [
+                        {
+                          title: t("user-information"),
+                          items: [
+                            {
+                              // eslint-disable-next-line i18next/no-literal-string
+                              key: "first-name",
+                              label: t("first-name"),
+                              value: user.first_name,
+                            },
+                            {
+                              // eslint-disable-next-line i18next/no-literal-string
+                              key: "last-name",
+                              label: t("last-name"),
+                              value: user.last_name,
+                            },
+                            {
+                              // eslint-disable-next-line i18next/no-literal-string
+                              key: "email",
+                              label: t("email"),
+                              value: user.email,
+                            },
+                            {
+                              // eslint-disable-next-line i18next/no-literal-string
+                              key: "user-id",
+                              label: t("user-id"),
+                              colSpan: 3,
+                              value: (
+                                <HideTextInSystemTests
+                                  text={submissionInfo.exercise_slide_submission.user_id}
+                                  testPlaceholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                                />
+                              ),
+                            },
+                          ],
+                        },
+                      ]
+                    : []),
+                ]}
+                actionButtons={
+                  submissionInfo.exercise.course_id
+                    ? [
+                        <Link
+                          key="course-status"
+                          href={courseUserStatusSummaryRoute(
+                            submissionInfo.exercise.course_id,
+                            submissionInfo.exercise_slide_submission.user_id,
+                          )}
+                        >
+                          <Button variant="tertiary" size="medium">
+                            {t("course-status-summary")}
+                          </Button>
+                        </Link>,
+                      ]
+                    : []
+                }
+              />
+            )}
+
+            {userDetails.isSuccess && userDetailsNotFound && (
+              <DeletedUserNotice
+                userId={submissionInfo.exercise_slide_submission.user_id}
+                className={css`
+                  max-width: ${narrowContainerWidthRem}rem;
+                  margin: 0 auto 2rem auto;
+                `}
+              />
+            )}
+
+            {/* User Details Error Banner */}
+            {userDetails.isError && (
+              <ErrorBanner
+                variant="readOnly"
+                error={userDetails.error}
+                className={css`
+                  max-width: ${narrowContainerWidthRem}rem;
+                  margin: 0 auto 2rem auto;
+                `}
+              />
+            )}
+
+            <MainFrontedViewSubmission
+              submissionData={submissionInfo}
+              totalScoreGiven={totalScoreGiven}
             />
-          )}
 
-          {userDetails.isSuccess && userDetailsNotFound && (
-            <DeletedUserNotice
-              userId={getSubmissionInfo.data.exercise_slide_submission.user_id}
-              className={css`
-                max-width: ${narrowContainerWidthRem}rem;
-                margin: 0 auto 2rem auto;
-              `}
+            {/* All Submissions by User Section */}
+            <AllSubmissionsList
+              submissions={exerciseSubmissions.data}
+              isLoading={exerciseSubmissions.isLoading}
+              isError={exerciseSubmissions.isError}
+              error={exerciseSubmissions.error}
+              currentSubmissionId={submissionInfo.exercise_slide_submission.id}
             />
-          )}
 
-          {/* User Details Error Banner */}
-          {userDetails.isError && (
-            <ErrorBanner
-              variant="readOnly"
-              error={userDetails.error}
-              className={css`
-                max-width: ${narrowContainerWidthRem}rem;
-                margin: 0 auto 2rem auto;
-              `}
-            />
-          )}
-
-          <MainFrontedViewSubmission
-            submissionData={getSubmissionInfo.data}
-            totalScoreGiven={totalScoreGiven}
-          />
-
-          {/* All Submissions by User Section */}
-          <AllSubmissionsList
-            submissions={exerciseSubmissions.data}
-            isLoading={exerciseSubmissions.isLoading}
-            isError={exerciseSubmissions.isError}
-            error={exerciseSubmissions.error}
-            currentSubmissionId={getSubmissionInfo.data.exercise_slide_submission.id}
-          />
-        </>
-      )}
-
-      {getSubmissionInfo.isSuccess && userExerciseStateId && (
-        <ExerciseGradingCard
-          userExerciseStateId={userExerciseStateId}
-          exerciseId={exerciseId}
-          exerciseMaxPoints={getSubmissionInfo.data.exercise.score_maximum}
-          isLatestSubmission={isLatestSubmission}
-          onGradingSubmit={handleGradingSubmit}
-        />
-      )}
+            {userExerciseStateId && (
+              <ExerciseGradingCard
+                userExerciseStateId={userExerciseStateId}
+                exerciseId={exerciseId}
+                exerciseMaxPoints={submissionInfo.exercise.score_maximum}
+                isLatestSubmission={isLatestSubmission}
+                onGradingSubmit={handleGradingSubmit}
+              />
+            )}
+          </>
+        )}
+      </QueryResult>
 
       <div
         className={css`

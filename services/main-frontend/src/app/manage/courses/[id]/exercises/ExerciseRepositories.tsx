@@ -15,9 +15,8 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { ExerciseRepository } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string | null
@@ -57,25 +56,7 @@ const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = 
     },
   )
 
-  if (exerciseRepositories.isError) {
-    return <ErrorBanner error={exerciseRepositories.error} variant={"readOnly"} />
-  }
-
-  if (exerciseRepositories.isLoading) {
-    return <div>{t("loading-text")}</div>
-  }
-
-  if (!exerciseRepositories.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void exerciseRepositories.refetch()
-        }}
-      />
-    )
-  }
-
-  return (
+  const renderContent = (repositories: ExerciseRepository[]) => (
     <>
       {addingRepo ? (
         <AddExerciseRepositoryForm
@@ -101,7 +82,7 @@ const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = 
         </Button>
       )}
       <ul>
-        {exerciseRepositories.data.map((er) => (
+        {repositories.map((er) => (
           <li key={er.id}>
             {editingRepo === er.id ? (
               <EditExerciseRepositoryForm
@@ -146,6 +127,12 @@ const ExerciseRepositoriesContent: React.FC<ExerciseRepositoriesContentProps> = 
         ))}
       </ul>
     </>
+  )
+
+  return (
+    <QueryResult query={exerciseRepositories} treatEmptyAsData>
+      {(repositories) => renderContent(repositories)}
+    </QueryResult>
   )
 }
 

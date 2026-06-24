@@ -958,6 +958,23 @@ WHERE pages.course_id = $1
     Ok(page)
 }
 
+/// Looks up a non-deleted page in `course_id` whose stored `url_path` matches `url_path` in
+/// either the decoded-canonical or the legacy fully-encoded form (see
+/// [`url_path_lookup_candidates`]). Shared by the page lookup and its tests so both exercise
+/// the same candidate-matching logic.
+async fn find_page_by_requested_path(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    url_path: &str,
+) -> ModelResult<Option<Page>> {
+    for candidate in url_path_lookup_candidates(url_path) {
+        if let Some(page) = get_page_by_stored_path(conn, course_id, &candidate).await? {
+            return Ok(Some(page));
+        }
+    }
+    Ok(None)
+}
+
 pub async fn get_page_with_user_data_by_path(
     conn: &mut PgConnection,
     user_id: Option<Uuid>,
@@ -966,17 +983,7 @@ pub async fn get_page_with_user_data_by_path(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    let candidates = url_path_lookup_candidates(url_path);
-
-    let mut page_option = None;
-    for candidate in &candidates {
-        page_option = get_page_by_stored_path(conn, course_data.id, candidate).await?;
-        if page_option.is_some() {
-            break;
-        }
-    }
-
-    if let Some(page) = page_option {
+    if let Some(page) = find_page_by_requested_path(conn, course_data.id, url_path).await? {
         return get_course_page_with_user_data_from_selected_page(
             conn,
             user_id,
@@ -987,27 +994,21 @@ pub async fn get_page_with_user_data_by_path(
             app_conf,
         )
         .await;
-    } else {
-        let mut potential_redirect = None;
-        for candidate in &candidates {
-            potential_redirect =
-                try_to_find_redirected_page_by_stored_path(conn, course_data.id, candidate).await?;
-            if potential_redirect.is_some() {
-                break;
-            }
-        }
-        if let Some(redirected_page) = potential_redirect {
-            return get_course_page_with_user_data_from_selected_page(
-                conn,
-                user_id,
-                redirected_page,
-                true,
-                course_data.is_test_mode,
-                file_store,
-                app_conf,
-            )
-            .await;
-        }
+    }
+
+    if let Some(redirected_page) =
+        try_to_find_redirected_page(conn, course_data.id, url_path).await?
+    {
+        return get_course_page_with_user_data_from_selected_page(
+            conn,
+            user_id,
+            redirected_page,
+            true,
+            course_data.is_test_mode,
+            file_store,
+            app_conf,
+        )
+        .await;
     }
 
     Err(model_err!(NotFound, "Page not found".to_string()))
@@ -4203,28 +4204,27 @@ mod test {
         .unwrap();
         {
             let conn: &mut sqlx::PgConnection = tx.as_mut();
-            sqlx::query("UPDATE pages SET url_path = $1 WHERE id = $2")
-                .bind("/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82")
-                .bind(legacy_page.id)
-                .execute(conn)
-                .await
-                .unwrap();
+            sqlx::query!(
+                "UPDATE pages SET url_path = $2 WHERE pages.id = $1",
+                legacy_page.id,
+                "/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82"
+            )
+            .execute(conn)
+            .await
+            .unwrap();
         }
 
+        // Looks the page up through the same helper the production lookup uses, so a
+        // regression in the candidate matching is caught here.
         async fn lookup(
             conn: &mut sqlx::PgConnection,
             course_id: uuid::Uuid,
             requested: &str,
         ) -> Option<uuid::Uuid> {
-            for candidate in super::url_path_lookup_candidates(requested) {
-                if let Some(page) = super::get_page_by_stored_path(conn, course_id, &candidate)
-                    .await
-                    .unwrap()
-                {
-                    return Some(page.id);
-                }
-            }
-            None
+            super::find_page_by_requested_path(conn, course_id, requested)
+                .await
+                .unwrap()
+                .map(|page| page.id)
         }
 
         // The raw-Cyrillic page resolves whether the request arrives decoded or encoded.

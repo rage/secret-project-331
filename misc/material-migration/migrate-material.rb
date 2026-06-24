@@ -224,8 +224,10 @@ class MaterialMigrator
         # (styles are dropped anyway), so unwrap them and re-queue the inner content.
         oneliner_container = line.match(%r{\A<([a-zA-Z0-9_-]+)(?:\s[^>]*)?>(.*)</\1>\z}m)
         if oneliner_container && TRANSPARENT_CONTAINER_TAGS.include?(oneliner_container[1])
-          inner = oneliner_container[2].strip
-          lines.unshift(inner) unless inner.empty?
+          inner, rest = split_first_element(line, oneliner_container[1])
+          inner ||= oneliner_container[2]
+          lines.unshift(rest.strip) if rest && !rest.strip.empty?
+          lines.unshift(inner.strip) unless inner.strip.empty?
           next
         end
 
@@ -561,6 +563,23 @@ class MaterialMigrator
       'attributes': { 'content': '', 'dropCap': false },
       'innerBlocks': [],
     }
+  end
+
+  # Splits the first `<tag>…</tag>` element into [inner, rest], counting nested same-name tags so
+  # siblings aren't swallowed: `<div>a</div><div>b</div>` -> ["a", "<div>b</div>"]. nil if unclosed.
+  def split_first_element(line, tag)
+    depth = 0
+    open_end = nil
+    line.scan(/<(\/?)#{Regexp.escape(tag)}(?:\s[^>]*)?>/) do
+      if $1 == '/'
+        depth -= 1
+        return [line[open_end...$~.begin(0)], line[$~.end(0)..]] if depth.zero?
+      else
+        depth += 1
+        open_end = $~.end(0) if depth == 1
+      end
+    end
+    nil
   end
 
   def handle_div(line, json_block)

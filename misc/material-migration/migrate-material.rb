@@ -12,7 +12,7 @@ class MaterialMigrator
   # (their styles are dropped). When one of these appears as a complete one-liner
   # it must be unwrapped rather than opened as a container — see "Case B" below.
   TRANSPARENT_CONTAINER_TAGS = %w[
-    div detail-tag topic-hero topic-content details ul ol table thead tbody tr
+    div detail-tag topic-hero topic-content details table thead tbody tr
   ].freeze
 
   def initialize(directory)
@@ -304,6 +304,7 @@ class MaterialMigrator
       json_content << json_block
     end
 
+    json_content = flatten_transparent_wrappers(json_content)
     normalize_copy_text_blocks(json_content)
 
     metadata = build_page_metadata(file, json_content)
@@ -467,7 +468,7 @@ class MaterialMigrator
       'sub-heading', 'caption-text', 'quote', 'chart', 'area-chart', 'bar-chart', 'chart-switcher',
       'homepage-grid', 'course-grid', 'hero-section', 'introduction', 'core-team', 'faq',
       'teaser-card',
-      'summary', 'li', 'p', 'th', 'td',
+      'summary', 'ul', 'ol', 'li', 'p', 'th', 'td',
     ]
     if line.start_with?("<#{tag_type}") && line.end_with?("</#{tag_type}>") && !accepted_oneliners.include?(tag_type)
       puts "skipping oneliner tag #{tag_type} on line #{line}"
@@ -482,9 +483,13 @@ class MaterialMigrator
       handle_text_box(line, json_block)
     when 'floating-image'
       handle_floating_image(line)
-    when 'div', 'detail-tag', 'topic-hero', 'topic-content', 'details', 'ul', 'ol',
+    when 'div', 'detail-tag', 'topic-hero', 'topic-content', 'details',
          'table', 'thead', 'tbody', 'tr', 'a'
       handle_div(line, json_block)
+    when 'ul', 'ol'
+      handle_html_list(line, tag_type, json_block, json_content)
+    when 'li'
+      handle_html_list_item(line, json_block)
     when 'quiz'
       handle_quiz(line, json_block, json_content)
     when 'img'
@@ -523,7 +528,7 @@ class MaterialMigrator
       handle_skip_tag
     when 'p'
       handle_p_tag(line, json_block, json_content)
-    when 'summary', 'li', 'th', 'td'
+    when 'summary', 'th', 'td'
       handle_inline_html_tag(line, tag_type, json_block)
     else
       puts "unknown tag type: #{tag_type}"
@@ -580,6 +585,33 @@ class MaterialMigrator
       end
     end
     nil
+  end
+
+  def empty_paragraph?(block)
+    block[:name] == 'core/paragraph' &&
+      (block[:attributes] && block[:attributes][:content]).to_s.strip.empty? &&
+      (block[:innerBlocks] || []).empty?
+  end
+
+  # Transparent wrappers (div, details, topic-hero, …) stay the default core/paragraph, which
+  # doesn't render innerBlocks — hiding their content. Dissolve every such wrapper into its
+  # children; real container blocks keep theirs, we only recurse into them.
+  def flatten_transparent_wrappers(blocks)
+    blocks.flat_map do |block|
+      children = block[:innerBlocks] || []
+      if block[:name] == 'core/paragraph' && !children.empty?
+        flattened = flatten_transparent_wrappers(children).reject { |child| empty_paragraph?(child) }
+        # A wrapper may also carry its own text; keep it as a plain paragraph before the children.
+        if empty_paragraph?(block.merge(innerBlocks: []))
+          flattened
+        else
+          [block.merge(innerBlocks: [])] + flattened
+        end
+      else
+        block[:innerBlocks] = flatten_transparent_wrappers(children) unless children.empty?
+        [block]
+      end
+    end
   end
 
   def handle_div(line, json_block)
@@ -671,6 +703,59 @@ class MaterialMigrator
         'innerBlocks': [list_item],
       }
     end
+  end
+
+  def build_list_block(ordered, items = [])
+    {
+      'clientId': SecureRandom.uuid,
+      'isValid': true,
+      'name': 'core/list',
+      'attributes': { 'ordered': ordered, 'values': '' },
+      'innerBlocks': items,
+    }
+  end
+
+  def build_list_item(content_html)
+    {
+      'clientId': SecureRandom.uuid,
+      'isValid': true,
+      'name': 'core/list-item',
+      'attributes': { 'content': convert_inline_markdown(content_html.strip) },
+      'innerBlocks': [],
+    }
+  end
+
+  # Converts an HTML <ul>/<ol> into a core/list block. A multi-line list opens the block here and
+  # its <li> lines are added by handle_html_list_item; a one-liner has all its items consumed now.
+  def handle_html_list(line, tag_type, json_block, json_content)
+    list_block = build_list_block(tag_type == 'ol')
+
+    one_liner = line.end_with?("</#{tag_type}>")
+    if one_liner
+      line.scan(/<li[^>]*>(.*?)<\/li>/m) { list_block[:innerBlocks] << build_list_item($1) }
+      @tag_depth -= 1
+    end
+
+    # Nested lists live in json_block; a top-level one-liner has no closing line to flush
+    # json_block, so add it to json_content directly.
+    if one_liner && @tag_depth.zero?
+      json_content << list_block
+    else
+      json_block[:innerBlocks] << list_block
+    end
+    json_block
+  end
+
+  def handle_html_list_item(line, json_block)
+    item = build_list_item(line[/<li[^>]*>(.*?)<\/li>/m, 1] || '')
+    list = json_block[:innerBlocks].reverse.find { |block| block[:name] == 'core/list' }
+    if list
+      list[:innerBlocks] << item
+    else
+      json_block[:innerBlocks] << build_list_block(false, [item])
+    end
+    @tag_depth -= 1
+    json_block
   end
 
   def handle_header(line, json_block, json_content)

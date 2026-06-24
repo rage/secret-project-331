@@ -150,10 +150,55 @@ const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'|')
     .add(b'}');
 
-/// Percent-encodes URL path characters that are not part of the safe path alphabet.
+/// Canonicalizes a URL path for storage and lookup.
+///
+/// Percent-decodes any escapes, trims surrounding whitespace, then re-encodes only the
+/// unsafe ASCII characters in `URL_PATH_ENCODE_SET`. Valid non-ASCII UTF-8 (e.g. Cyrillic)
+/// is kept verbatim so that paths stay human-readable and continue to match values that
+/// were stored before URL normalization was introduced.
+///
+/// `utf8_percent_encode` always percent-encodes non-ASCII bytes regardless of the set, so
+/// only ASCII characters are run through it; everything else is passed through unchanged.
 fn normalize_url_path_for_storage(url_path: &str) -> String {
     let decoded = percent_decode_str(url_path).decode_utf8_lossy();
+    let trimmed = decoded.trim();
+    let mut normalized = String::with_capacity(trimmed.len());
+    let mut buf = [0u8; 4];
+    for ch in trimmed.chars() {
+        if ch.is_ascii() {
+            // For an ASCII char, utf8_percent_encode encodes it iff it is in the set.
+            normalized.extend(utf8_percent_encode(
+                ch.encode_utf8(&mut buf),
+                URL_PATH_ENCODE_SET,
+            ));
+        } else {
+            normalized.push(ch);
+        }
+    }
+    normalized
+}
+
+/// The fully percent-encoded form that the previous normalization stored for paths
+/// containing non-ASCII characters (it also percent-encoded those characters). Used only
+/// as an additional lookup candidate so that pages stored before the decoded-canonical
+/// form was adopted still resolve.
+fn legacy_fully_encoded_url_path(url_path: &str) -> String {
+    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
     utf8_percent_encode(decoded.trim(), URL_PATH_ENCODE_SET).to_string()
+}
+
+/// The stored `url_path` forms to try when looking up a page by a requested path: the
+/// decoded-canonical form (current storage form) and the legacy fully-encoded form. The
+/// legacy form is included only when it differs, which happens only for paths containing
+/// non-ASCII characters.
+fn url_path_lookup_candidates(url_path: &str) -> Vec<String> {
+    let normalized = normalize_url_path_for_storage(url_path);
+    let legacy = legacy_fully_encoded_url_path(url_path);
+    if legacy == normalized {
+        vec![normalized]
+    } else {
+        vec![normalized, legacy]
+    }
 }
 
 async fn get_lock_chapter_content_state_for_page(
@@ -921,8 +966,15 @@ pub async fn get_page_with_user_data_by_path(
     file_store: &dyn FileStore,
     app_conf: &ApplicationConfiguration,
 ) -> ModelResult<CoursePageWithUserData> {
-    let normalized_url_path = normalize_url_path_for_storage(url_path);
-    let page_option = get_page_by_stored_path(conn, course_data.id, &normalized_url_path).await?;
+    let candidates = url_path_lookup_candidates(url_path);
+
+    let mut page_option = None;
+    for candidate in &candidates {
+        page_option = get_page_by_stored_path(conn, course_data.id, candidate).await?;
+        if page_option.is_some() {
+            break;
+        }
+    }
 
     if let Some(page) = page_option {
         return get_course_page_with_user_data_from_selected_page(
@@ -936,9 +988,14 @@ pub async fn get_page_with_user_data_by_path(
         )
         .await;
     } else {
-        let potential_redirect =
-            try_to_find_redirected_page_by_stored_path(conn, course_data.id, &normalized_url_path)
-                .await?;
+        let mut potential_redirect = None;
+        for candidate in &candidates {
+            potential_redirect =
+                try_to_find_redirected_page_by_stored_path(conn, course_data.id, candidate).await?;
+            if potential_redirect.is_some() {
+                break;
+            }
+        }
         if let Some(redirected_page) = potential_redirect {
             return get_course_page_with_user_data_from_selected_page(
                 conn,
@@ -961,8 +1018,14 @@ pub async fn try_to_find_redirected_page(
     course_id: Uuid,
     url_path: &str,
 ) -> ModelResult<Option<Page>> {
-    let normalized_url_path = normalize_url_path_for_storage(url_path);
-    try_to_find_redirected_page_by_stored_path(conn, course_id, &normalized_url_path).await
+    for candidate in url_path_lookup_candidates(url_path) {
+        if let Some(page) =
+            try_to_find_redirected_page_by_stored_path(conn, course_id, &candidate).await?
+        {
+            return Ok(Some(page));
+        }
+    }
+    Ok(None)
 }
 
 async fn try_to_find_redirected_page_by_stored_path(
@@ -4047,6 +4110,147 @@ mod test {
         assert_eq!(
             normalize_url_path_for_storage(" /literal%25percent "),
             "/literal%25percent"
+        );
+    }
+
+    #[test]
+    fn keeps_non_ascii_characters_decoded_for_storage() {
+        // Valid non-ASCII (Cyrillic) is kept verbatim, regardless of whether the input
+        // arrives decoded or percent-encoded.
+        assert_eq!(
+            normalize_url_path_for_storage("/chapter-1/як"),
+            "/chapter-1/як"
+        );
+        assert_eq!(
+            normalize_url_path_for_storage("/chapter-1/%D1%8F%D0%BA"),
+            "/chapter-1/як"
+        );
+        // Unsafe ASCII is still encoded even when mixed with non-ASCII.
+        assert_eq!(
+            normalize_url_path_for_storage("/chapter 1/як"),
+            "/chapter%201/як"
+        );
+    }
+
+    #[test]
+    fn legacy_fully_encoded_form_encodes_non_ascii() {
+        assert_eq!(
+            legacy_fully_encoded_url_path("/chapter-1/як"),
+            "/chapter-1/%D1%8F%D0%BA"
+        );
+        assert_eq!(
+            legacy_fully_encoded_url_path("/chapter-1/%D1%8F%D0%BA"),
+            "/chapter-1/%D1%8F%D0%BA"
+        );
+    }
+
+    #[test]
+    fn lookup_candidates_cover_both_stored_forms() {
+        // ASCII-only paths have a single candidate (both forms are identical).
+        assert_eq!(
+            url_path_lookup_candidates("/chapter-1/foo"),
+            vec!["/chapter-1/foo".to_string()]
+        );
+        // Non-ASCII paths are looked up in both the decoded-canonical and legacy forms.
+        assert_eq!(
+            url_path_lookup_candidates("/chapter-1/як"),
+            vec![
+                "/chapter-1/як".to_string(),
+                "/chapter-1/%D1%8F%D0%BA".to_string(),
+            ]
+        );
+    }
+
+    #[tokio::test]
+    async fn finds_pages_with_non_ascii_paths_in_either_stored_form() {
+        insert_data!(:tx, :user, :org, :course, instance: _instance, :course_module, :chapter);
+
+        let new_page = |url_path: &str, title: &str| NewPage {
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            content: vec![],
+            url_path: url_path.to_string(),
+            title: title.to_string(),
+            course_id: Some(course),
+            exam_id: None,
+            chapter_id: Some(chapter),
+            front_page_of_chapter_id: None,
+            content_search_language: None,
+        };
+
+        // Stored in the decoded-canonical form (raw Cyrillic), as insert_page now stores it.
+        let raw_page = crate::pages::insert_page(
+            tx.as_mut(),
+            new_page("/chapter-1/як", "Raw"),
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+
+        // Stored in the legacy fully-encoded form, simulating data written before the
+        // decoded-canonical form was adopted (insert_page normalizes, so update directly).
+        let legacy_page = crate::pages::insert_page(
+            tx.as_mut(),
+            new_page("/chapter-1/іспит", "Legacy"),
+            user,
+            |_, _, _| unimplemented!(),
+            |_| unimplemented!(),
+        )
+        .await
+        .unwrap();
+        {
+            let conn: &mut sqlx::PgConnection = tx.as_mut();
+            sqlx::query("UPDATE pages SET url_path = $1 WHERE id = $2")
+                .bind("/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82")
+                .bind(legacy_page.id)
+                .execute(conn)
+                .await
+                .unwrap();
+        }
+
+        async fn lookup(
+            conn: &mut sqlx::PgConnection,
+            course_id: uuid::Uuid,
+            requested: &str,
+        ) -> Option<uuid::Uuid> {
+            for candidate in super::url_path_lookup_candidates(requested) {
+                if let Some(page) = super::get_page_by_stored_path(conn, course_id, &candidate)
+                    .await
+                    .unwrap()
+                {
+                    return Some(page.id);
+                }
+            }
+            None
+        }
+
+        // The raw-Cyrillic page resolves whether the request arrives decoded or encoded.
+        assert_eq!(
+            lookup(tx.as_mut(), course, "/chapter-1/як").await,
+            Some(raw_page.id)
+        );
+        assert_eq!(
+            lookup(tx.as_mut(), course, "/chapter-1/%D1%8F%D0%BA").await,
+            Some(raw_page.id)
+        );
+
+        // The legacy fully-encoded page resolves via the legacy lookup candidate, whether
+        // the request arrives decoded or encoded.
+        assert_eq!(
+            lookup(tx.as_mut(), course, "/chapter-1/іспит").await,
+            Some(legacy_page.id)
+        );
+        assert_eq!(
+            lookup(
+                tx.as_mut(),
+                course,
+                "/chapter-1/%D1%96%D1%81%D0%BF%D0%B8%D1%82"
+            )
+            .await,
+            Some(legacy_page.id)
         );
     }
 

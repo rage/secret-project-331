@@ -34,7 +34,20 @@ const PagePage: React.FC = () => {
   }
   const organizationSlug = params.organizationSlug
   const courseSlug = params.courseSlug
-  const path = useMemo(() => `/${params.path?.join("/") || ""}`, [params.path])
+  // useParams() returns the catch-all segments still percent-encoded, so decode each
+  // segment (per-segment, so encoded separators are not misread) before building the path.
+  const path = useMemo(() => {
+    const decoded = (params.path ?? [])
+      .map((segment) => {
+        try {
+          return decodeURIComponent(segment)
+        } catch {
+          return segment
+        }
+      })
+      .join("/")
+    return `/${decoded}`
+  }, [params.path])
 
   // Stable object reference for view params
   const viewParams = useMemo(

@@ -12,7 +12,7 @@ class MaterialMigrator
   # (their styles are dropped). When one of these appears as a complete one-liner
   # it must be unwrapped rather than opened as a container — see "Case B" below.
   TRANSPARENT_CONTAINER_TAGS = %w[
-    div detail-tag topic-hero topic-content details ul ol table thead tbody tr a
+    div detail-tag topic-hero topic-content details ul ol table thead tbody tr
   ].freeze
 
   def initialize(directory)
@@ -202,6 +202,19 @@ class MaterialMigrator
             @floating_image[:caption_parts] << converted unless converted.strip.empty?
             next
           end
+        end
+
+        # Keep a standalone <a>…</a> as inline content; unwrapping it would drop the href.
+        if line.match?(%r{\A<a(?:\s[^>]*)?>.*</a>\z}m)
+          content = convert_inline_markdown(line)
+          if @tag_depth > 0
+            append_to_last_block_content(json_block, content + "\n")
+          else
+            paragraph = create_new_block
+            paragraph[:attributes] = { 'content': content, 'dropCap': false }
+            json_content << paragraph
+          end
+          next
         end
 
         # Case B: a complete one-liner of a transparent container tag, e.g.

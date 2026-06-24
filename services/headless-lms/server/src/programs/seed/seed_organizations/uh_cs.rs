@@ -339,6 +339,19 @@ pub async fn seed_organization_uh_cs(
     open_university_registration_links::upsert(&mut conn, "EXAMPLE123", "https://www.example.com")
         .await?;
 
+    // Configure Introduction to localizing to have uh course code in second module
+    let introduction_to_localizing_modules =
+        course_modules::get_by_course_id(&mut conn, introduction_to_localizing).await?;
+
+    let introduction_to_localizing_another_module = introduction_to_localizing_modules
+        .iter()
+        .find(|m| m.order_number == 1);
+
+    if let Some(module) = introduction_to_localizing_another_module {
+        course_modules::update_uh_course_code(&mut conn, module.id, Some("TEST002".to_string()))
+            .await?;
+    }
+
     // configure manual completions
     let manual_default_module =
         course_modules::get_default_by_course_id(&mut conn, manual_completions_id).await?;

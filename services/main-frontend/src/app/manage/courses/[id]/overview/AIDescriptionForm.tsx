@@ -43,7 +43,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   const { t } = useTranslation()
 
   const courseId = course.id
-  const { error, data, isLoading, isFetching, isError } = useQuery(
+  const { error, data, isFetching, isError } = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: open,
@@ -60,7 +60,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     if (data) {
       setValue("description", data.course_description)
     }
-    console.log(data?.course_description)
   }, [data])
 
   const methods = useForm<EditCourseFormValues>({
@@ -86,13 +85,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     },
   })
 
-  const {
-    control,
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-  } = methods
+  const { control, register, handleSubmit, setValue } = methods
 
   const updateCourseMutation = useToastMutation(
     async (data: EditCourseFormValues) => {
@@ -137,7 +130,6 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     updateCourseMutation.mutate(data)
   })
 
-  //error={t("error-cannot-generate-description", { error: error.message })}
   return (
     <FormProvider {...methods}>
       <StandardDialog

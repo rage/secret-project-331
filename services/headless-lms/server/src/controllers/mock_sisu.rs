@@ -58,9 +58,11 @@ async fn mock_sisu_id_query(
             )
         }
 
-        _ => serde_json::to_string(&(CourseUnitSearchResults {
-            search_results: vec![],
-        },)),
+        _ => serde_json::to_string(
+            &(CourseUnitSearchResults {
+                search_results: vec![],
+            }),
+        ),
     }?;
     let token = skip_authorize();
     token.authorized_ok(res)

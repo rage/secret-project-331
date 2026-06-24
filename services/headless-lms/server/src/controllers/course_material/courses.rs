@@ -1623,40 +1623,6 @@ async fn get_sisu_course_llm_descriptions(
         parsed_course_info,
     )
     .await?;
-
-    // use std::{thread, time};
-
-    // let ten_millis = time::Duration::from_secs(3);
-    // let now = time::Instant::now();
-
-    // thread::sleep(ten_millis);
-
-    // let llm_descriptions = SisuDescriptionResponse {
-    //     course_description: String::from(
-    //         "Introductory DevOps with Docker sequence covering containerization with Docker, Docker images, volumes and port mapping; docker-compose orchestration, networks, single-host deployments, web service components such as reverse proxies, caches and databases; and production-ready practices including image optimization, multi-stage builds, deployment pipelines and other orchestration solutions. Students learn to run, containerize, share, compose, scale and automatically deploy containerized applications.",
-    //     ),
-    //     modules: vec![
-    //         Module {
-    //             course_code: String::from("TKT21036"),
-    //             description: String::from(
-    //                 "Introductory DevOps with Docker sequence covering containerization with Docker, Docker images, volumes and port mapping; docker-compose orchestration, networks, single-host deployments, web service components such as reverse proxies, caches and databases; and production-ready practices including image optimization, multi-stage builds, deployment pipelines and other orchestration solutions. Students learn to run, containerize, share, compose, scale and automatically deploy containerized applications.",
-    //             ),
-    //         },
-    //         Module {
-    //             course_code: String::from("TKT21037"),
-    //             description: String::from(
-    //                 "Introductory container orchestration with docker-compose for single-host deployments, including docker networks and the parts of web services such as reverse proxies, caches and databases. Students learn to run interacting containerized applications via HTTP and volumes, manually scale applications and use third-party services such as databases inside containers.",
-    //             ),
-    //         },
-    //         Module {
-    //             course_code: String::from("TKT21038"),
-    //             description: String::from(
-    //                 "Final part of DevOps with Docker, focusing on production-ready practices such as container optimization and deployment pipelines. Students learn to critically examine images, reduce container size and image build time using methods such as multi-stage builds, automatically deploy containers and become familiar with other container orchestration solutions.",
-    //             ),
-    //         },
-    //     ],
-    // };
-
     token.authorized_ok(web::Json(llm_descriptions))
 }
 

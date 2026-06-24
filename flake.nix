@@ -185,6 +185,7 @@
           pkgs.fish
           pkgs.gcc
           pkgs.git
+          pkgs.git-lfs
           pkgs.gnumake
           pkgs.gnugrep
           pkgs.gnused

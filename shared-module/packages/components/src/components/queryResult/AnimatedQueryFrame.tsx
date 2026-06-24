@@ -1,7 +1,7 @@
 "use client"
 
 import { cx } from "@emotion/css"
-import { motion } from "motion/react"
+import { motion, useReducedMotion } from "motion/react"
 import React, { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -126,6 +126,7 @@ export function AnimatedQueryFrame<E>({
   renderStaleError,
 }: AnimatedQueryFrameProps<E>) {
   const { t } = useTranslation()
+  const shouldReduceMotion = !!useReducedMotion()
   const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
@@ -170,7 +171,7 @@ export function AnimatedQueryFrame<E>({
           {showDelayedSpinner ? (
             <motion.div
               className={initialLoadingCenterCss}
-              initial={{ opacity: 0 }}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
@@ -203,12 +204,16 @@ export function AnimatedQueryFrame<E>({
       ) : null}
       {refreshing ? <div className={cx(topProgressCss, progressTrackCss)} aria-hidden /> : null}
       <motion.div
-        initial={{ opacity: 0, y: 4 }}
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.18, ease: contentEntranceEase }}
       >
         {staleArgs ? (
-          <motion.div className={bannerCss} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          <motion.div
+            className={bannerCss}
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
             {renderStaleError ? renderStaleError(staleArgs) : <DefaultStaleError {...staleArgs} />}
           </motion.div>
         ) : null}

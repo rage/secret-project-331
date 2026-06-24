@@ -25,6 +25,7 @@
   "additional-module": "Additional module",
   "advanced-settings": "Advanced settings",
   "after-completion-has-been-registered-you-can-view-completed-credits-at-url": "After your completion has been registered, you can view your completion in the My StudyInfo service: <4>{{url}}</4> Note! There is some delay on registering a completion and the credits being visible in My StudyInfo",
+  "ai-description-form-title": "Suggested description",
   "ai-policy-help": "Choose the AI policy shown to students in the AI usage notice. If left as “Not set”, the default notice is shown.",
   "ai-policy-label": "AI policy",
   "ai-policy-option-full-use": "Full use: AI used freely, the student directs it, disclosure required",

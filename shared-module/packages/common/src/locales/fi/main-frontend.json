@@ -25,6 +25,7 @@
   "additional-module": "Ylimääräinen moduuli",
   "advanced-settings": "Edistyneet asetukset",
   "after-completion-has-been-registered-you-can-view-completed-credits-at-url": "Näet opintopisteesi suorituksen rekisteröimisen jälkeen Oma Opintopolku -palvelusta: <4>{{url}}</4> Huom! Suorituksen rekisteröimisen jälkeen kestää jonkin aikaa ennen kuin suoritus tulee näkyville Koskeen.",
+  "ai-description-form-title": "Ehdotettu kuvaus",
   "ai-policy-help": "Valitse opiskelijoille näytettävä tekoälyn käyttöpolitiikka. Jos arvona on ”Ei asetettu”, näytetään oletusilmoitus.",
   "ai-policy-label": "Tekoälyn käyttöpolitiikka",
   "ai-policy-option-full-use": "Vapaa käyttö: tekoälyä saa käyttää vapaasti, opiskelija ohjaa, käytöstä kerrottava",

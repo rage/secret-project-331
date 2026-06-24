@@ -82,6 +82,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
       closed_additional_message: course.closed_additional_message ?? null,
       closed_course_successor_id: course.closed_course_successor_id ?? null,
       set_course_closed_at: Boolean(course.closed_at),
+      ai_policy: course.ai_policy,
     },
   })
 
@@ -115,6 +116,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
             : null,
           closed_additional_message: data.closed_additional_message || null,
           closed_course_successor_id: data.closed_course_successor_id || null,
+          ai_policy: data.ai_policy,
         },
         path: {
           course_id: course.id,

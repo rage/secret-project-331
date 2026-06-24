@@ -6,7 +6,7 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
-use headless_lms_chatbot::course_description_summary::{Module, SisuDescriptionResponse};
+use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
 use headless_lms_models::{
@@ -15,7 +15,7 @@ use headless_lms_models::{
 };
 use headless_lms_models::{partner_block::PartnersBlock, privacy_link::PrivacyLink};
 use headless_lms_utils::ip_to_country::IpToCountryMapper;
-use headless_lms_utils::services::sisu::{SisuCourseInfoElement, SisuDescriptions};
+
 use isbot::Bots;
 use models::{
     chapters::ChapterWithStatus,

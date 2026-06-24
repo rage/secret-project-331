@@ -528,38 +528,6 @@ class MaterialMigrator
     paragraph_block
   end
 
-  def handle_infobox(line, json_block)
-    json_block[:name] = 'moocfi/infobox'
-    attrs = {}
-    attrs[:noPadding] = false
-    background_color = extract_quoted_attribute(line, 'background')
-    attrs[:backgroundColor] = background_color if background_color
-    json_block[:attributes] = attrs
-    name = extract_quoted_attribute(line, 'name')
-    if name && !name.empty?
-      json_block[:innerBlocks] << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'core/heading',
-        'attributes': {
-          'content': "<strong>#{name}</strong>",
-          'level': 2,
-        },
-        'innerBlocks': [],
-      }
-    end
-    json_block[:innerBlocks] << {
-      'clientId': SecureRandom.uuid,
-      'isValid': true,
-      'name': 'core/paragraph',
-      'attributes': {
-        'content': '',
-        'dropCap': false,
-      },
-      'innerBlocks': [],
-    }
-  end
-
   def handle_text_box(line, json_block)
     json_block[:name] = 'moocfi/aside'
     json_block[:attributes] = { backgroundColor: '#ebf5fb', separatorColor: '#007acc' }
@@ -922,38 +890,6 @@ class MaterialMigrator
     end
 
     url
-  end
-
-  def upload_extra_files
-    extra_files = Dir.glob("#{@directory}**/*.{png,jpg,jpeg,svg,pdf}")
-    puts "found #{extra_files.count} extra files (png, jpg, jpeg, svg and pdf)"
-
-    course_id = ENV['COURSE_ID']
-    cookies = { 'session' => ENV['UPLOAD_AUTH_COOKIE'] }
-
-    uploaded_urls = {}
-
-    extra_files.each do |file|
-      begin
-        payload = { file: File.new(file, 'rb') }
-        response = RestClient::Request.execute(
-          method: :post,
-          url: "#{ENV['BASE_URL']}/api/v0/cms/courses/#{course_id}/upload",
-          payload: payload,
-          cookies: cookies,
-          verify_ssl: OpenSSL::SSL::VERIFY_NONE
-        )
-        url = JSON.parse(response.body)["url"] rescue nil
-        puts "Uploaded #{file}: #{url || response.code}"
-        uploaded_urls[file] = url if url
-      rescue RestClient::ExceptionWithResponse => e
-        puts "Failed to upload #{file}: #{e.response}"
-      rescue StandardError => e
-        puts "An error occurred while uploading #{file}: #{e.message}"
-      end
-    end
-
-    uploaded_urls
   end
 
   def build_image_block(src_path, alt_text, width)

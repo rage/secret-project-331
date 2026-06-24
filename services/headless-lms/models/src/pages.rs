@@ -4037,33 +4037,6 @@ WHERE id = ANY($1)
     Ok(pages)
 }
 
-pub async fn next_order_number_for_page(
-    conn: &mut PgConnection,
-    course_id: Uuid,
-    chapter_id: Option<Uuid>,
-) -> ModelResult<i32> {
-    match chapter_id {
-        Some(chapter_id) => {
-            let order_number: Option<i32> = sqlx::query_scalar!(
-                "SELECT MAX(order_number) FROM pages WHERE chapter_id = $1 AND deleted_at IS NULL",
-                chapter_id
-            )
-            .fetch_one(&mut *conn)
-            .await?;
-            Ok(order_number.map(|value| value + 1).unwrap_or(0))
-        }
-        None => {
-            let order_number: Option<i32> = sqlx::query_scalar!(
-                "SELECT MAX(order_number) FROM pages WHERE course_id = $1 AND chapter_id IS NULL AND deleted_at IS NULL",
-                course_id
-            )
-            .fetch_one(&mut *conn)
-            .await?;
-            Ok(order_number.map(|value| value + 1).unwrap_or(0))
-        }
-    }
-}
-
 #[cfg(test)]
 mod test {
     use chrono::TimeZone;

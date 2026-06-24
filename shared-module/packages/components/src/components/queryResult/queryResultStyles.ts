@@ -14,6 +14,17 @@ const progressBeam = keyframes`
 
 export const wrapperCss = css`
   position: relative;
+`
+
+/**
+ * Establishes a stacking context so the frame's absolutely-positioned overlays
+ * (loading skeleton/spinner, refetch progress beam) layer correctly. Applied
+ * **only** while loading or refreshing — in the steady success state it would trap
+ * descendants that rely on reaching the root stacking context (e.g. a
+ * `position: fixed` editor sidebar or a portal popover that must paint above the
+ * page footer), so the steady state is left un-isolated.
+ */
+export const wrapperIsolationCss = css`
   isolation: isolate;
 `
 

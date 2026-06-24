@@ -33,6 +33,7 @@ import {
   topProgressTrackDarkCss,
   topProgressTrackLightCss,
   wrapperCss,
+  wrapperIsolationCss,
 } from "./queryResultStyles"
 
 export type FallbackArgs<E> = {
@@ -140,7 +141,7 @@ export function AnimatedQueryFrame<E>({
     const loadingLabel = t("queryResult.loading")
     return (
       <section
-        className={wrapperCss}
+        className={cx(wrapperCss, wrapperIsolationCss)}
         role="status"
         aria-live="polite"
         aria-busy="true"
@@ -188,7 +189,10 @@ export function AnimatedQueryFrame<E>({
   const staleArgs = staleError && error !== undefined ? { error, retry } : undefined
 
   return (
-    <section className={wrapperCss} aria-busy={refreshing ? "true" : undefined}>
+    <section
+      className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
+      aria-busy={refreshing ? "true" : undefined}
+    >
       {refreshing ? (
         <div
           role="status"

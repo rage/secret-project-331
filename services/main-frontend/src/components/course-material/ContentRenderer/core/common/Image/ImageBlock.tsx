@@ -3,10 +3,10 @@
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useRef, useState } from "react"
-import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
 import { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
 import { useImageInteractivity } from "./ImageInteractivityContext"
 
@@ -44,7 +44,6 @@ const stripTags = (html: string): string => html.replace(/<[^>]*>/g, "").trim()
 const ImageBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ImageAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { t } = useTranslation()
   const { disableInteractivity } = useImageInteractivity()
   const imageRef = useRef<HTMLImageElement>(null)
   // SVGs without intrinsic dimensions (only a viewBox, or width/height="100%") report naturalWidth
@@ -74,15 +73,10 @@ const ImageBlock: React.FC<
   // Gutenberg links the image when a destination is set (custom URL, the media file, etc.). The
   // image must then be wrapped in an anchor; otherwise the `href` is silently dropped.
   const hasLink = Boolean(href) && linkDestination !== "none"
-  const linkRel =
-    linkTarget && linkTarget.includes("_blank")
-      ? // eslint-disable-next-line i18next/no-literal-string
-        [rel, "noreferrer noopener"].filter(Boolean).join(" ")
-      : rel
+  const linkRel = relForLinkTarget(rel, linkTarget)
   // Fallback accessible name for a linked image with no alt text (used by the link below).
   const captionText = caption ? stripTags(caption) : undefined
   const linkFallbackName = captionText || title || href
-  const opensInNewTab = Boolean(linkTarget?.includes("_blank"))
 
   const focalPointPos =
     focalPoint && typeof focalPoint.x === "number" && typeof focalPoint.y === "number"
@@ -159,9 +153,7 @@ const ImageBlock: React.FC<
       <a href={href} target={linkTarget} rel={linkRel}>
         {image}
         {!alt && <span className="screen-reader-only">{linkFallbackName}</span>}
-        {opensInNewTab && (
-          <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
-        )}
+        <OpensInNewTabNotice linkTarget={linkTarget} />
       </a>
     )
   }

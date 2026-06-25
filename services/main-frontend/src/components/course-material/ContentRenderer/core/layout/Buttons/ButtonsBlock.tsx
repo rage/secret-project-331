@@ -1,9 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
 import { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
 import Button from "@/shared-module/common/components/Button"
@@ -26,8 +26,6 @@ interface ExtraAttributes {
 const ButtonsBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ButtonsAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { t } = useTranslation()
-
   // Fall back to top-level attributes for blocks saved before settings moved into `layout`.
   const layout = data.attributes?.layout as
     | { orientation?: string; justifyContent?: string; verticalAlignment?: string }
@@ -98,17 +96,10 @@ const ButtonsBlock: React.FC<
       className,
     } = button.attributes as ButtonAttributes & { className?: string }
 
-    const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
-      linkTarget && linkTarget.includes("_blank")
-        ? rel && !rel.includes("noopener")
-          ? rel.split(" ").join(" ").concat(" noopener")
-          : "noopener"
-        : rel
-
     return (
       <a
         key={button.clientId}
-        rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
+        rel={relForLinkTarget(rel, linkTarget)}
         href={url}
         target={linkTarget}
       >
@@ -128,9 +119,7 @@ const ButtonsBlock: React.FC<
           size="medium"
           dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
         />
-        {linkTarget && linkTarget.includes("_blank") && (
-          <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
-        )}
+        <OpensInNewTabNotice linkTarget={linkTarget} />
       </a>
     )
   })

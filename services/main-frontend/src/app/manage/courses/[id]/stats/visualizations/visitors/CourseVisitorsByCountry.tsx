@@ -10,6 +10,7 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 
+import { countryList } from "@/components/course-material/ContentRenderer/util/Countries"
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -17,6 +18,12 @@ import { QueryResult } from "@/shared-module/components"
 
 export interface CourseVisitorsByCountryProps {
   courseId: string
+}
+
+// Chart data codes are lowercase (e.g. "fi"); countryList values are uppercase (e.g. "FI").
+const countryCodeToName = (code: string): string => {
+  const match = countryList.find((c) => c.value.toLowerCase() === code.toLowerCase())
+  return match ? match.label : code
 }
 
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
@@ -63,7 +70,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     if (!aggregatedData) {
       return []
     }
-    return Object.keys(aggregatedData)
+    return Object.keys(aggregatedData).map(countryCodeToName)
   }, [aggregatedData])
   const values = useMemo(() => {
     if (!aggregatedData) {

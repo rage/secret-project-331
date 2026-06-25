@@ -476,7 +476,6 @@ impl error::ResponseError for ControllerError {
             errors,
             metadata: metadata_json,
         };
-        dbg!(&error_response);
 
         HttpResponseBuilder::new(status)
             .append_header(ContentType::json())

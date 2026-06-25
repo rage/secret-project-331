@@ -1578,7 +1578,6 @@ export const getCourseMaterialSisuCourseLlmDescriptionsQueryKey = (
  * GET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
  *
  * Returns LLM generated descriptions for a course based on information from Sisu API.
- * *
  */
 export const getCourseMaterialSisuCourseLlmDescriptionsOptions = (
   options: Options<GetCourseMaterialSisuCourseLlmDescriptionsData>,

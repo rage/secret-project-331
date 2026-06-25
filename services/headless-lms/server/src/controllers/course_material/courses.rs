@@ -1594,10 +1594,13 @@ async fn get_sisu_course_llm_descriptions(
     course_id: web::Path<Uuid>,
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
 ) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
     let is_mock_sisu = app_conf.test_sisu;
     let base_url = &app_conf.base_url;
     let mut conn = pool.acquire().await?;
+    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+
     let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
     let course_lang = models::courses::get_course(&mut conn, *course_id)
         .await?
@@ -1609,7 +1612,8 @@ async fn get_sisu_course_llm_descriptions(
         .collect::<Vec<String>>();
     let course_ids = SisuClient::get_course_ids(is_mock_sisu, base_url, uh_course_codes).await?;
     let course_info = SisuClient::get_course_info(is_mock_sisu, base_url, course_ids).await?;
-    let token = skip_authorize();
+
+    //let token: domain::authorization::AuthorizationToken = skip_authorize();
 
     let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
     let message_suggest_llm = models::application_task_default_language_models::get_for_task(

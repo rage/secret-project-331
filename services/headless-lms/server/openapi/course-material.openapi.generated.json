@@ -1733,7 +1733,7 @@
     "/api/v0/course-material/courses/{course_id}/sisu-course-llm-descriptions": {
       "get": {
         "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM\n\nReturns LLM generated descriptions for a course based on information from Sisu API.\n*",
+        "summary": "\nGET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM\n\nReturns LLM generated descriptions for a course based on information from Sisu API.",
         "operationId": "getCourseMaterialSisuCourseLlmDescriptions",
         "parameters": [
           {

@@ -3,7 +3,7 @@
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { sortBy } from "lodash"
-import React, { ReactPortal, useLayoutEffect, useMemo, useState } from "react"
+import React, { ReactPortal, useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
@@ -124,8 +124,32 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   const { t } = useTranslation()
   const [active] = useState<string>()
   const [readyForPortal, setReadyForPortal] = useState(false)
+  // Bumped whenever citation markers are added/removed from the DOM so the
+  // portal scan re-runs. Needed because markers can mount lazily, e.g. when an
+  // expandable content block is opened after the initial scan.
+  const [scanVersion, setScanVersion] = useState(0)
   useLayoutEffect(() => {
     setReadyForPortal(true)
+  }, [])
+
+  // Re-scan when citation markers appear or disappear in the page content.
+  // We only react to a change in the number of markers, not to every mutation,
+  // so the DOM changes caused by rendering the portals don't re-trigger us.
+  useEffect(() => {
+    const container = document.getElementById("content")
+    if (!container) {
+      return
+    }
+    let lastCount = container.querySelectorAll("[data-citation-id]").length
+    const observer = new MutationObserver(() => {
+      const count = container.querySelectorAll("[data-citation-id]").length
+      if (count !== lastCount) {
+        lastCount = count
+        setScanVersion((prev) => prev + 1)
+      }
+    })
+    observer.observe(container, { childList: true, subtree: true })
+    return () => observer.disconnect()
   }, [])
 
   let [portals, citeOrder]: [ReactPortal[] | null, string[] | null] = useMemo(() => {
@@ -168,7 +192,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       })
       .filter((o) => !!o)
     return [portals, citeOrder]
-  }, [data, readyForPortal])
+  }, [data, readyForPortal, scanVersion])
 
   let sortedReferenceList = useMemo(() => {
     if (!citeOrder) {

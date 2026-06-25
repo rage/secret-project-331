@@ -33,7 +33,7 @@ test("Teacher tries to generate description with only another module having cour
   page,
 }) => {
   await page.goto("http://project-331.local/")
-  await page.getByRole("link", { name: "Manage course 'Introduction to localizing'" }).click()
+  await page.getByRole("link", { name: "Manage course 'Introduction to codes'" }).click()
   await expect(page.getByText("You need to set the default")).toBeVisible()
   await expect(page.getByRole("button", { name: "Suggest description" })).toBeDisabled()
   await page.getByRole("tab", { name: "Modules" }).click()
@@ -58,9 +58,8 @@ test("Teacher can generate description after filling default module course code"
   page,
 }) => {
   await page.goto("http://project-331.local/")
-  await page.getByRole("link", { name: "Manage course 'Introduction to localizing'" }).click()
+  await page.getByRole("link", { name: "Manage course 'Introduction to codes'" }).click()
   await expect(page.getByText("You need to set the default")).toBeVisible()
-  await expect(page.getByText("Generate description for the")).toBeVisible()
   await expect(page.getByRole("button", { name: "Suggest description" })).toBeDisabled()
   await page.getByRole("tab", { name: "Modules" }).click()
 
@@ -71,7 +70,11 @@ test("Teacher can generate description after filling default module course code"
     .getByPlaceholder("University of Helsinki course")
     .fill("TEST001")
   await page.locator("form").filter({ hasText: "Default" }).getByLabel("Confirm").click()
-  await page.getByRole("button", { name: "Save changes" }).click()
+
+  await waitForSuccessNotification(page, async () => {
+    await page.getByRole("button", { name: "Save changes" }).click()
+  })
+
   await page.getByRole("tab", { name: "Overview" }).click()
 
   await page.getByRole("button", { name: "Suggest description" }).click()

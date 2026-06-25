@@ -205,7 +205,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         className={css`
           color: ${baseTheme.colors.gray[500]};
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
           margin: 2rem 0;
           text-align: center;
           gap: 0.5rem;

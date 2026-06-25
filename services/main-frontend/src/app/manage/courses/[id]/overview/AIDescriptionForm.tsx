@@ -16,7 +16,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { formatDateForDateTimeLocalInputs } from "@/shared-module/common/utils/time"
-import { TextArea } from "@/shared-module/components"
+import { QueryResult, TextArea } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const FieldContainer = styled.div`
@@ -60,7 +60,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     if (data) {
       setValue("description", data.course_description)
     }
-  }, [data])
+  })
 
   const methods = useForm<EditCourseFormValues>({
     defaultValues: {
@@ -86,7 +86,31 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     },
   })
 
-  const { control, register, handleSubmit, setValue } = methods
+  const { control, register, handleSubmit, setValue, reset } = methods
+
+  useEffect(() => {
+    reset({
+      name: course.name,
+      description: course.description,
+      is_draft: course.is_draft,
+      is_test_mode: course.is_test_mode,
+      is_unlisted: course.is_unlisted,
+      can_add_chatbot: course.can_add_chatbot,
+      is_joinable_by_code_only: course.is_joinable_by_code_only,
+      ask_marketing_consent: course.ask_marketing_consent,
+      chapter_locking_enabled: course.chapter_locking_enabled,
+      flagged_answers_threshold: course.flagged_answers_threshold ?? 3,
+      flagged_answers_skip_manual_review_and_allow_retry:
+        course.flagged_answers_skip_manual_review_and_allow_retry,
+      closed_at: course.closed_at
+        ? (formatDateForDateTimeLocalInputs(course.closed_at) ?? null)
+        : null,
+      closed_additional_message: course.closed_additional_message ?? null,
+      closed_course_successor_id: course.closed_course_successor_id ?? null,
+      set_course_closed_at: Boolean(course.closed_at),
+      ai_policy: course.ai_policy,
+    })
+  }, [course, reset])
 
   const updateCourseMutation = useToastMutation(
     async (data: EditCourseFormValues) => {

@@ -18,6 +18,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"
@@ -412,8 +413,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
             name,
             order_number: m.order_number,
             ects_credits,
-            uh_course_code:
-              uh_course_code === null ? null : uh_course_code.trim() === "" ? null : uh_course_code,
+            uh_course_code: nullIfEmptyString(uh_course_code),
             automatic_completion,
             automatic_completion_number_of_points_treshold,
             automatic_completion_number_of_exercises_attempted_treshold,
@@ -503,8 +503,7 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
           firstChapter: 1,
           lastChapter: 1,
           isNew: true,
-          uh_course_code:
-            uh_course_code === null ? null : uh_course_code.trim() === "" ? null : uh_course_code,
+          uh_course_code: nullIfEmptyString(uh_course_code),
           ects_credits,
           automatic_completion,
           automatic_completion_number_of_points_treshold,

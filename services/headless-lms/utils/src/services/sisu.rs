@@ -199,25 +199,22 @@ impl SisuClient {
                     course_ids.push(ids);
                 }
             } else if response.status() == 404 {
-                return Err(UtilError::new(
-                    UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
-                    "Course ids not found".to_string(),
-                    None,
+                return Err(util_err!(
+                    SisuClientError(SisuErrorVariant::GenericSisuError),
+                    "Course ids not found".to_string()
                 ));
             } else {
-                return Err(UtilError::new(
-                    UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
-                    "Something went wrong when fetching course ids".to_string(),
-                    None,
+                return Err(util_err!(
+                    SisuClientError(SisuErrorVariant::GenericSisuError),
+                    "Something went wrong when fetching course ids".to_string()
                 ));
             }
         }
 
         if !invalid_codes.is_empty() {
-            return Err(UtilError::new(
-                UtilErrorType::SisuClientError(SisuErrorVariant::InvalidCourseCode),
-                format!("No data found with codes: {invalid_codes:?}"),
-                None,
+            return Err(util_err!(
+                SisuClientError(SisuErrorVariant::InvalidCourseCode),
+                format!("No data found with codes: {invalid_codes:?}")
             ));
         }
         Ok(course_ids)
@@ -255,23 +252,20 @@ impl SisuClient {
                         serde_json::from_str(&response.text().await.unwrap_or("{}".to_string()))?;
                     data_vec.push(json);
                 } else if response.status() == 404 {
-                    return Err(UtilError::new(
-                        UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
-                        "Course info not found".to_string(),
-                        None,
+                    return Err(util_err!(
+                        SisuClientError(SisuErrorVariant::GenericSisuError),
+                        "Course info not found".to_string()
                     ));
                 } else {
-                    return Err(UtilError::new(
-                        UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
-                        "Something went wrong when fetching course info".to_string(),
-                        None,
+                    return Err(util_err!(
+                        SisuClientError(SisuErrorVariant::GenericSisuError),
+                        "Something went wrong when fetching course info".to_string()
                     ));
                 }
             } else {
-                return Err(UtilError::new(
-                    UtilErrorType::SisuClientError(SisuErrorVariant::GenericSisuError),
-                    "No courses found with course code".to_string(),
-                    None,
+                return Err(util_err!(
+                    SisuClientError(SisuErrorVariant::GenericSisuError),
+                    "No courses found with course code".to_string()
                 ));
             }
         }

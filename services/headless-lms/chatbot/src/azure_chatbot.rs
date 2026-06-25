@@ -44,6 +44,10 @@ use crate::prelude::*;
 
 pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
+/// Appended to the system prompt when course-material search is enabled, to ground answers
+/// in retrieved course material.
+const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nAlways call the azure_ai_search tool to find relevant course material before answering any questions. Base your answer on the results and cite them. Skip the search only for greetings or thanks.";
+
 enum ParsedResponseLine {
     Event(String),
     Data(ResponseOutput),
@@ -395,12 +399,17 @@ impl LLMRequest {
         // put new user message into the messages list
         api_chat_messages.push(new_message.clone().try_into()?);
 
+        let mut system_prompt = configuration.prompt.clone();
+        if configuration.use_azure_search {
+            system_prompt.push_str(SEARCH_GROUNDING_INSTRUCTION);
+        }
+
         api_chat_messages.insert(
             0,
             APIInputMessage {
                 message_type: InputItem::Message {
                     role: MessageRole::System,
-                    content: MessageContent::Text(configuration.prompt.clone()),
+                    content: MessageContent::Text(system_prompt),
                 },
             },
         );

@@ -60,10 +60,6 @@ impl ParsedResponseLine {
             Ok(Some(ParsedResponseLine::Event(event_type)))
         } else if input.starts_with("data: ") {
             let data = input.trim_start_matches("data: ").to_string();
-            // TEMP debug: capture raw azure_ai_search payloads to model the structs. Remove after fix.
-            if data.contains("azure_ai_search") {
-                tracing::warn!(raw_line = %data, "TEMP azure_ai_search raw payload");
-            }
             let response_output = match serde_json::from_str::<ResponseOutput>(&data) {
                 Ok(response_output) => response_output,
                 Err(e) => {
@@ -124,7 +120,26 @@ pub enum ContentFilterSource {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Response {
     pub id: String,
-    pub error: Option<String>,
+    pub error: Option<ResponseError>,
+}
+
+/// Error object returned by the LLM API on a failed response. Fields are optional so any
+/// error shape deserializes rather than crashing the stream parser.
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ResponseError {
+    pub code: Option<String>,
+    pub message: Option<String>,
+}
+
+impl std::fmt::Display for ResponseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} (code: {})",
+            self.message.as_deref().unwrap_or("unknown error"),
+            self.code.as_deref().unwrap_or("none")
+        )
+    }
 }
 
 /// Incomplete response received from LLM API
@@ -595,7 +610,6 @@ pub async fn make_request_and_stream<'a>(
     let mut response_id = "".to_string();
     let mut output_item_incoming = false;
     let mut response_created_incoming = false;
-    let mut error_incoming = false;
 
     loop {
         let line_res = pinned_lines.as_mut().peek().await;
@@ -638,15 +652,13 @@ pub async fn make_request_and_stream<'a>(
                                     ResponseStreamType::TextResponse(pinned_lines),
                                 ));
                             }
-                            "response.error" => {
-                                error_incoming = true;
-                            }
                             _ => {}
                         }
                     }
                     Some(ParsedResponseLine::Data(response_output)) => {
-                        if error_incoming
-                            && let Some(response) = &response_output.response
+                        // Surface any error the API reports (e.g. response.error, response.failed)
+                        // instead of continuing. Normal responses carry no error object.
+                        if let Some(response) = &response_output.response
                             && let Some(error) = &response.error
                         {
                             Err(chatbot_err!(
@@ -1091,5 +1103,47 @@ pub async fn send_chat_request_and_parse_stream(
                 .map(APIInputMessage::try_from)
                 .collect::<ChatbotResult<Vec<APIInputMessage>>>()?,
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A `response.failed` line carries `error` as an object, not a string. Deserializing it
+    /// must succeed so the error can be surfaced instead of crashing the stream parser.
+    #[test]
+    fn response_failed_with_error_object_deserializes() {
+        let line = r#"{"type":"response.failed","response":{"id":"resp_abc","status":"failed","error":{"code":"tool_user_error","message":"Could not complete vectorization action."}},"sequence_number":8}"#;
+
+        let parsed: ResponseOutput = serde_json::from_str(line).unwrap();
+        let error = parsed
+            .response
+            .expect("response object")
+            .error
+            .expect("error object");
+
+        assert_eq!(error.code.as_deref(), Some("tool_user_error"));
+        assert!(error.message.unwrap().contains("vectorization"));
+    }
+
+    /// Azure returns azure_ai_search call/output items with `arguments`/`output` as strings.
+    #[test]
+    fn azure_ai_search_output_items_deserialize() {
+        let call = r#"{"type":"azure_ai_search_call","id":"fc_1","response_id":"resp_abc","call_id":"call_1","arguments":"{\"query\":\"trademarks\"}","status":"completed"}"#;
+        match serde_json::from_str::<OutputItem>(call).unwrap() {
+            OutputItem::AzureAiSearchCall { arguments, .. } => {
+                assert!(arguments.contains("trademarks"))
+            }
+            other => panic!("expected AzureAiSearchCall, got {other:?}"),
+        }
+
+        let output = r#"{"type":"azure_ai_search_call_output","id":"fco_1","response_id":"resp_abc","call_id":"call_1","output":"remote tool call failed","status":"in_progress"}"#;
+        match serde_json::from_str::<OutputItem>(output).unwrap() {
+            OutputItem::AzureAiSearchCallOutput { output, .. } => {
+                assert_eq!(output, "remote tool call failed")
+            }
+            other => panic!("expected AzureAiSearchCallOutput, got {other:?}"),
+        }
     }
 }

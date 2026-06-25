@@ -154,7 +154,6 @@ const SelectCourseInstanceForm: React.FC<
                 label={courseInstance.name || t("default-course-instance-name")}
                 onChange={(_event) => setSelectedInstanceId(courseInstance.id)}
                 checked={selectedInstanceId === courseInstance.id}
-                // eslint-disable-next-line i18next/no-literal-string
                 name="select-course-instance"
               />
               <span
@@ -232,6 +231,7 @@ const SelectCourseInstanceForm: React.FC<
           <div>
             <SelectMarketingConsentForm
               courseId={selectedLangCourseId}
+              dialogLanguage={dialogLanguage}
               onEmailSubscriptionConsentChange={setIsEmailSubscriptionConsentChecked}
               onMarketingConsentChange={setIsMarketingConsentChecked}
             />

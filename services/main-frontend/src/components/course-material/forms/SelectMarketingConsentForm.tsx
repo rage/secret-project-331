@@ -1,8 +1,8 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { t } from "i18next"
 import React, { useContext, useEffect, useMemo, useState } from "react"
+import { useTranslation } from "react-i18next"
 
 import {
   getCourseMaterialCustomPrivacyPolicyCheckboxTexts,
@@ -16,15 +16,18 @@ import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCour
 
 interface SelectMarketingConsentFormProps {
   courseId: string
+  dialogLanguage: string
   onEmailSubscriptionConsentChange: (isChecked: boolean) => void
   onMarketingConsentChange: (isChecked: boolean) => void
 }
 
 const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
   courseId,
+  dialogLanguage,
   onEmailSubscriptionConsentChange,
   onMarketingConsentChange,
 }) => {
+  const { t } = useTranslation("main-frontend", { lng: dialogLanguage })
   const [marketingConsent, setMarketingConsent] = useState(false)
   const [emailSubscriptionConsent, setEmailSubscriptionConsent] = useState(false)
   const loginStateContext = useContext(LoginStateContext)
@@ -65,12 +68,21 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
 
   useEffect(() => {
     if (initialMarketingConsentQuery.isSuccess) {
-      setMarketingConsent(initialMarketingConsentQuery.data?.consent ?? false)
+      const marketing = initialMarketingConsentQuery.data?.consent ?? false
       const emailSub =
         initialMarketingConsentQuery.data?.email_subscription_in_mailchimp === "subscribed"
+      setMarketingConsent(marketing)
       setEmailSubscriptionConsent(emailSub)
+      // Sync the parent with the saved values so it initializes correctly on (re)open.
+      onMarketingConsentChange(marketing)
+      onEmailSubscriptionConsentChange(emailSub)
     }
-  }, [initialMarketingConsentQuery.data, initialMarketingConsentQuery.isSuccess])
+  }, [
+    initialMarketingConsentQuery.data,
+    initialMarketingConsentQuery.isSuccess,
+    onMarketingConsentChange,
+    onEmailSubscriptionConsentChange,
+  ])
 
   const marketingConsentCheckboxText = useMemo(() => {
     if (customPrivacyPolicyCheckboxTextsQuery.isSuccess) {
@@ -82,7 +94,11 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
       }
     }
     return t("marketing-consent-checkbox-text")
-  }, [customPrivacyPolicyCheckboxTextsQuery.data, customPrivacyPolicyCheckboxTextsQuery.isSuccess])
+  }, [
+    customPrivacyPolicyCheckboxTextsQuery.data,
+    customPrivacyPolicyCheckboxTextsQuery.isSuccess,
+    t,
+  ])
 
   const marketingConsentPrivacyPolicyCheckboxText = useMemo(() => {
     if (customPrivacyPolicyCheckboxTextsQuery.isSuccess) {
@@ -94,7 +110,11 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
       }
     }
     return t("marketing-consent-privacy-policy-checkbox-text")
-  }, [customPrivacyPolicyCheckboxTextsQuery.data, customPrivacyPolicyCheckboxTextsQuery.isSuccess])
+  }, [
+    customPrivacyPolicyCheckboxTextsQuery.data,
+    customPrivacyPolicyCheckboxTextsQuery.isSuccess,
+    t,
+  ])
 
   if (initialMarketingConsentQuery.isLoading || customPrivacyPolicyCheckboxTextsQuery.isLoading) {
     return <Spinner variant="small" />

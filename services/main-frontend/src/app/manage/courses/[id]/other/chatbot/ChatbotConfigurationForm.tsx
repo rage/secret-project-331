@@ -330,7 +330,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                               : t("max-token-response")
                           }
                           error={errors.max_output_tokens?.message}
-                          {...register("max_output_tokens", { required: t("required-field") })}
+                          {...register("max_output_tokens", {
+                            required: t("required-field"),
+                            min: {
+                              value: selectedModelThinking ? 200 : 150,
+                              message: t("error-field-value-at-least", {
+                                field: selectedModelThinking
+                                  ? t("max-completion-tokens")
+                                  : t("max-token-response"),
+                                lower: selectedModelThinking ? "200" : "150",
+                              }),
+                            },
+                          })}
                         />
                       </div>
                       <div className={itemCss}>

@@ -1,0 +1,2 @@
+ALTER TABLE chatbot_configurations
+DROP CONSTRAINT chatbot_configurations_max_output_tokens_min;

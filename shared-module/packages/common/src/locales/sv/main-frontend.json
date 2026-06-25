@@ -473,6 +473,7 @@
   "error-creating-course": "Fel vid skapande av kurs",
   "error-default-chatbot-in-block": "Kan inte använda standardchatboten inom kursmaterialet.",
   "error-fetching-service-info": "Fel vid hämtning av tjänsteinformation",
+  "error-field-value-at-least": "{{field}} bör vara minst {{lower}}.",
   "error-field-value-between": "{{field}} bör vara ett värde mellan {{lower}} och {{upper}}.",
   "error-hide-details": "Dölj detaljer",
   "error-issue": "Problem: {{issue}}",

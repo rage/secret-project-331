@@ -148,6 +148,37 @@ impl Default for NewChatbotConf {
     }
 }
 
+/// Minimum `max_output_tokens` allowed for configurations without reasoning.
+const MIN_MAX_OUTPUT_TOKENS: i32 = 150;
+/// Minimum `max_output_tokens` allowed when reasoning is enabled. Reasoning
+/// tokens are spent from the same budget, so a higher floor is needed to leave
+/// room for the actual answer.
+const MIN_MAX_OUTPUT_TOKENS_REASONING: i32 = 200;
+
+/// Rejects configurations whose `max_output_tokens` is too small to produce a
+/// usable response. With reasoning models the reasoning tokens eat into the
+/// same budget, so the minimum is stricter when reasoning is enabled.
+fn validate_max_output_tokens(input: &NewChatbotConf) -> ModelResult<()> {
+    let reasoning_enabled = input.reasoning_effort != ReasoningEffortLevel::None;
+    let minimum = if reasoning_enabled {
+        MIN_MAX_OUTPUT_TOKENS_REASONING
+    } else {
+        MIN_MAX_OUTPUT_TOKENS
+    };
+    if input.max_output_tokens < minimum {
+        return Err(ModelError::new(
+            ModelErrorType::PreconditionFailed,
+            if reasoning_enabled {
+                format!("max_output_tokens must be at least {minimum} when reasoning is enabled.")
+            } else {
+                format!("max_output_tokens must be at least {minimum}.")
+            },
+            None,
+        ));
+    }
+    Ok(())
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
@@ -169,6 +200,7 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
+    validate_max_output_tokens(&input)?;
     let maintain_azure_search_index = input.use_azure_search;
     let res = sqlx::query_as!(
         ChatbotConfiguration,
@@ -235,6 +267,7 @@ pub async fn edit(
     input: NewChatbotConf,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConfiguration> {
+    validate_max_output_tokens(&input)?;
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"

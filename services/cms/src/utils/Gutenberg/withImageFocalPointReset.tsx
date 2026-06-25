@@ -43,7 +43,7 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
 
     // Measure the image's natural size so we can tell whether the chosen dimensions crop it.
     useEffect(() => {
-      if (name !== IMAGE_BLOCK_NAME || !url) {
+      if (name !== IMAGE_BLOCK_NAME || !url || !attributes.scale) {
         return
       }
       let cancelled = false
@@ -57,7 +57,7 @@ const withImageFocalPointReset = createHigherOrderComponent((BlockEdit) => {
       return () => {
         cancelled = true
       }
-    }, [name, url])
+    }, [name, url, attributes.scale])
 
     useEffect(() => {
       if (name !== IMAGE_BLOCK_NAME || !attributes.scale) {

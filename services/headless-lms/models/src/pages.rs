@@ -1510,6 +1510,22 @@ RETURNING id,
     .await?;
 
     // Peer reviews
+    // Fetch the existing custom configs/questions before deletion so that they can be preserved for
+    // exercises whose payload does not explicitly include them. Without this, a page save with an
+    // inconsistent editor state (custom exercise but missing config/questions in the payload) would
+    // permanently drop the custom peer-review settings (#129).
+    let existing_peer_or_self_review_configs_by_exercise_id =
+        crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(&mut tx, page.id)
+            .await?
+            .into_iter()
+            .filter_map(|pr| pr.exercise_id.map(|id| (id, pr)))
+            .collect::<HashMap<Uuid, CmsPeerOrSelfReviewConfig>>();
+    let existing_peer_or_self_review_questions_by_config_id =
+        crate::peer_or_self_review_questions::get_by_page_id(&mut tx, page.id)
+            .await?
+            .into_iter()
+            .into_group_map_by(|prq| prq.peer_or_self_review_config_id);
+
     let existing_peer_or_self_review_config_ids =
         crate::peer_or_self_review_configs::delete_peer_reviews_by_exrcise_ids(
             &mut tx,
@@ -1521,9 +1537,24 @@ RETURNING id,
         .exercises
         .into_iter()
         .filter(|e| !e.use_course_default_peer_or_self_review_config)
-        .flat_map(|e| {
-            e.peer_or_self_review_config
-                .zip(e.peer_or_self_review_questions)
+        .filter_map(|e| {
+            // Prefer the config/questions sent in the payload. If the payload omits the config
+            // (e.g. inconsistent editor state), fall back to the existing custom settings from the
+            // database so they are not lost. An exercise switching to the course default is filtered
+            // out above, so its config is correctly left deleted.
+            match e.peer_or_self_review_config {
+                Some(config) => Some((config, e.peer_or_self_review_questions.unwrap_or_default())),
+                None => existing_peer_or_self_review_configs_by_exercise_id
+                    .get(&e.id)
+                    .cloned()
+                    .map(|config| {
+                        let questions = existing_peer_or_self_review_questions_by_config_id
+                            .get(&config.id)
+                            .cloned()
+                            .unwrap_or_default();
+                        (config, questions)
+                    }),
+            }
         })
         .fold((vec![], vec![]), |(mut a, mut b), (pr, prq)| {
             a.push(pr);

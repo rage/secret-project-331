@@ -155,6 +155,23 @@ const FrontPage = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
+      <OnlyRenderIfPermissions
+        action={{ type: "edit_role", variant: "Admin" }}
+        resource={{ type: "global_permissions" }}
+      >
+        <div>
+          <Link
+            href={"manage/course-descriptions"}
+            className={css`
+              cursor: pointer;
+              color: blue;
+              text-decoration: underline;
+            `}
+          >
+            {t("course-descriptions")}
+          </Link>
+        </div>
+      </OnlyRenderIfPermissions>
     </div>
   )
 }

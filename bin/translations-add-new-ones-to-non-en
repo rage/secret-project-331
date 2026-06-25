@@ -18,17 +18,22 @@ def ensure_program_in_path(program):
 ensure_program_in_path('jq')
 ensure_program_in_path('sponge')
 
-try: 
-    lang = sys.argv[1]
-except IndexError:
-    print("Give language to translate to as an argument (e.g. fi)")
+langs = sys.argv[1:]
+
+if not langs:
+    print("Give the non-English languages where you want to add new translations as arguments (e.g. fi sv) ")
     exit(1)
 
 EN_PATHS = glob.glob(f"{TRANSLATIONS_EN_RELATIVE_PATH}/*.json")
-OTHER_LANGUAGE_FOLDERS = [name for name in glob.glob(f"{FOLDERS_RELATIVE_PATH}/*") if os.path.isdir(name) and not name.endswith('/en') and name.endswith(lang)]
+
+OTHER_LANGUAGE_FOLDERS = [
+    name
+    for name in glob.glob(f"{FOLDERS_RELATIVE_PATH}/*")
+    if os.path.isdir(name) and os.path.basename(name) in langs and os.path.basename(name) != "en"
+]
 
 if OTHER_LANGUAGE_FOLDERS == []:
-    print("Given language does not have translations")
+    print("None of the given non-English languages have any translations")
     exit(1)
 
 for original_file in EN_PATHS:

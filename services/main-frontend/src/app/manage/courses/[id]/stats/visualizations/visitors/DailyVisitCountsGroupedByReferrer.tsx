@@ -14,10 +14,9 @@ import { PageVisitDatumSummaryByCourse } from "@/generated/api/types.generated"
 import useCoursePageVisitDatumSummary from "@/hooks/useCoursePageVisitDatumSummary"
 import Accordion from "@/shared-module/common/components/Accordion"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 export interface DailyVisitCountsGroupedByReferrerProps {
   courseId: string
@@ -92,79 +91,79 @@ const DailyVisitCountsGroupedByReferrer: React.FC<
         justify-content: center;
       `}
     >
-      {query.isLoading ? (
-        <Spinner variant="medium" />
-      ) : query.isError ? (
-        <ErrorBanner variant="readOnly" error={query.error} />
-      ) : !aggregatedData || aggregatedData.length === 0 ? null : (
-        <>
-          <Accordion
-            className={css`
-              margin-bottom: 0.5rem;
-              width: 100%;
-            `}
-          >
-            <details>
-              <summary>{t("header-grouped-by-referrer")}</summary>
-              <div
+      <QueryResult query={query}>
+        {() =>
+          !aggregatedData || aggregatedData.length === 0 ? null : (
+            <>
+              <Accordion
                 className={css`
-                  table {
-                    width: 100%;
-                    border-collapse: separate;
-                    border-spacing: 0;
-                  }
-
-                  td {
-                    padding: 0.5rem 0.7rem;
-                    max-width: 3000px;
-                    overflow: hidden;
-                    white-space: nowrap;
-                    text-overflow: ellipsis;
-                    border: 1px solid ${baseTheme.colors.clear[300]};
-                  }
-                  thead {
-                    th {
-                      text-align: left;
-                      padding-left: 0.5rem;
-                      font-weight: 600;
-                      font-size: 14px;
-                      line-height: 16px;
-                      color: ${baseTheme.colors.gray[500]};
-                    }
-                  }
+                  margin-bottom: 0.5rem;
+                  width: 100%;
                 `}
               >
-                <table>
-                  <thead>
-                    {table.getHeaderGroups().map((headerGroup) => (
-                      <tr key={headerGroup.id}>
-                        {headerGroup.headers.map((header) => (
-                          <th key={header.id}>
-                            {!header.isPlaceholder &&
-                              flexRender(header.column.columnDef.header, header.getContext())}
-                          </th>
+                <details>
+                  <summary>{t("header-grouped-by-referrer")}</summary>
+                  <div
+                    className={css`
+                      table {
+                        width: 100%;
+                        border-collapse: separate;
+                        border-spacing: 0;
+                      }
+
+                      td {
+                        padding: 0.5rem 0.7rem;
+                        max-width: 3000px;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        border: 1px solid ${baseTheme.colors.clear[300]};
+                      }
+                      thead {
+                        th {
+                          text-align: left;
+                          padding-left: 0.5rem;
+                          font-weight: 600;
+                          font-size: 14px;
+                          line-height: 16px;
+                          color: ${baseTheme.colors.gray[500]};
+                        }
+                      }
+                    `}
+                  >
+                    <table>
+                      <thead>
+                        {table.getHeaderGroups().map((headerGroup) => (
+                          <tr key={headerGroup.id}>
+                            {headerGroup.headers.map((header) => (
+                              <th key={header.id}>
+                                {!header.isPlaceholder &&
+                                  flexRender(header.column.columnDef.header, header.getContext())}
+                              </th>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
-                    ))}
-                  </thead>
-                  <tbody>
-                    {table.getRowModel().rows.map((row) => (
-                      <tr key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id}>
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                          </td>
+                      </thead>
+                      <tbody>
+                        {table.getRowModel().rows.map((row) => (
+                          <tr key={row.id}>
+                            {row.getVisibleCells().map((cell) => (
+                              <td key={cell.id}>
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                              </td>
+                            ))}
+                          </tr>
                         ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </details>
-          </Accordion>
-          <DebugModal data={aggregatedData} />
-        </>
-      )}
+                      </tbody>
+                    </table>
+                  </div>
+                </details>
+              </Accordion>
+              <DebugModal data={aggregatedData} />
+            </>
+          )
+        }
+      </QueryResult>
     </div>
   )
 }

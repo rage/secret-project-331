@@ -13,14 +13,13 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PlaygroundExample } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { QueryResult } from "@/shared-module/components"
 import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 
 const EXAMPLE_UUID = "886d57ba-4c88-4d88-9057-5e88f35ae25f"
@@ -182,37 +181,35 @@ const Home: React.FC = () => {
     <>
       <div>
         <h2>{t("title-playground-exercise-iframe")}</h2>
-        {getPlaygroundExamples.isError && (
-          <ErrorBanner variant={"readOnly"} error={getPlaygroundExamples.error} />
-        )}
-        {getPlaygroundExamples.isLoading && <Spinner variant={"medium"} />}
-        {getPlaygroundExamples.isSuccess && getPlaygroundExamples.data.length > 0 && (
-          <div>
-            <h3>{t("title-list-of-examples")}</h3>
-            <div
-              className={css`
-                margin-bottom: 1rem;
-                margin-top: 0.5rem;
-              `}
-            >
-              {}
-              <select
-                onChange={handleExampleChange}
-                name="playground-examples"
-                aria-label={t("playground-examples")}
+        <QueryResult query={getPlaygroundExamples}>
+          {(data) => (
+            <div>
+              <h3>{t("title-list-of-examples")}</h3>
+              <div
+                className={css`
+                  margin-bottom: 1rem;
+                  margin-top: 0.5rem;
+                `}
               >
-                <option selected disabled label={t("label-examples")} />
-                {getPlaygroundExamples.data.map((example) => (
-                  <option
-                    key={JSON.stringify(example)}
-                    value={JSON.stringify(example)}
-                    label={example.name}
-                  />
-                ))}
-              </select>
+                {}
+                <select
+                  onChange={handleExampleChange}
+                  name="playground-examples"
+                  aria-label={t("playground-examples")}
+                >
+                  <option selected disabled label={t("label-examples")} />
+                  {data.map((example) => (
+                    <option
+                      key={JSON.stringify(example)}
+                      value={JSON.stringify(example)}
+                      label={example.name}
+                    />
+                  ))}
+                </select>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </QueryResult>
         <TextField
           value={exampleUrl || ""}
           placeholder={invalidUrl ? t("invalid-url") : t("label-url")}

@@ -12,8 +12,6 @@ import {
   getCmsPageOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsPage } from "@/generated/api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
@@ -21,6 +19,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
@@ -107,13 +106,11 @@ const Pages = ({ query }: PagesProps) => {
     },
   )
   return (
-    <>
-      {getPage.isError && <ErrorBanner variant={"readOnly"} error={getPage.error} />}
-      {getPage.isLoading && <Spinner variant={"medium"} />}
-      {getPage.isSuccess && (
-        <PageContext.Provider value={{ page: getPage.data }}>
+    <QueryResult query={getPage}>
+      {(page) => (
+        <PageContext.Provider value={{ page }}>
           <PageEditor
-            data={getPage.data}
+            data={page}
             courseCanAddChatbot={!!course.data?.can_add_chatbot}
             saveMutation={mutate}
             needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
@@ -121,7 +118,7 @@ const Pages = ({ query }: PagesProps) => {
           />
         </PageContext.Provider>
       )}
-    </>
+    </QueryResult>
   )
 }
 

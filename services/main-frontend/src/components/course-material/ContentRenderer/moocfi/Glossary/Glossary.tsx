@@ -6,10 +6,8 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialGlossary } from "@/generated/course-material-api/sdk.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -28,26 +26,7 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
       }),
   })
 
-  if (glossary.isError) {
-    return <ErrorBanner variant={"readOnly"} error={glossary.error} />
-  }
-
-  if (glossary.isLoading) {
-    return <Spinner variant={"small"} />
-  }
-
-  if (!glossary.data) {
-    return (
-      <DataLoadError
-        buttonSize="small"
-        onRetry={() => {
-          void glossary.refetch()
-        }}
-      />
-    )
-  }
-
-  return (
+  const renderGlossary = (data: NonNullable<typeof glossary.data>) => (
     <div
       className={css`
         margin: 0 auto;
@@ -104,7 +83,7 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
           </tr>
         </thead>
         <tbody>
-          {glossary.data
+          {data
             .sort((a, b) => a.term.toLowerCase().localeCompare(b.term.toLowerCase()))
             .map((t) => {
               return (
@@ -117,6 +96,12 @@ const Glossary: React.FC<React.PropsWithChildren<Props>> = ({ courseId }) => {
         </tbody>
       </table>
     </div>
+  )
+
+  return (
+    <QueryResult query={glossary} treatEmptyAsData>
+      {(data) => renderGlossary(data)}
+    </QueryResult>
   )
 }
 

@@ -13,10 +13,9 @@ import { UserDetailsPopover } from "./UserDetailsPopover"
 
 import { extractUserDetail, useUserDetails } from "@/hooks/useUserDetails"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
+import { QueryResult } from "@/shared-module/components"
 
 function hasName(value: string | null | undefined): boolean {
   return !!value && value.trim().length > 0
@@ -85,12 +84,11 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
   const state = useOverlayTriggerState({})
   const { triggerProps, overlayProps } = useOverlayTrigger({ type: "dialog" }, state, triggerRef)
 
-  const { data, isLoading, isError, error } = useUserDetails(courseId ? [courseId] : null, userId, {
+  const userDetailsQuery = useUserDetails(courseId ? [courseId] : null, userId, {
     staleTime: 30 * 60 * 1000,
     gcTime: 24 * 60 * 60 * 1000,
     refetchOnWindowFocus: false,
   })
-  const user = extractUserDetail(data)
 
   const { buttonProps } = useButton(
     mergeProps(triggerProps, {
@@ -99,112 +97,120 @@ const UserDisplay: React.FC<UserDisplayProps> = ({ userId, courseId }) => {
     triggerRef,
   )
 
-  if (isLoading) {
-    return <Spinner />
-  }
-
-  if (isError) {
-    return <ErrorBanner error={error} />
-  }
-
-  if (!user) {
-    return (
-      <span
-        className={css`
-          font-family: ${primaryFont};
-          color: ${baseTheme.colors.gray[600]};
-          font-size: 0.9rem;
-        `}
-      >
-        {userId}
-      </span>
-    )
-  }
-
-  const firstName = user.first_name?.trim() ?? ""
-  const lastName = user.last_name?.trim() ?? ""
-  const email = user.email?.trim() ?? ""
-
-  const displayText =
-    hasName(firstName) || hasName(lastName)
-      ? [firstName, lastName].filter(Boolean).join(" ")
-      : email || userId
-
-  const initial = hasName(firstName)
-    ? firstName[0].toUpperCase()
-    : hasName(lastName)
-      ? lastName[0].toUpperCase()
-      : email
-        ? email[0].toUpperCase()
-        : "?"
-
-  const badgeContent = (
-    <>
-      <span
-        className={css`
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 1.5rem;
-          height: 1.5rem;
-          border-radius: 50%;
-          background: ${baseTheme.colors.green[200]};
-          font-size: 0.8rem;
-          font-weight: 600;
-          color: ${baseTheme.colors.gray[700]};
-        `}
-        aria-hidden
-      >
-        {initial}
-      </span>
-      {displayText}
-    </>
+  const userIdFallback = (
+    <span
+      className={css`
+        font-family: ${primaryFont};
+        color: ${baseTheme.colors.gray[600]};
+        font-size: 0.9rem;
+      `}
+    >
+      {userId}
+    </span>
   )
 
+  // The query is disabled (isPending forever) when there is no courseId; render the
+  // userId fallback directly instead of showing an infinite loading state.
+  if (!courseId) {
+    return userIdFallback
+  }
+
   return (
-    <>
-      <button
-        ref={triggerRef}
-        {...buttonProps}
-        type="button"
-        aria-label={t("view-details")}
-        className={badgeStyle}
-      >
-        {badgeContent}
-      </button>
-      {state.isOpen && (
-        <UserDetailsPopover
-          state={state}
-          triggerRef={triggerRef}
-          overlayProps={overlayProps}
-          className={popoverStyle}
-          aria-label={t("header-user-details")}
-        >
-          <UserDetailsContent data={user} userId={userId} />
-          {courseId && <CourseProgressSection courseId={courseId} userId={userId} />}
-          {courseId && (
-            <div
+    <QueryResult query={userDetailsQuery}>
+      {(data) => {
+        const user = extractUserDetail(data)
+
+        if (!user) {
+          return userIdFallback
+        }
+
+        const firstName = user.first_name?.trim() ?? ""
+        const lastName = user.last_name?.trim() ?? ""
+        const email = user.email?.trim() ?? ""
+
+        const displayText =
+          hasName(firstName) || hasName(lastName)
+            ? [firstName, lastName].filter(Boolean).join(" ")
+            : email || userId
+
+        const initial = hasName(firstName)
+          ? firstName[0].toUpperCase()
+          : hasName(lastName)
+            ? lastName[0].toUpperCase()
+            : email
+              ? email[0].toUpperCase()
+              : "?"
+
+        const badgeContent = (
+          <>
+            <span
               className={css`
-                margin-top: 0.75rem;
                 display: flex;
+                align-items: center;
                 justify-content: center;
+                width: 1.5rem;
+                height: 1.5rem;
+                border-radius: 50%;
+                background: ${baseTheme.colors.green[200]};
+                font-size: 0.8rem;
+                font-weight: 600;
+                color: ${baseTheme.colors.gray[700]};
               `}
+              aria-hidden
             >
-              <Link
-                href={courseUserStatusSummaryRoute(courseId, userId)}
-                className={css`
-                  text-decoration: none;
-                `}
+              {initial}
+            </span>
+            {displayText}
+          </>
+        )
+
+        return (
+          <>
+            <button
+              ref={triggerRef}
+              {...buttonProps}
+              type="button"
+              aria-label={t("view-details")}
+              className={badgeStyle}
+            >
+              {badgeContent}
+            </button>
+            {state.isOpen && (
+              <UserDetailsPopover
+                state={state}
+                triggerRef={triggerRef}
+                overlayProps={overlayProps}
+                className={popoverStyle}
+                aria-label={t("header-user-details")}
               >
-                <Button variant="tertiary" size="small">
-                  {t("course-status-summary")}
-                </Button>
-              </Link>
-            </div>
-          )}
-        </UserDetailsPopover>
-      )}
-    </>
+                <UserDetailsContent data={user} userId={userId} />
+                {courseId && <CourseProgressSection courseId={courseId} userId={userId} />}
+                {courseId && (
+                  <div
+                    className={css`
+                      margin-top: 0.75rem;
+                      display: flex;
+                      justify-content: center;
+                    `}
+                  >
+                    <Link
+                      href={courseUserStatusSummaryRoute(courseId, userId)}
+                      className={css`
+                        text-decoration: none;
+                      `}
+                    >
+                      <Button variant="tertiary" size="small">
+                        {t("course-status-summary")}
+                      </Button>
+                    </Link>
+                  </div>
+                )}
+              </UserDetailsPopover>
+            )}
+          </>
+        )
+      }}
+    </QueryResult>
   )
 }
 

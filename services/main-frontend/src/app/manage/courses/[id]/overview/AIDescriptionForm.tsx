@@ -43,7 +43,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   const { t } = useTranslation()
 
   const courseId = course.id
-  const { error, data, isFetching, isError } = useQuery(
+  const sisuQuery = useQuery(
     optionalGeneratedQueryOptions({
       value: courseId,
       enabled: open,
@@ -57,8 +57,8 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   )
 
   useEffect(() => {
-    if (data) {
-      setValue("description", data.course_description)
+    if (sisuQuery.data) {
+      setValue("description", sisuQuery.data.course_description)
     }
   })
 
@@ -167,7 +167,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
             onClick: onSubmit,
             children: t("button-text-replace-description"),
             variant: "primary",
-            disabled: isFetching || isError,
+            disabled: sisuQuery.isFetching || sisuQuery.isError,
           },
         ]}
       >
@@ -180,22 +180,23 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
             {t("current-course-description-title")}
           </span>
           <FieldContainer>{course.description}</FieldContainer>
-          {isError ? (
-            <ErrorBanner variant={"readOnly"} error={error} />
-          ) : (
-            <FieldContainer>
-              {!isFetching ? (
+          <QueryResult
+            query={sisuQuery}
+            renderBlockingError={({ error, retry: _retry }) => {
+              return <ErrorBanner variant={"readOnly"} error={error} />
+            }}
+          >
+            {(_data) => (
+              <FieldContainer>
                 <TextArea
                   control={control}
                   label={t("text-field-label-ai-description")}
                   autoResize={true}
                   {...register("description")}
                 />
-              ) : (
-                <Spinner variant="medium" />
-              )}
-            </FieldContainer>
-          )}
+              </FieldContainer>
+            )}
+          </QueryResult>
         </div>
       </StandardDialog>
     </FormProvider>

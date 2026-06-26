@@ -69,26 +69,6 @@ def block_contains_name?(blocks, name)
   end
 end
 
-def chapter_slug_for_markdown_file(markdown_file)
-  markdown_file.match(%r{(?:^|/)((?:chapter|part)-\d+)(?:/|$)})&.captures&.first
-end
-
-def chapter_number_for_slug(chapter_slug)
-  chapter_slug&.match(/^(?:chapter|part)-(\d+)$/)&.captures&.first&.to_i
-end
-
-def page_slug_for_markdown_file(markdown_file)
-  File.basename(markdown_file, File.extname(markdown_file))
-end
-
-def front_page_for_markdown_file?(markdown_file)
-  chapter_slug = chapter_slug_for_markdown_file(markdown_file)
-  return false if chapter_slug.nil?
-
-  page_slug = page_slug_for_markdown_file(markdown_file)
-  page_slug == chapter_slug || page_slug == 'index'
-end
-
 markdown_files = Dir.glob(File.join(material_dir, '**', '*.md')).sort
 page_entries = []
 chapter_entries = {}
@@ -100,9 +80,9 @@ markdown_files.each do |markdown_file|
   next unless File.exist?(json_file)
 
   page_data = JSON.parse(File.read(json_file))
-  chapter_slug = chapter_slug_for_markdown_file(markdown_file)
-  chapter_number = chapter_number_for_slug(chapter_slug)
-  is_front_page = front_page_for_markdown_file?(markdown_file)
+  chapter_slug = page_data['chapter_slug']
+  chapter_number = page_data['chapter_number']
+  is_front_page = page_data['is_front_page']
   entry = {
     markdown_file: markdown_file,
     json_file: json_file,
@@ -162,17 +142,17 @@ end
 # Import chapter front pages before content pages so each chapter's landing page and its
 # url_path (e.g. /part-1) exist regardless of whether individual content pages fail below.
 sorted_page_entries = page_entries.sort_by do |entry|
-  [front_page_for_markdown_file?(entry[:markdown_file]) ? 0 : 1, entry[:markdown_file]]
+  [entry[:data]['is_front_page'] ? 0 : 1, entry[:markdown_file]]
 end
 
 sorted_page_entries.each do |entry|
-  chapter_slug = chapter_slug_for_markdown_file(entry[:markdown_file])
+  data = entry[:data]
+  chapter_slug = data['chapter_slug']
 
   begin
-    data = entry[:data]
     chapter_id = created_chapter_ids.fetch(chapter_slug)
     front_page_id = created_chapter_front_page_ids.fetch(chapter_slug)
-    is_front_page = front_page_for_markdown_file?(entry[:markdown_file])
+    is_front_page = data['is_front_page']
 
     page_payload = {
       content: data['content'].dup,

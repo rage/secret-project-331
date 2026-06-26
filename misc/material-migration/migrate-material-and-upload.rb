@@ -16,14 +16,15 @@ headers = {
   content_type: :json,
 }
 
-def request_json(method:, url:, payload:, headers:)
-  response = RestClient::Request.execute(
+def request_json(method:, url:, headers:, payload: nil)
+  args = {
     method: method,
     url: url,
-    payload: JSON.generate(payload),
     headers: headers,
     verify_ssl: OpenSSL::SSL::VERIFY_NONE
-  )
+  }
+  args[:payload] = JSON.generate(payload) unless payload.nil?
+  response = RestClient::Request.execute(**args)
   JSON.parse(response.body)
 rescue RestClient::ExceptionWithResponse => e
   # e.response can be nil when the connection drops mid-request (common when the server is
@@ -39,28 +40,6 @@ rescue SocketError, Errno::ECONNREFUSED, Errno::ECONNRESET => e
   raise "Network error during #{method.upcase} #{url}: #{e.message}"
 rescue JSON::ParserError => e
   raise "JSON parse error from #{method.upcase} #{url}: #{e.message}"
-end
-
-def get_json(url:, headers:)
-  response = RestClient::Request.execute(
-    method: :get,
-    url: url,
-    headers: headers,
-    verify_ssl: OpenSSL::SSL::VERIFY_NONE
-  )
-  JSON.parse(response.body)
-rescue RestClient::ExceptionWithResponse => e
-  if e.response
-    raise "HTTP #{e.response.code} from GET #{url}: #{e.response.body}"
-  else
-    raise "No response from GET #{url} (connection dropped?): #{e.message}"
-  end
-rescue RestClient::Exceptions::OpenTimeout, RestClient::Exceptions::ReadTimeout => e
-  raise "Timeout during GET #{url}: #{e.message}"
-rescue SocketError, Errno::ECONNREFUSED, Errno::ECONNRESET => e
-  raise "Network error during GET #{url}: #{e.message}"
-rescue JSON::ParserError => e
-  raise "JSON parse error from GET #{url}: #{e.message}"
 end
 
 def block_contains_name?(blocks, name)
@@ -246,7 +225,8 @@ if home_page_entry
   data = home_page_entry[:data]
 
   puts "Fetching course pages to find the course front page"
-  all_pages = get_json(
+  all_pages = request_json(
+    method: :get,
     url: "#{base_url}/api/v0/cms/courses/#{course_id}/pages",
     headers: headers,
   )

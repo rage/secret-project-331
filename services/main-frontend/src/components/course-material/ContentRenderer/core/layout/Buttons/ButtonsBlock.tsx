@@ -130,7 +130,7 @@ const ButtonsBlock: React.FC<
         flex-wrap: wrap;
         ${orientation === "vertical" ? "flex-direction: column;" : "flex-direction: row;"}
         ${contentJustification && getContentJustification(contentJustification)}
-        ${verticalAlignment && getAlignItems(verticalAlignment)}
+        ${verticalAlignment ? getAlignItems(verticalAlignment) : "align-items: flex-start;"}
       `}
     >
       {mappedButtons}

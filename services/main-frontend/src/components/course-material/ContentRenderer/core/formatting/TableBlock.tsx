@@ -200,7 +200,7 @@ const TableBlock: React.FC<
                         key={i}
                         // eslint-disable-next-line i18next/no-literal-string
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
-                        tag="th"
+                        tag="td"
                         tagProps={{
                           className: fetchAlignment(cell.align),
                           colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),

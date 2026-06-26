@@ -73,7 +73,6 @@ class MaterialMigrator
     @normalized_exercise_tasks = []
     @exercise_count = 0
     @hidden = false
-    @subtitle = nil
     @home_page = false
     @page_title = nil
     @page_path = nil
@@ -314,7 +313,6 @@ class MaterialMigrator
       'exercise_slides': @normalized_exercise_slides,
       'exercise_tasks': @normalized_exercise_tasks,
       'title': metadata[:title],
-      'subtitle': @subtitle,
       'url_path': metadata[:url_path],
       'chapter_id': nil,
       'hidden': @hidden,
@@ -427,7 +425,6 @@ class MaterialMigrator
       when 'subTitle', 'subtitle'
         normalized_value = normalize_title(value)
         json_block[:attributes][:subtitle] = normalized_value
-        @subtitle = normalized_value
       when 'hidden'
         normalized_value = value.to_s.downcase.delete_prefix('"').delete_suffix('"').delete_prefix("'").delete_suffix("'")
         @hidden = normalized_value == 'true'
@@ -442,11 +439,9 @@ class MaterialMigrator
     when 'topic'
       normalized_value = normalize_title(value)
       json_block[:attributes][:subtitle] = normalized_value
-      @subtitle = normalized_value
     when 'subTitle'
       normalized_value = normalize_title(value)
       json_block[:attributes][:subtitle] ||= normalized_value
-      @subtitle ||= normalized_value
     when 'hidden'
       normalized_value = value.to_s.downcase.delete_prefix('"').delete_suffix('"').delete_prefix("'").delete_suffix("'")
       @hidden = normalized_value == 'true'

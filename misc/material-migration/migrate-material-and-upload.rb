@@ -180,7 +180,6 @@ sorted_page_entries.each do |entry|
       exercise_slides: data['exercise_slides'],
       exercise_tasks: data['exercise_tasks'],
       title: data['title'],
-      subtitle: data['subtitle'],
       chapter_id: chapter_id,
       hidden: data['hidden'] || false,
     }
@@ -206,7 +205,6 @@ sorted_page_entries.each do |entry|
         exercise_tasks: page_payload[:exercise_tasks],
         url_path: page_payload[:url_path],
         title: page_payload[:title],
-        subtitle: page_payload[:subtitle],
         chapter_id: chapter_id,
         hidden: data['hidden'] || false,
       }
@@ -244,7 +242,6 @@ information_page_entries.sort_by { |entry| entry[:markdown_file] }.each do |entr
     exercise_slides: data['exercise_slides'],
     exercise_tasks: data['exercise_tasks'],
     title: data['title'],
-    subtitle: data['subtitle'],
     url_path: data['url_path'],
     chapter_id: nil,
     hidden: data['hidden'] || false,
@@ -326,7 +323,6 @@ if home_page_entry
       exercise_slides: data['exercise_slides'],
       exercise_tasks: data['exercise_tasks'],
       title: data['title'],
-      subtitle: data['subtitle'],
       url_path: data['url_path'],
       chapter_id: nil,
       hidden: data['hidden'] || false,

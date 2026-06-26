@@ -42,6 +42,7 @@ class MaterialMigrator
       'a',
     ]
     @uploaded_extra_files = {}
+    @warnings = []
 
     puts "found #{@files.count} files and directories"
 
@@ -59,9 +60,26 @@ class MaterialMigrator
 
       next unless file.end_with?('.md')
 
+      @current_file = file
       puts "processing file #{file} (#{i + 1}/#{@files.count})"
       process_file(file)
     end
+
+    report_warnings
+  end
+
+  def record_warning(message)
+    full = "#{@current_file}: #{message}"
+    @warnings << full
+    warn "WARNING: #{full}"
+  end
+
+  def report_warnings
+    return if @warnings.empty?
+
+    warn ""
+    warn "=== Migration finished with #{@warnings.count} warning(s); review for dropped or misplaced content: ==="
+    @warnings.each { |w| warn "  - #{w}" }
   end
 
   def process_file(file)
@@ -157,7 +175,7 @@ class MaterialMigrator
               end
             end
           else
-            puts "skipping oneliner tag on line #{line}"
+            record_warning("skipping unhandled self-closing tag: #{line}")
           end
           next
         end
@@ -181,12 +199,17 @@ class MaterialMigrator
             next
           end
           if @known_tags.include?(@current_tag_type)
-            @tag_depth = @tag_depth - 1
-            if @tag_depth == 0 && @current_tag_type != 'styled-text'
-              json_content << json_block
-              json_block = create_new_block
-            elsif @tag_depth == 0 && @current_tag_type == 'styled-text'
-              json_block = create_new_block
+            if @tag_depth > 0
+              @tag_depth = @tag_depth - 1
+              if @tag_depth == 0 && @current_tag_type != 'styled-text'
+                json_content << json_block
+                json_block = create_new_block
+              elsif @tag_depth == 0 && @current_tag_type == 'styled-text'
+                json_block = create_new_block
+              end
+            else
+              close_name = line[%r{</([a-zA-Z0-9_-]+)}, 1]
+              record_warning("unexpected closing tag </#{close_name}> with no open tag")
             end
           end
           next
@@ -300,6 +323,7 @@ class MaterialMigrator
 
     # Safeguard in case a tag wasn't closed properly
     if @tag_depth > 0
+      record_warning("reached end of file with #{@tag_depth} unclosed tag(s) (last opened: <#{@current_tag_type}>); content may be misplaced")
       json_content << json_block
     end
 
@@ -466,7 +490,7 @@ class MaterialMigrator
       'summary', 'ul', 'ol', 'li', 'p', 'th', 'td',
     ]
     if line.start_with?("<#{tag_type}") && line.end_with?("</#{tag_type}>") && !accepted_oneliners.include?(tag_type)
-      puts "skipping oneliner tag #{tag_type} on line #{line}"
+      record_warning("skipping unhandled one-liner tag <#{tag_type}>: #{line}")
       @tag_depth = @tag_depth - 1
       return json_block
     end
@@ -526,7 +550,7 @@ class MaterialMigrator
     when 'summary', 'th', 'td'
       handle_inline_html_tag(line, tag_type, json_block)
     else
-      puts "unknown tag type: #{tag_type}"
+      record_warning("unknown tag type <#{tag_type}>; its content was dropped: #{line}")
       @tag_depth = @tag_depth - 1
     end
 
@@ -922,7 +946,7 @@ class MaterialMigrator
     path_to_current_file = file.rpartition('/')[0]
     match = line.match(/^!\[([^\]]*)\]\(([^\s)]+)(?:\s+"[^"]*")?\)$/)
     unless match
-      puts "skipping malformed markdown image on line #{line}"
+      record_warning("skipping malformed markdown image: #{line}")
       return
     end
 

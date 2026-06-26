@@ -20,11 +20,16 @@ export interface CourseVisitorsByCountryProps {
   courseId: string
 }
 
-// Chart data codes are lowercase (e.g. "fi"); countryList values are uppercase (e.g. "FI").
-const countryCodeToName = (code: string): string => {
-  const match = countryList.find((c) => c.value.toLowerCase() === code.toLowerCase())
-  return match ? match.label : code
-}
+// Chart data codes are lowercase (e.g. "fi"); countryList values are uppercase (e.g. "FI"). Build
+// the lowercase code -> name lookup once instead of scanning (and lowercasing) the whole list per code.
+const countryNameByCode = new Map(countryList.map((c) => [c.value.toLowerCase(), c.label]))
+const countryCodeToName = (code: string): string =>
+  countryNameByCode.get(code.toLowerCase()) ?? code
+
+// Bucket key used for visitors whose country could not be determined (the backend country field is
+// nullable). Kept distinct from any real ISO code so it can be rendered as a readable label.
+// eslint-disable-next-line i18next/no-literal-string
+const UNKNOWN_COUNTRY_KEY = "null"
 
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
@@ -57,8 +62,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     }
     const totalCountsByCountryObject = totalCountsByCountry.reduce(
       (acc, d) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        acc[d.country ?? "null"] = d.num_visitors
+        acc[d.country ?? UNKNOWN_COUNTRY_KEY] = d.num_visitors
         return acc
       },
       {} as Record<string, number>,
@@ -70,8 +74,10 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     if (!aggregatedData) {
       return []
     }
-    return Object.keys(aggregatedData).map(countryCodeToName)
-  }, [aggregatedData])
+    return Object.keys(aggregatedData).map((code) =>
+      code === UNKNOWN_COUNTRY_KEY ? t("n-a") : countryCodeToName(code),
+    )
+  }, [aggregatedData, t])
   const values = useMemo(() => {
     if (!aggregatedData) {
       return []

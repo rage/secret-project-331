@@ -68,7 +68,7 @@ impl Default for ChatbotConfiguration {
             initial_message: Default::default(),
             weekly_tokens_per_user: 20000 * 5,
             daily_tokens_per_user: 20000,
-            max_output_tokens: 600,
+            max_output_tokens: 20_000,
             temperature: 0.7,
             top_p: 1.0,
             frequency_penalty: 0.0,
@@ -148,31 +148,17 @@ impl Default for NewChatbotConf {
     }
 }
 
-/// Minimum `max_output_tokens` allowed for configurations without reasoning.
-const MIN_MAX_OUTPUT_TOKENS: i32 = 150;
-/// Minimum `max_output_tokens` allowed when reasoning is enabled. Reasoning
-/// tokens are spent from the same budget, so a higher floor is needed to leave
-/// room for the actual answer.
-const MIN_MAX_OUTPUT_TOKENS_REASONING: i32 = 200;
+/// Minimum `max_output_tokens` allowed for a configuration. Too small a budget cannot produce a
+/// usable response — and with reasoning models the hidden reasoning tokens are spent from the same
+/// budget, so the floor needs to leave room for the actual answer either way.
+const MIN_MAX_OUTPUT_TOKENS: i32 = 10_000;
 
-/// Rejects configurations whose `max_output_tokens` is too small to produce a
-/// usable response. With reasoning models the reasoning tokens eat into the
-/// same budget, so the minimum is stricter when reasoning is enabled.
+/// Rejects configurations whose `max_output_tokens` is too small to produce a usable response.
 fn validate_max_output_tokens(input: &NewChatbotConf) -> ModelResult<()> {
-    let reasoning_enabled = input.reasoning_effort != ReasoningEffortLevel::None;
-    let minimum = if reasoning_enabled {
-        MIN_MAX_OUTPUT_TOKENS_REASONING
-    } else {
-        MIN_MAX_OUTPUT_TOKENS
-    };
-    if input.max_output_tokens < minimum {
+    if input.max_output_tokens < MIN_MAX_OUTPUT_TOKENS {
         return Err(ModelError::new(
             ModelErrorType::PreconditionFailed,
-            if reasoning_enabled {
-                format!("max_output_tokens must be at least {minimum} when reasoning is enabled.")
-            } else {
-                format!("max_output_tokens must be at least {minimum}.")
-            },
+            format!("max_output_tokens must be at least {MIN_MAX_OUTPUT_TOKENS}."),
             None,
         ));
     }

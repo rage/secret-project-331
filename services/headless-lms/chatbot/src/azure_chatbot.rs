@@ -56,10 +56,6 @@ impl ParsedResponseLine {
             Ok(Some(ParsedResponseLine::Event(event_type)))
         } else if input.starts_with("data: ") {
             let data = input.trim_start_matches("data: ").to_string();
-            // TEMP debug: capture raw azure_ai_search payloads to model the structs. Remove after fix.
-            if data.contains("azure_ai_search") {
-                tracing::warn!(raw_line = %data, "TEMP azure_ai_search raw payload");
-            }
             let response_output = match serde_json::from_str::<ResponseOutput>(&data) {
                 Ok(response_output) => response_output,
                 Err(e) => {

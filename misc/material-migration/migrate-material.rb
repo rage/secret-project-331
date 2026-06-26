@@ -15,6 +15,10 @@ class MaterialMigrator
     div detail-tag topic-hero topic-content details table thead tbody tr
   ].freeze
 
+  # Width-less SVGs have no intrinsic size, so the renderer expands them to the full column width;
+  # default them to this moderate width instead (a teacher can adjust per image after migration).
+  DEFAULT_SVG_WIDTH = '250'
+
   def initialize(directory)
     unless File.directory?(directory)
       raise ArgumentError, "#{directory} is not a directory."
@@ -162,7 +166,7 @@ class MaterialMigrator
             if @floating_image
               capture_floating_image(img_attrs[:src], img_attrs[:alt], img_attrs[:width])
             else
-              width = img_attrs[:width] || ''
+              width = extract_image_width(img_attrs)
               image_block = build_image_block(img_attrs[:src], img_attrs[:alt], width)
               if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
                 json_content << json_block
@@ -939,9 +943,7 @@ class MaterialMigrator
       return json_block
     end
 
-    width = ''
-    width = attributes[:width].to_s.gsub(/[^0-9]/, '') if attributes[:width]
-    width = attributes[:style].match(/width: (\d+)px/)[1] if attributes[:style] && attributes[:style].match?(/width: (\d+)px/)
+    width = extract_image_width(attributes)
 
     src_path = attributes[:src]
     image_block = build_image_block(src_path, attributes[:alt], width)
@@ -1019,8 +1021,21 @@ class MaterialMigrator
     url
   end
 
+  # Reads a pixel width from an img tag's `width` attribute (digits only) or its inline
+  # `style="width: Npx"`, returning '' when neither is present.
+  def extract_image_width(attributes)
+    width = ''
+    width = attributes[:width].to_s.gsub(/[^0-9]/, '') if attributes[:width]
+    width = attributes[:style].match(/width: (\d+)px/)[1] if attributes[:style] && attributes[:style].match?(/width: (\d+)px/)
+    width
+  end
+
   def build_image_block(src_path, alt_text, width)
     uploaded_url = upload_extra_file(src_path)
+
+    if (width.nil? || width.to_s.empty?) && src_path.to_s.downcase.end_with?('.svg')
+      width = DEFAULT_SVG_WIDTH
+    end
 
     image_block = create_new_block
     image_block[:name] = 'core/image'

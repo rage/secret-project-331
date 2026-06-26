@@ -2,10 +2,10 @@ use crate::{error::util_error::SisuErrorVariant, prelude::*};
 pub struct SisuClient {}
 
 use regex::Regex;
-use utoipa::ToSchema;
-
 use serde::{Deserialize, Serialize};
+use std::sync::LazyLock;
 use std::{cmp::Ordering, collections::HashMap};
+use utoipa::ToSchema;
 pub type SisuCourseInfo = Vec<SisuCourseInfoElement>;
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
@@ -65,7 +65,8 @@ impl Additional {
             }
             Ordering::Equal
         });
-        let strip_html_regex = Regex::new(r"<[^>]*>").expect("invalid regex");
+        let strip_html_regex: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"<[^>]*>").expect("invalid regex"));
         let max_length = vec
             .iter()
             .map(|n| {

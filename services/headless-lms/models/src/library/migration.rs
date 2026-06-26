@@ -2,6 +2,7 @@ use futures::future::BoxFuture;
 use headless_lms_utils::document_schema_processor::{
     GutenbergBlock, contains_blocks_not_allowed_in_top_level_pages,
 };
+use headless_lms_utils::strings::strip_html_tags;
 use url::Url;
 
 use std::collections::HashSet;
@@ -94,8 +95,7 @@ fn extract_title_from_blocks(blocks: &[GutenbergBlock]) -> Option<String> {
         if block.name.starts_with("core/heading") {
             let attrs = &block.attributes;
             if let Some(content) = attrs.get("content").and_then(|v| v.as_str()) {
-                // Strip HTML tags for a clean title
-                let clean = content.replace("<strong>", "").replace("</strong>", "");
+                let clean = strip_html_tags(content);
                 let clean = clean.trim();
                 if !clean.is_empty() {
                     return Some(clean.to_string());

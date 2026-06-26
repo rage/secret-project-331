@@ -151,7 +151,7 @@ const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'}');
 
 /// Percent-encodes URL path characters that are not part of the safe path alphabet.
-fn normalize_url_path_for_storage(url_path: &str) -> String {
+pub(crate) fn normalize_url_path_for_storage(url_path: &str) -> String {
     let decoded = percent_decode_str(url_path).decode_utf8_lossy();
     utf8_percent_encode(decoded.trim(), URL_PATH_ENCODE_SET).to_string()
 }

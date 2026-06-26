@@ -4,10 +4,12 @@ use headless_lms_utils::document_schema_processor::{
 };
 use url::Url;
 
+use std::collections::HashSet;
+
 use crate::{
     SpecFetcher,
     exercise_service_info::ExerciseServiceInfoApi,
-    pages::{CmsPageUpdate, NewPage},
+    pages::{CmsPageUpdate, NewPage, PageVisibility, normalize_url_path_for_storage},
     prelude::*,
 };
 
@@ -32,7 +34,8 @@ pub async fn create_page(
         if slug.is_empty() {
             slug = "untitled-page".to_string();
         }
-        cms_update.url_path = format!("/{}", slug);
+        cms_update.url_path =
+            ensure_unique_url_path(conn, course_id, &format!("/{}", slug)).await?;
     }
 
     cms_update.validate_exercise_data()?;
@@ -116,22 +119,47 @@ fn extract_title_from_blocks(blocks: &[GutenbergBlock]) -> Option<String> {
     None
 }
 
-/// Generate a URL-safe slug from a title
+/// Generate a URL-safe slug from a title.
+///
+/// Lowercases, keeps alphanumeric characters, and collapses every run of other characters
+/// (whitespace and punctuation alike) into a single `-`, with no leading or trailing separator.
 fn slugify(text: &str) -> String {
-    text.to_lowercase()
-        .chars()
-        .map(|c| {
-            if c.is_alphanumeric() {
-                c
-            } else if c.is_whitespace() {
-                '-'
-            } else {
-                '_'
+    let mut slug = String::with_capacity(text.len());
+    let mut pending_separator = false;
+    for c in text.to_lowercase().chars() {
+        if c.is_alphanumeric() {
+            if pending_separator && !slug.is_empty() {
+                slug.push('-');
             }
-        })
-        .collect::<String>()
-        .split('-')
-        .filter(|s| !s.is_empty())
-        .collect::<Vec<_>>()
-        .join("-")
+            pending_separator = false;
+            slug.push(c);
+        } else {
+            pending_separator = true;
+        }
+    }
+    slug
+}
+
+/// Appends a numeric suffix to `base_path` until it no longer collides with an existing
+/// (non-deleted) page in the course, so deriving slugs from duplicate or empty titles cannot
+/// hit the unique `(course_id, url_path)` constraint and abort the migration.
+async fn ensure_unique_url_path(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    base_path: &str,
+) -> ModelResult<String> {
+    let existing: HashSet<String> =
+        crate::pages::get_all_by_course_id_and_visibility(conn, course_id, PageVisibility::Any)
+            .await?
+            .into_iter()
+            .map(|p| p.url_path)
+            .collect();
+
+    let mut candidate = base_path.to_string();
+    let mut counter = 2;
+    while existing.contains(&normalize_url_path_for_storage(&candidate)) {
+        candidate = format!("{}-{}", base_path, counter);
+        counter += 1;
+    }
+    Ok(candidate)
 }

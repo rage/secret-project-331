@@ -7,12 +7,12 @@ import { useTranslation } from "react-i18next"
 import { InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { useStudentsByCountryTotalsQuery } from "@/hooks/stats"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -82,38 +82,38 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
           justify-content: center;
         `}
       >
-        {query.isLoading ? (
-          <Spinner variant="medium" />
-        ) : query.isError ? (
-          <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !aggregatedData || categories.length === 0 ? (
-          <div>{t("no-data")}</div>
-        ) : (
-          <Echarts
-            height={chartHeight}
-            options={{
-              yAxis: {
-                type: "category",
-                data: categories,
-              },
-              xAxis: {
-                type: "value",
-              },
-              series: [
-                {
-                  type: "bar",
-                  data: values,
-                },
-              ],
-              tooltip: {
-                // eslint-disable-next-line i18next/no-literal-string
-                trigger: "item",
-                // eslint-disable-next-line i18next/no-literal-string
-                formatter: "{b}: {c}",
-              },
-            }}
-          />
-        )}
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
+          {() =>
+            !aggregatedData || categories.length === 0 ? (
+              <NoDataMessage />
+            ) : (
+              <Echarts
+                height={chartHeight}
+                options={{
+                  yAxis: {
+                    type: "category",
+                    data: categories,
+                  },
+                  xAxis: {
+                    type: "value",
+                  },
+                  series: [
+                    {
+                      type: "bar",
+                      data: values,
+                    },
+                  ],
+                  tooltip: {
+                    // eslint-disable-next-line i18next/no-literal-string
+                    trigger: "item",
+                    // eslint-disable-next-line i18next/no-literal-string
+                    formatter: "{b}: {c}",
+                  },
+                }}
+              />
+            )
+          }
+        </QueryResult>
       </div>
     </>
   )

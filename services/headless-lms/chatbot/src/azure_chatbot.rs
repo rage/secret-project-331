@@ -56,8 +56,23 @@ impl ParsedResponseLine {
             Ok(Some(ParsedResponseLine::Event(event_type)))
         } else if input.starts_with("data: ") {
             let data = input.trim_start_matches("data: ").to_string();
-            let response_output =
-                serde_json::from_str::<ResponseOutput>(&data).map_err(ChatbotError::from)?;
+            // TEMP debug: capture raw azure_ai_search payloads to model the structs. Remove after fix.
+            if data.contains("azure_ai_search") {
+                tracing::warn!(raw_line = %data, "TEMP azure_ai_search raw payload");
+            }
+            let response_output = match serde_json::from_str::<ResponseOutput>(&data) {
+                Ok(response_output) => response_output,
+                Err(e) => {
+                    // Log the raw line so deserialization failures against the Azure response
+                    // schema can be diagnosed without reproducing them.
+                    tracing::error!(
+                        raw_line = %data,
+                        error = %e,
+                        "Failed to deserialize streamed response line from Azure"
+                    );
+                    return Err(ChatbotError::from(e));
+                }
+            };
             Ok(Some(ParsedResponseLine::Data(response_output)))
         } else {
             Ok(None)

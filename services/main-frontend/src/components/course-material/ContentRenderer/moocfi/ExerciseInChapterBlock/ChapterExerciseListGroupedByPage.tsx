@@ -8,12 +8,11 @@ import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialChapterExerciseProgress } from "@/generated/course-material-api/sdk.generated"
 import type { PageWithExercises } from "@/generated/course-material-api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import ExerciseBox from "@/shared-module/common/components/ExerciseList/ExerciseBox"
 import PageBox from "@/shared-module/common/components/ExerciseList/PageBox"
-import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 import { coursePageSectionRoute } from "@/utils/course-material/routing"
 
@@ -53,83 +52,72 @@ const ChapterExerciseListGroupedByPage: React.FC<
     enabled: Boolean(courseInstanceId),
   })
 
-  if (getUserCourseInstanceChapterExercisesProgress.isError) {
+  const renderContent = (progress: Map<string, number> | undefined) => {
+    if (page.exercises.length === 0) {
+      return null
+    }
     return (
-      <ErrorBanner
-        variant={"readOnly"}
-        error={getUserCourseInstanceChapterExercisesProgress.error}
-      />
+      <>
+        <PageBox pageTitle={page.title} />
+        {chapterLockingEnabled && (
+          <div
+            className={css`
+              padding: 1rem;
+              background-color: ${baseTheme.colors.yellow[50]};
+              border-left: 4px solid ${baseTheme.colors.yellow[500]};
+              border-radius: 4px;
+              margin: 1rem 0;
+            `}
+          >
+            <p
+              className={css`
+                margin: 0;
+                font-family: ${primaryFont};
+                font-size: 0.9375rem;
+                line-height: 1.6;
+                color: ${baseTheme.colors.gray[700]};
+              `}
+            >
+              {t("exercises-done-through-locking-notification")}
+            </p>
+          </div>
+        )}
+        <div>
+          {page.exercises.map((e) => {
+            let userPoints = null
+
+            if (loginStateContext.signedIn) {
+              userPoints = progress?.get(e.id) ?? 0
+            }
+            return (
+              <div key={e.id}>
+                <ExerciseBox
+                  url={coursePageSectionRoute(organizationSlug, courseSlug, page.url_path, e.id)}
+                  // eslint-disable-next-line i18next/no-literal-string
+                  bg={"rgb(242, 245, 247)"}
+                  exerciseIndex={e.order_number + 1}
+                  exerciseTitle={e.name}
+                  scoreMaximum={e.score_maximum}
+                  userPoints={userPoints}
+                />
+              </div>
+            )
+          })}
+        </div>
+      </>
     )
   }
 
-  if (
-    getUserCourseInstanceChapterExercisesProgress.isLoading &&
-    getUserCourseInstanceChapterExercisesProgress.fetchStatus !== "idle"
-  ) {
-    // No spinner when idle because this component still works when we are logged out and the query is not enabled
-    return <Spinner variant={"medium"} />
+  // When the query is disabled (e.g. logged out or no course instance) it never fetches and has no
+  // data, so QueryResult would render nothing. Render the exercises directly (without progress) instead.
+  if (!courseInstanceId) {
+    return renderContent(undefined)
   }
 
   return (
-    <>
-      <>
-        {page.exercises.length !== 0 && (
-          <>
-            <PageBox pageTitle={page.title} />
-            {chapterLockingEnabled && (
-              <div
-                className={css`
-                  padding: 1rem;
-                  background-color: ${baseTheme.colors.yellow[50]};
-                  border-left: 4px solid ${baseTheme.colors.yellow[500]};
-                  border-radius: 4px;
-                  margin: 1rem 0;
-                `}
-              >
-                <p
-                  className={css`
-                    margin: 0;
-                    font-family: ${primaryFont};
-                    font-size: 0.9375rem;
-                    line-height: 1.6;
-                    color: ${baseTheme.colors.gray[700]};
-                  `}
-                >
-                  {t("exercises-done-through-locking-notification")}
-                </p>
-              </div>
-            )}
-            <div>
-              {page.exercises.map((e) => {
-                let userPoints = null
-
-                if (loginStateContext.signedIn) {
-                  userPoints = getUserCourseInstanceChapterExercisesProgress?.data?.get(e.id) ?? 0
-                }
-                return (
-                  <div key={e.id}>
-                    <ExerciseBox
-                      url={coursePageSectionRoute(
-                        organizationSlug,
-                        courseSlug,
-                        page.url_path,
-                        e.id,
-                      )}
-                      // eslint-disable-next-line i18next/no-literal-string
-                      bg={"rgb(242, 245, 247)"}
-                      exerciseIndex={e.order_number + 1}
-                      exerciseTitle={e.name}
-                      scoreMaximum={e.score_maximum}
-                      userPoints={userPoints}
-                    />
-                  </div>
-                )
-              })}
-            </div>
-          </>
-        )}
-      </>
-    </>
+    <QueryResult query={getUserCourseInstanceChapterExercisesProgress} minHeight={45}>
+      {(progress) => renderContent(progress)}
+    </QueryResult>
   )
 }
 

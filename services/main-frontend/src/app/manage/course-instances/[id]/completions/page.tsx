@@ -29,12 +29,11 @@ import type {
 } from "@/generated/api/types.generated"
 import CaretDownIcon from "@/imgs/caret-down.svg"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const EMAIL = "email"
 const NAME = "name"
@@ -197,164 +196,162 @@ const CompletionsPage: React.FC = () => {
         <CompletionsExportButton courseInstanceId={courseInstanceId} />
       </div>
 
-      {getCompletionsList.isError && (
-        <ErrorBanner variant="readOnly" error={getCompletionsList.error} />
-      )}
-      {getCompletionsList.isLoading && <Spinner variant="medium" />}
-      {getCompletionsList.isSuccess && (
-        <>
-          <div
-            className={css`
-              margin-bottom: 2rem;
-            `}
-          >
-            <ChapterPointsDashboard
-              chapterScores={getCompletionsList.data.sortedCourseModules.map((module) => ({
-                id: module.id,
-                name: module.name ?? t("label-default"),
-                value: `${
-                  getCompletionsList.data.users.filter(
-                    (user) => (user.moduleCompletions.get(module.id) ?? []).length > 0,
-                  ).length
-                }/${getCompletionsList.data.users.length}`,
-              }))}
-              userCount={getCompletionsList.data.users.length}
-            />
-          </div>
-
-          <div
-            className={css`
-              margin-bottom: 2rem;
-              padding: 1.5rem;
-              background: #f8f9fa;
-              border-radius: 8px;
-            `}
-          >
-            <Button
-              variant="primary"
-              size="small"
-              onClick={() => setShowForm(!showForm)}
+      <QueryResult query={getCompletionsList}>
+        {(data) => (
+          <>
+            <div
               className={css`
-                margin-bottom: ${showForm ? "1.5rem" : "0"};
+                margin-bottom: 2rem;
               `}
             >
-              {t("manually-add-completions")}
-            </Button>
-            {showForm && (
-              <div
+              <ChapterPointsDashboard
+                chapterScores={data.sortedCourseModules.map((module) => ({
+                  id: module.id,
+                  name: module.name ?? t("label-default"),
+                  value: `${
+                    data.users.filter(
+                      (user) => (user.moduleCompletions.get(module.id) ?? []).length > 0,
+                    ).length
+                  }/${data.users.length}`,
+                }))}
+                userCount={data.users.length}
+              />
+            </div>
+
+            <div
+              className={css`
+                margin-bottom: 2rem;
+                padding: 1.5rem;
+                background: #f8f9fa;
+                border-radius: 8px;
+              `}
+            >
+              <Button
+                variant="primary"
+                size="small"
+                onClick={() => setShowForm(!showForm)}
                 className={css`
-                  background: white;
-                  padding: 1.5rem;
-                  border-radius: 6px;
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                  margin-bottom: ${showForm ? "1.5rem" : "0"};
                 `}
               >
-                <AddCompletionsForm
-                  onSubmit={handlePostCompletionsPreview}
-                  courseModules={getCompletionsList.data.sortedCourseModules}
-                  submitText={t("button-text-check")}
-                />
-                {previewData && completionFormData && (
-                  <CompletionRegistrationPreview
-                    manualCompletionPreview={previewData}
-                    onSubmit={(options) => {
-                      mutation.mutate({
-                        ...completionFormData,
-                        skip_duplicate_completions: options.skipDuplicateCompletions,
-                      })
-                    }}
+                {t("manually-add-completions")}
+              </Button>
+              {showForm && (
+                <div
+                  className={css`
+                    background: white;
+                    padding: 1.5rem;
+                    border-radius: 6px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+                  `}
+                >
+                  <AddCompletionsForm
+                    onSubmit={handlePostCompletionsPreview}
+                    courseModules={data.sortedCourseModules}
+                    submitText={t("button-text-check")}
                   />
-                )}
-              </div>
-            )}
-          </div>
-          <FullWidthTable>
-            <thead>
-              <tr
-                className={css`
-                  text-align: left;
-                  font-size: 13px;
-                `}
-              >
-                <th rowSpan={2}>
-                  {t("label-user-id")}{" "}
-                  <a
-                    href="#number"
-                    onClick={() => setSorting({ type: NUMBER, data: null })}
-                    aria-label={t("sort-by-column", { column: t("label-user-id") })}
-                  >
-                    <CaretDownIcon />
-                  </a>
-                </th>
-                <th rowSpan={2}>
-                  {t("student-name")}{" "}
-                  <a
-                    href="#name"
-                    onClick={() => setSorting({ type: NAME, data: null })}
-                    aria-label={t("sort-by-column", { column: t("student-name") })}
-                  >
-                    <CaretDownIcon />
-                  </a>
-                </th>
-                <th rowSpan={2}>
-                  {t("label-email")}{" "}
-                  <a
-                    href="#email"
-                    onClick={() => setSorting({ type: EMAIL, data: null })}
-                    aria-label={t("sort-by-column", { column: t("label-email") })}
-                  >
-                    <CaretDownIcon />
-                  </a>
-                </th>
-                {getCompletionsList.data.sortedCourseModules
-                  .sort((a, b) => a.order_number - b.order_number)
-                  .map((module) => {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    const moduleSorting = `#mod${module.order_number}`
-                    return (
-                      <th key={module.id} colSpan={2}>
-                        <div
-                          className={css`
-                            text-align: center;
-                          `}
-                        >
-                          {module.name ?? t("label-default")}{" "}
-                          <a
-                            href={moduleSorting}
-                            onClick={() => setSorting({ type: moduleSorting, data: module.id })}
-                            aria-label={t("sort-by-column", {
-                              column: module.name ?? t("label-default"),
-                            })}
+                  {previewData && completionFormData && (
+                    <CompletionRegistrationPreview
+                      manualCompletionPreview={previewData}
+                      onSubmit={(options) => {
+                        mutation.mutate({
+                          ...completionFormData,
+                          skip_duplicate_completions: options.skipDuplicateCompletions,
+                        })
+                      }}
+                    />
+                  )}
+                </div>
+              )}
+            </div>
+            <FullWidthTable>
+              <thead>
+                <tr
+                  className={css`
+                    text-align: left;
+                    font-size: 13px;
+                  `}
+                >
+                  <th rowSpan={2}>
+                    {t("label-user-id")}{" "}
+                    <a
+                      href="#number"
+                      onClick={() => setSorting({ type: NUMBER, data: null })}
+                      aria-label={t("sort-by-column", { column: t("label-user-id") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  <th rowSpan={2}>
+                    {t("student-name")}{" "}
+                    <a
+                      href="#name"
+                      onClick={() => setSorting({ type: NAME, data: null })}
+                      aria-label={t("sort-by-column", { column: t("student-name") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  <th rowSpan={2}>
+                    {t("label-email")}{" "}
+                    <a
+                      href="#email"
+                      onClick={() => setSorting({ type: EMAIL, data: null })}
+                      aria-label={t("sort-by-column", { column: t("label-email") })}
+                    >
+                      <CaretDownIcon />
+                    </a>
+                  </th>
+                  {data.sortedCourseModules
+                    .sort((a, b) => a.order_number - b.order_number)
+                    .map((module) => {
+                      // eslint-disable-next-line i18next/no-literal-string
+                      const moduleSorting = `#mod${module.order_number}`
+                      return (
+                        <th key={module.id} colSpan={2}>
+                          <div
+                            className={css`
+                              text-align: center;
+                            `}
                           >
-                            <CaretDownIcon />
-                          </a>
-                        </div>
-                      </th>
-                    )
-                  })}
-              </tr>
-              <tr>
-                {getCompletionsList.data.sortedCourseModules.map((_, i) => (
-                  <React.Fragment key={i}>
-                    <td>{t("label-grade")}</td>
-                    <td>{t("label-registered")}</td>
-                  </React.Fragment>
+                            {module.name ?? t("label-default")}{" "}
+                            <a
+                              href={moduleSorting}
+                              onClick={() => setSorting({ type: moduleSorting, data: module.id })}
+                              aria-label={t("sort-by-column", {
+                                column: module.name ?? t("label-default"),
+                              })}
+                            >
+                              <CaretDownIcon />
+                            </a>
+                          </div>
+                        </th>
+                      )
+                    })}
+                </tr>
+                <tr>
+                  {data.sortedCourseModules.map((_, i) => (
+                    <React.Fragment key={i}>
+                      <td>{t("label-grade")}</td>
+                      <td>{t("label-registered")}</td>
+                    </React.Fragment>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {data.users.sort(sortUsers).map((user) => (
+                  <UserCompletionRow
+                    key={user.userId}
+                    sortedCourseModules={data.sortedCourseModules}
+                    user={user}
+                  />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {getCompletionsList.data.users.sort(sortUsers).map((user) => (
-                <UserCompletionRow
-                  key={user.userId}
-                  sortedCourseModules={getCompletionsList.data.sortedCourseModules}
-                  user={user}
-                />
-              ))}
-            </tbody>
-          </FullWidthTable>
-          <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
-        </>
-      )}
+              </tbody>
+            </FullWidthTable>
+            <p>*: {t("module-is-completed-but-requires-completion-of-prerequisite-modules")}</p>
+          </>
+        )}
+      </QueryResult>
     </>
   )
 }

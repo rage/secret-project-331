@@ -13,6 +13,7 @@ import InnerBlocks from "@/components/course-material/ContentRenderer/util/Inner
 import { getCodeGiveawayStatus } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { QueryResult } from "@/shared-module/components"
 
 interface CodeGiveawayBlockProps {
   code_giveaway_id: string | undefined | null
@@ -51,39 +52,37 @@ const CodeGiveawayBlock: React.FC<
     return <ErrorBanner variant="readOnly" error={t("error-no-code-giveaway-id")} />
   }
 
-  if (!loginContext.signedIn || codeGiveawayStatusQuery.isLoading) {
+  if (!loginContext.signedIn) {
     return null
-  }
-
-  if (codeGiveawayStatusQuery.isError) {
-    return <ErrorBanner error={codeGiveawayStatusQuery.error} variant="readOnly" />
-  }
-
-  if (
-    codeGiveawayStatusQuery.data?.tag === "Disabled" ||
-    codeGiveawayStatusQuery.data?.tag === "NotEligible" ||
-    !codeGiveawayStatusQuery.data
-  ) {
-    return null
-  }
-
-  if (codeGiveawayStatusQuery.data?.tag === "Eligible") {
-    return (
-      <Wrapper>
-        <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
-        <ClaimCode
-          codeGiveawayId={codeGiveawayId}
-          onClaimed={() => codeGiveawayStatusQuery.refetch()}
-        />
-      </Wrapper>
-    )
   }
 
   return (
-    <Wrapper>
-      <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
-      <p>{t("your-code-code", { code: codeGiveawayStatusQuery.data.given_code })}</p>
-    </Wrapper>
+    <QueryResult query={codeGiveawayStatusQuery}>
+      {(data) => {
+        if (data.tag === "Disabled" || data.tag === "NotEligible") {
+          return null
+        }
+
+        if (data.tag === "Eligible") {
+          return (
+            <Wrapper>
+              <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+              <ClaimCode
+                codeGiveawayId={codeGiveawayId}
+                onClaimed={() => codeGiveawayStatusQuery.refetch()}
+              />
+            </Wrapper>
+          )
+        }
+
+        return (
+          <Wrapper>
+            <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />
+            <p>{t("your-code-code", { code: data.given_code })}</p>
+          </Wrapper>
+        )
+      }}
+    </QueryResult>
   )
 }
 

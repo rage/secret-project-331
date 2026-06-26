@@ -21,17 +21,16 @@ import type {
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import HideChildrenInSystemTests from "@/shared-module/common/components/system-tests/HideChildrenInSystemTests"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import { QueryResult } from "@/shared-module/components"
 import {
   CurrentStateMessage,
   IframeViewType,
@@ -416,6 +415,12 @@ const IframeViewPlayground: React.FC = () => {
     retry: false,
   })
 
+  const specQueriesEnabled =
+    serviceInfoQuery.isSuccess &&
+    Boolean(serviceInfoQuery.data) &&
+    isValidServiceInfo &&
+    privateSpecValidJson
+
   const userInformation: UserInformation = {
     pseudonymous_id: pseudonymousUserId,
     signed_in: signedIn,
@@ -579,22 +584,18 @@ const IframeViewPlayground: React.FC = () => {
 
               <p>{t("public-spec-explanation")}</p>
 
-              {publicSpecQuery.isError && (
-                <ErrorBanner variant={"readOnly"} error={publicSpecQuery.error} />
-              )}
-              {publicSpecQuery.isLoading && publicSpecQuery.isFetching && (
-                <Spinner variant={"medium"} />
-              )}
-              {publicSpecQuery.isLoading && !publicSpecQuery.isFetching && (
+              {specQueriesEnabled ? (
+                <QueryResult query={publicSpecQuery}>
+                  {(data) => (
+                    <StyledPre fullWidth={false}>
+                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
+                    </StyledPre>
+                  )}
+                </QueryResult>
+              ) : (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
-              {/* eslint-disable i18next/no-literal-string */}
-              {publicSpecQuery.isSuccess && (
-                <StyledPre fullWidth={false}>
-                  {JSON.stringify(publicSpecQuery.data, undefined, 2).replaceAll("\\n", "\n")}
-                </StyledPre>
-              )}
-              {/* eslint-enable i18next/no-literal-string */}
             </Area>
           </PublicSpecArea>
 
@@ -604,25 +605,18 @@ const IframeViewPlayground: React.FC = () => {
 
               <p>{t("model-solution-spec-explanation")}</p>
 
-              {modelSolutionSpecQuery.isError && (
-                <ErrorBanner variant={"readOnly"} error={modelSolutionSpecQuery.error} />
-              )}
-              {modelSolutionSpecQuery.isLoading && modelSolutionSpecQuery.isFetching && (
-                <Spinner variant={"medium"} />
-              )}
-              {modelSolutionSpecQuery.isLoading && !modelSolutionSpecQuery.isFetching && (
+              {specQueriesEnabled ? (
+                <QueryResult query={modelSolutionSpecQuery}>
+                  {(data) => (
+                    <StyledPre fullWidth={false}>
+                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
+                    </StyledPre>
+                  )}
+                </QueryResult>
+              ) : (
                 <p>{t("error-cannot-load-with-the-given-inputs")}</p>
               )}
-              {/* eslint-disable i18next/no-literal-string */}
-              {modelSolutionSpecQuery.isSuccess && (
-                <StyledPre fullWidth={false}>
-                  {JSON.stringify(modelSolutionSpecQuery.data, undefined, 2).replaceAll(
-                    "\\n",
-                    "\n",
-                  )}
-                </StyledPre>
-              )}
-              {/* eslint-enable i18next/no-literal-string */}
             </Area>
           </ModelSolutionSpecArea>
         </GridContainer>

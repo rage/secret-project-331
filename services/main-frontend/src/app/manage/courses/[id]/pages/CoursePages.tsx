@@ -6,8 +6,7 @@ import ManageCourseStructure from "./ManageCourseStructure"
 
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResult } from "@/shared-module/components"
 
 const CoursePages: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -15,18 +14,11 @@ const CoursePages: React.FC<React.PropsWithChildren<CourseManagementPagesProps>>
   const getCourseStructure = useCourseStructure(courseId)
 
   return (
-    <>
-      {getCourseStructure.isError && (
-        <ErrorBanner variant={"link"} error={getCourseStructure.error} />
+    <QueryResult query={getCourseStructure}>
+      {(data) => (
+        <ManageCourseStructure courseStructure={data} refetch={getCourseStructure.refetch} />
       )}
-      {getCourseStructure.isLoading && <Spinner variant={"medium"} />}
-      {getCourseStructure.isSuccess && (
-        <ManageCourseStructure
-          courseStructure={getCourseStructure.data}
-          refetch={getCourseStructure.refetch}
-        />
-      )}
-    </>
+    </QueryResult>
   )
 }
 

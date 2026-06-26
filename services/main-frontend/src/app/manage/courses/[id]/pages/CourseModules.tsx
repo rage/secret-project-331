@@ -14,10 +14,9 @@ import { getCourseStructureOptions } from "@/generated/api/@tanstack/react-query
 import { updateCourseModules } from "@/generated/api/sdk.generated"
 import type { CompletionPolicy, ModifiedModule, NewModule } from "@/generated/api/types.generated"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 
 const AUTOMATIC = "automatic"
 const MANUAL = "manual"
@@ -528,116 +527,108 @@ const CourseModules: React.FC<Props> = ({ courseId }) => {
     })
   }
 
-  if (courseStructureQuery.isError) {
-    return <ErrorBanner variant={"link"} error={courseStructureQuery.error} />
-  }
-
-  if (courseStructureQuery.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
-  if (!courseStructureQuery.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void courseStructureQuery.refetch()
-        }}
-      />
-    )
-  }
-
   return (
-    <>
-      <div
-        className={css`
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-        `}
-      >
-        <h1
-          className={css`
-            font-size: clamp(2rem, 3.6vh, 36px);
-            color: ${baseTheme.colors.gray[700]};
-            font-family: ${headingFont};
-            font-weight: bold;
-            margin-bottom: 1.6rem;
-          `}
-        >
-          {t("modules")}
-        </h1>
-        {moduleList?.modules
-          .sort((l, r) => {
-            return l.order_number - r.order_number
-          })
-          .map((module) => (
-            <div
+    <QueryResult
+      query={courseStructureQuery}
+      emptyFallback={
+        <DataLoadError
+          onRetry={() => {
+            void courseStructureQuery.refetch()
+          }}
+        />
+      }
+    >
+      {(data) => (
+        <>
+          <div
+            className={css`
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+            `}
+          >
+            <h1
               className={css`
-                margin-bottom: 2rem;
-                width: 100%;
+                font-size: clamp(2rem, 3.6vh, 36px);
+                color: ${baseTheme.colors.gray[700]};
+                font-family: ${headingFont};
+                font-weight: bold;
+                margin-bottom: 1.6rem;
               `}
-              key={module.id}
             >
-              <EditCourseModuleForm
-                module={module}
-                chapters={courseStructureQuery.data.chapterNumbers}
-                onSubmitForm={handleSaveModuleEdits}
-                onDeleteModule={handleDeleteModule}
-              />
-              {moduleList?.chapters
-                .filter((c) => c.module === module.id)
-                .map((c) => (
-                  <div
-                    className={css`
-                      background-color: #fff;
-                      color: ${baseTheme.colors.gray[700]};
-                      height: 3.5rem;
-                      min-width: 100%;
-                      display: flex;
-                      align-items: center;
-                      font-weight: 500;
-                      border-bottom: 2px solid #e1e3e5;
-                      border-right: 2px solid #e1e3e5;
-                      border-left: 2px solid #e1e3e5;
+              {t("modules")}
+            </h1>
+            {moduleList?.modules
+              .sort((l, r) => {
+                return l.order_number - r.order_number
+              })
+              .map((module) => (
+                <div
+                  className={css`
+                    margin-bottom: 2rem;
+                    width: 100%;
+                  `}
+                  key={module.id}
+                >
+                  <EditCourseModuleForm
+                    module={module}
+                    chapters={data.chapterNumbers}
+                    onSubmitForm={handleSaveModuleEdits}
+                    onDeleteModule={handleDeleteModule}
+                  />
+                  {moduleList?.chapters
+                    .filter((c) => c.module === module.id)
+                    .map((c) => (
+                      <div
+                        className={css`
+                          background-color: #fff;
+                          color: ${baseTheme.colors.gray[700]};
+                          height: 3.5rem;
+                          min-width: 100%;
+                          display: flex;
+                          align-items: center;
+                          font-weight: 500;
+                          border-bottom: 2px solid #e1e3e5;
+                          border-right: 2px solid #e1e3e5;
+                          border-left: 2px solid #e1e3e5;
 
-                      &:last-of-type {
-                        border-bottom-right-radius: 4px;
-                        border-bottom-left-radius: 4px;
-                      }
-                    `}
-                    key={c.id}
-                  >
-                    <div
-                      className={css`
-                        margin-left: 1.25rem;
-                      `}
-                    >
-                      {c.chapter_number}. {c.name}
-                    </div>
-                  </div>
-                ))}
-            </div>
-          ))}
-      </div>
-      <BottomPanel
-        title={t("title-dialog-module-save")}
-        error={moduleList?.error}
-        show={edited}
-        leftButtonText={t("save-changes")}
-        leftButtonDisabled={
-          (moduleList?.error !== null && moduleList?.error !== undefined) ||
-          moduleUpdatesMutation.isPending
-        }
-        onClickLeft={handleSubmit}
-        rightButtonText={t("button-reset")}
-        onClickRight={handleReset}
-        rightButtonDisabled={moduleUpdatesMutation.isPending}
-      />
-      <NewCourseModuleForm
-        chapters={courseStructureQuery.data.chapterNumbers}
-        onSubmitForm={onSaveNewModule}
-      />
-    </>
+                          &:last-of-type {
+                            border-bottom-right-radius: 4px;
+                            border-bottom-left-radius: 4px;
+                          }
+                        `}
+                        key={c.id}
+                      >
+                        <div
+                          className={css`
+                            margin-left: 1.25rem;
+                          `}
+                        >
+                          {c.chapter_number}. {c.name}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ))}
+          </div>
+          <BottomPanel
+            title={t("title-dialog-module-save")}
+            error={moduleList?.error}
+            show={edited}
+            leftButtonText={t("save-changes")}
+            leftButtonDisabled={
+              (moduleList?.error !== null && moduleList?.error !== undefined) ||
+              moduleUpdatesMutation.isPending
+            }
+            onClickLeft={handleSubmit}
+            rightButtonText={t("button-reset")}
+            onClickRight={handleReset}
+            rightButtonDisabled={moduleUpdatesMutation.isPending}
+          />
+          <NewCourseModuleForm chapters={data.chapterNumbers} onSubmitForm={onSaveNewModule} />
+        </>
+      )}
+    </QueryResult>
   )
 }
 

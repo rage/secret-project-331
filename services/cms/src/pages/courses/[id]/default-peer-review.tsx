@@ -17,12 +17,11 @@ import {
 import { getCmsCourseDefaultPeerReviewOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsCourseDefaultPeerReview } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -131,37 +130,33 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
     })
   }, [])
 
-  if (peerOrSelfReviewConfigurationQuery.isError) {
-    return <ErrorBanner error={peerOrSelfReviewConfigurationQuery.error} variant="text" />
-  }
-
-  if (peerOrSelfReviewConfigurationQuery.isLoading || !peerOrSelfReviewConfigurationQuery.data) {
-    return <Spinner variant="medium" />
-  }
-
   return (
-    <>
-      <PeerReviewEditor
-        attributes={attributes}
-        setAttributes={setAttributes}
-        courseId={peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config.course_id}
-        courseGlobalEditor={true}
-        instructionsEditor={
-          <PeerReviewAdditionalInstructionsEditor
-            content={parsedAdditionalInstructions}
-            setContent={updateAdditionalInstructions}
-            courseId={peerOrSelfReviewConfigurationQuery.data.peer_or_self_review_config.course_id}
+    <QueryResult query={peerOrSelfReviewConfigurationQuery}>
+      {(data) => (
+        <>
+          <PeerReviewEditor
+            attributes={attributes}
+            setAttributes={setAttributes}
+            courseId={data.peer_or_self_review_config.course_id}
+            courseGlobalEditor={true}
+            instructionsEditor={
+              <PeerReviewAdditionalInstructionsEditor
+                content={parsedAdditionalInstructions}
+                setContent={updateAdditionalInstructions}
+                courseId={data.peer_or_self_review_config.course_id}
+              />
+            }
           />
-        }
-      />
-      <Button
-        variant="primary"
-        size="medium"
-        onClick={() => mutateCourseDefaultPeerReview.mutate()}
-      >
-        {t("save")}
-      </Button>
-    </>
+          <Button
+            variant="primary"
+            size="medium"
+            onClick={() => mutateCourseDefaultPeerReview.mutate()}
+          >
+            {t("save")}
+          </Button>
+        </>
+      )}
+    </QueryResult>
   )
 }
 

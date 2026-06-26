@@ -11,13 +11,11 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { createPageAudioFile } from "@/generated/api/sdk.generated"
 import TrashIcon from "@/imgs/trash.svg"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 const ACCEPTABLE_MIME_TYPES = [
   "audio/mpeg",
@@ -106,30 +104,6 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
         font-family: ${primaryFont};
       `}
     >
-      {pageAudioFilesQuery.isLoading && (
-        <div
-          className={css`
-            margin-top: 40px;
-            ${respondToOrLarger.sm} {
-              margin-top: 80px;
-            }
-          `}
-        >
-          <Spinner variant="medium" />
-        </div>
-      )}
-      {pageAudioFilesQuery.isError && (
-        <div
-          className={css`
-            margin-top: 40px;
-            ${respondToOrLarger.sm} {
-              margin-top: 80px;
-            }
-          `}
-        >
-          <ErrorBanner variant="readOnly" error={pageAudioFilesQuery.error} />
-        </div>
-      )}
       <div>
         <div
           className={css`
@@ -146,59 +120,61 @@ const PageAudioWidgetContent: React.FC<PageAudioWidgetContentProps> = ({ pageId 
             {t("audio-upload-description")}
           </span>
         </div>
-        {pageAudioFilesQuery.isSuccess && (
-          <div>
-            {pageAudioFilesQuery.data.map((item) => {
-              return (
-                <div
-                  key={item.id}
-                  className={css`
-                    height: 40px;
-                    display: flex;
-                    gap: 10px 0;
-                    align-items: center;
-                  `}
-                >
+        <QueryResult query={pageAudioFilesQuery}>
+          {(data) => (
+            <div>
+              {data.map((item) => {
+                return (
                   <div
+                    key={item.id}
                     className={css`
-                      background: #fff;
-                      font-weight: 500;
-                      display: inline-block;
-                      justify-content: center;
-                      align-items: center;
-                      padding: 6px;
-                    `}
-                  >
-                    {item.mime_type}
-                  </div>
-                  <div
-                    className={css`
-                      background: #fff;
-                      padding: 6px 8px;
-                      margin-left: 5px;
-                      overflow: hidden;
-                      justify-content: center;
+                      height: 40px;
+                      display: flex;
+                      gap: 10px 0;
                       align-items: center;
                     `}
                   >
-                    <TrashIcon
+                    <div
                       className={css`
                         background: #fff;
+                        font-weight: 500;
+                        display: inline-block;
+                        justify-content: center;
+                        align-items: center;
+                        padding: 6px;
                       `}
-                      onClick={() => {
-                        deletePageAudioFile.mutate({
-                          path: {
-                            file_id: item.id,
-                          },
-                        })
-                      }}
-                    />
+                    >
+                      {item.mime_type}
+                    </div>
+                    <div
+                      className={css`
+                        background: #fff;
+                        padding: 6px 8px;
+                        margin-left: 5px;
+                        overflow: hidden;
+                        justify-content: center;
+                        align-items: center;
+                      `}
+                    >
+                      <TrashIcon
+                        className={css`
+                          background: #fff;
+                        `}
+                        onClick={() => {
+                          deletePageAudioFile.mutate({
+                            path: {
+                              file_id: item.id,
+                            },
+                          })
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
-        )}
+                )
+              })}
+            </div>
+          )}
+        </QueryResult>
         <form
           onSubmit={handleUpload}
           method="POST"

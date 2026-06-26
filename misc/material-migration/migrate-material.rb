@@ -888,6 +888,30 @@ class MaterialMigrator
     @tag_depth = @tag_depth - 1 if line.end_with?('</quiz>') || oneliner
   end
 
+  # Places an image relative to the current block: split an open paragraph around it, nest it
+  # inside an open container, or append it at the top level.
+  def place_image_block(image_block, json_block, json_content)
+    if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
+      json_content << json_block
+      json_content << image_block
+      json_content << create_new_block
+    elsif @tag_depth > 0
+      json_block[:innerBlocks] << image_block
+      json_block[:innerBlocks] << {
+        'clientId': SecureRandom.uuid,
+        'isValid': true,
+        'name': 'core/paragraph',
+        'attributes': {
+          'content': '',
+          'dropCap': false,
+        },
+        'innerBlocks': [],
+      }
+    else
+      json_content << image_block
+    end
+  end
+
   def handle_image(line, json_block, file, json_content)
     path_to_current_file = file.rpartition('/')[0]
 
@@ -922,25 +946,7 @@ class MaterialMigrator
     src_path = attributes[:src]
     image_block = build_image_block(src_path, attributes[:alt], width)
 
-    if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
-      json_content << json_block
-      json_content << image_block
-      json_content << create_new_block
-    elsif @tag_depth > 0
-      json_block[:innerBlocks] << image_block
-      json_block[:innerBlocks] << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'core/paragraph',
-        'attributes': {
-          'content': '',
-          'dropCap': false,
-        },
-        'innerBlocks': [],
-      }
-    else
-      json_content << image_block
-    end
+    place_image_block(image_block, json_block, json_content)
 
     @tag_depth = @tag_depth - 1
   end
@@ -963,25 +969,7 @@ class MaterialMigrator
 
     image_block = build_image_block(src_path, alt_text, '')
 
-    if @tag_depth > 0 && json_block[:name] == 'core/paragraph'
-      json_content << json_block
-      json_content << image_block
-      json_content << create_new_block
-    elsif @tag_depth > 0
-      json_block[:innerBlocks] << image_block
-      json_block[:innerBlocks] << {
-        'clientId': SecureRandom.uuid,
-        'isValid': true,
-        'name': 'core/paragraph',
-        'attributes': {
-          'content': '',
-          'dropCap': false,
-        },
-        'innerBlocks': [],
-      }
-    else
-      json_content << image_block
-    end
+    place_image_block(image_block, json_block, json_content)
 
     @tag_depth = @tag_depth - 1 if @tag_depth > 0
   end

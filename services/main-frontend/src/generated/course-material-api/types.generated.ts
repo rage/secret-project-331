@@ -675,11 +675,6 @@ export type Message =
 
 export type MessageRole = "assistant" | "user" | "developer" | "system"
 
-export type Module = {
-  course_code: string
-  description: string
-}
-
 export type NewCourseBackgroundQuestionAnswer = {
   answer_value?: string | null
   course_background_question_id: string
@@ -943,11 +938,6 @@ export type SearchRequest = {
 
 export type ShowExerciseAnswers = {
   show_exercise_answers: boolean
-}
-
-export type SisuDescriptionResponse = {
-  course_description: string
-  modules: Array<Module>
 }
 
 export type StudentCountry = {
@@ -2203,28 +2193,6 @@ export type SearchPagesWithWordsResponses = {
 
 export type SearchPagesWithWordsResponse =
   SearchPagesWithWordsResponses[keyof SearchPagesWithWordsResponses]
-
-export type GetCourseMaterialSisuCourseLlmDescriptionsData = {
-  body?: never
-  path: {
-    /**
-     * Course id
-     */
-    course_id: string
-  }
-  query?: never
-  url: "/api/v0/course-material/courses/{course_id}/sisu-course-llm-descriptions"
-}
-
-export type GetCourseMaterialSisuCourseLlmDescriptionsResponses = {
-  /**
-   * Sisu course LLM descriptions
-   */
-  200: SisuDescriptionResponse
-}
-
-export type GetCourseMaterialSisuCourseLlmDescriptionsResponse =
-  GetCourseMaterialSisuCourseLlmDescriptionsResponses[keyof GetCourseMaterialSisuCourseLlmDescriptionsResponses]
 
 export type GetCourseMaterialTopLevelPagesData = {
   body?: never

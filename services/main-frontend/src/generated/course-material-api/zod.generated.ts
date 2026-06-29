@@ -543,11 +543,6 @@ export const zChatbotConversationMessageMessage = z.object({
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
-export const zModule = z.object({
-  course_code: z.string(),
-  description: z.string(),
-})
-
 export const zNewCourseBackgroundQuestionAnswer = z.object({
   answer_value: z.string().nullish(),
   course_background_question_id: z.uuid(),
@@ -875,11 +870,6 @@ export const zSearchRequest = z.object({
 
 export const zShowExerciseAnswers = z.object({
   show_exercise_answers: z.boolean(),
-})
-
-export const zSisuDescriptionResponse = z.object({
-  course_description: z.string(),
-  modules: z.array(zModule),
 })
 
 export const zStudentCountry = z.object({
@@ -1766,15 +1756,6 @@ export const zSearchPagesWithWordsPath = z.object({
  * Matching pages
  */
 export const zSearchPagesWithWordsResponse = z.array(zPageSearchResult)
-
-export const zGetCourseMaterialSisuCourseLlmDescriptionsPath = z.object({
-  course_id: z.uuid(),
-})
-
-/**
- * Sisu course LLM descriptions
- */
-export const zGetCourseMaterialSisuCourseLlmDescriptionsResponse = zSisuDescriptionResponse
 
 export const zGetCourseMaterialTopLevelPagesPath = z.object({
   course_id: z.uuid(),

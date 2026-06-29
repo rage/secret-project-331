@@ -7,9 +7,9 @@ import React, { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import { getSisuCourseLlmDescriptionsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCourse } from "@/generated/api/sdk.generated"
 import type { Course, CourseUpdate } from "@/generated/api/types.generated"
-import { getCourseMaterialSisuCourseLlmDescriptionsOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -41,7 +41,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
       value: courseId,
       enabled: open,
       build: (courseId) =>
-        getCourseMaterialSisuCourseLlmDescriptionsOptions({
+        getSisuCourseLlmDescriptionsOptions({
           path: {
             course_id: courseId,
           },

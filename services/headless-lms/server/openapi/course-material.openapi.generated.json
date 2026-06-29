@@ -1730,37 +1730,6 @@
         }
       }
     },
-    "/api/v0/course-material/courses/{course_id}/sisu-course-llm-descriptions": {
-      "get": {
-        "tags": ["course-material-courses"],
-        "summary": "\nGET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM\n\nReturns LLM generated descriptions for a course based on information from Sisu API.",
-        "operationId": "getCourseMaterialSisuCourseLlmDescriptions",
-        "parameters": [
-          {
-            "name": "course_id",
-            "in": "path",
-            "description": "Course id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "uuid"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Sisu course LLM descriptions",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SisuDescriptionResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/v0/course-material/courses/{course_id}/top-level-pages": {
       "get": {
         "tags": ["course-material-courses"],
@@ -5219,18 +5188,6 @@
         "type": "string",
         "enum": ["assistant", "user", "developer", "system"]
       },
-      "Module": {
-        "type": "object",
-        "required": ["course_code", "description"],
-        "properties": {
-          "course_code": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          }
-        }
-      },
       "NewCourseBackgroundQuestionAnswer": {
         "type": "object",
         "required": ["course_background_question_id"],
@@ -6090,21 +6047,6 @@
         "properties": {
           "show_exercise_answers": {
             "type": "boolean"
-          }
-        }
-      },
-      "SisuDescriptionResponse": {
-        "type": "object",
-        "required": ["course_description", "modules"],
-        "properties": {
-          "course_description": {
-            "type": "string"
-          },
-          "modules": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Module"
-            }
           }
         }
       },

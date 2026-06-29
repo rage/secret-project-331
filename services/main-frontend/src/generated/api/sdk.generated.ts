@@ -420,6 +420,8 @@ import type {
   GetResetPasswordTokenStatusResponses,
   GetRolesData,
   GetRolesResponses,
+  GetSisuCourseLlmDescriptionsData,
+  GetSisuCourseLlmDescriptionsResponses,
   GetStatusCronjobsData,
   GetStatusCronjobsResponses,
   GetStatusDeploymentsData,
@@ -784,6 +786,7 @@ import {
   zGetRegradingsResponse,
   zGetResetPasswordTokenStatusResponse,
   zGetRolesResponse,
+  zGetSisuCourseLlmDescriptionsResponse,
   zGetStatusCronjobsResponse,
   zGetStatusDeploymentsResponse,
   zGetStatusEventsResponse,
@@ -2919,6 +2922,27 @@ export const setCourseJoinCode = <ThrowOnError extends boolean = true>(
   (options.client ?? client).post<SetCourseJoinCodeResponses, unknown, ThrowOnError, "data">({
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/set-join-code",
+    ...options,
+  })
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
+ *
+ * Returns LLM generated descriptions for a course based on information from Sisu API.
+ */
+export const getSisuCourseLlmDescriptions = <ThrowOnError extends boolean = true>(
+  options: Options<GetSisuCourseLlmDescriptionsData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<
+    GetSisuCourseLlmDescriptionsResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetSisuCourseLlmDescriptionsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/sisu-course-llm-descriptions",
     ...options,
   })
 

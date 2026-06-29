@@ -58,7 +58,6 @@ import {
   getCourseMaterialResearchConsentForm,
   getCourseMaterialResearchConsentFormAnswers,
   getCourseMaterialResearchConsentFormQuestions,
-  getCourseMaterialSisuCourseLlmDescriptions,
   getCourseMaterialStudentCountries,
   getCourseMaterialStudentCountry,
   getCourseMaterialTopLevelPages,
@@ -191,8 +190,6 @@ import type {
   GetCourseMaterialResearchConsentFormQuestionsData,
   GetCourseMaterialResearchConsentFormQuestionsResponse,
   GetCourseMaterialResearchConsentFormResponse,
-  GetCourseMaterialSisuCourseLlmDescriptionsData,
-  GetCourseMaterialSisuCourseLlmDescriptionsResponse,
   GetCourseMaterialStudentCountriesData,
   GetCourseMaterialStudentCountriesResponse,
   GetCourseMaterialStudentCountryData,
@@ -1568,35 +1565,6 @@ export const searchPagesWithWordsMutation = (
   }
   return mutationOptions
 }
-
-export const getCourseMaterialSisuCourseLlmDescriptionsQueryKey = (
-  options: Options<GetCourseMaterialSisuCourseLlmDescriptionsData>,
-) => createQueryKey("getCourseMaterialSisuCourseLlmDescriptions", options)
-
-/**
- *
- * GET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
- *
- * Returns LLM generated descriptions for a course based on information from Sisu API.
- */
-export const getCourseMaterialSisuCourseLlmDescriptionsOptions = (
-  options: Options<GetCourseMaterialSisuCourseLlmDescriptionsData>,
-) =>
-  queryOptions<
-    GetCourseMaterialSisuCourseLlmDescriptionsResponse,
-    DefaultError,
-    GetCourseMaterialSisuCourseLlmDescriptionsResponse,
-    ReturnType<typeof getCourseMaterialSisuCourseLlmDescriptionsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) =>
-      await getCourseMaterialSisuCourseLlmDescriptions({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true,
-      }),
-    queryKey: getCourseMaterialSisuCourseLlmDescriptionsQueryKey(options),
-  })
 
 export const getCourseMaterialTopLevelPagesQueryKey = (
   options: Options<GetCourseMaterialTopLevelPagesData>,

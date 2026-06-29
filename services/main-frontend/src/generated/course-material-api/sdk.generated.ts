@@ -108,8 +108,6 @@ import type {
   GetCourseMaterialResearchConsentFormQuestionsData,
   GetCourseMaterialResearchConsentFormQuestionsResponses,
   GetCourseMaterialResearchConsentFormResponses,
-  GetCourseMaterialSisuCourseLlmDescriptionsData,
-  GetCourseMaterialSisuCourseLlmDescriptionsResponses,
   GetCourseMaterialStudentCountriesData,
   GetCourseMaterialStudentCountriesResponses,
   GetCourseMaterialStudentCountryData,
@@ -220,7 +218,6 @@ import {
   zGetCourseMaterialResearchConsentFormAnswersResponse,
   zGetCourseMaterialResearchConsentFormQuestionsResponse,
   zGetCourseMaterialResearchConsentFormResponse,
-  zGetCourseMaterialSisuCourseLlmDescriptionsResponse,
   zGetCourseMaterialStudentCountriesResponse,
   zGetCourseMaterialStudentCountryResponse,
   zGetCourseMaterialTopLevelPagesResponse,
@@ -1225,28 +1222,6 @@ export const searchPagesWithWords = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
-  })
-
-/**
- *
- * GET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
- *
- * Returns LLM generated descriptions for a course based on information from Sisu API.
- */
-export const getCourseMaterialSisuCourseLlmDescriptions = <ThrowOnError extends boolean = true>(
-  options: Options<GetCourseMaterialSisuCourseLlmDescriptionsData, ThrowOnError>,
-) =>
-  (options.client ?? client).get<
-    GetCourseMaterialSisuCourseLlmDescriptionsResponses,
-    unknown,
-    ThrowOnError,
-    "data"
-  >({
-    responseValidator: async (data) =>
-      await zGetCourseMaterialSisuCourseLlmDescriptionsResponse.parseAsync(data),
-    responseStyle: "data",
-    url: "/api/v0/course-material/courses/{course_id}/sisu-course-llm-descriptions",
-    ...options,
   })
 
 /**

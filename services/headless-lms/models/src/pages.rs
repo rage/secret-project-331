@@ -4184,6 +4184,7 @@ mod test {
             chapter_id: Some(chapter),
             front_page_of_chapter_id: None,
             content_search_language: None,
+            hidden: false,
         };
 
         // Stored in the decoded-canonical form (raw Cyrillic), as insert_page now stores it.

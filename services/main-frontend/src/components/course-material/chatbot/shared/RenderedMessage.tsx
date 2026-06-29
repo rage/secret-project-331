@@ -16,7 +16,6 @@ import CitationButton from "./CitationButton"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { nodeIsElement } from "@/shared-module/common/utils/dom"
-import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -100,7 +99,6 @@ export enum MessageRenderType {
 interface RenderedMessageProps {
   renderOption: MessageRenderType
   message: string
-  citedDocs: number[]
   citationNumberingMap: Map<number, number>
   citationButtonClicked: boolean
   currentTriggerId: string | undefined
@@ -125,10 +123,23 @@ const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = 
 
 MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
 
+/**
+ * Resolves a placeholder's raw citation number (the `y` in a 【x:y†source】 marker,
+ * stored on the placeholder span as data-citation-n) to its renumbered display value.
+ * Returns null when the number has no entry in the map — i.e. the marker references a
+ * citation that doesn't exist (a hallucinated citation), in which case no citation button
+ * should be rendered for it.
+ */
+export function citationDisplayNumber(
+  rawCitN: number,
+  citationNumberingMap: Map<number, number>,
+): number | null {
+  return citationNumberingMap.get(rawCitN) ?? null
+}
+
 const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
   message,
-  citedDocs,
   citationNumberingMap,
   citationButtonClicked,
   currentTriggerId,
@@ -156,36 +167,35 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     return Array.from(
       thisNode.current?.querySelectorAll<Element>(PORTAL_PLACEHOLDER_QUERY_SELECTOR) ?? [],
     ).map((node, idx) => {
-      // the citedDocs list contains the citation numbers in the order of appearance in the msg
-      // the nodelist contains the citations in the order of appearance in the msg
-      // the same idx can be used
-      let citN = assertNotNullOrUndefined(citationNumberingMap.get(citedDocs[idx]))
+      // Each placeholder carries its own citation number (the `y` in 【x:y†source】) as
+      // data-citation-n. We resolve it per node instead of positionally indexing citedDocs:
+      // a message can contain a marker that references a non-existent citation
+      // (e.g. 【x:0†source】) which still produces a placeholder node here but is dropped
+      // from the renumbering map, and positional indexing would then misalign every
+      // following citation (and run off the end of the array).
+      const rawCitN = parseInt(node.getAttribute("data-citation-n") ?? "", 10)
+      const citN = citationDisplayNumber(rawCitN, citationNumberingMap)
 
-      if (idx !== 0) {
-        let prevCitN = assertNotNullOrUndefined(citationNumberingMap.get(citedDocs[idx - 1]))
+      if (citN === null) {
+        // Unknown / hallucinated citation: render no button so the marker just disappears.
+        return createPortal(null, node, idx)
+      }
 
-        // if the previous citation was the same as this, and the previous
-        // sibling node is also a citation button (not text), return null
-        // because we don't want to cite the same doc multiple times in a row
-        if (prevCitN === citN) {
-          let prev = node.previousSibling
-
-          if (prev && nodeIsElement(prev)) {
-            // double check if the previousSibling is actually a citationButton
-            // and actually corresponds to the previous citation
-            if (
-              parseInt(prev.attributes.getNamedItem("data-citation-n")?.value ?? "") ===
-              citedDocs[idx - 1]
-            ) {
-              return createPortal(null, node, idx)
-            }
-          }
+      // If the previous sibling node is also a citation button pointing at the same
+      // document, return null because we don't want to cite the same doc multiple times
+      // in a row.
+      const prev = node.previousSibling
+      if (prev && nodeIsElement(prev)) {
+        const prevRawCitN = parseInt(prev.getAttribute("data-citation-n") ?? "", 10)
+        const prevCitN = citationDisplayNumber(prevRawCitN, citationNumberingMap)
+        if (prevCitN !== null && prevCitN === citN) {
+          return createPortal(null, node, idx)
         }
       }
 
       return createPortal(
         <CitationButton
-          citN={citedDocs[idx].toString()}
+          citN={rawCitN.toString()}
           citNToShow={citN.toString()}
           idx={idx.toString()}
           citationButtonClicked={citationButtonClicked}
@@ -200,7 +210,6 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
   }, [
     citationButtonClicked,
     citationNumberingMap,
-    citedDocs,
     currentTriggerId,
     handleClick,
     hoverCitationProps,

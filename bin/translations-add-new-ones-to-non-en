@@ -33,7 +33,7 @@ OTHER_LANGUAGE_FOLDERS = [
 ]
 
 if OTHER_LANGUAGE_FOLDERS == []:
-    print("None of the given non-English languages have any translations")
+    print("None of the non-English languages given are currently supported")
     exit(1)
 
 for original_file in EN_PATHS:

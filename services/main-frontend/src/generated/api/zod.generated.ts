@@ -3023,9 +3023,9 @@ export const zDeleteCodeGiveawayCodePath = z.object({
 })
 
 /**
- * Course audits
+ * Courses for auditing
  */
-export const zGetCourseAuditsResponse = z.array(zCourseAudit)
+export const zGetCoursesForAuditingResponse = z.array(zCourseAudit)
 
 export const zGetCourseInstancePath = z.object({
   course_instance_id: z.uuid(),

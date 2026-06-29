@@ -907,14 +907,14 @@
         }
       }
     },
-    "/api/v0/main-frontend/course-audits/": {
+    "/api/v0/main-frontend/course-auditing/": {
       "get": {
-        "tags": ["course_audits"],
-        "summary": "\nGET `/api/v0/main-frontend/course-audits`",
-        "operationId": "getCourseAudits",
+        "tags": ["courses_for_auditing"],
+        "summary": "\nGET `/api/v0/main-frontend/course-auditing`",
+        "operationId": "getCoursesForAuditing",
         "responses": {
           "200": {
-            "description": "Course audits",
+            "description": "Courses for auditing",
             "content": {
               "application/json": {
                 "schema": {

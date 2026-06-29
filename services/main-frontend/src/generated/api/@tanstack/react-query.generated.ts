@@ -103,7 +103,6 @@ import {
   getCohortActivityHistory,
   getCompletionStatsByEmailDomain,
   getCourse,
-  getCourseAudits,
   getCourseBreadcrumbInfo,
   getCourseByJoinCode,
   getCourseChapters,
@@ -150,6 +149,7 @@ import {
   getCoursePlanMembers,
   getCourseProgressForUser,
   getCourseReferences,
+  getCoursesForAuditing,
   getCourseStructure,
   getCourseStudentChapterLockingStatuses,
   getCourseStudentsCertificates,
@@ -468,8 +468,6 @@ import type {
   GetCohortActivityHistoryResponse,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponse,
-  GetCourseAuditsData,
-  GetCourseAuditsResponse,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponse,
   GetCourseByJoinCodeData,
@@ -559,6 +557,8 @@ import type {
   GetCourseReferencesData,
   GetCourseReferencesResponse,
   GetCourseResponse,
+  GetCoursesForAuditingData,
+  GetCoursesForAuditingResponse,
   GetCourseStructureData,
   GetCourseStructureResponse,
   GetCourseStudentChapterLockingStatusesData,
@@ -1563,28 +1563,28 @@ export const deleteCodeGiveawayCodeMutation = (
   return mutationOptions
 }
 
-export const getCourseAuditsQueryKey = (options?: Options<GetCourseAuditsData>) =>
-  createQueryKey("getCourseAudits", options)
+export const getCoursesForAuditingQueryKey = (options?: Options<GetCoursesForAuditingData>) =>
+  createQueryKey("getCoursesForAuditing", options)
 
 /**
  *
- * GET `/api/v0/main-frontend/course-audits`
+ * GET `/api/v0/main-frontend/course-auditing`
  */
-export const getCourseAuditsOptions = (options?: Options<GetCourseAuditsData>) =>
+export const getCoursesForAuditingOptions = (options?: Options<GetCoursesForAuditingData>) =>
   queryOptions<
-    GetCourseAuditsResponse,
+    GetCoursesForAuditingResponse,
     DefaultError,
-    GetCourseAuditsResponse,
-    ReturnType<typeof getCourseAuditsQueryKey>
+    GetCoursesForAuditingResponse,
+    ReturnType<typeof getCoursesForAuditingQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) =>
-      await getCourseAudits({
+      await getCoursesForAuditing({
         ...options,
         ...queryKey[0],
         signal,
         throwOnError: true,
       }),
-    queryKey: getCourseAuditsQueryKey(options),
+    queryKey: getCoursesForAuditingQueryKey(options),
   })
 
 export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData>) =>

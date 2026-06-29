@@ -191,8 +191,6 @@ import type {
   GetCohortActivityHistoryResponses,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponses,
-  GetCourseAuditsData,
-  GetCourseAuditsResponses,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponses,
   GetCourseByJoinCodeData,
@@ -288,6 +286,8 @@ import type {
   GetCourseReferencesData,
   GetCourseReferencesResponses,
   GetCourseResponses,
+  GetCoursesForAuditingData,
+  GetCoursesForAuditingResponses,
   GetCourseStructureData,
   GetCourseStructureResponses,
   GetCourseStudentChapterLockingStatusesData,
@@ -681,7 +681,6 @@ import {
   zGetCodeGiveawaysByCourseResponse,
   zGetCohortActivityHistoryResponse,
   zGetCompletionStatsByEmailDomainResponse,
-  zGetCourseAuditsResponse,
   zGetCourseBreadcrumbInfoResponse,
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
@@ -724,6 +723,7 @@ import {
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
+  zGetCoursesForAuditingResponse,
   zGetCourseStructureResponse,
   zGetCourseStudentChapterLockingStatusesResponse,
   zGetCourseStudentsCertificatesResponse,
@@ -1375,15 +1375,15 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
 
 /**
  *
- * GET `/api/v0/main-frontend/course-audits`
+ * GET `/api/v0/main-frontend/course-auditing`
  */
-export const getCourseAudits = <ThrowOnError extends boolean = true>(
-  options?: Options<GetCourseAuditsData, ThrowOnError>,
+export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCoursesForAuditingData, ThrowOnError>,
 ) =>
-  (options?.client ?? client).get<GetCourseAuditsResponses, unknown, ThrowOnError, "data">({
-    responseValidator: async (data) => await zGetCourseAuditsResponse.parseAsync(data),
+  (options?.client ?? client).get<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursesForAuditingResponse.parseAsync(data),
     responseStyle: "data",
-    url: "/api/v0/main-frontend/course-audits/",
+    url: "/api/v0/main-frontend/course-auditing/",
     ...options,
   })
 

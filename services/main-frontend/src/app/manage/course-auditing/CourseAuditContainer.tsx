@@ -8,16 +8,16 @@ import CourseAuditCard from "./CourseAuditCard"
 import type { CourseAudit } from "@/generated/api/types.generated"
 
 interface CourseAuditEditorProps {
-  courseAudits: CourseAudit[]
+  coursesForAuditing: CourseAudit[]
   refetch(): Promise<QueryObserverResult<CourseAudit[], unknown>>
 }
 
 const CourseAuditContainer: React.FC<React.PropsWithChildren<CourseAuditEditorProps>> = ({
-  courseAudits,
+  coursesForAuditing,
   refetch,
 }) => (
   <div>
-    {courseAudits.map((course) => (
+    {coursesForAuditing.map((course) => (
       <CourseAuditCard key={course.id} id={course.id} courseAudit={course} refetch={refetch} />
     ))}
   </div>

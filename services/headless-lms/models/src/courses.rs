@@ -324,7 +324,9 @@ WHERE deleted_at IS NULL;
     Ok(courses)
 }
 
-pub async fn all_course_audits(conn: &mut PgConnection) -> ModelResult<Vec<CourseAudit>> {
+pub async fn get_all_courses_for_auditing(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<CourseAudit>> {
     let courses = sqlx::query_as!(
         CourseAudit,
         r#"

@@ -2846,21 +2846,22 @@ export type DeleteCodeGiveawayCodeResponses = {
   200: unknown
 }
 
-export type GetCourseAuditsData = {
+export type GetCoursesForAuditingData = {
   body?: never
   path?: never
   query?: never
-  url: "/api/v0/main-frontend/course-audits/"
+  url: "/api/v0/main-frontend/course-auditing/"
 }
 
-export type GetCourseAuditsResponses = {
+export type GetCoursesForAuditingResponses = {
   /**
-   * Course audits
+   * Courses for auditing
    */
   200: Array<CourseAudit>
 }
 
-export type GetCourseAuditsResponse = GetCourseAuditsResponses[keyof GetCourseAuditsResponses]
+export type GetCoursesForAuditingResponse =
+  GetCoursesForAuditingResponses[keyof GetCoursesForAuditingResponses]
 
 export type GetCourseInstanceData = {
   body?: never

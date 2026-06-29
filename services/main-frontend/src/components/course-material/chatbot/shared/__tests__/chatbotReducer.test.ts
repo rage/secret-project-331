@@ -36,7 +36,7 @@ describe("chatbotReducer", () => {
       message_role: "user",
     })
   })
-  it("works with USER_SENDS_MESSAGE when there's no messages", () => {
+  it("works with USER_SENDS_MESSAGE when there's some messages", () => {
     const initialState: ChatbotState = {
       messages: [{ finished: true, message: messageFactory(), optimistic: false }],
     }
@@ -226,7 +226,7 @@ describe("chatbotReducer", () => {
     expect(newState.messages[2]).toMatchObject({ finished: false, optimistic: false })
     expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
   })
-  it("works with REASONING_IN_PROGRESS when there is a reasoning in progress", () => {
+  it("works with REASONING_FINISHED when there is a reasoning in progress", () => {
     const initialState: ChatbotState = {
       messages: [
         { finished: true, message: messageFactory(), optimistic: false },
@@ -246,7 +246,7 @@ describe("chatbotReducer", () => {
     expect(newState.messages[2]).toMatchObject({ finished: true, optimistic: false })
     expect(newState.messages[2].message).toMatchObject({ message: { reasoning_id: "id_1" } })
   })
-  it("works with REASONING_IN_PROGRESS when there is more than one reasoning in progress", () => {
+  it("works with REASONING_FINISHED when there is more than one reasoning in progress", () => {
     const initialState: ChatbotState = {
       messages: [
         { finished: true, message: messageFactory(), optimistic: false },

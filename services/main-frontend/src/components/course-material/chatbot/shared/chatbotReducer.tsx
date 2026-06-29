@@ -3,18 +3,14 @@
 import { produce } from "immer"
 import { v4 } from "uuid"
 
+import { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+
 import type { ChatbotConversationMessage } from "@/generated/course-material-api/types.generated"
 import {
   zChatbotConversationMessageMessage,
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
 } from "@/generated/course-material-api/zod.generated"
-
-export type ChatbotConversationMessageWithStatus = {
-  message: ChatbotConversationMessage
-  finished: boolean
-  optimistic: boolean
-}
 
 export type ChatbotState = {
   messages: ChatbotConversationMessageWithStatus[]

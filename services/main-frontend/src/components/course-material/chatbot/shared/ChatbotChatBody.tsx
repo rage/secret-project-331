@@ -33,6 +33,7 @@ import { baseTheme } from "@/shared-module/common/styles"
 export type ChatbotConversationMessageWithStatus = {
   message: ChatbotConversationMessage
   finished: boolean
+  optimistic: boolean
 }
 
 const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
@@ -43,12 +44,10 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   error,
   messageState,
   chatbotMessageAnnouncement,
-  dispatch,
   newMessageMutation,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
-  console.log("status: ", messageState.messages)
 
   const citations = useMemo(() => {
     const citations: Map<string, ChatbotConversationMessageCitation[]> = new Map()
@@ -85,7 +84,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           return messageSuccess || toolCallResult.success || reasoningResult.success
         })
         .map((m) => {
-          return { finished: true, message: m }
+          return { finished: true, message: m, optimistic: false }
         }) ?? []),
     ]
 
@@ -173,18 +172,39 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         {messages.concat(messageState.messages).map((message) => {
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
+            const response_id = m.data.response_id ?? ""
+            const messageToolReasoningStuff: ChatbotConversationMessageWithStatus[] =
+              messages.filter((m) => {
+                if (m.message.message.response_id === response_id) {
+                  let reasoningRes = zChatbotConversationMessageReasoning.safeParse(
+                    m.message.message,
+                  )
+                  let toolCallRes = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+                  return reasoningRes.success || toolCallRes.success
+                }
+                return false
+              })
+
             return (
-              <MessageBubble
-                key={`chatbot-message-${message.message.id}`}
-                message={m.data.text ?? ""}
-                citations={citations.get(message.message.id)}
-                isFromChatbot={m.data.message_role === "assistant"}
-                isPending={!m.data.message_is_complete && newMessageMutation.isPending}
-              />
+              <>
+                {messageToolReasoningStuff.length > 0 && (
+                  <StatusIndicator
+                    key={`chatbot-status-message-${message.message.id}`}
+                    messages={messageToolReasoningStuff}
+                  />
+                )}
+                <MessageBubble
+                  key={`chatbot-message-${message.message.id}`}
+                  message={m.data.text ?? ""}
+                  citations={citations.get(message.message.id)}
+                  isFromChatbot={m.data.message_role === "assistant"}
+                  isPending={!m.data.message_is_complete && newMessageMutation.isPending}
+                />
+              </>
             )
           }
 
-          let parseResTool = zChatbotConversationMessageToolCall.safeParse(message.message.message)
+          /* let parseResTool = zChatbotConversationMessageToolCall.safeParse(message.message.message)
           let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(
             message.message.message,
           )
@@ -202,9 +222,8 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               : null
 
           if (props) {
-            console.log("props type: ", props.messageType)
             return <StatusIndicator key={`chatbot-status-message-${props.message.id}`} {...props} />
-          }
+          } */
         })}
         <div
           className={css`

@@ -32,7 +32,7 @@ pub async fn seed_introduction_to_codes(
         base_course_ns: course_id,
     };
 
-    info!("inserting introdution to codes course {}", course_name);
+    info!("inserting introduction to codes course {}", course_name);
 
     let course = CourseBuilder::new(course_name, course_slug)
         .desc("Course for testing description suggestion with uh course codes")

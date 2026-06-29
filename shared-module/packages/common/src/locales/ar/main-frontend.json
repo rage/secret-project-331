@@ -474,6 +474,7 @@
   "error-creating-course": "خطأ في إنشاء الدورة",
   "error-default-chatbot-in-block": "لا يمكن استخدام الروبوت الافتراضي داخل مواد الدورة.",
   "error-fetching-service-info": "خطأ في جلب معلومات الخدمة",
+  "error-field-value-at-least": "{{field}} يجب أن تكون على الأقل {{lower}}.",
   "error-field-value-between": "{{field}} يجب أن تكون قيمة بين {{lower}} و {{upper}}.",
   "error-hide-details": "إخفاء التفاصيل",
   "error-issue": "المشكلة: {{issue}}",

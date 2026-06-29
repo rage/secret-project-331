@@ -476,6 +476,7 @@
   "error-creating-course": "Помилка при створенні курсу",
   "error-default-chatbot-in-block": "Не можна використовувати чатбот за замовчуванням у матеріалах курсу.",
   "error-fetching-service-info": "Помилка отримання інформації про службу",
+  "error-field-value-at-least": "{{field}} повинно бути не менше {{lower}}.",
   "error-field-value-between": "{{field}} повинно бути значенням між {{lower}} і {{upper}}.",
   "error-hide-details": "Сховати деталі",
   "error-issue": "Проблема: {{issue}}",

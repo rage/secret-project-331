@@ -122,10 +122,10 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
       >
         <div
           className={css`
-            display: flex;
+            display: block;
             line-height: 22px;
             padding: 16px 20px 16px 20px;
-            flex: 1;
+            flex: 1 1 auto;
             min-height: 0;
             overflow-y: auto;
           `}

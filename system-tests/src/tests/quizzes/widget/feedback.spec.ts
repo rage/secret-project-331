@@ -14,7 +14,7 @@ test("Feedback messages can contain markdown", async ({ page }) => {
   const frameLocator = page.frameLocator('iframe[title="PLAYGROUND"]')
   await frameLocator.getByRole("button", { name: "Multiple choice Choose" }).click()
   await frameLocator.getByLabel("Option title", { exact: true }).fill("Correct")
-  await frameLocator.getByLabel("Correct").check()
+  await frameLocator.getByRole("checkbox", { name: "Correct", exact: true }).check()
   await frameLocator.getByRole("button", { name: "Add option" }).click()
   await frameLocator.getByLabel("Option title", { exact: true }).fill("Incorrect")
   await frameLocator.getByRole("button", { name: "Add option" }).click()

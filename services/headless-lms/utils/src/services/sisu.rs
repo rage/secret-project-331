@@ -7,6 +7,7 @@ use std::sync::LazyLock;
 use std::{cmp::Ordering, collections::HashMap};
 use utoipa::ToSchema;
 pub type SisuCourseInfo = Vec<SisuCourseInfoElement>;
+use url::Url;
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -157,6 +158,8 @@ pub struct SisuDescriptions {
     additional: Option<String>,
     learning_material: Option<String>,
 }
+static SISU_BASE_URL: LazyLock<Url> =
+    LazyLock::new(|| Url::parse("https://sisu.helsinki.fi/kori/api/").expect("Invalid url"));
 
 impl SisuClient {
     pub async fn get_course_ids(
@@ -169,11 +172,14 @@ impl SisuClient {
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
             let url = if is_mock_sisu {
-                format!("{base_url}/api/v0/mock-sisu/kori/api/{code}")
+                let sisu_mock_base_url = Url::parse(base_url)?;
+                let path = format!("/api/v0/mock-sisu/kori/api/{code}");
+                sisu_mock_base_url.join(path.as_str())?
             } else {
-                format!(
-                    "https://sisu.helsinki.fi/kori/api/course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
-                )
+                let path = format!(
+                    "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
+                );
+                SISU_BASE_URL.join(path.as_str())?
             };
 
             let response = REQWEST_CLIENT
@@ -230,9 +236,12 @@ impl SisuClient {
         for code in course_codes {
             if let Some(first) = code.first() {
                 let url = if is_mock_sisu {
-                    format!("{base_url}/api/v0/mock-sisu/kori/api/course-units/{first}")
+                    let url = Url::parse(base_url)?;
+                    let path = format!("/api/v0/mock-sisu/kori/api/course-units/{first}");
+                    url.join(path.as_str())?
                 } else {
-                    format!("https://sisu.helsinki.fi/kori/api/course-units/v1/{first}")
+                    let path = format!("course-units/v1/{first}");
+                    SISU_BASE_URL.join(path.as_str())?
                 };
 
                 let response = REQWEST_CLIENT

@@ -1613,8 +1613,6 @@ async fn get_sisu_course_llm_descriptions(
     let course_ids = SisuClient::get_course_ids(is_mock_sisu, base_url, uh_course_codes).await?;
     let course_info = SisuClient::get_course_info(is_mock_sisu, base_url, course_ids).await?;
 
-    //let token: domain::authorization::AuthorizationToken = skip_authorize();
-
     let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
     let message_suggest_llm = models::application_task_default_language_models::get_for_task(
         &mut conn,

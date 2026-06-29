@@ -15,7 +15,7 @@ import { createPortal } from "react-dom"
 import CitationButton from "./CitationButton"
 
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
-import { nodeIsElement } from "@/shared-module/common/utils/dom"
+import { planCitationPortals } from "@/utils/course-material/chatbotCitationPortals"
 import { REMOVE_CITATIONS_REGEX } from "@/utils/course-material/chatbotCitationRegexes"
 import { getRemarkable } from "@/utils/course-material/getRemarkable"
 import { sanitizeCourseMaterialHtml } from "@/utils/course-material/sanitizeCourseMaterialHtml"
@@ -123,20 +123,6 @@ const MessageWithPortalsComponent: React.FC<MessageWithPortalsComponentProps> = 
 
 MessageWithPortalsComponent.displayName = "MessageWithPortalsComponent"
 
-/**
- * Resolves a placeholder's raw citation number (the `y` in a 【x:y†source】 marker,
- * stored on the placeholder span as data-citation-n) to its renumbered display value.
- * Returns null when the number has no entry in the map — i.e. the marker references a
- * citation that doesn't exist (a hallucinated citation), in which case no citation button
- * should be rendered for it.
- */
-export function citationDisplayNumber(
-  rawCitN: number,
-  citationNumberingMap: Map<number, number>,
-): number | null {
-  return citationNumberingMap.get(rawCitN) ?? null
-}
-
 const RenderedMessage: React.FC<RenderedMessageProps> = ({
   renderOption,
   message,
@@ -164,39 +150,24 @@ const RenderedMessage: React.FC<RenderedMessageProps> = ({
     if (!readyForPortal) {
       return null
     }
-    return Array.from(
+    const nodes = Array.from(
       thisNode.current?.querySelectorAll<Element>(PORTAL_PLACEHOLDER_QUERY_SELECTOR) ?? [],
-    ).map((node, idx) => {
-      // Each placeholder carries its own citation number (the `y` in 【x:y†source】) as
-      // data-citation-n. We resolve it per node instead of positionally indexing citedDocs:
-      // a message can contain a marker that references a non-existent citation
-      // (e.g. 【x:0†source】) which still produces a placeholder node here but is dropped
-      // from the renumbering map, and positional indexing would then misalign every
-      // following citation (and run off the end of the array).
-      const rawCitN = parseInt(node.getAttribute("data-citation-n") ?? "", 10)
-      const citN = citationDisplayNumber(rawCitN, citationNumberingMap)
-
-      if (citN === null) {
-        // Unknown / hallucinated citation: render no button so the marker just disappears.
+    )
+    // planCitationPortals decides, per placeholder node, whether to render a citation button
+    // (and with which numbers) from each node's own data-citation-n attribute. Doing it per
+    // node — rather than positionally indexing a separately-filtered citation list — keeps a
+    // marker that references a non-existent citation (e.g. 【x:0†source】) from misaligning the
+    // citations that follow it (which used to throw).
+    const plans = planCitationPortals(nodes, citationNumberingMap)
+    return nodes.map((node, idx) => {
+      const plan = plans[idx]
+      if (plan === null) {
         return createPortal(null, node, idx)
       }
-
-      // If the previous sibling node is also a citation button pointing at the same
-      // document, return null because we don't want to cite the same doc multiple times
-      // in a row.
-      const prev = node.previousSibling
-      if (prev && nodeIsElement(prev)) {
-        const prevRawCitN = parseInt(prev.getAttribute("data-citation-n") ?? "", 10)
-        const prevCitN = citationDisplayNumber(prevRawCitN, citationNumberingMap)
-        if (prevCitN !== null && prevCitN === citN) {
-          return createPortal(null, node, idx)
-        }
-      }
-
       return createPortal(
         <CitationButton
-          citN={rawCitN.toString()}
-          citNToShow={citN.toString()}
+          citN={plan.rawCitN.toString()}
+          citNToShow={plan.citN.toString()}
           idx={idx.toString()}
           citationButtonClicked={citationButtonClicked}
           hoverCitationProps={hoverCitationProps}

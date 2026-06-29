@@ -551,16 +551,6 @@ export type Course = {
  */
 export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
 
-export type CourseAudit = {
-  created_at: string
-  description?: string | null
-  id: string
-  name: string
-  organization_id: string
-  uh_course_code?: string | null
-  updated_at: string
-}
-
 export type CourseBreadcrumbInfo = {
   course_id: string
   course_name: string
@@ -890,6 +880,16 @@ export type CourseStructure = {
   course: Course
   modules: Array<CourseModule>
   pages: Array<Page>
+}
+
+export type CourseToAudit = {
+  created_at: string
+  description?: string | null
+  id: string
+  name: string
+  organization_id: string
+  uh_course_code?: string | null
+  updated_at: string
 }
 
 export type CourseUpdate = {
@@ -2857,7 +2857,7 @@ export type GetCoursesForAuditingResponses = {
   /**
    * Courses for auditing
    */
-  200: Array<CourseAudit>
+  200: Array<CourseToAudit>
 }
 
 export type GetCoursesForAuditingResponse =

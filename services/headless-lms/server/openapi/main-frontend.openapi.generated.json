@@ -909,7 +909,7 @@
     },
     "/api/v0/main-frontend/course-auditing/": {
       "get": {
-        "tags": ["courses_for_auditing"],
+        "tags": ["course_auditing"],
         "summary": "\nGET `/api/v0/main-frontend/course-auditing`",
         "operationId": "getCoursesForAuditing",
         "responses": {
@@ -920,7 +920,7 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/CourseAudit"
+                    "$ref": "#/components/schemas/CourseToAudit"
                   }
                 }
               }
@@ -12419,37 +12419,6 @@
         "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
         "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
       },
-      "CourseAudit": {
-        "type": "object",
-        "required": ["id", "created_at", "updated_at", "name", "organization_id"],
-        "properties": {
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "description": {
-            "type": ["string", "null"]
-          },
-          "id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "name": {
-            "type": "string"
-          },
-          "organization_id": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "uh_course_code": {
-            "type": ["string", "null"]
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
       "CourseBreadcrumbInfo": {
         "type": "object",
         "required": [
@@ -13411,6 +13380,37 @@
             "items": {
               "$ref": "#/components/schemas/Page"
             }
+          }
+        }
+      },
+      "CourseToAudit": {
+        "type": "object",
+        "required": ["id", "organization_id", "created_at", "updated_at", "name"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

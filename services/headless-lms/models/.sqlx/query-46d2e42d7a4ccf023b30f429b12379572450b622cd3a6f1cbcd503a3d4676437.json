@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\nSELECT c.id,\n  c.name,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description, cm.uh_course_code\nFROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id\nWHERE c.deleted_at IS NULL AND cm.deleted_at is NULL AND order_number = 0;\n",
+  "query": "\nSELECT c.id,\n  c.name,\n  c.created_at,\n  c.updated_at,\n  c.organization_id,\n  c.description, cm.uh_course_code\nFROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id\nWHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;\n",
   "describe": {
     "columns": [
       {
@@ -94,5 +94,5 @@
       true
     ]
   },
-  "hash": "02f941042ce6ae4894ecbbb0e4b8a3e1e14fac98ed7334c706691703002a3da6"
+  "hash": "46d2e42d7a4ccf023b30f429b12379572450b622cd3a6f1cbcd503a3d4676437"
 }

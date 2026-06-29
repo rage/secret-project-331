@@ -207,13 +207,20 @@ pub struct NewCourse {
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
-pub struct CourseAudit {
+pub struct CourseToAudit {
     pub id: Uuid,
+    pub organization_id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub name: String,
     pub description: Option<String>,
-    pub organization_id: Uuid,
+    pub uh_course_code: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
+pub struct CourseToAuditUpdate {
+    pub description: Option<String>,
     pub uh_course_code: Option<String>,
 }
 
@@ -326,9 +333,9 @@ WHERE deleted_at IS NULL;
 
 pub async fn get_all_courses_for_auditing(
     conn: &mut PgConnection,
-) -> ModelResult<Vec<CourseAudit>> {
+) -> ModelResult<Vec<CourseToAudit>> {
     let courses = sqlx::query_as!(
-        CourseAudit,
+        CourseToAudit,
         r#"
 SELECT c.id,
   c.name,
@@ -337,12 +344,68 @@ SELECT c.id,
   c.organization_id,
   c.description, cm.uh_course_code
 FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
-WHERE c.deleted_at IS NULL AND cm.deleted_at is NULL AND order_number = 0;
+WHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
 "#
     )
     .fetch_all(conn)
     .await?;
     Ok(courses)
+}
+
+pub async fn get_course_for_auditing(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<CourseToAudit> {
+    let course = sqlx::query_as!(
+        CourseToAudit,
+        r#"
+SELECT c.id,
+  c.name,
+  c.created_at,
+  c.updated_at,
+  c.organization_id,
+  c.description, cm.uh_course_code
+FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
+WHERE c.id = $1 AND c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
+"#,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    Ok(course)
+}
+
+pub async fn update_course_after_auditing(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_update: CourseToAuditUpdate,
+) -> ModelResult<()> {
+    let mut tx = conn.begin().await?;
+    let course = sqlx::query_as!(
+        Course,
+        r#"
+UPDATE courses
+SET description = $2 WHERE id = $1
+  AND deleted_at IS NULL"#,
+        course_id,
+        course_update.description,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    let uh_code = sqlx::query!(
+        r#"
+UPDATE course_modules
+SET uh_course_code = $2 WHERE course_id = $1 AND order_number = 0
+  AND deleted_at IS NULL"#,
+        course_id,
+        course_update.uh_course_code,
+    )
+    .fetch_one(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(())
 }
 
 pub async fn all_courses_user_enrolled_to(

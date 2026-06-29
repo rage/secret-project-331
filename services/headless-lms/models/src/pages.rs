@@ -1448,18 +1448,11 @@ impl CmsPageUpdate {
                 // Remap the duplicate's inline custom peer-review config/questions so they don't
                 // collapse onto the original exercise's config.
                 if let Some(config) = exercise.peer_or_self_review_config.as_mut() {
-                    let new_config_id = Uuid::new_v4();
-                    let old_config_id = config.id;
-                    config.id = new_config_id;
-                    config.exercise_id = Some(new_id);
-                    if let Some(questions) = exercise.peer_or_self_review_questions.as_mut() {
-                        for question in questions.iter_mut() {
-                            if question.peer_or_self_review_config_id == old_config_id {
-                                question.peer_or_self_review_config_id = new_config_id;
-                            }
-                            question.id = Uuid::new_v4();
-                        }
-                    }
+                    let questions = exercise
+                        .peer_or_self_review_questions
+                        .as_deref_mut()
+                        .unwrap_or(&mut []);
+                    fork_peer_or_self_review_config(config, questions, new_id);
                 }
             }
         }
@@ -1542,6 +1535,45 @@ impl CmsPageUpdate {
         }
 
         original_exercise_id_by_new_id
+    }
+}
+
+/// Gives `questions` fresh ids pointing at `target_config_id` when it differs from `source_config_id`
+/// (i.e. they are being cloned onto a different config); otherwise returns them untouched so the
+/// upsert reuses the existing rows.
+fn rekey_peer_or_self_review_questions(
+    questions: Vec<CmsPeerOrSelfReviewQuestion>,
+    source_config_id: Uuid,
+    target_config_id: Uuid,
+) -> Vec<CmsPeerOrSelfReviewQuestion> {
+    if source_config_id == target_config_id {
+        return questions;
+    }
+    questions
+        .into_iter()
+        .map(|mut question| {
+            question.id = Uuid::new_v4();
+            question.peer_or_self_review_config_id = target_config_id;
+            question
+        })
+        .collect()
+}
+
+/// Re-keys a custom peer-review config and its questions onto `new_exercise_id` with a fresh config id
+/// and fresh question ids, producing an independent copy for a within-page exercise duplicate so it
+/// does not collapse onto the original exercise's config (#148). All `questions` must belong to
+/// `config`.
+fn fork_peer_or_self_review_config(
+    config: &mut CmsPeerOrSelfReviewConfig,
+    questions: &mut [CmsPeerOrSelfReviewQuestion],
+    new_exercise_id: Uuid,
+) {
+    let new_config_id = Uuid::new_v4();
+    config.id = new_config_id;
+    config.exercise_id = Some(new_exercise_id);
+    for question in questions.iter_mut() {
+        question.id = Uuid::new_v4();
+        question.peer_or_self_review_config_id = new_config_id;
     }
 }
 
@@ -1673,70 +1705,105 @@ RETURNING id,
         )
         .await?;
 
+    // Configs present in this save's payload, keyed by exercise id. Lets a regenerated within-page
+    // duplicate that omits its own config recover its original's *current* config — preferring the
+    // edit the user just made over the pre-save DB snapshot (#148).
+    let payload_peer_or_self_review_by_exercise_id: HashMap<
+        Uuid,
+        (
+            CmsPeerOrSelfReviewConfig,
+            Option<Vec<CmsPeerOrSelfReviewQuestion>>,
+        ),
+    > = cms_page_update
+        .exercises
+        .iter()
+        .filter(|e| !e.use_course_default_peer_or_self_review_config)
+        .filter_map(|e| {
+            e.peer_or_self_review_config.as_ref().map(|config| {
+                (
+                    e.id,
+                    (config.clone(), e.peer_or_self_review_questions.clone()),
+                )
+            })
+        })
+        .collect();
+
+    // Recovers the custom config + questions stored/sent for `exercise_id`, preferring this save's
+    // payload over the pre-save DB snapshot and resolving omitted questions from the snapshot.
+    let recover_peer_or_self_review = |exercise_id: Uuid| -> Option<(
+        CmsPeerOrSelfReviewConfig,
+        Vec<CmsPeerOrSelfReviewQuestion>,
+    )> {
+        if let Some((config, questions)) =
+            payload_peer_or_self_review_by_exercise_id.get(&exercise_id)
+        {
+            let questions = match questions {
+                Some(questions) => questions.clone(),
+                None => existing_peer_or_self_review_questions_by_config_id
+                    .get(&config.id)
+                    .cloned()
+                    .unwrap_or_default(),
+            };
+            return Some((config.clone(), questions));
+        }
+        let config = existing_peer_or_self_review_configs_by_exercise_id
+            .get(&exercise_id)?
+            .clone();
+        let questions = existing_peer_or_self_review_questions_by_config_id
+            .get(&config.id)
+            .cloned()
+            .unwrap_or_default();
+        Some((config, questions))
+    };
+
     let (peer_or_self_review_configs, peer_or_self_review_questions) = cms_page_update
         .exercises
         .into_iter()
         .filter(|e| !e.use_course_default_peer_or_self_review_config)
         .filter_map(|e| {
+            let exercise_id = e.id;
+            // For a within-page duplicate that was regenerated a fresh id (#148), its settings still
+            // live under the original exercise/config id; otherwise this is the exercise's own id.
+            let original_exercise_id = original_exercise_id_by_new_id.get(&exercise_id).copied();
             // Prefer the config/questions sent in the payload. If the payload omits them (e.g. an
             // inconsistent editor state where a custom exercise is saved without its config or
-            // questions), fall back to the existing custom settings from the database so they are
-            // not lost (#129). An exercise switching to the course default is filtered out above, so
-            // its config is correctly left deleted.
+            // questions), fall back to the existing custom settings so they are not lost (#129). An
+            // exercise switching to the course default is filtered out above, so its config is
+            // correctly left deleted.
             match e.peer_or_self_review_config {
                 Some(config) => {
-                    // The config is present, but the questions may be omitted. `None` means "keep
-                    // the existing questions"; `Some(vec![])` is an explicit "remove all questions".
+                    // The config is present, but the questions may be omitted. `None` means "keep the
+                    // existing questions"; `Some(vec![])` is an explicit "remove all questions". The
+                    // existing questions live under the source config id — this exercise's own for a
+                    // normal save, or the original's for a regenerated duplicate whose config id was
+                    // freshly minted, so they are re-keyed onto the new config id.
                     let questions = match e.peer_or_self_review_questions {
                         Some(questions) => questions,
-                        None => existing_peer_or_self_review_questions_by_config_id
-                            .get(&config.id)
-                            .cloned()
-                            .unwrap_or_default(),
+                        None => {
+                            recover_peer_or_self_review(original_exercise_id.unwrap_or(exercise_id))
+                                .map(|(source_config, source_questions)| {
+                                    rekey_peer_or_self_review_questions(
+                                        source_questions,
+                                        source_config.id,
+                                        config.id,
+                                    )
+                                })
+                                .unwrap_or_default()
+                        }
                     };
                     Some((config, questions))
                 }
                 None => {
-                    // The whole config is omitted. Recover it from the snapshot by exercise id.
-                    if let Some(config) = existing_peer_or_self_review_configs_by_exercise_id
-                        .get(&e.id)
-                        .cloned()
-                    {
-                        let questions = existing_peer_or_self_review_questions_by_config_id
-                            .get(&config.id)
-                            .cloned()
-                            .unwrap_or_default();
+                    // The whole config is omitted. Recover this exercise's own stored config (#129);
+                    // if it is a regenerated duplicate with nothing of its own, recover the original's
+                    // current config and fork it onto this duplicate with fresh ids (#148).
+                    if let Some((config, questions)) = recover_peer_or_self_review(exercise_id) {
                         return Some((config, questions));
                     }
-                    // A within-page duplicate that was regenerated a fresh id (#148) still has its
-                    // saved config keyed by the original id. Recover it and remap the clone onto the
-                    // duplicate's new id with fresh ids so it doesn't collapse onto the original
-                    // exercise's config.
-                    original_exercise_id_by_new_id
-                        .get(&e.id)
-                        .and_then(|original_id| {
-                            existing_peer_or_self_review_configs_by_exercise_id
-                                .get(original_id)
-                                .cloned()
-                        })
-                        .map(|mut config| {
-                            let questions = existing_peer_or_self_review_questions_by_config_id
-                                .get(&config.id)
-                                .cloned()
-                                .unwrap_or_default();
-                            let new_config_id = Uuid::new_v4();
-                            config.id = new_config_id;
-                            config.exercise_id = Some(e.id);
-                            let questions = questions
-                                .into_iter()
-                                .map(|mut question| {
-                                    question.id = Uuid::new_v4();
-                                    question.peer_or_self_review_config_id = new_config_id;
-                                    question
-                                })
-                                .collect::<Vec<_>>();
-                            (config, questions)
-                        })
+                    let (mut config, mut questions) =
+                        original_exercise_id.and_then(&recover_peer_or_self_review)?;
+                    fork_peer_or_self_review_config(&mut config, &mut questions, exercise_id);
+                    Some((config, questions))
                 }
             }
         })

@@ -141,29 +141,47 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     if (!container) {
       return
     }
-    const getCitationSignature = () =>
-      JSON.stringify(
-        Array.from(container.querySelectorAll<HTMLElement>("[data-citation-id]")).map((node) => [
-          node.dataset.citationId ?? "",
-          node.dataset.citationPrenote ?? "",
-          node.dataset.citationPostnote ?? "",
-        ]),
-      )
+    const getCitationSignature = () => {
+      let signature = ""
+      container.querySelectorAll<HTMLElement>("[data-citation-id]").forEach((node) => {
+        const id = node.dataset.citationId ?? ""
+        const prenote = node.dataset.citationPrenote ?? ""
+        const postnote = node.dataset.citationPostnote ?? ""
+        // Length-prefix each field so arbitrary note text can't forge a field/record boundary.
+        signature += `${id.length}:${id}${prenote.length}:${prenote}${postnote.length}:${postnote};`
+      })
+      return signature
+    }
     let lastSignature = getCitationSignature()
-    const observer = new MutationObserver(() => {
+    let scheduled = 0
+    const check = () => {
+      scheduled = 0
       const signature = getCitationSignature()
       if (signature !== lastSignature) {
         lastSignature = signature
         setScanVersion((prev) => prev + 1)
+      }
+    }
+    const observer = new MutationObserver(() => {
+      // Coalesce bursts of mutations (lazy-mounting blocks, animations, typing) into one scan per
+      // frame instead of re-scanning the whole subtree on every individual mutation.
+      if (scheduled === 0) {
+        scheduled = requestAnimationFrame(check)
       }
     })
     observer.observe(container, {
       childList: true,
       subtree: true,
       attributes: true,
+      // eslint-disable-next-line i18next/no-literal-string -- DOM attribute names, not user-facing text
       attributeFilter: ["data-citation-id", "data-citation-prenote", "data-citation-postnote"],
     })
-    return () => observer.disconnect()
+    return () => {
+      observer.disconnect()
+      if (scheduled !== 0) {
+        cancelAnimationFrame(scheduled)
+      }
+    }
   }, [])
 
   let [portals, citeOrder]: [ReactPortal[] | null, string[] | null] = useMemo(() => {

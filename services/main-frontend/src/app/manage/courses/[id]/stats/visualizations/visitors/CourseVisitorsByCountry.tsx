@@ -10,8 +10,8 @@ import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 
-import { countryList } from "@/components/course-material/ContentRenderer/util/Countries"
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -19,12 +19,6 @@ import { QueryResult } from "@/shared-module/components"
 export interface CourseVisitorsByCountryProps {
   courseId: string
 }
-
-// Chart data codes are lowercase (e.g. "fi"); countryList values are uppercase (e.g. "FI"). Build
-// the lowercase code -> name lookup once instead of scanning (and lowercasing) the whole list per code.
-const countryNameByCode = new Map(countryList.map((c) => [c.value.toLowerCase(), c.label]))
-const countryCodeToName = (code: string): string =>
-  countryNameByCode.get(code.toLowerCase()) ?? code
 
 // Bucket key used for visitors whose country could not be determined (the backend country field is
 // nullable). Kept distinct from any real ISO code so it can be rendered as a readable label.
@@ -35,6 +29,9 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
   courseId,
 }) => {
   const { t } = useTranslation()
+  // Chart data codes are lowercase ISO codes (e.g. "fi"), which match the lowercase keys in the
+  // "countries" namespace, so the labels are localized to the active language.
+  const { t: tCountries } = useTranslation("countries")
   const query = useQuery({
     ...getCoursePageVisitDatumSummaryByCountriesOptions({
       path: {
@@ -75,9 +72,9 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
       return []
     }
     return Object.keys(aggregatedData).map((code) =>
-      code === UNKNOWN_COUNTRY_KEY ? t("n-a") : countryCodeToName(code),
+      code === UNKNOWN_COUNTRY_KEY ? t("n-a") : tCountries(code as keyof typeof countries),
     )
-  }, [aggregatedData, t])
+  }, [aggregatedData, t, tCountries])
   const values = useMemo(() => {
     if (!aggregatedData) {
       return []

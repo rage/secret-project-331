@@ -132,23 +132,37 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     setReadyForPortal(true)
   }, [])
 
-  // Re-scan when citation markers appear or disappear in the page content.
-  // We only react to a change in the number of markers, not to every mutation,
-  // so the DOM changes caused by rendering the portals don't re-trigger us.
+  // Re-scan when the citation markers change in the page content. We compare a signature of the
+  // marker sequence and their relevant attributes (not just the count), so replacements, reordering
+  // and prenote/postnote edits also re-trigger the scan, while the DOM changes caused by rendering
+  // the portals themselves don't.
   useEffect(() => {
     const container = document.getElementById("content")
     if (!container) {
       return
     }
-    let lastCount = container.querySelectorAll("[data-citation-id]").length
+    const getCitationSignature = () =>
+      JSON.stringify(
+        Array.from(container.querySelectorAll<HTMLElement>("[data-citation-id]")).map((node) => [
+          node.dataset.citationId ?? "",
+          node.dataset.citationPrenote ?? "",
+          node.dataset.citationPostnote ?? "",
+        ]),
+      )
+    let lastSignature = getCitationSignature()
     const observer = new MutationObserver(() => {
-      const count = container.querySelectorAll("[data-citation-id]").length
-      if (count !== lastCount) {
-        lastCount = count
+      const signature = getCitationSignature()
+      if (signature !== lastSignature) {
+        lastSignature = signature
         setScanVersion((prev) => prev + 1)
       }
     })
-    observer.observe(container, { childList: true, subtree: true })
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["data-citation-id", "data-citation-prenote", "data-citation-postnote"],
+    })
     return () => observer.disconnect()
   }, [])
 

@@ -156,10 +156,9 @@ const MIN_MAX_OUTPUT_TOKENS: i32 = 10_000;
 /// Rejects configurations whose `max_output_tokens` is too small to produce a usable response.
 fn validate_max_output_tokens(input: &NewChatbotConf) -> ModelResult<()> {
     if input.max_output_tokens < MIN_MAX_OUTPUT_TOKENS {
-        return Err(ModelError::new(
-            ModelErrorType::PreconditionFailed,
-            format!("max_output_tokens must be at least {MIN_MAX_OUTPUT_TOKENS}."),
-            None,
+        return Err(model_err!(
+            PreconditionFailed,
+            format!("max_output_tokens must be at least {MIN_MAX_OUTPUT_TOKENS}.")
         ));
     }
     Ok(())

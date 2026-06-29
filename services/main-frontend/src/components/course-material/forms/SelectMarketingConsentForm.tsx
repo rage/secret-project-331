@@ -1,7 +1,7 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import React, { useContext, useEffect, useMemo, useState } from "react"
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -66,18 +66,27 @@ const SelectMarketingConsentForm: React.FC<SelectMarketingConsentFormProps> = ({
     setMarketingConsent(isChecked)
   }
 
+  // Initialize the saved consent values once per course. A background refetch must not re-sync them,
+  // or it would silently overwrite the user's unsaved checkbox edits (and submit stale values).
+  const initializedConsentCourseId = useRef<string | null>(null)
   useEffect(() => {
-    if (initialMarketingConsentQuery.isSuccess) {
-      const marketing = initialMarketingConsentQuery.data?.consent ?? false
-      const emailSub =
-        initialMarketingConsentQuery.data?.email_subscription_in_mailchimp === "subscribed"
-      setMarketingConsent(marketing)
-      setEmailSubscriptionConsent(emailSub)
-      // Sync the parent with the saved values so it initializes correctly on (re)open.
-      onMarketingConsentChange(marketing)
-      onEmailSubscriptionConsentChange(emailSub)
+    if (
+      !initialMarketingConsentQuery.isSuccess ||
+      initializedConsentCourseId.current === courseId
+    ) {
+      return
     }
+    const marketing = initialMarketingConsentQuery.data?.consent ?? false
+    const emailSub =
+      initialMarketingConsentQuery.data?.email_subscription_in_mailchimp === "subscribed"
+    setMarketingConsent(marketing)
+    setEmailSubscriptionConsent(emailSub)
+    // Sync the parent with the saved values so it initializes correctly on (re)open.
+    onMarketingConsentChange(marketing)
+    onEmailSubscriptionConsentChange(emailSub)
+    initializedConsentCourseId.current = courseId
   }, [
+    courseId,
     initialMarketingConsentQuery.data,
     initialMarketingConsentQuery.isSuccess,
     onMarketingConsentChange,

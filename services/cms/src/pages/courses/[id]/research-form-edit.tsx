@@ -13,7 +13,6 @@ import {
   upsertCmsCourseResearchFormQuestions,
 } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
@@ -22,6 +21,7 @@ import dontRenderUntilQueryParametersReady, {
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -131,28 +131,27 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
   }
 
   return (
-    <>
-      {getResearchForm.isSuccess && (
+    <QueryResult query={getResearchForm}>
+      {(data) => (
         <>
-          {getResearchForm.data !== null && (
+          {data !== null && (
             <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
               <ResearchFormEditor
-                data={getResearchForm.data}
+                data={data}
                 handleSave={handleSave}
                 needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
                 setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
               />
             </CourseContext.Provider>
           )}
-          {getResearchForm.data === null && (
+          {data === null && (
             <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
               {t("button-text-create")}
             </Button>
           )}
         </>
       )}
-      {getResearchForm.isError && <ErrorBanner error={getResearchForm.error} variant="readOnly" />}
-    </>
+    </QueryResult>
   )
 }
 

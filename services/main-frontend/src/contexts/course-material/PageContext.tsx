@@ -2,15 +2,15 @@
 
 import React from "react"
 
-import type { Course, Page } from "@/generated/course-material-api/types.generated"
+import type { CourseMaterialCourse, Page } from "@/generated/course-material-api/types.generated"
 
 export interface PageState {
-  course?: Course | null
+  course?: CourseMaterialCourse | null
   page?: Page | null
 }
 
 interface PageContextValue {
-  course?: Course | null
+  course?: CourseMaterialCourse | null
   page?: Page | null
 }
 

@@ -1,36 +1,19 @@
 import { NextResponse } from "next/server"
 
-import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { BadRequestError, jsonRoute, readJsonBody } from "@/lib/apiRoutes"
 import {
   GradingRequest,
   GradingResult,
-} from "@/shared-module/common/exercise-service-protocol-types-2"
-import { isNonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types.guard"
-import { Alternative, Answer } from "@/util/stateInterfaces"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
+import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import { Alternative, Answer, ExerciseFeedback } from "@/util/stateInterfaces"
 
 type ExampleExerciseGradingResult = GradingResult<ExerciseFeedback | null>
-
-export interface ExerciseFeedback {
-  selectedOptionIsCorrect: boolean
-}
-
 type ServiceGradingRequest = GradingRequest<Alternative[], Answer>
 
-async function postImpl(request: Request) {
-  let body: unknown
-  try {
-    body = await request.json()
-  } catch {
-    return NextResponse.json({ message: "Invalid JSON in request body" }, { status: 400 })
-  }
-  if (!isNonGenericGradingRequest(body)) {
-    return NextResponse.json({ message: "Invalid grading request" }, { status: 400 })
-  }
-  return handlePost(body as ServiceGradingRequest)
-}
-
-const handlePost = (gradingRequest: ServiceGradingRequest) => {
-  if (!gradingRequest?.submission_data?.selectedOptionId) {
+function grade(gradingRequest: ServiceGradingRequest): NextResponse<ExampleExerciseGradingResult> {
+  const selectedOptionId = gradingRequest.submission_data?.selectedOptionId
+  if (!selectedOptionId) {
     return NextResponse.json<ExampleExerciseGradingResult>({
       grading_progress: "FullyGraded",
       score_given: 0,
@@ -40,10 +23,10 @@ const handlePost = (gradingRequest: ServiceGradingRequest) => {
     })
   }
 
-  const selectedOptionId = gradingRequest?.submission_data?.selectedOptionId
-
-  const selectedOptionSpec = gradingRequest?.exercise_spec.find((o) => o.id == selectedOptionId)
-  if (!selectedOptionSpec || !selectedOptionSpec.correct) {
+  const selectedOption = gradingRequest.exercise_spec.find(
+    (option) => option.id === selectedOptionId,
+  )
+  if (!selectedOption || !selectedOption.correct) {
     return NextResponse.json<ExampleExerciseGradingResult>({
       grading_progress: "FullyGraded",
       score_given: 0,
@@ -62,7 +45,10 @@ const handlePost = (gradingRequest: ServiceGradingRequest) => {
   })
 }
 
-export const POST = wrapRouteHandler(postImpl, {
-  service: "example-exercise",
-  operation: "POST /grade",
+export const POST = jsonRoute(async (request) => {
+  const body = await readJsonBody(request)
+  if (!isNonGenericGradingRequest(body)) {
+    throw new BadRequestError("Invalid grading request")
+  }
+  return grade(body as ServiceGradingRequest)
 })

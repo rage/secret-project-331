@@ -131,41 +131,18 @@ export const zCodeGiveawayStatus = z.union([
   }),
 ])
 
-export const zCourse = z.object({
-  ask_marketing_consent: z.boolean(),
-  base_module_completion_requires_n_submodule_completions: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-  can_add_chatbot: z.boolean(),
-  chapter_locking_enabled: z.boolean(),
-  closed_additional_message: z.string().nullish(),
-  closed_at: z.iso.datetime().nullish(),
-  closed_course_successor_id: z.uuid().nullish(),
-  content_search_language: z.string().nullish(),
-  copied_from: z.uuid().nullish(),
-  course_language_group_id: z.uuid(),
-  created_at: z.iso.datetime(),
-  deleted_at: z.iso.datetime().nullish(),
-  description: z.string().nullish(),
-  flagged_answers_skip_manual_review_and_allow_retry: z.boolean(),
-  flagged_answers_threshold: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
-    .nullish(),
-  id: z.uuid(),
-  is_draft: z.boolean(),
-  is_joinable_by_code_only: z.boolean(),
-  is_test_mode: z.boolean(),
-  is_unlisted: z.boolean(),
-  join_code: z.string().nullish(),
-  language_code: z.string(),
-  name: z.string(),
-  organization_id: z.uuid(),
-  slug: z.string(),
-  updated_at: z.iso.datetime(),
-})
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export const zCourseAiPolicy = z.enum([
+  "NotSet",
+  "NoAi",
+  "PlanningOnly",
+  "Limited",
+  "FullUse",
+  "Required",
+])
 
 export const zCourseBackgroundQuestionAnswer = z.object({
   answer_value: z.string().nullish(),
@@ -246,6 +223,7 @@ export const zCourseLanguageVersionNavigationInfo = z.object({
  * A subset of the `Course` struct that contains the fields that are allowed to be shown to all students on the course materials.
  */
 export const zCourseMaterialCourse = z.object({
+  ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
   base_module_completion_requires_n_submodule_completions: z
     .int()
@@ -258,6 +236,7 @@ export const zCourseMaterialCourse = z.object({
   content_search_language: z.string().nullish(),
   copied_from: z.uuid().nullish(),
   course_language_group_id: z.uuid(),
+  course_material_ai_instructions: z.boolean().nullish(),
   description: z.string().nullish(),
   id: z.uuid(),
   is_draft: z.boolean(),
@@ -385,11 +364,14 @@ export const zCustomViewExerciseTasks = z.object({
 })
 
 export const zExamEnrollment = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
   ended_at: z.iso.datetime().nullish(),
   exam_id: z.uuid(),
   is_teacher_testing: z.boolean(),
   show_exercise_answers: z.boolean().nullish(),
   started_at: z.iso.datetime(),
+  updated_at: z.iso.datetime(),
   user_id: z.uuid(),
 })
 
@@ -643,7 +625,7 @@ export const zPageChapterAndCourseInformation = z.object({
     .nullish(),
   course_name: z.string().nullish(),
   course_slug: z.string().nullish(),
-  organization_slug: z.string(),
+  organization_slug: z.string().nullish(),
 })
 
 export const zPageRoutingData = z.object({
@@ -959,6 +941,7 @@ export const zExamEnrollmentData = z.union([
           teacher_decision: zTeacherDecisionType,
           updated_at: z.iso.datetime(),
           user_exercise_state_id: z.uuid(),
+          user_id: z.uuid().nullish(),
         }),
         z.object({
           chapter_id: z.uuid().nullish(),
@@ -1014,9 +997,13 @@ export const zExamData = z.object({
 })
 
 export const zTerm = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
   definition: z.string(),
+  deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   term: z.string(),
+  updated_at: z.iso.datetime(),
 })
 
 export const zTermUpdate = z.object({
@@ -1203,7 +1190,7 @@ export const zUserCourseSettings = z.object({
 })
 
 export const zCoursePageWithUserData = z.object({
-  course: zCourse.nullish(),
+  course: zCourseMaterialCourse.nullish(),
   instance: zCourseInstance.nullish(),
   is_test_mode: z.boolean(),
   lock_chapter_content_state: zLockChapterContentState.nullish(),
@@ -1266,7 +1253,6 @@ export const zUserModuleCompletionStatus = z.object({
     .nullish(),
   module_id: z.uuid(),
   name: z.string(),
-  needs_to_be_reviewed: z.boolean(),
   order_number: z
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
@@ -1541,6 +1527,24 @@ export const zGetCourseMaterialCoursePath = z.object({
  * Course
  */
 export const zGetCourseMaterialCourseResponse = zCourseMaterialCourse
+
+export const zGetAiUsageNoticeAcknowledgementPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Whether the user has acknowledged the notice
+ */
+export const zGetAiUsageNoticeAcknowledgementResponse = z.boolean()
+
+export const zAcknowledgeAiUsageNoticePath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Acknowledgement recorded
+ */
+export const zAcknowledgeAiUsageNoticeResponse = z.boolean()
 
 export const zGetCourseMaterialChaptersPath = z.object({
   course_id: z.uuid(),

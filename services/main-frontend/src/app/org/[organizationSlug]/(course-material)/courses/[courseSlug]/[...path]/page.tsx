@@ -25,6 +25,23 @@ import { courseLanguagePreferenceAtom } from "@/state/courseLanguagePreference"
 import { organizationSlugAtom } from "@/state/layoutAtoms"
 import { useChangeCourseMaterialLanguage } from "@/utils/course-material/languageHelpers"
 
+/**
+ * Decodes only the non-ASCII (UTF-8 multibyte) percent-escapes in a path segment, leaving
+ * reserved ASCII escapes (%2F, %23, %25, ...) encoded. This mirrors the backend's canonical
+ * URL path form (`normalize_url_path_for_storage`), so decoding never turns an encoded
+ * separator into a structural one and changes the lookup key.
+ */
+const decodeNonAsciiPercentEscapes = (segment: string): string =>
+  // A run of %XX escapes whose lead nibble is 8-F encodes bytes >= 0x80, i.e. a non-ASCII
+  // UTF-8 sequence; decode the whole run at once so multibyte characters round-trip.
+  segment.replace(/(?:%[89A-Fa-f][0-9A-Fa-f])+/g, (run) => {
+    try {
+      return decodeURIComponent(run)
+    } catch {
+      return run
+    }
+  })
+
 const PagePage: React.FC = () => {
   const router = useRouter()
   const languageOptions = useLanguageOptions()
@@ -34,7 +51,13 @@ const PagePage: React.FC = () => {
   }
   const organizationSlug = params.organizationSlug
   const courseSlug = params.courseSlug
-  const path = useMemo(() => `/${params.path?.join("/") || ""}`, [params.path])
+  // useParams() returns the catch-all segments still percent-encoded. Decode only the
+  // non-ASCII escapes per segment so the path matches the backend's canonical form while
+  // reserved ASCII escapes (e.g. %2F) stay encoded and structure is preserved.
+  const path = useMemo(() => {
+    const decoded = (params.path ?? []).map(decodeNonAsciiPercentEscapes).join("/")
+    return `/${decoded}`
+  }, [params.path])
 
   // Stable object reference for view params
   const viewParams = useMemo(

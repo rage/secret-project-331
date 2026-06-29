@@ -11,9 +11,8 @@ import TermItem from "./TermItem"
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { getCourseGlossaryOptions } from "@/generated/api/@tanstack/react-query.generated"
 import type { Term as GlossaryTerm } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 
 const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -41,24 +40,25 @@ const CourseGlossary: React.FC<React.PropsWithChildren<CourseManagementPagesProp
       >
         {t("manage-glossary")}
       </h1>
-      {glossary.isError && <ErrorBanner variant={"readOnly"} error={glossary.error} />}
-      {glossary.isLoading && <Spinner variant={"medium"} />}
       <CreateTermForm refetch={glossary.refetch} courseId={courseId} />
-      {glossary.isSuccess &&
-        [...glossary.data]
-          .sort((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
-          .map((term: GlossaryTerm) => (
-            <TermItem
-              key={term.id}
-              term={term}
-              isEditing={editingTerm === term.id}
-              onEdit={() => {
-                setEditingTerm(term.id)
-              }}
-              onCancel={() => setEditingTerm(null)}
-              refetch={glossary.refetch}
-            />
-          ))}
+      <QueryResult query={glossary}>
+        {(data) =>
+          [...data]
+            .sort((a: GlossaryTerm, b: GlossaryTerm) => a.term.localeCompare(b.term))
+            .map((term: GlossaryTerm) => (
+              <TermItem
+                key={term.id}
+                term={term}
+                isEditing={editingTerm === term.id}
+                onEdit={() => {
+                  setEditingTerm(term.id)
+                }}
+                onCancel={() => setEditingTerm(null)}
+                refetch={glossary.refetch}
+              />
+            ))
+        }
+      </QueryResult>
     </>
   )
 }

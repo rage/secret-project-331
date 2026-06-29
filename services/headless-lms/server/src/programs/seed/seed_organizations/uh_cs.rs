@@ -6,7 +6,7 @@ use headless_lms_models::{
     PKeyPolicy, course_exams,
     course_instances::{self, NewCourseInstance},
     course_modules::{self, AutomaticCompletionRequirements, CompletionPolicy},
-    courses::NewCourse,
+    courses::{self, NewCourse},
     library::{
         self,
         content_management::CreateNewCourseFixedIds,
@@ -543,6 +543,7 @@ pub async fn seed_organization_uh_cs(
             models_requests::fetch_service_info,
         )
         .await?;
+    courses::set_cheater_detection_enabled(&mut conn, cs_course.id, false).await?;
     let _cs_course_instance = course_instances::insert(
         &mut conn,
         PKeyPolicy::Fixed(Uuid::parse_str("49c618d3-926d-4287-9159-b3af1f86082d")?),

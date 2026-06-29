@@ -8,8 +8,7 @@ import breakFromCenteredProps from "../../utils/breakfromCenteredProps"
 
 import Breadcrumbs from "@/shared-module/common/components/Breadcrumbs"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 
 const EditorBreadcrumbs: React.FC = () => {
   const router = useRouter()
@@ -18,53 +17,45 @@ const EditorBreadcrumbs: React.FC = () => {
   const pageId = pathParts.length > 2 ? pathParts[2] : ""
   const prefix = pathParts.length > 1 ? pathParts[1] : ""
 
-  const data = usePageInfo(pageId, prefix)
+  const pageInfoQuery = usePageInfo(pageId, prefix)
 
-  if (!data) {
-    return (
-      <BreakFromCentered {...breakFromCenteredProps}>
-        <Breadcrumbs pieces={[]} />
-      </BreakFromCentered>
-    )
-  }
-
-  if (data.isError) {
-    return <ErrorBanner variant={"readOnly"} error={data.error} />
-  }
-
-  if (data.isLoading) {
-    return <Spinner variant={"small"} />
-  }
-
-  if (!data.data) {
+  // The query is disabled until the route is a valid page route. While disabled it stays in a
+  // pending/idle state forever, so render nothing instead of an endless loading state.
+  if (pageInfoQuery.fetchStatus === "idle" && pageInfoQuery.isPending) {
     return null
   }
-
-  const pageTitle = data.data.page_title
-  const courseId = data.data.course_id
-  const courseName = data.data.course_name
-
-  // Exams might now have courseId and the CMS breadcrumb will be broken
-  if (!courseId || !courseName) {
-    return null
-  }
-  /* eslint-disable i18next/no-literal-string */
-  const pieces = [
-    {
-      text: courseName,
-      url: `/manage/courses/${courseId}/pages`,
-      externalLink: true,
-    },
-    {
-      text: pageTitle,
-      url: "#",
-    },
-  ]
 
   return (
-    <BreakFromCentered {...breakFromCenteredProps}>
-      <Breadcrumbs pieces={pieces} />
-    </BreakFromCentered>
+    <QueryResult query={pageInfoQuery}>
+      {(data) => {
+        const pageTitle = data.page_title
+        const courseId = data.course_id
+        const courseName = data.course_name
+
+        // Exams might now have courseId and the CMS breadcrumb will be broken
+        if (!courseId || !courseName) {
+          return null
+        }
+        /* eslint-disable i18next/no-literal-string */
+        const pieces = [
+          {
+            text: courseName,
+            url: `/manage/courses/${courseId}/pages`,
+            externalLink: true,
+          },
+          {
+            text: pageTitle,
+            url: "#",
+          },
+        ]
+
+        return (
+          <BreakFromCentered {...breakFromCenteredProps}>
+            <Breadcrumbs pieces={pieces} />
+          </BreakFromCentered>
+        )
+      }}
+    </QueryResult>
   )
 }
 

@@ -93,12 +93,23 @@
       },
       {
         "ordinal": 8,
-        "name": "is_archived",
-        "type_info": "Bool",
+        "name": "status",
+        "type_info": {
+          "Custom": {
+            "name": "suspected_cheater_status",
+            "kind": {
+              "Enum": [
+                "flagged",
+                "confirmed-cheating",
+                "dismissed"
+              ]
+            }
+          }
+        },
         "origin": {
           "Table": {
             "table": "suspected_cheaters",
-            "name": "is_archived"
+            "name": "status"
           }
         }
       }

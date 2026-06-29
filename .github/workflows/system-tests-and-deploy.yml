@@ -367,6 +367,9 @@ jobs:
         run: pnpm install --frozen-lockfile
         working-directory: ./system-tests/
 
+      - name: Install Playwright browsers
+        run: bin/playwright-install --with-deps
+
       - name: Run system tests
         run: pnpm run test
         working-directory: ./system-tests/

@@ -8,11 +8,10 @@ import { useCourseModuleCompletions } from "@/hooks/useCourseModuleCompletions"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import BooleanAsText from "@/shared-module/common/components/BooleanAsText"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
 import { baseTheme } from "@/shared-module/common/styles"
 import { dateToString } from "@/shared-module/common/utils/time"
+import { QueryResults } from "@/shared-module/components"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -92,113 +91,115 @@ const CourseModuleCompletionsSection: React.FC<CourseModuleCompletionsSectionPro
   const courseModuleCompletionsQuery = useCourseModuleCompletions(courseId, userId)
   const courseStructure = useCourseStructure(courseId)
 
-  if (courseModuleCompletionsQuery.isError || courseStructure.isError) {
-    return <ErrorBanner error={courseModuleCompletionsQuery.error ?? courseStructure.error} />
-  }
-
-  if (courseModuleCompletionsQuery.isLoading || courseStructure.isLoading) {
-    return <Spinner />
-  }
-
-  if (!courseStructure.data) {
-    return <ErrorBanner error={new Error("Course structure not found")} />
-  }
+  const heading = (
+    <h2
+      className={css`
+        margin-bottom: 1.5rem;
+        color: ${baseTheme.colors.gray[700]};
+        font-size: 1.5rem;
+      `}
+    >
+      {t("label-course-module-completions")}
+    </h2>
+  )
 
   return (
-    <Section>
-      <h2
-        className={css`
-          margin-bottom: 1.5rem;
-          color: ${baseTheme.colors.gray[700]};
-          font-size: 1.5rem;
-        `}
-      >
-        {t("label-course-module-completions")}
-      </h2>
-      {courseModuleCompletionsQuery.data?.length === 0 && (
-        <p
-          className={css`
-            color: ${baseTheme.colors.gray[500]};
-            font-size: 1rem;
-          `}
-        >
-          {t("no-data")}
-        </p>
+    <QueryResults
+      queries={[courseModuleCompletionsQuery, courseStructure] as const}
+      emptyFallback={
+        <Section>
+          {heading}
+          <p
+            className={css`
+              color: ${baseTheme.colors.gray[500]};
+              font-size: 1rem;
+            `}
+          >
+            {t("no-data")}
+          </p>
+        </Section>
+      }
+      renderData={([courseModuleCompletions, courseStructureData]) => (
+        <Section>
+          {heading}
+          {courseModuleCompletions.map((courseModuleCompletion) => {
+            const courseModule = courseStructureData.modules.find(
+              (cm) => cm.id === courseModuleCompletion.course_module_id,
+            )
+            return (
+              <ModuleCard key={courseModuleCompletion.id}>
+                <ModuleHeader>
+                  <ModuleTitle>
+                    {courseModule?.name ?? t("default-module")}
+                    {courseModule?.uh_course_code && ` (${courseModule.uh_course_code})`}
+                  </ModuleTitle>
+                  <CompletionDate>
+                    <HideTextInSystemTests
+                      text={dateToString(courseModuleCompletion.completion_date)}
+                      testPlaceholder={dateToString(new Date(0))}
+                    />
+                  </CompletionDate>
+                </ModuleHeader>
+                {courseModuleCompletion.needs_to_be_reviewed && (
+                  <ReviewBanner>{t("course-module-completion-needs-review")}</ReviewBanner>
+                )}
+                <InfoGrid>
+                  <InfoItem>
+                    <Label>{t("label-passed")}</Label>
+                    <Value>
+                      <BooleanAsText value={courseModuleCompletion.passed} />
+                    </Value>
+                  </InfoItem>
+                  <InfoItem>
+                    <Label>{t("label-grade")}</Label>
+                    <Value>{courseModuleCompletion.grade}</Value>
+                  </InfoItem>
+                  <InfoItem>
+                    <Label>{t("label-prerequisite-modules-completed")}</Label>
+                    <Value>
+                      <BooleanAsText
+                        value={courseModuleCompletion.prerequisite_modules_completed}
+                      />
+                    </Value>
+                  </InfoItem>
+                  <InfoItem>
+                    <Label>{t("label-completion-language")}</Label>
+                    <Value>{courseModuleCompletion.completion_language}</Value>
+                  </InfoItem>
+                  <InfoItem>
+                    <Label>{t("label-created-at")}</Label>
+                    <Value>{dateToString(courseModuleCompletion.created_at)}</Value>
+                  </InfoItem>
+                  <InfoItem>
+                    <Label>{t("label-completion-registration-attempt-date")}</Label>
+                    <Value>
+                      {courseModuleCompletion.completion_registration_attempt_date
+                        ? dateToString(courseModuleCompletion.completion_registration_attempt_date)
+                        : t("label-null")}
+                    </Value>
+                  </InfoItem>
+                  {courseModuleCompletion.completion_granter_user_id && (
+                    <InfoItem>
+                      <Label>{t("label-completion-granter-user-id")}</Label>
+                      <Value>{courseModuleCompletion.completion_granter_user_id}</Value>
+                    </InfoItem>
+                  )}
+                </InfoGrid>
+                <div
+                  className={css`
+                    margin-top: 1rem;
+                    display: flex;
+                    justify-content: flex-end;
+                  `}
+                >
+                  <DebugModal data={courseModuleCompletion} />
+                </div>
+              </ModuleCard>
+            )
+          })}
+        </Section>
       )}
-      {courseModuleCompletionsQuery.data?.map((courseModuleCompletion) => {
-        const courseModule = courseStructure.data.modules.find(
-          (cm) => cm.id === courseModuleCompletion.course_module_id,
-        )
-        return (
-          <ModuleCard key={courseModuleCompletion.id}>
-            <ModuleHeader>
-              <ModuleTitle>
-                {courseModule?.name ?? t("default-module")}
-                {courseModule?.uh_course_code && ` (${courseModule.uh_course_code})`}
-              </ModuleTitle>
-              <CompletionDate>
-                <HideTextInSystemTests
-                  text={dateToString(courseModuleCompletion.completion_date)}
-                  testPlaceholder={dateToString(new Date(0))}
-                />
-              </CompletionDate>
-            </ModuleHeader>
-            {courseModuleCompletion.needs_to_be_reviewed && (
-              <ReviewBanner>{t("course-module-completion-needs-review")}</ReviewBanner>
-            )}
-            <InfoGrid>
-              <InfoItem>
-                <Label>{t("label-passed")}</Label>
-                <Value>
-                  <BooleanAsText value={courseModuleCompletion.passed} />
-                </Value>
-              </InfoItem>
-              <InfoItem>
-                <Label>{t("label-grade")}</Label>
-                <Value>{courseModuleCompletion.grade}</Value>
-              </InfoItem>
-              <InfoItem>
-                <Label>{t("label-prerequisite-modules-completed")}</Label>
-                <Value>
-                  <BooleanAsText value={courseModuleCompletion.prerequisite_modules_completed} />
-                </Value>
-              </InfoItem>
-              <InfoItem>
-                <Label>{t("label-completion-language")}</Label>
-                <Value>{courseModuleCompletion.completion_language}</Value>
-              </InfoItem>
-              <InfoItem>
-                <Label>{t("label-created-at")}</Label>
-                <Value>{dateToString(courseModuleCompletion.created_at)}</Value>
-              </InfoItem>
-              <InfoItem>
-                <Label>{t("label-completion-registration-attempt-date")}</Label>
-                <Value>
-                  {courseModuleCompletion.completion_registration_attempt_date
-                    ? dateToString(courseModuleCompletion.completion_registration_attempt_date)
-                    : t("label-null")}
-                </Value>
-              </InfoItem>
-              {courseModuleCompletion.completion_granter_user_id && (
-                <InfoItem>
-                  <Label>{t("label-completion-granter-user-id")}</Label>
-                  <Value>{courseModuleCompletion.completion_granter_user_id}</Value>
-                </InfoItem>
-              )}
-            </InfoGrid>
-            <div
-              className={css`
-                margin-top: 1rem;
-                display: flex;
-                justify-content: flex-end;
-              `}
-            >
-              <DebugModal data={courseModuleCompletion} />
-            </div>
-          </ModuleCard>
-        )
-      })}
-    </Section>
+    />
   )
 }
 

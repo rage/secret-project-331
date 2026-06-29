@@ -22,6 +22,7 @@
   },
   "scripts": {
     "codegen:openapi-ts": "bash -lc 'echo \"ERROR: The only correct way to regenerate OpenAPI TS clients is to run the bin/generate-bindings command.\"; exit 1'",
+    "create-exercise-service": "bin/create-exercise-service",
     "eslint": "eslint --fix .",
     "eslint:ci": "eslint .",
     "eslint:format-bindings": "eslint --fix shared-module/packages/common/src/bindings.ts",

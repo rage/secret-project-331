@@ -11,13 +11,12 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { joinCourseWithJoinCode } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const JoinCoursePage: React.FC = () => {
@@ -102,24 +101,26 @@ const JoinCoursePage: React.FC = () => {
   }
   return (
     <div>
-      {course.isError && <ErrorBanner variant={"readOnly"} error={courseBreadcrumbs.error} />}
-      {course.isLoading && <Spinner variant={"medium"} />}
-      {course.isSuccess && (
-        <div>
-          <h1>{course.data.name}</h1>
+      {joinCode && (
+        <QueryResult query={course}>
+          {(courseData) => (
+            <div>
+              <h1>{courseData.name}</h1>
 
-          <div>{t("do-you-want-to-join-this-course")}?</div>
-          <Button
-            variant={"primary"}
-            size={"small"}
-            onClick={() => handleRedirectMutation.mutate(course.data?.id)}
-          >
-            {t("yes")}
-          </Button>
-          <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
-            {t("button-text-cancel")}
-          </Button>
-        </div>
+              <div>{t("do-you-want-to-join-this-course")}?</div>
+              <Button
+                variant={"primary"}
+                size={"small"}
+                onClick={() => handleRedirectMutation.mutate(courseData.id)}
+              >
+                {t("yes")}
+              </Button>
+              <Button variant={"secondary"} size={"small"} onClick={handleReturn}>
+                {t("button-text-cancel")}
+              </Button>
+            </div>
+          )}
+        </QueryResult>
       )}
     </div>
   )

@@ -14,10 +14,9 @@ import {
   TimeGranularity,
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { courseStatsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 type RegularStatTableProps = {
   query: UseQueryResult<GlobalStatEntry[]>
@@ -143,19 +142,7 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
     return []
   }, [query.data, granularity, moduleStats])
 
-  if (query.isError) {
-    return <ErrorBanner variant="text" error={query.error} />
-  }
-
-  if (query.isLoading) {
-    return (
-      <div>
-        <Spinner variant="medium" />
-      </div>
-    )
-  }
-
-  return (
+  const tableShell = (
     <FullWidthTable>
       <thead>
         <FullWidthTableRow>
@@ -222,6 +209,12 @@ const GlobalStatTable: React.FC<GlobalStatTableProps> = ({ query, moduleStats, g
         })}
       </tbody>
     </FullWidthTable>
+  )
+
+  return (
+    <QueryResult<GlobalStatEntry[] | GlobalCourseModuleStatEntry[]> query={query} treatEmptyAsData>
+      {() => tableShell}
+    </QueryResult>
   )
 }
 

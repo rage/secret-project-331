@@ -19,6 +19,9 @@ pub struct CmsApiDoc;
         ),
         (path = "/api/v0/files", api = crate::controllers::files::FilesApiDoc)
     ),
+    components(schemas(
+        headless_lms_models::suspected_cheaters::SuspectedCheaterStatus
+    )),
     tags(
         (name = "glossary", description = "Glossary endpoints used by main-frontend")
     ),

@@ -14,11 +14,10 @@ import type {
   ChatbotConversation,
   ChatbotConversationInfo,
 } from "@/generated/course-material-api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 import { createChatbotTranscript } from "@/utils/course-material/createChatbotTranscript"
 import { downloadStringAsFile } from "@/utils/course-material/downloadStringAsFile"
 
@@ -117,110 +116,97 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
     },
   )
 
-  let items: DropdownMenuItem[] = [
-    {
-      // eslint-disable-next-line i18next/no-literal-string
-      id: "chatbot-header-menu-new-conversation-button",
-      onAction: () => {
-        if (!newConversationMutation.isPending) {
-          newConversationMutation.mutate()
-        }
-      },
-      disabled: newConversationMutation.isPending,
-      icon: (
-        <AddMessage
-          className={css`
-            color: ${baseTheme.colors.green[700]};
-            position: relative;
-            top: -0.25rem;
-          `}
-        />
-      ),
-      type: "action",
-      label: t("new-conversation"),
-    },
-  ]
-
-  if (currentConversationInfo.data?.current_conversation) {
-    items.push({
-      // eslint-disable-next-line i18next/no-literal-string
-      id: "chatbot-header-menu-dl-transcript-button",
-      onAction: createTranscript.mutate,
-      disabled: createTranscript.isPending,
-      icon: (
-        <ArrowDownToBracket
-          className={css`
-            color: ${baseTheme.colors.green[700]};
-            position: relative;
-            height: 22px;
-            width: 22px;
-            top: -0.275rem;
-          `}
-        />
-      ),
-      type: "action",
-      label: t("download-transcript"),
-    })
-  }
-
-  if (currentConversationInfo.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (currentConversationInfo.isError) {
-    return (
-      <div
-        className={css`
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          padding: 20px;
-        `}
-      >
-        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
-      </div>
-    )
-  }
-
   return (
-    <div className={headerContainerStyle}>
-      <div className={iconStyle}>
-        <Account />
-      </div>
-      <Heading
-        slot="title"
-        className={titleStyle}
-        {...(isCourseMaterialBlock ? {} : props.titleProps)}
-      >
-        {currentConversationInfo.data?.chatbot_name}
-      </Heading>
-      <div className={buttonsWrapper}>
-        <DropdownMenu
-          // eslint-disable-next-line i18next/no-literal-string
-          menuTestId="chatbot-header-menu"
-          // eslint-disable-next-line i18next/no-literal-string
-          menuButtonTestId="chatbot-header-menu-button"
-          controlButtonClassName={buttonStyle}
-          controlButtonIconColor={`${baseTheme.colors.green[700]}`}
-          controlButtonAriaLabel={t("label-actions")}
-          controlButtonTooltipText={t("label-actions")}
-          controlButtonIconWidth={24}
-          items={items}
-        />
-        {!isCourseMaterialBlock && (
-          <ClarificationTooltip text={t("close")}>
-            <Button
-              slot="close"
-              className={buttonStyle}
-              aria-label={t("close")}
-              onPress={props.closeChatbot}
+    <QueryResult query={currentConversationInfo}>
+      {(data) => {
+        const items: DropdownMenuItem[] = [
+          {
+            // eslint-disable-next-line i18next/no-literal-string
+            id: "chatbot-header-menu-new-conversation-button",
+            onAction: () => {
+              if (!newConversationMutation.isPending) {
+                newConversationMutation.mutate()
+              }
+            },
+            disabled: newConversationMutation.isPending,
+            icon: (
+              <AddMessage
+                className={css`
+                  color: ${baseTheme.colors.green[700]};
+                  position: relative;
+                  top: -0.25rem;
+                `}
+              />
+            ),
+            type: "action",
+            label: t("new-conversation"),
+          },
+        ]
+
+        if (data.current_conversation) {
+          items.push({
+            // eslint-disable-next-line i18next/no-literal-string
+            id: "chatbot-header-menu-dl-transcript-button",
+            onAction: createTranscript.mutate,
+            disabled: createTranscript.isPending,
+            icon: (
+              <ArrowDownToBracket
+                className={css`
+                  color: ${baseTheme.colors.green[700]};
+                  position: relative;
+                  height: 22px;
+                  width: 22px;
+                  top: -0.275rem;
+                `}
+              />
+            ),
+            type: "action",
+            label: t("download-transcript"),
+          })
+        }
+
+        return (
+          <div className={headerContainerStyle}>
+            <div className={iconStyle}>
+              <Account />
+            </div>
+            <Heading
+              slot="title"
+              className={titleStyle}
+              {...(isCourseMaterialBlock ? {} : props.titleProps)}
             >
-              <DownIcon />
-            </Button>
-          </ClarificationTooltip>
-        )}
-      </div>
-    </div>
+              {data.chatbot_name}
+            </Heading>
+            <div className={buttonsWrapper}>
+              <DropdownMenu
+                // eslint-disable-next-line i18next/no-literal-string
+                menuTestId="chatbot-header-menu"
+                // eslint-disable-next-line i18next/no-literal-string
+                menuButtonTestId="chatbot-header-menu-button"
+                controlButtonClassName={buttonStyle}
+                controlButtonIconColor={`${baseTheme.colors.green[700]}`}
+                controlButtonAriaLabel={t("label-actions")}
+                controlButtonTooltipText={t("label-actions")}
+                controlButtonIconWidth={24}
+                items={items}
+              />
+              {!isCourseMaterialBlock && (
+                <ClarificationTooltip text={t("close")}>
+                  <Button
+                    slot="close"
+                    className={buttonStyle}
+                    aria-label={t("close")}
+                    onPress={props.closeChatbot}
+                  >
+                    <DownIcon />
+                  </Button>
+                </ClarificationTooltip>
+              )}
+            </div>
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

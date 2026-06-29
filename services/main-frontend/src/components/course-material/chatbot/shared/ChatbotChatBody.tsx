@@ -21,10 +21,9 @@ import type {
 } from "@/generated/course-material-api/types.generated"
 import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 
 const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
@@ -141,204 +140,188 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     [newMessage, newMessageMutation.isPending],
   )
 
-  if (currentConversationInfo.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (currentConversationInfo.isError) {
-    return (
-      <div
-        className={css`
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          padding: 20px;
-        `}
-      >
-        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
-        <Button onClick={() => currentConversationInfo.refetch()} variant="secondary" size="small">
-          {t("try-again")}
-        </Button>
-      </div>
-    )
-  }
-
-  if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
-    return (
-      <ChatbotDisclaimer
-        agreeButton={
-          <Button
-            className={css`
-              margin-top: 6px;
-            `}
-            size="medium"
-            variant="secondary"
-            onClick={() => {
-              newConversationMutation.mutate()
-              dispatch({ type: "RESET_MESSAGES" })
-            }}
-            disabled={newConversationMutation.isPending}
-          >
-            {t("button-text-agree")}
-          </Button>
-        }
-      />
-    )
-  }
-
   return (
-    <div
-      className={css`
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      `}
-    >
-      <div
-        className={css`
-          flex-grow: 1;
-          overflow-y: auto;
-          display: flex;
-          flex-direction: column;
-          padding: 1rem;
-        `}
-        ref={scrollContainerRef}
-      >
-        {messages.map((message) => {
-          let m = zChatbotConversationMessageMessage.safeParse(message.message)
-          if (m.success) {
-            return (
-              <MessageBubble
-                key={`chatbot-message-${message.id}`}
-                message={m.data.text ?? ""}
-                citations={citations.get(message.id)}
-                isFromChatbot={m.data.message_role === "assistant"}
-                isPending={!m.data.message_is_complete && newMessageMutation.isPending}
-              />
-            )
-          }
-        })}
-        <div
-          className={css`
-            display: flex;
-            flex-flow: column nowrap;
-            margin-top: auto;
-            margin-left: 2rem;
-          `}
-        >
-          {currentConversationInfo.data.suggested_messages?.map((m) => (
-            <SuggestedMessageChip
-              key={m.id}
-              isLoading={
-                newMessageMutation.isPending ||
-                currentConversationInfo.isLoading ||
-                currentConversationInfo.isRefetching
+    <QueryResult query={currentConversationInfo}>
+      {(data) => {
+        if (!data.current_conversation) {
+          return (
+            <ChatbotDisclaimer
+              agreeButton={
+                <Button
+                  className={css`
+                    margin-top: 6px;
+                  `}
+                  size="medium"
+                  variant="secondary"
+                  onClick={() => {
+                    newConversationMutation.mutate()
+                    dispatch({ type: "RESET_MESSAGES" })
+                  }}
+                  disabled={newConversationMutation.isPending}
+                >
+                  {t("button-text-agree")}
+                </Button>
               }
-              message={m.message}
-              handleClick={() => {
-                if (!newMessageMutation.isPending) {
-                  newMessageMutation.mutate(m.message)
-                }
-              }}
             />
-          ))}
-        </div>
-      </div>
-      <VisuallyHidden aria-live="polite" role="status">
-        {chatbotMessageAnnouncement}
-      </VisuallyHidden>
-      {error != null ? <ErrorDisplay error={error} /> : null}
-      <div
-        className={css`
-          display: flex;
-          gap: 10px;
-          align-items: center;
-          margin: 0 1rem;
-        `}
-      >
-        <div
-          className={css`
-            flex-grow: 1;
-          `}
-        >
-          <TextAreaField
-            className={css`
-              width: 100%;
-              padding: 0.5rem;
-              resize: none;
+          )
+        }
 
-              &:focus {
-                outline: 1px solid ${baseTheme.colors.gray[300]};
-              }
-            `}
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                if (canSubmit) {
-                  newMessageMutation.mutate(newMessage)
-                }
-              }
-            }}
-            // eslint-disable-next-line i18next/no-literal-string
-            resize={"none"}
-            autoResize={true}
-            onAutoResized={scrollToBottom}
-            autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
-            placeholder={t("label-message")}
-          />
-        </div>
-        <div>
-          <button
+        return (
+          <div
             className={css`
-              background-color: ${baseTheme.colors.green[200]};
-              border: none;
-              cursor: pointer;
+              flex-grow: 1;
               display: flex;
-              align-items: center;
-              justify-content: center;
-              padding: 0.3rem 0.6rem;
-              transition: filter 0.2s;
-
-              &:disabled {
-                cursor: not-allowed;
-                opacity: 0.5;
-              }
-
-              &:hover {
-                filter: brightness(0.9) contrast(1.1);
-              }
-
-              svg {
-                position: relative;
-                top: 0px;
-                left: -2px;
-                transform: rotate(45deg);
-              }
+              flex-direction: column;
+              overflow: hidden;
             `}
-            disabled={!canSubmit}
-            aria-label={t("send")}
-            onClick={() => {
-              newMessageMutation.mutate(newMessage)
-            }}
           >
-            <PaperAirplane />
-          </button>
-        </div>
-      </div>
-      <div
-        className={css`
-          margin: 0.5rem;
-          font-size: 0.8rem;
-          color: ${baseTheme.colors.gray[500]};
-          text-align: center;
-        `}
-      >
-        {t("warning-chatbots-can-make-mistakes")}
-      </div>
-    </div>
+            <div
+              className={css`
+                flex-grow: 1;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                padding: 1rem;
+              `}
+              ref={scrollContainerRef}
+            >
+              {messages.map((message) => {
+                let m = zChatbotConversationMessageMessage.safeParse(message.message)
+                if (m.success) {
+                  return (
+                    <MessageBubble
+                      key={`chatbot-message-${message.id}`}
+                      message={m.data.text ?? ""}
+                      citations={citations.get(message.id)}
+                      isFromChatbot={m.data.message_role === "assistant"}
+                      isPending={!m.data.message_is_complete && newMessageMutation.isPending}
+                    />
+                  )
+                }
+              })}
+              <div
+                className={css`
+                  display: flex;
+                  flex-flow: column nowrap;
+                  margin-top: auto;
+                  margin-left: 2rem;
+                `}
+              >
+                {data.suggested_messages?.map((m) => (
+                  <SuggestedMessageChip
+                    key={m.id}
+                    isLoading={
+                      newMessageMutation.isPending ||
+                      currentConversationInfo.isLoading ||
+                      currentConversationInfo.isRefetching
+                    }
+                    message={m.message}
+                    handleClick={() => {
+                      if (!newMessageMutation.isPending) {
+                        newMessageMutation.mutate(m.message)
+                      }
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+            <VisuallyHidden aria-live="polite" role="status">
+              {chatbotMessageAnnouncement}
+            </VisuallyHidden>
+            {error != null ? <ErrorDisplay error={error} /> : null}
+            <div
+              className={css`
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                margin: 0 1rem;
+              `}
+            >
+              <div
+                className={css`
+                  flex-grow: 1;
+                `}
+              >
+                <TextAreaField
+                  className={css`
+                    width: 100%;
+                    padding: 0.5rem;
+                    resize: none;
+
+                    &:focus {
+                      outline: 1px solid ${baseTheme.colors.gray[300]};
+                    }
+                  `}
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      if (canSubmit) {
+                        newMessageMutation.mutate(newMessage)
+                      }
+                    }
+                  }}
+                  // eslint-disable-next-line i18next/no-literal-string
+                  resize={"none"}
+                  autoResize={true}
+                  onAutoResized={scrollToBottom}
+                  autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
+                  placeholder={t("label-message")}
+                />
+              </div>
+              <div>
+                <button
+                  className={css`
+                    background-color: ${baseTheme.colors.green[200]};
+                    border: none;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0.3rem 0.6rem;
+                    transition: filter 0.2s;
+
+                    &:disabled {
+                      cursor: not-allowed;
+                      opacity: 0.5;
+                    }
+
+                    &:hover {
+                      filter: brightness(0.9) contrast(1.1);
+                    }
+
+                    svg {
+                      position: relative;
+                      top: 0px;
+                      left: -2px;
+                      transform: rotate(45deg);
+                    }
+                  `}
+                  disabled={!canSubmit}
+                  aria-label={t("send")}
+                  onClick={() => {
+                    newMessageMutation.mutate(newMessage)
+                  }}
+                >
+                  <PaperAirplane />
+                </button>
+              </div>
+            </div>
+            <div
+              className={css`
+                margin: 0.5rem;
+                font-size: 0.8rem;
+                color: ${baseTheme.colors.gray[500]};
+                text-align: center;
+              `}
+            >
+              {t("warning-chatbots-can-make-mistakes")}
+            </div>
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

@@ -3,7 +3,7 @@ import { expect, test } from "playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
-import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/common/utils/constants"
+import { EXERCISE_SERVICE_CONTENT_ID } from "@/shared-module/exercise-protocol/core/constants"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 /**

@@ -6,11 +6,9 @@ import { useTranslation } from "react-i18next"
 import EditProposalPage from "./EditProposalPage"
 
 import { getEditProposalCountOptions } from "@/generated/api/@tanstack/react-query.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -34,42 +32,30 @@ const EditProposalList: React.FC<React.PropsWithChildren<Props>> = ({
     }),
   })
 
-  if (getEditProposalCount.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getEditProposalCount.error} />
-  }
-
-  if (getEditProposalCount.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (!getEditProposalCount.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void getEditProposalCount.refetch()
-        }}
-      />
-    )
-  }
-
-  const items = pending ? getEditProposalCount.data.pending : getEditProposalCount.data.handled
-  if (items <= 0) {
-    return <div>{t("no-change-requests")}</div>
-  }
-
-  const pageCount = Math.ceil(items / perPage)
-
   return (
-    <div>
-      <EditProposalPage
-        courseId={courseId}
-        page={paginationInfo.page}
-        pending={pending}
-        limit={perPage}
-        onChange={getEditProposalCount.refetch}
-      />
-      <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
-    </div>
+    <QueryResult query={getEditProposalCount}>
+      {(data) => {
+        const items = pending ? data.pending : data.handled
+        if (items <= 0) {
+          return <div>{t("no-change-requests")}</div>
+        }
+
+        const pageCount = Math.ceil(items / perPage)
+
+        return (
+          <div>
+            <EditProposalPage
+              courseId={courseId}
+              page={paginationInfo.page}
+              pending={pending}
+              limit={perPage}
+              onChange={getEditProposalCount.refetch}
+            />
+            <Pagination totalPages={pageCount} paginationInfo={paginationInfo} />
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

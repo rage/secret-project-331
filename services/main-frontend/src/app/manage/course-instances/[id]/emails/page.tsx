@@ -14,11 +14,10 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { createCourseInstanceEmailTemplate } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const CourseInstanceEmailTemplates: React.FC = () => {
   const { t } = useTranslation()
@@ -83,29 +82,27 @@ const CourseInstanceEmailTemplates: React.FC = () => {
           <NewEmailTemplateForm onSubmitForm={handleCreateEmailTemplate} />
         </div>
       </Dialog>
-      {getCourseInstanceEmailTemplates.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseInstanceEmailTemplates.error} />
-      )}
-      {getCourseInstanceEmailTemplates.isLoading && <Spinner variant={"medium"} />}
-      {getCourseInstanceEmailTemplates.isSuccess && (
-        <ul>
-          {getCourseInstanceEmailTemplates.data.map((template) => {
-            return (
-              <li key={template.id}>
-                {template.subject || template.template_type}{" "}
-                <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
-                <Button
-                  size="medium"
-                  variant="secondary"
-                  onClick={async () => await handleOnDelete(template.id)}
-                >
-                  {t("button-text-delete")}
-                </Button>
-              </li>
-            )
-          })}
-        </ul>
-      )}
+      <QueryResult query={getCourseInstanceEmailTemplates} emptyFallback={<ul></ul>}>
+        {(data) => (
+          <ul>
+            {data.map((template) => {
+              return (
+                <li key={template.id}>
+                  {template.subject || template.template_type}{" "}
+                  <a href={`/cms/email-templates/${template.id}/edit`}>{t("edit")}</a>{" "}
+                  <Button
+                    size="medium"
+                    variant="secondary"
+                    onClick={async () => await handleOnDelete(template.id)}
+                  >
+                    {t("button-text-delete")}
+                  </Button>
+                </li>
+              )
+            })}
+          </ul>
+        )}
+      </QueryResult>
     </div>
   )
 }

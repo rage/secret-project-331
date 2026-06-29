@@ -13,8 +13,8 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import ArrowDown from "@/shared-module/common/img/caret-arrow-down.svg"
 import ArrowUp from "@/shared-module/common/img/caret-arrow-up.svg"
-import { primaryFont } from "@/shared-module/common/styles"
 import { nullIfEmptyString } from "@/shared-module/common/utils/strings"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const OptionCard = styled.div`
   height: 50px;

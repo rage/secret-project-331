@@ -8,12 +8,12 @@ import { useTranslation } from "react-i18next"
 import { DEFAULT_CHART_HEIGHT, InstructionBox } from "../../CourseStatsPage"
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { getCoursePageVisitDatumSummaryByDeviceTypesOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 export interface DeviceTypesProps {
   courseId: string
@@ -115,127 +115,129 @@ const DeviceTypes: React.FC<React.PropsWithChildren<DeviceTypesProps>> = ({ cour
       />
       <InstructionBox>{t("stats-instruction-device-analytics")}</InstructionBox>
       <div className={containerStyles}>
-        {query.isLoading ? (
-          <Spinner variant="medium" />
-        ) : query.isError ? (
-          <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !hasData ? (
-          <div>{t("no-data")}</div>
-        ) : (
-          <div className={chartsContainerStyles}>
-            <div>
-              <Echarts
-                height={DEFAULT_CHART_HEIGHT}
-                options={{
-                  tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
-                    formatter: "{b}: {c} ({d}%)",
-                  },
-                  title: {
-                    text: t("title-device-type"),
-                    // eslint-disable-next-line i18next/no-literal-string
-                    left: "center",
-                  },
-                  series: [
-                    {
-                      type: "pie",
-                      radius: "50%",
-                      data: Object.entries(aggregatedDataDeviceType).map(
-                        ([deviceType, visitors]) => ({
-                          name: deviceType,
-                          value: visitors,
-                        }),
-                      ),
-                      emphasis: {
-                        itemStyle: {
-                          shadowBlur: 10,
-                          shadowOffsetX: 0,
-                          shadowColor: "rgba(0, 0, 0, 0.5)",
-                        },
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
+          {() =>
+            !hasData ? (
+              <NoDataMessage />
+            ) : (
+              <div className={chartsContainerStyles}>
+                <div>
+                  <Echarts
+                    height={DEFAULT_CHART_HEIGHT}
+                    options={{
+                      tooltip: {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        trigger: "item",
+                        // eslint-disable-next-line i18next/no-literal-string
+                        formatter: "{b}: {c} ({d}%)",
                       },
-                    },
-                  ],
-                }}
-              />
-            </div>
+                      title: {
+                        text: t("title-device-type"),
+                        // eslint-disable-next-line i18next/no-literal-string
+                        left: "center",
+                      },
+                      series: [
+                        {
+                          type: "pie",
+                          radius: "50%",
+                          data: Object.entries(aggregatedDataDeviceType).map(
+                            ([deviceType, visitors]) => ({
+                              name: deviceType,
+                              value: visitors,
+                            }),
+                          ),
+                          emphasis: {
+                            itemStyle: {
+                              shadowBlur: 10,
+                              shadowOffsetX: 0,
+                              shadowColor: "rgba(0, 0, 0, 0.5)",
+                            },
+                          },
+                        },
+                      ],
+                    }}
+                  />
+                </div>
 
-            <div>
-              <Echarts
-                height={DEFAULT_CHART_HEIGHT}
-                options={{
-                  tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
-                    formatter: "{b}: {c} ({d}%)",
-                  },
-                  title: {
-                    text: t("title-operating-system"),
-                    // eslint-disable-next-line i18next/no-literal-string
-                    left: "center",
-                  },
-                  series: [
-                    {
-                      type: "pie",
-                      radius: "50%",
-                      data: Object.entries(aggregatedDataOperatingSystem).map(
-                        ([operatingSystem, visitors]) => ({
-                          name: operatingSystem,
-                          value: visitors,
-                        }),
-                      ),
-                      emphasis: {
-                        itemStyle: {
-                          shadowBlur: 10,
-                          shadowOffsetX: 0,
-                          shadowColor: "rgba(0, 0, 0, 0.5)",
-                        },
+                <div>
+                  <Echarts
+                    height={DEFAULT_CHART_HEIGHT}
+                    options={{
+                      tooltip: {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        trigger: "item",
+                        // eslint-disable-next-line i18next/no-literal-string
+                        formatter: "{b}: {c} ({d}%)",
                       },
-                    },
-                  ],
-                }}
-              />
-            </div>
+                      title: {
+                        text: t("title-operating-system"),
+                        // eslint-disable-next-line i18next/no-literal-string
+                        left: "center",
+                      },
+                      series: [
+                        {
+                          type: "pie",
+                          radius: "50%",
+                          data: Object.entries(aggregatedDataOperatingSystem).map(
+                            ([operatingSystem, visitors]) => ({
+                              name: operatingSystem,
+                              value: visitors,
+                            }),
+                          ),
+                          emphasis: {
+                            itemStyle: {
+                              shadowBlur: 10,
+                              shadowOffsetX: 0,
+                              shadowColor: "rgba(0, 0, 0, 0.5)",
+                            },
+                          },
+                        },
+                      ],
+                    }}
+                  />
+                </div>
 
-            <div>
-              <Echarts
-                height={DEFAULT_CHART_HEIGHT}
-                options={{
-                  tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
-                    trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
-                    formatter: "{b}: {c} ({d}%)",
-                  },
-                  title: {
-                    text: t("title-browser"),
-                    // eslint-disable-next-line i18next/no-literal-string
-                    left: "center",
-                  },
-                  series: [
-                    {
-                      type: "pie",
-                      radius: "50%",
-                      data: Object.entries(aggregatedDataBrowser).map(([browser, visitors]) => ({
-                        name: browser,
-                        value: visitors,
-                      })),
-                      emphasis: {
-                        itemStyle: {
-                          shadowBlur: 10,
-                          shadowOffsetX: 0,
-                          shadowColor: "rgba(0, 0, 0, 0.5)",
-                        },
+                <div>
+                  <Echarts
+                    height={DEFAULT_CHART_HEIGHT}
+                    options={{
+                      tooltip: {
+                        // eslint-disable-next-line i18next/no-literal-string
+                        trigger: "item",
+                        // eslint-disable-next-line i18next/no-literal-string
+                        formatter: "{b}: {c} ({d}%)",
                       },
-                    },
-                  ],
-                }}
-              />
-            </div>
-          </div>
-        )}
+                      title: {
+                        text: t("title-browser"),
+                        // eslint-disable-next-line i18next/no-literal-string
+                        left: "center",
+                      },
+                      series: [
+                        {
+                          type: "pie",
+                          radius: "50%",
+                          data: Object.entries(aggregatedDataBrowser).map(
+                            ([browser, visitors]) => ({
+                              name: browser,
+                              value: visitors,
+                            }),
+                          ),
+                          emphasis: {
+                            itemStyle: {
+                              shadowBlur: 10,
+                              shadowOffsetX: 0,
+                              shadowColor: "rgba(0, 0, 0, 0.5)",
+                            },
+                          },
+                        },
+                      ],
+                    }}
+                  />
+                </div>
+              </div>
+            )
+          }
+        </QueryResult>
       </div>
     </>
   )

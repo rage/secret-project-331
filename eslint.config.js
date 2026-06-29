@@ -300,6 +300,9 @@ const config = [
               "align",
               "slot",
               "tag",
+              "themeMode",
+              "status",
+              "name",
             ],
           },
           words: {

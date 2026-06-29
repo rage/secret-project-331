@@ -29,5 +29,17 @@ run_command bash -c 'cd shared-module/packages/common && pnpm install --frozen-l
 echo "Installing dependencies for shared-module-components..."
 run_command bash -c 'cd shared-module/packages/components && pnpm install --frozen-lockfile'
 
+echo "Installing dependencies for shared-module-exercise-protocol..."
+run_command bash -c 'cd shared-module/packages/exercise-protocol && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for shared-module-exercise-client..."
+run_command bash -c 'cd shared-module/packages/exercise-client && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for shared-module-exercise-react..."
+run_command bash -c 'cd shared-module/packages/exercise-react && pnpm install --frozen-lockfile'
+
+echo "Installing dependencies for shared-module-create-exercise-service..."
+run_command bash -c 'cd shared-module/packages/create-exercise-service && pnpm install --frozen-lockfile'
+
 
 echo "finished"

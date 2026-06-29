@@ -15,9 +15,8 @@ import {
   getCodeGiveawayCodesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
+import { QueryResults } from "@/shared-module/components"
 
 const CodeGiveawayPage = () => {
   const { id } = useParams<{ id: string }>()
@@ -41,20 +40,7 @@ const CodeGiveawayPage = () => {
     }),
   )
 
-  if (codeGiveawayQuery.isLoading || codeGiveawayCodesQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (codeGiveawayQuery.isError || codeGiveawayCodesQuery.isError) {
-    return (
-      <ErrorBanner
-        variant="readOnly"
-        error={codeGiveawayQuery.error || codeGiveawayCodesQuery.error}
-      />
-    )
-  }
-
-  return (
+  const renderPage = (name: string, codes: typeof codeGiveawayCodesQuery.data) => (
     <>
       <h1
         className={css`
@@ -64,7 +50,7 @@ const CodeGiveawayPage = () => {
           font-weight: bold;
         `}
       >
-        {t("heading-code-giveaway-name", { name: codeGiveawayQuery.data?.name ?? "" })}
+        {t("heading-code-giveaway-name", { name })}
       </h1>
 
       <div
@@ -97,8 +83,8 @@ const CodeGiveawayPage = () => {
           </FullWidthTableRow>
         </thead>
         <tbody>
-          {codeGiveawayCodesQuery.data &&
-            codeGiveawayCodesQuery.data.map((code) => (
+          {codes &&
+            codes.map((code) => (
               <CodeGiveawayCode key={code.id} code={code} revealed={revealCodes} />
             ))}
         </tbody>
@@ -115,6 +101,14 @@ const CodeGiveawayPage = () => {
         }}
       />
     </>
+  )
+
+  return (
+    <QueryResults
+      queries={[codeGiveawayQuery, codeGiveawayCodesQuery] as const}
+      renderData={([codeGiveaway, codes]) => renderPage(codeGiveaway?.name ?? "", codes)}
+      treatEmptyAsData
+    />
   )
 }
 

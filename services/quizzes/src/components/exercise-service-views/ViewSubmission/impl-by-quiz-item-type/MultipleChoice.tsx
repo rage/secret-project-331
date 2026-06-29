@@ -14,6 +14,7 @@ import { QuizItemSubmissionComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 import { FlexDirection, sanitizeFlexDirection } from "@/util/css-sanitization"
 import { orderArrayWithId } from "@/util/randomizer"
 
@@ -85,7 +86,7 @@ const MultipleChoiceSubmission: React.FC<
         className={css`
           font-weight: 500;
           color: #4c5868;
-          font-family: "Raleway", sans-serif;
+          font-family: ${primaryFont};
           font-size: 1.25rem;
           margin-bottom: 1rem;
         `}

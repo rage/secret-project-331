@@ -10,10 +10,9 @@ import {
   restorePageHistoryMutation as restorePageHistoryMutationOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { PageHistory } from "@/generated/api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   pageId: string
@@ -68,12 +67,8 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
   }
 
   return (
-    <>
-      {getPageHistoryCount.isError && (
-        <ErrorBanner variant={"readOnly"} error={getPageHistoryCount.error} />
-      )}
-      {getPageHistoryCount.isLoading && <Spinner variant={"medium"} />}
-      {getPageHistoryCount.isSuccess && (
+    <QueryResult query={getPageHistoryCount}>
+      {(pageHistoryCount) => (
         <>
           <HistoryPage
             pageId={pageId}
@@ -84,13 +79,13 @@ const HistoryList: React.FC<React.PropsWithChildren<Props>> = ({
             onRestore={restore}
           />
           <Pagination
-            totalPages={getPageHistoryCount.data / 1}
+            totalPages={pageHistoryCount / 1}
             paginationInfo={{ ...paginationInfo, limit: 1 }}
             disableItemsPerPage
           />
         </>
       )}
-    </>
+    </QueryResult>
   )
 }
 

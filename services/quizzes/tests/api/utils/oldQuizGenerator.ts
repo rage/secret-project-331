@@ -8,7 +8,7 @@ import {
   QuizItem,
 } from "../../../types/oldQuizTypes"
 
-import { NonGenericGradingRequest } from "@/shared-module/common/exercise-service-protocol-types"
+import { NonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 const oldEmptyQuizAnswer = (): OldQuizAnswer => ({
   createdAt: "",

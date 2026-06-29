@@ -18,7 +18,7 @@ const StyledButtonEditor = styled.div`
   padding: 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-apart;
+  justify-content: space-between;
 `
 
 const Input = styled.input`

@@ -7,10 +7,8 @@ import React from "react"
 import FeedbackView from "./FeedbackView"
 
 import { getCourseFeedbackOptions } from "@/generated/api/@tanstack/react-query.generated"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { PaginationInfo } from "@/shared-module/common/hooks/usePaginationInfo"
+import { QueryResult } from "@/shared-module/components"
 
 interface Props {
   courseId: string
@@ -41,43 +39,29 @@ const FeedbackPage: React.FC<React.PropsWithChildren<Props>> = ({
     }),
   })
 
-  if (getFeedbackList.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getFeedbackList.error} />
-  }
-
-  if (getFeedbackList.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
-  if (!getFeedbackList.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void getFeedbackList.refetch()
-        }}
-      />
-    )
-  }
+  const listClassName = css`
+    list-style: none;
+    padding: 0;
+  `
 
   return (
-    <ul
-      className={css`
-        list-style: none;
-        padding: 0;
-      `}
-    >
-      {getFeedbackList.data.map((f) => (
-        <li key={f.id}>
-          <FeedbackView
-            feedback={f}
-            setRead={async () => {
-              await getFeedbackList.refetch()
-              await onChange()
-            }}
-          />
-        </li>
-      ))}
-    </ul>
+    <QueryResult query={getFeedbackList} emptyFallback={<ul className={listClassName} />}>
+      {(data) => (
+        <ul className={listClassName}>
+          {data.map((f) => (
+            <li key={f.id}>
+              <FeedbackView
+                feedback={f}
+                setRead={async () => {
+                  await getFeedbackList.refetch()
+                  await onChange()
+                }}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+    </QueryResult>
   )
 }
 

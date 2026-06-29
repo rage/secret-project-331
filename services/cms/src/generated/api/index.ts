@@ -52,6 +52,7 @@ export type {
   CompletionPolicy,
   ContentManagementPage,
   Course,
+  CourseAiPolicy,
   CourseInstance,
   CourseModule,
   DatabaseChapter,

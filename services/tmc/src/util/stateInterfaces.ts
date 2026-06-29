@@ -1,7 +1,7 @@
 import {
   CurrentStateMessage,
   MessageFromIframe,
-} from "@/shared-module/common/exercise-service-protocol-types"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import {
   ExerciseTaskGradingResult,
   ExerciseTaskSubmission,

@@ -67,7 +67,6 @@ export {
   getErrorMessage,
   getMultiQueryState,
   getSingleQueryState,
-  hasUsableQueryData,
   isQueryDataTupleEmpty,
   isQueryResultEmpty,
 } from "./components/queryResult/queryResultState"

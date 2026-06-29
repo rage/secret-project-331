@@ -1,15 +1,12 @@
 import "i18next"
 
-import ownTranslations from "@/shared-module/common/locales/en/example-exercise.json"
-import sharedModule from "@/shared-module/common/locales/en/shared-module.json"
+import ownTranslations from "@/locales/en/example-exercise.json"
 
 declare module "i18next" {
   interface CustomTypeOptions {
     defaultNS: "example-exercise"
-    fallbackNS: "shared-module"
     resources: {
       "example-exercise": typeof ownTranslations
-      "shared-module": typeof sharedModule
     }
     allowObjectInHTMLChildren: true
   }

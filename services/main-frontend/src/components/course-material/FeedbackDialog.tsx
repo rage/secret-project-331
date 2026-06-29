@@ -13,7 +13,7 @@ import type { FeedbackBlock } from "@/generated/course-material-api/types.genera
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, monospaceFont, primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import {
   currentlyOpenFeedbackDialogAtom,
@@ -236,7 +236,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
                     padding: 0.75rem;
                     border-radius: 4px;
                     margin-bottom: 0.75rem;
-                    font-family: "Space Mono", monospace;
+                    font-family: ${monospaceFont};
                     font-size: 0.875rem;
                     color: ${baseTheme.colors.green[700]};
                     overflow: hidden;

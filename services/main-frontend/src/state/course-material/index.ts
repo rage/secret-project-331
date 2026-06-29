@@ -4,8 +4,8 @@ import { viewParamsAtom } from "./params"
 import { examQueryAtom, materialQueryAtom } from "./queries"
 
 import type {
-  Course,
   CourseInstance,
+  CourseMaterialCourse,
   ExamData,
   Organization,
   Page,
@@ -16,7 +16,7 @@ export type CourseMaterialState = {
   status: "loading" | "ready" | "error"
   error: unknown | null
   page: Page | null
-  course: Course | null
+  course: CourseMaterialCourse | null
   instance: CourseInstance | null
   settings: UserCourseSettings | null
   organization: Organization | null

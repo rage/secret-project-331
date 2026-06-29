@@ -11,8 +11,8 @@ import BlockPlaceholderWrapper from "../BlockPlaceholderWrapper"
 import { ChatbotBlockAttributes } from "."
 
 import { getCmsCourseNondefaultChatbotConfigurationsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorAndLoadingWrapper from "@/shared-module/common/components/ErrorAndLoadingWrapper"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 import { useTranslation } from "@/utils/useCmsTranslation"
@@ -65,33 +65,27 @@ const ChatbotEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChatbotBloc
       title={t("chatbot-block-placeholder")}
       explanation={t("chatbot-block-placeholder-explanation")}
     >
-      <ErrorAndLoadingWrapper
-        queryResult={chatbotConfigurations}
-        render={(chatbotConfigurationsData) => {
-          return (
-            <>
-              {chatbotConfigurationsData && chatbotConfigurationsData.length > 0 ? (
-                <SelectField
-                  className={css`
-                    width: inherit;
-                  `}
-                  label={t("select-an-option")}
-                  options={chatbotConfigurationSelectOptions}
-                  defaultValue={initialSelected}
-                  onChangeByValue={(v) => {
-                    setAttributes({
-                      chatbotConfigurationId: v,
-                      courseId: courseId ?? undefined,
-                    })
-                  }}
-                />
-              ) : (
-                <p>{t("no-chatbots-for-course")}</p>
-              )}
-            </>
-          )
-        }}
-      />
+      <QueryResult
+        query={chatbotConfigurations}
+        emptyFallback={<p>{t("no-chatbots-for-course")}</p>}
+      >
+        {() => (
+          <SelectField
+            className={css`
+              width: inherit;
+            `}
+            label={t("select-an-option")}
+            options={chatbotConfigurationSelectOptions}
+            defaultValue={initialSelected}
+            onChangeByValue={(v) => {
+              setAttributes({
+                chatbotConfigurationId: v,
+                courseId: courseId ?? undefined,
+              })
+            }}
+          />
+        )}
+      </QueryResult>
 
       <InnerBlocks allowedBlocks={ALLOWED_NESTED_BLOCKS} />
     </BlockPlaceholderWrapper>

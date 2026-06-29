@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\nUPDATE course_module_completions cmc\nSET passed = s.passed, grade = s.grade\nFROM cheating_confirmation_grade_snapshots s\nWHERE s.course_module_completion_id = cmc.id\n  AND s.deleted_at IS NULL\n  AND cmc.user_id = $1\n  AND cmc.course_id = $2\n  AND cmc.deleted_at IS NULL\n        ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "a29ef7739169bf9463206202fbd23b3ee99e6f30def7f550d780c5645aa17677"
+}

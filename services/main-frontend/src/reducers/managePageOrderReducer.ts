@@ -54,9 +54,16 @@ export default function managePageOrderReducer(
         const chaptersWithFrontpages = action.payload.chapters.filter(
           (c) => c.front_page_id !== null,
         )
-        const chapters = action.payload.chapters.filter((c) => c.id !== null)
+        // Clone the chapters and pages before storing them in the state. The objects we get from
+        // react-query may be frozen (immer's autoFreeze freezes them once they end up in produced
+        // state, and react-query's structural sharing reuses the same frozen references across
+        // refetches). The order-number/chapter-number normalization below mutates these objects in
+        // place, and mutating a frozen object throws "Cannot assign to read only property", which
+        // previously left unsavedChanges unset and hid the "save the ordering" prompt (e.g. after
+        // deleting a page).
+        const chapters = action.payload.chapters.filter((c) => c.id !== null).map((c) => ({ ...c }))
         const orderedPages = orderBy(
-          [...action.payload.pages],
+          action.payload.pages.map((page) => ({ ...page })),
           [(page) => page.order_number, (page) => page.id],
           ["asc", "asc"],
         )
@@ -163,12 +170,12 @@ export default function managePageOrderReducer(
           // Front page is always index 0, so the first page in the chapter is index 1
           const expectedOrderNumber = index + 1
           if (page.order_number !== expectedOrderNumber) {
-            console.info(
-              `Updating page order number for ${page.id} from ${page.order_number} to ${expectedOrderNumber}`,
-            )
+            // setData clones pages so this assignment is safe, but stay defensive: a frozen page
+            // (e.g. via immer autoFreeze) must not crash the whole view. Mark unsaved changes
+            // regardless so the "save the page ordering" prompt is never silently skipped.
+            draftState.unsavedChanges = true
             try {
               page.order_number = expectedOrderNumber
-              draftState.unsavedChanges = true
             } catch (e) {
               console.warn(`Could not update page order number for ${page.id}`, e)
             }
@@ -178,11 +185,12 @@ export default function managePageOrderReducer(
       // Set front page order numbers to 0
       Object.values(draftState.chapterIdToFrontPage).forEach((page) => {
         if (page.order_number !== 0) {
-          console.info(
-            `Updating front page order number for ${page.id} from ${page.order_number} to 0`,
-          )
-          page.order_number = 0
           draftState.unsavedChanges = true
+          try {
+            page.order_number = 0
+          } catch (e) {
+            console.warn(`Could not update front page order number for ${page.id}`, e)
+          }
         }
       })
     }
@@ -196,11 +204,12 @@ export default function managePageOrderReducer(
         .forEach((chapter, index) => {
           const expectedChapterNumber = index + 1
           if (chapter.chapter_number !== expectedChapterNumber) {
-            console.info(
-              `Updating chapter number for ${chapter.id} from ${chapter.chapter_number} to ${expectedChapterNumber}`,
-            )
-            chapter.chapter_number = expectedChapterNumber
             draftState.unsavedChapterChanges = true
+            try {
+              chapter.chapter_number = expectedChapterNumber
+            } catch (e) {
+              console.warn(`Could not update chapter number for ${chapter.id}`, e)
+            }
           }
         })
     }

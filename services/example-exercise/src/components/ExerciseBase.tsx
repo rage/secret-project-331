@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 
-import { baseTheme } from "@/shared-module/common/styles/theme"
+import { baseTheme } from "@/styles/theme"
 import { ModelSolutionApi, PublicAlternative } from "@/util/stateInterfaces"
 
 interface Props {
@@ -60,11 +60,9 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;
                     &:hover {
-                      background-color: ${interactable
-                        ? selected
-                          ? "#330eb8"
-                          : "#507afb"
-                        : "#6188ff"};
+                      background-color: ${selected
+                        ? baseTheme.colors.blue[700]
+                        : baseTheme.colors.blue[500]};
                     }
                   `
                 : css`

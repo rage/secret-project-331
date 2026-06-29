@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useQueries, useQuery } from "@tanstack/react-query"
 import { LinesClipboard, LinkChain, XmarkCircle } from "@vectopus/atlas-icons-react"
 import Link from "next/link"
-import React, { useMemo, useState } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import DeleteUserAccountForm from "@/components/forms/DeleteUserAccountForm"
@@ -16,15 +16,16 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import useAuthorizedClientsQuery from "@/hooks/useAuthorizedClientsQuery"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { courseFrontPageRoute } from "@/shared-module/common/utils/routes"
+import { QueryResult } from "@/shared-module/components"
 
 const PermissionsSettingsPage: React.FC = () => {
   const { t } = useTranslation()
 
+  const loginStateContext = useContext(LoginStateContext)
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)
   const getUserConsent = useUserResearchConsentQuery()
   const { listQuery, revokeMutation } = useAuthorizedClientsQuery()
@@ -189,16 +190,17 @@ const PermissionsSettingsPage: React.FC = () => {
                 font-weight: 500;
               `}
             >
-              {getUserConsent.isLoading && <Spinner variant="small" />}
-              {getUserConsent.isError && (
-                <ErrorBanner variant="readOnly" error={getUserConsent.error} />
+              {loginStateContext.signedIn === true && (
+                <QueryResult query={getUserConsent}>
+                  {(data) =>
+                    data?.research_consent === true
+                      ? t("yes")
+                      : data?.research_consent === false
+                        ? t("no")
+                        : "-"
+                  }
+                </QueryResult>
               )}
-              {getUserConsent.isSuccess &&
-                (getUserConsent.data?.research_consent === true
-                  ? t("yes")
-                  : getUserConsent.data?.research_consent === false
-                    ? t("no")
-                    : "-")}
             </div>
           </div>
         )}
@@ -237,71 +239,54 @@ const PermissionsSettingsPage: React.FC = () => {
                 gap: 0.625rem;
               `}
             >
-              {courseBreadcrumbInfos.map((course, index) => {
-                if (course.isLoading) {
-                  return (
-                    <div key={`loading-${index}`}>
-                      <Spinner variant="small" />
-                    </div>
-                  )
-                }
-                if (course.isError) {
-                  return (
-                    <div key={`error-${index}`}>
-                      <ErrorBanner variant="readOnly" error={course.error} />
-                    </div>
-                  )
-                }
-                if (!course.data) {
-                  return null
-                }
-
-                return (
-                  <div
-                    key={course.data.course_id}
-                    data-testid={`course-consent-item-${course.data.course_id}`}
-                    className={css`
-                      display: flex;
-                      justify-content: space-between;
-                      align-items: center;
-                      padding: 0.875rem 1rem;
-                      background: ${baseTheme.colors.gray[50]};
-                      border: 1px solid ${baseTheme.colors.gray[100]};
-                      border-radius: 8px;
-                    `}
-                  >
-                    <span
-                      data-testid={`course-consent-item-${course.data.course_id}-name`}
+              {courseBreadcrumbInfos.map((course, index) => (
+                <QueryResult key={`course-breadcrumb-${index}`} query={course}>
+                  {(data) => (
+                    <div
+                      data-testid={`course-consent-item-${data.course_id}`}
                       className={css`
-                        font-size: 0.9375rem;
-                        font-weight: 500;
-                        color: ${baseTheme.colors.gray[700]};
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 0.875rem 1rem;
+                        background: ${baseTheme.colors.gray[50]};
+                        border: 1px solid ${baseTheme.colors.gray[100]};
+                        border-radius: 8px;
                       `}
                     >
-                      {course.data.course_name}
-                    </span>
-                    {course.data.organization_slug && course.data.course_slug && (
-                      <Link
-                        href={`${courseFrontPageRoute(course.data.organization_slug, course.data.course_slug)}/?show_research_form=1`}
+                      <span
+                        data-testid={`course-consent-item-${data.course_id}-name`}
                         className={css`
-                          font-size: 0.8125rem;
+                          font-size: 0.9375rem;
                           font-weight: 500;
-                          color: ${baseTheme.colors.green[700]};
-                          text-decoration: none;
-                          padding: 0.375rem 0.625rem;
-                          border-radius: 6px;
-                          transition: all 0.15s ease;
-                          &:hover {
-                            background: ${baseTheme.colors.green[75]};
-                          }
+                          color: ${baseTheme.colors.gray[700]};
                         `}
                       >
-                        {t("edit")}
-                      </Link>
-                    )}
-                  </div>
-                )
-              })}
+                        {data.course_name}
+                      </span>
+                      {data.organization_slug && data.course_slug && (
+                        <Link
+                          href={`${courseFrontPageRoute(data.organization_slug, data.course_slug)}/?show_research_form=1`}
+                          className={css`
+                            font-size: 0.8125rem;
+                            font-weight: 500;
+                            color: ${baseTheme.colors.green[700]};
+                            text-decoration: none;
+                            padding: 0.375rem 0.625rem;
+                            border-radius: 6px;
+                            transition: all 0.15s ease;
+                            &:hover {
+                              background: ${baseTheme.colors.green[75]};
+                            }
+                          `}
+                        >
+                          {t("edit")}
+                        </Link>
+                      )}
+                    </div>
+                  )}
+                </QueryResult>
+              ))}
             </div>
           </div>
         )}
@@ -363,92 +348,105 @@ const PermissionsSettingsPage: React.FC = () => {
           </h2>
         </div>
 
-        {listQuery.isLoading && <Spinner variant="medium" />}
-        {listQuery.isError && <ErrorBanner variant="readOnly" error={listQuery.error} />}
-        {!listQuery.isLoading && listQuery.isSuccess && (
-          <div
-            data-testid="authorized-applications-list"
-            className={css`
-              display: flex;
-              flex-direction: column;
-              gap: 0.625rem;
-            `}
-          >
-            {listQuery.data.length === 0 && (
-              <p
-                className={css`
-                  color: ${baseTheme.colors.gray[500]};
-                  font-size: 0.875rem;
-                  margin: 0;
-                `}
-              >
-                {t("no-authorized-applications")}
-              </p>
-            )}
-            {listQuery.data.map((client) => (
+        {loginStateContext.signedIn === true && (
+          <QueryResult
+            query={listQuery}
+            emptyFallback={
               <div
-                key={client.client_id}
-                data-testid={`authorized-app-${client.client_id}`}
+                data-testid="authorized-applications-list"
                 className={css`
                   display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                  padding: 0.875rem 1rem;
-                  background: ${baseTheme.colors.gray[50]};
-                  border: 1px solid ${baseTheme.colors.gray[100]};
-                  border-radius: 8px;
+                  flex-direction: column;
+                  gap: 0.625rem;
                 `}
               >
-                <div>
-                  <div
-                    data-testid={`app-name-${client.client_id}`}
-                    className={css`
-                      font-weight: 500;
-                      color: ${baseTheme.colors.gray[700]};
-                      font-size: 0.9375rem;
-                      margin-bottom: 0.125rem;
-                    `}
-                  >
-                    {client.client_name}
-                  </div>
-                  <div
-                    data-testid={`app-scopes-${client.client_id}`}
-                    className={css`
-                      font-size: 0.8125rem;
-                      color: ${baseTheme.colors.gray[400]};
-                    `}
-                  >
-                    {client.scopes.join(", ")}
-                  </div>
-                </div>
-                <button
-                  data-testid={`revoke-app-${client.client_id}`}
-                  onClick={() => revokeMutation.mutate(client.client_id)}
-                  disabled={revokeMutation.isPending}
+                <p
                   className={css`
-                    font-size: 0.8125rem;
-                    font-weight: 500;
-                    color: ${baseTheme.colors.red[600]};
-                    background: transparent;
-                    border: none;
-                    padding: 0.375rem 0.625rem;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    transition: all 0.15s ease;
-                    &:hover {
-                      background: ${baseTheme.colors.red[75]};
-                    }
-                    &:disabled {
-                      opacity: 0.5;
-                      cursor: not-allowed;
-                    }
+                    color: ${baseTheme.colors.gray[500]};
+                    font-size: 0.875rem;
+                    margin: 0;
                   `}
                 >
-                  {t("revoke")}
-                </button>
+                  {t("no-authorized-applications")}
+                </p>
               </div>
-            ))}
-          </div>
+            }
+          >
+            {(data) => (
+              <div
+                data-testid="authorized-applications-list"
+                className={css`
+                  display: flex;
+                  flex-direction: column;
+                  gap: 0.625rem;
+                `}
+              >
+                {data.map((client) => (
+                  <div
+                    key={client.client_id}
+                    data-testid={`authorized-app-${client.client_id}`}
+                    className={css`
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                      padding: 0.875rem 1rem;
+                      background: ${baseTheme.colors.gray[50]};
+                      border: 1px solid ${baseTheme.colors.gray[100]};
+                      border-radius: 8px;
+                    `}
+                  >
+                    <div>
+                      <div
+                        data-testid={`app-name-${client.client_id}`}
+                        className={css`
+                          font-weight: 500;
+                          color: ${baseTheme.colors.gray[700]};
+                          font-size: 0.9375rem;
+                          margin-bottom: 0.125rem;
+                        `}
+                      >
+                        {client.client_name}
+                      </div>
+                      <div
+                        data-testid={`app-scopes-${client.client_id}`}
+                        className={css`
+                          font-size: 0.8125rem;
+                          color: ${baseTheme.colors.gray[400]};
+                        `}
+                      >
+                        {client.scopes.join(", ")}
+                      </div>
+                    </div>
+                    <button
+                      data-testid={`revoke-app-${client.client_id}`}
+                      onClick={() => revokeMutation.mutate(client.client_id)}
+                      disabled={revokeMutation.isPending}
+                      className={css`
+                        font-size: 0.8125rem;
+                        font-weight: 500;
+                        color: ${baseTheme.colors.red[600]};
+                        background: transparent;
+                        border: none;
+                        padding: 0.375rem 0.625rem;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.15s ease;
+                        &:hover {
+                          background: ${baseTheme.colors.red[75]};
+                        }
+                        &:disabled {
+                          opacity: 0.5;
+                          cursor: not-allowed;
+                        }
+                      `}
+                    >
+                      {t("revoke")}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </QueryResult>
         )}
       </div>
 

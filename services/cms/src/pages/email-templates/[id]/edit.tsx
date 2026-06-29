@@ -9,8 +9,6 @@ import { EmailTemplateUpdate } from "@/generated/api"
 import { getCmsEmailTemplateOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { updateCmsEmailTemplate } from "@/generated/api/sdk.generated"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import dontRenderUntilQueryParametersReady, {
@@ -18,6 +16,7 @@ import dontRenderUntilQueryParametersReady, {
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const EmailEditor = dynamicImport(() => import("../../../components/editors/EmailEditor"))
@@ -69,26 +68,23 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
     },
   )
 
-  if (templateQuery.isError) {
-    return <ErrorBanner variant="readOnly" error={templateQuery.error} />
-  }
-
-  if (templateQuery.isLoading || !templateQuery.data) {
-    return <Spinner variant="medium" />
-  }
-
-  const courseId = templateQuery.data?.course_id
-
   return (
-    <CourseContext.Provider value={courseId ? { courseId } : null}>
-      <EmailEditor
-        data={templateQuery.data}
-        saveMutation={saveMutation}
-        needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-        setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-      />
-      <DebugModal data={templateQuery.data} />
-    </CourseContext.Provider>
+    <QueryResult query={templateQuery}>
+      {(data) => {
+        const courseId = data.course_id
+        return (
+          <CourseContext.Provider value={courseId ? { courseId } : null}>
+            <EmailEditor
+              data={data}
+              saveMutation={saveMutation}
+              needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+              setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+            />
+            <DebugModal data={data} />
+          </CourseContext.Provider>
+        )
+      }}
+    </QueryResult>
   )
 }
 

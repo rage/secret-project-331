@@ -20,6 +20,7 @@ export type QueryResultsProps<E, TQueries extends QueryTuple<E>> = {
   ) => React.ReactNode
   emptyFallback?: React.ReactNode
   treatNullAsEmpty?: boolean
+  treatEmptyAsData?: boolean
   minHeight?: number
   loadingDelayMs?: number
   renderBlockingError?: AnimatedQueryFrameProps<E>["renderBlockingError"]
@@ -33,6 +34,11 @@ export type QueryResultsProps<E, TQueries extends QueryTuple<E>> = {
  * If **any** entry is empty (`[]`, `undefined`, or `null` when `treatNullAsEmpty`), the whole view
  * shows `emptyFallback` instead of `renderData` — not per-query partial UI.
  *
+ * **`treatEmptyAsData`:** skips the tuple empty check entirely, so `renderData` also runs when some
+ * entry is empty (e.g. `[]`). Use when the normal render already handles emptiness instead of
+ * duplicating the renderer in `emptyFallback`. Mutually exclusive with `emptyFallback` /
+ * `treatNullAsEmpty`.
+ *
  * **Retry (differs from `QueryResult`):** if any query has `isError` (blocking or stale), only those
  * queries are refetched. If none report an error, retry refetches every query in the tuple.
  */
@@ -42,6 +48,7 @@ export function QueryResults<E, TQueries extends QueryTuple<E>>({
   renderData,
   emptyFallback = null,
   treatNullAsEmpty = false,
+  treatEmptyAsData = false,
   minHeight,
   loadingDelayMs,
   renderBlockingError,
@@ -67,7 +74,7 @@ export function QueryResults<E, TQueries extends QueryTuple<E>>({
 
   const body =
     state.allHaveData && dataTuple
-      ? isQueryDataTupleEmpty(tupleValues, treatNullAsEmpty)
+      ? !treatEmptyAsData && isQueryDataTupleEmpty(tupleValues, treatNullAsEmpty)
         ? emptyFallback
         : renderData(dataTuple, queries)
       : null

@@ -9,9 +9,8 @@ import { useTranslation } from "react-i18next"
 import { FloatingHeaderTable } from "../FloatingHeaderTable"
 
 import { getCourseStudentsProgressOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 import { getTeacherChapterLockLabel, TeacherChapterLockStatus } from "@/utils/chapterLockingStatus"
 
 type ChapterCellKey = `ch_${string}_${"points" | "attempts"}`
@@ -219,21 +218,18 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
     })
   }, [allRows, searchQuery])
 
-  if (query.isLoading) {
-    return <Spinner />
-  }
-  if (query.isError) {
-    return <ErrorBanner error={query.error} />
-  }
-
   return (
-    <FloatingHeaderTable
-      columns={dynamicColumns}
-      data={rows}
-      colorHeaders
-      colorColumns
-      colorHeaderUnderline
-      progressMode
-    />
+    <QueryResult query={query}>
+      {() => (
+        <FloatingHeaderTable
+          columns={dynamicColumns}
+          data={rows}
+          colorHeaders
+          colorColumns
+          colorHeaderUnderline
+          progressMode
+        />
+      )}
+    </QueryResult>
   )
 }

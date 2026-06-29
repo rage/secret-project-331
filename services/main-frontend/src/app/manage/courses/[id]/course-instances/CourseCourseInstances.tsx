@@ -13,9 +13,8 @@ import PointExportButton from "./PointExportButton"
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import useCourseInstancesQuery, { invalidateCourseInstances } from "@/hooks/useCourseInstancesQuery"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 import {
   manageCourseInstanceEmailsPageRoute,
   manageCourseInstancePageRoute,
@@ -114,66 +113,74 @@ const CourseCourseInstances: React.FC<React.PropsWithChildren<CourseManagementPa
         </Button>
       </div>
 
-      {getCourseInstances.isError && (
-        <ErrorBanner variant={"readOnly"} error={getCourseInstances.error} />
-      )}
-      {getCourseInstances.isLoading && <Spinner variant={"medium"} />}
-      {getCourseInstances.isSuccess && (
-        <div className={cardContainerStyles}>
-          {getCourseInstances.data
-            .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
-            .map((instance) => {
-              const name = instance.name ?? t("default-course-instance-name")
-              return (
-                <div key={instance.id} className={cardStyles} data-testid={"course-instance-card"}>
-                  <h3 className={cardTitleStyles}>{name}</h3>
-                  <div className={actionButtonsContainerStyles}>
-                    <div className={buttonGroupStyles}>
-                      <Link href={viewCourseInstanceCompletionsPageRoute(instance.id)}>
-                        <Button variant="tertiary" size="medium">
-                          {t("link-view-completions")}
-                        </Button>
-                      </Link>
-                      <Link href={viewCourseInstancePointsPageRoute(instance.id)}>
-                        <Button variant="tertiary" size="medium">
-                          {t("link-view-points")}
-                        </Button>
-                      </Link>
-                    </div>
+      <QueryResult
+        query={getCourseInstances}
+        emptyFallback={<div className={cardContainerStyles}></div>}
+      >
+        {(data) => (
+          <div className={cardContainerStyles}>
+            {data
+              .sort((a, b) => parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime())
+              .map((instance) => {
+                const name = instance.name ?? t("default-course-instance-name")
+                return (
+                  <div
+                    key={instance.id}
+                    className={cardStyles}
+                    data-testid={"course-instance-card"}
+                  >
+                    <h3 className={cardTitleStyles}>{name}</h3>
+                    <div className={actionButtonsContainerStyles}>
+                      <div className={buttonGroupStyles}>
+                        <Link href={viewCourseInstanceCompletionsPageRoute(instance.id)}>
+                          <Button variant="tertiary" size="medium">
+                            {t("link-view-completions")}
+                          </Button>
+                        </Link>
+                        <Link href={viewCourseInstancePointsPageRoute(instance.id)}>
+                          <Button variant="tertiary" size="medium">
+                            {t("link-view-points")}
+                          </Button>
+                        </Link>
+                      </div>
 
-                    <div className={buttonGroupStyles}>
-                      <Link href={manageCourseInstancePageRoute(instance.id)}>
-                        <Button variant="secondary" size="medium">
-                          {t("link-manage")}
-                        </Button>
-                      </Link>
-                      <Link href={viewCourseInstanceCertificatesPageRoute(instance.id)}>
-                        <Button variant="secondary" size="medium">
-                          {t("link-manage-certificates")}
-                        </Button>
-                      </Link>
-                      <Link href={manageCourseInstanceEmailsPageRoute(instance.id)}>
-                        <Button variant="secondary" size="medium">
-                          {t("link-manage-emails")}
-                        </Button>
-                      </Link>
-                      <Link href={manageCourseInstancePermissionsPageRoute(instance.id)}>
-                        <Button variant="secondary" size="medium">
-                          {t("link-manage-permissions")}
-                        </Button>
-                      </Link>
-                    </div>
+                      <div className={buttonGroupStyles}>
+                        <Link href={manageCourseInstancePageRoute(instance.id)}>
+                          <Button variant="secondary" size="medium">
+                            {t("link-manage")}
+                          </Button>
+                        </Link>
+                        <Link href={viewCourseInstanceCertificatesPageRoute(instance.id)}>
+                          <Button variant="secondary" size="medium">
+                            {t("link-manage-certificates")}
+                          </Button>
+                        </Link>
+                        <Link href={manageCourseInstanceEmailsPageRoute(instance.id)}>
+                          <Button variant="secondary" size="medium">
+                            {t("link-manage-emails")}
+                          </Button>
+                        </Link>
+                        <Link href={manageCourseInstancePermissionsPageRoute(instance.id)}>
+                          <Button variant="secondary" size="medium">
+                            {t("link-manage-permissions")}
+                          </Button>
+                        </Link>
+                      </div>
 
-                    <div className={buttonGroupStyles}>
-                      <PointExportButton courseInstanceId={instance.id} courseInstanceName={name} />
-                      <ModuleCompletionReprocessButton courseId={courseId} />
+                      <div className={buttonGroupStyles}>
+                        <PointExportButton
+                          courseInstanceId={instance.id}
+                          courseInstanceName={name}
+                        />
+                        <ModuleCompletionReprocessButton courseId={courseId} />
+                      </div>
                     </div>
                   </div>
-                </div>
-              )
-            })}
-        </div>
-      )}
+                )
+              })}
+          </div>
+        )}
+      </QueryResult>
 
       {showDialog && (
         <NewCourseInstanceDialog

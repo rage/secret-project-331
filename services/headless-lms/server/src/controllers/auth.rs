@@ -258,18 +258,15 @@ pub async fn signup(
                 )
             })?;
 
-        // Notify tmc that the password is managed by courses.mooc.fi
-        tmc_client
-            .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-            .await
-            .map_err(|e| {
-                ControllerError::new(
-                    ControllerErrorType::InternalServerError,
-                    "Failed to notify TMC that user's password is saved in courses.mooc.fi"
-                        .to_string(),
-                    anyhow!(e),
-                )
-            })?;
+        // Notify TMC that the password is now managed by courses.mooc.fi. Best-effort and retried
+        // in the background: the password is already stored locally, so a transient TMC outage
+        // must not fail an otherwise-successful signup.
+        crate::controllers::tmc_server::notify_password_managed_with_retry(
+            &tmc_client,
+            upstream_id.to_string(),
+            user.id,
+        )
+        .await;
 
         let token = skip_authorize();
         authorization::remember(&session, user)?;
@@ -567,6 +564,9 @@ async fn handle_production_login(
     password: &SecretString,
     app_conf: &ApplicationConfiguration,
 ) -> ControllerResult<web::Json<LoginResponse>> {
+    // Trim incidental whitespace (e.g. from copy-paste) so the email resolves consistently with
+    // the reset-email path, which also trims. Case is handled by lower(...) in get_by_email.
+    let email = email.trim();
     let mut is_authenticated = false;
     let mut authenticated_user: Option<headless_lms_models::users::User> = None;
 
@@ -611,19 +611,16 @@ async fn handle_production_login(
                     )
                 })?;
 
-            // Notify TMC that the password is now managed by courses.mooc.fi
+            // Notify TMC that the password is now managed by courses.mooc.fi. Best-effort and
+            // retried in the background: the password is already stored locally, so a transient
+            // TMC outage must not fail an otherwise-successful login.
             if let Some(upstream_id) = user.upstream_id {
-                tmc_client
-                    .set_user_password_managed_by_courses_mooc_fi(upstream_id.to_string(), user.id)
-                    .await
-                    .map_err(|e| {
-                        ControllerError::new(
-                            ControllerErrorType::InternalServerError,
-                            "Failed to notify TMC that users password is saved in courses.mooc.fi"
-                                .to_string(),
-                            anyhow!(e),
-                        )
-                    })?;
+                crate::controllers::tmc_server::notify_password_managed_with_retry(
+                    tmc_client,
+                    upstream_id.to_string(),
+                    user.id,
+                )
+                .await;
             } else {
                 warn!("User has no upstream_id; skipping notify to TMC");
             }

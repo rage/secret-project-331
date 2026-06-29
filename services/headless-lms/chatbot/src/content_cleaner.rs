@@ -1,12 +1,14 @@
 use crate::azure_chatbot::{
-    InputItem, LLMRequest, LLMRequestParams, NonThinkingParams, ThinkingParams,
+    InputItem, LLMRequest, LLMRequestParams, NonThinkingParams, Reasoning, ThinkingParams,
 };
+
 use crate::llm_utils::{
     APIInputMessage, MessageContent, estimate_tokens, make_blocking_llm_request, model_is_thinking,
     parse_text_completion,
 };
 use crate::prelude::*;
 use headless_lms_models::application_task_default_language_models::TaskLMSpec;
+use headless_lms_models::chatbot_configurations::ReasoningEffortLevel;
 use headless_lms_models::chatbot_conversation_message_messages::MessageRole;
 use headless_lms_utils::document_schema_processor::GutenbergBlock;
 use serde_json::Value;
@@ -334,7 +336,12 @@ async fn process_block_chunk(
 ) -> ChatbotResult<String> {
     let input = prepare_llm_messages(chunk, system_message)?;
     let params = if model_is_thinking(task_lm.model_type) {
-        LLMRequestParams::GPTThinking(ThinkingParams { reasoning: None })
+        LLMRequestParams::GPTThinking(ThinkingParams {
+            reasoning: Some(Reasoning {
+                effort: ReasoningEffortLevel::Minimal,
+                summary: None,
+            }),
+        })
     } else {
         LLMRequestParams::GPTNonThinking(NonThinkingParams {
             temperature: Some(REQUEST_TEMPERATURE),

@@ -63,7 +63,15 @@ function ensure_git_lfs_installed() {
 
   local script_repo_root
   if script_repo_root=$(git -C "$(dirname "${BASH_SOURCE[0]}")" rev-parse --show-toplevel 2>/dev/null); then
-    git -C "$script_repo_root" lfs install --local &> /dev/null || true
+    # Configure the LFS smudge/clean filters locally. We deliberately do NOT run
+    # `git lfs install` here: husky owns core.hooksPath (.husky/_), and the
+    # git-lfs hook logic is invoked from the committed .husky/* hooks instead.
+    # (git-lfs respects core.hooksPath, so `git lfs install` would try to
+    # overwrite husky's dispatcher and fail.)
+    git -C "$script_repo_root" config --local filter.lfs.clean "git-lfs clean -- %f"
+    git -C "$script_repo_root" config --local filter.lfs.smudge "git-lfs smudge -- %f"
+    git -C "$script_repo_root" config --local filter.lfs.process "git-lfs filter-process"
+    git -C "$script_repo_root" config --local filter.lfs.required true
   fi
 }
 

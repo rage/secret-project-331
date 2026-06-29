@@ -11,7 +11,7 @@ import ParsedTextField from "./QuizComponents/common/ParsedTextField"
 
 import Accordion from "@/shared-module/common/components/Accordion"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
 
 const AdvancedOptionsContainer = styled.div`
   padding: 8px;

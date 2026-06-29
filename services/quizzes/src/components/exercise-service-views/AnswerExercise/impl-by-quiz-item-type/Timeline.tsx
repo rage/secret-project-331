@@ -15,8 +15,8 @@ import {
 import { QuizItemComponentProps } from "."
 
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
-import { headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { headingFont } from "@/shared-module/exercise-react/styles"
 
 const TimelineWrapper = styled.section`
   *,

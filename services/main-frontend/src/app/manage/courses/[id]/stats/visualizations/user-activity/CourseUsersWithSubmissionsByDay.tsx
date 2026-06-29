@@ -3,17 +3,17 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { groupBy, max } from "lodash"
-import React, { useMemo } from "react"
+import React from "react"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "../../Echarts"
 import StatsHeader from "../../StatsHeader"
+import NoDataMessage from "../NoDataMessage"
 
 import { getCourseDailyUsersWhoSubmittedSomethingOptions } from "@/generated/api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 export interface CourseUsersWithSubmissionsByDayProps {
   courseId: string
@@ -30,20 +30,6 @@ const CourseUsersWithSubmissionsByDay: React.FC<
       },
     }),
   })
-
-  const processedData = useMemo(() => {
-    if (!query.data) {
-      return null
-    }
-
-    const eChartsData = groupBy(query.data, (o) => {
-      const dateString = o.date as string | null
-      const year = dateString?.substring(0, dateString.indexOf("-"))
-      return year
-    })
-    const maxValue = max(query.data.map((o) => o.count)) || 10000
-    return { apiData: query.data, eChartsData, maxValue }
-  }, [query.data])
 
   return (
     <>
@@ -79,67 +65,67 @@ const CourseUsersWithSubmissionsByDay: React.FC<
           justify-content: center;
         `}
       >
-        {query.isLoading ? (
-          <Spinner variant="medium" />
-        ) : query.isError ? (
-          <ErrorBanner variant="readOnly" error={query.error} />
-        ) : !processedData || processedData.apiData.length === 0 ? (
-          <div>{t("no-data")}</div>
-        ) : (
-          <div
-            className={css`
-              width: 100%;
-            `}
-          >
-            <Echarts
-              height={200 * Object.keys(processedData.eChartsData).length}
-              options={{
-                tooltip: {
-                  // eslint-disable-next-line i18next/no-literal-string
-                  position: "top",
-                  formatter: (a) => {
-                    return t("daily-users-with-submissions-visualization-tooltip", {
-                      // @ts-expect-error: todo
-                      day: a.data[0],
-                      // @ts-expect-error: todo
-                      users: a.data[1],
-                    })
-                  },
-                },
-                visualMap: {
-                  show: false,
-                  min: 0,
-                  max: processedData.maxValue,
-                },
-                calendar: Object.entries(processedData.eChartsData).map(
-                  ([year, _submissionCounts], i) => {
-                    return {
-                      range: year,
+        <QueryResult query={query} emptyFallback={<NoDataMessage />}>
+          {(data) => {
+            const eChartsData = groupBy(data, (o) => {
+              const dateString = o.date as string | null
+              const year = dateString?.substring(0, dateString.indexOf("-"))
+              return year
+            })
+            const maxValue = max(data.map((o) => o.count)) || 10000
+            return (
+              <div
+                className={css`
+                  width: 100%;
+                `}
+              >
+                <Echarts
+                  height={200 * Object.keys(eChartsData).length}
+                  options={{
+                    tooltip: {
                       // eslint-disable-next-line i18next/no-literal-string
-                      cellSize: ["auto", 20],
-                      dayLabel: {
-                        firstDay: 1,
+                      position: "top",
+                      formatter: (a) => {
+                        return t("daily-users-with-submissions-visualization-tooltip", {
+                          // @ts-expect-error: todo
+                          day: a.data[0],
+                          // @ts-expect-error: todo
+                          users: a.data[1],
+                        })
                       },
-                      top: 190 * i + 40,
-                    }
-                  },
-                ),
-                series: Object.entries(processedData.eChartsData).map(
-                  ([_year, submissionCounts], i) => {
-                    return {
-                      type: "heatmap",
-                      // eslint-disable-next-line i18next/no-literal-string
-                      coordinateSystem: "calendar",
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                      data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
-                      calendarIndex: i,
-                    }
-                  },
-                ),
-              }}
-            />
-          </div>
-        )}
+                    },
+                    visualMap: {
+                      show: false,
+                      min: 0,
+                      max: maxValue,
+                    },
+                    calendar: Object.entries(eChartsData).map(([year, _submissionCounts], i) => {
+                      return {
+                        range: year,
+                        // eslint-disable-next-line i18next/no-literal-string
+                        cellSize: ["auto", 20],
+                        dayLabel: {
+                          firstDay: 1,
+                        },
+                        top: 190 * i + 40,
+                      }
+                    }),
+                    series: Object.entries(eChartsData).map(([_year, submissionCounts], i) => {
+                      return {
+                        type: "heatmap",
+                        // eslint-disable-next-line i18next/no-literal-string
+                        coordinateSystem: "calendar",
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        data: (submissionCounts as any[]).map((o) => [o.date, o.count]),
+                        calendarIndex: i,
+                      }
+                    }),
+                  }}
+                />
+              </div>
+            )
+          }}
+        </QueryResult>
       </div>
     </>
   )

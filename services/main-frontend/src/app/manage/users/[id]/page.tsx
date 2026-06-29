@@ -14,12 +14,11 @@ import DeletedUserNotice from "@/components/DeletedUserNotice"
 import { getUserCourseEnrollmentsOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hooks/useUserDetails"
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResults } from "@/shared-module/components"
 
 const Area = styled.div`
   margin: 2rem 0;
@@ -40,75 +39,68 @@ const UserPage: React.FC = () => {
   const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? null
 
   const userDetailsQuery = useUserDetails(courseIds, id)
-  const userDetails = extractUserDetail(userDetailsQuery.data)
-  const userDetailsNotFound = isUserDetailsNotFound(userDetailsQuery.data)
-
-  if (courseEnrollmentsQuery.isError) {
-    return <ErrorBanner error={courseEnrollmentsQuery.error} variant="readOnly" />
-  }
-  if (courseEnrollmentsQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (userDetailsQuery.isError) {
-    return <ErrorBanner error={userDetailsQuery.error} variant="readOnly" />
-  }
-  if (userDetailsQuery.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (!userDetailsQuery.data) {
-    return (
-      <DataLoadError
-        contextMessage={t("label-user-details-query-returned-no-data")}
-        onRetry={() => {
-          void userDetailsQuery.refetch()
-        }}
-      />
-    )
-  }
 
   return (
-    <>
-      <Area>
-        <h1>{t("header-user-details")}</h1>
-        <p>
-          {t("label-user-id")}: {id}
-        </p>
-        {userDetailsNotFound ? (
-          <DeletedUserNotice userId={id} />
-        ) : (
+    <QueryResults
+      queries={[courseEnrollmentsQuery, userDetailsQuery] as const}
+      emptyFallback={
+        <DataLoadError
+          contextMessage={t("label-user-details-query-returned-no-data")}
+          onRetry={() => {
+            void userDetailsQuery.refetch()
+          }}
+        />
+      }
+      renderData={([, userDetailsResult]) => {
+        const userDetails = extractUserDetail(userDetailsResult)
+        const userDetailsNotFound = isUserDetailsNotFound(userDetailsResult)
+        return (
           <>
-            <p>
-              {t("label-email")}: {userDetails?.email}
-            </p>
-            <p>
-              {t("first-name")}: {userDetails?.first_name}
-            </p>
-            <p>
-              {t("last-name")}: {userDetails?.last_name}
-            </p>
+            <Area>
+              <h1>{t("header-user-details")}</h1>
+              <p>
+                {t("label-user-id")}: {id}
+              </p>
+              {userDetailsNotFound ? (
+                <DeletedUserNotice userId={id} />
+              ) : (
+                <>
+                  <p>
+                    {t("label-email")}: {userDetails?.email}
+                  </p>
+                  <p>
+                    {t("first-name")}: {userDetails?.first_name}
+                  </p>
+                  <p>
+                    {t("last-name")}: {userDetails?.last_name}
+                  </p>
+                </>
+              )}
+            </Area>
+            <Area>
+              <h2>{t("header-course-enrollments")}</h2>
+              <CourseEnrollmentsList userId={id} />
+            </Area>
+            <OnlyRenderIfPermissions
+              action={{ type: "teach" }}
+              resource={{ type: "global_permissions" }}
+            >
+              <Area>
+                <p
+                  className={css`
+                    font-size: ${baseTheme.fontSizes[3]}px;
+                    font-weight: ${fontWeights.medium};
+                  `}
+                >
+                  {t("label-exercise-reset-log")}
+                </p>
+                <ExerciseResetLogList userId={id} />
+              </Area>
+            </OnlyRenderIfPermissions>
           </>
-        )}
-      </Area>
-      <Area>
-        <h2>{t("header-course-enrollments")}</h2>
-        <CourseEnrollmentsList userId={id} />
-      </Area>
-      <OnlyRenderIfPermissions action={{ type: "teach" }} resource={{ type: "global_permissions" }}>
-        <Area>
-          <p
-            className={css`
-              font-size: ${baseTheme.fontSizes[3]}px;
-              font-weight: ${fontWeights.medium};
-            `}
-          >
-            {t("label-exercise-reset-log")}
-          </p>
-          <ExerciseResetLogList userId={id} />
-        </Area>
-      </OnlyRenderIfPermissions>
-    </>
+        )
+      }}
+    />
   )
 }
 

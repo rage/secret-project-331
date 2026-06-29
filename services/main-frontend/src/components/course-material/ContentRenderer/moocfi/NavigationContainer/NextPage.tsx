@@ -17,15 +17,13 @@ import type {
   UserCourseInstanceChapterProgress,
 } from "@/generated/course-material-api/types.generated"
 import useTime from "@/hooks/course-material/useTime"
-import DataLoadError from "@/shared-module/common/components/DataLoadError"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NextSectionLink, {
   NextSectionLinkProps,
 } from "@/shared-module/common/components/NextSectionLink"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { QueryResult } from "@/shared-module/components"
 import { materialInstanceAtom } from "@/state/course-material/selectors"
 import { courseFrontPageRoute, coursePageRoute } from "@/utils/course-material/routing"
 
@@ -170,22 +168,6 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
     t,
   ])
 
-  if (getPageRoutingData.isError) {
-    return <ErrorBanner variant={"readOnly"} error={getPageRoutingData.error} />
-  }
-  if (getPageRoutingData.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-  if (!nextPageProps || !getPageRoutingData.data) {
-    return (
-      <DataLoadError
-        onRetry={() => {
-          void getPageRoutingData.refetch()
-        }}
-      />
-    )
-  }
-
   function calculatePercentage(attempted: number, total: number): string {
     if (total === 0) {
       return "0%"
@@ -194,32 +176,41 @@ const NextPage: React.FC<React.PropsWithChildren<NextPageProps>> = ({
   }
 
   return (
-    // Chapter exists, but next chapter not open yet.
-    <>
-      {getPageRoutingData.data.next_page?.chapter_id !== chapterId && (
-        <ChapterProgress>
-          <p>{t("chapter-progress")}</p>
-          <div className="progress-container">
-            <div className="attempted-exercises">
-              <span className="metric">
-                {calculatePercentage(
-                  chapterProgress.attemptedExercises ?? 0,
-                  chapterProgress.totalExercises ?? 0,
-                )}
-              </span>
-              <span className="description">{t("attempted-exercises")}</span>
-            </div>
-            <div className="answers">
-              <span className="metric">
-                {chapterProgress.givenScore ?? 0}/{chapterProgress.maxScore ?? 0}
-              </span>
-              <span className="description">{t("points-label")}</span>
-            </div>
-          </div>
-        </ChapterProgress>
-      )}
-      <NextSectionLink {...nextPageProps} />
-    </>
+    <QueryResult query={getPageRoutingData}>
+      {(data) => {
+        if (!nextPageProps) {
+          return null
+        }
+        return (
+          // Chapter exists, but next chapter not open yet.
+          <>
+            {data.next_page?.chapter_id !== chapterId && (
+              <ChapterProgress>
+                <p>{t("chapter-progress")}</p>
+                <div className="progress-container">
+                  <div className="attempted-exercises">
+                    <span className="metric">
+                      {calculatePercentage(
+                        chapterProgress.attemptedExercises ?? 0,
+                        chapterProgress.totalExercises ?? 0,
+                      )}
+                    </span>
+                    <span className="description">{t("attempted-exercises")}</span>
+                  </div>
+                  <div className="answers">
+                    <span className="metric">
+                      {chapterProgress.givenScore ?? 0}/{chapterProgress.maxScore ?? 0}
+                    </span>
+                    <span className="description">{t("points-label")}</span>
+                  </div>
+                </div>
+              </ChapterProgress>
+            )}
+            <NextSectionLink {...nextPageProps} />
+          </>
+        )
+      }}
+    </QueryResult>
   )
 }
 

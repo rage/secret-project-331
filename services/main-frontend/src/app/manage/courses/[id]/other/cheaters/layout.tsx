@@ -10,12 +10,14 @@ import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/Ro
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import {
-  manageCourseOtherCheatersArchivedRoute,
+  manageCourseOtherCheatersConfirmedRoute,
+  manageCourseOtherCheatersDismissedRoute,
   manageCourseOtherCheatersSuspectedRoute,
 } from "@/shared-module/common/utils/routes"
 
 const KEY_SUSPECTED = "suspected"
-const KEY_ARCHIVED = "archived"
+const KEY_CONFIRMED = "confirmed"
+const KEY_DISMISSED = "dismissed"
 
 export default function CheatersLayout({ children }: { children: React.ReactNode }) {
   const params = useParams<{ id: string }>()
@@ -43,9 +45,14 @@ export default function CheatersLayout({ children }: { children: React.ReactNode
         href: manageCourseOtherCheatersSuspectedRoute(courseId),
       },
       {
-        key: KEY_ARCHIVED,
-        title: t("archived"),
-        href: manageCourseOtherCheatersArchivedRoute(courseId),
+        key: KEY_CONFIRMED,
+        title: t("confirmed-cheaters"),
+        href: manageCourseOtherCheatersConfirmedRoute(courseId),
+      },
+      {
+        key: KEY_DISMISSED,
+        title: t("dismissed"),
+        href: manageCourseOtherCheatersDismissedRoute(courseId),
       },
     ]
   }, [courseId, t])

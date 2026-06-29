@@ -3,12 +3,12 @@ import {
   StudentExerciseSlideSubmissionResult,
   UserCourseExerciseServiceVariable,
 } from "@/generated/course-material-api/types.generated"
+import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
+import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
 import {
   ExerciseIframeState,
   UserVariablesMap,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
-import { exerciseTaskGradingToExerciseTaskGradingResult } from "@/shared-module/common/utils/typeMappter"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 export interface ExerciseDownloadedAction {
   type: "exerciseDownloaded"

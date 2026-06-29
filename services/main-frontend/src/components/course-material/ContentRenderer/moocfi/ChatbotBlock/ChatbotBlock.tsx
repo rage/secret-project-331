@@ -10,8 +10,8 @@ import { IGNORE_BLOCK_FEEDBACK_CLASS } from "@/components/course-material/Select
 import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
 import { getDefaultChatbotConfigurationForCourse } from "@/generated/course-material-api/sdk.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 interface ChatbotBlockProps {
   chatbotConfigurationId: string
@@ -36,31 +36,54 @@ const ChatbotBlock: React.FC<BlockRendererProps<ChatbotBlockProps>> = ({ data })
     enabled: courseId != null,
   })
 
-  if (defaultChatbotConfiguration.isLoading) {
-    return <Spinner />
-  }
-  if (defaultChatbotConfiguration.isError) {
-    return <ErrorBanner error={defaultChatbotConfiguration.error} />
-  }
-
-  if (chatbotConfigurationId === defaultChatbotConfiguration.data) {
-    return <ErrorBanner variant={"readOnly"} error={t("error-default-chatbot-in-block")} />
+  if (courseId == null) {
+    return (
+      <div className={IGNORE_BLOCK_FEEDBACK_CLASS}>
+        <div
+          className={css`
+            display: block;
+            height: min(500px, 95vh);
+            ${respondToOrLarger.sm} {
+              height: min(900px, 95vh);
+            }
+          `}
+        >
+          <ChatbotChat
+            chatbotConfigurationId={chatbotConfigurationId}
+            isCourseMaterialBlock={true}
+          />
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className={IGNORE_BLOCK_FEEDBACK_CLASS}>
-      <div
-        className={css`
-          display: block;
-          height: min(500px, 95vh);
-          ${respondToOrLarger.sm} {
-            height: min(900px, 95vh);
-          }
-        `}
-      >
-        <ChatbotChat chatbotConfigurationId={chatbotConfigurationId} isCourseMaterialBlock={true} />
-      </div>
-    </div>
+    <QueryResult query={defaultChatbotConfiguration}>
+      {(defaultChatbotConfigurationId) => {
+        if (chatbotConfigurationId === defaultChatbotConfigurationId) {
+          return <ErrorBanner variant={"readOnly"} error={t("error-default-chatbot-in-block")} />
+        }
+
+        return (
+          <div className={IGNORE_BLOCK_FEEDBACK_CLASS}>
+            <div
+              className={css`
+                display: block;
+                height: min(500px, 95vh);
+                ${respondToOrLarger.sm} {
+                  height: min(900px, 95vh);
+                }
+              `}
+            >
+              <ChatbotChat
+                chatbotConfigurationId={chatbotConfigurationId}
+                isCourseMaterialBlock={true}
+              />
+            </div>
+          </div>
+        )
+      }}
+    </QueryResult>
   )
 }
 

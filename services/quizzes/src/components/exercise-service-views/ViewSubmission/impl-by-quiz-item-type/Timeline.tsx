@@ -12,8 +12,8 @@ import { PublicSpecQuizItemTimeline } from "../../../../../types/quizTypes/publi
 
 import { QuizItemSubmissionComponentProps } from "."
 
-import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { baseTheme, headingFont } from "@/shared-module/exercise-react/styles"
 
 const TimelineWrapper = styled.section`
   *,

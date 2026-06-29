@@ -7,10 +7,8 @@ import { useTranslation } from "react-i18next"
 import { CourseManagementPagesProps } from "@/app/manage/courses/[id]/types"
 import { PermissionPage } from "@/components/PermissionPage"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
-import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesProps>> = ({
   courseId,
@@ -20,51 +18,29 @@ const CoursePermissions: React.FC<React.PropsWithChildren<CourseManagementPagesP
 
   return (
     <div>
-      {course.isLoading && (
-        <div
-          className={css`
-            margin-top: 40px;
-            ${respondToOrLarger.sm} {
-              margin-top: 80px;
-            }
-          `}
-        >
-          <Spinner variant="medium" />
-        </div>
-      )}
-      {course.isError && (
-        <div
-          className={css`
-            margin-top: 40px;
-            ${respondToOrLarger.sm} {
-              margin-top: 80px;
-            }
-          `}
-        >
-          <ErrorBanner variant="readOnly" error={course.error} />
-        </div>
-      )}
-      {course.isSuccess && (
-        <>
-          <h1
-            className={css`
-              font-size: clamp(2rem, 3.6vh, 36px);
-              color: ${baseTheme.colors.gray[700]};
-              font-family: ${headingFont};
-              font-weight: bold;
-            `}
-          >
-            {t("roles-for-course")} {course.data.name}
-          </h1>
-          <PermissionPage
-            domain={{
-              // eslint-disable-next-line i18next/no-literal-string
-              tag: "Course",
-              id: course.data.id,
-            }}
-          />
-        </>
-      )}
+      <QueryResult query={course}>
+        {(course) => (
+          <>
+            <h1
+              className={css`
+                font-size: clamp(2rem, 3.6vh, 36px);
+                color: ${baseTheme.colors.gray[700]};
+                font-family: ${headingFont};
+                font-weight: bold;
+              `}
+            >
+              {t("roles-for-course")} {course.name}
+            </h1>
+            <PermissionPage
+              domain={{
+                // eslint-disable-next-line i18next/no-literal-string
+                tag: "Course",
+                id: course.id,
+              }}
+            />
+          </>
+        )}
+      </QueryResult>
     </div>
   )
 }

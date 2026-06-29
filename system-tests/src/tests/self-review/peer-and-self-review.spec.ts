@@ -1,9 +1,26 @@
-import { BrowserContext, expect, test } from "@playwright/test"
+import { BrowserContext, expect, Page, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../utils/courseMaterialActions"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+
+/**
+ * The peer-review candidate is offered best-effort and the giving view does not auto-retry
+ * (its query refetchInterval is 23h): it shows "No answers available … [Refresh]" until a
+ * reviewable answer is assigned. Click Refresh until the given-reviews progress appears,
+ * instead of bare-waiting for a state the page can't reach on its own.
+ */
+async function refreshUntilPeerReviewCandidate(page: Page, expectedProgress: string) {
+  const progress = page.getByText(expectedProgress)
+  await expect(async () => {
+    const refresh = page.getByRole("button", { name: "Refresh" })
+    if (await refresh.isVisible()) {
+      await refresh.click()
+    }
+    await expect(progress).toBeVisible({ timeout: 3_000 })
+  }).toPass({ timeout: 30_000 })
+}
 
 test.describe("Peer review followed by self review works", () => {
   let context1: BrowserContext
@@ -118,7 +135,7 @@ test.describe("Peer review followed by self review works", () => {
         .selectOption({ label: "Finland switches their currency to Euro" })
       await student2Page.getByRole("button", { name: "Submit" }).click()
       await student2Page.getByRole("button", { name: "Start peer review" }).click()
-      await student2Page.getByText("0 / 2 Peer reviews given").waitFor()
+      await refreshUntilPeerReviewCandidate(student2Page, "0 / 2 Peer reviews given")
       await student2Page.getByRole("heading", { name: "Peer review instructions" }).waitFor()
       await student2Page.getByText("Here's what you will do: x.").waitFor()
       await student2Page.getByRole("heading", { name: "Answer submitted by another" }).waitFor()
@@ -156,11 +173,13 @@ test.describe("Peer review followed by self review works", () => {
         .getByText("Your answer was correct.")
         .waitFor()
       await student3Page.getByRole("button", { name: "Start peer review" }).click()
+      await refreshUntilPeerReviewCandidate(student3Page, "0 / 2 Peer reviews given")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).click()
       await waitForSuccessNotification(student3Page, async () => {
         await student3Page.getByRole("button", { name: "Submit" }).click()
       })
+      await refreshUntilPeerReviewCandidate(student3Page, "1 / 2 Peer reviews given")
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).first().click()
       await student3Page.getByRole("radio", { name: "Agree", exact: true }).nth(1).click()
       await student3Page.getByPlaceholder("Write a review").fill("LOL")

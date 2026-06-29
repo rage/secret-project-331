@@ -2,13 +2,14 @@
 
 import { css } from "@emotion/css"
 
+import { primaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 export const buttonBase = css`
   padding: 4px 8px;
   border-radius: 2px;
   border: none;
-  font-family: "Inter", sans-serif;
+  font-family: ${primaryFont};
 
   ${respondToOrLarger.lg} {
     padding: 8px 16px;

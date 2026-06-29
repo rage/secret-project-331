@@ -7,9 +7,9 @@ import { Trans, useTranslation } from "react-i18next"
 
 import { getCourseModuleCompletionRegistrationLinkOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const CompletionRedirectPage: React.FC = () => {
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
@@ -30,20 +30,20 @@ const CompletionRedirectPage: React.FC = () => {
   }, [userCompletionInformation.data])
 
   return (
-    <>
-      {userCompletionInformation.isError && (
+    <QueryResult
+      query={userCompletionInformation}
+      renderBlockingError={({ error }) => (
         <ErrorBanner
           error={
-            isAppApiError(userCompletionInformation.error) &&
-            userCompletionInformation.error.status === 404
+            isAppApiError(error) && error.status === 404
               ? t("completion-registration-link-not-found")
-              : userCompletionInformation.error
+              : error
           }
           variant={"readOnly"}
         />
       )}
-      {userCompletionInformation.isLoading && <Spinner variant={"medium"} />}
-      {userCompletionInformation.isSuccess && (
+    >
+      {(data) => (
         <div>
           <Trans
             t={t}
@@ -52,10 +52,10 @@ const CompletionRedirectPage: React.FC = () => {
             You are automatically being redirected to Open University&apos;s completion registration
             page. If nothing happens, please{" "}
             <a
-              href={userCompletionInformation.data.url}
+              href={data.url}
               onClick={(event) => {
                 event.preventDefault()
-                window.location.replace(userCompletionInformation.data.url)
+                window.location.replace(data.url)
               }}
             >
               click here
@@ -64,7 +64,7 @@ const CompletionRedirectPage: React.FC = () => {
           </Trans>
         </div>
       )}
-    </>
+    </QueryResult>
   )
 }
 

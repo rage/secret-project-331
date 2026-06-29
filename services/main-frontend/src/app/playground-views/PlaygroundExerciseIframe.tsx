@@ -5,16 +5,17 @@ import { UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
 import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   CurrentStateMessage,
   ExerciseIframeState,
   MessageToIframe,
   UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
-import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface PlaygroundExerciseIframeProps {
@@ -65,6 +66,7 @@ const PlaygroundExerciseIframe: React.FC<
   userAnswer,
 }) => {
   const { t } = useTranslation()
+  const dialog = useDialog()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
     return <div>{t("error-no-public-spec")}</div>
   }
@@ -82,6 +84,7 @@ const PlaygroundExerciseIframe: React.FC<
       `}
     >
       <MessageChannelIFrame
+        dialog={dialog}
         key={iframeKey}
         url={url}
         postThisStateToIFrame={

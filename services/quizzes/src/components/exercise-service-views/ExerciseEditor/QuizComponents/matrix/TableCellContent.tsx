@@ -5,7 +5,7 @@ import styled from "@emotion/styled"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
 
 interface CellInputStyleProps {
   row: number

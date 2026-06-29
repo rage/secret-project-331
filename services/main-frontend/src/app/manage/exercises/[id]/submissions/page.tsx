@@ -21,12 +21,12 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResults } from "@/shared-module/components"
 
 type ExportMode = "definitions" | "answers"
 
@@ -194,32 +194,26 @@ const SubmissionsPage: React.FC = () => {
             {t("message-csv-export-not-supported-for-this-exercise-type")}
           </p>
         )}
-      {(exerciseQuery.isError || exerciseSubmissionsQuery.isError) && (
-        <ErrorBanner
-          variant={"readOnly"}
-          error={exerciseQuery.error || exerciseSubmissionsQuery.error}
-        />
-      )}
       {csvExportTaskOptionsQuery.isError && (
         <ErrorBanner variant={"readOnly"} error={csvExportTaskOptionsQuery.error} />
       )}
-      {(exerciseQuery.isLoading || exerciseSubmissionsQuery.isLoading) && (
-        <Spinner variant={"medium"} />
-      )}
-      {exerciseQuery.isSuccess &&
-        exerciseSubmissionsQuery.isSuccess &&
-        exerciseQuery.data.course_id && (
-          <>
-            <ExerciseSubmissionList
-              exerciseSubmissions={exerciseSubmissionsQuery.data.data}
-              courseId={exerciseQuery.data.course_id}
-            />
-            <Pagination
-              totalPages={exerciseSubmissionsQuery.data.total_pages}
-              paginationInfo={paginationInfo}
-            />
-          </>
-        )}
+      <QueryResults
+        queries={[exerciseQuery, exerciseSubmissionsQuery] as const}
+        renderData={([exercise, exerciseSubmissions]) =>
+          exercise.course_id ? (
+            <>
+              <ExerciseSubmissionList
+                exerciseSubmissions={exerciseSubmissions.data}
+                courseId={exercise.course_id}
+              />
+              <Pagination
+                totalPages={exerciseSubmissions.total_pages}
+                paginationInfo={paginationInfo}
+              />
+            </>
+          ) : null
+        }
+      />
       <Dialog open={isExportDialogOpen} onClose={closeExportDialog}>
         <h1>
           {exportMode === "definitions"

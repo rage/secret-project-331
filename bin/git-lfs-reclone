@@ -55,7 +55,13 @@ else
 
     local_repo_root=$(git rev-parse --show-toplevel 2>/dev/null || true)
     if [ -n "$local_repo_root" ]; then
-      git -C "$local_repo_root" lfs install --local &> /dev/null || true
+      # Configure the LFS smudge/clean filters locally without touching hooks:
+      # husky owns core.hooksPath (.husky/_) and the git-lfs hook logic lives in
+      # the committed .husky/* hooks. See bin/.common for the rationale.
+      git -C "$local_repo_root" config --local filter.lfs.clean "git-lfs clean -- %f"
+      git -C "$local_repo_root" config --local filter.lfs.smudge "git-lfs smudge -- %f"
+      git -C "$local_repo_root" config --local filter.lfs.process "git-lfs filter-process"
+      git -C "$local_repo_root" config --local filter.lfs.required true
     fi
   }
 fi

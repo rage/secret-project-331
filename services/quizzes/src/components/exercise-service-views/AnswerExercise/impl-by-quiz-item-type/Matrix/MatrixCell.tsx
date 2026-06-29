@@ -4,6 +4,8 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useState } from "react"
 
+import { primaryFont } from "@/shared-module/exercise-react/styles"
+
 interface CellInputStyleProps {
   row: number
   column: number
@@ -18,7 +20,7 @@ const cellInputStyle = ({ column, row, cellText, matrixSize, isActive }: CellInp
     font-size: 2.8vw;
     font-size: 1.375rem;
     color: #313947;
-    font-family: Inter, sans-serif;
+    font-family: ${primaryFont};
     display: block;
     width: 3.125rem;
     height: 3.125rem;
@@ -75,7 +77,7 @@ const MatrixCell: React.FunctionComponent<React.PropsWithChildren<MatrixCellProp
         font-size: 2.8vw;
         font-size: 1.375rem;
         font-weight: 600;
-        font-family: Inter, sans-serif;
+        font-family: ${primaryFont};
       `}
     >
       <div

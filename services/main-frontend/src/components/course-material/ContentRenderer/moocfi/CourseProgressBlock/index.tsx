@@ -11,12 +11,12 @@ import CourseProgress from "./CourseProgress"
 
 import { getCourseMaterialUserCourseProgress } from "@/generated/course-material-api/sdk.generated"
 import type { UserCourseProgress } from "@/generated/course-material-api/types.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { courseMaterialAtom } from "@/state/course-material"
 
 const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<unknown>>> = () => {
@@ -46,15 +46,12 @@ const CourseProgressBlock: React.FC<React.PropsWithChildren<BlockRendererProps<u
   }
 
   return (
-    <>
-      {getUserCourseProgress.isError && (
-        <ErrorBanner variant={"readOnly"} error={getUserCourseProgress.error} />
-      )}
-      {getUserCourseProgress.isLoading && <Spinner variant={"medium"} />}
-      {getUserCourseProgress.isSuccess && (
-        <CourseProgress userCourseProgress={getUserCourseProgress.data} />
-      )}
-    </>
+    <QueryResult
+      query={getUserCourseProgress}
+      emptyFallback={<CourseProgress userCourseProgress={[]} />}
+    >
+      {(data) => <CourseProgress userCourseProgress={data} />}
+    </QueryResult>
   )
 }
 

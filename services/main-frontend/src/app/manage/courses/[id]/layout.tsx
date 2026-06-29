@@ -10,6 +10,7 @@ import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/Route
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
+import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
 import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
@@ -86,6 +87,7 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const feedbackCountHook = createUnreadFeedbackCountHook(courseId)
   const changeRequestCountHook = createPendingChangeRequestCountHook(courseId)
   const answersCountHook = useCountAnswersRequiringAttentionHook(courseId)
+  const flaggedCheaterCountHook = createFlaggedSuspectedCheaterCountHook(courseId)
 
   const tabs = useMemo((): RouteTabDefinition[] => {
     const base: RouteTabDefinition[] = [
@@ -158,10 +160,19 @@ export default function CourseManagementLayout({ children }: { children: React.R
         href: manageCourseOtherReferencesRoute(courseId),
         // eslint-disable-next-line i18next/no-literal-string
         pathPrefix: `/manage/courses/${courseId}/other`,
+        countHook: flaggedCheaterCountHook,
       },
     )
     return base
-  }, [courseId, t, isGlobalAdmin, feedbackCountHook, changeRequestCountHook, answersCountHook])
+  }, [
+    courseId,
+    t,
+    isGlobalAdmin,
+    feedbackCountHook,
+    changeRequestCountHook,
+    answersCountHook,
+    flaggedCheaterCountHook,
+  ])
 
   return (
     <RouteTabListProvider tabs={tabs}>

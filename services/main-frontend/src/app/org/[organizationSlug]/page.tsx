@@ -12,11 +12,10 @@ import ExamList from "./ExamList"
 
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 import DebugModal from "@/shared-module/common/components/DebugModal"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { manageOrganizationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 import { viewParamsAtom } from "@/state/course-material/params"
 
 const Organization: React.FC = () => {
@@ -35,86 +34,70 @@ const Organization: React.FC = () => {
   return (
     <>
       <div>
-        {organizationQuery.isSuccess && (
-          <h1
-            className={css`
-              font-size: clamp(26px, 3vw, 30px);
-              font-weight: 600;
-            `}
-          >
-            {organizationQuery.data.name}
-          </h1>
-        )}
-        {organizationQuery.isSuccess && (
-          <OnlyRenderIfPermissions
-            action={{
-              type: "edit",
-            }}
-            resource={{
-              type: "organization",
-              id: organizationQuery.data.id,
-            }}
-          >
-            <Link
-              href={manageOrganizationRoute(organizationQuery.data.id)}
-              aria-label={`${t("link-manage")}`}
-            >
-              {t("manage")}
-            </Link>
-          </OnlyRenderIfPermissions>
-        )}
-        {organizationQuery.isSuccess && (
-          <>
-            {organizationQuery.data.organization_image_url && (
-              <img
+        <QueryResult query={organizationQuery}>
+          {(organization) => (
+            <>
+              <h1
                 className={css`
-                  max-width: 20rem;
-                  max-height: 20rem;
-                `}
-                src={organizationQuery.data.organization_image_url}
-                alt={t("image-alt-what-to-display-on-organization")}
-              />
-            )}
-          </>
-        )}
-        {organizationQuery.isLoading && <Spinner variant={"medium"} />}
-        {organizationQuery.isError && (
-          <ErrorBanner variant={"readOnly"} error={organizationQuery.error} />
-        )}
-        {organizationQuery.isSuccess && (
-          <>
-            <section aria-labelledby={coursesSectionHeadingId}>
-              <h2
-                id={coursesSectionHeadingId}
-                className={css`
-                  font-size: clamp(26px, 3.6vw, 36px);
-                  margin-bottom: 10px;
+                  font-size: clamp(26px, 3vw, 30px);
+                  font-weight: 600;
                 `}
               >
-                {t("course-list")}
-              </h2>
-              {/* TODO: Implement perPage dropdown? */}
-              <CourseList
-                organizationId={organizationQuery.data.id}
-                organizationSlug={organizationSlug}
-              />
-            </section>
-
-            {/* TODO: We should render ExamList once we can filter away exams etc. */}
-            <OnlyRenderIfPermissions
-              action={{ type: "create_courses_or_exams" }}
-              resource={{ id: organizationQuery.data.id, type: "organization" }}
-            >
-              <section aria-labelledby={examsSectionHeadingId}>
-                <h2 id={examsSectionHeadingId}>{t("exam-list")}</h2>
-                <ExamList
-                  organizationId={organizationQuery.data.id}
-                  organizationSlug={organizationSlug}
+                {organization.name}
+              </h1>
+              <OnlyRenderIfPermissions
+                action={{
+                  type: "edit",
+                }}
+                resource={{
+                  type: "organization",
+                  id: organization.id,
+                }}
+              >
+                <Link
+                  href={manageOrganizationRoute(organization.id)}
+                  aria-label={`${t("link-manage")}`}
+                >
+                  {t("manage")}
+                </Link>
+              </OnlyRenderIfPermissions>
+              {organization.organization_image_url && (
+                <img
+                  className={css`
+                    max-width: 20rem;
+                    max-height: 20rem;
+                  `}
+                  src={organization.organization_image_url}
+                  alt={t("image-alt-what-to-display-on-organization")}
                 />
+              )}
+              <section aria-labelledby={coursesSectionHeadingId}>
+                <h2
+                  id={coursesSectionHeadingId}
+                  className={css`
+                    font-size: clamp(26px, 3.6vw, 36px);
+                    margin-bottom: 10px;
+                  `}
+                >
+                  {t("course-list")}
+                </h2>
+                {/* TODO: Implement perPage dropdown? */}
+                <CourseList organizationId={organization.id} organizationSlug={organizationSlug} />
               </section>
-            </OnlyRenderIfPermissions>
-          </>
-        )}
+
+              {/* TODO: We should render ExamList once we can filter away exams etc. */}
+              <OnlyRenderIfPermissions
+                action={{ type: "create_courses_or_exams" }}
+                resource={{ id: organization.id, type: "organization" }}
+              >
+                <section aria-labelledby={examsSectionHeadingId}>
+                  <h2 id={examsSectionHeadingId}>{t("exam-list")}</h2>
+                  <ExamList organizationId={organization.id} organizationSlug={organizationSlug} />
+                </section>
+              </OnlyRenderIfPermissions>
+            </>
+          )}
+        </QueryResult>
 
         <DebugModal data={organizationQuery.data} />
       </div>

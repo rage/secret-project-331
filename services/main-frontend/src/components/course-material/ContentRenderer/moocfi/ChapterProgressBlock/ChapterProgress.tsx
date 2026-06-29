@@ -10,9 +10,8 @@ import ColorsIdentifier from "../CourseProgressBlock/ColorsIdentifier"
 import { getCourseMaterialChapterProgress } from "@/generated/course-material-api/sdk.generated"
 import type { UserCourseInstanceChapterProgress } from "@/generated/course-material-api/types.generated"
 import Progress from "@/shared-module/common/components/CourseProgress"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { QueryResult } from "@/shared-module/components"
 
 interface ChapterProgressProps {
   chapterId: string
@@ -37,46 +36,44 @@ const ChapterProgress: React.FC<React.PropsWithChildren<ChapterProgressProps>> =
 
   return (
     <div>
-      {getUserChapterProgress.isError && (
-        <ErrorBanner variant={"readOnly"} error={getUserChapterProgress.error} />
-      )}
-      {getUserChapterProgress.isLoading && <Spinner variant={"medium"} />}
-      {getUserChapterProgress.isSuccess && (
-        <div
-          className={css`
-            width: 100%;
-            text-align: center;
-            padding: 1em 0 2em 0;
-            margin: 5em auto;
-            background: rgba(242, 245, 247, 0.8);
-          `}
-        >
-          {/* TODO: Verify how it looks when score_given is a floating number */}
-          <Progress
-            variant="circle"
-            max={getUserChapterProgress.data.score_maximum}
-            given={getUserChapterProgress.data.score_given}
-            label={t("chapter-progress")}
-          />
+      <QueryResult query={getUserChapterProgress}>
+        {(data) => (
           <div
             className={css`
-              padding: 0 2rem;
-              ${respondToOrLarger.md} {
-                padding: 0 6rem;
-              }
+              width: 100%;
+              text-align: center;
+              padding: 1em 0 2em 0;
+              margin: 5em auto;
+              background: rgba(242, 245, 247, 0.8);
             `}
           >
+            {/* TODO: Verify how it looks when score_given is a floating number */}
             <Progress
-              variant={"bar"}
-              showAsPercentage={false}
-              exercisesAttempted={getUserChapterProgress.data.attempted_exercises ?? null}
-              exercisesTotal={getUserChapterProgress.data.total_exercises ?? null}
-              label={t("exercises-attempted")}
+              variant="circle"
+              max={data.score_maximum}
+              given={data.score_given}
+              label={t("chapter-progress")}
             />
-            <ColorsIdentifier />
+            <div
+              className={css`
+                padding: 0 2rem;
+                ${respondToOrLarger.md} {
+                  padding: 0 6rem;
+                }
+              `}
+            >
+              <Progress
+                variant={"bar"}
+                showAsPercentage={false}
+                exercisesAttempted={data.attempted_exercises ?? null}
+                exercisesTotal={data.total_exercises ?? null}
+                label={t("exercises-attempted")}
+              />
+              <ColorsIdentifier />
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </QueryResult>
     </div>
   )
 }

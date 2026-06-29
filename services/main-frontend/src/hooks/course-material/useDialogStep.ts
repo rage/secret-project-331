@@ -4,6 +4,7 @@ export enum DialogStep {
   None = "none",
   MissingInfo = "missing-info",
   ChooseInstance = "choose-instance",
+  AiUsageNotice = "ai-usage-notice",
   ResearchConsent = "research-consent",
 }
 
@@ -11,6 +12,9 @@ export interface DialogStepInputs {
   shouldAnswerMissingInfoForm: boolean
   shouldChooseInstance: boolean
   waitingForCourseSettingsToBeFilled: boolean
+
+  // ai-usage notice related
+  shouldShowAiUsageNotice: boolean
 
   // research-consent related
   researchFormIsLoadedAndExists: boolean
@@ -21,12 +25,13 @@ export interface DialogStepInputs {
 
 /**
  * Returns exactly one active dialog step based on the required priority:
- * 1) Missing info -> 2) Select course instance -> 3) Research consent
+ * 1) Missing info -> 2) Select course instance -> 3) AI-usage notice -> 4) Research consent
  */
 export default function useDialogStep({
   shouldAnswerMissingInfoForm,
   shouldChooseInstance,
   waitingForCourseSettingsToBeFilled,
+  shouldShowAiUsageNotice,
   researchFormIsLoadedAndExists,
   showResearchConsentFormBecauseOfUrl,
   showResearchConsentFormBecauseOfMissingAnswers,
@@ -44,6 +49,9 @@ export default function useDialogStep({
     if (shouldChooseInstance || waitingForCourseSettingsToBeFilled) {
       return DialogStep.ChooseInstance
     }
+    if (shouldShowAiUsageNotice) {
+      return DialogStep.AiUsageNotice
+    }
     if (shouldShowResearchConsent) {
       return DialogStep.ResearchConsent
     }
@@ -52,6 +60,7 @@ export default function useDialogStep({
     shouldAnswerMissingInfoForm,
     shouldChooseInstance,
     waitingForCourseSettingsToBeFilled,
+    shouldShowAiUsageNotice,
     shouldShowResearchConsent,
   ])
 }

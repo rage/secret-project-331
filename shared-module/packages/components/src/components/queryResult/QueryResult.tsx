@@ -13,6 +13,7 @@ export type QueryResultProps<T, E = unknown> = {
   children: (data: T) => React.ReactNode
   emptyFallback?: React.ReactNode
   treatNullAsEmpty?: boolean
+  treatEmptyAsData?: boolean
   minHeight?: number
   loadingDelayMs?: number
   renderBlockingError?: AnimatedQueryFrameProps<E>["renderBlockingError"]
@@ -23,6 +24,14 @@ export type QueryResultProps<T, E = unknown> = {
  * Renders `children` with query data, or loading / error / empty states inside `AnimatedQueryFrame`.
  * When `emptyFallback` is set, it replaces `children` if `isQueryResultEmpty(data, treatNullAsEmpty)`.
  *
+ * **`treatNullAsEmpty`:** routes null data to `emptyFallback`, so `children` never sees null at
+ * runtime. The type system cannot express this, so narrow once inside `children` if `T` includes null.
+ *
+ * **`treatEmptyAsData`:** skips the empty check entirely, so `children` also receives empty data
+ * (e.g. `[]`). Use when the normal render already handles emptiness (a zero-row table is valid UI)
+ * instead of duplicating the renderer in `emptyFallback`. Mutually exclusive with
+ * `emptyFallback` / `treatNullAsEmpty`.
+ *
  * **Retry:** error UI always refetches this single `query`. For multi-query selective retry, use `QueryResults`.
  */
 export function QueryResult<T, E = unknown>({
@@ -31,6 +40,7 @@ export function QueryResult<T, E = unknown>({
   children,
   emptyFallback = null,
   treatNullAsEmpty = false,
+  treatEmptyAsData = false,
   minHeight,
   loadingDelayMs,
   renderBlockingError,
@@ -43,7 +53,7 @@ export function QueryResult<T, E = unknown>({
 
   const body =
     state.hasData && state.data !== undefined
-      ? isQueryResultEmpty(state.data, treatNullAsEmpty)
+      ? !treatEmptyAsData && isQueryResultEmpty(state.data, treatNullAsEmpty)
         ? emptyFallback
         : children(state.data)
       : null

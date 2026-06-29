@@ -16,16 +16,15 @@ import type { ExerciseSlideSubmissionAndUserExerciseState } from "@/generated/ap
 import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/Breadcrumbs"
 import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const GradingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -207,159 +206,161 @@ const GradingPage: React.FC = () => {
     return pieces
   }, [id, t])
 
+  const questionsContent = (
+    <>
+      <h3
+        className={css`
+          font-weight: ${fontWeights.medium};
+          font-family: ${headingFont};
+        `}
+      >
+        {getExam.data?.name}
+      </h3>
+      <table
+        className={css`
+          border-collapse: collapse;
+          margin-top: 1.5rem;
+          width: 100%;
+
+          td,
+          th {
+            padding-left: 20px;
+            text-align: left;
+            height: 60px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+          tr {
+            border-bottom: 1.5px solid #0000001a;
+            font-size: ${baseTheme.fontSizes[18]};
+          }
+        `}
+      >
+        <thead>
+          <tr
+            className={css`
+              font-family: ${headingFont};
+              font-weight: ${fontWeights.semibold};
+              font-size: ${baseTheme.fontSizes[18]};
+              color: #7c7c7ccc;
+              opacity: 0.8;
+            `}
+          >
+            <th>{t("label-grade")}</th>
+            <th>{t("question")}</th>
+            <th>{t("status")}</th>
+            <th>{t("number-of-answered")}</th>
+            <th>{t("number-of-graded")}</th>
+            <th>{t("number-of-unpublished-gradings")}</th>
+            <th>{t("points")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted?.map((exercise) => (
+            <tr key={exercise.name}>
+              <td>
+                {getExam.data?.grade_manually ? (
+                  <Button
+                    variant={"primary"}
+                    size={"small"}
+                    transform="none"
+                    onClick={() => {
+                      router.push(exerciseExamSubmissionsRoute(exercise.id))
+                    }}
+                  >
+                    {t("grade")}
+                  </Button>
+                ) : (
+                  <Button
+                    variant={"primary"}
+                    size={"small"}
+                    transform="none"
+                    onClick={() => {
+                      router.push(exerciseExamSubmissionsRoute(exercise.id))
+                    }}
+                  >
+                    {t("label-review")}
+                  </Button>
+                )}
+              </td>
+              <td>{t("question-n", { n: exercise.order_number + 1 })}</td>
+              <td>{exercise.id && gradedCheck(exercise.id)}</td>
+              <td>{exercise.id && totalAnswered(exercise.id)}</td>
+              <td>{exercise.id && totalGraded(exercise.id)}</td>
+              <td>{exercise.id && totalPublished(exercise.id)}</td>
+              <td>{exercise.score_maximum}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {getExam.data?.grade_manually && (
+        <div
+          className={css`
+            margin-top: 1.5rem;
+          `}
+        >
+          {checkPublishable() != 0 && (
+            <GenericInfobox>
+              {t("unpublishable-grading-results", { amount: checkPublishable() })}
+            </GenericInfobox>
+          )}
+        </div>
+      )}
+      <div
+        className={css`
+          margin-top: 1.5rem;
+          display: flex;
+          align-items: center;
+        `}
+      >
+        <Button
+          disabled={!getExam.data?.grade_manually}
+          variant={"primary"}
+          size={"small"}
+          onClick={async () => {
+            const confirmation = await confirm(
+              t("message-do-you-want-to-publish-all-currently-graded-submissions"),
+            )
+            if (confirmation) {
+              const freshSubmissions = await getAllSubmissions.refetch()
+              if (!freshSubmissions.data) {
+                throw new Error("Failed to fetch submissions")
+              }
+
+              const teacherGradingDecisionIds = freshSubmissions.data
+                .flatMap((exerciseSubmissionList) =>
+                  exerciseSubmissionList.map((sub) => sub.teacher_grading_decision?.id),
+                )
+                .filter(
+                  (gradingDecisionId): gradingDecisionId is string =>
+                    gradingDecisionId !== undefined,
+                )
+
+              publishMutation.mutate({
+                path: {
+                  exam_id: id,
+                },
+                body: teacherGradingDecisionIds,
+              })
+            }
+          }}
+        >
+          {t("publish-grading-results")}
+        </Button>
+        <InfoComponent text={t("publish-grading-results-info")} />
+      </div>
+    </>
+  )
+
   return (
     <div>
       <BreakFromCentered sidebar={false}>
         <Breadcrumbs pieces={pieces} />
       </BreakFromCentered>
-      {getExercises.isError && <ErrorBanner variant={"readOnly"} error={getExercises.error} />}
-      {getExercises.isLoading && <Spinner variant={"medium"} />}
-      {getExercises.isSuccess && (
-        <>
-          <h3
-            className={css`
-              font-weight: ${fontWeights.medium};
-              font-family: ${headingFont};
-            `}
-          >
-            {getExam.data?.name}
-          </h3>
-          <table
-            className={css`
-              border-collapse: collapse;
-              margin-top: 1.5rem;
-              width: 100%;
-
-              td,
-              th {
-                padding-left: 20px;
-                text-align: left;
-                height: 60px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-              }
-              tr {
-                border-bottom: 1.5px solid #0000001a;
-                font-size: ${baseTheme.fontSizes[18]};
-              }
-            `}
-          >
-            <thead>
-              <tr
-                className={css`
-                  font-family: ${headingFont};
-                  font-weight: ${fontWeights.semibold};
-                  font-size: ${baseTheme.fontSizes[18]};
-                  color: #7c7c7ccc;
-                  opacity: 0.8;
-                `}
-              >
-                <th>{t("label-grade")}</th>
-                <th>{t("question")}</th>
-                <th>{t("status")}</th>
-                <th>{t("number-of-answered")}</th>
-                <th>{t("number-of-graded")}</th>
-                <th>{t("number-of-unpublished-gradings")}</th>
-                <th>{t("points")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sorted?.map((exercise) => (
-                <tr key={exercise.name}>
-                  <td>
-                    {getExam.data?.grade_manually ? (
-                      <Button
-                        variant={"primary"}
-                        size={"small"}
-                        transform="none"
-                        onClick={() => {
-                          router.push(exerciseExamSubmissionsRoute(exercise.id))
-                        }}
-                      >
-                        {t("grade")}
-                      </Button>
-                    ) : (
-                      <Button
-                        variant={"primary"}
-                        size={"small"}
-                        transform="none"
-                        onClick={() => {
-                          router.push(exerciseExamSubmissionsRoute(exercise.id))
-                        }}
-                      >
-                        {t("label-review")}
-                      </Button>
-                    )}
-                  </td>
-                  <td>{t("question-n", { n: exercise.order_number + 1 })}</td>
-                  <td>{exercise.id && gradedCheck(exercise.id)}</td>
-                  <td>{exercise.id && totalAnswered(exercise.id)}</td>
-                  <td>{exercise.id && totalGraded(exercise.id)}</td>
-                  <td>{exercise.id && totalPublished(exercise.id)}</td>
-                  <td>{exercise.score_maximum}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {getExam.data?.grade_manually && (
-            <div
-              className={css`
-                margin-top: 1.5rem;
-              `}
-            >
-              {checkPublishable() != 0 && (
-                <GenericInfobox>
-                  {t("unpublishable-grading-results", { amount: checkPublishable() })}
-                </GenericInfobox>
-              )}
-            </div>
-          )}
-          <div
-            className={css`
-              margin-top: 1.5rem;
-              display: flex;
-              align-items: center;
-            `}
-          >
-            <Button
-              disabled={!getExam.data?.grade_manually}
-              variant={"primary"}
-              size={"small"}
-              onClick={async () => {
-                const confirmation = await confirm(
-                  t("message-do-you-want-to-publish-all-currently-graded-submissions"),
-                )
-                if (confirmation) {
-                  const freshSubmissions = await getAllSubmissions.refetch()
-                  if (!freshSubmissions.data) {
-                    throw new Error("Failed to fetch submissions")
-                  }
-
-                  const teacherGradingDecisionIds = freshSubmissions.data
-                    .flatMap((exerciseSubmissionList) =>
-                      exerciseSubmissionList.map((sub) => sub.teacher_grading_decision?.id),
-                    )
-                    .filter(
-                      (gradingDecisionId): gradingDecisionId is string =>
-                        gradingDecisionId !== undefined,
-                    )
-
-                  publishMutation.mutate({
-                    path: {
-                      exam_id: id,
-                    },
-                    body: teacherGradingDecisionIds,
-                  })
-                }
-              }}
-            >
-              {t("publish-grading-results")}
-            </Button>
-            <InfoComponent text={t("publish-grading-results-info")} />
-          </div>
-        </>
-      )}
+      <QueryResult query={getExercises} treatEmptyAsData>
+        {() => questionsContent}
+      </QueryResult>
     </div>
   )
 }

@@ -11,8 +11,8 @@ import { PublicSpecQuizItemMatrix } from "../../../../../types/quizTypes/publicS
 
 import { QuizItemSubmissionComponentProps } from "."
 
-import { primaryFont } from "@/shared-module/common/styles/typography"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const MatrixTableContainer = styled.table`
   margin: auto;
@@ -199,7 +199,7 @@ const MatrixSubmission: React.FC<
                 margin-top: 0.563rem;
 
                 p {
-                  font-family: Raleway, sans-serif;
+                  font-family: ${primaryFont};
                   color: #4c5868;
                   font-weight: 500;
                   font-size: 1rem;

@@ -19,7 +19,7 @@ import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import SelectField from "@/shared-module/common/components/InputFields/SelectField"
-import { primaryFont } from "@/shared-module/common/styles"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string

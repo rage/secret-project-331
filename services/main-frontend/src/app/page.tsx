@@ -155,20 +155,17 @@ const FrontPage = () => {
           </Link>
         </div>
       </OnlyRenderIfPermissions>
-      <OnlyRenderIfPermissions
-        action={{ type: "edit_role", variant: "Admin" }}
-        resource={{ type: "global_permissions" }}
-      >
+      <OnlyRenderIfPermissions action={{ type: "edit" }} resource={{ type: "global_permissions" }}>
         <div>
           <Link
-            href={"manage/course-descriptions"}
+            href={"manage/course-audits"}
             className={css`
               cursor: pointer;
               color: blue;
               text-decoration: underline;
             `}
           >
-            {t("course-descriptions")}
+            {t("link-course-audits")}
           </Link>
         </div>
       </OnlyRenderIfPermissions>

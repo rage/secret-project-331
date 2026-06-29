@@ -551,6 +551,16 @@ export type Course = {
  */
 export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
 
+export type CourseAudit = {
+  created_at: string
+  description?: string | null
+  id: string
+  name: string
+  organization_id: string
+  uh_course_code?: string | null
+  updated_at: string
+}
+
 export type CourseBreadcrumbInfo = {
   course_id: string
   course_name: string
@@ -2835,6 +2845,22 @@ export type DeleteCodeGiveawayCodeResponses = {
    */
   200: unknown
 }
+
+export type GetCourseAuditsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/course-audits/"
+}
+
+export type GetCourseAuditsResponses = {
+  /**
+   * Course audits
+   */
+  200: Array<CourseAudit>
+}
+
+export type GetCourseAuditsResponse = GetCourseAuditsResponses[keyof GetCourseAuditsResponses]
 
 export type GetCourseInstanceData = {
   body?: never

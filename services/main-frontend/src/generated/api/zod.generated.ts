@@ -409,6 +409,16 @@ export const zCourse = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAudit = z.object({
+  created_at: z.iso.datetime(),
+  description: z.string().nullish(),
+  id: z.uuid(),
+  name: z.string(),
+  organization_id: z.uuid(),
+  uh_course_code: z.string().nullish(),
+  updated_at: z.iso.datetime(),
+})
+
 export const zCourseBreadcrumbInfo = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -3011,6 +3021,11 @@ export const zDeleteCodeGiveawayCodePath = z.object({
   id: z.uuid(),
   code_id: z.uuid(),
 })
+
+/**
+ * Course audits
+ */
+export const zGetCourseAuditsResponse = z.array(zCourseAudit)
 
 export const zGetCourseInstancePath = z.object({
   course_instance_id: z.uuid(),

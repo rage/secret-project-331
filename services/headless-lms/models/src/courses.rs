@@ -205,6 +205,18 @@ pub struct NewCourse {
     pub can_add_chatbot: bool,
 }
 
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+
+pub struct CourseAudit {
+    pub id: Uuid,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+    pub name: String,
+    pub description: Option<String>,
+    pub organization_id: Uuid,
+    pub uh_course_code: Option<String>,
+}
+
 pub async fn insert(
     conn: &mut PgConnection,
     pkey_policy: PKeyPolicy<Uuid>,
@@ -305,6 +317,25 @@ SELECT id,
   course_material_ai_instructions
 FROM courses
 WHERE deleted_at IS NULL;
+"#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(courses)
+}
+
+pub async fn all_course_audits(conn: &mut PgConnection) -> ModelResult<Vec<CourseAudit>> {
+    let courses = sqlx::query_as!(
+        CourseAudit,
+        r#"
+SELECT c.id,
+  c.name,
+  c.created_at,
+  c.updated_at,
+  c.organization_id,
+  c.description, cm.uh_course_code
+FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
+WHERE c.deleted_at IS NULL AND cm.deleted_at is NULL AND order_number = 0;
 "#
     )
     .fetch_all(conn)

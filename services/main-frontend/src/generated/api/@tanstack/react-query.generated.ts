@@ -103,6 +103,7 @@ import {
   getCohortActivityHistory,
   getCompletionStatsByEmailDomain,
   getCourse,
+  getCourseAudits,
   getCourseBreadcrumbInfo,
   getCourseByJoinCode,
   getCourseChapters,
@@ -467,6 +468,8 @@ import type {
   GetCohortActivityHistoryResponse,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponse,
+  GetCourseAuditsData,
+  GetCourseAuditsResponse,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponse,
   GetCourseByJoinCodeData,
@@ -1559,6 +1562,30 @@ export const deleteCodeGiveawayCodeMutation = (
   }
   return mutationOptions
 }
+
+export const getCourseAuditsQueryKey = (options?: Options<GetCourseAuditsData>) =>
+  createQueryKey("getCourseAudits", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-audits`
+ */
+export const getCourseAuditsOptions = (options?: Options<GetCourseAuditsData>) =>
+  queryOptions<
+    GetCourseAuditsResponse,
+    DefaultError,
+    GetCourseAuditsResponse,
+    ReturnType<typeof getCourseAuditsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseAudits({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseAuditsQueryKey(options),
+  })
 
 export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData>) =>
   createQueryKey("getCourseInstance", options)

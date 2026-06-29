@@ -907,6 +907,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-audits/": {
+      "get": {
+        "tags": ["course_audits"],
+        "summary": "\nGET `/api/v0/main-frontend/course-audits`",
+        "operationId": "getCourseAudits",
+        "responses": {
+          "200": {
+            "description": "Course audits",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CourseAudit"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-instances/{course_instance_id}": {
       "get": {
         "tags": ["course-instances"],
@@ -12396,6 +12418,37 @@
         "type": "string",
         "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
         "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
+      },
+      "CourseAudit": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "name", "organization_id"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "description": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "organization_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       },
       "CourseBreadcrumbInfo": {
         "type": "object",

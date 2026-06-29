@@ -191,6 +191,8 @@ import type {
   GetCohortActivityHistoryResponses,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponses,
+  GetCourseAuditsData,
+  GetCourseAuditsResponses,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponses,
   GetCourseByJoinCodeData,
@@ -679,6 +681,7 @@ import {
   zGetCodeGiveawaysByCourseResponse,
   zGetCohortActivityHistoryResponse,
   zGetCompletionStatsByEmailDomainResponse,
+  zGetCourseAuditsResponse,
   zGetCourseBreadcrumbInfoResponse,
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
@@ -1369,6 +1372,20 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * GET `/api/v0/main-frontend/course-audits`
+ */
+export const getCourseAudits = <ThrowOnError extends boolean = true>(
+  options?: Options<GetCourseAuditsData, ThrowOnError>,
+) =>
+  (options?.client ?? client).get<GetCourseAuditsResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseAuditsResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/course-audits/",
+    ...options,
+  })
 
 /**
  *

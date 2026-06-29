@@ -1134,6 +1134,7 @@
   "link": "link",
   "link-change-requests": "Change requests",
   "link-cheaters": "Cheaters",
+  "link-course-audits": "Course audits",
   "link-course-instances": "Course instances",
   "link-edit-exam-instructions": "Edit exam instructions",
   "link-edit-exam-page": "Edit exam page",
@@ -1797,12 +1798,15 @@
   "title-chapter-only-number": "Chapter {{chapter-number}}",
   "title-communication-with-the-iframe": "Communication with the IFrame",
   "title-congratulations": "Congratulations!",
+  "title-course-audits": "Course audits",
   "title-course-settings": "Course settings",
   "title-course-specific-research-consents": "Course-specific research consents",
   "title-course-users-counts-by-exercise": "Count of users for each exercise",
   "title-current-state-received-from-the-iframe": "Current state received from the IFrame",
+  "title-default-module-uh-course-code": "Default module UH course code",
   "title-delete-account": "Delete account",
   "title-derived-specs": "Derived specs",
+  "title-description": "Description",
   "title-device-type": "Device type",
   "title-dialog-module-save": "Do you want to save the changes to the course modules?",
   "title-email-templates": "Email templates for course instance.",
@@ -1945,6 +1949,5 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion.",
   "your-code-code": "Your code is: {{code}}",
   "your-name": "Your name",
-  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect.",
-  "course-descriptions": "Course Descriptions"
+  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect."
 }

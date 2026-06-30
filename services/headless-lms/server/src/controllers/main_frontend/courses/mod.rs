@@ -2648,9 +2648,6 @@ async fn get_sisu_course_llm_descriptions(
     app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
 ) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
-    let is_mock_sisu = app_conf.test_sisu;
-    let base_url = &app_conf.base_url;
-
     let (course_modules, course_lang, message_suggest_llm, token) = {
         let mut conn = pool.acquire().await?;
 
@@ -2673,8 +2670,8 @@ async fn get_sisu_course_llm_descriptions(
         .into_iter()
         .filter_map(|course_module| course_module.uh_course_code)
         .collect::<Vec<String>>();
-    let course_ids = SisuClient::get_course_ids(is_mock_sisu, base_url, uh_course_codes).await?;
-    let course_info = SisuClient::get_course_info(is_mock_sisu, base_url, course_ids).await?;
+    let course_ids = SisuClient::get_course_ids(uh_course_codes).await?;
+    let course_info = SisuClient::get_course_info(course_ids).await?;
 
     let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
 

@@ -1,13 +1,15 @@
 use crate::{error::util_error::SisuErrorVariant, prelude::*};
 pub struct SisuClient {}
+use headless_lms_base::config::bool_env_false_by_default;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::sync::LazyLock;
 use std::time::Duration;
 use std::{cmp::Ordering, collections::HashMap};
 use utoipa::ToSchema;
 pub type SisuCourseInfo = Vec<SisuCourseInfoElement>;
-use url::Url;
+use url::{ParseError, Url};
 
 #[derive(Serialize, Deserialize, ToSchema, Debug)]
 #[serde(rename_all = "camelCase")]
@@ -158,31 +160,34 @@ pub struct SisuDescriptions {
     additional: Option<String>,
     learning_material: Option<String>,
 }
-static SISU_BASE_URL: LazyLock<Url> =
-    LazyLock::new(|| Url::parse("https://sisu.helsinki.fi/kori/api/").expect("Invalid url"));
 
 const TIMEOUT_DURATION: Duration = Duration::from_secs(60);
 
 impl SisuClient {
-    pub async fn get_course_ids(
-        is_mock_sisu: bool,
-        base_url: &String,
-        course_modules: Vec<String>,
-    ) -> UtilResult<Vec<Vec<String>>> {
+    fn get_url() -> Result<Url, ParseError> {
+        let base_url = env::var("BASE_URL").unwrap_or_else(|_| "".to_string());
+        let is_mock_sisu = bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT");
+        let url = if !is_mock_sisu {
+            Url::parse("https://sisu.helsinki.fi/kori/api/")
+        } else {
+            let mock_path = Url::parse(base_url.as_str())?;
+            mock_path.join("/api/v0/mock-sisu/")
+        };
+        url
+    }
+
+    pub async fn get_course_ids(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
         let mut course_ids: Vec<Vec<String>> = vec![];
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
-            let url = if is_mock_sisu {
-                let sisu_mock_base_url = Url::parse(base_url)?;
-                let path = format!("/api/v0/mock-sisu/kori/api/{code}");
-                sisu_mock_base_url.join(path.as_str())?
-            } else {
-                let path = format!(
+            let base_url = Self::get_url()?;
+            let url = base_url.join(
+                format!(
                     "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
-                );
-                SISU_BASE_URL.join(path.as_str())?
-            };
+                )
+                .as_str(),
+            )?;
 
             let response = REQWEST_CLIENT
                 .get(url)
@@ -231,21 +236,13 @@ impl SisuClient {
     }
 
     pub async fn get_course_info(
-        is_mock_sisu: bool,
-        base_url: &String,
-        course_codes: Vec<Vec<String>>,
+        course_ids: Vec<Vec<String>>,
     ) -> UtilResult<Vec<SisuCourseInfoElement>> {
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
-        for code in course_codes {
-            if let Some(first) = code.first() {
-                let url = if is_mock_sisu {
-                    let url = Url::parse(base_url)?;
-                    let path = format!("/api/v0/mock-sisu/kori/api/course-units/{first}");
-                    url.join(path.as_str())?
-                } else {
-                    let path = format!("course-units/v1/{first}");
-                    SISU_BASE_URL.join(path.as_str())?
-                };
+        for id in course_ids {
+            if let Some(first) = id.first() {
+                let base_url = Self::get_url()?;
+                let url = base_url.join(format!("course-units/v1/{first}").as_str())?;
 
                 let response = REQWEST_CLIENT
                     .get(url)
@@ -279,7 +276,7 @@ impl SisuClient {
             } else {
                 return Err(util_err!(
                     SisuClientError(SisuErrorVariant::GenericSisuError),
-                    "No courses found with course code".to_string()
+                    "No courses found with course id".to_string()
                 ));
             }
         }

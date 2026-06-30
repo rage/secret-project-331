@@ -2,7 +2,6 @@
 
 import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
-import Head from "next/head"
 import { usePathname } from "next/navigation"
 import React, { ReactNode, Suspense, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -43,14 +42,11 @@ const DynamicToaster = dynamicImport(
   () => import("@/shared-module/common/components/Notifications/ToasterNotifications"),
 )
 
-const DEFAULT_TITLE = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
-
 const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) => {
   const pathname = usePathname()
   const { i18n } = useTranslation()
 
   const [title, setTitle] = useState<string | null>(null)
-  const fullTitle = title ? `${title} - ${DEFAULT_TITLE}` : DEFAULT_TITLE
   const [organizationSlug, setOrganizationSlug] = useState<string | null>(null)
   const [courseId, setCourseId] = useState<string | null>(null)
   const [hideFromSearchEngines, setHideFromSearchEngines] = useState<boolean>(false)
@@ -112,13 +108,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   }, [courseId, hideFromSearchEngines, organizationSlug, title])
   return (
     <Suspense fallback={<Spinner variant="large" />}>
-      <Head>
-        <title>{fullTitle}</title>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-
-        {hideFromSearchEngines && <meta name="robots" content="noindex" />}
-      </Head>
       <div
         // Push footer to bottom of page, e.g. on empty body
         className={css`

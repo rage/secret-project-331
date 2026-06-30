@@ -92,10 +92,6 @@
       "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
       "title": "Could not generate description"
     },
-    "sisu_resource_not_found": {
-      "message": "Unable to find resources from Sisu.",
-      "title": "Resources not found"
-    },
     "not_found": {
       "message": "The requested resource could not be found.",
       "title": "Not found"
@@ -111,6 +107,10 @@
     "response_validation_error": {
       "message": "The server responded successfully, but the data was not in the expected format.",
       "title": "Could not display data"
+    },
+    "sisu_resource_not_found": {
+      "message": "Unable to find resources from Sisu.",
+      "title": "Resources not found"
     },
     "unauthorized": {
       "message": "Please sign in and try again.",

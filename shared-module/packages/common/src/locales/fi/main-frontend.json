@@ -207,6 +207,8 @@
   "chapter-locked-waiting-teacher-review-description": "Kurssin henkilökunta arvioi tämän luvun vastauksiasi. Malliratkaisu näytetään, kun arviointi on valmis.",
   "chapter-progress": "Luvun edistyminen",
   "chapters": "Luvut",
+  "chart-block-data-file-info": "Tähän kaavioon on liitetty datatiedosto.",
+  "chart-block-invalid-spec-error": "Kaaviota ei voitu näyttää, koska sen määrittely on virheellinen.",
   "chatbot": "Keskustelurobotti",
   "chatbot-discalimer-sensitive-information": "Älä koskaan paljasta arkaluontoista tietoa keskustelurobotille.",
   "chatbot-disclaimer-check": "Tarkista aina keskustelurobotin väitteet. LLM-pohjaiset keskustelurobotit voivat tuottaa vakuuttavia, mutta tosiasiallisesti virheellisiä lausuntoja.",

@@ -13,9 +13,12 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 interface ChartBlockAttributes {
   spec: string
   caption: string
+  data: File
 }
 
 const MIN_HEIGHT = 200
+// Debounce so we redraw once resizing settles; redrawing per tick races Vega's canvas sizing and sticks at a stale width.
+const RESIZE_DEBOUNCE_MS = 150
 
 const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlockAttributes>>> = (
   props,
@@ -23,22 +26,30 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
   const { t } = useTranslation()
   const { spec, caption } = props.data.attributes
   const containerRef = useRef<HTMLDivElement>(null)
-  const [containerWidth, setContainerWidth] = useState<number | null>(null)
+  const [width, setWidth] = useState<number | null>(null)
+  const [data, setData] = useState<File> | (null > null)
 
   useEffect(() => {
     const el = containerRef.current
     if (!el) {
       return
     }
-    const observer = new ResizeObserver((entries) => {
-      const entry = entries[0]
-      if (entry) {
-        setContainerWidth(Math.floor(entry.contentRect.width))
+    let timeout: ReturnType<typeof setTimeout> | undefined
+    const measure = () => setWidth(Math.floor(el.getBoundingClientRect().width))
+    const observer = new ResizeObserver(() => {
+      if (timeout) {
+        clearTimeout(timeout)
       }
+      timeout = setTimeout(measure, RESIZE_DEBOUNCE_MS)
     })
     observer.observe(el)
-    setContainerWidth(Math.floor(el.getBoundingClientRect().width))
-    return () => observer.disconnect()
+    measure()
+    return () => {
+      observer.disconnect()
+      if (timeout) {
+        clearTimeout(timeout)
+      }
+    }
   }, [])
 
   const parsedSpec = (() => {
@@ -49,15 +60,15 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
     }
   })()
 
-  const responsiveSpec = parsedSpec
-    ? {
-        ...parsedSpec,
-        // Override width to fill the container; keep height proportional unless already set
-        width: containerWidth !== null ? containerWidth - 40 : (parsedSpec.width ?? 400),
-        // eslint-disable-next-line i18next/no-literal-string
-        autosize: { type: "fit", contains: "padding" },
-      }
-    : null
+  const responsiveSpec =
+    parsedSpec && width !== null
+      ? {
+          ...parsedSpec,
+          width,
+          // eslint-disable-next-line i18next/no-literal-string
+          autosize: { type: "fit", contains: "padding" },
+        }
+      : null
 
   return (
     <div ref={containerRef}>
@@ -79,7 +90,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
           {t("chart-block-invalid-spec-error")}
         </div>
       )}
-      {responsiveSpec && containerWidth !== null && (
+      {responsiveSpec && (
         <div
           className={css`
             overflow-x: auto;
@@ -87,6 +98,11 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
           `}
         >
           <VegaLite spec={responsiveSpec} actions={false} />
+        </div>
+      )}
+      {data && (
+        <div>
+          <p>{t("chart-block-data-file-info")}</p>
         </div>
       )}
       {caption && (

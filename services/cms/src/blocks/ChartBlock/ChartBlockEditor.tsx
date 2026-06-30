@@ -1,8 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
-import Editor from "@monaco-editor/react"
 import React from "react"
 
 import BlockWrapper from "../BlockWrapper"
@@ -11,14 +9,21 @@ import { ChartBlockAttributes, DEFAULT_VEGA_LITE_SPEC } from "."
 
 import Button from "@/shared-module/common/components/Button"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
+import MonacoEditor from "@/shared-module/common/components/monaco/MonacoEditor"
 import { baseTheme, fontWeights, primaryFont } from "@/shared-module/common/styles"
 import type { BlockEditProps } from "@/utils/Gutenberg/types"
+import { useTranslation } from "@/utils/useCmsTranslation"
+
+// Monaco config values, extracted to constants to keep them out of i18next/no-literal-string.
+const MONACO_LANGUAGE = "json"
+const ON = "on"
 
 const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlockAttributes>>> = ({
   clientId,
   attributes,
   setAttributes,
 }) => {
+  const { t } = useTranslation()
   const { spec, caption } = attributes
 
   const handleSpecChange = (value: string | undefined) => {
@@ -60,7 +65,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
               font-weight: ${fontWeights.medium};
             `}
           >
-            Vega-Lite JSON specification
+            {t("vega-lite-json-specification")}
           </p>
           <div
             className={css`
@@ -76,7 +81,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
                   color: ${baseTheme.colors.red[600]};
                 `}
               >
-                Invalid JSON
+                {t("invalid-json")}
               </span>
             )}
             <Button
@@ -84,7 +89,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
               size="small"
               onClick={() => setAttributes({ spec: DEFAULT_VEGA_LITE_SPEC })}
             >
-              Reset to example
+              {t("reset-to-example")}
             </Button>
           </div>
         </div>
@@ -96,17 +101,17 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
             overflow: hidden;
           `}
         >
-          <Editor
+          <MonacoEditor
             height="320px"
-            language="json"
+            language={MONACO_LANGUAGE}
             value={spec}
             onChange={handleSpecChange}
             options={{
               minimap: { enabled: false },
               fontSize: 13,
-              lineNumbers: "on",
+              lineNumbers: ON,
               scrollBeyondLastLine: false,
-              wordWrap: "on",
+              wordWrap: ON,
               tabSize: 2,
             }}
           />
@@ -117,10 +122,10 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
           `}
         >
           <TextField
-            label="Caption (optional)"
+            label={t("caption-optional")}
             value={caption}
             onChangeByValue={(value) => setAttributes({ caption: value })}
-            placeholder="Describe the chart"
+            placeholder={t("describe-the-chart")}
           />
         </div>
       </div>

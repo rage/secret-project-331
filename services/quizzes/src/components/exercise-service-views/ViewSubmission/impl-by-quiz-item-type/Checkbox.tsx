@@ -87,11 +87,18 @@ const CheckBoxFeedback: React.FC<
             </div>
           </Option>
         )}
-        <div>
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+          `}
+        >
           {quiz_item_answer_feedback?.quiz_item_option_feedbacks?.map((of) => (
             <ParsedText
               key={of.option_id}
               inline
+              blockContainer
               parseLatex
               parseMarkdown
               text={of.option_feedback}

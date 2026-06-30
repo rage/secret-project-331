@@ -20,10 +20,32 @@
 -- form first). Resolve the duplicates manually, then re-run. The cleanup is idempotent — once
 -- paths are clean, re-running is a no-op.
 
--- Percent-decode runs of %XX back to UTF-8, then strip the unsafe ASCII set (everything in
--- URL_PATH_ENCODE_SET), turn whitespace into '-', and collapse/trim dashes per path segment.
--- Mirrors the frontend slug rules but keeps non-ASCII characters and letter case, and leaves the
--- '/' separators, '-', '.', '_' and '~' intact.
+-- Decode a run of %XX escapes back to UTF-8, tolerating invalid input. A manually entered or
+-- imported path can contain a percent run that is not valid UTF-8 (e.g. a lone %80 or %FF); a bare
+-- convert_from() would raise and abort the entire migration. Drop the undecodable run instead — it
+-- is unsafe junk being cleaned away anyway — so one bad row can never block the deploy.
+CREATE FUNCTION safe_percent_decode(token text) RETURNS text
+    LANGUAGE plpgsql
+    IMMUTABLE
+    STRICT
+AS $$
+BEGIN
+    RETURN convert_from(decode(replace(token, '%', ''), 'hex'), 'UTF8');
+EXCEPTION
+    WHEN others THEN
+        RETURN '';
+END;
+$$;
+
+-- Percent-decode runs of %XX back to UTF-8, then strip the unsafe ASCII set, turn whitespace into
+-- '-', and collapse/trim dashes per path segment. Mirrors the frontend slug rules but keeps
+-- non-ASCII characters and letter case, and leaves the '/' separators, '-', '.', '_' and '~'
+-- intact.
+--
+-- The stripped ASCII set below is the SQL spelling of `URL_PATH_ENCODE_SET`
+-- (services/headless-lms/models/src/pages.rs) and the frontend `cleanUrlPath`
+-- (services/main-frontend/src/utils/normalizePath.ts). The three must stay in agreement; this is
+-- the hardest to read, so when the set changes update it here too.
 CREATE FUNCTION clean_url_path(input text) RETURNS text
     LANGUAGE plpgsql
     IMMUTABLE
@@ -35,7 +57,7 @@ DECLARE
 BEGIN
     SELECT string_agg(
                CASE WHEN token ~ '^(?:%[0-9A-Fa-f]{2})+$'
-                    THEN convert_from(decode(replace(token, '%', ''), 'hex'), 'UTF8')
+                    THEN safe_percent_decode(token)
                     ELSE token END,
                '' ORDER BY ord)
     INTO decoded
@@ -56,6 +78,17 @@ BEGIN
 END;
 $$;
 
+-- Compute the cleaned target for every non-deleted course page once, so the heavy per-character
+-- decode runs a single time per row instead of being recomputed in each of the statements below.
+CREATE TEMP TABLE page_path_cleanup ON COMMIT DROP AS
+SELECT id,
+       course_id,
+       url_path AS old_path,
+       clean_url_path(url_path) AS new_path
+FROM pages
+WHERE deleted_at IS NULL
+  AND course_id IS NOT NULL;
+
 -- Abort if cleaning would collide within the pages unique index
 -- (url_path, exam_id, course_id, deleted_at) NULLS NOT DISTINCT. Among non-deleted course pages
 -- (exam_id is NULL for these), group every page by its cleaned target; any group of more than one
@@ -68,14 +101,9 @@ BEGIN
     SELECT string_agg(line, E'\n' ORDER BY line)
     INTO collisions
     FROM (
-        SELECT format('  course %s: %L (%s pages)', course_id, target, count(*)) AS line
-        FROM (
-            SELECT course_id, clean_url_path(url_path) AS target
-            FROM pages
-            WHERE deleted_at IS NULL
-              AND course_id IS NOT NULL
-        ) mapped
-        GROUP BY course_id, target
+        SELECT format('  course %s: %L (%s pages)', course_id, new_path, count(*)) AS line
+        FROM page_path_cleanup
+        GROUP BY course_id, new_path
         HAVING count(*) > 1
     ) dups;
 
@@ -89,11 +117,9 @@ END $$;
 -- (course_id, old_url_path, deleted_at) NULLS NOT DISTINCT (inserted rows have deleted_at NULL):
 -- revive/repoint a matching active redirect if one already exists.
 INSERT INTO url_redirections (id, destination_page_id, old_url_path, course_id)
-SELECT gen_random_uuid(), p.id, p.url_path, p.course_id
-FROM pages p
-WHERE p.deleted_at IS NULL
-  AND p.course_id IS NOT NULL
-  AND clean_url_path(p.url_path) <> p.url_path
+SELECT gen_random_uuid(), c.id, c.old_path, c.course_id
+FROM page_path_cleanup c
+WHERE c.new_path <> c.old_path
 ON CONFLICT (course_id, old_url_path, deleted_at)
 DO UPDATE SET destination_page_id = EXCLUDED.destination_page_id,
               updated_at = now();
@@ -101,9 +127,10 @@ DO UPDATE SET destination_page_id = EXCLUDED.destination_page_id,
 -- Apply the cleaned paths. Collisions were ruled out above, so this cannot violate the unique
 -- index.
 UPDATE pages p
-SET url_path = clean_url_path(p.url_path)
-WHERE p.deleted_at IS NULL
-  AND p.course_id IS NOT NULL
-  AND clean_url_path(p.url_path) <> p.url_path;
+SET url_path = c.new_path
+FROM page_path_cleanup c
+WHERE p.id = c.id
+  AND c.new_path <> c.old_path;
 
 DROP FUNCTION clean_url_path(text);
+DROP FUNCTION safe_percent_decode(text);

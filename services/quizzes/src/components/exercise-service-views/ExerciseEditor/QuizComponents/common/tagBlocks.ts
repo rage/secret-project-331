@@ -1,31 +1,36 @@
 /**
- * Helper for detecting whether editor text contains a *complete* `[markdown]…[/markdown]`
- * block.
+ * Helpers for detecting the formatting tag pairs (`[markdown]…[/markdown]`,
+ * `[latex]…[/latex]`) that the quiz feedback editor understands.
  *
- * A block counts as complete only when the opening tag is followed (anywhere later in the
- * string, across newlines) by its matching closing tag. This is deliberately stricter than
- * checking that both substrings merely appear: `[/markdown]…[markdown]` (closing before
- * opening) is NOT a complete block.
+ * Both predicates are deliberately *presence* checks: they return true as soon as either the
+ * opening or the closing tag of a pair is present, without requiring a complete, correctly
+ * ordered pair. Two consumers in `ParsedTextField` rely on this:
  *
- * The quiz editor uses this to decide whether a field should be a single-line input (the
- * default) or a multiline textarea (once a markdown block exists, so the author can add line
- * breaks inside it).
+ *  - the multiline decision — the field must already behave like a textarea while the author is
+ *    still *building* a block (after typing `[markdown]` but before `[/markdown]`), otherwise
+ *    Enter is suppressed and the block can never be composed top-down; and
+ *  - the newline-preservation decision — while *editing* an existing block (e.g. retyping the
+ *    closing tag) one tag is transiently incomplete, but the other remains, so newlines must not
+ *    be collapsed.
+ *
+ * Requiring a complete ordered pair (the stricter check this module used to expose) broke both:
+ * it dropped the field back to single-line mid-edit and silently flattened the author's line
+ * breaks. Keeping the two checks as one shared, equally-lenient predicate also avoids the
+ * preview button and the multiline state disagreeing about the same text.
  */
 
-// Non-global regex so `.test()` is stateless (no `lastIndex` carry-over).
-// `[\s\S]*?` lazily spans any characters, including newlines, so an empty block
-// like `[markdown][/markdown]` still matches.
-const MARKDOWN_BLOCK_REGEX = /\[markdown\][\s\S]*?\[\/markdown\]/
+// Non-global regexes so `.test()` is stateless (no `lastIndex` carry-over).
+const MARKDOWN_TAG_REGEX = /\[\/?markdown\]/
+const LATEX_TAG_REGEX = /\[\/?latex\]/
 
-/**
- * Whether `text` contains a complete `[markdown]…[/markdown]` block.
- *
- * Returns `false` for `null`/`undefined`/empty input and for an opening or
- * closing tag on its own.
- */
-export const containsMarkdownBlock = (text: string | null | undefined): boolean => {
-  if (!text) {
-    return false
-  }
-  return MARKDOWN_BLOCK_REGEX.test(text)
-}
+/** Whether `text` contains a `[markdown]` or `[/markdown]` tag. */
+export const containsMarkdownTag = (text: string | null | undefined): boolean =>
+  !!text && MARKDOWN_TAG_REGEX.test(text)
+
+/** Whether `text` contains a `[latex]` or `[/latex]` tag. */
+export const containsLatexTag = (text: string | null | undefined): boolean =>
+  !!text && LATEX_TAG_REGEX.test(text)
+
+/** Whether `text` contains any renderable tag (markdown or latex). */
+export const containsRenderableTag = (text: string | null | undefined): boolean =>
+  containsMarkdownTag(text) || containsLatexTag(text)

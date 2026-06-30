@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { render } from "@testing-library/react"
 
+import { successQuery } from "../../__testHelpers__/queryResultFixtures"
 import CourseVisitorsByCountry from "../CourseVisitorsByCountry"
 
 /**
@@ -45,16 +46,6 @@ jest.mock("react-i18next", () => ({
 }))
 
 const mockedUseQuery = useQuery as jest.Mock
-
-type CountryRow = { country: string | null; num_visitors: number; visit_date: string }
-
-const successQuery = (data: CountryRow[]) => ({
-  data,
-  error: null,
-  isError: false,
-  isFetching: false,
-  isPending: false,
-})
 
 beforeEach(() => {
   mockEchartsOptions.mockClear()

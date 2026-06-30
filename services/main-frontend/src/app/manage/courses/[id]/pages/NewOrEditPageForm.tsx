@@ -13,7 +13,7 @@ import type { CreatePageData, Page } from "@/generated/api/types.generated"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { normalizePath } from "@/utils/normalizePath"
+import { cleanUrlPath, normalizePath } from "@/utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
   display: flex;
@@ -180,10 +180,12 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
                   setPath(value)
                 }}
                 onBlur={() => {
-                  // Manually entered paths must follow the same slug rules as the
-                  // title-generated ones, so a typed/pasted space or colon can't end up in
-                  // the URL. Normalized on blur so typing hyphens mid-edit still works.
-                  setPath((current) => normalizePath(current))
+                  // Strip characters the backend would reject from a manually entered path (a
+                  // typed/pasted space or colon), the same way it is normalized for storage.
+                  // Unlike the title slug this preserves case, non-ASCII characters and the '/'
+                  // separators, so blurring an already-valid path is a no-op rather than a silent
+                  // rename. Normalized on blur so typing hyphens mid-edit still works.
+                  setPath((current) => cleanUrlPath(current))
                 }}
               />
             </PathFieldWithPrefixElement>

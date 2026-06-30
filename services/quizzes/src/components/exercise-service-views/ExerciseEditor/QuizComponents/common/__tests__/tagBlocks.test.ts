@@ -1,100 +1,75 @@
-import { containsMarkdownBlock } from "../tagBlocks"
+import { containsLatexTag, containsMarkdownTag, containsRenderableTag } from "../tagBlocks"
 
-describe("containsMarkdownBlock", () => {
-  describe("empty / nullish input", () => {
-    it.each([
-      ["null", null],
-      ["undefined", undefined],
-      ["empty string", ""],
-    ])("returns false for %s", (_label, input) => {
-      expect(containsMarkdownBlock(input)).toBe(false)
-    })
-
-    it("returns false for plain text without any tags", () => {
-      expect(containsMarkdownBlock("just some feedback text")).toBe(false)
-    })
+describe("containsMarkdownTag", () => {
+  it.each([
+    ["null", null],
+    ["undefined", undefined],
+    ["empty string", ""],
+  ])("returns false for %s", (_label, input) => {
+    expect(containsMarkdownTag(input)).toBe(false)
   })
 
-  describe("complete blocks", () => {
-    it("returns true for a basic block with content", () => {
-      expect(containsMarkdownBlock("[markdown]**bold**[/markdown]")).toBe(true)
-    })
-
-    it("returns true for an empty block (the [markdown][/markdown] case)", () => {
-      expect(containsMarkdownBlock("[markdown][/markdown]")).toBe(true)
-    })
-
-    it("returns true when the block is surrounded by other text", () => {
-      expect(containsMarkdownBlock("intro [markdown]x[/markdown] outro")).toBe(true)
-    })
-
-    it("returns true when the block spans multiple lines", () => {
-      expect(containsMarkdownBlock("[markdown]line one\n\nline two[/markdown]")).toBe(true)
-    })
-
-    it("returns true when there are multiple blocks", () => {
-      expect(containsMarkdownBlock("[markdown]a[/markdown] and [markdown]b[/markdown]")).toBe(true)
-    })
-
-    it("returns true for nested / overlapping markdown tags (a complete pair still exists)", () => {
-      expect(containsMarkdownBlock("[markdown][markdown]x[/markdown][/markdown]")).toBe(true)
-      expect(containsMarkdownBlock("[markdown]a[markdown]b[/markdown]")).toBe(true)
-    })
-
-    it("returns true for a valid pair that follows a stray closing tag", () => {
-      expect(containsMarkdownBlock("[/markdown][markdown][/markdown]")).toBe(true)
-    })
+  it("returns false for plain text without any tags", () => {
+    expect(containsMarkdownTag("just some feedback text")).toBe(false)
   })
 
-  describe("incomplete or malformed blocks", () => {
-    it("returns false for an opening tag with no closing tag", () => {
-      expect(containsMarkdownBlock("[markdown]unfinished")).toBe(false)
-    })
-
-    it("returns false for a closing tag with no opening tag", () => {
-      expect(containsMarkdownBlock("orphaned[/markdown]")).toBe(false)
-    })
-
-    it("returns false when the closing tag appears before the opening tag", () => {
-      expect(containsMarkdownBlock("[/markdown][markdown]")).toBe(false)
-      expect(containsMarkdownBlock("foo [/markdown] bar [markdown] baz")).toBe(false)
-    })
-
-    it("returns false when the closing tag is missing its bracket", () => {
-      expect(containsMarkdownBlock("[markdown]foo[/markdown")).toBe(false)
-    })
-
-    it("returns false when the opening tag is missing its bracket", () => {
-      expect(containsMarkdownBlock("[markdown foo[/markdown]")).toBe(false)
-    })
-
-    it("returns false for tags with extra inner whitespace (exact match required)", () => {
-      expect(containsMarkdownBlock("[ markdown ]x[/ markdown ]")).toBe(false)
-    })
-
-    it("returns false for uppercase tags (matching is case-sensitive)", () => {
-      expect(containsMarkdownBlock("[MARKDOWN]x[/MARKDOWN]")).toBe(false)
-    })
+  it("returns true for a complete block", () => {
+    expect(containsMarkdownTag("[markdown]**bold**[/markdown]")).toBe(true)
   })
 
-  describe("does not confuse markdown with latex", () => {
-    it("returns false for a latex-only block", () => {
-      expect(containsMarkdownBlock("[latex]x^2[/latex]")).toBe(false)
-    })
-
-    it("returns false when a markdown opening is closed by a latex closing tag", () => {
-      expect(containsMarkdownBlock("[markdown]x[/latex]")).toBe(false)
-    })
-
-    it("returns true for the markdown block in mixed latex + markdown text", () => {
-      expect(containsMarkdownBlock("[latex]x^2[/latex] and [markdown]**b**[/markdown]")).toBe(true)
-    })
+  it("returns true for an opening tag on its own (block being composed)", () => {
+    expect(containsMarkdownTag("[markdown]unfinished")).toBe(true)
   })
 
-  it("is stateless across repeated calls on the same input", () => {
+  it("returns true for a closing tag on its own (opening tag mid-edit)", () => {
+    expect(containsMarkdownTag("orphaned[/markdown]")).toBe(true)
+  })
+
+  it("returns true regardless of tag order", () => {
+    expect(containsMarkdownTag("[/markdown][markdown]")).toBe(true)
+  })
+
+  it("returns false while the tag is missing its closing bracket", () => {
+    expect(containsMarkdownTag("[markdown")).toBe(false)
+  })
+
+  it("returns false for latex-only content", () => {
+    expect(containsMarkdownTag("[latex]x^2[/latex]")).toBe(false)
+  })
+
+  it("is case-sensitive", () => {
+    expect(containsMarkdownTag("[MARKDOWN]x[/MARKDOWN]")).toBe(false)
+  })
+
+  it("is stateless across repeated calls", () => {
     const input = "[markdown]x[/markdown]"
-    expect(containsMarkdownBlock(input)).toBe(true)
-    expect(containsMarkdownBlock(input)).toBe(true)
-    expect(containsMarkdownBlock(input)).toBe(true)
+    expect(containsMarkdownTag(input)).toBe(true)
+    expect(containsMarkdownTag(input)).toBe(true)
+    expect(containsMarkdownTag(input)).toBe(true)
+  })
+})
+
+describe("containsLatexTag", () => {
+  it("returns false for plain text and markdown-only content", () => {
+    expect(containsLatexTag("plain")).toBe(false)
+    expect(containsLatexTag("[markdown]x[/markdown]")).toBe(false)
+  })
+
+  it("returns true for opening, closing, or complete latex tags", () => {
+    expect(containsLatexTag("[latex]x^2[/latex]")).toBe(true)
+    expect(containsLatexTag("[latex]unfinished")).toBe(true)
+    expect(containsLatexTag("orphaned[/latex]")).toBe(true)
+  })
+})
+
+describe("containsRenderableTag", () => {
+  it("returns false for plain text", () => {
+    expect(containsRenderableTag("just some feedback text")).toBe(false)
+  })
+
+  it("returns true for either a markdown or a latex tag", () => {
+    expect(containsRenderableTag("[markdown]x[/markdown]")).toBe(true)
+    expect(containsRenderableTag("[latex]x^2[/latex]")).toBe(true)
+    expect(containsRenderableTag("[markdown]a[/markdown] [latex]b[/latex]")).toBe(true)
   })
 })

@@ -94,7 +94,7 @@ const ClosedEndedQuestionFeedback: React.FC<
       >
         {item_feedback && item_feedback.trim() !== "" && (
           <div className={cx(correct ? correctAnswer : incorrectAnswer)}>
-            <ParsedText inline parseLatex parseMarkdown text={item_feedback} />
+            <ParsedText inline blockContainer parseLatex parseMarkdown text={item_feedback} />
           </div>
         )}
       </div>

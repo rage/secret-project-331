@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { render } from "@testing-library/react"
 
+import { successQuery } from "../../__testHelpers__/queryResultFixtures"
 import CourseSubmissionsByDay from "../CourseSubmissionsByDay"
 
 /**
@@ -42,16 +43,6 @@ jest.mock("react-i18next", () => ({
 }))
 
 const mockedUseQuery = useQuery as jest.Mock
-
-type SubmissionCount = { date: string; count: number }
-
-const successQuery = (data: SubmissionCount[]) => ({
-  data,
-  error: null,
-  isError: false,
-  isFetching: false,
-  isPending: false,
-})
 
 beforeEach(() => {
   mockEchartsOptions.mockClear()

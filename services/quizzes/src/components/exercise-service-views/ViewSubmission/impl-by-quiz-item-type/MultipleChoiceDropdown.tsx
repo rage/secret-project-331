@@ -256,7 +256,7 @@ const SubmissionFeedbackMessage: React.FC<
           padding: 0.5rem 0px 0.5rem 0.5rem;
         `}
       >
-        <ParsedText inline parseLatex parseMarkdown text={feedBackForOption} />
+        <ParsedText inline blockContainer parseLatex parseMarkdown text={feedBackForOption} />
       </div>
     ) : null
   })

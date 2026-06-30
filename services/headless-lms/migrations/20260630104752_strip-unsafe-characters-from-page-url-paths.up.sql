@@ -4,8 +4,9 @@
 --
 -- Background: slugs auto-generated from a page title already strip these characters, but a path
 -- could still acquire them (manual path edits, imports), and `normalize_url_path_for_storage`
--- only percent-ENCODES unsafe ASCII (%20, %3A) rather than removing it, so the characters
--- persisted and surfaced in URLs.
+-- used to only percent-ENCODE unsafe ASCII (%20, %3A) rather than remove it, so the characters
+-- persisted and surfaced in URLs. That normalizer now strips them on every save, so this is a
+-- one-time cleanup of the paths written before that change.
 --
 -- For every course page whose path changes we insert a `url_redirections` row (old path -> page)
 -- so existing links keep resolving — the same thing `update_page_details` does on a manual rename.

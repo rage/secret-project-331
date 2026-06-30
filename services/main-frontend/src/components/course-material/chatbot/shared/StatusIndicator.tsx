@@ -12,20 +12,14 @@ import {
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
 } from "@/generated/course-material-api/zod.generated"
-import Accordion from "@/shared-module/common/components/Accordion"
 import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
-const style = css`
+const textStyle = css`
   padding: 0.5rem;
-  border-radius: 10px;
-  width: fit-content;
-  max-width: stretch;
   color: rgb(0 0 0 / 70%);
-  overflow-wrap: break-word;
   margin: 0.5rem 0 0.1rem 0;
-  margin-right: 2rem;
-  align-self: flex-start;
+  overflow: visible;
 `
 
 const detailsStyle = css`
@@ -35,21 +29,27 @@ const detailsStyle = css`
   details > summary::-webkit-details-marker {
     display: none;
   }
-  details[open] > summary::marker {
-    transform: rotate(180deg);
-  }
   details > summary {
     cursor: pointer;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: baseline;
   }
-
   color: rgb(0 0 0 / 70%);
-
   border-radius: 10px;
   padding: 0.25rem;
   width: fit-content;
   max-width: stretch;
   border: 2px dashed ${baseTheme.colors.blue[200]};
   background-color: ${baseTheme.colors.blue[50]};
+`
+
+const iconStyle = (open: boolean) => css`
+  transform: scale(0.8) ${open ? " rotate(180deg)" : ""};
+  transition: transform 0.2s ease;
+  flex: 1;
+  margin: 0 1rem 0 1.5rem;
 `
 
 // controlled
@@ -68,7 +68,8 @@ type StatusIndicatorProps = ReasoningStatusProps
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
-  let statusText: string
+
+  let summaryText: string
   let inProgressItems = messages.filter((m) => {
     return !m.finished
   })
@@ -76,14 +77,14 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
   let collapse = messages.length > 2
 
   if (!finished) {
-    statusText = ""
+    summaryText = ""
     inProgressItems.forEach((m, idx) => {
       if (idx !== 0) {
-        statusText += ", "
+        summaryText += ", "
       }
       let res1 = zChatbotConversationMessageReasoning.safeParse(m.message.message)
       if (res1.success) {
-        statusText += t("chatbot-status-thinking")
+        summaryText += t("chatbot-status-thinking")
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
@@ -91,60 +92,73 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
           res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
             ? ""
             : ` ${res2.data.tool_arguments}`
-        statusText += `${t("chatbot-status-using-tool")} "${res2.data.tool_name.replaceAll("_", " ")}"${tool_arguments}`
+        summaryText += `${t("chatbot-status-using-tool")} "${res2.data.tool_name.replaceAll("_", " ")}"${tool_arguments}`
       }
     })
     return (
-      <span className={style}>
-        {statusText} {<ThinkingIndicator />}
+      <span className={detailsStyle}>
+        {summaryText} {<ThinkingIndicator />}
       </span>
     )
   } else {
-    statusText = ""
-    // eslint-disable-next-line i18next/no-literal-string
-    let fullText = ["Thought of an answer", "Used tool 'bogus'"] // if shoould collapse, this is the content
+    summaryText = ""
+    let expandableText: string[] = []
     messages.forEach((m, idx) => {
-      if (idx !== 0) {
-        statusText += ", "
-      }
       let res1 = zChatbotConversationMessageReasoning.safeParse(m.message.message)
       if (res1.success) {
-        statusText += t("chatbot-status-thinking-finished")
+        expandableText.push(t("chatbot-status-thinking-finished"))
+        if (idx === 0) {
+          summaryText += t("chatbot-status-thinking-finished")
+        }
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
-        const tool_arguments =
+        const toolArguments =
           res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
             ? ""
             : ` ${res2.data.tool_arguments}`
-        statusText += `${t("chatbot-status-using-tool-finished")} "${res2.data.tool_name.replaceAll("_", " ")}"${tool_arguments}`
+        if (res2.data.tool_name === "course material search") {
+          expandableText.push(
+            t("chatbot-status-course-material-search-finished", { query: toolArguments }),
+          )
+          if (idx === 0) {
+            summaryText += t("chatbot-status-course-material-search")
+          }
+        } else {
+          expandableText.push(
+            `${t("chatbot-status-using-tool-finished")} "${res2.data.tool_name.replaceAll("_", " ")}" ${toolArguments}`,
+          )
+          if (idx === 0) {
+            summaryText += t("chatbot-status-used-tools")
+          }
+        }
       }
     })
+    summaryText += t("chatbot-status-other-actions", { n: messages.length - 1 })
+
+    if (!collapse) {
+      return (
+        <div className={detailsStyle}>
+          <span className={textStyle}>{expandableText.join(", ")}</span>
+        </div>
+      )
+    }
     return (
       <div className={detailsStyle}>
-        <details>
+        <details open={false} onToggle={() => setIsOpen(!isOpen)}>
           <summary>
-            <span className={style}>{statusText}</span>
-            <DownIcon />
+            <span className={textStyle}>{summaryText}</span>
+            {collapse && <DownIcon className={iconStyle(isOpen)} />}
           </summary>
-          <span>{fullText}</span>
+          <ul>
+            {expandableText.map((item, idx) => (
+              <li key={idx}>{item}</li>
+            ))}
+          </ul>
         </details>
       </div>
     )
   }
 }
-
-/* if (messageType === "Reasoning") {
-    statusText = finished ? t("chatbot-status-thinking-finished") : t("chatbot-status-thinking")
-  } else {
-    const tool_arguments =
-      message.tool_arguments.replaceAll(/[{}]/g, "").length === 0
-        ? ""
-        : ` ${message.tool_arguments}`
-    const tool_text = finished
-      ? t("chatbot-status-using-tool-finished")
-      : t("chatbot-status-using-tool")
-    statusText = `${tool_text} "${message.tool_name.replaceAll("_", " ")}"${tool_arguments}`
-  } */
 
 export default StatusIndicator

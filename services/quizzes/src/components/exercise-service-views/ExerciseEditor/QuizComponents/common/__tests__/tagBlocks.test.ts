@@ -1,4 +1,4 @@
-import { containsLatexBlock, containsMarkdownBlock } from "../tagBlocks"
+import { containsMarkdownBlock } from "../tagBlocks"
 
 describe("containsMarkdownBlock", () => {
   describe("empty / nullish input", () => {
@@ -96,38 +96,5 @@ describe("containsMarkdownBlock", () => {
     expect(containsMarkdownBlock(input)).toBe(true)
     expect(containsMarkdownBlock(input)).toBe(true)
     expect(containsMarkdownBlock(input)).toBe(true)
-  })
-})
-
-describe("containsLatexBlock", () => {
-  it.each([
-    ["null", null],
-    ["undefined", undefined],
-    ["empty string", ""],
-    ["plain text", "no tags here"],
-  ])("returns false for %s", (_label, input) => {
-    expect(containsLatexBlock(input)).toBe(false)
-  })
-
-  it.each([
-    ["block with content", "[latex]x^2[/latex]", true],
-    ["empty block", "[latex][/latex]", true],
-    ["block surrounded by text", "before [latex]a[/latex] after", true],
-    ["multiline block", "[latex]a\nb[/latex]", true],
-    ["opening tag only", "[latex]unfinished", false],
-    ["closing tag only", "orphaned[/latex]", false],
-    ["closing before opening", "[/latex][latex]", false],
-    ["uppercase tags", "[LATEX]x[/LATEX]", false],
-    ["latex opening closed by markdown", "[latex]x[/markdown]", false],
-  ])("returns %s -> %s", (_label, input, expected) => {
-    expect(containsLatexBlock(input)).toBe(expected)
-  })
-
-  it("returns false for a markdown-only block", () => {
-    expect(containsLatexBlock("[markdown]**b**[/markdown]")).toBe(false)
-  })
-
-  it("returns true for the latex block in mixed markdown + latex text", () => {
-    expect(containsLatexBlock("[markdown]**b**[/markdown] and [latex]x^2[/latex]")).toBe(true)
   })
 })

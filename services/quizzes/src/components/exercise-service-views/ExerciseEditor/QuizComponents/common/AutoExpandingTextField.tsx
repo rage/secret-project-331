@@ -79,8 +79,12 @@ const resizeToContent = (textarea: HTMLTextAreaElement | null) => {
   // Reset first so the field can shrink as well as grow, then size to the content.
   // eslint-disable-next-line i18next/no-literal-string
   textarea.style.height = "auto"
+  // scrollHeight is content + padding only; under the global box-sizing: border-box the
+  // element height also has to cover the 2px top/bottom borders, so add a small allowance.
+  // Without it the bottom of the last line is clipped (overflow is hidden). Matches the +5
+  // used by the shared TextAreaField.
   // eslint-disable-next-line i18next/no-literal-string
-  textarea.style.height = `${textarea.scrollHeight}px`
+  textarea.style.height = `${textarea.scrollHeight + 5}px`
 }
 
 const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
@@ -133,7 +137,9 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // While collapsed, behave like a single-line input: Enter must not insert a newline.
-    if (!multiline && event.key === "Enter") {
+    // Never intercept the Enter that confirms an in-progress IME composition (a native input
+    // doesn't), or CJK/etc. input would lose its commit keystroke.
+    if (!multiline && event.key === "Enter" && !event.nativeEvent.isComposing) {
       event.preventDefault()
     }
     onKeyDown?.(event)
@@ -150,6 +156,7 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
       <label>
         <Label>{label}</Label>
         <StyledTextArea
+          {...rest}
           ref={textareaRef}
           whiteSpace={whiteSpace}
           rows={1}
@@ -157,7 +164,6 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
           value={value}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          {...rest}
         />
       </label>
     </Wrapper>

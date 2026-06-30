@@ -9,7 +9,7 @@ import ParsedText from "../../../../ParsedText"
 
 import AutoExpandingTextField from "./AutoExpandingTextField"
 import { toSingleLine } from "./singleLine"
-import { containsLatexBlock, containsMarkdownBlock } from "./tagBlocks"
+import { containsMarkdownBlock } from "./tagBlocks"
 
 import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
@@ -71,23 +71,28 @@ interface ParsedTextFieldProps {
 
 const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChange }) => {
   const [preview, setPreview] = useState(false)
-  const [text, setText] = useState(value ?? "")
   const messagePort = useContext(MessagePortContext)
 
   const { t } = useTranslation()
 
-  const containsMarkdown = useMemo(() => containsMarkdownBlock(text), [text])
+  // Derived straight from the value prop (not a second state copy) so it can never go stale
+  // when the parent resets the value — e.g. clearing the "add option" field would otherwise
+  // leave the emptied field stuck in multiline mode.
+  const text = value ?? ""
 
-  const containsLatex = useMemo(() => containsLatexBlock(text), [text])
+  // Single line by default; only a complete [markdown] block needs the room for line breaks,
+  // so it is what promotes the field to a multiline textarea.
+  const multiline = useMemo(() => containsMarkdownBlock(text), [text])
 
+  // The preview toggle appears for any markdown or latex tag pair. Kept as an order-insensitive
+  // substring check (matching the original behaviour) so existing content does not silently
+  // lose its preview button.
   const hasTags = useMemo(
-    () => containsMarkdown || containsLatex,
-    [containsMarkdown, containsLatex],
+    () =>
+      (text.includes("[markdown]") && text.includes("[/markdown]")) ||
+      (text.includes("[latex]") && text.includes("[/latex]")),
+    [text],
   )
-
-  // Single line by default; only a markdown block needs the room for line
-  // breaks, so it promotes the field to a multiline textarea.
-  const multiline = containsMarkdown
 
   const PreviewButton = (
     <>
@@ -99,12 +104,10 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
   )
 
   const handleOnChange = (rawValue: string) => {
-    // While collapsed (no markdown block), keep the value single-line so the field stays
-    // input-like; once a markdown block is present, preserve line breaks for the multiline
-    // editing that the block enables.
+    // Enforce the invariant that the value can only contain line breaks when a complete
+    // [markdown] block is present: collapse newlines to spaces otherwise.
     const next = containsMarkdownBlock(rawValue) ? rawValue : toSingleLine(rawValue)
     onChange(next)
-    setText(next)
   }
 
   return (

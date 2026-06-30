@@ -6,7 +6,7 @@ use headless_lms_utils::document_schema_processor::{
     replace_duplicate_client_ids,
 };
 use itertools::Itertools;
-use percent_encoding::{AsciiSet, CONTROLS, percent_decode_str, utf8_percent_encode};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde_json::{Value, json};
 use sqlx::{AssertSqlSafe, Postgres, QueryBuilder, Row};
 use url::Url;
@@ -150,14 +150,48 @@ const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'|')
     .add(b'}');
 
-/// Canonical storage/lookup form: percent-decode, then per `/`-segment turn whitespace into `-`,
+/// Decode each maximal run of `%XX` escapes as one UTF-8 unit, dropping a run that isn't valid
+/// UTF-8 (rather than emitting U+FFFD). Non-escape characters pass through. Mirrors the migration's
+/// `safe_percent_decode`, so storage and lookup agree on inputs like `/%FF`.
+fn decode_percent_runs(input: &str) -> String {
+    let chars: Vec<char> = input.chars().collect();
+    let mut out = String::with_capacity(input.len());
+    let mut i = 0;
+    while i < chars.len() {
+        if percent_escape_byte_at(&chars, i).is_some() {
+            let mut bytes = Vec::new();
+            while let Some(byte) = percent_escape_byte_at(&chars, i) {
+                bytes.push(byte);
+                i += 3;
+            }
+            if let Ok(decoded) = std::str::from_utf8(&bytes) {
+                out.push_str(decoded);
+            }
+        } else {
+            out.push(chars[i]);
+            i += 1;
+        }
+    }
+    out
+}
+
+/// The byte a `%XX` escape at `chars[i]` decodes to, or `None` if there isn't one there.
+fn percent_escape_byte_at(chars: &[char], i: usize) -> Option<u8> {
+    if chars.get(i) != Some(&'%') {
+        return None;
+    }
+    let hi = chars.get(i + 1)?.to_digit(16)?;
+    let lo = chars.get(i + 2)?.to_digit(16)?;
+    Some((hi * 16 + lo) as u8)
+}
+
+/// Canonical storage/lookup form: decode `%xx`, then per `/`-segment turn whitespace into `-`,
 /// strip the unsafe ASCII in `URL_PATH_ENCODE_SET`, and collapse/trim dashes. Case, non-ASCII and
 /// `/`, `-`, `.`, `_`, `~` are kept. Unsafe chars are removed, not `%xx`-encoded, so every save
 /// funnels through here and paths can't re-accumulate escapes. Mirrors `clean_url_path` (page
 /// migration) and the frontend `cleanUrlPath`; keep the three in agreement.
 fn normalize_url_path_for_storage(url_path: &str) -> String {
-    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
-    decoded
+    decode_percent_runs(url_path)
         .split('/')
         .map(clean_url_path_segment)
         .collect::<Vec<_>>()
@@ -200,7 +234,7 @@ fn clean_url_path_segment(segment: &str) -> String {
 /// before paths were stored stripped. Lets pages written that way (notably exam pages, which the
 /// cleanup migration skips) still resolve.
 fn legacy_partially_encoded_url_path(url_path: &str) -> String {
-    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
+    let decoded = decode_percent_runs(url_path);
     let trimmed = decoded.trim();
     let mut normalized = String::with_capacity(trimmed.len());
     let mut buf = [0u8; 4];
@@ -221,7 +255,7 @@ fn legacy_partially_encoded_url_path(url_path: &str) -> String {
 /// Legacy lookup candidate: the oldest form, with non-ASCII percent-encoded too. Lets pages stored
 /// that way still resolve.
 fn legacy_fully_encoded_url_path(url_path: &str) -> String {
-    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
+    let decoded = decode_percent_runs(url_path);
     utf8_percent_encode(decoded.trim(), URL_PATH_ENCODE_SET).to_string()
 }
 
@@ -4454,6 +4488,14 @@ mod test {
             normalize_url_path_for_storage("/chapter 1/як"),
             "/chapter-1/як"
         );
+    }
+
+    #[test]
+    fn drops_invalid_percent_escape_runs_like_the_migration() {
+        // A `%xx` run that isn't valid UTF-8 is dropped whole (matching safe_percent_decode), not
+        // turned into U+FFFD, so storage and lookup stay aligned.
+        assert_eq!(normalize_url_path_for_storage("/%FF"), "/");
+        assert_eq!(normalize_url_path_for_storage("/%41%FF"), "/");
     }
 
     #[test]

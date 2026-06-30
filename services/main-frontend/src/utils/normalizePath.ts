@@ -18,15 +18,16 @@ export const normalizePath = (str: string): string => {
  * Non-destructive for an already-clean path, so blurring it won't rename an existing page.
  */
 export const cleanUrlPath = (path: string): string => {
-  let decoded = path
-  try {
-    // A pasted path may be percent-encoded; decode it like the backend does.
-    decoded = decodeURIComponent(path)
-  } catch {
-    // Leave malformed percent sequences as-is.
-  }
-  // URL_PATH_ENCODE_SET: strips unsafe punctuation/control chars; keeps alphanumerics, '/', '-',
-  // '.', '_', '~' and non-ASCII.
+  // Decode each maximal run of %XX escapes as one unit, dropping a run that isn't valid UTF-8
+  // (instead of failing the whole string). Matches decode_percent_runs in pages.rs.
+  const decoded = path.replace(/(?:%[0-9A-Fa-f]{2})+/g, (run) => {
+    try {
+      return decodeURIComponent(run)
+    } catch {
+      return ""
+    }
+  })
+  // Strip unsafe ASCII (URL_PATH_ENCODE_SET); keep alphanumerics, '/', '-', '.', '_', '~', non-ASCII.
   // eslint-disable-next-line no-control-regex
   const unsafeAscii = /[\x00-\x2C\x3A-\x40\x5B-\x5E\x60\x7B-\x7D\x7F]/g
   return decoded

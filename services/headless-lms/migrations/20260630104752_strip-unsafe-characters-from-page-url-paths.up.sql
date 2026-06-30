@@ -1,21 +1,15 @@
--- Strip unsafe characters (spaces, colons, and the other URL_PATH_ENCODE_SET punctuation) from
--- course page URL paths, e.g. "/chapter-2/summary%3A-planetary-boundaries" becomes
--- "/chapter-2/summary-planetary-boundaries".
+-- One-time cleanup: strip unsafe characters (spaces, colons, other URL_PATH_ENCODE_SET
+-- punctuation) from course page URL paths, e.g. "/summary%3A-x" -> "/summary-x". These persisted
+-- because normalize_url_path_for_storage used to percent-encode them rather than strip them.
 --
--- One-time cleanup of paths written before `normalize_url_path_for_storage` started stripping
--- these characters (it used to percent-encode them, so %20/%3A persisted in URLs).
+-- Each changed page gets a url_redirections row (old path -> page) so old links keep resolving.
+-- Case and non-ASCII are preserved. Only non-deleted course pages are touched: exam pages
+-- (course_id IS NULL) have no redirect mechanism, so renaming them would break links.
 --
--- For every changed page we insert a `url_redirections` row (old path -> page) so existing links
--- keep resolving, as `update_page_details` does on a rename. Case and non-ASCII (e.g. Cyrillic)
--- are preserved. Only non-deleted course pages are touched: exam pages (course_id IS NULL) have no
--- redirect mechanism, so renaming them would break links.
---
--- If two pages in a course would clean to the same path the migration ABORTS listing them;
--- resolve the duplicates and re-run. Idempotent once paths are clean.
+-- Aborts (listing them) if two pages in a course would clean to the same path. Idempotent.
 
--- Decode a run of %XX escapes to UTF-8, tolerating invalid input: a non-UTF-8 percent run (e.g. a
--- lone %80) would otherwise abort the whole migration. Drop the undecodable run — it's unsafe junk
--- being cleaned anyway.
+-- Decode a run of %XX escapes to UTF-8; drop the run if it isn't valid UTF-8 (a lone %80 would
+-- otherwise abort the migration). It's unsafe junk being cleaned anyway.
 CREATE FUNCTION safe_percent_decode(token text) RETURNS text
     LANGUAGE plpgsql
     IMMUTABLE
@@ -29,10 +23,9 @@ EXCEPTION
 END;
 $$;
 
--- Decode %XX runs to UTF-8, then strip the unsafe ASCII set, turn whitespace into '-', and
--- collapse/trim dashes per segment. Keeps case, non-ASCII, and '/', '-', '.', '_', '~'.
--- The stripped set is the SQL spelling of URL_PATH_ENCODE_SET (pages.rs) and the frontend
--- cleanUrlPath; keep the three in agreement.
+-- Decode %XX runs, strip the unsafe ASCII set, turn whitespace into '-', collapse/trim dashes.
+-- Keeps case, non-ASCII, and '/', '-', '.', '_', '~'. The stripped set is the SQL spelling of
+-- URL_PATH_ENCODE_SET (pages.rs) and the frontend cleanUrlPath; keep the three in agreement.
 CREATE FUNCTION clean_url_path(input text) RETURNS text
     LANGUAGE plpgsql
     IMMUTABLE
@@ -65,8 +58,7 @@ BEGIN
 END;
 $$;
 
--- Compute each page's cleaned path once so the per-character decode doesn't re-run in every
--- statement below.
+-- Compute each cleaned path once so the decode doesn't re-run in every statement below.
 CREATE TEMP TABLE page_path_cleanup ON COMMIT DROP AS
 SELECT id,
        course_id,
@@ -76,8 +68,8 @@ FROM pages
 WHERE deleted_at IS NULL
   AND course_id IS NOT NULL;
 
--- Abort if cleaning would collide within the pages unique index (url_path, exam_id, course_id,
--- deleted_at): group by cleaned target, any group of more than one row is a collision.
+-- Abort if cleaning would collide within a course (url_path is part of the pages unique index):
+-- any cleaned target shared by more than one page is a collision.
 DO $$
 DECLARE
     collisions text;
@@ -96,8 +88,8 @@ BEGIN
     END IF;
 END $$;
 
--- Redirect old path -> page for every changed path so existing links keep resolving. Upsert on
--- (course_id, old_url_path, deleted_at): revive/repoint an existing active redirect.
+-- Redirect old path -> page for every changed path. Upsert on (course_id, old_url_path,
+-- deleted_at) to revive/repoint an existing redirect.
 INSERT INTO url_redirections (id, destination_page_id, old_url_path, course_id)
 SELECT gen_random_uuid(), c.id, c.old_path, c.course_id
 FROM page_path_cleanup c

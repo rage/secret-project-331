@@ -86,6 +86,10 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
   // Preview toggle shows for any markdown or latex tag.
   const hasTags = useMemo(() => containsRenderableTag(text), [text])
 
+  // Only preview while tags are present: the toggle is hidden without them, so a stale preview=true
+  // (e.g. after the parent clears the value) would otherwise strand the field in the preview branch.
+  const showPreview = preview && hasTags
+
   const PreviewButton = (
     <>
       <StyledButton variant="icon" size="small" onClick={() => setPreview(!preview)}>
@@ -106,7 +110,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
     <TextfieldContainer>
       <TextfieldWrapper>
         <Grow>
-          {preview ? (
+          {showPreview ? (
             <ParsedTextContainer>
               <ParsedText text={value} parseMarkdown parseLatex inline />
             </ParsedTextContainer>

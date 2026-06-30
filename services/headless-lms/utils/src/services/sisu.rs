@@ -50,6 +50,9 @@ pub struct Additional {
     pub sv: Option<String>,
 }
 
+static STRIP_HTML_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"<[^>]*>").expect("invalid regex"));
+
 impl Additional {
     pub fn choose_language(&self, language_code: &String) -> Option<String> {
         let mut vec = self.as_vec();
@@ -68,14 +71,13 @@ impl Additional {
             }
             Ordering::Equal
         });
-        let strip_html_regex: LazyLock<Regex> =
-            LazyLock::new(|| Regex::new(r"<[^>]*>").expect("invalid regex"));
+
         let max_length = vec
             .iter()
             .map(|n| {
                 let value = &n.1;
                 if let Some(value) = value {
-                    let cleaned = strip_html_regex.replace_all(value, "");
+                    let cleaned = STRIP_HTML_REGEX.replace_all(value, "");
                     cleaned.len()
                 } else {
                     0
@@ -87,7 +89,7 @@ impl Additional {
         let best = vec.iter().find(|o| {
             let text = &o.1;
             if let Some(text) = text {
-                let cleaned = strip_html_regex.replace_all(text, "");
+                let cleaned = STRIP_HTML_REGEX.replace_all(text, "");
                 let len = cleaned.len();
                 if len < max_length / 2 {
                     return false;

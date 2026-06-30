@@ -238,7 +238,7 @@ impl ModuleBuilder {
         self
     }
     pub fn uh_course_code(mut self, c: String) -> Self {
-        self.uh_course_code = if c.is_empty() { None } else { Some(c) };
+        self.uh_course_code = Some(c);
         self
     }
     pub fn register_to_open_university(mut self, v: bool) -> Self {

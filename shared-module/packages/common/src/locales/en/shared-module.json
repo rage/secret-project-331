@@ -92,6 +92,10 @@
       "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
       "title": "Could not generate description"
     },
+    "sisu_resource_not_found": {
+      "message": "Unable to find resources from Sisu.",
+      "title": "Resources not found"
+    },
     "not_found": {
       "message": "The requested resource could not be found.",
       "title": "Not found"

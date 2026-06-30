@@ -214,7 +214,7 @@ impl SisuClient {
                 }
             } else if response.status() == 404 {
                 return Err(util_err!(
-                    SisuClientError(SisuErrorVariant::GenericSisuError),
+                    SisuClientError(SisuErrorVariant::SisuResourceNotFound),
                     "Course ids not found".to_string()
                 ));
             } else {
@@ -263,7 +263,7 @@ impl SisuClient {
                     data_vec.push(json);
                 } else if response.status() == 404 {
                     return Err(util_err!(
-                        SisuClientError(SisuErrorVariant::GenericSisuError),
+                        SisuClientError(SisuErrorVariant::SisuResourceNotFound),
                         "Course info not found".to_string()
                     ));
                 } else {
@@ -274,7 +274,7 @@ impl SisuClient {
                 }
             } else {
                 return Err(util_err!(
-                    SisuClientError(SisuErrorVariant::GenericSisuError),
+                    SisuClientError(SisuErrorVariant::SisuResourceNotFound),
                     "No courses found with course id".to_string()
                 ));
             }

@@ -11,22 +11,21 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 export interface ChartBlockAttributes {
   spec: string
   caption: string
+  /** Chart height in pixels; width is responsive. */
+  height: number
 }
+
+export const DEFAULT_CHART_HEIGHT = 300
+
+// Served from main-frontend's public/ at the site root, so both the cms editor and the
+// course-material renderer can load it by this URL.
+export const EXAMPLE_DATA_URL = "/chart-block-example-data.json"
 
 export const DEFAULT_VEGA_LITE_SPEC = JSON.stringify(
   {
-    $schema: "https://vega.github.io/schema/vega-lite/v5.json",
+    $schema: "https://vega.github.io/schema/vega-lite/v6.json",
     description: "A simple bar chart",
-    data: {
-      values: [
-        { category: "A", value: 28 },
-        { category: "B", value: 55 },
-        { category: "C", value: 43 },
-        { category: "D", value: 91 },
-        { category: "E", value: 81 },
-        { category: "F", value: 53 },
-      ],
-    },
+    data: { url: EXAMPLE_DATA_URL, format: { type: "json" } },
     mark: "bar",
     encoding: {
       x: { field: "category", type: "nominal", axis: { labelAngle: 0 } },
@@ -49,6 +48,10 @@ const ChartBlockConfiguration: BlockConfiguration<ChartBlockAttributes> = {
     caption: {
       type: "string",
       default: "",
+    },
+    height: {
+      type: "number",
+      default: DEFAULT_CHART_HEIGHT,
     },
   },
   icon,

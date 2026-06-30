@@ -85,10 +85,13 @@
     "react-i18next": "^17.0.8",
     "react-popper": "^2.3.0",
     "react-spring": "^10.0.4",
+    "react-vega": "^7.7.1",
     "svgo": "^4.0.1",
     "use-debounce": "^10.1.1",
     "use-memo-one": "^1.1.3",
     "uuid": "^14.0.0",
+    "vega": "^6.2.0",
+    "vega-lite": "^6.4.3",
     "zod": "4.4.3"
   },
   "devDependencies": {

@@ -13,6 +13,7 @@ import {
   blockTypeMapForTopLevelPages,
 } from "../../blocks"
 import { allowedBlockVariants, supportedCoreBlocks } from "../../blocks/supportedGutenbergBlocks"
+import CourseContext from "../../contexts/CourseContext"
 import { EditorContentDispatch, editorContentReducer } from "../../contexts/EditorContentContext"
 import usePageInfo from "../../hooks/usePageInfo"
 import mediaUploadBuilder from "../../services/mediaUpload"
@@ -302,17 +303,20 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
         </div>
       </div>
       <div>
-        <GutenbergEditor
-          content={content}
-          onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
-          customBlocks={memoizedCustomBlocks}
-          allowedBlocks={supportedCoreBlocks}
-          allowedBlockVariations={allowedBlockVariants}
-          mediaUpload={mediaUpload}
-          inspectorButtons={inspectorButtons}
-          needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-          setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-        />
+        {/* Only course pages expose a courseId; exam/other pages stay null, as before. */}
+        <CourseContext.Provider value={data.course_id ? { courseId: data.course_id } : null}>
+          <GutenbergEditor
+            content={content}
+            onContentChange={(value) => contentDispatch({ type: "setContent", payload: value })}
+            customBlocks={memoizedCustomBlocks}
+            allowedBlocks={supportedCoreBlocks}
+            allowedBlockVariations={allowedBlockVariants}
+            mediaUpload={mediaUpload}
+            inspectorButtons={inspectorButtons}
+            needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+            setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+          />
+        </CourseContext.Provider>
       </div>
       <div className="editor__component">
         <div

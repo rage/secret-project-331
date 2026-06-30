@@ -13,21 +13,21 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 interface ChartBlockAttributes {
   spec: string
   caption: string
-  data: File
+  /** Chart height in pixels; width is responsive. */
+  height: number
 }
 
 const MIN_HEIGHT = 200
-// Debounce so we redraw once resizing settles; redrawing per tick races Vega's canvas sizing and sticks at a stale width.
+// Debounce redraws to once the resize settles, not per tick (avoids a stale canvas width).
 const RESIZE_DEBOUNCE_MS = 150
 
 const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlockAttributes>>> = (
   props,
 ) => {
   const { t } = useTranslation()
-  const { spec, caption } = props.data.attributes
+  const { spec, caption, height } = props.data.attributes
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState<number | null>(null)
-  const [data, setData] = useState<File> | (null > null)
 
   useEffect(() => {
     const el = containerRef.current
@@ -60,11 +60,14 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
     }
   })()
 
+  const hasData = Boolean(parsedSpec?.data)
+
   const responsiveSpec =
     parsedSpec && width !== null
       ? {
           ...parsedSpec,
           width,
+          height,
           // eslint-disable-next-line i18next/no-literal-string
           autosize: { type: "fit", contains: "padding" },
         }
@@ -90,7 +93,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
           {t("chart-block-invalid-spec-error")}
         </div>
       )}
-      {responsiveSpec && (
+      {responsiveSpec && hasData && (
         <div
           className={css`
             overflow-x: auto;
@@ -100,9 +103,22 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
           <VegaLite spec={responsiveSpec} actions={false} />
         </div>
       )}
-      {data && (
-        <div>
-          <p>{t("chart-block-data-file-info")}</p>
+      {parsedSpec && !hasData && (
+        <div
+          className={css`
+            padding: 1rem;
+            background: ${baseTheme.colors.gray[100]};
+            border: 1px solid ${baseTheme.colors.gray[400]};
+            border-radius: 4px;
+            font-family: ${primaryFont};
+            font-size: 0.875rem;
+            color: ${baseTheme.colors.gray[700]};
+            min-height: ${MIN_HEIGHT}px;
+            display: flex;
+            align-items: center;
+          `}
+        >
+          {t("chart-block-no-data-file")}
         </div>
       )}
       {caption && (

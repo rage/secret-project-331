@@ -661,6 +661,7 @@
   "error-creating-course": "Virhe kurssin luomisessa",
   "error-default-chatbot-in-block": "Oletuskeskustelurobottia ei voi lisätä kurssimateriaaliin.",
   "error-fetching-service-info": "Virhe haettaessa palvelun tietoja",
+  "error-field-value-at-least": "Kentän {{field}} arvon tulee olla vähintään {{lower}}.",
   "error-field-value-between": "Kentän {{field}} arvon tulee olla vähintään {{lower}} ja enintään {{upper}}.",
   "error-hide-details": "Piilota tiedot",
   "error-issue": "Ongelma: {{issue}}",

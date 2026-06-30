@@ -128,7 +128,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [message, citations, isFromChatbot])
 
   const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
-    const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitationsResult
+    const { filteredCitations, citationNumberingMap } = renumberFilterCitationsResult
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
@@ -142,7 +142,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         citationButtonClicked={citationButtonClicked}
         currentTriggerId={triggerElementId}
         message={message}
-        citedDocs={citedDocs}
         citationNumberingMap={citationNumberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)

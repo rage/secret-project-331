@@ -464,6 +464,7 @@
   "error-creating-course": "Feil ved oppretting av kurs",
   "error-default-chatbot-in-block": "Kan ikke bruke standard chatbot i kursmaterialet.",
   "error-fetching-service-info": "Feil med henting av tjenesteinformasjon",
+  "error-field-value-at-least": "{{field}} bør være minst {{lower}}.",
   "error-field-value-between": "{{field}} bør være en verdi mellom {{lower}} og {{upper}}.",
   "error-hide-details": "Skjul detaljer",
   "error-issue": "Problem: {{issue}}",

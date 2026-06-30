@@ -1,9 +1,7 @@
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
-import { ChatbotConversationMessageWithStatus } from "../ChatbotChatBody"
 import chatbotReducer, { ChatbotAction, ChatbotState } from "../chatbotReducer"
 
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
@@ -19,98 +17,6 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 
 const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
   "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message"
-
-const StreamEventToMessage = (
-  e: ChatbotChatStreamEvent,
-): ChatbotConversationMessageWithStatus | undefined => {
-  if (e.type === "ToolCall") {
-    return {
-      finished: e.data.finished,
-      message: {
-        conversation_id: v4(),
-        id: v4(),
-        order_number: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        message: {
-          chatbot_conversation_message_id: v4(),
-          created_at: new Date().toISOString(),
-          deleted_at: null,
-          id: v4(),
-          response_id: "",
-          tool_arguments: e.data.arguments,
-          tool_call_id: "",
-          tool_kind: "function",
-          tool_name: e.data.tool_name,
-          updated_at: new Date().toISOString(),
-        },
-      },
-    }
-  } else if (e.type === "Reasoning") {
-    return {
-      finished: e.data.finished,
-      message: {
-        conversation_id: v4(),
-        id: v4(),
-        order_number: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        message: {
-          chatbot_conversation_message_id: v4(),
-          created_at: new Date().toISOString(),
-          deleted_at: null,
-          id: v4(),
-          response_id: "",
-          reasoning_id: e.data.reasoning_id,
-          updated_at: new Date().toISOString(),
-        },
-      },
-    }
-  }
-}
-
-/* export interface MessageState {
-  optimisticMessage: string | null
-  streamingMessage: string | null
-  responseStatus: ChatbotConversationMessageWithStatus | null
-}
-
-export type MessageAction =
-  | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
-  | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "SET_STATUS"; payload: ChatbotChatStreamEvent }
-  | { type: "SET_STATUS_NULL" }
-  | { type: "SET_STATUS_EVENT_FINISHED"; payload: boolean }
-  | { type: "RESET_MESSAGES" }
-
-const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
-  switch (action.type) {
-    case "SET_OPTIMISTIC_MESSAGE":
-      return { ...state, optimisticMessage: action.payload }
-    case "APPEND_STREAMING_MESSAGE":
-      return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
-    case "SET_STATUS":
-      return {
-        ...state,
-        responseStatus: StreamEventToMessage(action.payload) ?? state.responseStatus,
-      }
-    case "SET_STATUS_NULL":
-      return {
-        ...state,
-        responseStatus: null,
-      }
-    case "SET_STATUS_EVENT_FINISHED":
-      if (state.responseStatus) {
-        return { ...state, responseStatus: { ...state.responseStatus, finished: action.payload } }
-      } else {
-        return state
-      }
-    case "RESET_MESSAGES":
-      return { optimisticMessage: null, streamingMessage: null, responseStatus: null }
-    default:
-      return state
-  }
-} */
 
 /// Queries, state and data needed for chatbot functionality
 export interface ChatbotStateAndData {

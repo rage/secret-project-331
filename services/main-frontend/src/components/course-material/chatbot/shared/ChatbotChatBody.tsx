@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useRef } from "react"
+import React, { Fragment, useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -11,7 +11,7 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
-import StatusIndicator, { ReasoningStatusProps, ToolCallStatusProps } from "./StatusIndicator"
+import StatusIndicator from "./StatusIndicator"
 import SuggestedMessageChip from "./SuggestedMessageChip"
 import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
@@ -29,6 +29,48 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+
+const messageMapMaker = (
+  messages: ChatbotConversationMessageWithStatus[],
+): Map<
+  ChatbotConversationMessageWithStatus | null,
+  ChatbotConversationMessageWithStatus[] | null
+> => {
+  let messagesMap: Map<
+    ChatbotConversationMessageWithStatus | null,
+    ChatbotConversationMessageWithStatus[] | null
+  > = new Map()
+
+  let earliestItemIndex: number | null = null
+  messages.forEach((m, idx) => {
+    const messageResult = zChatbotConversationMessageMessage.safeParse(m.message.message)
+    let messageSuccess =
+      messageResult.success &&
+      (messageResult.data.message_role === "user" ||
+        messageResult.data.message_role === "assistant")
+    if (messageSuccess) {
+      if (earliestItemIndex !== null) {
+        let lol = messages.slice(earliestItemIndex, idx)
+        messagesMap.set(m, lol)
+        earliestItemIndex = null
+      } else {
+        messagesMap.set(m, null)
+      }
+      return
+    }
+    const toolCallResult = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+    const reasoningResult = zChatbotConversationMessageReasoning.safeParse(m.message.message)
+    if ((toolCallResult.success || reasoningResult.success) && earliestItemIndex === null) {
+      earliestItemIndex = idx
+    }
+  })
+
+  if (earliestItemIndex !== null) {
+    messagesMap.set(null, messages.slice(earliestItemIndex))
+  }
+
+  return messagesMap
+}
 
 export type ChatbotConversationMessageWithStatus = {
   message: ChatbotConversationMessage
@@ -70,7 +112,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     currentConversationInfo.data?.hide_citations,
   ])
 
-  const messages = useMemo(() => {
+  const messagesMap = useMemo(() => {
     const messages: ChatbotConversationMessageWithStatus[] = [
       ...(currentConversationInfo.data?.current_conversation_messages
         ?.filter((m) => {
@@ -88,8 +130,15 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         }) ?? []),
     ]
 
-    return messages
+    // map is ordered in the insertion order
+    let messagesMap = messageMapMaker(messages)
+
+    return messagesMap
   }, [currentConversationInfo.data?.current_conversation_messages])
+
+  const messagesMap2 = useMemo(() => {
+    return messageMapMaker(messageState.messages)
+  }, [messageState.messages])
 
   const scrollToBottom = useCallback(() => {
     if (scrollContainerRef.current) {
@@ -99,7 +148,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   useEffect(() => {
     scrollToBottom()
-  }, [scrollToBottom, messages, messageState.messages])
+  }, [scrollToBottom, messagesMap, messageState.messages])
 
   const canSubmit = useMemo(
     () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
@@ -169,61 +218,29 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         `}
         ref={scrollContainerRef}
       >
-        {messages.concat(messageState.messages).map((message) => {
+        {[...messagesMap.entries(), ...messagesMap2.entries()].map(([message, items]) => {
+          console.log(message)
+
+          if (message === null && items !== null && items.length > 0) {
+            return <StatusIndicator key={items.length} messages={items} />
+          }
+          if (message === null) {
+            return
+          }
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
-            const response_id = m.data.response_id ?? ""
-            const messageToolReasoningStuff: ChatbotConversationMessageWithStatus[] =
-              messages.filter((m) => {
-                if (m.message.message.response_id === response_id) {
-                  let reasoningRes = zChatbotConversationMessageReasoning.safeParse(
-                    m.message.message,
-                  )
-                  let toolCallRes = zChatbotConversationMessageToolCall.safeParse(m.message.message)
-                  return reasoningRes.success || toolCallRes.success
-                }
-                return false
-              })
-
             return (
-              <>
-                {messageToolReasoningStuff.length > 0 && (
-                  <StatusIndicator
-                    key={`chatbot-status-message-${message.message.id}`}
-                    messages={messageToolReasoningStuff}
-                  />
-                )}
+              <Fragment key={`chatbot-status-message-${message.message.id}`}>
+                {items !== null && <StatusIndicator messages={items} />}
                 <MessageBubble
-                  key={`chatbot-message-${message.message.id}`}
                   message={m.data.text ?? ""}
                   citations={citations.get(message.message.id)}
                   isFromChatbot={m.data.message_role === "assistant"}
                   isPending={!m.data.message_is_complete && newMessageMutation.isPending}
                 />
-              </>
+              </Fragment>
             )
           }
-
-          /* let parseResTool = zChatbotConversationMessageToolCall.safeParse(message.message.message)
-          let parseResReasoning = zChatbotConversationMessageReasoning.safeParse(
-            message.message.message,
-          )
-
-          let props: ReasoningStatusProps | ToolCallStatusProps | null = parseResTool.success
-            ? // eslint-disable-next-line i18next/no-literal-string
-              { message: parseResTool.data, messageType: "ToolCall", finished: message.finished }
-            : parseResReasoning.success
-              ? {
-                  message: parseResReasoning.data,
-                  // eslint-disable-next-line i18next/no-literal-string
-                  messageType: "Reasoning",
-                  finished: message.finished,
-                }
-              : null
-
-          if (props) {
-            return <StatusIndicator key={`chatbot-status-message-${props.message.id}`} {...props} />
-          } */
         })}
         <div
           className={css`

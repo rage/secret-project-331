@@ -7,7 +7,6 @@ import { useTranslation } from "react-i18next"
 import { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
 import ThinkingIndicator from "./ThinkingIndicator"
 
-import { ChatbotConversationMessageToolCall } from "@/generated/course-material-api/types.generated"
 import {
   zChatbotConversationMessageReasoning,
   zChatbotConversationMessageToolCall,
@@ -16,10 +15,9 @@ import DownIcon from "@/shared-module/common/img/down.svg"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const textStyle = css`
-  padding: 0.5rem;
+  padding: 0 0.5rem;
   color: rgb(0 0 0 / 70%);
-  margin: 0.5rem 0 0.1rem 0;
-  overflow: visible;
+  margin: 0.25rem 0;
 `
 
 const detailsStyle = css`
@@ -52,29 +50,21 @@ const iconStyle = (open: boolean) => css`
   margin: 0 1rem 0 1.5rem;
 `
 
-// controlled
-export type ReasoningStatusProps = {
+type StatusIndicatorProps = {
   messages: ChatbotConversationMessageWithStatus[]
 }
-
-export type ToolCallStatusProps = {
-  messageType: "ToolCall"
-  message: ChatbotConversationMessageToolCall
-  finished: boolean
-}
-
-type StatusIndicatorProps = ReasoningStatusProps
 
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
+  console.log(messages)
   let summaryText: string
   let inProgressItems = messages.filter((m) => {
     return !m.finished
   })
   let finished = inProgressItems.length === 0
-  let collapse = messages.length > 2
+  let collapsible = messages.length > 2
 
   if (!finished) {
     summaryText = ""
@@ -88,11 +78,12 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
-        const tool_arguments =
+        const toolArguments =
+          // if the arguments are just an empty object, replace it with empty string
           res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
             ? ""
             : ` ${res2.data.tool_arguments}`
-        summaryText += `${t("chatbot-status-using-tool")} "${res2.data.tool_name.replaceAll("_", " ")}"${tool_arguments}`
+        summaryText += `${t("chatbot-status-using-tool")} "${res2.data.tool_name.replaceAll("_", " ")}"${toolArguments}`
       }
     })
     return (
@@ -110,19 +101,30 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
         if (idx === 0) {
           summaryText += t("chatbot-status-thinking-finished")
         }
+        if (idx === 1) {
+          summaryText += `, ${t("chatbot-status-thinking-finished")}`
+        }
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
         const toolArguments =
           res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
             ? ""
-            : ` ${res2.data.tool_arguments}`
-        if (res2.data.tool_name === "course material search") {
+            : res2.data.tool_arguments
+        if (res2.data.tool_name === "azure_ai_search") {
+          collapsible = true
+          // in azure ai search, the arguments are this shape
+          let obj: { query: string } = JSON.parse(toolArguments)
+          const queryString = `"${obj.query}"`
+
           expandableText.push(
-            t("chatbot-status-course-material-search-finished", { query: toolArguments }),
+            t("chatbot-status-course-material-search-finished", { query: queryString }),
           )
           if (idx === 0) {
             summaryText += t("chatbot-status-course-material-search")
+          }
+          if (idx === 1) {
+            summaryText += `, ${t("chatbot-status-course-material-search")}`
           }
         } else {
           expandableText.push(
@@ -131,15 +133,17 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
           if (idx === 0) {
             summaryText += t("chatbot-status-used-tools")
           }
+          if (idx === 1) {
+            summaryText += `, ${t("chatbot-status-used-tools")}`
+          }
         }
       }
     })
-    summaryText += t("chatbot-status-other-actions", { n: messages.length - 1 })
 
-    if (!collapse) {
+    if (!collapsible) {
       return (
         <div className={detailsStyle}>
-          <span className={textStyle}>{expandableText.join(", ")}</span>
+          <div className={textStyle}>{expandableText.join(", ")}</div>
         </div>
       )
     }
@@ -148,9 +152,13 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
         <details open={false} onToggle={() => setIsOpen(!isOpen)}>
           <summary>
             <span className={textStyle}>{summaryText}</span>
-            {collapse && <DownIcon className={iconStyle(isOpen)} />}
+            {collapsible && <DownIcon className={iconStyle(isOpen)} />}
           </summary>
-          <ul>
+          <ul
+            className={css`
+              margin: 0.6rem;
+            `}
+          >
             {expandableText.map((item, idx) => (
               <li key={idx}>{item}</li>
             ))}

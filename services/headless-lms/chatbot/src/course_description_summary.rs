@@ -41,7 +41,6 @@ When generating the description:
 - Use same style of writing as in the given information.
 - Ignore all the information that is not relevant for the course description.
 - Ignore all the html tags inside the given information.
-- Give the final output in json format where the descriptions for the modules are behind the same module keys as in the given information. Also put the description for the whole course behind a key named course_description.
 - When generating module descriptions don't use filler words such as 'this course', give only relevant information.
 
 Constraints:
@@ -49,7 +48,17 @@ Constraints:
 - Only output the summarized description, nothing else.
 - The maximum length for the description is 100 words.
 - If there is only one module in the course, use exactly the same description for both course description and module description.
-"#;
+
+Your output must follow the JSON schema exactly:
+{
+    "course_description": "...",
+    "modules": [
+        {
+            "course_code": "...",
+            "description": "..."
+        }
+    ]
+}"#;
 
 pub const USER_PROMPT: &str = r#"Give description based on the given information."#;
 

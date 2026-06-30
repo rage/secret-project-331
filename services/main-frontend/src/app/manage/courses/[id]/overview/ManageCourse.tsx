@@ -214,8 +214,8 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
         <div
           className={css`
             padding: 1rem;
-            border: 3px solid #ebedee;
-            color: #1a2333;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            color: ${baseTheme.colors.gray[700]};
           `}
         >
           <p

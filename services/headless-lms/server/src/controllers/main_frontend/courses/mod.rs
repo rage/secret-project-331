@@ -6,14 +6,16 @@ pub mod students;
 
 use chrono::Utc;
 use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOperation;
+use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::{
+    application_task_default_language_models::ApplicationTask,
     partner_block::PartnersBlock,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
 use std::sync::Arc;
 use utoipa::OpenApi;
 
-use headless_lms_utils::strings::is_ietf_language_code_like;
+use headless_lms_utils::{services::sisu::SisuClient, strings::is_ietf_language_code_like};
 use models::{
     chapters::Chapter,
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
@@ -115,7 +117,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_course_with_join_code,
         post_partners_block,
         get_partners_block,
-        delete_partners_block
+        delete_partners_block,
+        get_sisu_course_llm_descriptions
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
@@ -2622,6 +2625,66 @@ async fn delete_partners_block(
 }
 
 /**
+GET `/api/v0/main-frontend/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
+
+Returns LLM generated descriptions for a course based on information from Sisu API.
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/sisu-course-llm-descriptions",
+    operation_id = "getSisuCourseLlmDescriptions",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Sisu course LLM descriptions", body = SisuDescriptionResponse)
+    )
+)]
+#[instrument(skip(pool, app_conf))]
+async fn get_sisu_course_llm_descriptions(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    app_conf: web::Data<ApplicationConfiguration>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
+    let (course_modules, course_lang, message_suggest_llm, token) = {
+        let mut conn = pool.acquire().await?;
+
+        let token =
+            authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
+        let course_modules =
+            models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
+        let course_lang = models::courses::get_course(&mut conn, *course_id)
+            .await?
+            .language_code;
+        let message_suggest_llm = models::application_task_default_language_models::get_for_task(
+            &mut conn,
+            ApplicationTask::SisuDescriptionSummary,
+        )
+        .await?;
+        (course_modules, course_lang, message_suggest_llm, token)
+    };
+
+    let uh_course_codes: Vec<String> = course_modules
+        .into_iter()
+        .filter_map(|course_module| course_module.uh_course_code)
+        .collect::<Vec<String>>();
+    let course_ids = SisuClient::get_course_ids(uh_course_codes).await?;
+    let course_info = SisuClient::get_course_info(course_ids).await?;
+
+    let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
+
+    let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(
+        &app_conf,
+        message_suggest_llm,
+        parsed_course_info,
+    )
+    .await?;
+    token.authorized_ok(web::Json(llm_descriptions))
+}
+
+/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -2837,5 +2900,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/join/{join_code}",
             web::get().to(get_course_with_join_code),
+        )
+        .route(
+            "/{course_id}/sisu-course-llm-descriptions",
+            web::get().to(get_sisu_course_llm_descriptions),
         );
 }

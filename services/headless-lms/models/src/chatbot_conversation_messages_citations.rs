@@ -71,6 +71,9 @@ pub async fn insert_batch(
     input: Vec<ChatbotConversationMessageCitation>,
     page_ids: Vec<Option<Uuid>>,
 ) -> ModelResult<Vec<ChatbotConversationMessageCitation>> {
+    if input.is_empty() {
+        return Ok(vec![]);
+    }
     let conv_id = input[0].conversation_id;
     let cm_ids: Vec<Uuid> = input.iter().map(|x| x.conversation_message_id).collect();
     let titles: Vec<String> = input.iter().map(|x| x.title.to_owned()).collect();

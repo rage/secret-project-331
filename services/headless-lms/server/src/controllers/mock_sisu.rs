@@ -5,13 +5,18 @@ use headless_lms_utils::services::sisu::{
 };
 use serde_json;
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct MockSisuRequest {
+    code_query: String,
+}
+
 async fn mock_sisu_id_query(
+    query_params: web::Query<MockSisuRequest>,
     app_conf: web::Data<ApplicationConfiguration>,
-    code: web::Path<String>,
 ) -> ControllerResult<String> {
     assert!(app_conf.test_mode && app_conf.test_sisu);
-
-    let res = match code.as_str() {
+    let res = match query_params.code_query.as_str() {
         "TEST001" => {
             let sisu_ids: Vec<SearchResult> = vec![
                 SearchResult {
@@ -256,9 +261,6 @@ async fn mock_sisu_course_info(
 }
 
 pub fn _add_routes(cfg: &mut ServiceConfig) {
-    cfg.route("/kori/api/{code}", web::get().to(mock_sisu_id_query))
-        .route(
-            "/kori/api/course-units/{id}",
-            web::get().to(mock_sisu_course_info),
-        );
+    cfg.route("course-unit-search", web::get().to(mock_sisu_id_query))
+        .route("course-units/v1/{id}", web::get().to(mock_sisu_course_info));
 }

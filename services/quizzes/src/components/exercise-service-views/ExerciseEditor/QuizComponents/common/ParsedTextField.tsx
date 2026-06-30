@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled"
 import { Eye, InfoCircle, Pencil } from "@vectopus/atlas-icons-react"
-import React, { Ref, useContext, useEffect, useMemo, useRef, useState } from "react"
+import React, { useContext, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ParsedText from "../../../../ParsedText"
@@ -10,7 +10,6 @@ import ParsedText from "../../../../ParsedText"
 import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
 import { OpenLinkMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 const DisplayContainer = styled.div`
@@ -28,7 +27,9 @@ const TextfieldContainer = styled.div`
 `
 
 const ParsedTextContainer = styled.div`
-  height: 68px;
+  min-height: 68px;
+  max-height: 300px;
+  overflow-y: auto;
 `
 
 const StyledButton = styled(Button)`
@@ -68,8 +69,7 @@ interface ParsedTextFieldProps {
 const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChange }) => {
   const [preview, setPreview] = useState(false)
   const [text, setText] = useState(value ?? "")
-  const cursorPosition = useRef<number | null>(null)
-  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const messagePort = useContext(MessagePortContext)
 
   const { t } = useTranslation()
@@ -79,31 +79,12 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
     [text],
   )
 
-  const prevContainsMarkdown = useRef<boolean>(containsMarkdown)
-
   const containsLatex = useMemo(() => text.includes("[latex]") && text.includes("[/latex]"), [text])
 
   const hasTags = useMemo(
     () => containsMarkdown || containsLatex,
     [containsMarkdown, containsLatex],
   )
-
-  /**
-   * Handles focus and cursor position restoration when the `containsMarkdown` state changes.
-   */
-  useEffect(() => {
-    if (
-      (!prevContainsMarkdown.current && containsMarkdown) ||
-      (prevContainsMarkdown.current && !containsMarkdown)
-    ) {
-      if (inputRef.current) {
-        inputRef.current.focus()
-        inputRef.current.setSelectionRange(cursorPosition.current, cursorPosition.current)
-      }
-    }
-
-    prevContainsMarkdown.current = containsMarkdown
-  }, [containsMarkdown])
 
   const PreviewButton = (
     <>
@@ -115,7 +96,6 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
   )
 
   const handleOnChange = (value: string) => {
-    cursorPosition.current = inputRef.current?.selectionStart ?? null
     onChange(value)
     setText(value)
   }
@@ -128,17 +108,10 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
             <ParsedTextContainer>
               <ParsedText text={value} parseMarkdown parseLatex inline />
             </ParsedTextContainer>
-          ) : containsMarkdown ? (
-            <TextAreaField
-              ref={inputRef as Ref<HTMLTextAreaElement>}
-              autoResize
-              value={value ?? ""}
-              onChangeByValue={(value) => handleOnChange(value)}
-              label={label}
-            />
           ) : (
-            <TextField
-              ref={inputRef as Ref<HTMLInputElement>}
+            <TextAreaField
+              ref={inputRef}
+              autoResize
               value={value ?? ""}
               onChangeByValue={(value) => handleOnChange(value)}
               label={label}

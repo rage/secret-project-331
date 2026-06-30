@@ -217,6 +217,7 @@ import {
   getRegradingsCount,
   getResetPasswordTokenStatus,
   getRoles,
+  getSisuCourseLlmDescriptions,
   getStatusCronjobs,
   getStatusDeployments,
   getStatusEvents,
@@ -689,6 +690,8 @@ import type {
   GetResetPasswordTokenStatusResponse,
   GetRolesData,
   GetRolesResponse,
+  GetSisuCourseLlmDescriptionsData,
+  GetSisuCourseLlmDescriptionsResponse,
   GetStatusCronjobsData,
   GetStatusCronjobsResponse,
   GetStatusDeploymentsData,
@@ -3830,6 +3833,35 @@ export const setCourseJoinCodeMutation = (
   }
   return mutationOptions
 }
+
+export const getSisuCourseLlmDescriptionsQueryKey = (
+  options: Options<GetSisuCourseLlmDescriptionsData>,
+) => createQueryKey("getSisuCourseLlmDescriptions", options)
+
+/**
+ *
+ * GET `/api/v0/main-frontend/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
+ *
+ * Returns LLM generated descriptions for a course based on information from Sisu API.
+ */
+export const getSisuCourseLlmDescriptionsOptions = (
+  options: Options<GetSisuCourseLlmDescriptionsData>,
+) =>
+  queryOptions<
+    GetSisuCourseLlmDescriptionsResponse,
+    DefaultError,
+    GetSisuCourseLlmDescriptionsResponse,
+    ReturnType<typeof getSisuCourseLlmDescriptionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getSisuCourseLlmDescriptions({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getSisuCourseLlmDescriptionsQueryKey(options),
+  })
 
 export const getCourseCompletionsHistoryAllLanguageVersionsQueryKey = (
   options: Options<GetCourseCompletionsHistoryAllLanguageVersionsData>,

@@ -6,8 +6,6 @@ use actix_http::header::{self, X_FORWARDED_FOR};
 use actix_web::web::Json;
 use chrono::Utc;
 use futures::{FutureExt, future::OptionFuture};
-use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
-use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::courses::{CourseLanguageVersionNavigationInfo, CourseMaterialCourse};
 use headless_lms_models::{
     course_custom_privacy_policy_checkbox_texts::CourseCustomPrivacyPolicyCheckboxText,
@@ -48,7 +46,6 @@ use crate::{
     },
     prelude::*,
 };
-use headless_lms_utils::services::sisu::SisuClient;
 
 #[derive(OpenApi)]
 #[openapi(paths(
@@ -82,8 +79,7 @@ use headless_lms_utils::services::sisu::SisuClient;
     get_partners_block,
     get_privacy_link,
     get_custom_privacy_policy_checkbox_texts,
-    get_user_chapter_locks,
-    get_sisu_course_llm_descriptions
+    get_user_chapter_locks
 ))]
 pub(crate) struct CourseMaterialCoursesApiDoc;
 
@@ -1573,64 +1569,6 @@ async fn get_user_chapter_locks(
 }
 
 /**
-GET `/api/v0/course-material/courses/:course_id/sisu-course-llm-descriptions` - Get Sisu descriptions summarised by LLM
-
-Returns LLM generated descriptions for a course based on information from Sisu API.
-*/
-#[utoipa::path(
-    get,
-    path = "/{course_id}/sisu-course-llm-descriptions",
-    operation_id = "getCourseMaterialSisuCourseLlmDescriptions",
-    tag = "course-material-courses",
-    params(
-        ("course_id" = Uuid, Path, description = "Course id")
-    ),
-    responses(
-        (status = 200, description = "Sisu course LLM descriptions", body = SisuDescriptionResponse)
-    )
-)]
-#[instrument(skip(pool, app_conf))]
-async fn get_sisu_course_llm_descriptions(
-    course_id: web::Path<Uuid>,
-    pool: web::Data<PgPool>,
-    app_conf: web::Data<ApplicationConfiguration>,
-    user: AuthUser,
-) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
-    let is_mock_sisu = app_conf.test_sisu;
-    let base_url = &app_conf.base_url;
-    let mut conn = pool.acquire().await?;
-    let token = authorize_access_to_course_material(&mut conn, Some(user.id), *course_id).await?;
-
-    let course_modules = models::course_modules::get_by_course_id(&mut conn, *course_id).await?;
-    let course_lang = models::courses::get_course(&mut conn, *course_id)
-        .await?
-        .language_code;
-
-    let uh_course_codes: Vec<String> = course_modules
-        .into_iter()
-        .filter_map(|course_module| course_module.uh_course_code)
-        .collect::<Vec<String>>();
-    let course_ids = SisuClient::get_course_ids(is_mock_sisu, base_url, uh_course_codes).await?;
-    let course_info = SisuClient::get_course_info(is_mock_sisu, base_url, course_ids).await?;
-
-    //let token: domain::authorization::AuthorizationToken = skip_authorize();
-
-    let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
-    let message_suggest_llm = models::application_task_default_language_models::get_for_task(
-        &mut conn,
-        ApplicationTask::SisuDescriptionSummary,
-    )
-    .await?;
-    let llm_descriptions = headless_lms_chatbot::course_description_summary::generate_description(
-        &app_conf,
-        message_suggest_llm,
-        parsed_course_info,
-    )
-    .await?;
-    token.authorized_ok(web::Json(llm_descriptions))
-}
-
-/**
 Add a route for each controller in this module.
 
 The name starts with an underline in order to appear before other functions in the module documentation.
@@ -1740,9 +1678,5 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/user-chapter-locks",
             web::get().to(get_user_chapter_locks),
-        )
-        .route(
-            "/{course_id}/sisu-course-llm-descriptions",
-            web::get().to(get_sisu_course_llm_descriptions),
         );
 }

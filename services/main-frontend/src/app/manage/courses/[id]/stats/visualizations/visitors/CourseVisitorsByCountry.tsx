@@ -11,6 +11,7 @@ import StatsHeader from "../../StatsHeader"
 import NoDataMessage from "../NoDataMessage"
 
 import { getCoursePageVisitDatumSummaryByCountriesOptions } from "@/generated/api/@tanstack/react-query.generated"
+import countries from "@/shared-module/common/locales/en/countries.json"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -19,10 +20,18 @@ export interface CourseVisitorsByCountryProps {
   courseId: string
 }
 
+// Bucket key used for visitors whose country could not be determined (the backend country field is
+// nullable). Kept distinct from any real ISO code so it can be rendered as a readable label.
+// eslint-disable-next-line i18next/no-literal-string
+const UNKNOWN_COUNTRY_KEY = "null"
+
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({
   courseId,
 }) => {
   const { t } = useTranslation()
+  // Chart data codes are lowercase ISO codes (e.g. "fi"), which match the lowercase keys in the
+  // "countries" namespace, so the labels are localized to the active language.
+  const { t: tCountries } = useTranslation("countries")
   const query = useQuery({
     ...getCoursePageVisitDatumSummaryByCountriesOptions({
       path: {
@@ -50,8 +59,7 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     }
     const totalCountsByCountryObject = totalCountsByCountry.reduce(
       (acc, d) => {
-        // eslint-disable-next-line i18next/no-literal-string
-        acc[d.country ?? "null"] = d.num_visitors
+        acc[d.country ?? UNKNOWN_COUNTRY_KEY] = d.num_visitors
         return acc
       },
       {} as Record<string, number>,
@@ -63,8 +71,10 @@ const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsBy
     if (!aggregatedData) {
       return []
     }
-    return Object.keys(aggregatedData)
-  }, [aggregatedData])
+    return Object.keys(aggregatedData).map((code) =>
+      code === UNKNOWN_COUNTRY_KEY ? t("n-a") : tCountries(code as keyof typeof countries),
+    )
+  }, [aggregatedData, t, tCountries])
   const values = useMemo(() => {
     if (!aggregatedData) {
       return []

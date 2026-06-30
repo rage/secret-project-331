@@ -44,6 +44,10 @@ use crate::prelude::*;
 
 pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
+/// Appended to the system prompt when course-material search is enabled, to ground answers
+/// in retrieved course material.
+const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nSearch the course material with the azure_ai_search tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there. Skip searching only for messages that don't need course material, like greetings or thanks.";
+
 enum ParsedResponseLine {
     Event(String),
     Data(ResponseOutput),
@@ -56,8 +60,19 @@ impl ParsedResponseLine {
             Ok(Some(ParsedResponseLine::Event(event_type)))
         } else if input.starts_with("data: ") {
             let data = input.trim_start_matches("data: ").to_string();
-            let response_output =
-                serde_json::from_str::<ResponseOutput>(&data).map_err(ChatbotError::from)?;
+            let response_output = match serde_json::from_str::<ResponseOutput>(&data) {
+                Ok(response_output) => response_output,
+                Err(e) => {
+                    // Log the raw line so deserialization failures against the Azure response
+                    // schema can be diagnosed without reproducing them.
+                    tracing::error!(
+                        raw_line = %data,
+                        error = %e,
+                        "Failed to deserialize streamed response line from Azure"
+                    );
+                    return Err(ChatbotError::from(e));
+                }
+            };
             Ok(Some(ParsedResponseLine::Data(response_output)))
         } else {
             Ok(None)
@@ -105,7 +120,26 @@ pub enum ContentFilterSource {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Response {
     pub id: String,
-    pub error: Option<String>,
+    pub error: Option<ResponseError>,
+}
+
+/// Error object returned by the LLM API on a failed response. Fields are optional so any
+/// error shape deserializes rather than crashing the stream parser.
+#[derive(Deserialize, Serialize, Debug)]
+pub struct ResponseError {
+    pub code: Option<String>,
+    pub message: Option<String>,
+}
+
+impl std::fmt::Display for ResponseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{} (code: {})",
+            self.message.as_deref().unwrap_or("unknown error"),
+            self.code.as_deref().unwrap_or("none")
+        )
+    }
 }
 
 /// Incomplete response received from LLM API
@@ -399,12 +433,17 @@ impl LLMRequest {
         // put new user message into the messages list
         api_chat_messages.push(new_message.clone().try_into()?);
 
+        let mut system_prompt = configuration.prompt.clone();
+        if configuration.use_azure_search {
+            system_prompt.push_str(SEARCH_GROUNDING_INSTRUCTION);
+        }
+
         api_chat_messages.insert(
             0,
             APIInputMessage {
                 message_type: InputItem::Message {
                     role: MessageRole::System,
-                    content: MessageContent::Text(configuration.prompt.clone()),
+                    content: MessageContent::Text(system_prompt),
                 },
             },
         );
@@ -586,7 +625,6 @@ pub async fn make_request_and_stream<'a>(
     let mut response_id = "".to_string();
     let mut output_item_incoming = false;
     let mut response_created_incoming = false;
-    let mut error_incoming = false;
 
     loop {
         let line_res = pinned_lines.as_mut().peek().await;
@@ -629,15 +667,13 @@ pub async fn make_request_and_stream<'a>(
                                     ResponseStreamType::TextResponse(pinned_lines),
                                 ));
                             }
-                            "response.error" => {
-                                error_incoming = true;
-                            }
                             _ => {}
                         }
                     }
                     Some(ParsedResponseLine::Data(response_output)) => {
-                        if error_incoming
-                            && let Some(response) = &response_output.response
+                        // Surface any error the API reports (e.g. response.error, response.failed)
+                        // instead of continuing. Normal responses carry no error object.
+                        if let Some(response) = &response_output.response
                             && let Some(error) = &response.error
                         {
                             Err(chatbot_err!(
@@ -1082,5 +1118,47 @@ pub async fn send_chat_request_and_parse_stream(
                 .map(APIInputMessage::try_from)
                 .collect::<ChatbotResult<Vec<APIInputMessage>>>()?,
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// A `response.failed` line carries `error` as an object, not a string. Deserializing it
+    /// must succeed so the error can be surfaced instead of crashing the stream parser.
+    #[test]
+    fn response_failed_with_error_object_deserializes() {
+        let line = r#"{"type":"response.failed","response":{"id":"resp_abc","status":"failed","error":{"code":"tool_user_error","message":"Could not complete vectorization action."}},"sequence_number":8}"#;
+
+        let parsed: ResponseOutput = serde_json::from_str(line).unwrap();
+        let error = parsed
+            .response
+            .expect("response object")
+            .error
+            .expect("error object");
+
+        assert_eq!(error.code.as_deref(), Some("tool_user_error"));
+        assert!(error.message.unwrap().contains("vectorization"));
+    }
+
+    /// Azure returns azure_ai_search call/output items with `arguments`/`output` as strings.
+    #[test]
+    fn azure_ai_search_output_items_deserialize() {
+        let call = r#"{"type":"azure_ai_search_call","id":"fc_1","response_id":"resp_abc","call_id":"call_1","arguments":"{\"query\":\"trademarks\"}","status":"completed"}"#;
+        match serde_json::from_str::<OutputItem>(call).unwrap() {
+            OutputItem::AzureAiSearchCall { arguments, .. } => {
+                assert!(arguments.contains("trademarks"))
+            }
+            other => panic!("expected AzureAiSearchCall, got {other:?}"),
+        }
+
+        let output = r#"{"type":"azure_ai_search_call_output","id":"fco_1","response_id":"resp_abc","call_id":"call_1","output":"remote tool call failed","status":"in_progress"}"#;
+        match serde_json::from_str::<OutputItem>(output).unwrap() {
+            OutputItem::AzureAiSearchCallOutput { output, .. } => {
+                assert_eq!(output, "remote tool call failed")
+            }
+            other => panic!("expected AzureAiSearchCallOutput, got {other:?}"),
+        }
     }
 }

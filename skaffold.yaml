@@ -104,5 +104,6 @@ profiles:
     manifests:
       rawYaml:
         - kubernetes/base-data/postgres.yml
+        - kubernetes/base-data/redis.yml
     deploy:
       kubectl: {}

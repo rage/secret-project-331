@@ -217,6 +217,21 @@ async fn user_is_eligible_for_automatic_completion(
             )
             .await?;
             if eligible {
+                // Do not grant an automatic completion while the user still has answers in this
+                // module waiting for manual grading; a teacher must review them first.
+                if user_exercise_states::has_pending_manual_reviews_in_module(
+                    conn,
+                    user_id,
+                    course_module.course_id,
+                    requirements.course_module_id,
+                )
+                .await?
+                {
+                    info!(
+                        "The user has answers pending manual review in this module; not granting an automatic completion yet."
+                    );
+                    return Ok(false);
+                }
                 if requirements.requires_exam {
                     info!("To complete this module automatically, the user must pass an exam.");
                     user_has_passed_exam_for_the_course_based_on_points(

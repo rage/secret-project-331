@@ -849,7 +849,7 @@ async fn parse_tool<'a>(
                     "Error: unexpected message item !!!".to_string()
                 ))?,
                 _ => {
-                    let finished = response_output.response_type == "response.output_item.done".to_string();
+                    let finished = response_output.response_type.as_str() == "response.output_item.done";
                     yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished});
 
                     // add this output item to the messages to be included in the next
@@ -985,6 +985,7 @@ fn stream_and_detect_response_stream_type<'a>(
 /// is finished.
 /// Returns a stream to be consumed in the caller.
 async fn parse_text_response<'a>(
+    // todo too many argumnents
     conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     full_response_text: Arc<Mutex<Vec<String>>>,
@@ -1255,7 +1256,7 @@ pub async fn send_chat_request_and_parse_stream(
                 }
             };
 
-            let message_id = response_message_id.lock().await.clone();
+            let message_id = *response_message_id.lock().await;
             while let Some(line) = final_stream.next().await {
                 let val = line?;
                 match val {

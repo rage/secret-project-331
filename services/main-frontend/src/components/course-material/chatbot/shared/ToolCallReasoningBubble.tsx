@@ -50,11 +50,11 @@ const iconStyle = (open: boolean) => css`
   margin: 0 1rem 0 1.5rem;
 `
 
-type StatusIndicatorProps = {
+type ToolCallReasoningBubbleProps = {
   messages: ChatbotConversationMessageWithStatus[]
 }
 
-const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
+const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messages }) => {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -169,4 +169,4 @@ const StatusIndicator: React.FC<StatusIndicatorProps> = ({ messages }) => {
   }
 }
 
-export default StatusIndicator
+export default ToolCallReasoningBubble

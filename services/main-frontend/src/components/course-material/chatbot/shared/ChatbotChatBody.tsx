@@ -11,8 +11,8 @@ import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
-import StatusIndicator from "./StatusIndicator"
 import SuggestedMessageChip from "./SuggestedMessageChip"
+import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
 import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
 import type {
@@ -222,7 +222,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           console.log(message)
 
           if (message === null && items !== null && items.length > 0) {
-            return <StatusIndicator key={items.length} messages={items} />
+            return <ToolCallReasoningBubble key={items.length} messages={items} />
           }
           if (message === null) {
             return
@@ -231,7 +231,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           if (m.success) {
             return (
               <Fragment key={`chatbot-status-message-${message.message.id}`}>
-                {items !== null && <StatusIndicator messages={items} />}
+                {items !== null && <ToolCallReasoningBubble messages={items} />}
                 <MessageBubble
                   message={m.data.text ?? ""}
                   citations={citations.get(message.message.id)}

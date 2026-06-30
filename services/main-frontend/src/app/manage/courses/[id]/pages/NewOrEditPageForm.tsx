@@ -180,11 +180,8 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
                   setPath(value)
                 }}
                 onBlur={() => {
-                  // Strip characters the backend would reject from a manually entered path (a
-                  // typed/pasted space or colon), the same way it is normalized for storage.
-                  // Unlike the title slug this preserves case, non-ASCII characters and the '/'
-                  // separators, so blurring an already-valid path is a no-op rather than a silent
-                  // rename. Normalized on blur so typing hyphens mid-edit still works.
+                  // Clean a manually entered path the way the backend stores it. On blur, not
+                  // per-keystroke, so typing hyphens mid-edit still works.
                   setPath((current) => cleanUrlPath(current))
                 }}
               />

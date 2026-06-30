@@ -75,20 +75,15 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
 
   const { t } = useTranslation()
 
-  // Derived straight from the value prop (not a second state copy) so it can never go stale
-  // when the parent resets the value — e.g. clearing the "add option" field would otherwise
-  // leave the emptied field stuck in multiline mode.
+  // Derived from the prop, not a second state copy, so it can't go stale when the parent resets
+  // the value (e.g. clearing the "add option" field).
   const text = value ?? ""
 
-  // Single line by default; a [markdown] block needs the room for line breaks, so it promotes
-  // the field to a multiline textarea. Triggered by the presence of a markdown tag (not a
-  // complete pair) so the field is already multiline while the author is building the block —
-  // otherwise Enter is suppressed (AutoExpandingTextField) and a block can't be composed.
+  // Multiline once a markdown tag is present, so a block can be composed/edited without Enter
+  // being suppressed (see AutoExpandingTextField).
   const multiline = useMemo(() => containsMarkdownTag(text), [text])
 
-  // The preview toggle appears for any markdown or latex tag. Uses the same lenient tag-presence
-  // check as `multiline` so the preview affordance and the multiline state never disagree about
-  // the same text.
+  // Preview toggle shows for any markdown or latex tag.
   const hasTags = useMemo(() => containsRenderableTag(text), [text])
 
   const PreviewButton = (
@@ -101,10 +96,8 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
   )
 
   const handleOnChange = (rawValue: string) => {
-    // Keep a plain single-line field behaving like a native <input>: collapse any newline a
-    // paste would introduce. Once the text contains a markdown tag the field is multiline, so
-    // line breaks are preserved — including while a tag is mid-edit, which is what stops a single
-    // keystroke on the closing tag from silently flattening an author's existing line breaks.
+    // Single-line fields collapse pasted newlines; with a markdown tag present newlines are kept,
+    // so editing a tag can't flatten existing line breaks.
     const next = containsMarkdownTag(rawValue) ? rawValue : toSingleLine(rawValue)
     onChange(next)
   }

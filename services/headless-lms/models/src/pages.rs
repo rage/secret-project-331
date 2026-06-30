@@ -150,19 +150,11 @@ const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'|')
     .add(b'}');
 
-/// Canonicalizes a URL path for storage and lookup.
-///
-/// Percent-decodes any escapes, then, per `/`-separated segment, turns whitespace into `-`,
-/// strips the unsafe ASCII characters in `URL_PATH_ENCODE_SET`, and collapses/trims dashes.
-/// Letter case, valid non-ASCII UTF-8 (e.g. Cyrillic) and the `/`, `-`, `.`, `_`, `~` characters
-/// are kept verbatim, so paths stay human-readable.
-///
-/// Unsafe characters are *removed* rather than percent-encoded, so a stored path never
-/// accumulates `%xx` escapes (`/a b` is stored as `/a-b`, not `/a%20b`). This makes the cleanup
-/// durable: every save funnels through here, so an unsafe character can no longer slip back in via
-/// the CMS editor or a details update. Mirrors `clean_url_path` in the
-/// strip-unsafe-characters-from-page-url-paths migration and the frontend `cleanUrlPath`
-/// (services/main-frontend/src/utils/normalizePath.ts); keep the three in agreement.
+/// Canonical storage/lookup form: percent-decode, then per `/`-segment turn whitespace into `-`,
+/// strip the unsafe ASCII in `URL_PATH_ENCODE_SET`, and collapse/trim dashes. Case, non-ASCII and
+/// `/`, `-`, `.`, `_`, `~` are kept. Unsafe chars are removed, not `%xx`-encoded, so every save
+/// funnels through here and paths can't re-accumulate escapes. Mirrors `clean_url_path` (page
+/// migration) and the frontend `cleanUrlPath`; keep the three in agreement.
 fn normalize_url_path_for_storage(url_path: &str) -> String {
     let decoded = percent_decode_str(url_path).decode_utf8_lossy();
     decoded
@@ -172,10 +164,9 @@ fn normalize_url_path_for_storage(url_path: &str) -> String {
         .join("/")
 }
 
-/// Whether `ch` is an ASCII character that `URL_PATH_ENCODE_SET` would percent-encode. The set's
-/// own membership test is crate-private, so probe it through `utf8_percent_encode`, which encodes
-/// an ASCII char iff it is in the set. Only meaningful for ASCII input (non-ASCII is always
-/// encoded by `utf8_percent_encode` but is kept verbatim in stored paths).
+/// Whether `ch` is an ASCII char that `URL_PATH_ENCODE_SET` would encode. The set's membership
+/// test is crate-private, so probe it via `utf8_percent_encode` (which encodes an ASCII char iff
+/// it's in the set). ASCII-only: the caller keeps non-ASCII verbatim.
 fn is_unsafe_ascii(ch: char) -> bool {
     let mut buf = [0u8; 4];
     let encoded = ch.encode_utf8(&mut buf);
@@ -205,10 +196,9 @@ fn clean_url_path_segment(segment: &str) -> String {
     out.trim_matches('-').to_string()
 }
 
-/// The partially percent-encoded form used immediately before paths were stored stripped: unsafe
-/// ASCII percent-encoded, valid non-ASCII kept decoded. Kept only as a lookup candidate so pages
-/// written in that form (notably exam pages, which the cleanup migration does not touch) still
-/// resolve.
+/// Legacy lookup candidate: unsafe ASCII percent-encoded, non-ASCII kept decoded — the form used
+/// before paths were stored stripped. Lets pages written that way (notably exam pages, which the
+/// cleanup migration skips) still resolve.
 fn legacy_partially_encoded_url_path(url_path: &str) -> String {
     let decoded = percent_decode_str(url_path).decode_utf8_lossy();
     let trimmed = decoded.trim();
@@ -228,19 +218,15 @@ fn legacy_partially_encoded_url_path(url_path: &str) -> String {
     normalized
 }
 
-/// The fully percent-encoded form that the oldest normalization stored for paths containing
-/// non-ASCII characters (it also percent-encoded those characters). Kept only as a lookup
-/// candidate so that pages stored in that form still resolve.
+/// Legacy lookup candidate: the oldest form, with non-ASCII percent-encoded too. Lets pages stored
+/// that way still resolve.
 fn legacy_fully_encoded_url_path(url_path: &str) -> String {
     let decoded = percent_decode_str(url_path).decode_utf8_lossy();
     utf8_percent_encode(decoded.trim(), URL_PATH_ENCODE_SET).to_string()
 }
 
-/// The stored `url_path` forms to try when looking up a page by a requested path: the current
-/// strip-canonical form, plus the two legacy encoded forms (see
-/// [`legacy_partially_encoded_url_path`], [`legacy_fully_encoded_url_path`]) for pages written
-/// before the strip form was adopted. Duplicates are removed, so an ASCII-only safe path collapses
-/// to a single candidate.
+/// Stored `url_path` forms to try for a requested path: the strip-canonical form plus the two
+/// legacy encoded forms, deduped (an ASCII-only safe path yields a single candidate).
 fn url_path_lookup_candidates(url_path: &str) -> Vec<String> {
     let mut candidates = vec![normalize_url_path_for_storage(url_path)];
     for form in [
@@ -4431,8 +4417,7 @@ mod test {
 
     #[test]
     fn normalizes_decoded_page_paths_for_storage_and_lookup() {
-        // Unsafe ASCII is stripped (not percent-encoded) and whitespace becomes a dash, so a
-        // stored path never accumulates %xx escapes.
+        // Unsafe ASCII is stripped (not percent-encoded); whitespace becomes a dash.
         assert_eq!(
             normalize_url_path_for_storage("/foo bar#part"),
             "/foo-barpart"
@@ -4485,8 +4470,7 @@ mod test {
 
     #[test]
     fn legacy_partially_encoded_form_encodes_only_unsafe_ascii() {
-        // Unsafe ASCII is percent-encoded while non-ASCII stays decoded — the form pages were
-        // stored in just before the strip-canonical form.
+        // Unsafe ASCII percent-encoded, non-ASCII kept decoded — the pre-strip storage form.
         assert_eq!(
             legacy_partially_encoded_url_path("/chapter 1/як"),
             "/chapter%201/як"

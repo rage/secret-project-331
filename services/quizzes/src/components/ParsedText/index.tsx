@@ -25,11 +25,8 @@ interface ParsedTextProps {
   parseMarkdown?: boolean
   inline?: boolean
   /**
-   * Wrap the output in a block element (`<div>`) instead of letting `inline` decide. Keeps math
-   * rendering inline (that is still driven by `inline`) while allowing the text to contain
-   * block-level content — notably multi-paragraph markdown, whose `<p>` tags are invalid HTML
-   * inside the inline `<span>` `inline` would otherwise produce. Use for feedback that renders
-   * markdown but should still keep inline math.
+   * Wrap output in a block `<div>` while keeping math inline (still driven by `inline`). Use for
+   * markdown that may be multi-paragraph, whose `<p>` tags are invalid inside an inline `<span>`.
    */
   blockContainer?: boolean
   addDotToEnd?: boolean

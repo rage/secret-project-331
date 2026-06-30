@@ -7,12 +7,9 @@ import { successQuery } from "../../__testHelpers__/queryResultFixtures"
 import CourseVisitorsByCountry from "../CourseVisitorsByCountry"
 
 /**
- * Lightweight regression guard for the **data dimension** of this chart: it captures the option object
- * the component hands to echarts and asserts the data -> series mapping is non-empty for a healthy
- * query. It does NOT render a real chart (echarts draws to <canvas>, which jsdom can't measure) and it
- * cannot catch the layout/width-collapse class of bug — that one is guarded by the full-width
- * `wrapperCss` contract in AnimatedQueryFrame. This test would fail if a future backend-shape change
- * made the aggregation produce an empty series.
+ * Captures the option object handed to echarts and asserts the data -> series mapping. Does not
+ * render a real chart (echarts needs <canvas>, which jsdom can't measure) and can't catch the
+ * width-collapse bug — that's guarded by `wrapperCss` in AnimatedQueryFrame.
  */
 const mockEchartsOptions = jest.fn()
 

@@ -13,11 +13,9 @@ const progressBeam = keyframes`
 `
 
 /**
- * The frame must fill its parent so it is layout-transparent: it replaces the content that used to
- * render directly, and that content (notably echarts charts inside `display: flex` containers) relies
- * on a full-width parent. Without `width: 100%` the `<section>` becomes a shrink-to-fit flex item and
- * collapses to ~0 width, so echarts measures an empty container and paints nothing. `min-width: 0`
- * lets it shrink inside flex parents instead of overflowing on narrow screens. Do not remove these.
+ * `width: 100%` keeps the frame layout-transparent: it replaces content that relies on a full-width
+ * parent (echarts in a flex container collapses to ~0 width otherwise, painting nothing).
+ * `min-width: 0` lets it shrink in flex parents instead of overflowing. Do not remove.
  */
 export const wrapperCss = css`
   position: relative;

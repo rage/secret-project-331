@@ -1,7 +1,3 @@
--- Intentionally a no-op.
---
--- The up migration is a one-way data cleanup: it rewrites page URL paths and does not record
--- which rows it changed, so it cannot be reverted precisely. Reverting is also unnecessary —
--- for every changed page it inserted a url_redirections row from the old path, so links using the
--- old (unclean) paths keep resolving regardless of the schema version.
+-- Intentionally a no-op: the up migration is a one-way data cleanup that doesn't record which rows
+-- it changed, so it can't be reverted precisely. The redirects it inserts keep old links working.
 SELECT 1;

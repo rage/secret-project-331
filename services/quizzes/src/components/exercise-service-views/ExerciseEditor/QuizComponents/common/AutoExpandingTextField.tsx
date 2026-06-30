@@ -6,16 +6,9 @@ import React, { TextareaHTMLAttributes, useEffect, useRef } from "react"
 import { primaryFont } from "@/shared-module/common/styles/typography"
 
 /**
- * A text field that is always a `<textarea>` but is visually and functionally
- * indistinguishable from the standard single-line `<input>` (shared-module
- * `InputFields/TextField`) while `multiline` is false, and grows to fit its content like a
- * normal textarea while `multiline` is true.
- *
- * It is always the same element, so toggling `multiline` never swaps the DOM node and never
- * drops focus or the caret — the reason we don't switch between `<input>` and `<textarea>`.
- *
- * The visual styles below mirror `shared-module/.../InputFields/TextField.tsx`. Keep them in
- * sync: if TextField's border/padding/radius/focus styling changes, update this too.
+ * A `<textarea>` that looks like the single-line shared-module `InputFields/TextField` while
+ * `multiline` is false and grows to fit content while it's true. Always the same element, so
+ * toggling `multiline` never drops focus or the caret. Styles mirror TextField — keep in sync.
  */
 
 const Wrapper = styled.div`
@@ -48,9 +41,7 @@ const StyledTextArea = styled.textarea<{ whiteSpace: string }>`
   transition:
     ease-in-out,
     width 0.35s ease-in-out;
-  /* Collapsed behaves like a single-line input (no wrapping, caret scrolls horizontally);
-     expanded wraps and grows. Height is driven by rows={1} when collapsed and by the
-     auto-resize effect when expanded. */
+  /* Collapsed: no wrap, caret scrolls horizontally. Expanded: wraps and grows. */
   white-space: ${({ whiteSpace }) => whiteSpace};
 
   &:focus,
@@ -76,13 +67,11 @@ const resizeToContent = (textarea: HTMLTextAreaElement | null) => {
   if (!textarea) {
     return
   }
-  // Reset first so the field can shrink as well as grow, then size to the content.
+  // Reset so the field can shrink as well as grow, then size to content.
   // eslint-disable-next-line i18next/no-literal-string
   textarea.style.height = "auto"
-  // scrollHeight is content + padding only; under the global box-sizing: border-box the
-  // element height also has to cover the 2px top/bottom borders, so add a small allowance.
-  // Without it the bottom of the last line is clipped (overflow is hidden). Matches the +5
-  // used by the shared TextAreaField.
+  // +5 covers the 2px borders under border-box (scrollHeight excludes them); without it the last
+  // line clips. Matches the shared TextAreaField.
   // eslint-disable-next-line i18next/no-literal-string
   textarea.style.height = `${textarea.scrollHeight + 5}px`
 }
@@ -97,15 +86,14 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Grow to fit content only while expanded. While collapsed, rows={1} plus the shared box
-  // model give the exact height of the standard single-line input.
+  // Grow to fit content while expanded; collapsed uses rows={1} for the single-line height.
   useEffect(() => {
     const textarea = textareaRef.current
     if (!textarea) {
       return
     }
     if (!multiline) {
-      // Drop any inline height left over from a previous expanded state so rows={1} governs.
+      // Drop leftover inline height so rows={1} governs.
       textarea.style.height = ""
       return
     }
@@ -113,8 +101,7 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
   }, [multiline, value])
 
   useEffect(() => {
-    // The field can mount hidden (e.g. inside a collapsed <details>), where scrollHeight is 0.
-    // Recompute once it becomes visible so an expanded field is sized correctly.
+    // Mounted hidden (e.g. in a collapsed <details>) reports scrollHeight 0; recompute when visible.
     const textarea = textareaRef.current
     if (!multiline || !textarea) {
       return
@@ -136,9 +123,8 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // While collapsed, behave like a single-line input: Enter must not insert a newline.
-    // Never intercept the Enter that confirms an in-progress IME composition (a native input
-    // doesn't), or CJK/etc. input would lose its commit keystroke.
+    // Collapsed = single-line: suppress Enter's newline, but not the Enter that commits an IME
+    // composition (CJK input would lose its keystroke).
     if (!multiline && event.key === "Enter" && !event.nativeEvent.isComposing) {
       event.preventDefault()
     }

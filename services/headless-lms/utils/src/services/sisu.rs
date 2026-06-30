@@ -167,13 +167,12 @@ impl SisuClient {
     fn get_url() -> Result<Url, ParseError> {
         let base_url = env::var("BASE_URL").unwrap_or_else(|_| "".to_string());
         let is_mock_sisu = bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT");
-        let url = if !is_mock_sisu {
-            Url::parse("https://sisu.helsinki.fi/kori/api/")
-        } else {
+        if is_mock_sisu {
             let mock_path = Url::parse(base_url.as_str())?;
             mock_path.join("/api/v0/mock-sisu/")
-        };
-        url
+        } else {
+            Url::parse("https://sisu.helsinki.fi/kori/api/")
+        }
     }
 
     pub async fn get_course_ids(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {

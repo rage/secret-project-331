@@ -1406,6 +1406,174 @@ impl CmsPageUpdate {
         }
         Ok(())
     }
+
+    /// Detects exercises that share the same id within this single page and gives the duplicate
+    /// occurrences fresh ids so they become independent exercises (#148).
+    ///
+    /// Duplicating an exercise block in the CMS (Gutenberg) keeps the original block's id (and the
+    /// ids of its nested slides/tasks), so a saved page can contain several exercises that reference
+    /// the same backend exercise. Without this, the upsert collapses them into a single row through
+    /// `ON CONFLICT (id) DO UPDATE` and editing one secretly edits the others.
+    ///
+    /// The same id legitimately appearing once per page is how exercises move between pages, so only
+    /// repeats *within the same page* are remapped. The duplicate's whole subtree (slides, tasks and
+    /// any custom peer-review config/questions) is remapped consistently. Occurrences are matched in
+    /// document order, which `normalizeDocument` guarantees is identical across the content and the
+    /// flat exercise/slide/task lists.
+    ///
+    /// Returns a map from each regenerated duplicate's new exercise id to its original id, so callers
+    /// can recover data still keyed by the original id (e.g. custom peer-review config/questions).
+    pub fn regenerate_duplicate_exercise_ids(&mut self) -> HashMap<Uuid, Uuid> {
+        // For every original exercise id, the new id to use for each occurrence (index 0 is the
+        // first occurrence and keeps the original id).
+        let mut exercise_ids_by_occurrence: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+        // Maps each regenerated duplicate's new id back to its original exercise id.
+        let mut original_exercise_id_by_new_id: HashMap<Uuid, Uuid> = HashMap::new();
+        let mut found_duplicate = false;
+        for exercise in self.exercises.iter_mut() {
+            let original_id = exercise.id;
+            let occurrences = exercise_ids_by_occurrence.entry(original_id).or_default();
+            let new_id = if occurrences.is_empty() {
+                original_id
+            } else {
+                found_duplicate = true;
+                Uuid::new_v4()
+            };
+            occurrences.push(new_id);
+
+            if new_id != original_id {
+                exercise.id = new_id;
+                original_exercise_id_by_new_id.insert(new_id, original_id);
+                // Remap the duplicate's inline custom peer-review config/questions so they don't
+                // collapse onto the original exercise's config.
+                if let Some(config) = exercise.peer_or_self_review_config.as_mut() {
+                    let questions = exercise
+                        .peer_or_self_review_questions
+                        .as_deref_mut()
+                        .unwrap_or(&mut []);
+                    fork_peer_or_self_review_config(config, questions, new_id);
+                }
+            }
+        }
+
+        if !found_duplicate {
+            return original_exercise_id_by_new_id;
+        }
+
+        // Remap slides. The m-th occurrence of a slide id belongs to the m-th occurrence of its
+        // exercise, because each duplicated exercise carries an identical copy of its slides.
+        let mut slide_ids_by_occurrence: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+        for slide in self.exercise_slides.iter_mut() {
+            let original_slide_id = slide.id;
+            let occurrence = slide_ids_by_occurrence
+                .get(&original_slide_id)
+                .map_or(0, |occurrences| occurrences.len());
+
+            let new_exercise_id = exercise_ids_by_occurrence
+                .get(&slide.exercise_id)
+                .and_then(|occurrences| occurrences.get(occurrence))
+                .copied()
+                .unwrap_or(slide.exercise_id);
+            let new_slide_id = if occurrence == 0 {
+                original_slide_id
+            } else {
+                Uuid::new_v4()
+            };
+            slide_ids_by_occurrence
+                .entry(original_slide_id)
+                .or_default()
+                .push(new_slide_id);
+            slide.id = new_slide_id;
+            slide.exercise_id = new_exercise_id;
+        }
+
+        // Remap tasks the same way against the slide occurrences.
+        let mut task_ids_by_occurrence: HashMap<Uuid, usize> = HashMap::new();
+        for task in self.exercise_tasks.iter_mut() {
+            let original_task_id = task.id;
+            let occurrence = task_ids_by_occurrence.entry(original_task_id).or_insert(0);
+
+            let new_slide_id = slide_ids_by_occurrence
+                .get(&task.exercise_slide_id)
+                .and_then(|occurrences| occurrences.get(*occurrence))
+                .copied()
+                .unwrap_or(task.exercise_slide_id);
+            if *occurrence > 0 {
+                task.id = Uuid::new_v4();
+            }
+            task.exercise_slide_id = new_slide_id;
+            *occurrence += 1;
+        }
+
+        // Finally rewrite the exercise ids embedded in the page content so the duplicated block
+        // points at its newly created exercise. Exercise blocks only exist at the top level.
+        let mut content_occurrence: HashMap<Uuid, usize> = HashMap::new();
+        for block in self.content.iter_mut() {
+            if block.name != "moocfi/exercise" {
+                continue;
+            }
+            let Some(id) = block
+                .attributes
+                .get("id")
+                .and_then(|value| value.as_str())
+                .and_then(|value| Uuid::parse_str(value).ok())
+            else {
+                continue;
+            };
+            let occurrence = content_occurrence.entry(id).or_insert(0);
+            if let Some(new_id) = exercise_ids_by_occurrence
+                .get(&id)
+                .and_then(|occurrences| occurrences.get(*occurrence))
+                && *new_id != id
+            {
+                block
+                    .attributes
+                    .insert("id".to_string(), Value::String(new_id.to_string()));
+            }
+            *occurrence += 1;
+        }
+
+        original_exercise_id_by_new_id
+    }
+}
+
+/// Gives `questions` fresh ids pointing at `target_config_id` when it differs from `source_config_id`
+/// (i.e. they are being cloned onto a different config); otherwise returns them untouched so the
+/// upsert reuses the existing rows.
+fn rekey_peer_or_self_review_questions(
+    questions: Vec<CmsPeerOrSelfReviewQuestion>,
+    source_config_id: Uuid,
+    target_config_id: Uuid,
+) -> Vec<CmsPeerOrSelfReviewQuestion> {
+    if source_config_id == target_config_id {
+        return questions;
+    }
+    questions
+        .into_iter()
+        .map(|mut question| {
+            question.id = Uuid::new_v4();
+            question.peer_or_self_review_config_id = target_config_id;
+            question
+        })
+        .collect()
+}
+
+/// Re-keys a custom peer-review config and its questions onto `new_exercise_id` with a fresh config id
+/// and fresh question ids, producing an independent copy for a within-page exercise duplicate so it
+/// does not collapse onto the original exercise's config (#148). All `questions` must belong to
+/// `config`.
+fn fork_peer_or_self_review_config(
+    config: &mut CmsPeerOrSelfReviewConfig,
+    questions: &mut [CmsPeerOrSelfReviewQuestion],
+    new_exercise_id: Uuid,
+) {
+    let new_config_id = Uuid::new_v4();
+    config.id = new_config_id;
+    config.exercise_id = Some(new_exercise_id);
+    for question in questions.iter_mut() {
+        question.id = Uuid::new_v4();
+        question.peer_or_self_review_config_id = new_config_id;
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -1425,6 +1593,9 @@ pub async fn update_page(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
     let mut cms_page_update = page_update.cms_page_update;
+    // Give a fresh id to any exercise duplicated within this page so duplicates don't collapse into
+    // a single backend exercise (#148). Must run before validation and the upsert below.
+    let original_exercise_id_by_new_id = cms_page_update.regenerate_duplicate_exercise_ids();
     cms_page_update.validate_exercise_data()?;
 
     for exercise in cms_page_update.exercises.iter_mut() {
@@ -1482,6 +1653,23 @@ RETURNING id,
     .fetch_one(&mut *tx)
     .await?;
 
+    // Fetch the existing custom peer-review configs/questions before deleting exercises below. Both
+    // queries join `exercises` with `deleted_at IS NULL`, so they must run before
+    // `delete_exercises_by_page_id` or they would return nothing. They are used as a fallback to
+    // preserve custom peer-review settings for exercises whose payload does not explicitly include
+    // them (e.g. an inconsistent editor state) (#129).
+    let existing_peer_or_self_review_configs_by_exercise_id =
+        crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(&mut tx, page.id)
+            .await?
+            .into_iter()
+            .filter_map(|pr| pr.exercise_id.map(|id| (id, pr)))
+            .collect::<HashMap<Uuid, CmsPeerOrSelfReviewConfig>>();
+    let existing_peer_or_self_review_questions_by_config_id =
+        crate::peer_or_self_review_questions::get_by_page_id(&mut tx, page.id)
+            .await?
+            .into_iter()
+            .into_group_map_by(|prq| prq.peer_or_self_review_config_id);
+
     // Exercises
     let existing_exercise_ids =
         crate::exercises::delete_exercises_by_page_id(&mut tx, page.id).await?;
@@ -1518,13 +1706,107 @@ RETURNING id,
         )
         .await?;
 
+    // Configs present in this save's payload, keyed by exercise id. Lets a regenerated within-page
+    // duplicate that omits its own config recover its original's *current* config — preferring the
+    // edit the user just made over the pre-save DB snapshot (#148).
+    let payload_peer_or_self_review_by_exercise_id: HashMap<
+        Uuid,
+        (
+            CmsPeerOrSelfReviewConfig,
+            Option<Vec<CmsPeerOrSelfReviewQuestion>>,
+        ),
+    > = cms_page_update
+        .exercises
+        .iter()
+        .filter(|e| !e.use_course_default_peer_or_self_review_config)
+        .filter_map(|e| {
+            e.peer_or_self_review_config.as_ref().map(|config| {
+                (
+                    e.id,
+                    (config.clone(), e.peer_or_self_review_questions.clone()),
+                )
+            })
+        })
+        .collect();
+
+    // Recovers the custom config + questions stored/sent for `exercise_id`, preferring this save's
+    // payload over the pre-save DB snapshot and resolving omitted questions from the snapshot.
+    let recover_peer_or_self_review = |exercise_id: Uuid| -> Option<(
+        CmsPeerOrSelfReviewConfig,
+        Vec<CmsPeerOrSelfReviewQuestion>,
+    )> {
+        if let Some((config, questions)) =
+            payload_peer_or_self_review_by_exercise_id.get(&exercise_id)
+        {
+            let questions = match questions {
+                Some(questions) => questions.clone(),
+                None => existing_peer_or_self_review_questions_by_config_id
+                    .get(&config.id)
+                    .cloned()
+                    .unwrap_or_default(),
+            };
+            return Some((config.clone(), questions));
+        }
+        let config = existing_peer_or_self_review_configs_by_exercise_id
+            .get(&exercise_id)?
+            .clone();
+        let questions = existing_peer_or_self_review_questions_by_config_id
+            .get(&config.id)
+            .cloned()
+            .unwrap_or_default();
+        Some((config, questions))
+    };
+
     let (peer_or_self_review_configs, peer_or_self_review_questions) = cms_page_update
         .exercises
         .into_iter()
         .filter(|e| !e.use_course_default_peer_or_self_review_config)
-        .flat_map(|e| {
-            e.peer_or_self_review_config
-                .zip(e.peer_or_self_review_questions)
+        .filter_map(|e| {
+            let exercise_id = e.id;
+            // For a within-page duplicate that was regenerated a fresh id (#148), its settings still
+            // live under the original exercise/config id; otherwise this is the exercise's own id.
+            let original_exercise_id = original_exercise_id_by_new_id.get(&exercise_id).copied();
+            // Prefer the config/questions sent in the payload. If the payload omits them (e.g. an
+            // inconsistent editor state where a custom exercise is saved without its config or
+            // questions), fall back to the existing custom settings so they are not lost (#129). An
+            // exercise switching to the course default is filtered out above, so its config is
+            // correctly left deleted.
+            match e.peer_or_self_review_config {
+                Some(config) => {
+                    // The config is present, but the questions may be omitted. `None` means "keep the
+                    // existing questions"; `Some(vec![])` is an explicit "remove all questions". The
+                    // existing questions live under the source config id — this exercise's own for a
+                    // normal save, or the original's for a regenerated duplicate whose config id was
+                    // freshly minted, so they are re-keyed onto the new config id.
+                    let questions = match e.peer_or_self_review_questions {
+                        Some(questions) => questions,
+                        None => {
+                            recover_peer_or_self_review(original_exercise_id.unwrap_or(exercise_id))
+                                .map(|(source_config, source_questions)| {
+                                    rekey_peer_or_self_review_questions(
+                                        source_questions,
+                                        source_config.id,
+                                        config.id,
+                                    )
+                                })
+                                .unwrap_or_default()
+                        }
+                    };
+                    Some((config, questions))
+                }
+                None => {
+                    // The whole config is omitted. Recover this exercise's own stored config (#129);
+                    // if it is a regenerated duplicate with nothing of its own, recover the original's
+                    // current config and fork it onto this duplicate with fresh ids (#148).
+                    if let Some((config, questions)) = recover_peer_or_self_review(exercise_id) {
+                        return Some((config, questions));
+                    }
+                    let (mut config, mut questions) =
+                        original_exercise_id.and_then(&recover_peer_or_self_review)?;
+                    fork_peer_or_self_review_config(&mut config, &mut questions, exercise_id);
+                    Some((config, questions))
+                }
+            }
         })
         .fold((vec![], vec![]), |(mut a, mut b), (pr, prq)| {
             a.push(pr);

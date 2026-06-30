@@ -62,6 +62,10 @@ const MEDIUM = "medium"
 const HIGH = "high"
 const XHIGH = "xhigh"
 
+// Minimum max_output_tokens accepted by the backend (see MIN_MAX_OUTPUT_TOKENS in
+// chatbot_configurations.rs and the DB CHECK constraint).
+const MIN_OUTPUT_TOKENS = 10000
+
 const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQueryRefetch }) => {
   const { t } = useTranslation()
   const router = useRouter()
@@ -330,7 +334,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                               : t("max-token-response")
                           }
                           error={errors.max_output_tokens?.message}
-                          {...register("max_output_tokens", { required: t("required-field") })}
+                          {...register("max_output_tokens", {
+                            required: t("required-field"),
+                            min: {
+                              value: MIN_OUTPUT_TOKENS,
+                              message: t("error-field-value-at-least", {
+                                field: selectedModelThinking
+                                  ? t("max-completion-tokens")
+                                  : t("max-token-response"),
+                                lower: String(MIN_OUTPUT_TOKENS),
+                              }),
+                            },
+                          })}
                         />
                       </div>
                       <div className={itemCss}>

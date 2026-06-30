@@ -3,7 +3,7 @@
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
 import { sortBy } from "lodash"
-import React, { ReactPortal, useLayoutEffect, useMemo, useState } from "react"
+import React, { ReactPortal, useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 
@@ -124,8 +124,64 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
   const { t } = useTranslation()
   const [active] = useState<string>()
   const [readyForPortal, setReadyForPortal] = useState(false)
+  // Bumped whenever citation markers are added/removed from the DOM so the
+  // portal scan re-runs. Needed because markers can mount lazily, e.g. when an
+  // expandable content block is opened after the initial scan.
+  const [scanVersion, setScanVersion] = useState(0)
   useLayoutEffect(() => {
     setReadyForPortal(true)
+  }, [])
+
+  // Re-scan when the citation markers change in the page content. We compare a signature of the
+  // marker sequence and their relevant attributes (not just the count), so replacements, reordering
+  // and prenote/postnote edits also re-trigger the scan, while the DOM changes caused by rendering
+  // the portals themselves don't.
+  useEffect(() => {
+    const container = document.getElementById("content")
+    if (!container) {
+      return
+    }
+    const getCitationSignature = () => {
+      let signature = ""
+      container.querySelectorAll<HTMLElement>("[data-citation-id]").forEach((node) => {
+        const id = node.dataset.citationId ?? ""
+        const prenote = node.dataset.citationPrenote ?? ""
+        const postnote = node.dataset.citationPostnote ?? ""
+        // Length-prefix each field so arbitrary note text can't forge a field/record boundary.
+        signature += `${id.length}:${id}${prenote.length}:${prenote}${postnote.length}:${postnote};`
+      })
+      return signature
+    }
+    let lastSignature = getCitationSignature()
+    let scheduled = 0
+    const check = () => {
+      scheduled = 0
+      const signature = getCitationSignature()
+      if (signature !== lastSignature) {
+        lastSignature = signature
+        setScanVersion((prev) => prev + 1)
+      }
+    }
+    const observer = new MutationObserver(() => {
+      // Coalesce bursts of mutations (lazy-mounting blocks, animations, typing) into one scan per
+      // frame instead of re-scanning the whole subtree on every individual mutation.
+      if (scheduled === 0) {
+        scheduled = requestAnimationFrame(check)
+      }
+    })
+    observer.observe(container, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      // eslint-disable-next-line i18next/no-literal-string -- DOM attribute names, not user-facing text
+      attributeFilter: ["data-citation-id", "data-citation-prenote", "data-citation-postnote"],
+    })
+    return () => {
+      observer.disconnect()
+      if (scheduled !== 0) {
+        cancelAnimationFrame(scheduled)
+      }
+    }
   }, [])
 
   let [portals, citeOrder]: [ReactPortal[] | null, string[] | null] = useMemo(() => {
@@ -168,7 +224,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       })
       .filter((o) => !!o)
     return [portals, citeOrder]
-  }, [data, readyForPortal])
+  }, [data, readyForPortal, scanVersion])
 
   let sortedReferenceList = useMemo(() => {
     if (!citeOrder) {

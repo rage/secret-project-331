@@ -722,6 +722,7 @@
   "error-creating-course": "Error creating course",
   "error-default-chatbot-in-block": "Can't use the default chatbot within the course material.",
   "error-fetching-service-info": "Error fetching service info",
+  "error-field-value-at-least": "{{field}} should be at least {{lower}}.",
   "error-field-value-between": "{{field}} should be a value between {{lower}} and {{upper}}.",
   "error-hide-details": "Hide details",
   "error-issue": "Issue: {{issue}}",

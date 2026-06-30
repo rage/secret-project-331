@@ -814,6 +814,44 @@ SELECT EXISTS (
     Ok(pending_manual_reviews)
 }
 
+/// Returns true when the user has exercises in the given course module pending teacher review.
+pub async fn has_pending_manual_reviews_in_module(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+    course_id: Uuid,
+    course_module_id: Uuid,
+) -> ModelResult<bool> {
+    struct PendingManualReviewsInModuleRow {
+        exists: bool,
+    }
+
+    let pending_manual_reviews = sqlx::query_as!(
+        PendingManualReviewsInModuleRow,
+        r#"
+SELECT EXISTS (
+    SELECT 1
+    FROM user_exercise_states ues
+    JOIN exercises e ON e.id = ues.exercise_id
+    JOIN chapters c ON c.id = e.chapter_id
+    WHERE ues.user_id = $1
+      AND ues.course_id = $2
+      AND c.course_module_id = $3
+      AND ues.reviewing_stage = 'waiting_for_manual_grading'::reviewing_stage
+      AND ues.deleted_at IS NULL
+      AND e.deleted_at IS NULL
+      AND c.deleted_at IS NULL
+ ) as "exists!"
+        "#,
+        user_id,
+        course_id,
+        course_module_id
+    )
+    .fetch_one(conn)
+    .await?
+    .exists;
+    Ok(pending_manual_reviews)
+}
+
 pub async fn get_all_for_user_and_course_or_exam(
     conn: &mut PgConnection,
     user_id: Uuid,

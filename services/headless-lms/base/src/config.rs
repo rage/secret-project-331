@@ -44,7 +44,7 @@ impl ApplicationConfiguration {
             && (bool_env_false_by_default("USE_MOCK_AZURE_CONFIGURATION")
                 || env::var("AZURE_CHATBOT_API_KEY").is_err());
 
-        let test_sisu = test_mode && (bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT"));
+        let test_sisu = test_mode && bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT");
 
         let azure_configuration = if test_chatbot {
             AzureConfiguration::mock_conf()?

@@ -179,6 +179,12 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
                 onChangeByValue={(value) => {
                   setPath(value)
                 }}
+                onBlur={() => {
+                  // Manually entered paths must follow the same slug rules as the
+                  // title-generated ones, so a typed/pasted space or colon can't end up in
+                  // the URL. Normalized on blur so typing hyphens mid-edit still works.
+                  setPath((current) => normalizePath(current))
+                }}
               />
             </PathFieldWithPrefixElement>
           </FieldContainer>

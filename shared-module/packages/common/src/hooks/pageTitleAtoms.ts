@@ -5,9 +5,17 @@ import { atom } from "jotai"
 /**
  * One registered page-title source. Multiple may be registered at once (e.g. a layout and a
  * leaf page); the deepest/highest-`order` entry wins. `seq` is a monotonic registration counter
- * used to break ties deterministically (last writer at a given `order` wins).
+ * used to break ties deterministically (last writer at a given `order` wins); it is assigned
+ * once per registration and kept stable across updates. `owner` is the id of the hook instance
+ * that registered the entry, so an unmounting instance only deletes a slot it still owns.
  */
-export type PageTitleEntry = { key: string; order: number; title: string; seq: number }
+export type PageTitleEntry = {
+  key: string
+  order: number
+  title: string
+  seq: number
+  owner: string
+}
 
 /** Keyed registry of active page-title sources. Written by {@link usePageTitle}. */
 export const pageTitleEntriesAtom = atom<Record<string, PageTitleEntry>>({})

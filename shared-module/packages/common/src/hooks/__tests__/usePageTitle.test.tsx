@@ -30,6 +30,26 @@ function TitleSetter({ title, order }: { title: string | null; order?: number })
   return null
 }
 
+/** Registers under an explicit, shared `key` so several instances contend for the same slot. */
+function KeyedTitleSetter({ title, sharedKey }: { title: string; sharedKey: string }) {
+  usePageTitle(title, { key: sharedKey })
+  return null
+}
+
+/**
+ * Two callers contending for the same registry key. The "Second" caller is kept at a STABLE
+ * position so toggling `showFirst` off unmounts only the first caller while the second instance
+ * is preserved (same identity, no re-registration) — exactly the case the owner check guards.
+ */
+function SharedKeyPair({ showFirst }: { showFirst: boolean }) {
+  return (
+    <>
+      {showFirst ? <KeyedTitleSetter title="First" sharedKey="shared" /> : null}
+      <KeyedTitleSetter title="Second" sharedKey="shared" />
+    </>
+  )
+}
+
 /** Renders a stable Provider + manager wrapper so rerenders keep the same jotai store. */
 function App({ children }: { children?: React.ReactNode }) {
   return (
@@ -109,6 +129,46 @@ describe("usePageTitle + PageTitleManager", () => {
     expect(document.title).toBe("Second - Test Site")
   })
 
+  test("re-rendering one equal-order source does not let it jump ahead of a later-registered sibling", () => {
+    // The leaf is registered after the parent at the same order, so it wins.
+    const { rerender } = render(
+      <App>
+        <TitleSetter title="Parent" order={0} />
+        <TitleSetter title="Leaf" order={0} />
+      </App>,
+    )
+    expect(document.title).toBe("Leaf - Test Site")
+
+    // Only the parent's title changes (so only it re-registers). Its `seq` must stay stable, so
+    // the later-registered leaf keeps winning rather than the parent jumping the queue.
+    rerender(
+      <App>
+        <TitleSetter title="Parent updated" order={0} />
+        <TitleSetter title="Leaf" order={0} />
+      </App>,
+    )
+    expect(document.title).toBe("Leaf - Test Site")
+  })
+
+  test("an unmounting caller does not delete a shared key that another caller still owns", () => {
+    const { rerender } = render(
+      <App>
+        <SharedKeyPair showFirst={true} />
+      </App>,
+    )
+    // Last writer wins the shared slot.
+    expect(document.title).toBe("Second - Test Site")
+
+    // The first (non-owning) caller unmounts; the second caller stays mounted at the same
+    // position and owns the slot, so the first's cleanup must not delete it.
+    rerender(
+      <App>
+        <SharedKeyPair showFirst={false} />
+      </App>,
+    )
+    expect(document.title).toBe("Second - Test Site")
+  })
+
   test("a blank/null title registers nothing, so a parent title is not blanked out", () => {
     render(
       <App>
@@ -172,12 +232,17 @@ describe("usePageTitle + PageTitleManager", () => {
     expect(announceMock).toHaveBeenCalledWith("Course X", "polite")
   })
 
-  test("does not announce a navigation-time title change (Next's built-in announcer owns it)", () => {
+  test("does not announce a navigation-time title change (Next's built-in announcer owns it)", async () => {
     const { rerender } = render(
       <App>
         <TitleSetter title="Home" />
       </App>,
     )
+    // Close the initial-mount settle window FIRST, so the suppression asserted below is caused by
+    // the navigation-detection branch and not by a still-open initial window.
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
     announceMock.mockClear()
 
     // Navigation: both the pathname and the title change in the same step.
@@ -189,5 +254,39 @@ describe("usePageTitle + PageTitleManager", () => {
     )
     expect(document.title).toBe("About - Test Site")
     expect(announceMock).not.toHaveBeenCalled()
+  })
+
+  test("does not re-announce when the title blips to null and back (e.g. a refetch)", async () => {
+    const { rerender } = render(
+      <App>
+        <TitleSetter title="Home" />
+      </App>,
+    )
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    announceMock.mockClear()
+
+    // An async title change on the same route is announced once.
+    rerender(
+      <App>
+        <TitleSetter title="Course X" />
+      </App>,
+    )
+    expect(announceMock).toHaveBeenCalledTimes(1)
+
+    // The title transiently goes null (a refetch) ...
+    rerender(
+      <App>
+        <TitleSetter title={null} />
+      </App>,
+    )
+    // ... then resolves back to the same value. This must NOT count as a change and re-announce.
+    rerender(
+      <App>
+        <TitleSetter title="Course X" />
+      </App>,
+    )
+    expect(announceMock).toHaveBeenCalledTimes(1)
   })
 })

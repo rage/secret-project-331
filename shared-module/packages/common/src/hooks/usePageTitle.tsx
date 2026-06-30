@@ -1,7 +1,7 @@
 "use client"
 
 import { useSetAtom } from "jotai"
-import { useId, useLayoutEffect } from "react"
+import { useCallback, useId, useLayoutEffect } from "react"
 
 import { nextPageTitleSeq, pageTitleEntriesAtom } from "./pageTitleAtoms"
 
@@ -30,44 +30,49 @@ export function usePageTitle(
   title: string | null | undefined,
   opts?: { key?: string; order?: number },
 ): void {
-  const generatedKey = useId()
-  const key = opts?.key ?? generatedKey
+  // Always-unique identity for this hook instance, even when an explicit `opts.key` is shared
+  // by several mounted callers. Used as the entry's `owner` so unmount cleanup only deletes a
+  // slot this instance still owns.
+  const owner = useId()
+  const key = opts?.key ?? owner
   const order = opts?.order ?? 0
   const trimmedTitle = title?.trim()
   const setEntries = useSetAtom(pageTitleEntriesAtom)
 
+  // Drop our entry, but only while it is still ours: if another instance has since taken the
+  // same `key` (last-writer-wins), leave its entry in place.
+  const unregister = useCallback(() => {
+    setEntries((prev) => {
+      if (prev[key]?.owner !== owner) {
+        return prev
+      }
+      const next = { ...prev }
+      delete next[key]
+      return next
+    })
+  }, [setEntries, key, owner])
+
   // Unregister on unmount (e.g. navigating away) so the title falls back to the next source.
-  useLayoutEffect(() => {
-    return () => {
-      setEntries((prev) => {
-        if (!(key in prev)) {
-          return prev
-        }
-        const next = { ...prev }
-        delete next[key]
-        return next
-      })
-    }
-  }, [setEntries, key])
+  useLayoutEffect(() => unregister, [unregister])
 
   // Register/update while a non-blank title is set; drop the entry while it is blank/loading.
-  // Runs in a layout effect so the title lands in the same commit as a navigation render,
-  // before Next's built-in route announcer reads `document.title`.
+  // Runs in a layout effect so the atom write — and the `<title>` re-render it triggers in
+  // PageTitleManager — lands during the navigation commit, before Next's built-in route
+  // announcer (a passive effect) reads `document.title`.
   useLayoutEffect(() => {
     if (!trimmedTitle) {
-      setEntries((prev) => {
-        if (!(key in prev)) {
-          return prev
-        }
-        const next = { ...prev }
-        delete next[key]
-        return next
-      })
+      unregister()
       return
     }
-    setEntries((prev) => ({
-      ...prev,
-      [key]: { key, order, title: trimmedTitle, seq: nextPageTitleSeq() },
-    }))
-  }, [setEntries, key, order, trimmedTitle])
+    setEntries((prev) => {
+      // Assign `seq` once per registration and keep it stable across updates so a mere
+      // re-render does not jump the queue ahead of an equal-`order` sibling.
+      const existing = prev[key]
+      const seq = existing && existing.owner === owner ? existing.seq : nextPageTitleSeq()
+      return {
+        ...prev,
+        [key]: { key, order, title: trimmedTitle, seq, owner },
+      }
+    })
+  }, [setEntries, unregister, key, order, trimmedTitle, owner])
 }

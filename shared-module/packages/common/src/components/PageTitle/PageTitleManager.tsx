@@ -16,12 +16,20 @@ interface PageTitleManagerProps {
 /**
  * Owns `document.title` for the app. Mount this exactly once, high in the client tree and inside
  * the jotai `<Provider>` so it shares the store with {@link usePageTitle} callers. It is a
- * headless sibling (renders `null`) like `BreadcrumbRenderer` — not a wrapping provider.
+ * headless sibling (renders only a `<title>` element) like `BreadcrumbRenderer` — not a wrapping
+ * provider.
+ *
+ * The title is rendered as a `<title>` element rather than written imperatively to
+ * `document.title`. React (19+) hoists it into `<head>`, so it is server-rendered (crawlers and
+ * the initial HTML get the site name, or the resolved page title once a page registers one) and
+ * is the single owner of the document title — no other code should write `document.title`. Because
+ * React applies the element during the commit's mutation phase, the title also lands before any
+ * passive effect runs, including Next's built-in route announcer (see below).
  *
  * Accessibility:
  * - Synchronous (navigation-time) title changes are announced by Next.js's built-in App Router
- *   route announcer, which reads `document.title` after our effect has set it. We deliberately
- *   do NOT render our own live region for these, to avoid double announcements.
+ *   route announcer, which reads `document.title` (already updated in the commit) on tree change.
+ *   We deliberately do NOT announce these ourselves, to avoid double announcements.
  * - Async/data-derived titles (resolved on the same route after navigation) would be missed by
  *   the built-in announcer (it is keyed on the router tree), so we announce those politely via
  *   react-aria's `announce()`.
@@ -30,14 +38,6 @@ const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_
   const resolvedTitle = useAtomValue(resolvedPageTitleAtom)
   const pathname = usePathname()
   const fullTitle = formatPageTitle(resolvedTitle, siteName)
-
-  // Keep document.title in sync with the resolved page title.
-  useEffect(() => {
-    if (typeof document === "undefined") {
-      return
-    }
-    document.title = fullTitle
-  }, [fullTitle])
 
   // Announce an async (data-derived) title change politely. The browser announces the initial
   // page load, and Next's built-in route announcer covers navigation-time title changes. To
@@ -59,7 +59,11 @@ const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_
 
     hasMountedRef.current = true
     previousPathnameRef.current = pathname
-    lastTitleRef.current = resolvedTitle
+    // Record the latest *real* title. Never overwrite a known title with `null`: a transient
+    // null (e.g. a refetch) followed by the same title must not look like a change and re-announce.
+    if (resolvedTitle !== null) {
+      lastTitleRef.current = resolvedTitle
+    }
 
     if (isInitialRun || navigated) {
       // Open/extend the settle window; the title arriving with this navigation is announced by
@@ -89,7 +93,7 @@ const PageTitleManager: React.FC<PageTitleManagerProps> = ({ siteName = DEFAULT_
     }
   }, [])
 
-  return null
+  return <title>{fullTitle}</title>
 }
 
 export default PageTitleManager

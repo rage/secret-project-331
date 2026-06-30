@@ -49,7 +49,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   const [title, setTitle] = useState<string | null>(null)
   const [organizationSlug, setOrganizationSlug] = useState<string | null>(null)
   const [courseId, setCourseId] = useState<string | null>(null)
-  const [hideFromSearchEngines, setHideFromSearchEngines] = useState<boolean>(false)
   const [pageState, setPageState] = useState<PageState>(getDefaultPageState())
   const getPrivacyLink = useQuery({
     queryKey: ["privacy-link", courseId],
@@ -101,11 +100,9 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
       setOrganizationSlug,
       courseId,
       setCourseId,
-      hideFromSearchEngines,
-      setHideFromSearchEngines,
       setPageState,
     }
-  }, [courseId, hideFromSearchEngines, organizationSlug, title])
+  }, [courseId, organizationSlug, title])
   return (
     <Suspense fallback={<Spinner variant="large" />}>
       <div

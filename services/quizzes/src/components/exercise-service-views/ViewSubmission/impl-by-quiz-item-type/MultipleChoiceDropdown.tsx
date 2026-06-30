@@ -12,6 +12,7 @@ import {
   PublicSpecQuizItemMultiplechoiceDropdown,
 } from "../../../../../types/quizTypes/publicSpec"
 import { quizTheme } from "../../../../styles/QuizStyles"
+import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -255,7 +256,7 @@ const SubmissionFeedbackMessage: React.FC<
           padding: 0.5rem 0px 0.5rem 0.5rem;
         `}
       >
-        <p>{feedBackForOption}</p>
+        <ParsedText inline parseLatex parseMarkdown text={feedBackForOption} />
       </div>
     ) : null
   })

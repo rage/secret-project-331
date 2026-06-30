@@ -1,9 +1,9 @@
 use crate::{error::util_error::SisuErrorVariant, prelude::*};
 pub struct SisuClient {}
-
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
+use std::time::Duration;
 use std::{cmp::Ordering, collections::HashMap};
 use utoipa::ToSchema;
 pub type SisuCourseInfo = Vec<SisuCourseInfoElement>;
@@ -161,6 +161,8 @@ pub struct SisuDescriptions {
 static SISU_BASE_URL: LazyLock<Url> =
     LazyLock::new(|| Url::parse("https://sisu.helsinki.fi/kori/api/").expect("Invalid url"));
 
+const TIMEOUT_DURATION: Duration = Duration::from_secs(60);
+
 impl SisuClient {
     pub async fn get_course_ids(
         is_mock_sisu: bool,
@@ -185,6 +187,7 @@ impl SisuClient {
             let response = REQWEST_CLIENT
                 .get(url)
                 .header("Content-Type", "application/json")
+                .timeout(TIMEOUT_DURATION)
                 .send()
                 .await
                 .map_err(|e| {
@@ -247,6 +250,7 @@ impl SisuClient {
                 let response = REQWEST_CLIENT
                     .get(url)
                     .header("Content-Type", "application/json")
+                    .timeout(TIMEOUT_DURATION)
                     .send()
                     .await
                     .map_err(|e| {

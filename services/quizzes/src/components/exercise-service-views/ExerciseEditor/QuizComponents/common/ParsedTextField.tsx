@@ -2,14 +2,17 @@
 
 import styled from "@emotion/styled"
 import { Eye, InfoCircle, Pencil } from "@vectopus/atlas-icons-react"
-import React, { useContext, useMemo, useRef, useState } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ParsedText from "../../../../ParsedText"
 
+import AutoExpandingTextField from "./AutoExpandingTextField"
+import { toSingleLine } from "./singleLine"
+import { containsLatexBlock, containsMarkdownBlock } from "./tagBlocks"
+
 import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { OpenLinkMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 const DisplayContainer = styled.div`
@@ -69,22 +72,22 @@ interface ParsedTextFieldProps {
 const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChange }) => {
   const [preview, setPreview] = useState(false)
   const [text, setText] = useState(value ?? "")
-  const inputRef = useRef<HTMLTextAreaElement>(null)
   const messagePort = useContext(MessagePortContext)
 
   const { t } = useTranslation()
 
-  const containsMarkdown = useMemo(
-    () => text.includes("[markdown]") && text.includes("[/markdown]"),
-    [text],
-  )
+  const containsMarkdown = useMemo(() => containsMarkdownBlock(text), [text])
 
-  const containsLatex = useMemo(() => text.includes("[latex]") && text.includes("[/latex]"), [text])
+  const containsLatex = useMemo(() => containsLatexBlock(text), [text])
 
   const hasTags = useMemo(
     () => containsMarkdown || containsLatex,
     [containsMarkdown, containsLatex],
   )
+
+  // Single line by default; only a markdown block needs the room for line
+  // breaks, so it promotes the field to a multiline textarea.
+  const multiline = containsMarkdown
 
   const PreviewButton = (
     <>
@@ -95,9 +98,13 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
     </>
   )
 
-  const handleOnChange = (value: string) => {
-    onChange(value)
-    setText(value)
+  const handleOnChange = (rawValue: string) => {
+    // While collapsed (no markdown block), keep the value single-line so the field stays
+    // input-like; once a markdown block is present, preserve line breaks for the multiline
+    // editing that the block enables.
+    const next = containsMarkdownBlock(rawValue) ? rawValue : toSingleLine(rawValue)
+    onChange(next)
+    setText(next)
   }
 
   return (
@@ -109,9 +116,8 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
               <ParsedText text={value} parseMarkdown parseLatex inline />
             </ParsedTextContainer>
           ) : (
-            <TextAreaField
-              ref={inputRef}
-              autoResize
+            <AutoExpandingTextField
+              multiline={multiline}
               value={value ?? ""}
               onChangeByValue={(value) => handleOnChange(value)}
               label={label}

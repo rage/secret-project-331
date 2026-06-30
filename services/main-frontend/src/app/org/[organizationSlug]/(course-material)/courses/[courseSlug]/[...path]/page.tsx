@@ -12,6 +12,7 @@ import { useLanguageOptions } from "@/contexts/LanguageOptionsContext"
 import useLanguageNavigation from "@/hooks/course-material/language/useLanguageNavigation"
 import useScrollToSelector from "@/hooks/course-material/useScrollToSelector"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import NoIndexMeta from "@/shared-module/common/components/NoIndexMeta"
 import Spinner from "@/shared-module/common/components/Spinner"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
@@ -178,6 +179,8 @@ const PagePage: React.FC = () => {
 
   return (
     <>
+      {/* Keep hidden pages out of search engine indexes (React hoists this into <head>). */}
+      <NoIndexMeta noIndex={courseMaterialState.page?.hidden ?? false} />
       <CourseMaterialPageBreadcrumbs currentPagePath={path} page={courseMaterialState.page} />
       {<CourseTestModeNotification isTestMode={courseMaterialState.isTestMode} />}
       <Page onRefresh={handleRefresh} organizationSlug={organizationSlug} />

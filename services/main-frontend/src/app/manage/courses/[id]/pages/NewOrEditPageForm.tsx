@@ -112,6 +112,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
       exercise_tasks: [],
       exam_id: null,
       content_search_language: null,
+      hidden: false,
     }
 
     await createPageMutation.mutateAsync({

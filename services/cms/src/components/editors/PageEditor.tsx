@@ -126,6 +126,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
       content: removeUncommonSpacesFromBlocks(removeUnsupportedBlockType(content)),
       title,
       urlPath: data.url_path,
+      hidden: data.hidden,
     })
     // Make sure peer review configs are valid
     for (const exercise of dataToSave.exercises) {
@@ -151,6 +152,7 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
             url_path: data.page.url_path,
             title: data.page.title,
             chapter_id: data.page.chapter_id,
+            hidden: data.page.hidden,
           }).content,
         })
         setNeedToRunMigrationsAndValidations(true)

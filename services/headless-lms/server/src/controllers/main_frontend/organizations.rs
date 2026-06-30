@@ -779,6 +779,7 @@ async fn create_exam(
             exercises: vec![],
             title: "exam page".to_string(),
             url_path: "/".to_string(),
+            hidden: false,
         },
         user.id,
     )

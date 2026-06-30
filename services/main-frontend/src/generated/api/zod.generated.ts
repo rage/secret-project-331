@@ -1992,6 +1992,7 @@ export const zNewPage = z.object({
   exercise_tasks: z.array(zCmsPageExerciseTask),
   exercises: z.array(zCmsPageExercise),
   front_page_of_chapter_id: z.uuid().nullish(),
+  hidden: z.boolean(),
   title: z.string(),
   url_path: z.string(),
 })

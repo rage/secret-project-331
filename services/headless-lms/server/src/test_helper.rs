@@ -297,6 +297,7 @@ macro_rules! insert_data {
                 chapter_id: Some($chapter),
                 front_page_of_chapter_id: Some($chapter),
                 content_search_language: None,
+                hidden: false,
             },
             $user,
             |_, _, _| unimplemented!(),

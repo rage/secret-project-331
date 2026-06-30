@@ -150,16 +150,8 @@ const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'|')
     .add(b'}');
 
-/// Canonicalizes a URL path for storage and lookup.
-///
-/// Percent-decodes any escapes, trims surrounding whitespace, then re-encodes only the
-/// unsafe ASCII characters in `URL_PATH_ENCODE_SET`. Valid non-ASCII UTF-8 (e.g. Cyrillic)
-/// is kept verbatim so that paths stay human-readable and continue to match values that
-/// were stored before URL normalization was introduced.
-///
-/// `utf8_percent_encode` always percent-encodes non-ASCII bytes regardless of the set, so
-/// only ASCII characters are run through it; everything else is passed through unchanged.
-fn normalize_url_path_for_storage(url_path: &str) -> String {
+/// Percent-encodes URL path characters that are not part of the safe path alphabet.
+pub(crate) fn normalize_url_path_for_storage(url_path: &str) -> String {
     let decoded = percent_decode_str(url_path).decode_utf8_lossy();
     let trimmed = decoded.trim();
     let mut normalized = String::with_capacity(trimmed.len());
@@ -372,6 +364,7 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
     /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     pub content_search_language: Option<String>,
+    pub hidden: bool,
 }
 
 /// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
@@ -599,20 +592,25 @@ pub async fn insert_exam_page(
     let page_res = sqlx::query!(
         "
 INSERT INTO pages (
-    exam_id,
     content,
     url_path,
     title,
+    exam_id,
+    content_search_language,
+    hidden,
     order_number
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
 ",
-        exam_id,
-        serde_json::Value::Array(vec![]),
+        serde_json::to_value(page.content.clone())?,
         page.url_path,
         page.title,
-        0
+        exam_id,
+        page.content_search_language
+            .unwrap_or_else(|| "simple".to_string()),
+        page.hidden,
+        0_i32
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -623,10 +621,10 @@ RETURNING id
         page_res.id,
         page.title.as_str(),
         &PageHistoryContent {
-            content: serde_json::Value::Array(vec![]),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
+            content: serde_json::to_value(page.content)?,
+            exercises: page.exercises,
+            exercise_slides: page.exercise_slides,
+            exercise_tasks: page.exercise_tasks,
             peer_or_self_review_configs: Vec::new(),
             peer_or_self_review_questions: Vec::new(),
         },
@@ -1353,6 +1351,7 @@ pub struct CmsPageUpdate {
     pub url_path: String,
     pub title: String,
     pub chapter_id: Option<Uuid>,
+    pub hidden: bool,
 }
 
 impl CmsPageUpdate {
@@ -1626,7 +1625,8 @@ UPDATE pages
 SET content = $2,
   url_path = $3,
   title = $4,
-  chapter_id = $5
+  chapter_id = $5,
+  hidden = $6
 WHERE id = $1
 RETURNING id,
   created_at,
@@ -1647,7 +1647,8 @@ RETURNING id,
         serde_json::to_value(&content)?,
         normalized_url_path,
         cms_page_update.title.trim(),
-        cms_page_update.chapter_id
+        cms_page_update.chapter_id,
+        cms_page_update.hidden
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -2657,6 +2658,7 @@ pub async fn insert_new_content_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: new_page.hidden,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -2726,9 +2728,10 @@ INSERT INTO pages(
     order_number,
     chapter_id,
     content_search_language,
-    page_language_group_id
+    page_language_group_id,
+    hidden
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id,
   created_at,
   updated_at,
@@ -2753,6 +2756,7 @@ RETURNING id,
         new_page.chapter_id,
         content_search_language as _,
         page_language_group_id,
+        new_page.hidden,
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -2772,6 +2776,7 @@ RETURNING id,
                 url_path: page.url_path,
                 title: page.title,
                 chapter_id: page.chapter_id,
+                hidden: new_page.hidden,
             },
             retain_ids: false,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -3798,6 +3803,7 @@ pub async fn restore(
                 url_path: page.url_path,
                 title: history_data.title,
                 chapter_id: page.chapter_id,
+                hidden: page.hidden,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::HistoryRestored,
@@ -4460,6 +4466,7 @@ mod test {
             chapter_id: Some(chapter),
             front_page_of_chapter_id: None,
             content_search_language: None,
+            hidden: false,
         };
 
         // Stored in the decoded-canonical form (raw Cyrillic), as insert_page now stores it.
@@ -4572,6 +4579,7 @@ mod test {
                 chapter_id: None,
                 front_page_of_chapter_id: None,
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -4660,6 +4668,7 @@ mod test {
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: None,
+            hidden: false,
         }
     }
 

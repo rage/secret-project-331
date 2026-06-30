@@ -1,9 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
 import { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
 import Button from "@/shared-module/common/components/Button"
@@ -26,20 +26,37 @@ interface ExtraAttributes {
 const ButtonsBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ButtonsAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { t } = useTranslation()
-
-  const orientation = data.attributes?.orientation as string | undefined | null
-  const contentJustification = data.attributes?.justifyContent as string | undefined | null
+  // Fall back to top-level attributes for blocks saved before settings moved into `layout`.
+  const layout = data.attributes?.layout as
+    | { orientation?: string; justifyContent?: string; verticalAlignment?: string }
+    | undefined
+  const orientation =
+    layout?.orientation ?? (data.attributes?.orientation as string | undefined | null)
+  const contentJustification =
+    layout?.justifyContent ?? (data.attributes?.justifyContent as string | undefined | null)
+  const verticalAlignment = layout?.verticalAlignment as string | undefined | null
 
   const getContentJustification = (contentJustification: string) => {
     if (contentJustification === "center") {
-      return "justify-content: center; align-items: center;"
+      return "justify-content: center;"
     } else if (contentJustification === "right") {
-      return "justify-content: flex-end; align-items: flex-end;"
+      return "justify-content: flex-end;"
     } else if (contentJustification === "space-between") {
       return "justify-content: space-between;"
     } else {
-      return "justify-content: flex-start; align-items: flex-start;"
+      return "justify-content: flex-start;"
+    }
+  }
+
+  const getAlignItems = (verticalAlignment: string) => {
+    if (verticalAlignment === "center") {
+      return "align-items: center;"
+    } else if (verticalAlignment === "bottom") {
+      return "align-items: flex-end;"
+    } else if (verticalAlignment === "stretch") {
+      return "align-items: stretch;"
+    } else {
+      return "align-items: flex-start;"
     }
   }
 
@@ -79,17 +96,10 @@ const ButtonsBlock: React.FC<
       className,
     } = button.attributes as ButtonAttributes & { className?: string }
 
-    const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
-      linkTarget && linkTarget.includes("_blank")
-        ? rel && !rel.includes("noopener")
-          ? rel.split(" ").join(" ").concat(" noopener")
-          : "noopener"
-        : rel
-
     return (
       <a
         key={button.clientId}
-        rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
+        rel={relForLinkTarget(rel, linkTarget)}
         href={url}
         target={linkTarget}
       >
@@ -109,9 +119,7 @@ const ButtonsBlock: React.FC<
           size="medium"
           dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
         />
-        {linkTarget && linkTarget.includes("_blank") && (
-          <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
-        )}
+        <OpensInNewTabNotice linkTarget={linkTarget} />
       </a>
     )
   })
@@ -122,6 +130,7 @@ const ButtonsBlock: React.FC<
         flex-wrap: wrap;
         ${orientation === "vertical" ? "flex-direction: column;" : "flex-direction: row;"}
         ${contentJustification && getContentJustification(contentJustification)}
+        ${verticalAlignment ? getAlignItems(verticalAlignment) : "align-items: flex-start;"}
       `}
     >
       {mappedButtons}

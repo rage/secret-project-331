@@ -26,6 +26,7 @@ const PullquoteBlock: React.FC<
     // borderColor, // Border color is same as textColor in CMS
     // className,
     // style,
+    align,
     textAlign,
     fontSize = "medium",
     value,
@@ -33,8 +34,14 @@ const PullquoteBlock: React.FC<
 
   const size = FONT_SIZES[fontSize]
 
+  // `align` left/right floats the pullquote at half width so content wraps beside it; other values render full-width.
   return (
-    <div>
+    <div
+      className={css`
+        ${align === "left" && `float: left; width: 50%; margin: 0 2rem 1rem 0;`}
+        ${align === "right" && `float: right; width: 50%; margin: 0 0 1rem 2rem;`}
+      `}
+    >
       <figure
         className={css`
           text-align: center;

@@ -787,10 +787,9 @@ async fn parse_tool<'a>(
                 ))?
             };
             let mut tool_msgs = Vec::new();
-            let mut tx = conn.begin().await.map_err(|e| anyhow::anyhow!(e))?;
 
             for (name, id, args) in function_name_id_args.iter() {
-                let tool = get_chatbot_tool(&mut tx, name, args, user_context).await?;
+                let tool = get_chatbot_tool(conn, name, args, user_context).await?;
                 let output = tool.get_tool_output();
 
                 tool_msgs.push(APIOutputMessage {
@@ -815,6 +814,7 @@ async fn parse_tool<'a>(
                 });
             }
             // save tool_msgs to the db
+            let mut tx = conn.begin().await.map_err(|e| anyhow::anyhow!(e))?;
             for m in &tool_msgs {
                 chatbot_conversation_messages::insert(
                     &mut tx,
@@ -945,7 +945,6 @@ fn stream_and_detect_response_stream_type<'a>(
                                 "Expected response object"
                             ))?;
                             response_id = res.id;
-                            println!("!!!current response id: {}", &response_id);
                             response_created_incoming = false;
                         }
                         if output_item_added {
@@ -1198,7 +1197,6 @@ pub async fn send_chat_request_and_parse_stream(
                         let response =  ChatbotChatStreamEvent::from(item.to_owned());
                         if response != ChatbotChatStreamEvent::None {
                             let event_string = serde_json::to_string(&response)?;
-                            println!("🌟{event_string}");
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
                         };

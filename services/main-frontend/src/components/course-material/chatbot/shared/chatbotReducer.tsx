@@ -113,7 +113,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
               updated_at: new Date().toISOString(),
               deleted_at: null,
               chatbot_conversation_message_id: v4(),
-              message_is_complete: true,
+              message_is_complete: false,
               response_id: null,
               used_tokens: 0,
             },

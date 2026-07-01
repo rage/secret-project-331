@@ -30,6 +30,11 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
 
+/// Map each assistant message with the tool call and reasoning items that are
+/// associated with it (which appear before it in the conversation, after a text
+/// message.) User messages and assistant messages with no tool calls etc are
+/// mapped with null. The last tool calls etc. that are streamed and don't yet
+/// have an assistant message are mapped with a null key and should be shown still.
 const messageMapMaker = (
   messages: ChatbotConversationMessageWithStatus[],
 ): Map<
@@ -50,8 +55,8 @@ const messageMapMaker = (
         messageResult.data.message_role === "assistant")
     if (messageSuccess) {
       if (earliestItemIndex !== null) {
-        let lol = messages.slice(earliestItemIndex, idx)
-        messagesMap.set(m, lol)
+        let toolReasoningItemsForThisMessage = messages.slice(earliestItemIndex, idx)
+        messagesMap.set(m, toolReasoningItemsForThisMessage)
         earliestItemIndex = null
       } else {
         messagesMap.set(m, null)
@@ -219,10 +224,9 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         ref={scrollContainerRef}
       >
         {[...messagesMap.entries(), ...messagesMap2.entries()].map(([message, items]) => {
-          console.log(message)
-
           if (message === null && items !== null && items.length > 0) {
-            return <ToolCallReasoningBubble key={items.length} messages={items} />
+            const key = items[0].message.id
+            return <ToolCallReasoningBubble key={key} messages={items} />
           }
           if (message === null) {
             return

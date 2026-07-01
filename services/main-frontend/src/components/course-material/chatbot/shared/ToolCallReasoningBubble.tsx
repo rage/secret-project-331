@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
+import type { ChatbotConversationMessageWithStatus } from "./ChatbotChatBody"
 import ThinkingIndicator from "./ThinkingIndicator"
 
 import {
@@ -58,7 +58,6 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
 
-  console.log(messages)
   let summaryText: string
   let inProgressItems = messages.filter((m) => {
     return !m.finished
@@ -78,12 +77,7 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
-        const toolArguments =
-          // if the arguments are just an empty object, replace it with empty string
-          res2.data.tool_arguments.replaceAll(/[{}]/g, "").length === 0
-            ? ""
-            : ` ${res2.data.tool_arguments}`
-        summaryText += `${t("chatbot-status-using-tool")} "${res2.data.tool_name.replaceAll("_", " ")}"${toolArguments}`
+        summaryText += `${t("chatbot-status-using-tool")} "${res2.data.tool_name.replaceAll("_", " ")}"`
       }
     })
     return (
@@ -114,12 +108,13 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
         if (res2.data.tool_name === "azure_ai_search") {
           collapsible = true
           // in azure ai search, the arguments are this shape
-          let obj: { query: string } = JSON.parse(toolArguments)
-          const queryString = `"${obj.query}"`
+          let query = `""`
+          if (toolArguments.length > 0) {
+            let obj: { query: string } = JSON.parse(toolArguments)
+            query = `"${obj.query}"`
+          }
 
-          expandableText.push(
-            t("chatbot-status-course-material-search-finished", { query: queryString }),
-          )
+          expandableText.push(t("chatbot-status-course-material-search-finished", { query }))
           if (idx === 0) {
             summaryText += t("chatbot-status-course-material-search")
           }

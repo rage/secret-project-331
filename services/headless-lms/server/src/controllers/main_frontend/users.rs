@@ -1,6 +1,6 @@
 use crate::prelude::*;
 use anyhow::anyhow;
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::services::tmc::TmcClient;
 use models::{
     course_instance_enrollments::CourseEnrollmentsInfo, courses::Course,
     exercise_reset_logs::ExerciseResetLog, research_forms::ResearchFormQuestionAnswer,

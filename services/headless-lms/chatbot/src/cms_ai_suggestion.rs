@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use crate::{
     azure_chatbot::{
-        ArrayItem, ArrayProperty, InputItem, JSONType, LLMRequest, LLMRequestParams,
+        ArrayItem, ArrayProperty, InputItem, JSONType, JsonItem, LLMRequest, LLMRequestParams,
         LLMRequestResponseFormatParam, NonThinkingParams, RequestTextOptions, Schema,
-        ThinkingParams,
+        SchemaPropertyType, ThinkingParams,
     },
     chatbot_error::chatbot_err,
     content_cleaner::calculate_safe_token_limit,
@@ -266,12 +266,12 @@ pub async fn generate_paragraph_suggestions(
                     type_field: JSONType::Object,
                     properties: HashMap::from([(
                         "suggestions".to_string(),
-                        ArrayProperty {
+                        SchemaPropertyType::ArrayProperty(ArrayProperty {
                             type_field: JSONType::Array,
-                            items: ArrayItem {
+                            items: ArrayItem::JsonItem(JsonItem {
                                 type_field: JSONType::String,
-                            },
-                        },
+                            }),
+                        }),
                     )]),
                     required: vec!["suggestions".to_string()],
                     additional_properties: false,

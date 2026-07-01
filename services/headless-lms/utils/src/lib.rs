@@ -17,8 +17,8 @@ pub mod numbers;
 pub mod page_visit_hasher;
 pub mod pagination;
 pub mod prelude;
+pub mod services;
 pub mod strings;
-pub mod tmc;
 pub mod url_encoding;
 pub mod url_to_oembed_endpoint;
 

@@ -1,5 +1,6 @@
 use headless_lms_chatbot::{
     azure_chatbot::InputItem, cms_ai_suggestion::USER_PROMPT_PREFIX,
+    course_description_summary::USER_PROMPT as DESCRIPTION_USER_PROMPT,
     llm_utils::AzureCompletionRequest, message_suggestion::USER_PROMPT,
 };
 use regex::Regex;
@@ -108,6 +109,8 @@ const SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"
 
 const CMS_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"top_p": 0.98,"service_tier": "default","model": "mock-gpt","reasoning": {"effort": "medium","summary": "detailed"},"background": false,"text": {"format": {"type": "text"},"verbosity": "medium"},"tools": [],"tool_choice": "auto","truncation": "disabled","id": "resp_0","object": "response","status": "completed","created_at": 1776144780,"completed_at": 1776144781,"error": null,"incomplete_details": null,"output": [{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{"type": "output_text","text": "{\"suggestions\":[\"Mock suggestion 1: The paragraph has been improved.\",\"Mock suggestion 2: Here is an alternative version of the paragraph.\",\"Mock suggestion 3: A third distinct rewrite of the paragraph.\"]}","annotations": [],"logprobs": []}],"status": "completed"}],"instructions": null,"usage": {"input_tokens": 30,"input_tokens_details": {"cached_tokens": 0},"output_tokens": 15,"output_tokens_details": {"reasoning_tokens": 0},"total_tokens": 45},"parallel_tool_calls": true,"agent_reference": null}"#;
 
+const DESCRIPTION_SUGGESTION: &str = r#"{"metadata": {},"top_logprobs": 0,"temperature": 1,"top_p": 0.98,"service_tier": "default","model": "mock-gpt","reasoning": {"effort": "medium","summary": "detailed"},"background": false,"text": {"format": {"type": "text"},"verbosity": "medium"},"tools": [],"tool_choice": "auto","truncation": "disabled","id": "resp_0","object": "response","status": "completed","created_at": 1776144780,"completed_at": 1776144781,"error": null,"incomplete_details": null,"output": [{"type": "message","id": "msg_0","response_id": "resp_0","phase": "final_answer","role": "assistant","content": [{ "text": "{\"modules\":[{\"description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.\",\"course_code\":\"TKT21036\"}],\"course_description\":\"Introductory course to containers and containerization with Docker. Introduces containerization with Docker and relevant concepts such as image and volume. After completion, students are able to run containerized applications, containerize applications, utilize volumes to store data persistently outside containers, use port mapping to enable access via TCP to containerized applications, and share their own containers publicly. No hard prerequisites; Linux operating systems and web development experience are useful.\"}"}],"annotations": [],"logprobs": []}],"instructions": null,"usage": {"input_tokens": 30,"input_tokens_details": {"cached_tokens": 0},"output_tokens": 15,"output_tokens_details": {"reasoning_tokens": 0},"total_tokens": 45},"parallel_tool_calls": true,"agent_reference": null}"#;
+
 // GET /api/v0/mock_azure/test/v1/responses
 // POST /api/v0/mock_azure/test/v1/responses
 async fn mock_azure_chat_responses(
@@ -143,10 +146,13 @@ async fn mock_azure_chat_responses(
         .matches(message_suggestion_user_prompt)
         .collect::<Vec<&str>>();
     let cms_suggest_match = message.contains(USER_PROMPT_PREFIX);
+    let description_suggestion_match = message.contains(DESCRIPTION_USER_PROMPT);
     let res = if !suggest_prompt_match.is_empty() {
         SUGGESTION.to_string()
     } else if cms_suggest_match {
         CMS_SUGGESTION.to_string()
+    } else if description_suggestion_match {
+        DESCRIPTION_SUGGESTION.to_string()
     } else {
         get_response(app_conf.base_url.clone())?
     };

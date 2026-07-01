@@ -46,7 +46,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
   const pathname = usePathname()
   const { i18n } = useTranslation()
 
-  const [title, setTitle] = useState<string | null>(null)
   const [organizationSlug, setOrganizationSlug] = useState<string | null>(null)
   const [courseId, setCourseId] = useState<string | null>(null)
   const [pageState, setPageState] = useState<PageState>(getDefaultPageState())
@@ -94,15 +93,13 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
 
   const layoutContextValue = useMemo(() => {
     return {
-      title,
-      setTitle,
       organizationSlug,
       setOrganizationSlug,
       courseId,
       setCourseId,
       setPageState,
     }
-  }, [courseId, organizationSlug, title])
+  }, [courseId, organizationSlug])
   return (
     <Suspense fallback={<Spinner variant="large" />}>
       <div

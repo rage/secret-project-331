@@ -5,8 +5,6 @@ import React from "react"
 import type { PageState } from "./PageContext"
 
 interface LayoutContextValue {
-  title: string | null
-  setTitle: (title: string | null) => void
   organizationSlug: string | null
   setOrganizationSlug: (slug: string | null) => void
   courseId: string | null

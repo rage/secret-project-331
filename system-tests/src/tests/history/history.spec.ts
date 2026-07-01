@@ -184,7 +184,7 @@ screenshotTarget: page,
 */
 
   await page.getByText("Restore").click()
-  await page.getByText("Page edit history").click() // deselect restore
+  await page.getByRole("heading", { name: "Page edit history" }).click() // deselect restore
   await page.locator("[aria-label='Current page: 1']").waitFor()
   await page.waitForTimeout(100)
   /*

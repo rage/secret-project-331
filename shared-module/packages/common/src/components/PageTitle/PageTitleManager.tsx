@@ -20,11 +20,13 @@ interface PageTitleManagerProps {
  * provider.
  *
  * The title is rendered as a `<title>` element rather than written imperatively to
- * `document.title`. React (19+) hoists it into `<head>`, so it is server-rendered (crawlers and
- * the initial HTML get the site name, or the resolved page title once a page registers one) and
- * is the single owner of the document title — no other code should write `document.title`. Because
- * React applies the element during the commit's mutation phase, the title also lands before any
- * passive effect runs, including Next's built-in route announcer (see below).
+ * `document.title`. React (19+) hoists it into `<head>`, and this element is the single owner of
+ * the document title — no other code should write `document.title`. Registration is client-side:
+ * `usePageTitle` writes the registry in a layout effect, which does not run during SSR, so the
+ * server-rendered initial HTML always contains the bare site name and the resolved page title is
+ * applied after hydration. Because React applies the element during the commit's mutation phase,
+ * the title still lands before any passive effect runs, including Next's built-in route announcer
+ * (see below).
  *
  * Accessibility:
  * - Synchronous (navigation-time) title changes are announced by Next.js's built-in App Router

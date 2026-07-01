@@ -34,7 +34,6 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("title-generate-certificate"))
   const router = useRouter()
   const { confirm } = useDialog()
   const certificateConfigurationId = useQueryParameter("ccid")
@@ -76,6 +75,10 @@ const ModuleCertificate: React.FC = () => {
     },
     enabled: !!moduleId,
   })
+
+  // Reflect the loaded course context in the tab (matching the dynamic heading); fall back to the
+  // generic label until the course/module data resolves.
+  usePageTitle(courseAndModule.data?.course?.name ?? t("title-generate-certificate"))
 
   useEffect(() => {
     if (userInfo.isSuccess && userInfo.data && nameOnCertificate === "") {

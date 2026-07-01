@@ -41,7 +41,10 @@ const UserPage: React.FC = () => {
 
   const userDetailsQuery = useUserDetails(courseIds, id)
   const userDetail = userDetailsQuery.data ? extractUserDetail(userDetailsQuery.data) : null
-  usePageTitle(userDetail?.email ?? null)
+  // Use the user's name (not their email) as the title so no PII lands in document.title or the
+  // screen-reader route announcement; fall back to a generic label while details load / are absent.
+  const userDisplayName = `${userDetail?.first_name ?? ""} ${userDetail?.last_name ?? ""}`.trim()
+  usePageTitle(userDisplayName || t("header-user-details"))
 
   return (
     <QueryResults

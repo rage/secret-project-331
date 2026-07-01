@@ -15,7 +15,8 @@ import { QueryResult } from "@/shared-module/components"
 
 const AccountSettingsPage: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("title-account-settings"))
+  // Higher order than the parent user-settings layout so this specific page title wins deterministically.
+  usePageTitle(t("title-account-settings"), { order: 10 })
 
   const getUserDetails = useUserDetailsForUserQuery()
 

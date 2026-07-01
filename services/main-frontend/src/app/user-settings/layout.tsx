@@ -14,7 +14,9 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation()
-  usePageTitle(t("user-settings"))
+  // Low baseline order: nested pages (account, permissions) register a higher order and win, and
+  // this only shows for the section's redirect stub. Mirrors the course-material layout pattern.
+  usePageTitle(t("user-settings"), { order: 0 })
 
   return (
     <div

@@ -13,6 +13,7 @@ interface ImageBlockProps {
   name: string
   attributes: {
     alt?: string
+    isDecorative?: boolean
     [key: string]: unknown
   }
   [key: string]: unknown
@@ -34,7 +35,10 @@ const withImageWarnings = createHigherOrderComponent((BlockEdit) => {
       return <BlockEdit {...props} />
     }
 
-    const warningKeys: ImageWarningKey[] = shouldWarnAboutImageAltPlaceholder(props.attributes?.alt)
+    const warningKeys: ImageWarningKey[] = shouldWarnAboutImageAltPlaceholder(
+      props.attributes?.alt,
+      props.attributes?.isDecorative,
+    )
       ? [IMAGE_ALT_WARNING_KEY]
       : []
 

@@ -12,12 +12,14 @@ import { getRegradingInfoOptions } from "@/generated/api/@tanstack/react-query.g
 import ProgressBar from "@/shared-module/common/components/CourseProgress/ProgressBar"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { dateToString } from "@/shared-module/common/utils/time"
 import { QueryResult } from "@/shared-module/components"
 
 const ViewRegradingPage: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
+  usePageTitle(t("title-regrading"))
 
   const query = useQuery({
     ...getRegradingInfoOptions({

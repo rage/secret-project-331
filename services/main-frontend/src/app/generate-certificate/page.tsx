@@ -24,6 +24,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
@@ -33,6 +34,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const ModuleCertificate: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-generate-certificate"))
   const router = useRouter()
   const { confirm } = useDialog()
   const certificateConfigurationId = useQueryParameter("ccid")

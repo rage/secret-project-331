@@ -179,6 +179,36 @@ describe("usePageTitle + PageTitleManager", () => {
     expect(document.title).toBe("Manage - Test Site")
   })
 
+  test("layout course-name baseline shows while the leaf loads, then the leaf title overrides it", () => {
+    // Mirrors the course-material rollout: the section layout registers the course name at order 0
+    // and the leaf page registers its own title at order 10 (null until its data resolves).
+    const { rerender } = render(
+      <App>
+        <TitleSetter title="Programming 101" order={0} />
+        <TitleSetter title={null} order={10} />
+      </App>,
+    )
+    // While the leaf page is loading, the tab shows the layout's course-name baseline.
+    expect(document.title).toBe("Programming 101 - Test Site")
+
+    // The leaf's data resolves; its specific page title wins over the baseline.
+    rerender(
+      <App>
+        <TitleSetter title="Programming 101" order={0} />
+        <TitleSetter title="Introduction to Loops" order={10} />
+      </App>,
+    )
+    expect(document.title).toBe("Introduction to Loops - Test Site")
+
+    // Navigating away from the leaf (it unmounts) falls back to the baseline, not the bare site.
+    rerender(
+      <App>
+        <TitleSetter title="Programming 101" order={0} />
+      </App>,
+    )
+    expect(document.title).toBe("Programming 101 - Test Site")
+  })
+
   test("the manager renders no live region of its own", () => {
     const { container } = render(
       <App>

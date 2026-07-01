@@ -165,6 +165,7 @@ pub struct ResponseOutput {
     pub delta: Option<String>,
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
+    pub incomplete_response: Option<IncompleteResponse>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -175,7 +176,7 @@ pub enum OutputItem {
         response_id: String,
         role: MessageRole,
         content: MessageContent,
-        // todo! phase for reasoning preamble
+        // todo phase for reasoning preamble
         #[serde(skip_serializing_if = "Option::is_none")]
         phase: Option<MessagePhase>,
     },
@@ -813,6 +814,12 @@ async fn parse_tool<'a>(
 
         if response_received {
             // the stream ended
+            if let Some(response) = &response_output.incomplete_response {
+                // todo: can add content filter results for more info
+                Err(chatbot_err!(StreamingError,
+                    format!("The LLM response is incomplete. Reason: {}", response.incomplete_details.reason)
+                ))?
+            };
             if function_name_id_args.is_empty() {
                 Err(chatbot_err!(StreamingError,
                     "The LLM response was supposed to contain function calls, but no function calls were found"
@@ -1058,6 +1065,12 @@ async fn parse_text_response<'a>(
             let mut full_response_text = full_response_text.lock().await;
 
             if response_received {
+                if let Some(response) = &response_output.incomplete_response {
+                // todo: can add content filter results for more info
+                Err(chatbot_err!(StreamingError,
+                    format!("The LLM response is incomplete. Reason: {}", response.incomplete_details.reason)
+                ))?
+            };
                 let full_response_as_string = full_response_text.join("");
                 // todo: use the tokens given in the response
                 let estimated_cost = estimate_tokens(&full_response_as_string);

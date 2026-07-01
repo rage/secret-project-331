@@ -8,7 +8,7 @@ minimumReleaseAge: 10080
 minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.16.0
+nodeVersion: 24.18.0
 
 overrides:
   dompurify@<3.3.2: '>=3.3.2'

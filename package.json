@@ -4,7 +4,7 @@
   "description": "",
   "homepage": "https://github.com/rage/secret-project-331#readme",
   "main": "index.js",
-  "packageManager": "pnpm@11.5.0",
+  "packageManager": "pnpm@11.9.0",
   "type": "module",
   "bugs": {
     "url": "https://github.com/rage/secret-project-331/issues"
@@ -13,7 +13,7 @@
     "runtime": {
       "name": "node",
       "onFail": "download",
-      "version": "24.16.0"
+      "version": "24.18.0"
     }
   },
   "repository": {

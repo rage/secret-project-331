@@ -8,12 +8,14 @@ import { Trans, useTranslation } from "react-i18next"
 import { getCourseModuleCompletionRegistrationLinkOptions } from "@/generated/api/@tanstack/react-query.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { isAppApiError } from "@/shared-module/common/errors/AppApiError"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
 const CompletionRedirectPage: React.FC = () => {
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
   const { t } = useTranslation()
+  usePageTitle(t("register-completion"))
   const userCompletionInformation = useQuery(
     getCourseModuleCompletionRegistrationLinkOptions({
       path: {

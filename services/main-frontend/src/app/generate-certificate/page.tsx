@@ -24,6 +24,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
@@ -74,6 +75,10 @@ const ModuleCertificate: React.FC = () => {
     },
     enabled: !!moduleId,
   })
+
+  // Reflect the loaded course context in the tab (matching the dynamic heading); fall back to the
+  // generic label until the course/module data resolves.
+  usePageTitle(courseAndModule.data?.course?.name ?? t("title-generate-certificate"))
 
   useEffect(() => {
     if (userInfo.isSuccess && userInfo.data && nameOnCertificate === "") {

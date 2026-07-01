@@ -142,7 +142,8 @@ pub enum OutputItem {
         role: MessageRole,
         content: MessageContent,
         // todo! phase for reasoning preamble
-        phase: MessagePhase,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        phase: Option<MessagePhase>,
     },
     Reasoning {
         response_id: String,

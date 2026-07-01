@@ -2,9 +2,9 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-# Reclaim disk space by deleting unreferenced Nix store paths. Anything still in
-# use (GC roots, active profiles) is kept, and deleted paths are re-fetched
-# deterministically from flake.lock the next time you enter the dev shell.
+# Reclaim disk space by deleting unreferenced machine-wide Nix store paths.
+# Paths still in use (GC roots, active profiles) are preserved. Anything a later
+# build or dev shell needs again is re-fetched or rebuilt on demand.
 
 ensure_program_in_path "nix"
 

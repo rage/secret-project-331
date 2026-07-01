@@ -147,6 +147,7 @@ export type ContentManagementPage = {
 }
 
 export type Course = {
+  ai_policy: CourseAiPolicy
   ask_marketing_consent: boolean
   base_module_completion_requires_n_submodule_completions: number
   can_add_chatbot: boolean
@@ -158,6 +159,7 @@ export type Course = {
   content_search_language?: string | null
   copied_from?: string | null
   course_language_group_id: string
+  course_material_ai_instructions?: boolean | null
   created_at: string
   deleted_at?: string | null
   description?: string | null
@@ -175,6 +177,12 @@ export type Course = {
   slug: string
   updated_at: string
 }
+
+/**
+ * The AI policy a teacher has selected for a course. Drives which variant of the student-facing
+ * AI usage notice is shown; `NotSet` (the default) keeps the generic default message.
+ */
+export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
 
 export type CourseInstance = {
   course_id: string

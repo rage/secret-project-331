@@ -17,12 +17,11 @@ import {
 } from "@/generated/api/sdk.generated"
 import type { SuspectedCheaterStatus } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
+import { QueryResult } from "@/shared-module/components"
 
 interface CourseCheatersProps {
   courseId: string
@@ -152,60 +151,81 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
       >
         {listTitle}
       </h5>
-      {suspectedCheaters.isLoading && <Spinner variant={"medium"} />}
-      {suspectedCheaters.isError && (
-        <ErrorBanner variant={"readOnly"} error={suspectedCheaters.error} />
-      )}
-      {suspectedCheaters.isSuccess && suspectedCheaters.data.length ? (
-        <table
-          id="cheaters"
-          className={css`
-            width: 100%;
-            margin-top: 0.4rem;
-            text-align: left;
-            border-collapse: collapse;
-            font-family: ${headingFont};
-            border: 1px solid ${baseTheme.colors.gray[100]};
-
-            th {
-              color: ${baseTheme.colors.gray[500]};
-              padding: 0.4rem 0;
-              font-weight: 600;
-              font-size: 15px;
-              border-bottom: 1px solid ${baseTheme.colors.gray[100]};
-              padding: 0.8rem;
-            }
-
-            td {
-              color: ${baseTheme.colors.gray[500]};
-              padding: 0.4rem 0;
-              font-size: 18px;
-              padding: 0.8rem;
-            }
-          `}
-          aria-label={listTitle}
-        >
-          <caption
+      <QueryResult
+        query={suspectedCheaters}
+        emptyFallback={
+          <div
             className={css`
-              text-align: left;
-              font-weight: 600;
-              margin-bottom: 0.5rem;
-              caption-side: top;
+              background: #e4e5e6;
+              padding: 1.25rem;
+              text-align: center;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              border-radius: 6px;
+              color: ${baseTheme.colors.gray[700]};
+
+              span {
+                margin-left: 0.4rem;
+              }
             `}
           >
-            {listTitle}
-          </caption>
-          <thead>
-            <tr>
-              <th scope="col">{t("student-id")}</th>
-              <th scope="col">{t("points")}</th>
-              <th scope="col">{t("duration")}</th>
-              {showActions && <th scope="col">{t("actions")}</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {suspectedCheaters.data?.map(
-              ({ user_id, total_points, total_duration_seconds }, index) => {
+            <div>
+              <ExclamationTriangle size={16} weight="bold" aria-hidden="true" />
+              <span>{t("list-cheaters-of-cheaters-empty-state")}</span>
+            </div>
+          </div>
+        }
+      >
+        {(data) => (
+          <table
+            id="cheaters"
+            className={css`
+              width: 100%;
+              margin-top: 0.4rem;
+              text-align: left;
+              border-collapse: collapse;
+              font-family: ${headingFont};
+              border: 1px solid ${baseTheme.colors.gray[100]};
+
+              th {
+                color: ${baseTheme.colors.gray[500]};
+                padding: 0.4rem 0;
+                font-weight: 600;
+                font-size: 15px;
+                border-bottom: 1px solid ${baseTheme.colors.gray[100]};
+                padding: 0.8rem;
+              }
+
+              td {
+                color: ${baseTheme.colors.gray[500]};
+                padding: 0.4rem 0;
+                font-size: 18px;
+                padding: 0.8rem;
+              }
+            `}
+            aria-label={listTitle}
+          >
+            <caption
+              className={css`
+                text-align: left;
+                font-weight: 600;
+                margin-bottom: 0.5rem;
+                caption-side: top;
+              `}
+            >
+              {listTitle}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{t("student-id")}</th>
+                <th scope="col">{t("points")}</th>
+                <th scope="col">{t("duration")}</th>
+                {showActions && <th scope="col">{t("actions")}</th>}
+              </tr>
+            </thead>
+            <tbody>
+              {data.map(({ user_id, total_points, total_duration_seconds }, index) => {
                 const everySecondListItem = index % 2 === 1
                 const durationHours = total_duration_seconds
                   ? Math.round((total_duration_seconds / 3600) * 10) / 10
@@ -275,33 +295,11 @@ const CourseCheaterTabs: React.FC<React.PropsWithChildren<CourseCheatersProps>> 
                     )}
                   </tr>
                 )
-              },
-            )}
-          </tbody>
-        </table>
-      ) : (
-        <div
-          className={css`
-            background: #e4e5e6;
-            padding: 1.25rem;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border-radius: 6px;
-            color: ${baseTheme.colors.gray[700]};
-
-            span {
-              margin-left: 0.4rem;
-            }
-          `}
-        >
-          <div>
-            <ExclamationTriangle size={16} weight="bold" aria-hidden="true" />
-            <span>{t("list-cheaters-of-cheaters-empty-state")}</span>
-          </div>
-        </div>
-      )}
+              })}
+            </tbody>
+          </table>
+        )}
+      </QueryResult>
     </>
   )
 }

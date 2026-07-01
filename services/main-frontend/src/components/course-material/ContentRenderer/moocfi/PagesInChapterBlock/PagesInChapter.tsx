@@ -6,11 +6,10 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialChapterPagesExcludingFrontPage } from "@/generated/course-material-api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import PagesInChapterBox from "@/shared-module/common/components/PagesInChapterBox"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { INCLUDE_THIS_HEADING_IN_HEADINGS_NAVIGATION_CLASS } from "@/shared-module/common/utils/constants"
+import { QueryResult } from "@/shared-module/components"
 import { coursePageRoute } from "@/utils/course-material/routing"
 
 export interface PagesInChapterProps {
@@ -62,27 +61,25 @@ const PagesInChapter: React.FC<React.PropsWithChildren<PagesInChapterProps>> = (
           >
             {t("table-of-contents")}
           </h2>
-          {getPagesInChapterExcludeFrontpage.isError && (
-            <ErrorBanner variant={"readOnly"} error={getPagesInChapterExcludeFrontpage.error} />
-          )}
-          {getPagesInChapterExcludeFrontpage.isLoading && <Spinner variant={"medium"} />}
-          {getPagesInChapterExcludeFrontpage.isSuccess && (
-            <>
-              {getPagesInChapterExcludeFrontpage.data
-                .sort((a, b) => a.order_number - b.order_number)
-                .map((page) => (
-                  <PagesInChapterBox
-                    variant="text"
-                    chapterIndex={page.order_number}
-                    chapterTitle={page.title}
-                    selected={false}
-                    key={page.id}
-                    id={page.id}
-                    url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
-                  />
-                ))}
-            </>
-          )}
+          <QueryResult query={getPagesInChapterExcludeFrontpage}>
+            {(data) => (
+              <>
+                {[...data]
+                  .sort((a, b) => a.order_number - b.order_number)
+                  .map((page) => (
+                    <PagesInChapterBox
+                      variant="text"
+                      chapterIndex={page.order_number}
+                      chapterTitle={page.title}
+                      selected={false}
+                      key={page.id}
+                      id={page.id}
+                      url={coursePageRoute(organizationSlug, courseSlug, page.url_path)}
+                    />
+                  ))}
+              </>
+            )}
+          </QueryResult>
         </div>
       </div>
     </>

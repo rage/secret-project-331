@@ -1,7 +1,7 @@
 import { TFunction } from "i18next"
 
-import { OpenDialogOptions } from "@/shared-module/common/exercise-service-protocol/parentDialog"
 import { wordCount } from "@/shared-module/common/utils/strings"
+import { OpenDialogOptions } from "@/shared-module/exercise-client/client/parentDialog"
 
 /**
  * A single paste of at least this many words is treated as "large" and triggers the

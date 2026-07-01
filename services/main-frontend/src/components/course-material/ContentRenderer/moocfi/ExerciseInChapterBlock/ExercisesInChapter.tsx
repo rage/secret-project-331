@@ -7,8 +7,7 @@ import React from "react"
 import ChapterExerciseListGroupedByPage from "./ChapterExerciseListGroupedByPage"
 
 import { getCourseMaterialChapterPagesWithExercisesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResult } from "@/shared-module/components"
 
 const ExercisesInChapter: React.FC<
   React.PropsWithChildren<{ chapterId: string; courseInstanceId: string | undefined }>
@@ -26,25 +25,25 @@ const ExercisesInChapter: React.FC<
 
   return (
     <div>
-      {getChaptersPagesWithExercises.isError && (
-        <ErrorBanner variant={"readOnly"} error={getChaptersPagesWithExercises.error} />
-      )}
-      {getChaptersPagesWithExercises.isLoading && <Spinner variant={"medium"} />}
-      {getChaptersPagesWithExercises.isSuccess && courseSlug && organizationSlug && (
-        <>
-          {getChaptersPagesWithExercises.data.map((page) => (
-            <div key={page.id}>
-              <ChapterExerciseListGroupedByPage
-                page={page}
-                courseSlug={courseSlug}
-                courseInstanceId={courseInstanceId}
-                chapterId={chapterId}
-                organizationSlug={organizationSlug}
-              />
-            </div>
-          ))}
-        </>
-      )}
+      <QueryResult query={getChaptersPagesWithExercises}>
+        {(data) =>
+          courseSlug && organizationSlug ? (
+            <>
+              {data.map((page) => (
+                <div key={page.id}>
+                  <ChapterExerciseListGroupedByPage
+                    page={page}
+                    courseSlug={courseSlug}
+                    courseInstanceId={courseInstanceId}
+                    chapterId={chapterId}
+                    organizationSlug={organizationSlug}
+                  />
+                </div>
+              ))}
+            </>
+          ) : null
+        }
+      </QueryResult>
     </div>
   )
 }

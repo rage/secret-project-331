@@ -18,6 +18,7 @@ function makeQuery<T, E = unknown>(partial: Partial<UseQueryResult<T, E>>): UseQ
     error: null,
     isError: false,
     isPending: false,
+    isFetching: false,
     isRefetching: false,
     refetch: jest.fn(),
     ...partial,
@@ -78,7 +79,11 @@ test("stale error keeps content visible", () => {
 
 test("initial loading shows skeleton immediately and status", () => {
   renderUi(
-    <QueryResult query={makeQuery({ isPending: true })} themeMode="light" loadingDelayMs={500}>
+    <QueryResult
+      query={makeQuery({ isPending: true, isFetching: true })}
+      themeMode="light"
+      loadingDelayMs={500}
+    >
       {() => null}
     </QueryResult>,
   )
@@ -87,11 +92,32 @@ test("initial loading shows skeleton immediately and status", () => {
   expect(screen.getByRole("status", { name: "Loading" })).toBeInTheDocument()
 })
 
+test("disabled query with no data renders an empty frame, not an infinite skeleton", () => {
+  // enabled: false / skipToken queries stay isPending but never fetch. Without data there is nothing
+  // to render, so QueryResult shows neither a skeleton nor children (consumers that want to render
+  // without data should not wrap that case in QueryResult).
+  renderUi(
+    <QueryResult
+      query={makeQuery<string>({ data: undefined, isPending: true, isFetching: false })}
+      themeMode="light"
+    >
+      {(d: string) => <div>disabled-{String(d)}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.queryByTestId("query-skeleton-blocks")).not.toBeInTheDocument()
+  expect(screen.queryByText(/^disabled-/)).not.toBeInTheDocument()
+})
+
 test("initial loading delays centered spinner until loadingDelayMs", () => {
   jest.useFakeTimers()
   try {
     renderUi(
-      <QueryResult query={makeQuery({ isPending: true })} themeMode="light" loadingDelayMs={400}>
+      <QueryResult
+        query={makeQuery({ isPending: true, isFetching: true })}
+        themeMode="light"
+        loadingDelayMs={400}
+      >
         {() => null}
       </QueryResult>,
     )
@@ -120,6 +146,22 @@ test("empty fallback when data is empty array", () => {
   expect(screen.getByText("empty-ui")).toBeInTheDocument()
 })
 
+test("treatEmptyAsData renders children with empty array data", () => {
+  renderUi(
+    <QueryResult<string[]>
+      query={makeQuery({ data: [] })}
+      themeMode="light"
+      treatEmptyAsData
+      emptyFallback={<span>empty-ui</span>}
+    >
+      {(items) => <span>count-{items.length}</span>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByText("count-0")).toBeInTheDocument()
+  expect(screen.queryByText("empty-ui")).not.toBeInTheDocument()
+})
+
 test("treatNullAsEmpty shows empty fallback for null data", () => {
   renderUi(
     <QueryResult<string | null>
@@ -137,7 +179,7 @@ test("treatNullAsEmpty shows empty fallback for null data", () => {
 
 test("refreshing announces status", () => {
   renderUi(
-    <QueryResult query={makeQuery({ data: "ok", isRefetching: true })} themeMode="light">
+    <QueryResult query={makeQuery({ data: "ok", isFetching: true })} themeMode="light">
       {(d: string) => <div>{d}</div>}
     </QueryResult>,
   )

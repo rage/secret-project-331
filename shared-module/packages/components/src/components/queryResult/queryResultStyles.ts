@@ -12,8 +12,26 @@ const progressBeam = keyframes`
   100% { transform: translateX(420%); }
 `
 
+/**
+ * `width: 100%` keeps the frame layout-transparent: it replaces content that relies on a full-width
+ * parent (echarts in a flex container collapses to ~0 width otherwise, painting nothing).
+ * `min-width: 0` lets it shrink in flex parents instead of overflowing. Do not remove.
+ */
 export const wrapperCss = css`
   position: relative;
+  width: 100%;
+  min-width: 0;
+`
+
+/**
+ * Establishes a stacking context so the frame's absolutely-positioned overlays
+ * (loading skeleton/spinner, refetch progress beam) layer correctly. Applied
+ * **only** while loading or refreshing — in the steady success state it would trap
+ * descendants that rely on reaching the root stacking context (e.g. a
+ * `position: fixed` editor sidebar or a portal popover that must paint above the
+ * page footer), so the steady state is left un-isolated.
+ */
+export const wrapperIsolationCss = css`
   isolation: isolate;
 `
 

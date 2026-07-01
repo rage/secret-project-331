@@ -11,6 +11,7 @@ import { QuizItemSubmissionComponentProps } from "."
 
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 const EssayFeedback: React.FC<
   QuizItemSubmissionComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
@@ -32,7 +33,7 @@ const EssayFeedback: React.FC<
         <pre
           className={css`
             display: block;
-            font-family: Raleway, sans-serif;
+            font-family: ${primaryFont};
             color: #676e7b;
             font-size: 1.125rem;
             font-weight: 500;
@@ -49,7 +50,7 @@ const EssayFeedback: React.FC<
         className={css`
           display: flex;
           white-space: pre-wrap;
-          font-family: Raleway, sans-serif;
+          font-family: ${primaryFont};
           font-weight: 600;
           font-size: 1.125rem;
           color: #4c5868;

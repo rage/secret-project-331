@@ -8,8 +8,8 @@ import { useCourseInstanceProgress } from "@/hooks/useCourseInstanceProgress"
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
+import { QueryResults } from "@/shared-module/components"
 
 const Section = styled.section`
   margin: 2rem 0;
@@ -110,103 +110,110 @@ const CourseInstanceProgressSection: React.FC<CourseInstanceProgressSectionProps
   const courseStructure = useCourseStructure(courseId)
   const courseInstanceProgresses = useCourseInstanceProgress(courseId, userId)
 
-  if (courseInstanceProgresses.isError || courseStructure.isError) {
-    return <ErrorBanner error={courseInstanceProgresses.error ?? courseStructure.error} />
-  }
-
-  if (courseInstanceProgresses.isLoading || courseStructure.isLoading) {
-    return <Spinner />
-  }
-
-  if (!courseStructure.data) {
-    return <ErrorBanner error={new Error("Course structure not found")} />
-  }
-
-  const isSingleModule = courseInstanceProgresses.data?.length === 1
+  const heading = (
+    <h2
+      className={css`
+        margin-bottom: 1.5rem;
+        color: ${baseTheme.colors.gray[700]};
+        font-size: 1.75rem;
+        font-weight: 600;
+      `}
+    >
+      {t("label-progressing")}
+    </h2>
+  )
 
   return (
-    <Section>
-      <h2
-        className={css`
-          margin-bottom: 1.5rem;
-          color: ${baseTheme.colors.gray[700]};
-          font-size: 1.75rem;
-          font-weight: 600;
-        `}
-      >
-        {t("label-progressing")}
-      </h2>
-      {courseInstanceProgresses.data?.length === 0 && (
-        <p
-          className={css`
-            color: ${baseTheme.colors.gray[500]};
-            font-size: 1rem;
-            padding: 1.5rem;
-            background: ${baseTheme.colors.clear[100]};
-            border: 1px solid ${baseTheme.colors.clear[200]};
-            border-radius: 0.5rem;
-            text-align: center;
-          `}
-        >
-          {t("no-data")}
-        </p>
-      )}
-      {courseInstanceProgresses.data?.map((courseInstanceProgress) => {
-        const courseModule = courseStructure.data.modules.find(
-          (cm) => cm.id === courseInstanceProgress.course_module_id,
-        )
-        const pointsProgress = courseInstanceProgress.score_maximum
-          ? (courseInstanceProgress.score_given / courseInstanceProgress.score_maximum) * 100
-          : 0
-        const exercisesProgress = courseInstanceProgress.total_exercises
-          ? ((courseInstanceProgress.attempted_exercises ?? 0) /
-              courseInstanceProgress.total_exercises) *
-            100
-          : 0
+    <QueryResults
+      queries={[courseInstanceProgresses, courseStructure] as const}
+      emptyFallback={
+        <Section>
+          {heading}
+          <p
+            className={css`
+              color: ${baseTheme.colors.gray[500]};
+              font-size: 1rem;
+              padding: 1.5rem;
+              background: ${baseTheme.colors.clear[100]};
+              border: 1px solid ${baseTheme.colors.clear[200]};
+              border-radius: 0.5rem;
+              text-align: center;
+            `}
+          >
+            {t("no-data")}
+          </p>
+        </Section>
+      }
+      renderData={([courseInstanceProgressesData, courseStructureData]) => {
+        if (!courseStructureData) {
+          return <ErrorBanner error={new Error("Course structure not found")} />
+        }
+
+        const isSingleModule = courseInstanceProgressesData.length === 1
 
         return (
-          <ModuleCard key={courseInstanceProgress.course_module_id}>
-            <ModuleHeader>
-              {!isSingleModule && (
-                <ModuleTitle>{courseModule?.name ?? t("default-module")}</ModuleTitle>
-              )}
-              <DebugModal data={courseInstanceProgress} variant="minimal" />
-            </ModuleHeader>
-            <InfoGrid>
-              {courseInstanceProgress.attempted_exercises_required !== null && (
-                <InfoItem>
-                  <Label>{t("label-attempted-exercises-required")}</Label>
-                  <Value>{courseInstanceProgress.attempted_exercises_required}</Value>
-                </InfoItem>
-              )}
-              {courseInstanceProgress.score_required !== null && (
-                <InfoItem>
-                  <Label>{t("label-points-required")}</Label>
-                  <Value>{courseInstanceProgress.score_required}</Value>
-                </InfoItem>
-              )}
-              <InfoItem>
-                <Label>{t("label-points")}</Label>
-                <Value>
-                  {courseInstanceProgress.score_given} / {courseInstanceProgress.score_maximum ?? 0}
-                </Value>
-                <ProgressBar progress={pointsProgress} />
-                <ProgressValue>{Math.round(pointsProgress)}%</ProgressValue>
-              </InfoItem>
-              <InfoItem>
-                <Label>{t("label-attempted-exercises")}</Label>
-                <Value>
-                  {courseInstanceProgress.attempted_exercises ?? 0} /{" "}
-                  {courseInstanceProgress.total_exercises ?? 0}
-                </Value>
-                <ProgressBar progress={exercisesProgress} />
-                <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
-              </InfoItem>
-            </InfoGrid>
-          </ModuleCard>
+          <Section>
+            {heading}
+            {courseInstanceProgressesData.map((courseInstanceProgress) => {
+              const courseModule = courseStructureData.modules.find(
+                (cm) => cm.id === courseInstanceProgress.course_module_id,
+              )
+              const pointsProgress = courseInstanceProgress.score_maximum
+                ? (courseInstanceProgress.score_given / courseInstanceProgress.score_maximum) * 100
+                : 0
+              const exercisesProgress = courseInstanceProgress.total_exercises
+                ? ((courseInstanceProgress.attempted_exercises ?? 0) /
+                    courseInstanceProgress.total_exercises) *
+                  100
+                : 0
+
+              return (
+                <ModuleCard key={courseInstanceProgress.course_module_id}>
+                  <ModuleHeader>
+                    {!isSingleModule && (
+                      <ModuleTitle>{courseModule?.name ?? t("default-module")}</ModuleTitle>
+                    )}
+                    <DebugModal data={courseInstanceProgress} variant="minimal" />
+                  </ModuleHeader>
+                  <InfoGrid>
+                    {courseInstanceProgress.attempted_exercises_required !== null && (
+                      <InfoItem>
+                        <Label>{t("label-attempted-exercises-required")}</Label>
+                        <Value>{courseInstanceProgress.attempted_exercises_required}</Value>
+                      </InfoItem>
+                    )}
+                    {courseInstanceProgress.score_required !== null && (
+                      <InfoItem>
+                        <Label>{t("label-points-required")}</Label>
+                        <Value>{courseInstanceProgress.score_required}</Value>
+                      </InfoItem>
+                    )}
+                    <InfoItem>
+                      <Label>{t("label-points")}</Label>
+                      <Value>
+                        {courseInstanceProgress.score_given} /{" "}
+                        {courseInstanceProgress.score_maximum ?? 0}
+                      </Value>
+                      <ProgressBar progress={pointsProgress} />
+                      <ProgressValue>{Math.round(pointsProgress)}%</ProgressValue>
+                    </InfoItem>
+                    <InfoItem>
+                      <Label>{t("label-attempted-exercises")}</Label>
+                      <Value>
+                        {courseInstanceProgress.attempted_exercises ?? 0} /{" "}
+                        {courseInstanceProgress.total_exercises ?? 0}
+                      </Value>
+                      <ProgressBar progress={exercisesProgress} />
+                      <ProgressValue>{Math.round(exercisesProgress)}%</ProgressValue>
+                    </InfoItem>
+                  </InfoGrid>
+                </ModuleCard>
+              )
+            })}
+          </Section>
         )
-      })}
-    </Section>
+      }}
+    />
   )
 }
 

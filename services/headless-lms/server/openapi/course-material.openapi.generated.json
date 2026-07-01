@@ -3580,6 +3580,11 @@
           }
         ]
       },
+      "CourseAiPolicy": {
+        "type": "string",
+        "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
+        "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
+      },
       "CourseBackgroundQuestion": {
         "type": "object",
         "required": [
@@ -3850,9 +3855,13 @@
           "base_module_completion_requires_n_submodule_completions",
           "is_joinable_by_code_only",
           "ask_marketing_consent",
-          "chapter_locking_enabled"
+          "chapter_locking_enabled",
+          "ai_policy"
         ],
         "properties": {
+          "ai_policy": {
+            "$ref": "#/components/schemas/CourseAiPolicy"
+          },
           "ask_marketing_consent": {
             "type": "boolean"
           },
@@ -3884,6 +3893,9 @@
           "course_language_group_id": {
             "type": "string",
             "format": "uuid"
+          },
+          "course_material_ai_instructions": {
+            "type": ["boolean", "null"]
           },
           "description": {
             "type": ["string", "null"]

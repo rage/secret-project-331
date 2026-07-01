@@ -1,10 +1,11 @@
 {
   "name": "@moocfi/create-exercise-service",
   "version": "0.0.0",
-  "description": "",
+  "description": "Scaffolding CLI for creating new moocfi exercise services",
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",
-  "main": "src/index.js",
+  "type": "module",
+  "main": "src/index.ts",
   "devEngines": {
     "runtime": {
       "name": "node",
@@ -13,12 +14,14 @@
     }
   },
   "scripts": {
-    "start": "tsx src/index.ts"
+    "start": "tsx src/index.ts",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@inquirer/prompts": "^8.5.0"
   },
   "devDependencies": {
+    "@types/node": "^25.9.1",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }

@@ -15,9 +15,9 @@ import { fetchPeerReviewDataReceivedByExerciseIdOptions } from "@/generated/cour
 import type { PeerOrSelfReviewsReceived as PeerOrSelfReviewsReceivedData } from "@/generated/course-material-api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
+import { QueryResult } from "@/shared-module/components"
 
 const openAnimation = keyframes`
   0% { opacity: 0; }
@@ -175,66 +175,62 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     userInfo.data?.user_id,
   ])
 
-  if (peerOrSelfReviewsReceivedQuery.isError) {
-    return <ErrorBanner variant={"readOnly"} error={peerOrSelfReviewsReceivedQuery.error} />
-  }
-
-  if (peerOrSelfReviewsReceivedQuery.isLoading) {
-    return <Spinner variant={"medium"} />
-  }
-
-  if (!peerOrSelfReviewsReceivedQuery.data) {
-    return (
-      <div>
-        <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
-        <Button
-          variant={"primary"}
-          size={"medium"}
-          onClick={() => {
-            void peerOrSelfReviewsReceivedQuery.refetch()
-          }}
-        >
-          {t("button-text-try-again")}
-        </Button>
-      </div>
-    )
-  }
-
   const numReceivedReviews = (data["peer"]?.length ?? 0) + (data["self"]?.length ?? 0)
 
   return (
-    <Wrapper>
-      <details>
-        <summary>
-          {t("received-reviews")}
-          <Notification>{numReceivedReviews}</Notification>
-        </summary>
+    <QueryResult
+      query={peerOrSelfReviewsReceivedQuery}
+      treatNullAsEmpty
+      emptyFallback={
+        <div>
+          <ErrorBanner variant={"readOnly"} error={t("error-loading-exercise")} />
+          <Button
+            variant={"primary"}
+            size={"medium"}
+            onClick={() => {
+              void peerOrSelfReviewsReceivedQuery.refetch()
+            }}
+          >
+            {t("button-text-try-again")}
+          </Button>
+        </div>
+      }
+    >
+      {(queryData) => (
+        <Wrapper>
+          <details>
+            <summary>
+              {t("received-reviews")}
+              <Notification>{numReceivedReviews}</Notification>
+            </summary>
 
-        {(data["self"] ?? []).map((items, index) => {
-          return (
-            <ReceivedPeerOrSelfReview
-              orderNumber={index}
-              key={index}
-              reviews={items}
-              questions={peerOrSelfReviewsReceivedQuery.data.peer_or_self_review_questions}
-              selfReview
-            />
-          )
-        })}
+            {(data["self"] ?? []).map((items, index) => {
+              return (
+                <ReceivedPeerOrSelfReview
+                  orderNumber={index}
+                  key={index}
+                  reviews={items}
+                  questions={queryData.peer_or_self_review_questions}
+                  selfReview
+                />
+              )
+            })}
 
-        {(data["peer"] ?? []).map((items, index) => {
-          return (
-            <ReceivedPeerOrSelfReview
-              orderNumber={index}
-              key={index}
-              reviews={items}
-              questions={peerOrSelfReviewsReceivedQuery.data.peer_or_self_review_questions}
-              selfReview={false}
-            />
-          )
-        })}
-      </details>
-    </Wrapper>
+            {(data["peer"] ?? []).map((items, index) => {
+              return (
+                <ReceivedPeerOrSelfReview
+                  orderNumber={index}
+                  key={index}
+                  reviews={items}
+                  questions={queryData.peer_or_self_review_questions}
+                  selfReview={false}
+                />
+              )
+            })}
+          </details>
+        </Wrapper>
+      )}
+    </QueryResult>
   )
 }
 

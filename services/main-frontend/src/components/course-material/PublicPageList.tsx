@@ -6,8 +6,7 @@ import React from "react"
 import { useTranslation } from "react-i18next"
 
 import { getCourseMaterialCoursePages } from "@/generated/course-material-api/sdk.generated"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import Spinner from "@/shared-module/common/components/Spinner"
+import { QueryResult } from "@/shared-module/components"
 import { coursePageRoute } from "@/utils/course-material/routing"
 
 interface PublicPageListProps {
@@ -31,33 +30,20 @@ const PublicPageList: React.FC<React.PropsWithChildren<PublicPageListProps>> = (
   })
 
   return (
-    <>
-      {getAllCoursePages.isError && (
-        <ErrorBanner variant={"readOnly"} error={getAllCoursePages.error} />
-      )}
-      {getAllCoursePages.isLoading && <Spinner variant={"medium"} />}
-      {getAllCoursePages.isSuccess && (
+    <QueryResult query={getAllCoursePages} emptyFallback={<p>{t("this-course-has-no-pages")}</p>}>
+      {(data) => (
         <>
-          {getAllCoursePages.data.length === 0 ? (
-            <p>{t("this-course-has-no-pages")}</p>
-          ) : (
-            <>
-              <p>{t("heres-a-list-of-all-public-pages-for-this-course")}</p>
-              {getAllCoursePages.data.map((page) => {
-                return (
-                  <Link
-                    href={coursePageRoute(organizationSlug, courseId, page.url_path)}
-                    key={page.id}
-                  >
-                    {page.title}({page.url_path})
-                  </Link>
-                )
-              })}
-            </>
-          )}
+          <p>{t("heres-a-list-of-all-public-pages-for-this-course")}</p>
+          {data.map((page) => {
+            return (
+              <Link href={coursePageRoute(organizationSlug, courseId, page.url_path)} key={page.id}>
+                {page.title}({page.url_path})
+              </Link>
+            )
+          })}
         </>
       )}
-    </>
+    </QueryResult>
   )
 }
 

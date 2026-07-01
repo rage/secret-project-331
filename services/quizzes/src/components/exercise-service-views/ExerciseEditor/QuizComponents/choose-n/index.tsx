@@ -16,7 +16,7 @@ import Accordion from "@/shared-module/common/components/Accordion"
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
-import { primaryFont } from "@/shared-module/common/styles"
+import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 interface MultipleChoiceEditorProps {
   quizItemId: string

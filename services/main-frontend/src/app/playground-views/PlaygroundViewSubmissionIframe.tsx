@@ -4,14 +4,15 @@ import { css } from "@emotion/css"
 import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
-import MessageChannelIFrame from "@/shared-module/common/components/MessageChannelIFrame"
+import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
+import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import {
   CurrentStateMessage,
   ExerciseIframeState,
   UserInformation,
-} from "@/shared-module/common/exercise-service-protocol-types"
-import { isMessageFromIframe } from "@/shared-module/common/exercise-service-protocol-types.guard"
-import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+} from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
+import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
+import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 interface PlaygroundViewSubmissionIframeProps {
@@ -49,6 +50,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
   userInformation,
 }) => {
   const { t } = useTranslation()
+  const dialog = useDialog()
   if (publicSpecQuery.isLoading || publicSpecQuery.isError) {
     return <>{t("error-no-public-spec")}</>
   }
@@ -79,6 +81,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
       `}
     >
       <MessageChannelIFrame
+        dialog={dialog}
         key={iframeKey}
         url={url}
         postThisStateToIFrame={iframeState}

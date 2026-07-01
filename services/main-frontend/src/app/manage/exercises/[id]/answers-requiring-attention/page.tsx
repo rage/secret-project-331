@@ -13,13 +13,12 @@ import { getExerciseAnswersRequiringAttentionOptions } from "@/generated/api/@ta
 import { useCourseStructure } from "@/hooks/useCourseStructure"
 import useExerciseQuery from "@/hooks/useExeciseQuery"
 import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
-import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Pagination from "@/shared-module/common/components/Pagination"
-import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { QueryResult } from "@/shared-module/components"
 
 const ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE = [15, 50, 100, 1000, 10000]
 const ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT = 50
@@ -85,14 +84,6 @@ const SubmissionsPage: React.FC = () => {
     }),
   })
 
-  if (courseStructure.isLoading) {
-    return <Spinner variant="medium" />
-  }
-
-  if (courseStructure.isError) {
-    return <ErrorBanner variant="readOnly" error={courseStructure.error} />
-  }
-
   return (
     <div>
       <h4
@@ -124,26 +115,24 @@ const SubmissionsPage: React.FC = () => {
         </ExerciseTitle>
       )}
 
-      {answersQuery.isError && <ErrorBanner variant="readOnly" error={answersQuery.error} />}
-
-      {answersQuery.isLoading && <Spinner variant="medium" />}
-
-      {answersQuery.isSuccess && (
-        // AccordionProvider here allows us to collapse/expand all accordions in this subtree
-        <AccordionProvider>
-          <AnswersRequiringAttentionList
-            answersRequiringAttention={answersQuery.data.data}
-            exercise_max_points={answersQuery.data.exercise_max_points}
-            courseId={exerciseQuery.data?.course_id ?? null}
-            refetch={answersQuery.refetch}
-          />
-          <Pagination
-            totalPages={answersQuery.data?.total_pages}
-            paginationInfo={paginationInfo}
-            itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
-          />
-        </AccordionProvider>
-      )}
+      <QueryResult query={answersQuery}>
+        {(answers) => (
+          // AccordionProvider here allows us to collapse/expand all accordions in this subtree
+          <AccordionProvider>
+            <AnswersRequiringAttentionList
+              answersRequiringAttention={answers.data}
+              exercise_max_points={answers.exercise_max_points}
+              courseId={exerciseQuery.data?.course_id ?? null}
+              refetch={answersQuery.refetch}
+            />
+            <Pagination
+              totalPages={answers.total_pages}
+              paginationInfo={paginationInfo}
+              itemsPerPageOptions={ANSWERS_REQUIRING_ATTENTION_ITEMS_PER_PAGE}
+            />
+          </AccordionProvider>
+        )}
+      </QueryResult>
     </div>
   )
 }

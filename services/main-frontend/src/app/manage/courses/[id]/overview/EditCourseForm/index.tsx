@@ -6,6 +6,7 @@ import React from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
+import AiPolicyFields from "./AiPolicyFields"
 import ClosedSectionFields from "./ClosedSectionFields"
 
 import { updateCourse } from "@/generated/api/sdk.generated"
@@ -61,6 +62,8 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
       closed_additional_message: course.closed_additional_message ?? null,
       closed_course_successor_id: course.closed_course_successor_id ?? null,
       set_course_closed_at: Boolean(course.closed_at),
+      ai_policy: course.ai_policy,
+      course_material_ai_instructions: course.course_material_ai_instructions ?? null,
     },
   })
 
@@ -101,6 +104,8 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
             : null,
           closed_additional_message: data.closed_additional_message || null,
           closed_course_successor_id: data.closed_course_successor_id || null,
+          ai_policy: data.ai_policy,
+          course_material_ai_instructions: data.course_material_ai_instructions,
         },
         path: {
           course_id: course.id,
@@ -200,6 +205,8 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
               {...register("flagged_answers_skip_manual_review_and_allow_retry")}
             />
           </FieldContainer>
+
+          <AiPolicyFields />
 
           <ClosedSectionFields />
         </div>

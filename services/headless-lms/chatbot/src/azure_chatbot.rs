@@ -304,7 +304,7 @@ pub enum InputItem {
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
-pub struct AiSearchOutput {
+pub struct AISearchOutput {
     pub get_urls: Vec<Url>,
 }
 
@@ -711,7 +711,7 @@ pub async fn process_output_item(
             output,
             response_id,
         } => {
-            let search_output: AiSearchOutput = serde_json::from_str(&output)?;
+            let search_output: AISearchOutput = serde_json::from_str(&output)?;
             let api_key = if let Some(azure_config) = &app_config.azure_configuration
                 && let Some(search_config) = &azure_config.search_config
             {
@@ -785,7 +785,7 @@ async fn parse_tool<'a>(
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
     let mut function_name_id_args: Vec<(String, String, Value)> = vec![];
     let mut messages = vec![];
-    let mut common_response_id = "".to_string();
+    let mut common_response_id: Option<String> = None;
     let mut response_received = false;
 
     trace!("Parsing tool calls...");
@@ -839,7 +839,7 @@ async fn parse_tool<'a>(
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ))?
             }
-            if common_response_id.is_empty() {
+            let Some(response_id) = common_response_id else {
                 Err(chatbot_err!(StreamingError,
                     "Received tool response but response id not found, this shouldn't happen."
                 ))?
@@ -852,7 +852,7 @@ async fn parse_tool<'a>(
 
                 tool_msgs.push(APIOutputMessage {
                     message_type: OutputItem::FunctionCall {
-                        response_id: (common_response_id).to_owned(),
+                        response_id: response_id.to_owned(),
                         call_id: id.to_owned(),
                         tool_name: name.to_owned(),
                         arguments: serde_json::to_string(tool.get_arguments())?,
@@ -861,7 +861,7 @@ async fn parse_tool<'a>(
                 let function_call_output = OutputItem::FunctionCallOutput {
                         call_id: id.to_owned(),
                         output,
-                        response_id: (common_response_id).to_owned(),
+                        response_id: response_id.to_owned(),
                     };
                 tool_msgs.push(APIOutputMessage {
                     message_type: function_call_output.to_owned(),
@@ -894,7 +894,7 @@ async fn parse_tool<'a>(
                     arguments,
                     response_id,
                 } => {
-                    common_response_id = response_id;
+                    common_response_id = Some(response_id);
                     function_name_id_args.push((
                         tool_name,
                         call_id,
@@ -926,7 +926,7 @@ async fn parse_tool<'a>(
 fn stream_and_detect_response_stream_type<'a>(
     mut lines: PeekableLinesStream<'a>,
 ) -> impl Stream<Item = Result<StreamEvent<'a>, anyhow::Error>> {
-    let mut response_id = "".to_string();
+    let mut response_id: Option<String> = None;
     let mut response_created_incoming = false;
     let mut error_incoming = false;
     let mut output_item_added = false;
@@ -941,7 +941,7 @@ fn stream_and_detect_response_stream_type<'a>(
             }
             Some(Err(e)) => {
                 Err(anyhow!(
-                    "There was an error streaming response from Azure: {e}. Response id: {}", &response_id
+                    "There was an error streaming response from Azure: {e}. Response id: {}", response_id.as_deref().unwrap_or("not received")
                 ))?;
             }
             Some(Result::Ok(line)) => {
@@ -959,26 +959,33 @@ fn stream_and_detect_response_stream_type<'a>(
                                 output_item_done = true;
                             }
                             "response.function_call_arguments.delta" => {
-                                if response_id.is_empty() {
+                                if let Some(id) = &response_id {
+                                    yield StreamEvent::ResponseIdStream((
+                                        id.to_string(),
+                                        ResponseStreamType::Toolcall(lines),
+                                    ));
+                                    break;
+                                } else {
                                     Err(anyhow::anyhow!(
                                         "No response_id found! This should never happen!"
                                     ))?;
-                                }
-                                yield StreamEvent::ResponseIdStream((
-                                    response_id.to_owned(),
-                                    ResponseStreamType::Toolcall(lines),
-                                ));
-                                break;
+                                };
                             }
                             "response.output_text.delta" => {
-                                yield StreamEvent::ResponseIdStream((
-                                    response_id.to_owned(),
-                                    ResponseStreamType::TextResponse(lines),
-                                ));
-                                break;
+                                if let Some(id) = &response_id {
+                                    yield StreamEvent::ResponseIdStream((
+                                        id.to_string(),
+                                        ResponseStreamType::TextResponse(lines),
+                                    ));
+                                    break;
+                                } else {
+                                    Err(anyhow::anyhow!(
+                                        "No response_id found! This should never happen!"
+                                    ))?;
+                                };
                             }
                             "response.incomplete" => {
-                                break Err(anyhow::anyhow!("Response incomplete. Response id: {}", &response_id))?
+                                break Err(anyhow::anyhow!("Response incomplete. Response id: {}", response_id.as_deref().unwrap_or("not received")))?
                             },
                             "response.error" => { error_incoming = true; }
                             _ => {}
@@ -995,14 +1002,14 @@ fn stream_and_detect_response_stream_type<'a>(
                                 "Expected error object"
                             ))?;
 
-                            break Err(anyhow::anyhow!("Error received from Azure: {} Response id: {}", res_error, &response_id))?
+                            break Err(anyhow::anyhow!("Error received from Azure: {} Response id: {}", res_error, response_id.as_deref().unwrap_or("not received")))?
                         }
                         else if response_created_incoming {
                             let res = response_output.response.ok_or(chatbot_err!(
                                 DeserializationError,
                                 "Expected response object"
                             ))?;
-                            response_id = res.id;
+                            response_id = Some(res.id);
                             response_created_incoming = false;
                         }
                         if output_item_added {
@@ -1030,7 +1037,7 @@ fn stream_and_detect_response_stream_type<'a>(
         continue;
     }
     Err(Error::msg(format!(
-        "The response received from Azure ended unexpectedly. Response id: {}", &response_id
+        "The response received from Azure ended unexpectedly. Response id: {}", response_id.as_deref().unwrap_or("not received")
     )))?
     })
 }

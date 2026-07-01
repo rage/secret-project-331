@@ -2980,7 +2980,7 @@ export const setCourseJoinCode = <ThrowOnError extends boolean = true>(
  */
 export const getSisuCourseLlmDescriptions = <ThrowOnError extends boolean = true>(
   options: Options<GetSisuCourseLlmDescriptionsData, ThrowOnError>,
-) =>
+): RequestResult<GetSisuCourseLlmDescriptionsResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<
     GetSisuCourseLlmDescriptionsResponses,
     unknown,

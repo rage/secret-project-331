@@ -106,8 +106,8 @@ else
 fi
 
 section "TypeScript / ESLint caches"
-run find "$REPO_ROOT" -name '*.tsbuildinfo' -not -path '*/node_modules/*' -delete
-safe_rm "$REPO_ROOT/.eslintcache"
+mapfile -d '' -t ts_caches < <(find "$REPO_ROOT" -name '*.tsbuildinfo' -not -path '*/node_modules/*' -print0)
+safe_rm "${ts_caches[@]}" "$REPO_ROOT/.eslintcache"
 
 section "Frontend build outputs"
 shopt -s nullglob
@@ -126,7 +126,8 @@ safe_rm \
   "$REPO_ROOT/system-tests/playwright-report"
 
 section "Python __pycache__"
-run find "$REPO_ROOT" -type d -name __pycache__ -not -path '*/node_modules/*' -prune -exec rm -rf {} +
+mapfile -d '' -t pycache_dirs < <(find "$REPO_ROOT" -type d -name __pycache__ -not -path '*/node_modules/*' -prune -print0)
+safe_rm "${pycache_dirs[@]}"
 
 section "Git maintenance"
 if command -v git-lfs > /dev/null 2>&1; then

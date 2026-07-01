@@ -295,6 +295,7 @@ import {
   updateChapter,
   updateChapterImage,
   updateCourse,
+  updateCourseAfterAuditing,
   updateCourseChapterOrdering,
   updateCourseDesignerStageTask,
   updateCourseDesignerStageWorkspace,
@@ -829,6 +830,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponse,
   UpdateChapterResponse,
+  UpdateCourseAfterAuditingData,
+  UpdateCourseAfterAuditingResponse,
   UpdateCourseChapterOrderingData,
   UpdateCourseData,
   UpdateCourseDesignerStageTaskData,
@@ -1589,6 +1592,32 @@ export const getCoursesForAuditingOptions = (options?: Options<GetCoursesForAudi
       }),
     queryKey: getCoursesForAuditingQueryKey(options),
   })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/course-auditing/:id`
+ */
+export const updateCourseAfterAuditingMutation = (
+  options?: Partial<Options<UpdateCourseAfterAuditingData>>,
+): UseMutationOptions<
+  UpdateCourseAfterAuditingResponse,
+  DefaultError,
+  Options<UpdateCourseAfterAuditingData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCourseAfterAuditingResponse,
+    DefaultError,
+    Options<UpdateCourseAfterAuditingData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateCourseAfterAuditing({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 export const getCourseInstanceQueryKey = (options: Options<GetCourseInstanceData>) =>
   createQueryKey("getCourseInstance", options)

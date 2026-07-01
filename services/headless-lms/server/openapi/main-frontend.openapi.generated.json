@@ -929,6 +929,47 @@
         }
       }
     },
+    "/api/v0/main-frontend/course-auditing/{course_to_audit_id}": {
+      "put": {
+        "tags": ["course_auditing"],
+        "summary": "\nPUT `/api/v0/main-frontend/course-auditing/:id`",
+        "operationId": "updateCourseAfterAuditing",
+        "parameters": [
+          {
+            "name": "course_to_audit_id",
+            "in": "path",
+            "description": "Course to audit id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CourseToAuditUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Updated course",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CourseWithError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/course-instances/{course_instance_id}": {
       "get": {
         "tags": ["course-instances"],
@@ -13445,6 +13486,17 @@
           }
         }
       },
+      "CourseToAuditUpdate": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": ["string", "null"]
+          },
+          "uh_course_code": {
+            "type": ["string", "null"]
+          }
+        }
+      },
       "CourseUpdate": {
         "type": "object",
         "required": [
@@ -13533,6 +13585,18 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
+          }
+        }
+      },
+      "CourseWithError": {
+        "type": "object",
+        "required": ["course"],
+        "properties": {
+          "course": {
+            "$ref": "#/components/schemas/CourseToAudit"
+          },
+          "course_error": {
+            "type": ["string", "null"]
           }
         }
       },

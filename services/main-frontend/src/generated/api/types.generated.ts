@@ -892,6 +892,11 @@ export type CourseToAudit = {
   updated_at: string
 }
 
+export type CourseToAuditUpdate = {
+  description?: string | null
+  uh_course_code?: string | null
+}
+
 export type CourseUpdate = {
   ai_policy: CourseAiPolicy
   ask_marketing_consent: boolean
@@ -917,6 +922,11 @@ export type CourseUserInfo = {
   first_name?: string | null
   last_name?: string | null
   user_id: string
+}
+
+export type CourseWithError = {
+  course: CourseToAudit
+  course_error?: string | null
 }
 
 export type CreateCourseDesignerPlanRequest = {
@@ -2872,6 +2882,28 @@ export type GetCoursesForAuditingResponses = {
 
 export type GetCoursesForAuditingResponse =
   GetCoursesForAuditingResponses[keyof GetCoursesForAuditingResponses]
+
+export type UpdateCourseAfterAuditingData = {
+  body: CourseToAuditUpdate
+  path: {
+    /**
+     * Course to audit id
+     */
+    course_to_audit_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/course-auditing/{course_to_audit_id}"
+}
+
+export type UpdateCourseAfterAuditingResponses = {
+  /**
+   * Updated course
+   */
+  200: CourseWithError
+}
+
+export type UpdateCourseAfterAuditingResponse =
+  UpdateCourseAfterAuditingResponses[keyof UpdateCourseAfterAuditingResponses]
 
 export type GetCourseInstanceData = {
   body?: never

@@ -741,6 +741,11 @@ export const zCourseToAudit = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseToAuditUpdate = z.object({
+  description: z.string().nullish(),
+  uh_course_code: z.string().nullish(),
+})
+
 export const zCourseUpdate = z.object({
   ai_policy: zCourseAiPolicy,
   ask_marketing_consent: z.boolean(),
@@ -769,6 +774,11 @@ export const zCourseUserInfo = z.object({
   first_name: z.string().nullish(),
   last_name: z.string().nullish(),
   user_id: z.uuid(),
+})
+
+export const zCourseWithError = z.object({
+  course: zCourseToAudit,
+  course_error: z.string().nullish(),
 })
 
 export const zCreateCourseDesignerPlanRequest = z.object({
@@ -3036,6 +3046,17 @@ export const zDeleteCodeGiveawayCodePath = z.object({
  * Courses for auditing
  */
 export const zGetCoursesForAuditingResponse = z.array(zCourseToAudit)
+
+export const zUpdateCourseAfterAuditingBody = zCourseToAuditUpdate
+
+export const zUpdateCourseAfterAuditingPath = z.object({
+  course_to_audit_id: z.uuid(),
+})
+
+/**
+ * Updated course
+ */
+export const zUpdateCourseAfterAuditingResponse = zCourseWithError
 
 export const zGetCourseInstancePath = z.object({
   course_instance_id: z.uuid(),

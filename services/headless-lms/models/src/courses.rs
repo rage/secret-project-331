@@ -381,7 +381,8 @@ pub async fn update_course_after_auditing(
     course_update: CourseToAuditUpdate,
 ) -> ModelResult<()> {
     let mut tx = conn.begin().await?;
-    let course = sqlx::query_as!(
+
+    sqlx::query_as!(
         Course,
         r#"
 UPDATE courses
@@ -390,10 +391,10 @@ SET description = $2 WHERE id = $1
         course_id,
         course_update.description,
     )
-    .fetch_one(&mut *tx)
+    .execute(&mut *tx)
     .await?;
 
-    let uh_code = sqlx::query!(
+    sqlx::query!(
         r#"
 UPDATE course_modules
 SET uh_course_code = $2 WHERE course_id = $1 AND order_number = 0
@@ -401,7 +402,7 @@ SET uh_course_code = $2 WHERE course_id = $1 AND order_number = 0
         course_id,
         course_update.uh_course_code,
     )
-    .fetch_one(&mut *tx)
+    .execute(&mut *tx)
     .await?;
 
     tx.commit().await?;

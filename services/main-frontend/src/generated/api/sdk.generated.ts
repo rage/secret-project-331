@@ -576,6 +576,8 @@ import type {
   UpdateChapterImageData,
   UpdateChapterImageResponses,
   UpdateChapterResponses,
+  UpdateCourseAfterAuditingData,
+  UpdateCourseAfterAuditingResponses,
   UpdateCourseChapterOrderingData,
   UpdateCourseChapterOrderingResponses,
   UpdateCourseData,
@@ -852,6 +854,7 @@ import {
   zUpdateCertificateConfigurationResponse,
   zUpdateChapterImageResponse,
   zUpdateChapterResponse,
+  zUpdateCourseAfterAuditingResponse,
   zUpdateCourseDesignerStageTaskResponse,
   zUpdateCourseDesignerStageWorkspaceResponse,
   zUpdateCoursePeerReviewQueueReviewsReceivedResponse,
@@ -1389,6 +1392,26 @@ export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
     url: "/api/v0/main-frontend/course-auditing/",
     ...options,
   })
+
+/**
+ *
+ * PUT `/api/v0/main-frontend/course-auditing/:id`
+ */
+export const updateCourseAfterAuditing = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateCourseAfterAuditingData, ThrowOnError>,
+) =>
+  (options.client ?? client).put<UpdateCourseAfterAuditingResponses, unknown, ThrowOnError, "data">(
+    {
+      responseValidator: async (data) => await zUpdateCourseAfterAuditingResponse.parseAsync(data),
+      responseStyle: "data",
+      url: "/api/v0/main-frontend/course-auditing/{course_to_audit_id}",
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    },
+  )
 
 /**
  *

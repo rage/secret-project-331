@@ -4,7 +4,7 @@ use utoipa::{OpenApi, ToSchema};
 use crate::{domain::models_requests, prelude::*};
 
 #[derive(OpenApi)]
-#[openapi(paths(get_courses_for_auditing))]
+#[openapi(paths(get_courses_for_auditing, update_course_after_auditing))]
 pub(crate) struct MainFrontendCourseAuditingApiDoc;
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -71,6 +71,7 @@ async fn update_course_after_auditing(
 
     let updated_course =
         models::courses::get_course_for_auditing(&mut conn, *course_to_audit_id).await?;
+
     //TODO: update error handling
     let course_with_error = CourseWithError {
         course: updated_course,

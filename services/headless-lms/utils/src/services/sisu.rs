@@ -200,7 +200,7 @@ impl SisuClient {
         let mut course_ids: Vec<Vec<String>> = vec![];
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
-            let base_url = Self::get_url(&self)?;
+            let base_url = Self::get_url(self)?;
             let url = base_url.join(
                 format!(
                     "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
@@ -261,7 +261,7 @@ impl SisuClient {
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
         for id in course_ids {
             if let Some(first) = id.first() {
-                let base_url = Self::get_url(&self)?;
+                let base_url = Self::get_url(self)?;
                 let url = base_url.join(format!("course-units/v1/{first}").as_str())?;
 
                 let response = REQWEST_CLIENT

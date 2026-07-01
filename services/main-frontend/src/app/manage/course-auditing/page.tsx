@@ -1,20 +1,14 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseAuditingContainer from "./CourseAuditingContainer"
-import CourseAuditingUpdateModal from "./CourseAuditingUpdateModal"
 
-import {
-  getCoursesForAuditingOptions,
-  updateCourseAfterAuditingMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
-import type { CourseToAuditUpdate } from "@/generated/api/types.generated"
+import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -23,12 +17,6 @@ import { QueryResult } from "@/shared-module/components"
 
 const CourseAuditing = () => {
   const { t } = useTranslation()
-  const [open, setOpen] = useState(false)
-  const [course, setCourse] = useState<CourseToAuditUpdate>({
-    description: "",
-    uh_course_code: "",
-  })
-
   const getCoursesForAuditing = useQuery(getCoursesForAuditingOptions())
 
   const sortedCoursesForAuditing = useMemo(
@@ -36,54 +24,11 @@ const CourseAuditing = () => {
     [getCoursesForAuditing.data],
   )
 
-  //console.log(sortedCoursesForAuditing[0]?.id)
-
-  //TODO: add error handling
-  const updateCourseMutation = useToastMutationOptions(
-    updateCourseAfterAuditingMutation(),
-    { notify: true, method: "PUT" },
-    {
-      onSuccess: async (result) => {
-        await getCoursesForAuditing.refetch()
-        handleClose()
-        resetCourse()
-      },
-    },
-  )
-
-  const resetCourse = () => {
-    setCourse({
-      description: "",
-      uh_course_code: "",
-    })
-  }
-
-  const onChangeCreationModal = (key: string) => (value: string) => {
-    setCourse({
-      ...course,
-      [key]: value,
-    })
-  }
-
-  const handleClose = () => {
-    setOpen(false)
-  }
   const renderCourseAuditing = () => (
     <>
       <CourseAuditingContainer
         coursesForAuditing={sortedCoursesForAuditing}
         refetch={getCoursesForAuditing.refetch}
-      />
-      <CourseAuditingUpdateModal
-        open={open}
-        handleClose={handleClose}
-        course={course}
-        onChange={onChangeCreationModal}
-        handleSubmit={async () => {
-          await updateCourseMutation.mutateAsync({
-            body: course,
-          })
-        }}
       />
     </>
   )

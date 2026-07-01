@@ -282,6 +282,7 @@ export interface ImageAttributes {
   sizeSlug?: string
   linkDestination?: string
   linkTarget?: string
+  isDecorative: boolean
   borderColor?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {

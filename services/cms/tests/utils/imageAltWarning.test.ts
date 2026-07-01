@@ -21,4 +21,12 @@ describe("shouldWarnAboutImageAltPlaceholder", () => {
   it("does not warn for missing alt text", () => {
     expect(shouldWarnAboutImageAltPlaceholder(undefined)).toBe(false)
   })
+
+  it("does not warn for a decorative image even when the alt is still the placeholder", () => {
+    expect(shouldWarnAboutImageAltPlaceholder(ALT_TEXT_NOT_CHANGED_PLACEHOLDER, true)).toBe(false)
+  })
+
+  it("still warns for a non-decorative image with the placeholder alt", () => {
+    expect(shouldWarnAboutImageAltPlaceholder(ALT_TEXT_NOT_CHANGED_PLACEHOLDER, false)).toBe(true)
+  })
 })

@@ -1907,7 +1907,12 @@ def build_steps(repo_root: Path) -> list[Step]:
             substeps=["cargo-upgrade", "cargo-update"],
             # 2026-06-03: this backend update pass keeps azure_core on the
             # locked line until its transitive API breakage has been reviewed.
-            cargo_upgrade_excludes=["azure_core"],
+            # 2026-07-01: kube and k8s-openapi are held here too -- their major
+            # bumps must move the k8s-openapi v1_XX feature in lockstep with the
+            # version (a plain `cargo upgrade` only bumps the version and lands
+            # on a feature the new release dropped), so they are migrated by hand
+            # against the target cluster's Kubernetes version.
+            cargo_upgrade_excludes=["azure_core", "kube", "k8s-openapi"],
             # 2026-06-03: constant_time_eq 0.4.3 is yanked on crates.io; keep
             # this pin discoverable here so it can be retired when no longer hit.
             cargo_version_pins=[

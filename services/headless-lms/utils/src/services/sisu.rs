@@ -192,6 +192,20 @@ impl SisuClient {
         Ok(Self { base_url })
     }
 
+    async fn get_request_sisu(&self, path: String) -> Result<reqwest::Response, UtilError> {
+        let base_url = Self::get_url(self)?;
+        let url = base_url.join(path.as_str())?;
+        let builder = REQWEST_CLIENT.get(url).timeout(TIMEOUT_DURATION);
+
+        builder.send().await.map_err(|e| {
+            util_err!(
+                SisuClientError(SisuErrorVariant::GenericSisuError),
+                "Request to Sisu failed",
+                e
+            )
+        })
+    }
+
     pub async fn get_course_ids(
         &self,
         course_modules: Vec<String>,
@@ -200,27 +214,10 @@ impl SisuClient {
         let mut course_ids: Vec<Vec<String>> = vec![];
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
-            let base_url = Self::get_url(self)?;
-            let url = base_url.join(
-                format!(
-                    "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
-                )
-                .as_str(),
-            )?;
-
-            let response = REQWEST_CLIENT
-                .get(url)
-                .header("Content-Type", "application/json")
-                .timeout(TIMEOUT_DURATION)
-                .send()
-                .await
-                .map_err(|e| {
-                    util_err!(
-                        SisuClientError(SisuErrorVariant::GenericSisuError),
-                        "Request to Sisu failed",
-                        e
-                    )
-                })?;
+            let path = format!(
+                "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
+            );
+            let response = self.get_request_sisu(path).await?;
 
             if response.status().is_success() {
                 let json: CourseUnitSearchResults =
@@ -261,22 +258,8 @@ impl SisuClient {
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
         for id in course_ids {
             if let Some(first) = id.first() {
-                let base_url = Self::get_url(self)?;
-                let url = base_url.join(format!("course-units/v1/{first}").as_str())?;
-
-                let response = REQWEST_CLIENT
-                    .get(url)
-                    .header("Content-Type", "application/json")
-                    .timeout(TIMEOUT_DURATION)
-                    .send()
-                    .await
-                    .map_err(|e| {
-                        util_err!(
-                            SisuClientError(SisuErrorVariant::GenericSisuError),
-                            "Request to Sisu failed",
-                            e
-                        )
-                    })?;
+                let path = format!("course-units/v1/{first}");
+                let response = self.get_request_sisu(path).await?;
 
                 if response.status().is_success() {
                     let json: SisuCourseInfoElement =

@@ -771,7 +771,6 @@ async fn parse_tool<'a>(
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
     let mut response_received = false;
-    let mut error_incoming = false;
     // todo! item yielding better just in case
 
     trace!("Parsing tool calls...");
@@ -791,9 +790,6 @@ async fn parse_tool<'a>(
                             "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
                         ))?
                     }
-                    "response.error" => {
-                        error_incoming = true;
-                    }
                     _ => {}
                 };
                 continue;
@@ -804,9 +800,10 @@ async fn parse_tool<'a>(
             }
         };
 
-        if error_incoming
-            && let Some(response) = &response_output.response
-            && let Some(error) = &response.error
+        // Surface any error the API reports (e.g. response.error, response.failed)
+        // instead of continuing. Normal responses carry no error object.
+        if let Some(response) = &response_output.response
+        && let Some(error) = &response.error
         {
             Err(chatbot_err!(
                 StreamingError,
@@ -1034,7 +1031,6 @@ async fn parse_text_response<'a>(
     trace!("Parsing stream to user...");
 
     let mut response_received = false;
-    let mut error_incoming = false;
 
     Box::pin(async_stream::try_stream! {
         while let Some(val) = lines.next().await {
@@ -1051,7 +1047,6 @@ async fn parse_text_response<'a>(
                             error!("ERROR, function call received but can't be processed while streaming to user.");
                             return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming to user")))?
                         },
-                        "response.error" => {error_incoming = true;},
                         _ => {},
                     };
                     continue;
@@ -1083,8 +1078,10 @@ async fn parse_text_response<'a>(
                 break;
             }
 
-            if error_incoming &&
-                let Some(response) = &response_output.response && let Some(error) = &response.error
+            // Surface any error the API reports (e.g. response.error, response.failed)
+            // instead of continuing. Normal responses carry no error object.
+            if let Some(response) = &response_output.response
+            && let Some(error) = &response.error
             {
                 Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, response.id)))?
             };

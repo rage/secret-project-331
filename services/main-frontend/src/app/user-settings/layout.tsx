@@ -8,11 +8,13 @@ import { useTranslation } from "react-i18next"
 import Tab from "@/components/Tabs/Tab"
 import TabPanel from "@/components/Tabs/TabPanel"
 import Tabs from "@/components/Tabs/Tabs"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const UserSettingsLayout: React.FC<React.PropsWithChildren> = ({ children }) => {
   const { t } = useTranslation()
+  usePageTitle(t("user-settings"))
 
   return (
     <div

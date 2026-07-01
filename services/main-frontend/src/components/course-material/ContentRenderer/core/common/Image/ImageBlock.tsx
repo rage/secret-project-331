@@ -31,6 +31,7 @@ const ImageBlock: React.FC<
   const { disableInteractivity } = useImageInteractivity()
   const {
     alt,
+    isDecorative,
     align,
     caption,
     height,
@@ -63,7 +64,7 @@ const ImageBlock: React.FC<
           ${focalPointPos && `object-fit: cover; object-position: ${focalPointPos};`}
         `}
         src={url}
-        alt={alt}
+        alt={isDecorative ? "" : alt}
       />
       {linkTarget && linkTarget.includes("_blank") && (
         <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>

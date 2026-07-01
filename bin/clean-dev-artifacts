@@ -2,16 +2,9 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
-# Reclaim disk space taken by regenerable dev-environment artifacts.
-#
-# Tier 1 (safe) runs automatically: Rust target/, TS/lint caches, frontend build
-# outputs, Playwright output, __pycache__, git maintenance, unused rustup toolchains.
-# Tier 2 (destructive) asks y/N for each step and auto-declines when non-interactive:
-# pnpm store prune, local cluster teardown, Docker prune (incl. unused volumes),
-# nix-collect-garbage -d.
-#
-# Deletions of paths inside the repo go through safe_rm, which only removes paths
-# git considers ignored -- committed/generated-and-tracked files are never touched.
+# Reclaim disk space from regenerable dev-environment artifacts. Tier 1 runs
+# automatically; Tier 2 asks y/N per step. Repo-path deletions go through
+# safe_rm, which only removes git-ignored paths.
 
 BASEDIR="$(dirname "${BASH_SOURCE[0]}")"
 REPO_ROOT="$(cd "$BASEDIR/.." && pwd)"
@@ -58,7 +51,7 @@ done
 disallow_running_as_root
 ensure_inside_git_work_tree
 
-# Echo a command (cursive, like run_command) and execute it unless --dry-run.
+# Echo a command, then run it unless --dry-run.
 run() {
   echo -e "${CURSIVE}> $*${RESET_EVERYTHING}"
   if [ "$DRY_RUN" = false ]; then
@@ -66,8 +59,7 @@ run() {
   fi
 }
 
-# Prompt for a destructive step. Returns 0 to proceed, 1 to skip.
-# Auto-yes and dry-run proceed without asking; a non-TTY declines.
+# Prompt y/N for a destructive step. Auto-yes/dry-run proceed; non-TTY declines.
 confirm() {
   local prompt="$1" answer
   if [ "$AUTO_YES" = true ] || [ "$DRY_RUN" = true ]; then
@@ -88,8 +80,7 @@ confirm() {
   done
 }
 
-# rm -rf a repo path only if git considers it ignored. This protects tracked and
-# committed-but-generated files (bindings.ts, generated/**, .sqlx, __screenshots__).
+# rm -rf a repo path only if git ignores it, so tracked files are never removed.
 safe_rm() {
   local path
   for path in "$@"; do
@@ -106,10 +97,6 @@ section() {
   echo ""
   echo -e "${BOLD}${BLUE}== $* ==${RESET_EVERYTHING}"
 }
-
-# ---------------------------------------------------------------------------
-# Tier 1 -- safe, automatic
-# ---------------------------------------------------------------------------
 
 section "Rust build artifacts"
 if command -v cargo > /dev/null 2>&1; then
@@ -160,10 +147,6 @@ if command -v rustup > /dev/null 2>&1; then
 else
   echo "rustup not on PATH (nix provides the toolchain); skipping."
 fi
-
-# ---------------------------------------------------------------------------
-# Tier 2 -- destructive, each behind a y/N confirm
-# ---------------------------------------------------------------------------
 
 section "pnpm store prune (machine-wide)"
 if command -v pnpm > /dev/null 2>&1; then

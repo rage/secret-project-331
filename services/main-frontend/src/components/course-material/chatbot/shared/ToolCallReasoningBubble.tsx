@@ -144,7 +144,7 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
     }
     return (
       <div className={detailsStyle}>
-        <details open={false} onToggle={() => setIsOpen(!isOpen)}>
+        <details open={isOpen} onToggle={() => setIsOpen(!isOpen)}>
           <summary>
             <span className={textStyle}>{summaryText}</span>
             {collapsible && <DownIcon className={iconStyle(isOpen)} />}
@@ -152,6 +152,7 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
           <ul
             className={css`
               margin: 0.6rem;
+              padding-left: 1.5rem;
             `}
           >
             {expandableText.map((item, idx) => (

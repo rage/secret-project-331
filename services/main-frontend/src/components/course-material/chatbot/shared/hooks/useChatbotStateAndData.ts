@@ -142,7 +142,6 @@ const useChatbotStateAndData = (
       },
       onError: async (error) => {
         setError(error)
-        dispatch({ type: "RESPONSE_COMPLETED" })
         await currentConversationInfo.refetch()
       },
     },

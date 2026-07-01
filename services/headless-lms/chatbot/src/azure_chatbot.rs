@@ -985,15 +985,12 @@ fn stream_and_detect_response_stream_type<'a>(
 /// is finished.
 /// Returns a stream to be consumed in the caller.
 async fn parse_text_response<'a>(
-    // todo too many argumnents
     conn: &'a mut PgConnection,
     mut lines: PeekableLinesStream<'a>,
     full_response_text: Arc<Mutex<Vec<String>>>,
     done: Arc<AtomicBool>,
-    response_message_id: Arc<Mutex<Uuid>>,
+    response_message: ChatbotConversationMessage,
     request_estimated_tokens: i32,
-    conversation_id: Uuid,
-    response_id: String,
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
     trace!("Parsing stream to user...");
 
@@ -1001,32 +998,6 @@ async fn parse_text_response<'a>(
     let mut error_incoming = false;
 
     Box::pin(async_stream::try_stream! {
-        let response_message = models::chatbot_conversation_messages::insert(
-        conn,
-        ChatbotConversationMessage {
-            conversation_id,
-            message: Message::Text(ChatbotConversationMessageMessage {
-                text: "".to_string(),
-                message_role: MessageRole::Assistant,
-                message_is_complete: false,
-                used_tokens: request_estimated_tokens,
-                response_id: Some(response_id.to_owned()),
-                ..Default::default()
-            }),
-            ..Default::default()
-        },
-        )
-        .await?;
-        models::chatbot_conversation_messages_citations::update_citation_message_ids(
-            conn,
-            response_id.to_string(),
-            response_message.id,
-        ).await?;
-
-        // set the correct response_message_id
-        let mut response_message_id = response_message_id.lock().await;
-        *response_message_id = response_message.id;
-
         while let Some(val) = lines.next().await {
             let line = val?;
             let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
@@ -1251,8 +1222,36 @@ pub async fn send_chat_request_and_parse_stream(
                     parse_tool(&mut conn, stream, conversation_id, &user_context).await
                 }
                 ResponseStreamType::TextResponse(stream) => {
-                    // update response_id for the message
-                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message_id.clone(), request_estimated_tokens, conversation_id, response_id.clone()).await
+                    // first, create the response message, update citation ids
+                    // and update the response_message_id arc mutex.
+                    // then, stream the response in parse_text_response.
+                    let response_message = models::chatbot_conversation_messages::insert(
+                    &mut conn,
+                    ChatbotConversationMessage {
+                        conversation_id,
+                        message: Message::Text(ChatbotConversationMessageMessage {
+                            text: "".to_string(),
+                            message_role: MessageRole::Assistant,
+                            message_is_complete: false,
+                            used_tokens: request_estimated_tokens,
+                            response_id: Some(response_id.to_owned()),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    },
+                    )
+                    .await?;
+                    models::chatbot_conversation_messages_citations::update_citation_message_ids(
+                        &mut conn,
+                        response_id.to_string(),
+                        response_message.id,
+                    ).await?;
+
+                    // set the correct response_message_id
+                    {let mut response_message_id = response_message_id.lock().await;
+                    *response_message_id = response_message.id;}
+
+                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message, request_estimated_tokens).await
                 }
             };
 

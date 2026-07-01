@@ -1,9 +1,13 @@
 use crate::{error::util_error::SisuErrorVariant, prelude::*};
-pub struct SisuClient {}
+
+#[derive(Debug, Clone)]
+pub struct SisuClient {
+    base_url: String,
+}
+
 use headless_lms_base::config::bool_env_false_by_default;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::env;
 use std::sync::LazyLock;
 use std::time::Duration;
 use std::{cmp::Ordering, collections::HashMap};
@@ -166,8 +170,8 @@ pub struct SisuDescriptions {
 const TIMEOUT_DURATION: Duration = Duration::from_secs(60);
 
 impl SisuClient {
-    fn get_url() -> Result<Url, ParseError> {
-        let base_url = env::var("BASE_URL").unwrap_or_else(|_| "".to_string());
+    fn get_url(&self) -> Result<Url, ParseError> {
+        let base_url = &self.base_url;
         let is_mock_sisu = bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT");
         if is_mock_sisu {
             let mock_path = Url::parse(base_url.as_str())?;
@@ -177,12 +181,26 @@ impl SisuClient {
         }
     }
 
-    pub async fn get_course_ids(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
+    pub fn new(base_url: String) -> UtilResult<Self> {
+        if base_url.trim().is_empty() {
+            return Err(UtilError::new(
+                UtilErrorType::Other,
+                "BASE_URL cannot be empty".to_string(),
+                None,
+            ));
+        }
+        Ok(Self { base_url })
+    }
+
+    pub async fn get_course_ids(
+        &self,
+        course_modules: Vec<String>,
+    ) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
         let mut course_ids: Vec<Vec<String>> = vec![];
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
-            let base_url = Self::get_url()?;
+            let base_url = Self::get_url(&self)?;
             let url = base_url.join(
                 format!(
                     "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
@@ -237,12 +255,13 @@ impl SisuClient {
     }
 
     pub async fn get_course_info(
+        &self,
         course_ids: Vec<Vec<String>>,
     ) -> UtilResult<Vec<SisuCourseInfoElement>> {
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
         for id in course_ids {
             if let Some(first) = id.first() {
-                let base_url = Self::get_url()?;
+                let base_url = Self::get_url(&self)?;
                 let url = base_url.join(format!("course-units/v1/{first}").as_str())?;
 
                 let response = REQWEST_CLIENT
@@ -317,5 +336,11 @@ impl SisuClient {
             course_desc.insert(module.code, descriptions);
         }
         course_desc
+    }
+
+    pub fn mock_for_test() -> Self {
+        Self {
+            base_url: String::from("mock-base-url"),
+        }
     }
 }

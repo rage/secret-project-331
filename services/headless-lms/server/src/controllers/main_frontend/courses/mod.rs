@@ -2647,6 +2647,7 @@ async fn get_sisu_course_llm_descriptions(
     pool: web::Data<PgPool>,
     app_conf: web::Data<ApplicationConfiguration>,
     user: AuthUser,
+    sisu_client: web::Data<SisuClient>,
 ) -> ControllerResult<web::Json<SisuDescriptionResponse>> {
     let (course_modules, course_lang, message_suggest_llm, token) = {
         let mut conn = pool.acquire().await?;
@@ -2670,8 +2671,8 @@ async fn get_sisu_course_llm_descriptions(
         .into_iter()
         .filter_map(|course_module| course_module.uh_course_code)
         .collect::<Vec<String>>();
-    let course_ids = SisuClient::get_course_ids(uh_course_codes).await?;
-    let course_info = SisuClient::get_course_info(course_ids).await?;
+    let course_ids = SisuClient::get_course_ids(&sisu_client, uh_course_codes).await?;
+    let course_info = SisuClient::get_course_info(&sisu_client, course_ids).await?;
 
     let parsed_course_info = SisuClient::parse_course_info(course_info, course_lang);
 

@@ -519,6 +519,7 @@ export function isImageAttributes(obj: unknown): obj is ImageAttributes {
     (typeof typedObj["linkDestination"] === "undefined" ||
       typeof typedObj["linkDestination"] === "string") &&
     (typeof typedObj["linkTarget"] === "undefined" || typeof typedObj["linkTarget"] === "string") &&
+    typeof typedObj["isDecorative"] === "boolean" &&
     (typeof typedObj["borderColor"] === "undefined" ||
       typeof typedObj["borderColor"] === "string") &&
     (typeof typedObj["align"] === "undefined" ||

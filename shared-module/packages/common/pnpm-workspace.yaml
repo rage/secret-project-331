@@ -61,4 +61,7 @@ minimumReleaseAgeExclude:
   - postcss@8.5.10
   - '@babel/plugin-transform-modules-systemjs@7.29.4'
   - qs@6.15.2
-  - tmp@0.2.6
+  - tmp@0.2.6 || 0.2.7
+  - '@babel/core@7.29.1'
+  - dompurify@3.4.6 || 3.4.7 || 3.4.8 || 3.4.9 || 3.4.11
+  - js-yaml@4.1.2

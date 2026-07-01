@@ -46,3 +46,7 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - esbuild@0.28.1
+  - '@babel/core@7.29.1'

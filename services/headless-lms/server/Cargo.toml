@@ -160,9 +160,10 @@ pkcs8 = "0.11"
 # Dpop verifying
 dpop-verifier = { version = "4.4.0", features = ["actix-web"] }
 # Kubernetes client and async controller runtime
-kube = { version = "3.1.0", features = ["runtime", "derive", "client"] }
-# Bindings for the Kubernetes client API
-k8s-openapi = { version = "0.27.1", features = ["v1_31"] }
+kube = { version = "4.0.0", features = ["runtime", "derive", "client"] }
+# Bindings for the Kubernetes client API. The v1_XX feature targets the API of
+# our cluster's Kubernetes version (currently 1.35).
+k8s-openapi = { version = "0.28.0", features = ["v1_35"] }
 # A rate-limiting implementation in Rust
 governor = "0.10.4"
 

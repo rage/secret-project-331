@@ -50,7 +50,7 @@ tokio = { version = "1.52.3", features = [
 ] }
 
 # Rustls is a modern TLS library written in Rust.
-rustls = { version = "0.23.40", default-features = false, features = ["ring"] }
+rustls = { version = "0.23.41", default-features = false, features = ["ring"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac = "0.13.0"
 # Pure Rust implementation of the SHA-2 hash function family.

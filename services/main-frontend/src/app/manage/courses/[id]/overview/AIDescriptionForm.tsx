@@ -7,12 +7,14 @@ import React, { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { getSisuCourseLlmDescriptionsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { updateCourse } from "@/generated/api/sdk.generated"
+import {
+  getSisuCourseLlmDescriptionsOptions,
+  updateCourseMutation,
+} from "@/generated/api/@tanstack/react-query.generated"
 import type { Course, CourseUpdate } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
+import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { QueryResult, TextArea } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
@@ -71,24 +73,29 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     })
   }, [course, reset])
 
-  const updateCourseMutation = useToastMutation(
-    async (data: CourseUpdate) => {
-      await updateCourse({
-        body: {
-          ...data,
-        },
-        path: {
-          course_id: course.id,
-        },
-      })
-      onSubmitForm()
-      onClose()
+  const setUpdateCourseMutation = useToastMutationOptions(
+    updateCourseMutation(),
+    {
+      notify: true,
+      method: "POST",
     },
-    { method: "PUT", notify: true },
+    {
+      onSuccess: () => {
+        onSubmitForm()
+        onClose()
+      },
+    },
   )
 
   const onSubmit = handleSubmit((data) => {
-    updateCourseMutation.mutate(data)
+    setUpdateCourseMutation.mutate({
+      body: {
+        ...data,
+      },
+      path: {
+        course_id: course.id,
+      },
+    })
   })
 
   return (

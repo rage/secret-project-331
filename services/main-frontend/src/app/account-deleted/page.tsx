@@ -6,10 +6,12 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 
 const AccountDeletedPage: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("account-deleted"))
   return (
     <>
       <div

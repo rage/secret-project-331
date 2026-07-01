@@ -80,9 +80,17 @@
       "message": "You do not have permission for this action.",
       "title": "Forbidden"
     },
+    "generic_sisu_error": {
+      "message": "Something went wrong in generating description",
+      "title": "Could not generate description"
+    },
     "internal_error": {
       "message": "Please try again in a moment.",
       "title": "Something went wrong"
+    },
+    "invalid_course_code": {
+      "message": "Make sure that the given University of Helsinki course codes in modules are valid.",
+      "title": "Could not generate description"
     },
     "not_found": {
       "message": "The requested resource could not be found.",
@@ -99,6 +107,10 @@
     "response_validation_error": {
       "message": "The server responded successfully, but the data was not in the expected format.",
       "title": "Could not display data"
+    },
+    "sisu_resource_not_found": {
+      "message": "Unable to find resources from Sisu.",
+      "title": "Resources not found"
     },
     "unauthorized": {
       "message": "Please sign in and try again.",

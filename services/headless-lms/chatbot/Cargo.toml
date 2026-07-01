@@ -67,7 +67,7 @@ tracing-error = "0.2.1"
 backtrace = "0.3.76"
 # Utilities for random number generation
 rand = "0.10.1"
-# Code-first OpenAPI generation from Rust types and handlers
+# Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
 
 [lints.clippy]

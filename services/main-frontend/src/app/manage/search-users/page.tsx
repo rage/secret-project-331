@@ -14,12 +14,14 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useUrlSyncedDebouncedQuery from "@/shared-module/common/hooks/useUrlSyncedDebouncedQuery"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 
 const SearchUsersPage: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-user-search"))
   const {
     inputValue,
     setInputValue,

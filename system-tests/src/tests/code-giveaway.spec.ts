@@ -2,6 +2,7 @@ import { test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -28,6 +29,7 @@ test("Code giveaways work", async ({ page }) => {
   await page.getByText("******").first().waitFor()
   await page.goBack()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page
     .getByRole("row", { name: "Giveaway / Edit page Dropdown" })
     .getByRole("button")

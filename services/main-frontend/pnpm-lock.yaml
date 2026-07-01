@@ -80,6 +80,9 @@ importers:
       '@react-aria/focus':
         specifier: ^3.22.0
         version: 3.22.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@react-aria/live-announcer':
+        specifier: ^3.5.1
+        version: 3.5.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@react-aria/overlays':
         specifier: ^3.32.0
         version: 3.32.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -1788,6 +1791,12 @@ packages:
 
   '@react-aria/focus@3.22.0':
     resolution: {integrity: sha512-ZfDOVuVhqDsM9mkNji3QUZ/d40JhlVgXrDkrfXylM1035QCrcTHN7m2DpbE95sU2A8EQb4wikvt5jM6K/73BPg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-aria/live-announcer@3.5.1':
+    resolution: {integrity: sha512-kLvwHjM3D7KgdquiAhUpRnMLKFrvl2r8naDXqPUlSWGRG15wsJRLhQOHLxGp0Umyg7KcSA+OD1mhQV5aRv0P1w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -7494,6 +7503,13 @@ snapshots:
       react-aria: 3.48.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react-dom: 19.2.6(react@19.2.6)
 
+  '@react-aria/live-announcer@3.5.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@swc/helpers': 0.5.21
+      react: 19.2.6
+      react-aria: 3.48.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      react-dom: 19.2.6(react@19.2.6)
+
   '@react-aria/overlays@3.32.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
       '@swc/helpers': 0.5.21
@@ -11715,6 +11731,7 @@ time:
   '@popperjs/core@2.11.8': '2023-05-26T17:27:25.366Z'
   '@react-aria/dialog@3.6.0': '2026-04-14T22:43:38.676Z'
   '@react-aria/focus@3.22.0': '2026-04-14T22:43:38.549Z'
+  '@react-aria/live-announcer@3.5.1': '2026-05-28T17:28:41.548Z'
   '@react-aria/overlays@3.32.0': '2026-04-14T22:43:39.985Z'
   '@react-aria/utils@3.34.0': '2026-04-14T22:43:42.853Z'
   '@react-stately/calendar@3.10.0': '2026-04-14T22:43:32.635Z'

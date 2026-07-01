@@ -8,7 +8,11 @@ pub use seed_material_reference_course::seed_material_reference_course;
 pub mod seed_course_with_peer_review;
 pub mod seed_graded;
 pub use seed_graded::seed_graded_course;
+pub mod seed_generated_description;
 pub mod seed_glossary;
+pub use seed_generated_description::seed_generated_description;
+pub mod seed_introduction_to_codes;
+pub use seed_introduction_to_codes::seed_introduction_to_codes;
 pub mod seed_switching_course_instances_course;
 pub use seed_switching_course_instances_course::seed_switching_course_instances_course;
 

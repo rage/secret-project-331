@@ -193,6 +193,8 @@ export function AnimatedQueryFrame<E>({
     <section
       className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
       aria-busy={refreshing ? "true" : undefined}
+      // eslint-disable-next-line i18next/no-literal-string
+      {...(refreshing && { "data-testid": "query-refreshing" })}
     >
       {refreshing ? (
         <div

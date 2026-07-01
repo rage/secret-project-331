@@ -4,6 +4,7 @@ import { expect, test } from "@playwright/test"
 import { selectCourseInstanceIfPrompted } from "@/utils/courseMaterialActions"
 import { getImgByURLPrefixAndSuffix } from "@/utils/imageLocators"
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/admin@example.com.json",
@@ -17,6 +18,7 @@ test("partner block tests", async ({ page }) => {
 
   await page.getByLabel("Manage course 'Giveaway").click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByText("Add Partners Section").click()
 
   await page.locator("button.components-button").click()

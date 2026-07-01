@@ -11,6 +11,7 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { getOrganization } from "@/generated/api/sdk.generated"
 // TODO: Replace 3-query waterfall with a single fetchExamBreadcrumbInfo (exam + org) endpoint.
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
@@ -42,6 +43,8 @@ export default function ExamLayout({ children }: { children: React.ReactNode }) 
       }),
     enabled: organizationId != null,
   })
+
+  usePageTitle(examQuery.data?.name ?? null)
 
   const crumbs = useMemo(
     () => [

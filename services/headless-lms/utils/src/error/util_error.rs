@@ -7,7 +7,6 @@ use std::fmt::Display;
 use backtrace::Backtrace;
 use headless_lms_base::error::backend_error::BackendError;
 use tracing_error::SpanTrace;
-
 /**
 Used as the result types for all utils.
 
@@ -29,6 +28,14 @@ pub enum UtilErrorType {
     DeserializationError,
     TmcHttpError,
     TmcErrorResponse,
+    SisuClientError(SisuErrorVariant),
+}
+#[derive(Debug)]
+
+pub enum SisuErrorVariant {
+    GenericSisuError,
+    InvalidCourseCode,
+    SisuResourceNotFound,
 }
 
 /**

@@ -3,7 +3,6 @@
 import { css } from "@emotion/css"
 import { skipToken, useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
-import Head from "next/head"
 import { usePathname } from "next/navigation"
 import React, { ReactNode } from "react"
 
@@ -33,8 +32,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   const pathname = usePathname()
   const courseId = useAtomValue(currentCourseIdAtom)
   const organizationSlug = useAtomValue(organizationSlugAtom)
-  // eslint-disable-next-line i18next/no-literal-string
-  const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
 
   const getPrivacyLink = useQuery({
     queryKey: ["privacy-link", courseId],
@@ -84,11 +81,6 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
 
   return (
     <>
-      <Head>
-        <title>{title}</title>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-      </Head>
       {visibleLayout}
       <DynamicToaster />
     </>

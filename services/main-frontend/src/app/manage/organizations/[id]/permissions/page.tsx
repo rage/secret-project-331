@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 import { PermissionPage } from "@/components/PermissionPage"
 import { getOrganizationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -23,6 +24,8 @@ const OrganizationPermissions: React.FC = () => {
       },
     }),
   })
+
+  usePageTitle(organization.data?.name ?? null)
 
   return (
     <div

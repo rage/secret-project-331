@@ -13,6 +13,7 @@ import ExamList from "./ExamList"
 import useOrganizationQueryBySlug from "@/hooks/useOrganizationQueryBySlug"
 import DebugModal from "@/shared-module/common/components/DebugModal"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { manageOrganizationRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -22,6 +23,7 @@ const Organization: React.FC = () => {
   const { t } = useTranslation()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
   const organizationQuery = useOrganizationQueryBySlug(organizationSlug)
+  usePageTitle(organizationQuery.data?.name ?? null)
   const setViewParams = useSetAtom(viewParamsAtom)
 
   useEffect(() => {

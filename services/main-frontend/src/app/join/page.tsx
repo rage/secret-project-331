@@ -12,6 +12,7 @@ import {
 import { joinCourseWithJoinCode } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { navigateToCourseRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -37,6 +38,8 @@ const JoinCoursePage: React.FC = () => {
         }),
     }),
   )
+
+  usePageTitle(course.data?.name ?? null)
 
   const courseId = course.data?.id
 

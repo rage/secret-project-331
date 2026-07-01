@@ -146,7 +146,7 @@ async fn send_message(
 
     token.authorized_ok(
         HttpResponse::Ok()
-            .content_type(ContentType::json())
+            .content_type(ContentType(mime::TEXT_EVENT_STREAM))
             .streaming(response_stream),
     )
 }

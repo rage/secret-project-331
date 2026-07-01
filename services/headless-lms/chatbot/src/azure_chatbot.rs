@@ -772,7 +772,6 @@ async fn parse_tool<'a>(
     let mut messages = vec![];
     let mut common_response_id = "".to_string();
     let mut response_received = false;
-    // todo! item yielding better just in case
 
     trace!("Parsing tool calls...");
 
@@ -996,7 +995,6 @@ fn stream_and_detect_response_stream_type<'a>(
                                 DeserializationError,
                                 "Expected response output item"
                             ))?;
-                            // put in input todo! yield messages
                             yield StreamEvent::Item(StreamItem {item, finished: false});
                             output_item_added = false;
                         }
@@ -1005,7 +1003,6 @@ fn stream_and_detect_response_stream_type<'a>(
                                 DeserializationError,
                                 "Expected response output item"
                             ))?;
-                            // put in input todo!
                             yield StreamEvent::Item(StreamItem {item, finished: true});
                             output_item_done = false;
                         }
@@ -1182,7 +1179,6 @@ pub async fn send_chat_request_and_parse_stream(
     user_context: ChatbotUserContext,
 ) -> anyhow::Result<Pin<Box<dyn Stream<Item = anyhow::Result<Bytes>> + Send>>> {
     let mut conn = pool.acquire().await?;
-    // todo! add tx?
     let app_config = app_configuration.to_owned();
     let (mut chat_request, request_estimated_tokens) =
         LLMRequest::build_and_insert_incoming_user_message_to_db(
@@ -1241,12 +1237,17 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     Ok(StreamEvent::Item(item)) => {
                         if item.finished {
+                            // save it to db and put it in the LLM Request input
+                            // in case another request will be made
                             let mut conn = pool.acquire().await?;
-                            process_output_item(&mut conn, item.item.to_owned(), conversation_id, &app_config).await?;
+                            let message = process_output_item(&mut conn, item.item.to_owned(), conversation_id, &app_config).await?;
+                            let input_message = APIInputMessage::try_from(message)?;
+                            chat_request.input.push(input_message);
+
                         }
-                        let response =  ChatbotChatStreamEvent::from(item.to_owned());
-                        if response != ChatbotChatStreamEvent::None {
-                            let event_string = serde_json::to_string(&response)?;
+                        let event = ChatbotChatStreamEvent::from(item.to_owned());
+                        if event != ChatbotChatStreamEvent::None {
+                            let event_string = serde_json::to_string(&event)?;
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
                         };
@@ -1330,7 +1331,6 @@ pub async fn send_chat_request_and_parse_stream(
                         let response = ChatbotChatStreamEvent::from(stream_item);
                         if response != ChatbotChatStreamEvent::None {
                             let event_string = serde_json::to_string(&response)?;
-                            println!("🌟{event_string}");
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
                         };
@@ -1352,7 +1352,6 @@ pub async fn send_chat_request_and_parse_stream(
             }
         }
         if !done.load(atomic::Ordering::Relaxed) {
-            // todo! can this locking fail and prevent returning the error?
             let id = response_id.lock().await;
             Err(chatbot_err!(StreamingError, format!("Stream ended unexpectedly. Response id: {id}")))?;
         }

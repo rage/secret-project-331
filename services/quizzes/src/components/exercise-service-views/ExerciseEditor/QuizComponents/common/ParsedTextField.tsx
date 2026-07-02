@@ -33,9 +33,6 @@ const ParsedTextContainer = styled.div`
   min-height: 68px;
   max-height: 300px;
   overflow-y: auto;
-  /* Wrap long lines and break unbreakable tokens instead of overflowing to the right. */
-  white-space: normal;
-  overflow-wrap: break-word;
 `
 
 const StyledButton = styled(Button)`

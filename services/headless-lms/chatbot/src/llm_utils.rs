@@ -136,10 +136,10 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                 summary,
                 ..
             }) => {
-                let summ = if let Some(s) = summary {
+                let summ = if let Some(text) = summary {
                     vec![ReasoningOutput {
-                        output_type: "text".to_string(),
-                        text: s,
+                        output_type: "summary_text".to_string(),
+                        text,
                     }]
                 } else {
                     vec![]

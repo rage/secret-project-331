@@ -1,4 +1,4 @@
-use crate::azure_chatbot::{InputItem, LLMRequest};
+use crate::azure_chatbot::{InputItem, LLMRequest, LLMRequestParams, NonThinkingParams};
 
 use crate::llm_utils::{
     APIInputMessage, MessageContent, estimate_tokens, get_params_for_model,
@@ -332,7 +332,15 @@ async fn process_block_chunk(
     task_lm: &TaskLMSpec,
 ) -> ChatbotResult<String> {
     let input = prepare_llm_messages(chunk, system_message)?;
-    let params = get_params_for_model(&task_lm.model, &task_lm.model_type, None);
+    let default_params = get_params_for_model(&task_lm.model, &task_lm.model_type, None);
+    let params = if let LLMRequestParams::GPTNonThinking(p) = default_params {
+        LLMRequestParams::GPTNonThinking(NonThinkingParams {
+            temperature: Some(REQUEST_TEMPERATURE),
+            ..p
+        })
+    } else {
+        default_params
+    };
     let llm_base_request = LLMRequest {
         input,
         max_output_tokens: None,

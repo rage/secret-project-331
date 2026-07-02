@@ -33,6 +33,9 @@ const ParsedTextContainer = styled.div`
   min-height: 68px;
   max-height: 300px;
   overflow-y: auto;
+  /* Wrap long lines and break unbreakable tokens instead of overflowing to the right. */
+  white-space: normal;
+  overflow-wrap: break-word;
 `
 
 const StyledButton = styled(Button)`
@@ -56,6 +59,8 @@ const TextfieldWrapper = styled.div`
 
 const Grow = styled.div`
   flex-grow: 1;
+  /* Allow the flex item to shrink below its content width so the preview wraps to the row. */
+  min-width: 0;
 `
 
 const InfoLink = styled.a`

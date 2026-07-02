@@ -81,9 +81,10 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
   // the value (e.g. clearing the "add option" field).
   const text = value ?? ""
 
-  // Multiline once a markdown tag is present, so a block can be composed/edited without Enter
-  // being suppressed (see AutoExpandingTextField).
-  const multiline = useMemo(() => containsMarkdownTag(text), [text])
+  // Allow newlines once a markdown tag is present, so a block can be composed/edited without Enter
+  // being suppressed (see AutoExpandingTextField). Plain feedback stays a single logical line but
+  // still wraps and grows to fit long text.
+  const allowNewlines = useMemo(() => containsMarkdownTag(text), [text])
 
   // Preview toggle shows for any markdown or latex tag.
   const hasTags = useMemo(() => containsRenderableTag(text), [text])
@@ -118,7 +119,7 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
             </ParsedTextContainer>
           ) : (
             <AutoExpandingTextField
-              multiline={multiline}
+              allowNewlines={allowNewlines}
               value={value ?? ""}
               onChangeByValue={(value) => handleOnChange(value)}
               label={label}

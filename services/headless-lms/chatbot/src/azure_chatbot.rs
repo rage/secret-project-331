@@ -278,7 +278,7 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                 tool_call_id: call_id,
                 finished: true,
             },
-            _ => ChatbotChatStreamEvent::None,
+            _ => ChatbotChatStreamEvent::Invalid,
         }
     }
 }
@@ -576,12 +576,6 @@ impl LLMRequest {
     }
 }
 
-// todo: remove?
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct ChatResponse {
-    pub text: String,
-}
-
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 #[serde(tag = "type", content = "data")]
 pub enum ChatbotChatStreamEvent {
@@ -603,7 +597,10 @@ pub enum ChatbotChatStreamEvent {
     Error {
         message: String,
     },
-    None,
+    /// If a ChatbotChatStreamEvent has been constructed from a StreamItem etc.,
+    /// not all variants are valid ChatbotChatStreamEvents and shouldn't be sent to
+    /// the frontend in the stream. In that case, use this variant.
+    Invalid,
 }
 
 /// Custom stream that encapsulates both the response stream and the cancellation guard. Makes sure that the guard is always dropped when the stream is dropped.
@@ -1272,7 +1269,7 @@ pub async fn send_chat_request_and_parse_stream(
 
                         }
                         let event = ChatbotChatStreamEvent::from(item.to_owned());
-                        if event != ChatbotChatStreamEvent::None {
+                        if event != ChatbotChatStreamEvent::Invalid {
                             let event_string = serde_json::to_string(&event)?;
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
@@ -1355,7 +1352,7 @@ pub async fn send_chat_request_and_parse_stream(
                         };
 
                         let response = ChatbotChatStreamEvent::from(stream_item);
-                        if response != ChatbotChatStreamEvent::None {
+                        if response != ChatbotChatStreamEvent::Invalid {
                             let event_string = serde_json::to_string(&response)?;
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");

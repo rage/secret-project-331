@@ -2,8 +2,8 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::{
     azure_chatbot::{
-        ChatResponse, InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams,
-        OutputItem, Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
+        InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams, OutputItem,
+        Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
     },
     chatbot_error::ChatbotResult,
     prelude::*,
@@ -160,7 +160,12 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
 #[serde(untagged)]
 pub enum MessageContent {
     Text(String),
-    Object(Vec<ChatResponse>),
+    Object(Vec<MessageContentItem>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MessageContentItem {
+    pub text: String,
 }
 
 impl MessageContent {

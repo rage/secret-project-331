@@ -186,7 +186,7 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         // set the tool call as finished
         draftState.messages[toolCallMessageIdx].finished = true
       } else {
-        // error
+        console.warn("Received a tool call finished event but in progress tool call was not found")
         return
       }
     }
@@ -224,7 +224,9 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
         // found
         draftState.messages[reasoningMessageIdx].finished = true
       } else {
-        // error
+        console.warn(
+          "Received a reasoning finished event but in progress reasoning item was not found",
+        )
         return
       }
     }

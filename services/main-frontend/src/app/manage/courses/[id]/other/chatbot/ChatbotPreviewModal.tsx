@@ -4,20 +4,20 @@ import { t } from "i18next"
 
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
-import useDefaultChatbotConfiguration from "@/hooks/course-material/useDefaultChatbotConfiguration"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 
-const ChatbotPreviewModal = ({ open, onClose, courseId }) => {
-  const chatbotConfiguration = useDefaultChatbotConfiguration(courseId)
-  const chatbotConfigurationId = chatbotConfiguration.data
+interface ChatbotPreviewModalProps {
+  open: boolean
+  onClose: () => void
+  chatbotConfigurationId: string
+}
 
-  const chatbotStateAndData = useChatbotStateAndData(
-    chatbotConfigurationId!,
-    //isCourseMaterialBlock ? undefined : setIsOpen,
-    undefined,
-  )
-
-  // täytyy luoda uusi keskustelu jotta toimii
+const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
+  open,
+  onClose,
+  chatbotConfigurationId,
+}) => {
+  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined)
 
   return (
     <div>

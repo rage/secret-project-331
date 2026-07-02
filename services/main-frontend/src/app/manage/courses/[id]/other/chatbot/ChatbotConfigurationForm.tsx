@@ -589,7 +589,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 <ChatbotPreviewModal
                   open={showChatbotPreview}
                   onClose={() => setChatbotPreview(false)}
-                  courseId={oldChatbotConf.course_id}
+                  chatbotConfigurationId={oldChatbotConf.id}
                 />
               </div>
             </form>

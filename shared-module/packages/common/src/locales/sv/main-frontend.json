@@ -1168,6 +1168,7 @@
   "requires-a-finnish-social-security-number": "(Kräver ett finskt personnummer)",
   "research-consent-data-from-learning-process-is-used": "Data från lärprocessen och data du ger oss genom enkäter används i denna forskning. Data inkluderar information om användning av läromaterial, kursuppgifter framsteg och avslutning, samt examensprestationer. Enskilda studenter kan inte identifieras från några publicerade resultat. Deltagande är frivilligt, och om du inte vill delta i forskningen, finns det inga konsekvenser för dig.",
   "research-consent-educational-research-is-conducted-on-the-courses": "Pedagogisk forskning bedrivs på kurserna. Denna forskning har flera mål:",
+  "research-consent-for-course": "Forskningssamtycke för {{courseName}}",
   "research-consent-goals-advance-knowledge": "att främja kunskap och förståelse om lärande i online-lärmiljöer, och",
   "research-consent-goals-develop-learning": "att utveckla läromaterial så att de tar hänsyn till individuella skillnader i lärande och kan individualisera innehållet i materialet baserat på läraren,",
   "research-consent-goals-provide-research-based-support": "att tillhandahålla forskningsbaserat stöd till andra läromaterialutvecklare och pedagogiska forskare, vilket kommer att leda till en bättre lärandeupplevelse för studenter.",

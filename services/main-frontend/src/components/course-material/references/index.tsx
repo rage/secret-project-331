@@ -183,21 +183,21 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     }
   }, [])
 
-  // Canonical citation number per key = its position in `data`, which usePageReferences produces in
-  // first-occurrence document order. Numbers come from here (not DOM order) so they stay stable
-  // regardless of when a marker mounts, e.g. when an expandable block is opened.
-  const keyToNumber = useMemo(() => {
-    const map = new Map<string, number>()
+  // Canonical citation number + tooltip text per key. Number = position in `data`, which
+  // usePageReferences produces in first-occurrence document order, so numbers stay stable regardless
+  // of when a marker mounts (e.g. when an expandable block is opened).
+  const referenceByKey = useMemo(() => {
+    const map = new Map<string, { number: number; text: string }>()
     data.forEach((reference, index) => {
       if (!map.has(reference.id)) {
-        map.set(reference.id, index + 1)
+        map.set(reference.id, { number: index + 1, text: reference.text })
       }
     })
     return map
   }, [data])
 
   // Attaches a numbered marker portal into every citation span currently in the DOM. Re-runs on
-  // scanVersion so markers appear when spans mount lazily; the number itself comes from keyToNumber.
+  // scanVersion so markers appear when spans mount lazily; the number itself comes from referenceByKey.
   const portals: ReactPortal[] | null = useMemo(() => {
     if (!readyForPortal) {
       return null
@@ -208,21 +208,20 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
         if (!citationId) {
           return null
         }
-        const citeNumber = keyToNumber.get(citationId)
-        const reference = data.find((o) => o.id === citationId)
-        if (citeNumber === undefined || !reference) {
+        const reference = referenceByKey.get(citationId)
+        if (!reference) {
           return null
         }
 
         const citationContent = formatCitationText(
-          citeNumber,
+          reference.number,
           node.dataset.citationPrenote,
           node.dataset.citationPostnote,
         )
         return createPortal(
           <TooltipNTrigger
             variant="references"
-            href={"#ref-" + citeNumber}
+            href={"#ref-" + reference.number}
             tooltipContent={reference.text}
           >
             {citationContent}
@@ -236,7 +235,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     // scanVersion is a deliberate trigger (not read in the body): it re-runs the DOM scan when
     // citation spans mount/unmount, e.g. when an expandable block is opened.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, keyToNumber, readyForPortal, scanVersion])
+  }, [data, referenceByKey, readyForPortal, scanVersion])
 
   return (
     <TextWrapper>

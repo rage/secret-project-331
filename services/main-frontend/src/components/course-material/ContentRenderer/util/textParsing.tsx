@@ -71,6 +71,14 @@ const TILDE_REGEX = /~/g
 const escapeCitationText = (value: string): string =>
   value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)
 
+/**
+ * Escapes a citation key for a double-quoted HTML attribute. Unlike escapeCitationText it omits the
+ * tilde -> &nbsp; display transform (a prenote/postnote display convention), so the value
+ * round-trips: reading node.dataset.citationId back yields the original key and matches the keys
+ * extracted from the block tree.
+ */
+const escapeCitationId = (value: string): string => value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT)
+
 /** Finds all whole-word matches of term in text; returns index and length for each. */
 export const findTermMatches = (
   text: string,
@@ -241,7 +249,7 @@ const parseCitation = (data: string) => {
       const postnoteAttr = notes.postnote
         ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(notes.postnote)}"`
         : ""
-      const escapedCitationId = escapeCitationText(citationId ?? "")
+      const escapedCitationId = escapeCitationId(citationId ?? "")
       return `<${SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${SPAN_TAG}>`
     },
   )

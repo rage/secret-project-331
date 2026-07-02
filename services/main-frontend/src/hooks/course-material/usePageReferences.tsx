@@ -19,7 +19,6 @@ const VANCOUVER = "vancouver"
 export interface Citations {
   citation: string
   citationKey: string
-  citationNumber: number
 }
 
 const useReferences = (courseId: string) => {
@@ -55,15 +54,20 @@ const useReferences = (courseId: string) => {
       if (!reference) {
         continue
       }
-      citations.push({
-        citationKey: key,
-        citationNumber: citations.length + 1,
-        citation: cite(reference.reference).format(BIBLIOGRAPHY, {
-          type: STRING,
-          style: VANCOUVER,
-          lang: EN_US,
-        }),
-      })
+      // citation-js throws on a malformed/unsupported reference string. Skip the bad entry rather
+      // than letting a single reference throw during render and take out the whole accordion.
+      try {
+        citations.push({
+          citationKey: key,
+          citation: cite(reference.reference).format(BIBLIOGRAPHY, {
+            type: STRING,
+            style: VANCOUVER,
+            lang: EN_US,
+          }),
+        })
+      } catch {
+        continue
+      }
     }
     return citations
   }, [getCourseReferences.data, getCourseReferences.isError, pageContent])

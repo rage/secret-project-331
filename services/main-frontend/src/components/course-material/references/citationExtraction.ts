@@ -53,11 +53,15 @@ const tableFields: AttributeReader = (attributes) => {
 }
 
 /**
- * Per-block-name map of the attribute fields that are actually rendered through ParsedText (which
- * is what turns \cite into a citation marker). Only these fields should be scanned, so extraction
- * mirrors rendering exactly: e.g. core/quote renders `value` as plain text and only `citation`
- * through ParsedText, and moocfi/terminology-block renders `blockName` as plain JSX. Keep this map
- * in sync when a block starts (or stops) rendering a field through ParsedText.
+ * Per-block-name map of the attribute fields that each block renders through ParsedText (which is
+ * what turns \cite into a citation marker). Only these fields are scanned, so extraction mirrors
+ * rendering exactly and can neither miss a real marker nor invent a phantom reference: e.g.
+ * core/quote renders `value` as plain text and only `citation` through ParsedText, and
+ * moocfi/terminology-block renders `blockName` as plain JSX.
+ *
+ * This is the complete set of citation-rendering blocks (every ContentRenderer component that
+ * imports ParsedText). A block name absent from this map contributes no citations. When a block
+ * starts (or stops) rendering a field through ParsedText, update this map to match.
  */
 const CITATION_TEXT_FIELDS: Record<string, AttributeReader> = {
   "core/paragraph": stringFields("content"),
@@ -72,22 +76,19 @@ const CITATION_TEXT_FIELDS: Record<string, AttributeReader> = {
   "moocfi/aside-with-image": stringFields("title", "content"),
   "moocfi/terminology-block": stringFields("title"),
   "moocfi/research-consent-question": stringFields("content"),
+  "moocfi/hero-section": stringFields("title", "subtitle"),
+  "moocfi/landing-page-hero-section": stringFields("title"),
 }
 
-/**
- * Fallback for block names not in the map: scan only top-level string attributes. This keeps future
- * citation-bearing blocks working before the map is updated, without reaching into nested arrays or
- * raw-rendered fields of the known blocks (those are handled explicitly above).
- */
-const fallbackFields: AttributeReader = (attributes) =>
-  Object.values(attributes).filter((value): value is string => typeof value === "string")
-
 const readBlockCitations = (block: Block<unknown>): CitationMatch[] => {
+  const reader = CITATION_TEXT_FIELDS[block.name]
+  if (!reader) {
+    return []
+  }
   const attributes = block.attributes
   if (attributes === null || typeof attributes !== "object") {
     return []
   }
-  const reader = CITATION_TEXT_FIELDS[block.name] ?? fallbackFields
   return reader(attributes as Record<string, unknown>).flatMap((text) =>
     extractCitationsFromText(text),
   )

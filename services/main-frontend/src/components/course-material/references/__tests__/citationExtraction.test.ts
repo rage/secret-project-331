@@ -145,13 +145,27 @@ describe("extractPageCitations - per block field map", () => {
     expect(keysOf([table])).toEqual(["h", "b1", "b2", "f", "cap"])
   })
 
-  test("unknown block scans only top-level string attributes (not nested objects or arrays)", () => {
+  test("extracts from moocfi/hero-section title then subtitle", () => {
+    expect(
+      keysOf([block("moocfi/hero-section", { title: "\\cite{a}", subtitle: "\\cite{b}" })]),
+    ).toEqual(["a", "b"])
+  })
+
+  test("extracts from moocfi/landing-page-hero-section title", () => {
+    expect(keysOf([block("moocfi/landing-page-hero-section", { title: "\\cite{a}" })])).toEqual([
+      "a",
+    ])
+  })
+
+  test("an unmapped block contributes no citations (extraction mirrors ParsedText rendering)", () => {
+    // A block name absent from CITATION_TEXT_FIELDS does not render \cite through ParsedText, so it
+    // must not create a phantom reference from any of its string attributes.
     const unknown = block("unknown/custom", {
       top: "\\cite{top}",
       nested: { inner: "\\cite{nested}" },
       list: ["\\cite{arr}"],
     })
-    expect(keysOf([unknown])).toEqual(["top"])
+    expect(keysOf([unknown])).toEqual([])
   })
 })
 
@@ -239,8 +253,9 @@ describe("regression: citation inside a collapsed expandable block", () => {
     expect(orderedUniqueCitationKeys(bugTree)).toEqual(["leinonen2019exploring"])
   })
 
-  test("does not pick up the hero-section title as a citation", () => {
-    // hero-section does not render through ParsedText, and its title has no \cite anyway.
-    expect(orderedUniqueCitationKeys(bugTree)).not.toContain("Citations page")
+  test("yields only the real citation key, with no phantom entries from other blocks", () => {
+    // The hero-section title IS scanned (it renders through ParsedText), but it contains no \cite,
+    // so the only citation on the page is the one inside the collapsed expandable block.
+    expect(orderedUniqueCitationKeys(bugTree)).toEqual(["leinonen2019exploring"])
   })
 })

@@ -20,7 +20,7 @@ use anyhow::Context;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_utils::{
     cache::Cache, file_store::FileStore, icu4x::Icu4xBlob, ip_to_country::IpToCountryMapper,
-    services::tmc::TmcClient,
+    services::sisu::SisuClient, services::tmc::TmcClient,
 };
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl, basic::BasicClient};
 use secrecy::{ExposeSecret, SecretString};
@@ -169,6 +169,7 @@ pub struct ServerConfigBuilder {
     pub redis_url: SecretString,
     pub jwt_password: SecretString,
     pub tmc_client: TmcClient,
+    pub sisu_client: SisuClient,
 }
 
 impl ServerConfigBuilder {
@@ -196,6 +197,7 @@ impl ServerConfigBuilder {
                 runtime_config.app_conf.tmc_admin_access_token.clone(),
                 runtime_config.ratelimit_protection_safe_api_key.clone(),
             )?,
+            sisu_client: SisuClient::new(runtime_config.app_conf.base_url.clone())?,
         })
     }
 
@@ -246,6 +248,8 @@ impl ServerConfigBuilder {
 
         let tmc_client = Data::new(self.tmc_client);
 
+        let sisu_client = Data::new(self.sisu_client);
+
         let config = ServerConfig {
             json_config,
             db_pool,
@@ -258,6 +262,7 @@ impl ServerConfigBuilder {
             cache,
             payload_config,
             tmc_client,
+            sisu_client,
         };
         Ok(config)
     }
@@ -276,6 +281,7 @@ pub struct ServerConfig {
     pub cache: Data<Cache>,
     pub jwt_key: Data<JwtKey>,
     pub tmc_client: Data<TmcClient>,
+    pub sisu_client: Data<SisuClient>,
 }
 
 /// Common configuration that is used by both production and testing.
@@ -292,6 +298,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         cache,
         payload_config,
         tmc_client,
+        sisu_client,
     } = server_config;
     let api_rate_limit_config = RateLimit::global_api_rate_limit_config(app_conf.test_mode);
     // turns file_store from `dyn FileStore + Send + Sync` to `dyn FileStore` to match controllers
@@ -309,6 +316,7 @@ pub fn configure(config: &mut ServiceConfig, server_config: ServerConfig) {
         .app_data(jwt_key)
         .app_data(cache)
         .app_data(tmc_client)
+        .app_data(sisu_client)
         .service(
             web::scope("/api/v0")
                 .wrap(RateLimit::new(api_rate_limit_config))

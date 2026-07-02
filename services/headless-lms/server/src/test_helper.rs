@@ -4,7 +4,10 @@ use crate::{
 };
 use headless_lms_base::config::{ApplicationConfiguration, OAuthServerConfiguration};
 
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, services::tmc::TmcClient};
+use headless_lms_utils::{
+    file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
+    services::tmc::TmcClient,
+};
 use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, Postgres, Transaction};
 use std::{env, sync::Arc};
@@ -66,6 +69,7 @@ pub async fn test_config() -> ServerConfig {
             "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
         ),
         tmc_client: TmcClient::mock_for_test(),
+        sisu_client: SisuClient::mock_for_test(),
     }
     .build()
     .await

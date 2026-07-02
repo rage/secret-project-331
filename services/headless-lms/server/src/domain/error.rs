@@ -99,6 +99,8 @@ pub enum SisuErrorType {
     InvalidCourseCode,
     #[display("generic sisu error")]
     GenericSisuError,
+    #[display("sisu resource not found")]
+    SisuResourceNotFound,
 }
 
 impl SisuErrorType {
@@ -107,6 +109,7 @@ impl SisuErrorType {
         match self {
             Self::InvalidCourseCode => "invalid_course_code",
             Self::GenericSisuError => "generic_sisu_error",
+            Self::SisuResourceNotFound => "sisu_resource_not_found",
         }
     }
 }
@@ -495,7 +498,15 @@ impl error::ResponseError for ControllerError {
             ControllerErrorType::UnauthorizedWithReason(_) => StatusCode::UNAUTHORIZED,
             ControllerErrorType::Forbidden => StatusCode::FORBIDDEN,
             ControllerErrorType::OAuthError(_) => StatusCode::OK,
-            ControllerErrorType::SisuError(_) => StatusCode::BAD_REQUEST,
+            ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode) => {
+                StatusCode::BAD_REQUEST
+            }
+            ControllerErrorType::SisuError(SisuErrorType::GenericSisuError) => {
+                StatusCode::BAD_GATEWAY
+            }
+            ControllerErrorType::SisuError(SisuErrorType::SisuResourceNotFound) => {
+                StatusCode::NOT_FOUND
+            }
         }
     }
 }
@@ -736,6 +747,15 @@ impl From<UtilError> for ControllerError {
             UtilErrorType::SisuClientError(SisuErrorVariant::InvalidCourseCode) => {
                 Self::new_with_traces(
                     ControllerErrorType::SisuError(SisuErrorType::InvalidCourseCode),
+                    err.to_string(),
+                    Some(err.into()),
+                    backtrace,
+                    span_trace,
+                )
+            }
+            UtilErrorType::SisuClientError(SisuErrorVariant::SisuResourceNotFound) => {
+                Self::new_with_traces(
+                    ControllerErrorType::SisuError(SisuErrorType::SisuResourceNotFound),
                     err.to_string(),
                     Some(err.into()),
                     backtrace,

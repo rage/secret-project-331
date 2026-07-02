@@ -24,6 +24,11 @@ interface ParsedTextProps {
   parseLatex?: boolean
   parseMarkdown?: boolean
   inline?: boolean
+  /**
+   * Wrap output in a block `<div>` while keeping math inline (still driven by `inline`). Use for
+   * markdown that may be multi-paragraph, whose `<p>` tags are invalid inside an inline `<span>`.
+   */
+  blockContainer?: boolean
   addDotToEnd?: boolean
 }
 
@@ -33,6 +38,7 @@ const ParsedText: React.FC<ParsedTextProps> = ({
   parseLatex = false,
   parseMarkdown = false,
   inline = false,
+  blockContainer = false,
   addDotToEnd = false,
 }) => {
   const withDotIfNeeded = useMemo(() => {
@@ -63,7 +69,8 @@ const ParsedText: React.FC<ParsedTextProps> = ({
 
   const parsedText = formatText(parseLatex, parseMarkdown, withDotIfNeeded, inline)
 
-  return <TextNode inline={inline} text={parsedText} />
+  // Math stays inline per `inline`; `blockContainer` only forces a block wrapper element.
+  return <TextNode inline={blockContainer ? false : inline} text={parsedText} />
 }
 
 export default ParsedText

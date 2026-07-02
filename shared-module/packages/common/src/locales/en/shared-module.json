@@ -108,6 +108,10 @@
       "message": "The server responded successfully, but the data was not in the expected format.",
       "title": "Could not display data"
     },
+    "sisu_resource_not_found": {
+      "message": "Unable to find resources from Sisu.",
+      "title": "Resources not found"
+    },
     "unauthorized": {
       "message": "Please sign in and try again.",
       "title": "Unauthorized"

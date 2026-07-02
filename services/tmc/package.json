@@ -33,6 +33,7 @@
     "@next/bundle-analyzer": "16.2.6",
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.6.0",
+    "@react-aria/live-announcer": "^3.5.1",
     "@react-aria/overlays": "^3.32.0",
     "@react-aria/utils": "^3.34.0",
     "@react-stately/collections": "^3.13.0",

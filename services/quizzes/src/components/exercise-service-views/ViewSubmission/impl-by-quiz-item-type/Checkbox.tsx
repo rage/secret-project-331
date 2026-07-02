@@ -6,6 +6,7 @@ import React from "react"
 
 import { UserItemAnswerCheckbox } from "../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemCheckbox } from "../../../../../types/quizTypes/publicSpec"
+import ParsedText from "../../../ParsedText"
 
 import { QuizItemSubmissionComponentProps } from "."
 
@@ -86,9 +87,22 @@ const CheckBoxFeedback: React.FC<
             </div>
           </Option>
         )}
-        <div>
+        <div
+          className={css`
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+          `}
+        >
           {quiz_item_answer_feedback?.quiz_item_option_feedbacks?.map((of) => (
-            <p key={of.option_id}>{of.option_feedback}</p>
+            <ParsedText
+              key={of.option_id}
+              inline
+              blockContainer
+              parseLatex
+              parseMarkdown
+              text={of.option_feedback}
+            />
           ))}
         </div>
       </div>

@@ -19,6 +19,7 @@ import StatusSummary from "./StatusSummary"
 
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 
 const createFavicon = (status: "healthy" | "warning" | "error"): string => {
   const colors = {
@@ -120,11 +121,10 @@ const StatusPage: React.FC = () => {
 
   useFavicon({
     favicon: createFavicon(overallHealth),
-    title: `${statusText[overallHealth]} | ${document.location.hostname}`,
     // eslint-disable-next-line i18next/no-literal-string
     defaultFavicon: "/favicon.ico",
-    defaultTitle: t("status-kubernetes-status"),
   })
+  usePageTitle(`${statusText[overallHealth]} | ${document.location.hostname}`)
 
   return (
     <div

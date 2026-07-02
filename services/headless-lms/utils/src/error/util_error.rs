@@ -35,6 +35,7 @@ pub enum UtilErrorType {
 pub enum SisuErrorVariant {
     GenericSisuError,
     InvalidCourseCode,
+    SisuResourceNotFound,
 }
 
 /**

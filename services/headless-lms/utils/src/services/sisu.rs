@@ -1,9 +1,13 @@
 use crate::{error::util_error::SisuErrorVariant, prelude::*};
-pub struct SisuClient {}
+
+#[derive(Debug, Clone)]
+pub struct SisuClient {
+    base_url: String,
+}
+
 use headless_lms_base::config::bool_env_false_by_default;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::env;
 use std::sync::LazyLock;
 use std::time::Duration;
 use std::{cmp::Ordering, collections::HashMap};
@@ -50,6 +54,9 @@ pub struct Additional {
     pub sv: Option<String>,
 }
 
+static STRIP_HTML_REGEX: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"<[^>]*>").expect("invalid regex"));
+
 impl Additional {
     pub fn choose_language(&self, language_code: &String) -> Option<String> {
         let mut vec = self.as_vec();
@@ -68,14 +75,13 @@ impl Additional {
             }
             Ordering::Equal
         });
-        let strip_html_regex: LazyLock<Regex> =
-            LazyLock::new(|| Regex::new(r"<[^>]*>").expect("invalid regex"));
+
         let max_length = vec
             .iter()
             .map(|n| {
                 let value = &n.1;
                 if let Some(value) = value {
-                    let cleaned = strip_html_regex.replace_all(value, "");
+                    let cleaned = STRIP_HTML_REGEX.replace_all(value, "");
                     cleaned.len()
                 } else {
                     0
@@ -87,7 +93,7 @@ impl Additional {
         let best = vec.iter().find(|o| {
             let text = &o.1;
             if let Some(text) = text {
-                let cleaned = strip_html_regex.replace_all(text, "");
+                let cleaned = STRIP_HTML_REGEX.replace_all(text, "");
                 let len = cleaned.len();
                 if len < max_length / 2 {
                     return false;
@@ -164,8 +170,8 @@ pub struct SisuDescriptions {
 const TIMEOUT_DURATION: Duration = Duration::from_secs(60);
 
 impl SisuClient {
-    fn get_url() -> Result<Url, ParseError> {
-        let base_url = env::var("BASE_URL").unwrap_or_else(|_| "".to_string());
+    fn get_url(&self) -> Result<Url, ParseError> {
+        let base_url = &self.base_url;
         let is_mock_sisu = bool_env_false_by_default("USE_MOCK_SISU_ENDPOINT");
         if is_mock_sisu {
             let mock_path = Url::parse(base_url.as_str())?;
@@ -175,32 +181,43 @@ impl SisuClient {
         }
     }
 
-    pub async fn get_course_ids(course_modules: Vec<String>) -> UtilResult<Vec<Vec<String>>> {
+    pub fn new(base_url: String) -> UtilResult<Self> {
+        if base_url.trim().is_empty() {
+            return Err(UtilError::new(
+                UtilErrorType::Other,
+                "BASE_URL cannot be empty".to_string(),
+                None,
+            ));
+        }
+        Ok(Self { base_url })
+    }
+
+    async fn get_request_sisu(&self, path: String) -> Result<reqwest::Response, UtilError> {
+        let base_url = Self::get_url(self)?;
+        let url = base_url.join(path.as_str())?;
+        let builder = REQWEST_CLIENT.get(url).timeout(TIMEOUT_DURATION);
+
+        builder.send().await.map_err(|e| {
+            util_err!(
+                SisuClientError(SisuErrorVariant::GenericSisuError),
+                "Request to Sisu failed",
+                e
+            )
+        })
+    }
+
+    pub async fn get_course_ids(
+        &self,
+        course_modules: Vec<String>,
+    ) -> UtilResult<Vec<Vec<String>>> {
         let course_codes = course_modules;
         let mut course_ids: Vec<Vec<String>> = vec![];
         let mut invalid_codes: Vec<String> = vec![];
         for code in course_codes {
-            let base_url = Self::get_url()?;
-            let url = base_url.join(
-                format!(
-                    "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
-                )
-                .as_str(),
-            )?;
-
-            let response = REQWEST_CLIENT
-                .get(url)
-                .header("Content-Type", "application/json")
-                .timeout(TIMEOUT_DURATION)
-                .send()
-                .await
-                .map_err(|e| {
-                    util_err!(
-                        SisuClientError(SisuErrorVariant::GenericSisuError),
-                        "Request to Sisu failed",
-                        e
-                    )
-                })?;
+            let path = format!(
+                "course-unit-search?codeQuery={code}&validity=ALL&returnAllGroupVersions=true"
+            );
+            let response = self.get_request_sisu(path).await?;
 
             if response.status().is_success() {
                 let json: CourseUnitSearchResults =
@@ -214,7 +231,7 @@ impl SisuClient {
                 }
             } else if response.status() == 404 {
                 return Err(util_err!(
-                    SisuClientError(SisuErrorVariant::GenericSisuError),
+                    SisuClientError(SisuErrorVariant::SisuResourceNotFound),
                     "Course ids not found".to_string()
                 ));
             } else {
@@ -235,27 +252,14 @@ impl SisuClient {
     }
 
     pub async fn get_course_info(
+        &self,
         course_ids: Vec<Vec<String>>,
     ) -> UtilResult<Vec<SisuCourseInfoElement>> {
         let mut data_vec: Vec<SisuCourseInfoElement> = vec![];
         for id in course_ids {
             if let Some(first) = id.first() {
-                let base_url = Self::get_url()?;
-                let url = base_url.join(format!("course-units/v1/{first}").as_str())?;
-
-                let response = REQWEST_CLIENT
-                    .get(url)
-                    .header("Content-Type", "application/json")
-                    .timeout(TIMEOUT_DURATION)
-                    .send()
-                    .await
-                    .map_err(|e| {
-                        util_err!(
-                            SisuClientError(SisuErrorVariant::GenericSisuError),
-                            "Request to Sisu failed",
-                            e
-                        )
-                    })?;
+                let path = format!("course-units/v1/{first}");
+                let response = self.get_request_sisu(path).await?;
 
                 if response.status().is_success() {
                     let json: SisuCourseInfoElement =
@@ -263,7 +267,7 @@ impl SisuClient {
                     data_vec.push(json);
                 } else if response.status() == 404 {
                     return Err(util_err!(
-                        SisuClientError(SisuErrorVariant::GenericSisuError),
+                        SisuClientError(SisuErrorVariant::SisuResourceNotFound),
                         "Course info not found".to_string()
                     ));
                 } else {
@@ -274,7 +278,7 @@ impl SisuClient {
                 }
             } else {
                 return Err(util_err!(
-                    SisuClientError(SisuErrorVariant::GenericSisuError),
+                    SisuClientError(SisuErrorVariant::SisuResourceNotFound),
                     "No courses found with course id".to_string()
                 ));
             }
@@ -315,5 +319,11 @@ impl SisuClient {
             course_desc.insert(module.code, descriptions);
         }
         course_desc
+    }
+
+    pub fn mock_for_test() -> Self {
+        Self {
+            base_url: String::from("mock-base-url"),
+        }
     }
 }

@@ -25,6 +25,7 @@ import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import HideChildrenInSystemTests from "@/shared-module/common/components/system-tests/HideChildrenInSystemTests"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -170,6 +171,7 @@ const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service
 
 const IframeViewPlayground: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-playground-exercise-iframe"))
 
   const SCROLL_TARGETS = [
     { name: t("title-playground-exercise-iframe"), id: "heading-playground-exercise-iframe" },

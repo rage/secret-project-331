@@ -23,6 +23,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import Spinner from "@/shared-module/common/components/Spinner"
 import HideTextInSystemTests from "@/shared-module/common/components/system-tests/HideTextInSystemTests"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { narrowContainerWidthRem } from "@/shared-module/common/styles/constants"
 import {
   courseUserStatusSummaryRoute,
@@ -35,6 +36,7 @@ import { QueryResult } from "@/shared-module/components"
 const Submission: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
+  usePageTitle(t("title-submission-id", { id }))
   const getSubmissionInfo = useQuery({
     ...getExerciseSlideSubmissionInfoOptions({
       path: {

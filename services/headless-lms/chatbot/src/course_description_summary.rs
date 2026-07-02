@@ -68,21 +68,19 @@ pub async fn generate_description(
     sisu_course_info: HashMap<String, SisuDescriptions>,
 ) -> ChatbotResult<SisuDescriptionResponse> {
     let serialized_sisu_course_info = serde_json::to_string(&sisu_course_info)?;
-    let system_prompt = SYSTEM_PROMPT.to_owned();
-    let prompt: String =
-        format!("{system_prompt} Course information: {serialized_sisu_course_info}");
+    let prompt: String = format!("{USER_PROMPT} Course information: {serialized_sisu_course_info}");
 
     let system_prompt = APIInputMessage {
         message_type: InputItem::Message {
             role: MessageRole::System,
-            content: MessageContent::Text(prompt),
+            content: MessageContent::Text(SYSTEM_PROMPT.to_string()),
         },
     };
 
     let user_prompt = APIInputMessage {
         message_type: InputItem::Message {
             role: MessageRole::User,
-            content: MessageContent::Text(USER_PROMPT.to_string()),
+            content: MessageContent::Text(prompt),
         },
     };
 

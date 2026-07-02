@@ -24,19 +24,16 @@ const CourseAuditing = () => {
     [getCoursesForAuditing.data],
   )
 
-  const renderCourseAuditing = () => (
-    <>
-      <CourseAuditingContainer
-        coursesForAuditing={sortedCoursesForAuditing}
-        refetch={getCoursesForAuditing.refetch}
-      />
-    </>
-  )
   return (
     <div>
       <h1>{t("title-course-auditing")}</h1>
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>
-        {() => renderCourseAuditing()}
+        {() => (
+          <CourseAuditingContainer
+            coursesForAuditing={sortedCoursesForAuditing}
+            refetch={getCoursesForAuditing.refetch}
+          />
+        )}
       </QueryResult>
     </div>
   )

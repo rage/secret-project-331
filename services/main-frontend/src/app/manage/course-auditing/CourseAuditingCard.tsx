@@ -11,9 +11,11 @@ import {
 } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useState } from "react"
+import { Form, FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ContentArea from "./ContentArea"
+import CourseAuditingField from "./CourseAuditingField"
 
 import { updateCourseAfterAuditingMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseToAudit, CourseToAuditUpdate } from "@/generated/api/types.generated"
@@ -22,8 +24,9 @@ import { showErrorNotification } from "@/shared-module/common/components/Notific
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { TextArea, TextField } from "@/shared-module/components"
 
-interface CourseAuditCardProps {
+interface CourseAuditingCardProps {
   id: string
   courseToAudit: CourseToAudit
   refetch(): Promise<QueryObserverResult<CourseToAudit[], unknown>>
@@ -35,7 +38,7 @@ enum UpdateStatus {
   "failed",
 }
 
-const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditCardProps>> = ({
+const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardProps>> = ({
   id,
   courseToAudit,
   refetch,
@@ -57,18 +60,25 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditCardProps>
     })
   }
 
+  const methods = useForm<CourseToAuditUpdate>({
+    defaultValues: {
+      ...course,
+    },
+  })
+
+  const { control, register, handleSubmit, setValue, reset } = methods
+
   //TODO: add cansave and prepare for backend?
   const updateContent = async () => {
-    if ("id" in course) {
-      await updateMutation.mutateAsync({
-        path: {
-          course_to_audit_id: course.id,
-        },
-        body: course,
-      })
-    }
+    await updateMutation.mutateAsync({
+      path: {
+        course_to_audit_id: course.id,
+      },
+      body: course,
+    })
   }
 
+  // TODO: update error notifications
   const updateMutation = useToastMutationOptions(
     updateCourseAfterAuditingMutation(),
     { method: "PUT", notify: true },
@@ -100,137 +110,148 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditCardProps>
   )
 
   return (
-    <div>
-      <div
-        key={id}
-        className={css`
-          margin: 8px;
-          padding: 1rem;
-          border: 1px solid rgba(0, 0, 0, 0.12);
-          /* Override card's overflow */
-          overflow: visible !important;
-        `}
-      >
+    <FormProvider {...methods}>
+      <div>
         <div
+          key={id}
           className={css`
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            line-height: 1.5;
-            padding-bottom: 1.5rem;
-            align-items: baseline;
+            margin: 8px;
+            padding: 1rem;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            /* Override card's overflow */
+            overflow: visible !important;
           `}
         >
-          <div>
-            <h1
-              className={css`
-                margin: 0;
-                font-weight: 400;
-                font-size: 1.5rem;
-              `}
-            >
-              {editing ? t("edit") : course.name}
-            </h1>
+          <div
+            className={css`
+              display: flex;
+              flex-direction: row;
+              justify-content: space-between;
+              line-height: 1.5;
+              padding-bottom: 1.5rem;
+              align-items: baseline;
+            `}
+          >
+            <div>
+              <h1
+                className={css`
+                  margin: 0;
+                  font-weight: 400;
+                  font-size: 1.5rem;
+                `}
+              >
+                {course.name}
+              </h1>
+            </div>
+
+            {editing ? (
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: row;
+                `}
+              >
+                <Button
+                  aria-label={t("button-text-save")}
+                  onClick={updateContent}
+                  variant={"icon"}
+                  size={"small"}
+                >
+                  {status == UpdateStatus.none ? (
+                    <FloppyDiskSave size={20} />
+                  ) : status == UpdateStatus.saved ? (
+                    <CheckCircle size={20} />
+                  ) : (
+                    <BellXmark size={20} />
+                  )}
+                </Button>
+                <Button
+                  aria-label={t("button-text-cancel")}
+                  onClick={toggleEdit}
+                  variant={"icon"}
+                  size={"small"}
+                >
+                  <XmarkCircle size={20} />
+                </Button>
+              </div>
+            ) : (
+              <div
+                className={css`
+                  display: flex;
+                  flex-direction: row;
+                `}
+              >
+                <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
+                  <Pencil size={20} />
+                </Button>
+              </div>
+            )}
           </div>
 
           {editing ? (
             <div
               className={css`
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
+                gap: 1.125rem;
               `}
             >
-              <Button
-                aria-label={t("button-text-save")}
-                onClick={updateContent}
-                variant={"icon"}
-                size={"small"}
-              >
-                {status == UpdateStatus.none ? (
-                  <FloppyDiskSave size={20} />
-                ) : status == UpdateStatus.saved ? (
-                  <CheckCircle size={20} />
-                ) : (
-                  <BellXmark size={20} />
-                )}
-              </Button>
-              <Button
-                aria-label={t("button-text-cancel")}
-                onClick={toggleEdit}
-                variant={"icon"}
-                size={"small"}
-              >
-                <XmarkCircle size={20} />
-              </Button>
+              <TextArea
+                control={control}
+                label={t("text-field-label-description")}
+                autoResize={true}
+                {...register("description")}
+              />
+              <TextField
+                control={control}
+                label={t("title-default-module-uh-course-code")}
+                {...register("uh_course_code")}
+              />
             </div>
           ) : (
             <div
               className={css`
                 display: flex;
-                flex-direction: row;
+                flex-direction: column;
+                gap: 1.125rem;
               `}
             >
-              <Button aria-label={t("edit")} onClick={toggleEdit} variant={"icon"} size={"small"}>
-                <Pencil size={20} />
-              </Button>
+              <div>
+                <strong>{t("text-field-label-description")}:</strong>
+                <br />
+                <span> {course.description} </span>
+              </div>
+              <div>
+                <strong>{t("title-default-module-uh-course-code")}:</strong>
+                <br />
+                <span> {course.uh_course_code} </span>
+              </div>
             </div>
           )}
-        </div>
 
-        <div>
-          {editing && (
-            <>
-              <ContentArea
-                title={t("text-field-label-name")}
-                text={course.name}
-                editing={false}
-                // eslint-disable-next-line i18next/no-literal-string
-                onChange={onChange("description")}
-                type={"text"}
-              />
-            </>
-          )}
-          <ContentArea
-            title={t("title-description")}
-            text={course.description}
-            editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
-            onChange={onChange("description")}
-            type={"text"}
-            error={undefined}
-          />
-          <ContentArea
-            title={t("title-default-module-uh-course-code")}
-            text={course.uh_course_code}
-            editing={editing}
-            // eslint-disable-next-line i18next/no-literal-string
-            onChange={onChange("uh_course_code")}
-            type={"text"}
-            error={undefined}
-          />
-        </div>
-        <div
-          className={css`
-            display: flex;
-            justify-content: space-between;
-            padding-top: 1rem;
-          `}
-        >
-          <TimeComponent
-            label={`${t("label-created")} `}
-            date={parseISO(courseToAudit.created_at)}
-            right={false}
-            boldLabel
-          />
-          <TimeComponent
-            label={`${t("label-updated")} `}
-            boldLabel
-            date={parseISO(courseToAudit.updated_at)}
-            right={true}
-          />
+          <div
+            className={css`
+              display: flex;
+              justify-content: space-between;
+              padding-top: 1rem;
+            `}
+          >
+            <TimeComponent
+              label={`${t("label-created")} `}
+              date={parseISO(courseToAudit.created_at)}
+              right={false}
+              boldLabel
+            />
+            <TimeComponent
+              label={`${t("label-updated")} `}
+              boldLabel
+              date={parseISO(courseToAudit.updated_at)}
+              right={true}
+            />
+          </div>
         </div>
       </div>
-    </div>
+    </FormProvider>
   )
 }
 

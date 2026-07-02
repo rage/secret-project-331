@@ -3,9 +3,11 @@
 import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
-import React from "react"
+import React, { useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
+import ChatbotPreviewModal from "./ChatbotPreviewModal"
 
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
@@ -104,6 +106,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     },
   })
 
+  const [showChatbotPreview, setChatbotPreview] = useState(false)
+
   // eslint-disable-next-line i18next/no-literal-string
   const { fields, append, remove } = useFieldArray({ control, name: "suggested_messages" })
 
@@ -198,6 +202,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
             <h2>{t("customize-chatbot")}</h2>
             <form onSubmit={onConfigureChatbotWrapper}>
               <TextField
+                required
                 error={errors.chatbot_name?.message}
                 label={t("label-name")}
                 {...register("chatbot_name", { required: t("required-field") })}
@@ -572,6 +577,20 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 >
                   {t("delete")}
                 </Button>
+                <Button
+                  disabled={oldChatbotConf.prompt === ""}
+                  type="button"
+                  size="medium"
+                  variant="blue"
+                  onClick={() => setChatbotPreview(true)}
+                >
+                  {t("preview-chatbot")}
+                </Button>
+                <ChatbotPreviewModal
+                  open={showChatbotPreview}
+                  onClose={() => setChatbotPreview(false)}
+                  courseId={oldChatbotConf.course_id}
+                />
               </div>
             </form>
           </div>

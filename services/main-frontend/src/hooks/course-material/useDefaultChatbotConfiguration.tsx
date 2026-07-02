@@ -11,7 +11,7 @@ interface UseChatbotConfigurationOptions {
   enabled?: boolean
 }
 
-const useChatbotConfiguration = (
+const useDefaultChatbotConfiguration = (
   courseId: string | null | undefined,
   options: UseChatbotConfigurationOptions = {},
 ) => {
@@ -34,4 +34,4 @@ const useChatbotConfiguration = (
   return query
 }
 
-export default useChatbotConfiguration
+export default useDefaultChatbotConfiguration

@@ -51,7 +51,7 @@ const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nSearch the course material with 
 
 enum ParsedResponseLine {
     Event(String),
-    Data(ResponseOutput),
+    Data(Box<ResponseOutput>),
 }
 
 impl ParsedResponseLine {
@@ -74,7 +74,7 @@ impl ParsedResponseLine {
                     return Err(ChatbotError::from(e));
                 }
             };
-            Ok(Some(ParsedResponseLine::Data(response_output)))
+            Ok(Some(ParsedResponseLine::Data(Box::new(response_output))))
         } else {
             Ok(None)
         }
@@ -797,7 +797,7 @@ async fn parse_tool<'a>(
     Box::pin(async_stream::try_stream! {
     while let Some(val) = lines.next().await {
         let line = val?;
-        let response_output = match ParsedResponseLine::parse(&line)? {
+        let response_output: ResponseOutput = match ParsedResponseLine::parse(&line)? {
             Some(ParsedResponseLine::Event(event_type)) => {
                 trace!("Event: {event_type}");
                 match event_type.as_str() {
@@ -813,7 +813,7 @@ async fn parse_tool<'a>(
                 };
                 continue;
             }
-            Some(ParsedResponseLine::Data(data)) => data,
+            Some(ParsedResponseLine::Data(data)) => *data,
             None => {
                 continue;
             }
@@ -1081,7 +1081,7 @@ async fn parse_text_response<'a>(
                     };
                     continue;
                 },
-                Some(ParsedResponseLine::Data(data)) => data,
+                Some(ParsedResponseLine::Data(data)) => *data,
                 None => {continue;},
             };
 

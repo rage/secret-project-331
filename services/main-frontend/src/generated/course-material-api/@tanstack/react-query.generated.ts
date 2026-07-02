@@ -84,7 +84,6 @@ import {
   saveCourseMaterialCourseSettings,
   searchPagesWithPhrase,
   searchPagesWithWords,
-  sendChatbotMessage,
   updateCourseMaterialGlossaryTerm,
   updateCourseMaterialUserInfo,
   updateMarketingConsent,
@@ -238,8 +237,6 @@ import type {
   SearchPagesWithPhraseResponse,
   SearchPagesWithWordsData,
   SearchPagesWithWordsResponse,
-  SendChatbotMessageData,
-  SendChatbotMessageResponse,
   UpdateCourseMaterialGlossaryTermData,
   UpdateCourseMaterialUserInfoData,
   UpdateCourseMaterialUserInfoResponse,
@@ -548,34 +545,6 @@ export const newChatbotConversationMutation = (
   > = {
     mutationFn: async (fnOptions) =>
       await newChatbotConversation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true,
-      }),
-  }
-  return mutationOptions
-}
-
-/**
- *
- * POST `/api/v0/course-material/chatbot/:chatbot_configuration_id/conversations/:conversation_id/send-message`
- *
- * Sends a new chat message to the chatbot.
- */
-export const sendChatbotMessageMutation = (
-  options?: Partial<Options<SendChatbotMessageData>>,
-): UseMutationOptions<
-  SendChatbotMessageResponse,
-  DefaultError,
-  Options<SendChatbotMessageData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SendChatbotMessageResponse,
-    DefaultError,
-    Options<SendChatbotMessageData>
-  > = {
-    mutationFn: async (fnOptions) =>
-      await sendChatbotMessage({
         ...options,
         ...fnOptions,
         throwOnError: true,

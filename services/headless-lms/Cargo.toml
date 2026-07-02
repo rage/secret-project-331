@@ -76,4 +76,4 @@ tokio-stream = { version = "0.1.18", features = [ "io-util" ] }
 secrecy = { version = "0.10.3", features = ["serde"] }
 
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
-utoipa = { version = "5.5.0", features = ["uuid"] }
+utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }

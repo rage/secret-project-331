@@ -54,7 +54,7 @@ chrono = { version = "0.4.44", features = ["serde"] }
 # A JSON serialization file format
 serde_json = "1.0.150"
 # Code-first OpenAPI generation from Rust types and handlers
-utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }
+utoipa.workspace = true
 # Swagger UI integration for generated OpenAPI documents
 utoipa-swagger-ui = { version = "9.0.2", features = ["actix-web"] }
 # Adds #[derive(x)] macros for more traits

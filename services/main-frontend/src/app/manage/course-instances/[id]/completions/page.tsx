@@ -16,7 +16,10 @@ import CompletionsExportButton from "./CompletionsExportButton"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import AddCompletionsForm from "@/components/forms/AddCompletionsForm"
 import FullWidthTable from "@/components/tables/FullWidthTable"
-import { getCourseInstanceCompletionsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import {
+  getCourseInstanceCompletionsOptions,
+  getCourseInstanceOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
 import {
   createCourseInstanceCompletions,
   previewCourseInstanceCompletions,
@@ -30,8 +33,10 @@ import type {
 import CaretDownIcon from "@/imgs/caret-down.svg"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
@@ -48,6 +53,18 @@ const CompletionsPage: React.FC = () => {
   const { t } = useTranslation()
   const params = useParams<{ id: string }>()
   const courseInstanceId = params.id
+
+  const courseInstanceQuery = useQuery({
+    ...getCourseInstanceOptions({
+      path: {
+        course_instance_id: courseInstanceId,
+      },
+    }),
+  })
+
+  usePageTitle(
+    joinTitleSegments([t("completions"), courseInstanceQuery.data?.name || t("default-instance")]),
+  )
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("completions") }], [t])
 

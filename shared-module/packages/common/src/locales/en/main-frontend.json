@@ -1842,6 +1842,7 @@
   "title-public-spec": "Public spec",
   "title-public-url": "Public URL",
   "title-regrading": "Regrading",
+  "title-regrading-id": "Regrading {{id}}",
   "title-regradings": "Regradings",
   "title-report-dialog": "Report Answer",
   "title-reprocessing-submissions": "Reprocessing submissions",

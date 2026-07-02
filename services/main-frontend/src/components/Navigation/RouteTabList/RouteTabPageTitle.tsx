@@ -28,7 +28,10 @@ export const RouteTabPageTitle: React.FC<RouteTabPageTitleProps> = ({
   order,
 }) => {
   const pathname = usePathname()
-  const activeTab = resolveActiveTab(tabs, pathname)
+  // Do not fall back to the first tab: on a sub-route with no tab of its own (e.g.
+  // /manage/courses/{id}/user-status-summary/{id}), we want the title to be the entity name
+  // alone, not a misleading "{first tab} - {entity}".
+  const activeTab = resolveActiveTab(tabs, pathname, false)
   usePageTitle(joinTitleSegments([activeTab?.title, entityName]), { order })
   return null
 }

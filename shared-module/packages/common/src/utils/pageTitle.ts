@@ -3,7 +3,7 @@
  * This is a brand name, not user-facing copy, so it is intentionally not translated.
  * Reads `NEXT_PUBLIC_SITE_TITLE` so deployments can rebrand; falls back to the project name.
  */
-export const DEFAULT_SITE_NAME = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
+export const DEFAULT_SITE_NAME = process.env.NEXT_PUBLIC_SITE_TITLE || "Secret Project 331"
 
 /**
  * Builds a professional, consistently formatted document title.

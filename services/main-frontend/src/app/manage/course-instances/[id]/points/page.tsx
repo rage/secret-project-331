@@ -17,9 +17,11 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import type { UserDetail } from "@/generated/api/types.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { fontWeights, headingFont, secondaryFont } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { roundDown } from "@/shared-module/common/utils/numbers"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -51,6 +53,8 @@ const CourseInstancePointsList: React.FC = () => {
   })
 
   const instanceLabel = courseInstanceQuery.data?.name || t("default-instance")
+
+  usePageTitle(joinTitleSegments([t("point-summary"), instanceLabel]))
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("point-summary") }], [t])
 

@@ -14,20 +14,22 @@ const sanitizeHTML = (dirty: string) => {
 }
 
 // The parsed markdown/latex HTML is injected verbatim, so it needs its own rules to stay inside the
-// container instead of overflowing to the right. `overflow-wrap: anywhere` also lowers the intrinsic
-// min-content width so flex / max-width ancestors can shrink it (plain `break-word` does not).
+// container instead of overflowing to the right. `break-word` breaks a token only when it cannot fit
+// on its own line, so normal words still wrap at word boundaries — unlike `anywhere`, which lowers
+// the min-content width to a single character and shatters short words mid-word in narrow columns
+// (e.g. a multiple-choice option showing "sho / rt / ans / wer").
 const parsedContentStyles = css`
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
   max-width: 100%;
 
   /* Code wraps instead of forcing a horizontal scrollbar. */
   pre {
     white-space: pre-wrap;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
     max-width: 100%;
   }
   code {
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
 
   /* Media and tables stay within the container width. */

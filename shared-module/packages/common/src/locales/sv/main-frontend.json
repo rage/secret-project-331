@@ -55,6 +55,8 @@
   "american-english": "Engelska",
   "an-insight-to-consider": "En insikt att överväga",
   "answered-at": "Besvarad: {{time}}",
+  "answers-in-manual-review": "Svar under manuell granskning",
+  "answers-in-manual-review-explanation": "Dessa svar väntar på manuell bedömning. Automatiskt slutförande av modulen är pausat tills kurspersonalen har bedömt dem.",
   "approve": "Godkänn",
   "archived": "Raderade fuskare",
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Är du säker på att du vill återställa framstegen för alla studenter i denna kurs? Detta kommer att radera deras inlämningar, poäng, slutföranden, givna kamratgranskningar och mer. Observera att denna funktion är avsedd att användas endast när du testar kursen och inte har riktiga studenter som genomför kursen ännu.",

@@ -55,6 +55,8 @@
   "american-english": "Engelsk",
   "an-insight-to-consider": "Et perspektiv å vurdere",
   "answered-at": "Besvart: {{time}}",
+  "answers-in-manual-review": "Svar til manuell vurdering",
+  "answers-in-manual-review-explanation": "Disse svarene venter på manuell vurdering. Automatisk fullføring av modulen er satt på pause til kurspersonalet har vurdert dem.",
   "approve": "Godkjenn",
   "archived": "Arkivert",
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Er du sikker på at du vil tilbakestille progresjonen for alle studentene i dette kurset? Dette vil slette innleveringer, poeng, fullførte elementer, vurderinger og annet kursarbeid. Merk at denne funksjonen er ment for å teste kursfunksjoner og ikke bør brukes når reelle studenter allerede deltar.",

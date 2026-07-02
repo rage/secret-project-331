@@ -56,6 +56,8 @@
   "american-english": "English",
   "an-insight-to-consider": "An insight to consider",
   "answered-at": "Answered: {{time}}",
+  "answers-in-manual-review": "Answers in manual review",
+  "answers-in-manual-review-explanation": "These answers are waiting for manual grading. Automatic module completion is on hold until course staff grade them.",
   "approve": "Approve",
   "archived": "Archived",
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Are you sure you want to reset the progress for all students in this course? This will delete their submissions, points, completions, given peer reviews and more. Note that this feature is intended to be used only when you are testing the course and don't have real students doing the course yet.",

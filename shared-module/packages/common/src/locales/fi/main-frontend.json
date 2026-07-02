@@ -56,6 +56,8 @@
   "american-english": "Englanti",
   "an-insight-to-consider": "Ajatus pohdittavaksi",
   "answered-at": "Vastattu: {{time}}",
+  "answers-in-manual-review": "Manuaalisessa arvioinnissa olevat vastaukset",
+  "answers-in-manual-review-explanation": "Nämä vastaukset odottavat manuaalista arviointia. Moduulin automaattinen suoritusmerkintä on pysäytetty, kunnes kurssin henkilökunta on arvioinut ne.",
   "approve": "Hyväksy",
   "archived": "Poistetut huijarit",
   "are-you-sure-you-want-to-reset-everyones-progress-on-the-course": "Oletko varma että haluat nollata kaikkien oppilaiden edistymisen kurssilla? Tämä poistaa kaikkien oppilaiden palautukset, pisteet, kurssisuoritukset, annetut vertaisarviot ja ym. Tätä ominaisuutta on tarkoitus käyttää vain kun olet testaamassa kurssia ja kurssia ei ole vielä tekemässä oikeita oppilaita.",

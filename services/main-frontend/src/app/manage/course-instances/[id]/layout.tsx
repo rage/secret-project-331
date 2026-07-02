@@ -30,7 +30,9 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
   const courseId = courseInstanceQuery.data?.course_id ?? null
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
-  usePageTitle(courseInstanceQuery.data?.name ?? null)
+  usePageTitle(
+    courseInstanceQuery.isLoading ? null : courseInstanceQuery.data?.name || t("default-instance"),
+  )
 
   const crumbs = useMemo(
     () => [

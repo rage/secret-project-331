@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
+import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { RouteTabPanel } from "@/components/Navigation/RouteTabList/RouteTabPanel"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import useCountAnswersRequiringAttentionHook from "@/hooks/count/useCountAnswersRequiringAttentionHook"
@@ -15,7 +16,6 @@ import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeR
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
-import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   manageCourseChangeRequestsRoute,
   manageCourseExercisesRoute,
@@ -57,8 +57,6 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const isGlobalAdmin = (isGlobalAdminQuery.isSuccess && isGlobalAdminQuery.data?.[0]) ?? false
 
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
-
-  usePageTitle(courseBreadcrumbInfo.data?.course_name ?? null)
 
   const crumbs = useMemo(
     () => [
@@ -179,6 +177,11 @@ export default function CourseManagementLayout({ children }: { children: React.R
 
   return (
     <RouteTabListProvider tabs={tabs}>
+      <RouteTabPageTitle
+        tabs={tabs}
+        entityName={courseBreadcrumbInfo.data?.course_name}
+        order={10}
+      />
       <RouteTabList tabs={tabs} />
       <RouteTabPanel>{children}</RouteTabPanel>
     </RouteTabListProvider>

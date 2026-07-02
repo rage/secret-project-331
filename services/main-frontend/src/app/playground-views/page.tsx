@@ -171,7 +171,7 @@ const DEFAULT_SERVICE_INFO_URL = `${PUBLIC_ADDRESS}/example-exercise/api/service
 
 const IframeViewPlayground: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("title-playground-exercise-iframe"))
+  usePageTitle(t("title-playground-views"))
 
   const SCROLL_TARGETS = [
     { name: t("title-playground-exercise-iframe"), id: "heading-playground-exercise-iframe" },

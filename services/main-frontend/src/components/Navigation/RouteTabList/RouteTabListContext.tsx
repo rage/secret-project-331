@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import React, { createContext, useContext, useMemo } from "react"
 
 import type { RouteTabDefinition } from "./RouteTab"
+import { resolveActiveTab } from "./resolveActiveTab"
 
 interface RouteTabListContextValue {
   state: TabListState<object>
@@ -32,15 +33,7 @@ export function RouteTabListProvider({
 }: RouteTabListProviderProps) {
   const pathname = usePathname()
 
-  const selectedKey = useMemo(() => {
-    const matchPath = (tab: { pathPrefix?: string; href: string }) => tab.pathPrefix ?? tab.href
-    const matching = tabs.filter((tab) => pathname.startsWith(matchPath(tab)))
-    if (matching.length === 0) {
-      return tabs[0]?.key
-    }
-    const best = matching.reduce((a, b) => (matchPath(a).length >= matchPath(b).length ? a : b))
-    return best.key
-  }, [pathname, tabs])
+  const selectedKey = useMemo(() => resolveActiveTab(tabs, pathname)?.key, [pathname, tabs])
 
   const items = useMemo(
     () =>

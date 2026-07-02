@@ -19,7 +19,7 @@ import { QueryResult } from "@/shared-module/components"
 
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
-  usePageTitle(t("certificate"))
+  usePageTitle(t("title-validate-certificate"))
   const { certificateVerificationId } = useParams<{ certificateVerificationId: string }>()
   const searchParams = useSearchParams()
   const debug = searchParams.get("debug")

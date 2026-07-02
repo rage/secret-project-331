@@ -15,7 +15,7 @@ import { QueryResult } from "@/shared-module/components"
 const CompletionRedirectPage: React.FC = () => {
   const { courseModuleId } = useParams<{ courseModuleId: string }>()
   const { t } = useTranslation()
-  usePageTitle(t("register-completion"))
+  usePageTitle(t("title-completion-registration-redirect"))
   const userCompletionInformation = useQuery(
     getCourseModuleCompletionRegistrationLinkOptions({
       path: {

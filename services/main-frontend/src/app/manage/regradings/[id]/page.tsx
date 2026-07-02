@@ -19,7 +19,7 @@ import { QueryResult } from "@/shared-module/components"
 const ViewRegradingPage: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
-  usePageTitle(`${t("title-regrading")} ${id}`)
+  usePageTitle(t("title-regrading-id", { id }))
 
   const query = useQuery({
     ...getRegradingInfoOptions({
@@ -45,9 +45,7 @@ const ViewRegradingPage: React.FC = () => {
 
         return (
           <div>
-            <h1>
-              {t("title-regrading")} {id}
-            </h1>
+            <h1>{t("title-regrading-id", { id })}</h1>
 
             <div
               className={css`

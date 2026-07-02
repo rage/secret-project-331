@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import { RouteTab, type RouteTabDefinition } from "./RouteTab"
 import { useRouteTabListContext } from "./RouteTabListContext"
+import { resolveActiveTab } from "./resolveActiveTab"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
@@ -41,15 +42,7 @@ function RouteTabListStandalone({
   const { t } = useTranslation()
   const tabListRef = useRef<HTMLDivElement>(null)
 
-  const selectedKey = useMemo(() => {
-    const matchPath = (tab: { pathPrefix?: string; href: string }) => tab.pathPrefix ?? tab.href
-    const matching = tabs.filter((tab) => pathname.startsWith(matchPath(tab)))
-    if (matching.length === 0) {
-      return tabs[0]?.key
-    }
-    const best = matching.reduce((a, b) => (matchPath(a).length >= matchPath(b).length ? a : b))
-    return best.key
-  }, [pathname, tabs])
+  const selectedKey = useMemo(() => resolveActiveTab(tabs, pathname)?.key, [pathname, tabs])
 
   const items = useMemo(
     () =>

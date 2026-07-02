@@ -19,6 +19,9 @@ pub struct ChatbotConversationMessageToolCall {
     pub deleted_at: Option<DateTime<Utc>>,
     pub chatbot_conversation_message_id: Uuid,
     pub tool_name: String,
+    /// Is type = string in the OpenApi schema, because there is no known shape
+    /// for this JSON value/object so we treat it as 'string' instead of
+    /// 'unknown' in the API. Since it's valid JSON, we save is as JSON in our DB.
     #[schema(value_type = String)]
     pub tool_arguments: Value,
     pub tool_call_id: String,

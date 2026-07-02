@@ -12,7 +12,7 @@ use core::default::Default;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     chatbot_configurations::{ChatbotConfiguration, ReasoningEffortLevel},
-    chatbot_configurations_models::{ChatbotConfigurationModel, ModelType},
+    chatbot_configurations_models::ModelType,
     chatbot_conversation_message_messages::{ChatbotConversationMessageMessage, MessageRole},
     chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning,
     chatbot_conversation_message_tool_calls::{ChatbotConversationMessageToolCall, ToolKind},
@@ -733,10 +733,11 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
 }
 
 pub fn get_params_for_model(
-    model: &ChatbotConfigurationModel,
-    configuration: &ChatbotConfiguration,
+    model_name: &str,
+    model_type: &ModelType,
+    configuration: Option<&ChatbotConfiguration>,
 ) -> LLMRequestParams {
-    if model.model.as_str() == "gpt-5.2-chat" {
+    if model_name == "gpt-5.2-chat" {
         return LLMRequestParams::GPTThinking(ThinkingParams {
             reasoning: Some(Reasoning {
                 effort: ReasoningEffortLevel::Medium,
@@ -744,19 +745,34 @@ pub fn get_params_for_model(
             }),
         });
     }
-    match model.model_type {
-        ModelType::GPTNonThinking => LLMRequestParams::GPTNonThinking(NonThinkingParams {
-            temperature: Some(configuration.temperature),
-            top_p: Some(configuration.top_p),
-            frequency_penalty: Some(configuration.frequency_penalty),
-            presence_penalty: Some(configuration.presence_penalty),
-        }),
+    match model_type {
+        ModelType::GPTNonThinking => {
+            if let Some(conf) = configuration {
+                LLMRequestParams::GPTNonThinking(NonThinkingParams {
+                    temperature: Some(conf.temperature),
+                    top_p: Some(conf.top_p),
+                    frequency_penalty: Some(conf.frequency_penalty),
+                    presence_penalty: Some(conf.presence_penalty),
+                })
+            } else {
+                LLMRequestParams::GPTNonThinking(NonThinkingParams {
+                    temperature: None,
+                    top_p: None,
+                    frequency_penalty: None,
+                    presence_penalty: None,
+                })
+            }
+        }
         ModelType::GPTHardThinking => {
             // make sure the effort value is valid for the model type
-            let effort = if configuration.reasoning_effort == ReasoningEffortLevel::Minimal {
-                ReasoningEffortLevel::Low
+            let effort = if let Some(conf) = configuration {
+                if conf.reasoning_effort == ReasoningEffortLevel::Minimal {
+                    ReasoningEffortLevel::Low
+                } else {
+                    conf.reasoning_effort
+                }
             } else {
-                configuration.reasoning_effort
+                ReasoningEffortLevel::None
             };
             LLMRequestParams::GPTThinking(ThinkingParams {
                 reasoning: Some(Reasoning {
@@ -767,12 +783,16 @@ pub fn get_params_for_model(
         }
         ModelType::GPTThinking => {
             // make sure the effort value is valid for the model type
-            let effort = if configuration.reasoning_effort == ReasoningEffortLevel::None {
-                ReasoningEffortLevel::Minimal
-            } else if configuration.reasoning_effort == ReasoningEffortLevel::Xhigh {
-                ReasoningEffortLevel::High
+            let effort = if let Some(conf) = configuration {
+                if conf.reasoning_effort == ReasoningEffortLevel::None {
+                    ReasoningEffortLevel::Minimal
+                } else if conf.reasoning_effort == ReasoningEffortLevel::Xhigh {
+                    ReasoningEffortLevel::High
+                } else {
+                    conf.reasoning_effort
+                }
             } else {
-                configuration.reasoning_effort
+                ReasoningEffortLevel::Minimal
             };
             LLMRequestParams::GPTThinking(ThinkingParams {
                 reasoning: Some(Reasoning {

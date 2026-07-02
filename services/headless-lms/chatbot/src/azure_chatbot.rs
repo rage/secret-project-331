@@ -556,7 +556,7 @@ impl LLMRequest {
         let serialized_messages = serde_json::to_string(&api_chat_messages)?;
         let request_estimated_tokens = estimate_tokens(&serialized_messages);
 
-        let params = get_params_for_model(&model, &configuration);
+        let params = get_params_for_model(&model.model, &model.model_type, Some(&configuration));
 
         Ok((
             Self {

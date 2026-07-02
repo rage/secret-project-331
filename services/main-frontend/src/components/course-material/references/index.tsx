@@ -2,7 +2,6 @@
 
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import { sortBy } from "lodash"
 import React, { ReactPortal, useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
@@ -184,25 +183,35 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     }
   }, [])
 
-  let [portals, citeOrder]: [ReactPortal[] | null, string[] | null] = useMemo(() => {
-    if (!readyForPortal) {
-      return [null, null]
-    }
-    const citeOrder: string[] = []
-    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]"))
-      .map((node, idx) => {
-        const reference = data.find((o) => o.id === node.dataset.citationId)
+  // Canonical citation number per key = its position in `data`, which usePageReferences produces in
+  // first-occurrence document order. Numbers come from here (not DOM order) so they stay stable
+  // regardless of when a marker mounts, e.g. when an expandable block is opened.
+  const keyToNumber = useMemo(() => {
+    const map = new Map<string, number>()
+    data.forEach((reference, index) => {
+      if (!map.has(reference.id)) {
+        map.set(reference.id, index + 1)
+      }
+    })
+    return map
+  }, [data])
 
-        if (!reference) {
+  // Attaches a numbered marker portal into every citation span currently in the DOM. Re-runs on
+  // scanVersion so markers appear when spans mount lazily; the number itself comes from keyToNumber.
+  const portals: ReactPortal[] | null = useMemo(() => {
+    if (!readyForPortal) {
+      return null
+    }
+    return Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]"))
+      .map((node, idx) => {
+        const citationId = node.dataset.citationId
+        if (!citationId) {
           return null
         }
-
-        let citeNumber: number = 0
-        if (reference && !citeOrder.includes(reference.id)) {
-          citeOrder.push(reference.id)
-          citeNumber = citeOrder.length
-        } else if (reference && citeOrder.includes(reference.id)) {
-          citeNumber = citeOrder.indexOf(reference.id) + 1
+        const citeNumber = keyToNumber.get(citationId)
+        const reference = data.find((o) => o.id === citationId)
+        if (citeNumber === undefined || !reference) {
+          return null
         }
 
         const citationContent = formatCitationText(
@@ -219,27 +228,22 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
             {citationContent}
           </TooltipNTrigger>,
           node,
-          idx,
+          // Stable key: citation id + its occurrence index among the matched spans.
+          `${citationId}-${idx}`,
         )
       })
-      .filter((o) => !!o)
-    return [portals, citeOrder]
-  }, [data, readyForPortal, scanVersion])
+      .filter((o): o is ReactPortal => !!o)
+    // scanVersion is a deliberate trigger (not read in the body): it re-runs the DOM scan when
+    // citation spans mount/unmount, e.g. when an expandable block is opened.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, keyToNumber, readyForPortal, scanVersion])
 
-  let sortedReferenceList = useMemo(() => {
-    if (!citeOrder) {
-      return []
-    }
-    return sortBy(data, (item) => {
-      return citeOrder.indexOf(item.id)
-    })
-  }, [citeOrder, data])
   return (
     <TextWrapper>
       <details>
         <summary>{t("title-references")}</summary>
         <ol>
-          {sortedReferenceList.map(({ id, text }, index) => {
+          {data.map(({ id, text }, index) => {
             return (
               <li
                 key={id}

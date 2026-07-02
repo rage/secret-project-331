@@ -174,6 +174,56 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
   return { parsedText: doc.body.innerHTML, terms: usedGlossary }
 }
 
+export interface CitationMatch {
+  citationKey: string
+  prenote?: string
+  postnote?: string
+}
+
+/**
+ * Applies the single-bracket rule of \cite: `\cite[x]{k}` means x is the POSTNOTE (not the
+ * prenote), while `\cite[a][b]{k}` means a=prenote, b=postnote. Shared by citation rendering and
+ * citation extraction so the rendered markers and the collected reference list can't diverge.
+ */
+const normalizeCitationNotes = (
+  prenote: string | undefined,
+  postnote: string | undefined,
+): { prenote: string | undefined; postnote: string | undefined } => {
+  if (prenote && postnote === undefined) {
+    return { prenote: undefined, postnote: prenote }
+  }
+  return { prenote, postnote }
+}
+
+/**
+ * Extracts all \cite{...} occurrences from a raw text/HTML string, in document order.
+ *
+ * Shares LATEX_CITE_REGEX and the prenote/postnote rule with parseCitation so the citations
+ * collected for the reference list and their numbering stay in lockstep with what is rendered.
+ * [latex]...[/latex] regions are removed first because parseText converts LaTeX before parsing
+ * citations, so a \cite inside a latex block is consumed by KaTeX and never becomes a citation.
+ */
+export const extractCitationsFromText = (text: string | null | undefined): CitationMatch[] => {
+  if (!text) {
+    return []
+  }
+  const withoutLatex = text.replace(LATEX_REGEX, "")
+  // Fresh RegExp so the module-level global regex's lastIndex isn't shared across calls.
+  const regex = new RegExp(LATEX_CITE_REGEX.source, LATEX_CITE_REGEX.flags)
+  const matches: CitationMatch[] = []
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(withoutLatex)) !== null) {
+    const [, prenote, postnote, citationId] = match
+    const notes = normalizeCitationNotes(prenote, postnote)
+    matches.push({
+      citationKey: citationId ?? "",
+      prenote: notes.prenote,
+      postnote: notes.postnote,
+    })
+  }
+  return matches
+}
+
 /** Parses LaTeX \\cite commands in the raw HTML string into span markers.
  * This runs before DOM-based glossary parsing and assumes citation commands
  * appear only in text content, not inside HTML attribute values.
@@ -183,19 +233,13 @@ const parseCitation = (data: string) => {
     LATEX_CITE_REGEX,
 
     (_, prenote, postnote, citationId) => {
-      let actualPrenote = prenote
-      let actualPostnote = postnote
+      const notes = normalizeCitationNotes(prenote, postnote)
 
-      if (prenote && postnote === undefined) {
-        actualPostnote = prenote
-        actualPrenote = undefined
-      }
-
-      const prenoteAttr = actualPrenote
-        ? ` ${DATA_CITATION_PRENOTE_ATTR}="${escapeCitationText(actualPrenote)}"`
+      const prenoteAttr = notes.prenote
+        ? ` ${DATA_CITATION_PRENOTE_ATTR}="${escapeCitationText(notes.prenote)}"`
         : ""
-      const postnoteAttr = actualPostnote
-        ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(actualPostnote)}"`
+      const postnoteAttr = notes.postnote
+        ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(notes.postnote)}"`
         : ""
       const escapedCitationId = escapeCitationText(citationId ?? "")
       return `<${SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${SPAN_TAG}>`

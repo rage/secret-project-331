@@ -134,6 +134,22 @@ pub fn chatbot_block(block: Uuid, chatbot_conf_id: Uuid, course_id: Uuid) -> Gut
     }
 }
 
+/// A `moocfi/chart-block`. `spec` is the Vega-Lite JSON specification as a string; data is
+/// referenced by URL from within the spec (see the chart block editor).
+pub fn chart_block(block: Uuid, spec: &str, caption: &str, height: i32) -> GutenbergBlock {
+    GutenbergBlock {
+        client_id: block,
+        name: "moocfi/chart-block".to_string(),
+        is_valid: true,
+        attributes: attributes! {
+            "spec": spec,
+            "caption": caption,
+            "height": height,
+        },
+        inner_blocks: vec![],
+    }
+}
+
 pub fn heading(content: &str, client_id: Uuid, level: i32) -> GutenbergBlock {
     GutenbergBlock {
         name: "core/heading".to_string(),

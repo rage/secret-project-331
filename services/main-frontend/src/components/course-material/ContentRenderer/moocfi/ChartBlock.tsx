@@ -26,7 +26,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
 ) => {
   const { t } = useTranslation()
   const { spec, caption, height } = props.data.attributes
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
   const [width, setWidth] = useState<number | null>(null)
 
   useEffect(() => {
@@ -62,10 +62,14 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
 
   const hasData = Boolean(parsedSpec?.data)
 
+  // Vega uses `description` as the chart's accessible name; fall back to the caption.
+  const accessibleDescription = parsedSpec?.description ?? (caption?.trim() ? caption : undefined)
+
   const responsiveSpec =
     parsedSpec && width !== null
       ? {
           ...parsedSpec,
+          ...(accessibleDescription ? { description: accessibleDescription } : {}),
           width,
           height,
           // eslint-disable-next-line i18next/no-literal-string
@@ -74,7 +78,12 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
       : null
 
   return (
-    <div ref={containerRef}>
+    <figure
+      ref={containerRef}
+      className={css`
+        margin: 0;
+      `}
+    >
       {!parsedSpec && (
         <div
           className={css`
@@ -122,7 +131,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
         </div>
       )}
       {caption && (
-        <p
+        <figcaption
           className={css`
             margin: 0.5rem 0 0;
             font-family: ${primaryFont};
@@ -132,9 +141,9 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
           `}
         >
           {caption}
-        </p>
+        </figcaption>
       )}
-    </div>
+    </figure>
   )
 }
 

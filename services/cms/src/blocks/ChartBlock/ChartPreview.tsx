@@ -27,9 +27,10 @@ const messageStyle = (background: string, border: string, color: string) => css`
 interface ChartPreviewProps {
   spec: string
   height: number
+  caption?: string
 }
 
-const ChartPreview: React.FC<ChartPreviewProps> = ({ spec, height }) => {
+const ChartPreview: React.FC<ChartPreviewProps> = ({ spec, height, caption }) => {
   const { t } = useTranslation()
   const containerRef = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState<number | null>(null)
@@ -67,10 +68,14 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({ spec, height }) => {
 
   const hasData = Boolean(parsedSpec?.data)
 
+  // Vega uses `description` as the chart's accessible name; fall back to the caption.
+  const accessibleDescription = parsedSpec?.description ?? (caption?.trim() ? caption : undefined)
+
   const responsiveSpec =
     parsedSpec && width !== null
       ? {
           ...parsedSpec,
+          ...(accessibleDescription ? { description: accessibleDescription } : {}),
           width,
           height,
           // eslint-disable-next-line i18next/no-literal-string

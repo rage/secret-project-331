@@ -7,6 +7,7 @@ import { image as icon } from "@wordpress/icons"
 import React, { useContext, useEffect, useRef, useState } from "react"
 
 import ChartPreview from "./ChartPreview"
+import { dataUrlFromSpec, extractInlineData, specWithDataUrl } from "./chartSpec"
 
 import { ChartBlockAttributes, DEFAULT_VEGA_LITE_SPEC } from "."
 
@@ -22,11 +23,6 @@ import { useTranslation } from "@/utils/useCmsTranslation"
 // Config/identifier strings kept out of i18next/no-literal-string.
 const MONACO_LANGUAGE = "json"
 const ON = "on"
-const CSV = "csv"
-const TSV = "tsv"
-const JSON_EXT = "json"
-const JSON_MIME = "application/json"
-const TEXT_MIME = "text/plain"
 const EXTRACTED_DATA_BASENAME = "chart-data"
 
 const ALLOWED_DATA_FILE_MIMETYPES = ["text/csv", "application/json"]
@@ -59,86 +55,6 @@ const modalStyles = css`
 interface MediaObject {
   url: string
   [key: string]: unknown
-}
-
-interface ExtractedData {
-  specWithoutData: Record<string, unknown>
-  contents: string
-  extension: string
-  mime: string
-}
-
-// Extracts top-level inline `data.values`; null if none, unparseable, or data is already a URL.
-const extractInlineData = (specString: string): ExtractedData | null => {
-  let parsed: Record<string, unknown>
-  try {
-    parsed = JSON.parse(specString)
-  } catch {
-    return null
-  }
-  const data = parsed.data as { values?: unknown; format?: { type?: string } } | undefined
-  const values = data?.values
-  if (values === undefined || values === null) {
-    return null
-  }
-  if (Array.isArray(values) ? values.length === 0 : values === "") {
-    return null
-  }
-  const { data: _omitted, ...specWithoutData } = parsed
-  if (typeof values === "string") {
-    const formatType = data?.format?.type
-    const extension = formatType === CSV ? CSV : formatType === TSV ? TSV : JSON_EXT
-    return {
-      specWithoutData,
-      contents: values,
-      extension,
-      mime: extension === JSON_EXT ? JSON_MIME : TEXT_MIME,
-    }
-  }
-  return {
-    specWithoutData,
-    contents: JSON.stringify(values, null, 2),
-    extension: JSON_EXT,
-    mime: JSON_MIME,
-  }
-}
-
-// Format from the file extension, set explicitly because prod URLs may carry query params that
-// defeat Vega's extension sniffing.
-const dataFormatForUrl = (url: string): { type: string } | undefined => {
-  const path = url.split("?")[0].toLowerCase()
-  if (path.endsWith(`.${CSV}`)) {
-    return { type: CSV }
-  }
-  if (path.endsWith(`.${TSV}`)) {
-    return { type: TSV }
-  }
-  if (path.endsWith(`.${JSON_EXT}`)) {
-    return { type: JSON_EXT }
-  }
-  return undefined
-}
-
-// Spec with its `data` pointed at the given URL; null if the spec text isn't valid JSON.
-const specWithDataUrl = (specString: string, url: string): Record<string, unknown> | null => {
-  let parsed: Record<string, unknown>
-  try {
-    parsed = JSON.parse(specString)
-  } catch {
-    return null
-  }
-  const format = dataFormatForUrl(url)
-  return { ...parsed, data: { url, ...(format ? { format } : {}) } }
-}
-
-// The data URL referenced by a spec, if any.
-const dataUrlFromSpec = (specString: string): string | undefined => {
-  try {
-    const parsed = JSON.parse(specString) as { data?: { url?: unknown } }
-    return typeof parsed.data?.url === "string" ? parsed.data.url : undefined
-  } catch {
-    return undefined
-  }
 }
 
 interface ChartBlockEditModalProps {
@@ -380,37 +296,40 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
             `}
           >
             {dataFileError && <ErrorBanner error={dataFileError} />}
-            {isExtractingData && (
-              <p
-                className={css`
-                  font-family: ${primaryFont};
-                  font-size: 0.8125rem;
-                  color: ${baseTheme.colors.gray[600]};
-                  margin: 0 0 0.5rem;
-                `}
-              >
-                {t("separating-chart-data")}
-              </p>
-            )}
-            {extractedDataUrl && (
-              <div
-                className={css`
-                  padding: 0.75rem 1rem;
-                  margin-bottom: 0.5rem;
-                  background: ${baseTheme.colors.yellow[100]};
-                  border: 1px solid ${baseTheme.colors.yellow[300]};
-                  border-radius: 4px;
-                  font-family: ${primaryFont};
-                  font-size: 0.8125rem;
-                  color: ${baseTheme.colors.gray[700]};
-                `}
-              >
-                {t("chart-data-extracted-warning")}{" "}
-                <a href={extractedDataUrl} target="_blank" rel="noopener noreferrer">
-                  {t("view-data-file")}
-                </a>
-              </div>
-            )}
+            {/* The live region must exist before content changes for screen readers to announce it. */}
+            <div aria-live="polite">
+              {isExtractingData && (
+                <p
+                  className={css`
+                    font-family: ${primaryFont};
+                    font-size: 0.8125rem;
+                    color: ${baseTheme.colors.gray[600]};
+                    margin: 0 0 0.5rem;
+                  `}
+                >
+                  {t("separating-chart-data")}
+                </p>
+              )}
+              {extractedDataUrl && (
+                <div
+                  className={css`
+                    padding: 0.75rem 1rem;
+                    margin-bottom: 0.5rem;
+                    background: ${baseTheme.colors.yellow[100]};
+                    border: 1px solid ${baseTheme.colors.yellow[300]};
+                    border-radius: 4px;
+                    font-family: ${primaryFont};
+                    font-size: 0.8125rem;
+                    color: ${baseTheme.colors.gray[700]};
+                  `}
+                >
+                  {t("chart-data-extracted-warning")}{" "}
+                  <a href={extractedDataUrl} target="_blank" rel="noopener noreferrer">
+                    {t("view-data-file")}
+                  </a>
+                </div>
+              )}
+            </div>
             {dataUrl ? (
               <Placeholder
                 icon={<BlockIcon icon={icon} />}
@@ -477,7 +396,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               overflow: auto;
             `}
           >
-            <ChartPreview spec={spec} height={height} />
+            <ChartPreview spec={spec} height={height} caption={caption} />
           </div>
         </div>
       </div>

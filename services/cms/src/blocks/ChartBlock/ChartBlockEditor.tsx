@@ -37,7 +37,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
   const { t } = useTranslation()
   const { toggleSelection } = useDispatch(blockEditorStore)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { spec, height } = attributes
+  const { spec, caption, height } = attributes
 
   // Local text state so the field can be cleared/edited freely; only valid values commit, reset on blur.
   const [heightInput, setHeightInput] = useState(String(height))
@@ -68,9 +68,12 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
     />
   )
 
-  if (!spec?.trim()) {
-    return (
-      <BlockWrapper id={clientId}>
+  // The modal is rendered outside the branches at a stable child position: clearing the spec in
+  // the modal's editor must not remount the modal (a remount would drop its state, including the
+  // debounced data extraction).
+  return (
+    <BlockWrapper id={clientId}>
+      {!spec?.trim() ? (
         <Placeholder
           icon={<BlockIcon icon={icon} />}
           label={t("edit-chart")}
@@ -80,61 +83,58 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
             {t("edit-chart")}
           </Button>
         </Placeholder>
-        {modal}
-      </BlockWrapper>
-    )
-  }
-
-  return (
-    <BlockWrapper id={clientId}>
-      <BlockControls>
-        <ToolbarGroup>
-          <ToolbarButton onClick={openModal}>{t("edit-chart")}</ToolbarButton>
-        </ToolbarGroup>
-      </BlockControls>
-      <InspectorControls key="settings">
-        <div
-          className={css`
-            padding: 1rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-          `}
-        >
-          <TextField
-            type="number"
-            label={t("chart-height-px")}
-            value={heightInput}
-            onChangeByValue={handleHeightInputChange}
-            onBlur={() => setHeightInput(String(height))}
-          />
-          <Button variant="secondary" size="medium" onClick={openModal}>
-            {t("edit-chart")}
-          </Button>
-        </div>
-      </InspectorControls>
-      <ResizableBox
-        size={{ width: "100%", height }}
-        minHeight={MIN_CHART_HEIGHT}
-        showHandle={isSelected}
-        enable={{
-          top: false,
-          right: false,
-          bottom: true,
-          left: false,
-          topRight: false,
-          bottomRight: false,
-          bottomLeft: false,
-          topLeft: false,
-        }}
-        onResizeStart={() => toggleSelection(false)}
-        onResizeStop={(_event, _direction, _elt, delta) => {
-          toggleSelection(true)
-          setHeight(height + delta.height)
-        }}
-      >
-        <ChartPreview spec={spec} height={height} />
-      </ResizableBox>
+      ) : (
+        <>
+          <BlockControls>
+            <ToolbarGroup>
+              <ToolbarButton onClick={openModal}>{t("edit-chart")}</ToolbarButton>
+            </ToolbarGroup>
+          </BlockControls>
+          <InspectorControls key="settings">
+            <div
+              className={css`
+                padding: 1rem;
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+              `}
+            >
+              <TextField
+                type="number"
+                label={t("chart-height-px")}
+                value={heightInput}
+                onChangeByValue={handleHeightInputChange}
+                onBlur={() => setHeightInput(String(height))}
+              />
+              <Button variant="secondary" size="medium" onClick={openModal}>
+                {t("edit-chart")}
+              </Button>
+            </div>
+          </InspectorControls>
+          <ResizableBox
+            size={{ width: "100%", height }}
+            minHeight={MIN_CHART_HEIGHT}
+            showHandle={isSelected}
+            enable={{
+              top: false,
+              right: false,
+              bottom: true,
+              left: false,
+              topRight: false,
+              bottomRight: false,
+              bottomLeft: false,
+              topLeft: false,
+            }}
+            onResizeStart={() => toggleSelection(false)}
+            onResizeStop={(_event, _direction, _elt, delta) => {
+              toggleSelection(true)
+              setHeight(height + delta.height)
+            }}
+          >
+            <ChartPreview spec={spec} height={height} caption={caption} />
+          </ResizableBox>
+        </>
+      )}
       {modal}
     </BlockWrapper>
   )

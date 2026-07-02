@@ -17,8 +17,8 @@ use std::sync::Arc;
 use crate::domain::models_requests::{self, JwtKey};
 
 use crate::programs::seed::seed_helpers::{
-    ExampleExerciseFlexibleParams, create_best_exercise, create_best_peer_review, create_page,
-    example_exercise_flexible, paragraph, quizzes_exercise, submit_and_grade,
+    ExampleExerciseFlexibleParams, chart_block, create_best_exercise, create_best_peer_review,
+    create_page, example_exercise_flexible, paragraph, quizzes_exercise, submit_and_grade,
 };
 use anyhow::Result;
 use chrono::{TimeZone, Utc};
@@ -2645,6 +2645,67 @@ pub async fn seed_cs_course_material(
             exercise_tasks: vec![],
             url_path: "/chapter-2/content-rendering".to_string(),
             title: "Content rendering".to_string(),
+            chapter_id: Some(chapter_2.id),
+        },
+    )
+    .await?;
+
+    // /chapter-2/chart-rendering
+    let chart_with_data_spec = r#"{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "description": "A simple bar chart",
+  "data": { "url": "/chart-block-example-data.json", "format": { "type": "json" } },
+  "mark": "bar",
+  "encoding": {
+    "x": { "field": "category", "type": "nominal", "axis": { "labelAngle": 0 } },
+    "y": { "field": "value", "type": "quantitative" }
+  }
+}"#;
+    let chart_without_data_spec = r#"{
+  "$schema": "https://vega.github.io/schema/vega-lite/v6.json",
+  "mark": "bar",
+  "encoding": {
+    "x": { "field": "category", "type": "nominal" },
+    "y": { "field": "value", "type": "quantitative" }
+  }
+}"#;
+    let chart_invalid_spec = "{ this is not valid json";
+    create_page(
+        &mut conn,
+        course.id,
+        teacher_user_id,
+        Some(chapter_2.id),
+        CmsPageUpdate {
+            content: vec![
+                heading(
+                    "Chart rendering",
+                    Uuid::new_v5(&course.id, b"c4a1f3d0-3a0e-4f1a-9e2a-1d6b8f0c5a11"),
+                    2,
+                ),
+                chart_block(
+                    Uuid::new_v5(&course.id, b"d2b6e9a4-7c3f-4b8d-8a1e-2f9c0d3e4b55"),
+                    chart_with_data_spec,
+                    "Figure 1: a simple bar chart rendered from an external data file.",
+                    300,
+                ),
+                chart_block(
+                    Uuid::new_v5(&course.id, b"e7c8f1b2-5d4a-4c6e-9f0b-3a1d7e2c8f66"),
+                    chart_without_data_spec,
+                    "",
+                    300,
+                ),
+                chart_block(
+                    Uuid::new_v5(&course.id, b"f1a2b3c4-6e5d-4a7b-8c9d-0e1f2a3b4c77"),
+                    chart_invalid_spec,
+                    "",
+                    300,
+                ),
+            ],
+            exercises: vec![],
+            exercise_slides: vec![],
+            exercise_tasks: vec![],
+            url_path: "/chapter-2/chart-rendering".to_string(),
+            title: "Chart rendering".to_string(),
             chapter_id: Some(chapter_2.id),
         },
     )

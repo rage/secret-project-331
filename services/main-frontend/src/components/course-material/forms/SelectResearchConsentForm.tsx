@@ -21,7 +21,7 @@ import StandardDialog from "@/shared-module/common/components/dialogs/StandardDi
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { currentCourseIdAtom } from "@/state/course-material/selectors"
+import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
 import { Block } from "@/types/courseMaterialBlock"
 
 interface ResearchConsentFormProps {
@@ -47,6 +47,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   const { t } = useTranslation()
   const userId = useUserInfo().data?.user_id
   const courseId = useAtomValue(currentCourseIdAtom)
+  const courseName = useAtomValue(materialCourseAtom)?.name
 
   const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
   const getResearchFormQuestions = useQuery({
@@ -112,7 +113,11 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   return (
     <StandardDialog
       open={shouldAnswerResearchForm || editForm}
-      title={t("title-research-consent-form")}
+      title={
+        courseName
+          ? t("research-consent-for-course", { courseName })
+          : t("title-research-consent-form")
+      }
       showCloseButton={false}
       closeable={false}
       buttons={[

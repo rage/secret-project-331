@@ -63,7 +63,13 @@ const CompletionsPage: React.FC = () => {
   })
 
   usePageTitle(
-    joinTitleSegments([t("completions"), courseInstanceQuery.data?.name || t("default-instance")]),
+    courseInstanceQuery.isLoading
+      ? null
+      : joinTitleSegments([
+          t("completions"),
+          courseInstanceQuery.data?.name || t("default-instance"),
+        ]),
+    { order: 10 },
   )
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("completions") }], [t])

@@ -16,7 +16,6 @@ import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeR
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useAuthorizeMultiple from "@/shared-module/common/hooks/useAuthorizeMultiple"
-import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   manageCourseChangeRequestsRoute,
   manageCourseExercisesRoute,
@@ -58,8 +57,6 @@ export default function CourseManagementLayout({ children }: { children: React.R
   const isGlobalAdmin = (isGlobalAdminQuery.isSuccess && isGlobalAdminQuery.data?.[0]) ?? false
 
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
-
-  usePageTitle(courseBreadcrumbInfo.data?.course_name ?? null)
 
   const crumbs = useMemo(
     () => [

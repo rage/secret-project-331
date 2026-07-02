@@ -10,7 +10,7 @@ import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/Ro
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
-import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { useCourseQuery } from "@/hooks/useCourseQuery"
 import {
   manageCourseOtherCheatersConfirmedRoute,
   manageCourseOtherCheatersDismissedRoute,
@@ -25,7 +25,9 @@ export default function CheatersLayout({ children }: { children: React.ReactNode
   const params = useParams<{ id: string }>()
   const courseId = params.id
   const { t } = useTranslation()
-  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
+  // Reuse the same course query as the parent `other/layout.tsx` (shared React Query cache) instead
+  // of fetching the course name again through a different endpoint.
+  const courseQuery = useCourseQuery(courseId)
 
   const crumbs = useMemo(
     () => [
@@ -63,11 +65,7 @@ export default function CheatersLayout({ children }: { children: React.ReactNode
   return (
     <>
       <CheatersThresholdConfig courseId={courseId} />
-      <RouteTabPageTitle
-        tabs={tabs}
-        entityName={courseBreadcrumbInfo.data?.course_name}
-        order={21}
-      />
+      <RouteTabPageTitle tabs={tabs} entityName={courseQuery.data?.name} order={21} />
       <RouteTabList tabs={tabs} />
       {children}
     </>

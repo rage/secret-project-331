@@ -1,6 +1,7 @@
 "use client"
 
 import { usePathname } from "next/navigation"
+import type React from "react"
 
 import type { RouteTabDefinition } from "./RouteTab"
 import { resolveActiveTab } from "./resolveActiveTab"

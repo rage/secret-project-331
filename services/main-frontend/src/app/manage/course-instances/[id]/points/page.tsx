@@ -54,7 +54,10 @@ const CourseInstancePointsList: React.FC = () => {
 
   const instanceLabel = courseInstanceQuery.data?.name || t("default-instance")
 
-  usePageTitle(joinTitleSegments([t("point-summary"), instanceLabel]))
+  usePageTitle(
+    courseInstanceQuery.isLoading ? null : joinTitleSegments([t("point-summary"), instanceLabel]),
+    { order: 10 },
+  )
 
   const crumbs = useMemo(() => [{ isLoading: false as const, label: t("point-summary") }], [t])
 

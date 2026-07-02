@@ -15,8 +15,10 @@ import useExerciseQuery from "@/hooks/useExeciseQuery"
 import { AccordionProvider } from "@/shared-module/common/components/Accordion/accordionContext"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
@@ -43,6 +45,10 @@ const SubmissionsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>()
   const { t } = useTranslation()
   const exerciseQuery = useExerciseQuery(id)
+  usePageTitle(
+    joinTitleSegments([t("header-answers-requiring-attention"), exerciseQuery.data?.name]),
+    { order: 10 },
+  )
   const paginationInfo = usePaginationInfo(ANSWERS_REQUIRING_ATTENTION_DEFAULT_LIMIT)
   const courseStructure = useCourseStructure(exerciseQuery.data?.course_id ?? null)
 

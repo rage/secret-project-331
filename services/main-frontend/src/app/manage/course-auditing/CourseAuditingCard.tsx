@@ -24,6 +24,7 @@ import { showErrorNotification } from "@/shared-module/common/components/Notific
 import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import { baseTheme } from "@/shared-module/common/styles"
 import { TextArea, TextField } from "@/shared-module/components"
 
 interface CourseAuditingCardProps {
@@ -53,30 +54,23 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     setEditing(!editing)
   }
 
-  const onChange = (key: string) => (value: string) => {
-    setCourse({
-      ...course,
-      [key]: value,
-    })
-  }
-
   const methods = useForm<CourseToAuditUpdate>({
     defaultValues: {
       ...course,
     },
   })
 
-  const { control, register, handleSubmit, setValue, reset } = methods
+  const { control, register, handleSubmit } = methods
 
   //TODO: add cansave and prepare for backend?
-  const updateContent = async () => {
-    await updateMutation.mutateAsync({
+  const onSubmit = handleSubmit((data) => {
+    updateMutation.mutateAsync({
+      body: { ...data },
       path: {
         course_to_audit_id: course.id,
       },
-      body: course,
     })
-  }
+  })
 
   // TODO: update error notifications
   const updateMutation = useToastMutationOptions(
@@ -108,6 +102,15 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
       },
     },
   )
+
+  const fieldTitleStyle = css`
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: ${baseTheme.colors.gray[700]};
+    margin: 0.25rem 0 0 0;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+  `
 
   return (
     <FormProvider {...methods}>
@@ -153,7 +156,7 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               >
                 <Button
                   aria-label={t("button-text-save")}
-                  onClick={updateContent}
+                  onClick={onSubmit}
                   variant={"icon"}
                   size={"small"}
                 >
@@ -217,12 +220,12 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               `}
             >
               <div>
-                <strong>{t("text-field-label-description")}:</strong>
+                <p className={fieldTitleStyle}>{t("text-field-label-description")}:</p>
                 <br />
                 <span> {course.description} </span>
               </div>
               <div>
-                <strong>{t("title-default-module-uh-course-code")}:</strong>
+                <p className={fieldTitleStyle}>{t("title-default-module-uh-course-code")}:</p>
                 <br />
                 <span> {course.uh_course_code} </span>
               </div>

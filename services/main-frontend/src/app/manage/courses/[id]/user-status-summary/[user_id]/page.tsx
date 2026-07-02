@@ -8,6 +8,7 @@ import { useParams } from "next/navigation"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import AnswersInManualReviewSection from "@/app/manage/course-instances/[id]/points/user_id/AnswersInManualReviewSection"
 import CourseInstanceProgressSection from "@/app/manage/course-instances/[id]/points/user_id/CourseInstanceProgressSection"
 import CourseInstanceUserInfoBox from "@/app/manage/course-instances/[id]/points/user_id/CourseInstanceUserInfoBox"
 import CourseModuleCompletionsSection from "@/app/manage/course-instances/[id]/points/user_id/CourseModuleCompletionsSection"
@@ -103,6 +104,7 @@ const CourseExerciseStatusList: React.FC = () => {
               {t("course-status-summary")}
             </h1>
             <CourseInstanceUserInfoBox courseId={id} userId={user_id} />
+            <AnswersInManualReviewSection exerciseStatusSummaries={exerciseStatusSummaries} />
             <CourseModuleCompletionsSection userId={user_id} courseId={id} />
             <CourseInstanceProgressSection userId={user_id} courseId={id} />
             {courseQuery.data?.chapter_locking_enabled === true &&

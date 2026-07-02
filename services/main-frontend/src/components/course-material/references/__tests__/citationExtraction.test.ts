@@ -60,6 +60,13 @@ describe("extractCitationsFromText", () => {
     )
   })
 
+  test("decodes HTML entities in the key to match the browser-decoded data-citation-id", () => {
+    // Stored block content is HTML, so an ampersand in a key is encoded as &amp;. The browser
+    // decodes node.dataset.citationId, so the extracted key must decode too or the marker won't match.
+    expect(extractCitationsFromText("\\cite{a&amp;b}")[0].citationKey).toBe("a&b")
+    expect(extractCitationsFromText("\\cite{x&#38;y}")[0].citationKey).toBe("x&y")
+  })
+
   test("does not count a \\cite inside a [latex] block", () => {
     expect(extractCitationsFromText("[latex]\\cite{k}[/latex]")).toEqual([])
   })
@@ -196,6 +203,49 @@ describe("extractPageCitations - tree walk", () => {
       { citationKey: "k", prenote: "see", postnote: "p. 5" },
       { citationKey: "k", prenote: undefined, postnote: undefined },
     ])
+  })
+})
+
+describe("extractPageCitations - order and divergence must mirror rendering", () => {
+  test("moocfi/aside-with-image emits inner blocks before its own title/content", () => {
+    // AsideWithImageBlock renders <InnerBlocks> above its title and content, so the inner
+    // citation must be numbered before the aside's own ones.
+    const tree = [
+      block("moocfi/aside-with-image", { title: "\\cite{a}", content: "\\cite{b}" }, [
+        block("core/paragraph", { content: "\\cite{inner}" }),
+      ]),
+    ]
+    expect(keysOf(tree)).toEqual(["inner", "a", "b"])
+  })
+
+  test("new-format core/list (with inner blocks) ignores a stale `values` attribute", () => {
+    // ListBlock renders <InnerBlocks> and ignores `values` once inner blocks exist, so a leftover
+    // \cite in `values` must not become a phantom reference.
+    const tree = [
+      block("core/list", { values: "<li>\\cite{stale}</li>" }, [
+        block("core/list-item", { content: "\\cite{li}" }),
+      ]),
+    ]
+    expect(keysOf(tree)).toEqual(["li"])
+  })
+
+  test("landing-page-hero walks only its first inner block", () => {
+    const tree = [
+      block("moocfi/landing-page-hero-section", { title: "\\cite{t}" }, [
+        block("core/paragraph", { content: "\\cite{first}" }),
+        block("core/paragraph", { content: "\\cite{second}" }),
+      ]),
+    ]
+    expect(keysOf(tree)).toEqual(["t", "first"])
+  })
+
+  test("landing-page-hero drops a \\cite past the 300-char content cutoff", () => {
+    const tree = [
+      block("moocfi/landing-page-hero-section", { title: "\\cite{t}" }, [
+        block("core/paragraph", { content: `${"x".repeat(300)}\\cite{late}` }),
+      ]),
+    ]
+    expect(keysOf(tree)).toEqual(["t"])
   })
 })
 

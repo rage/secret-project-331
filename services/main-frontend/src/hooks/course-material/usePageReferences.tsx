@@ -38,7 +38,9 @@ const useReferences = (courseId: string) => {
   // markers.
   const pageRefs = useMemo<ReadonlyArray<Citations> | undefined>(() => {
     if (getCourseReferences.isError) {
-      return []
+      // Surface the failure to the error boundary instead of silently returning an empty list,
+      // which would drop the whole references section while inline \cite markers still render.
+      throw new Error("Error while loading course references")
     }
     if (!getCourseReferences.data) {
       return undefined

@@ -203,6 +203,38 @@ const normalizeCitationNotes = (
   return { prenote, postnote }
 }
 
+const NAMED_HTML_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+}
+const HTML_ENTITY_REGEX = /&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi
+const MAX_UNICODE_CODE_POINT = 0x10ffff
+
+/**
+ * Decodes the HTML entities a citation key can carry once it has been through the CMS's HTML
+ * encoding (e.g. `a&amp;b`), so the key extracted from block content matches
+ * node.dataset.citationId — which the browser has already decoded to `a&b` — and the reference's
+ * stored citation_key. Kept dependency-free (no DOMParser) so it is safe during SSR.
+ */
+const decodeHtmlEntities = (value: string): string =>
+  value.replace(HTML_ENTITY_REGEX, (whole, body: string) => {
+    if (body[0] === "#") {
+      const codePoint =
+        body[1] === "x" || body[1] === "X"
+          ? parseInt(body.slice(2), 16)
+          : parseInt(body.slice(1), 10)
+      if (Number.isNaN(codePoint) || codePoint < 0 || codePoint > MAX_UNICODE_CODE_POINT) {
+        return whole
+      }
+      return String.fromCodePoint(codePoint)
+    }
+    return NAMED_HTML_ENTITIES[body.toLowerCase()] ?? whole
+  })
+
 /**
  * Extracts all \cite{...} occurrences from a raw text/HTML string, in document order.
  *
@@ -224,7 +256,7 @@ export const extractCitationsFromText = (text: string | null | undefined): Citat
     const [, prenote, postnote, citationId] = match
     const notes = normalizeCitationNotes(prenote, postnote)
     matches.push({
-      citationKey: citationId ?? "",
+      citationKey: decodeHtmlEntities(citationId ?? ""),
       prenote: notes.prenote,
       postnote: notes.postnote,
     })
@@ -241,6 +273,12 @@ const parseCitation = (data: string) => {
     LATEX_CITE_REGEX,
 
     (_, prenote, postnote, citationId) => {
+      // A malformed \cite{} has no key and can never resolve to a reference. Drop it instead of
+      // emitting an empty, unresolvable marker span (kept consistent with orderedUniqueCitationKeys,
+      // which also ignores empty keys).
+      if (!citationId) {
+        return ""
+      }
       const notes = normalizeCitationNotes(prenote, postnote)
 
       const prenoteAttr = notes.prenote
@@ -249,7 +287,7 @@ const parseCitation = (data: string) => {
       const postnoteAttr = notes.postnote
         ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(notes.postnote)}"`
         : ""
-      const escapedCitationId = escapeCitationId(citationId ?? "")
+      const escapedCitationId = escapeCitationId(citationId)
       return `<${SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${SPAN_TAG}>`
     },
   )

@@ -110,6 +110,10 @@ export interface ReferenceProps {
   data: Reference[]
 }
 
+// Placeholder shown for a \cite whose key has no resolvable reference, so a broken citation is
+// visible instead of collapsing into an empty gap.
+const UNRESOLVED_CITATION_MARKER = "[?]"
+
 export function formatCitationText(
   citeNumber: number,
   prenote: string | undefined,
@@ -210,7 +214,22 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
         }
         const reference = referenceByKey.get(citationId)
         if (!reference) {
-          return null
+          // The key is cited in the text but has no resolvable reference (missing from the course
+          // reference list, or citation-js failed to format it in usePageReferences). Render a
+          // visible marker so the broken citation is noticeable instead of collapsing into an
+          // invisible gap; the tooltip names the unresolved key to help authors fix it.
+          return createPortal(
+            <TooltipNTrigger
+              variant="references"
+              href={`#ref-${citationId}`}
+              tooltipContent={citationId}
+            >
+              {UNRESOLVED_CITATION_MARKER}
+            </TooltipNTrigger>,
+            node,
+            // idx (position among matched spans) already makes this unique across resolved/missing.
+            `${citationId}-${idx}`,
+          )
         }
 
         const citationContent = formatCitationText(

@@ -238,8 +238,8 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                     },
                 finished,
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name: "course material search".to_string(),
-                arguments,
+                tool_name: Some("azure_ai_search".to_string()),
+                arguments: Some(arguments),
                 tool_call_id: call_id,
                 finished,
             },
@@ -253,8 +253,8 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                     },
                 finished,
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name,
-                arguments,
+                tool_name: Some(tool_name),
+                arguments: Some(arguments),
                 tool_call_id: call_id,
                 finished,
             },
@@ -262,8 +262,8 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                 item: OutputItem::AzureAiSearchCallOutput { call_id, .. },
                 ..
             } => ChatbotChatStreamEvent::ToolCall {
-                tool_name: "course material search".to_string(),
-                arguments: "".to_string(),
+                tool_name: Some("azure_ai_search".to_string()),
+                arguments: None,
                 tool_call_id: call_id,
                 finished: true,
             },
@@ -273,8 +273,8 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
             } => ChatbotChatStreamEvent::ToolCall {
                 // tool name and arguments are ignored in the frontend. this StreamEvent
                 // just signals that the tool call has finished.
-                tool_name: "".to_string(),
-                arguments: "".to_string(),
+                tool_name: None,
+                arguments: None,
                 tool_call_id: call_id,
                 finished: true,
             },
@@ -300,6 +300,10 @@ pub enum InputItem {
     FunctionCallOutput {
         call_id: String,
         output: String,
+    },
+    Reasoning {
+        id: String,
+        summary: Vec<ReasoningOutput>,
     },
 }
 
@@ -590,8 +594,8 @@ pub enum ChatbotChatStreamEvent {
         reasoning_id: String,
     },
     ToolCall {
-        tool_name: String,
-        arguments: String,
+        tool_name: Option<String>,
+        arguments: Option<String>,
         tool_call_id: String,
         finished: bool,
     },
@@ -883,7 +887,7 @@ async fn parse_tool<'a>(
             tx.commit().await.map_err(|e| anyhow::anyhow!(e))?;
 
             messages.extend(tool_msgs);
-            let input_messages = messages.into_iter().map(APIInputMessage::try_from).collect::<ChatbotResult<Vec<APIInputMessage>>>()?;
+            let input_messages = messages.into_iter().map(APIInputMessage::from).collect::<Vec<APIInputMessage>>();
             yield StreamEvent::Messages(input_messages);
             break;
         } else if let Some(item) = response_output.item {

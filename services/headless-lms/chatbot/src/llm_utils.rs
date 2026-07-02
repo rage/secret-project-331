@@ -38,58 +38,46 @@ pub struct APIInputMessage {
     pub message_type: InputItem,
 }
 
-impl TryFrom<APIOutputMessage> for APIInputMessage {
-    type Error = ChatbotError;
-    fn try_from(message: APIOutputMessage) -> Result<Self, Self::Error> {
+impl From<APIOutputMessage> for APIInputMessage {
+    fn from(message: APIOutputMessage) -> Self {
         match message.message_type {
-            OutputItem::Message {
-                role,
-                content,
-                response_id: _response_id,
-                ..
-            } => Ok(APIInputMessage {
+            OutputItem::Message { role, content, .. } => APIInputMessage {
                 message_type: InputItem::Message { role, content },
-            }),
+            },
             OutputItem::FunctionCall {
                 call_id,
                 tool_name,
                 arguments,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCall {
                     call_id,
                     tool_name,
                     arguments,
                 },
-            }),
+            },
             OutputItem::FunctionCallOutput {
-                call_id,
-                output,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                call_id, output, ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCallOutput { call_id, output },
-            }),
+            },
             OutputItem::AzureAiSearchCall {
-                call_id,
-                arguments,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                call_id, arguments, ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCall {
                     call_id,
                     tool_name: "azure_ai_search".to_string(),
                     arguments,
                 },
-            }),
+            },
             OutputItem::AzureAiSearchCallOutput {
-                call_id,
-                output,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                call_id, output, ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCallOutput { call_id, output },
-            }),
-            OutputItem::Reasoning { .. } => {
-                Err(chatbot_err!(Other, "Reasoning input items not allowed."))
-            }
+            },
+            OutputItem::Reasoning { id, summary, .. } => APIInputMessage {
+                message_type: InputItem::Reasoning { id, summary },
+            },
         }
     }
 }
@@ -143,9 +131,25 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                     },
                 },
             },
-            Message::Reasoning(..) => {
-                // todo: can reasoning input items be allowed? if there is a summary
-                return Err(chatbot_err!(Other, "Reasoning input items not allowed."));
+            Message::Reasoning(ChatbotConversationMessageReasoning {
+                reasoning_id,
+                summary,
+                ..
+            }) => {
+                let summ = if let Some(s) = summary {
+                    vec![ReasoningOutput {
+                        output_type: "text".to_string(),
+                        text: s,
+                    }]
+                } else {
+                    vec![]
+                };
+                APIInputMessage {
+                    message_type: InputItem::Reasoning {
+                        id: reasoning_id,
+                        summary: summ,
+                    },
+                }
             }
         };
         Result::Ok(res)

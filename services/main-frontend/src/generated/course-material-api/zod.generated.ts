@@ -81,10 +81,10 @@ export const zChatbotChatStreamEvent = z.union([
   }),
   z.object({
     data: z.object({
-      arguments: z.string(),
+      arguments: z.string().nullish(),
       finished: z.boolean(),
       tool_call_id: z.string(),
-      tool_name: z.string(),
+      tool_name: z.string().nullish(),
     }),
     type: z.enum(["ToolCall"]),
   }),

@@ -3065,10 +3065,10 @@
             "properties": {
               "data": {
                 "type": "object",
-                "required": ["tool_name", "arguments", "tool_call_id", "finished"],
+                "required": ["tool_call_id", "finished"],
                 "properties": {
                   "arguments": {
-                    "type": "string"
+                    "type": ["string", "null"]
                   },
                   "finished": {
                     "type": "boolean"
@@ -3077,7 +3077,7 @@
                     "type": "string"
                   },
                   "tool_name": {
-                    "type": "string"
+                    "type": ["string", "null"]
                   }
                 }
               },

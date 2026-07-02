@@ -33,10 +33,10 @@ export type ChatbotAction =
   | {
       type: "TOOL_CALL_IN_PROGRESS"
       payload: {
-        arguments: string
+        arguments?: string | null | undefined
         finished: boolean
         tool_call_id: string
-        tool_name: string
+        tool_name?: string | null | undefined
       }
     }
   | { type: "TOOL_CALL_FINISHED"; payload: { tool_call_id: string } }
@@ -141,7 +141,9 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
           return
         }
         // update arguments for the tool call
-        res.data.tool_arguments = action.payload.arguments
+        if (action.payload.arguments != undefined) {
+          res.data.tool_arguments = action.payload.arguments
+        }
         draftState.messages[toolCallMessageIdx].message.message = res.data
       } else {
         // create new message
@@ -157,11 +159,11 @@ const chatbotReducer = (state: ChatbotState, action: ChatbotAction): ChatbotStat
               deleted_at: null,
               chatbot_conversation_message_id: v4(),
               response_id: "",
-              tool_arguments: action.payload.arguments,
+              tool_arguments: action.payload.arguments ?? "",
               tool_call_id: action.payload.tool_call_id,
               // eslint-disable-next-line i18next/no-literal-string
               tool_kind: "function",
-              tool_name: action.payload.tool_name,
+              tool_name: action.payload.tool_name ?? "",
             },
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),

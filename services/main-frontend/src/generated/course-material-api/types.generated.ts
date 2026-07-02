@@ -67,10 +67,10 @@ export type ChatbotChatStreamEvent =
     }
   | {
       data: {
-        arguments: string
+        arguments?: string | null
         finished: boolean
         tool_call_id: string
-        tool_name: string
+        tool_name?: string | null
       }
       type: "ToolCall"
     }

@@ -58,6 +58,7 @@ const useChatbotStateAndData = (
   const newMessageMutation = useToastMutation(
     async (messageToSend: string) => {
       setChatbotMessageAnnouncement("")
+      setError(null)
       setIsOpen?.(true)
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
@@ -142,6 +143,7 @@ const useChatbotStateAndData = (
       },
       onError: async (error) => {
         setError(error)
+        dispatch({ type: "RESPONSE_COMPLETED" })
         await currentConversationInfo.refetch()
       },
     },

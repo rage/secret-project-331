@@ -77,7 +77,12 @@ const ToolCallReasoningBubble: React.FC<ToolCallReasoningBubbleProps> = ({ messa
       }
       let res2 = zChatbotConversationMessageToolCall.safeParse(m.message.message)
       if (res2.success) {
-        summaryText += `${t("chatbot-status-using-tool")} "${res2.data.tool_name.replaceAll("_", " ")}"`
+        let tool =
+          res2.data.tool_name === "azure_ai_search"
+            ? // eslint-disable-next-line i18next/no-literal-string
+              "course material search"
+            : res2.data.tool_name.replaceAll("_", " ")
+        summaryText += `${t("chatbot-status-using-tool")} "${tool}"`
       }
     })
     return (

@@ -273,12 +273,6 @@ const parseCitation = (data: string) => {
     LATEX_CITE_REGEX,
 
     (_, prenote, postnote, citationId) => {
-      // A malformed \cite{} has no key and can never resolve to a reference. Drop it instead of
-      // emitting an empty, unresolvable marker span (kept consistent with orderedUniqueCitationKeys,
-      // which also ignores empty keys).
-      if (!citationId) {
-        return ""
-      }
       const notes = normalizeCitationNotes(prenote, postnote)
 
       const prenoteAttr = notes.prenote
@@ -287,7 +281,7 @@ const parseCitation = (data: string) => {
       const postnoteAttr = notes.postnote
         ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(notes.postnote)}"`
         : ""
-      const escapedCitationId = escapeCitationId(citationId)
+      const escapedCitationId = escapeCitationId(citationId ?? "")
       return `<${SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${SPAN_TAG}>`
     },
   )

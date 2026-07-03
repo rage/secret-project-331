@@ -960,14 +960,21 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
             .await;
             match inserted {
                 Ok(user) => user,
-                Err(insert_error) => {
-                    // A concurrent request can create the user between the find and the insert
-                    // (the insert runs in a savepoint, so the connection stays usable). The unique
-                    // index on upstream_id rejects the loser; return the winner's row instead.
+                // A concurrent request can create the user between the find and the insert
+                // (the insert runs in a savepoint, so the connection stays usable). The unique
+                // index on upstream_id rejects the loser; return the winner's row instead.
+                Err(insert_error)
+                    if matches!(
+                        insert_error.error_type(),
+                        models::ModelErrorType::DatabaseConstraint { constraint, .. }
+                            if constraint == "users_upstream_id_active_uniq_idx"
+                    ) =>
+                {
                     models::users::find_by_upstream_id(conn, upstream_id)
                         .await?
                         .ok_or(insert_error)?
                 }
+                Err(insert_error) => return Err(insert_error.into()),
             }
         }
     };

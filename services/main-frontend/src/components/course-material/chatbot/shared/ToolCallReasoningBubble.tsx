@@ -24,9 +24,6 @@ const detailsStyle = css`
   details > summary::marker {
     content: none;
   }
-  details > summary::-webkit-details-marker {
-    display: none;
-  }
   details > summary {
     cursor: pointer;
     display: flex;

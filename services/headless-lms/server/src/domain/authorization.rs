@@ -942,7 +942,7 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
     let user = match models::users::find_by_upstream_id(conn, upstream_id).await? {
         Some(existing_user) => existing_user,
         None => {
-            models::users::insert_with_upstream_id_and_moocfi_id(
+            let inserted = models::users::insert_with_upstream_id_and_moocfi_id(
                 conn,
                 &email,
                 // convert empty names to None
@@ -959,7 +959,18 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
                 upstream_id,
                 id,
             )
-            .await?
+            .await;
+            match inserted {
+                Ok(user) => user,
+                Err(insert_error) => {
+                    // A concurrent request can create the user between the find and the insert
+                    // (the insert runs in a savepoint, so the connection stays usable). The unique
+                    // index on upstream_id rejects the loser; return the winner's row instead.
+                    models::users::find_by_upstream_id(conn, upstream_id)
+                        .await?
+                        .ok_or(insert_error)?
+                }
+            }
         }
     };
     Ok(user)

@@ -67,6 +67,11 @@ const config = {
     },
   },
   transpilePackages: ["@vectopus/atlas-icons-react"],
+  // @kubernetes/client-node is server-only (uses node:net, node:https, node-fetch) and does not
+  // bundle cleanly under Turbopack: it does `import yaml from "js-yaml"`, which has no default
+  // export, so bundling fails with "Export default doesn't exist in target module". Keep it
+  // external so it is required from node_modules at runtime instead of being bundled.
+  serverExternalPackages: ["@kubernetes/client-node"],
   allowedDevOrigins: ["project-331.local"],
   // This is open source, so no need to hide the code
   productionBrowserSourceMaps: true,

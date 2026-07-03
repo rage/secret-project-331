@@ -1,6 +1,5 @@
 "use client"
 
-import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
 import { useAtomValue } from "jotai"
 import React, { useEffect, useState } from "react"
@@ -18,13 +17,11 @@ import type {
   ResearchFormQuestion,
   ResearchFormQuestionAnswer,
 } from "@/generated/course-material-api/types.generated"
-import Button from "@/shared-module/common/components/Button"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
-import { baseTheme } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
-import { currentCourseIdAtom } from "@/state/course-material/selectors"
+import { currentCourseIdAtom, materialCourseAtom } from "@/state/course-material/selectors"
 import { Block } from "@/types/courseMaterialBlock"
 
 interface ResearchConsentFormProps {
@@ -50,6 +47,7 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
   const { t } = useTranslation()
   const userId = useUserInfo().data?.user_id
   const courseId = useAtomValue(currentCourseIdAtom)
+  const courseName = useAtomValue(materialCourseAtom)?.name
 
   const [questionIdsAndAnswers, setQuestionIdsAndAnswers] = useState<{ [key: string]: boolean }>()
   const getResearchFormQuestions = useQuery({
@@ -113,57 +111,31 @@ const SelectResearchConsentForm: React.FC<React.PropsWithChildren<ResearchConsen
     onClose()
   }
   return (
-    <div>
-      <Dialog
-        open={shouldAnswerResearchForm || editForm}
-        noPadding={true}
-        closeable={false}
-        aria-label={t("title-research-consent-form")}
-      >
-        <div
-          className={css`
-            display: block;
-            line-height: 22px;
-            padding: 16px 20px 16px 20px;
-            flex: 1 1 auto;
-            min-height: 0;
-            overflow-y: auto;
-          `}
-        >
-          <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
-            <ContentRenderer
-              data={(researchForm.content as Array<Block<unknown>>) ?? []}
-              isExam={false}
-            />
-          </CheckboxContext.Provider>
-        </div>
-
-        <div
-          className={css`
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            flex-shrink: 0;
-            padding: 16px 20px;
-            height: 72px;
-            border: ${baseTheme.colors.clear[700]};
-            border-style: solid;
-            border-width: 1px 0px;
-          `}
-        >
-          <Button
-            variant="tertiary"
-            size="medium"
-            type="submit"
-            transform="capitalize"
-            onClick={handleOnSubmit}
-            value={t("save")}
-          >
-            {t("save")}
-          </Button>
-        </div>
-      </Dialog>
-    </div>
+    <StandardDialog
+      open={shouldAnswerResearchForm || editForm}
+      title={
+        courseName
+          ? t("research-consent-for-course", { courseName })
+          : t("title-research-consent-form")
+      }
+      showCloseButton={false}
+      closeable={false}
+      buttons={[
+        {
+          children: t("save"),
+          onClick: handleOnSubmit,
+          variant: "tertiary",
+          transform: "capitalize",
+        },
+      ]}
+    >
+      <CheckboxContext.Provider value={{ questionIdsAndAnswers, setQuestionIdsAndAnswers }}>
+        <ContentRenderer
+          data={(researchForm.content as Array<Block<unknown>>) ?? []}
+          isExam={false}
+        />
+      </CheckboxContext.Provider>
+    </StandardDialog>
   )
 }
 

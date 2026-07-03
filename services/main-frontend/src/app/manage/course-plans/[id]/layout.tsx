@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { getCourseDesignerPlanOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   manageCoursePlanRoute,
   manageCoursePlanScheduleRoute,
@@ -26,6 +27,8 @@ export default function CoursePlanLayout({ children }: { children: React.ReactNo
   })
 
   const planName = planQuery.data?.plan.name ?? null
+
+  usePageTitle(planQuery.isPending ? null : (planName ?? t("course-plans-untitled-plan")))
 
   const planHref = useMemo(() => {
     if (pathname.includes("/permissions") || pathname.includes("/workspace")) {

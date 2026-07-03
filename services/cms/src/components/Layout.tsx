@@ -20,6 +20,7 @@ import {
 } from "@/shared-module/common/components/Navigation/NavBar"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { DEFAULT_SITE_NAME } from "@/shared-module/common/utils/pageTitle"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
 
 const LANGUAGE_SELECTION_PLACEMENTPLACEMENT = "bottom-end"
@@ -39,12 +40,10 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({
   hideBreadcrumbs = false,
 }) => {
   const router = useRouter()
-  // eslint-disable-next-line i18next/no-literal-string
-  const title = process.env.NEXT_PUBLIC_SITE_TITLE ?? "Secret Project 331"
   return (
     <>
       <Head>
-        <title>{title}</title>
+        <title>{DEFAULT_SITE_NAME}</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>

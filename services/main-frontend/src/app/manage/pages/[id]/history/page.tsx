@@ -6,9 +6,11 @@ import { useTranslation } from "react-i18next"
 import HistoryView from "./HistoryView"
 
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 
 const History: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-page-edit-history"))
   const { id } = useParams<{ id: string }>()
 
   if (typeof id !== "string") {

@@ -12,12 +12,14 @@ import { useLoginFlow } from "@/hooks/useLoginFlow"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const Login: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("login"))
   const router = useRouter()
   const loginStateContext = useContext(LoginStateContext)
   const uncheckedReturnTo = useQueryParameter("return_to")

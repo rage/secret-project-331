@@ -16,6 +16,7 @@ import Breadcrumbs, { BreadcrumbPiece } from "@/shared-module/common/components/
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import { PageMarginOffset } from "@/shared-module/common/components/layout/PageMarginOffset"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { fontWeights, headingFont } from "@/shared-module/common/styles"
 import { MARGIN_BETWEEN_NAVBAR_AND_CONTENT } from "@/shared-module/common/utils/constants"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
@@ -33,6 +34,7 @@ interface Block<T> {
 const Submission: React.FC = () => {
   const { t } = useTranslation()
   const { id } = useParams<{ id: string }>()
+  usePageTitle(t("title-grading"))
 
   const getSubmissionInfo = useQuery({
     ...getExerciseSlideSubmissionInfoOptions({

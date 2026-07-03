@@ -2,8 +2,8 @@ use secrecy::{ExposeSecret, SecretString};
 
 use crate::{
     azure_chatbot::{
-        ChatResponse, InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams,
-        OutputItem, Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
+        InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams, OutputItem,
+        Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
     },
     chatbot_error::ChatbotResult,
     prelude::*,
@@ -12,7 +12,7 @@ use core::default::Default;
 use headless_lms_base::config::ApplicationConfiguration;
 use headless_lms_models::{
     chatbot_configurations::{ChatbotConfiguration, ReasoningEffortLevel},
-    chatbot_configurations_models::{ChatbotConfigurationModel, ModelType},
+    chatbot_configurations_models::ModelType,
     chatbot_conversation_message_messages::{ChatbotConversationMessageMessage, MessageRole},
     chatbot_conversation_message_reasoning::ChatbotConversationMessageReasoning,
     chatbot_conversation_message_tool_calls::{ChatbotConversationMessageToolCall, ToolKind},
@@ -38,57 +38,46 @@ pub struct APIInputMessage {
     pub message_type: InputItem,
 }
 
-impl TryFrom<APIOutputMessage> for APIInputMessage {
-    type Error = ChatbotError;
-    fn try_from(message: APIOutputMessage) -> Result<Self, Self::Error> {
+impl From<APIOutputMessage> for APIInputMessage {
+    fn from(message: APIOutputMessage) -> Self {
         match message.message_type {
-            OutputItem::Message {
-                role,
-                content,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+            OutputItem::Message { role, content, .. } => APIInputMessage {
                 message_type: InputItem::Message { role, content },
-            }),
+            },
             OutputItem::FunctionCall {
                 call_id,
                 tool_name,
                 arguments,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCall {
                     call_id,
                     tool_name,
                     arguments,
                 },
-            }),
+            },
             OutputItem::FunctionCallOutput {
-                call_id,
-                output,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                call_id, output, ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCallOutput { call_id, output },
-            }),
+            },
             OutputItem::AzureAiSearchCall {
-                call_id,
-                arguments,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                call_id, arguments, ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCall {
                     call_id,
                     tool_name: "azure_ai_search".to_string(),
                     arguments,
                 },
-            }),
+            },
             OutputItem::AzureAiSearchCallOutput {
-                call_id,
-                output,
-                response_id: _response_id,
-            } => Ok(APIInputMessage {
+                call_id, output, ..
+            } => APIInputMessage {
                 message_type: InputItem::FunctionCallOutput { call_id, output },
-            }),
-            OutputItem::Reasoning { .. } => {
-                Err(chatbot_err!(Other, "Reasoning input items not allowed."))
-            }
+            },
+            OutputItem::Reasoning { id, summary, .. } => APIInputMessage {
+                message_type: InputItem::Reasoning { id, summary },
+            },
         }
     }
 }
@@ -142,9 +131,25 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
                     },
                 },
             },
-            Message::Reasoning(..) => {
-                // todo: can reasoning input items be allowed? if there is a summary
-                return Err(chatbot_err!(Other, "Reasoning input items not allowed."));
+            Message::Reasoning(ChatbotConversationMessageReasoning {
+                reasoning_id,
+                summary,
+                ..
+            }) => {
+                let summ = if let Some(text) = summary {
+                    vec![ReasoningOutput {
+                        output_type: "summary_text".to_string(),
+                        text,
+                    }]
+                } else {
+                    vec![]
+                };
+                APIInputMessage {
+                    message_type: InputItem::Reasoning {
+                        id: reasoning_id,
+                        summary: summ,
+                    },
+                }
             }
         };
         Result::Ok(res)
@@ -155,7 +160,12 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
 #[serde(untagged)]
 pub enum MessageContent {
     Text(String),
-    Object(Vec<ChatResponse>),
+    Object(Vec<MessageContentItem>),
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct MessageContentItem {
+    pub text: String,
 }
 
 impl MessageContent {
@@ -185,6 +195,7 @@ impl APIOutputMessage {
                 role,
                 content,
                 response_id,
+                ..
             } => {
                 let text = content.get_content_text();
                 let used_tokens = estimate_tokens(&text);
@@ -272,6 +283,7 @@ impl APIOutputMessage {
             OutputItem::Reasoning {
                 summary,
                 response_id,
+                id,
             } => {
                 let text = if !summary.is_empty() {
                     Some(
@@ -289,6 +301,7 @@ impl APIOutputMessage {
                     message: Message::Reasoning(ChatbotConversationMessageReasoning {
                         summary: text,
                         response_id,
+                        reasoning_id: id,
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -317,6 +330,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                                     "Can't convert ChatbotConversationMessage into APIOutputMessage: a role='assistant' message should have a response_id, but it's missing"
                                 ))?
                         },
+                        phase: None,
                     },
                 },
                 _ => {
@@ -368,6 +382,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                                 text,
                             }],
                             response_id: reasoning.response_id,
+                            id: reasoning.reasoning_id,
                         },
                     }
                 } else {
@@ -375,6 +390,7 @@ impl TryFrom<ChatbotConversationMessage> for APIOutputMessage {
                         message_type: OutputItem::Reasoning {
                             summary: vec![],
                             response_id: reasoning.response_id,
+                            id: reasoning.reasoning_id,
                         },
                     }
                 }
@@ -722,10 +738,11 @@ pub fn parse_text_completion(completion: LLMResponse) -> ChatbotResult<String> {
 }
 
 pub fn get_params_for_model(
-    model: &ChatbotConfigurationModel,
-    configuration: &ChatbotConfiguration,
+    model_name: &str,
+    model_type: &ModelType,
+    configuration: Option<&ChatbotConfiguration>,
 ) -> LLMRequestParams {
-    if model.model.as_str() == "gpt-5.2-chat" {
+    if model_name == "gpt-5.2-chat" {
         return LLMRequestParams::GPTThinking(ThinkingParams {
             reasoning: Some(Reasoning {
                 effort: ReasoningEffortLevel::Medium,
@@ -733,19 +750,34 @@ pub fn get_params_for_model(
             }),
         });
     }
-    match model.model_type {
-        ModelType::GPTNonThinking => LLMRequestParams::GPTNonThinking(NonThinkingParams {
-            temperature: Some(configuration.temperature),
-            top_p: Some(configuration.top_p),
-            frequency_penalty: Some(configuration.frequency_penalty),
-            presence_penalty: Some(configuration.presence_penalty),
-        }),
+    match model_type {
+        ModelType::GPTNonThinking => {
+            if let Some(conf) = configuration {
+                LLMRequestParams::GPTNonThinking(NonThinkingParams {
+                    temperature: Some(conf.temperature),
+                    top_p: Some(conf.top_p),
+                    frequency_penalty: Some(conf.frequency_penalty),
+                    presence_penalty: Some(conf.presence_penalty),
+                })
+            } else {
+                LLMRequestParams::GPTNonThinking(NonThinkingParams {
+                    temperature: None,
+                    top_p: None,
+                    frequency_penalty: None,
+                    presence_penalty: None,
+                })
+            }
+        }
         ModelType::GPTHardThinking => {
             // make sure the effort value is valid for the model type
-            let effort = if configuration.reasoning_effort == ReasoningEffortLevel::Minimal {
-                ReasoningEffortLevel::Low
+            let effort = if let Some(conf) = configuration {
+                if conf.reasoning_effort == ReasoningEffortLevel::Minimal {
+                    ReasoningEffortLevel::Low
+                } else {
+                    conf.reasoning_effort
+                }
             } else {
-                configuration.reasoning_effort
+                ReasoningEffortLevel::None
             };
             LLMRequestParams::GPTThinking(ThinkingParams {
                 reasoning: Some(Reasoning {
@@ -756,12 +788,16 @@ pub fn get_params_for_model(
         }
         ModelType::GPTThinking => {
             // make sure the effort value is valid for the model type
-            let effort = if configuration.reasoning_effort == ReasoningEffortLevel::None {
-                ReasoningEffortLevel::Minimal
-            } else if configuration.reasoning_effort == ReasoningEffortLevel::Xhigh {
-                ReasoningEffortLevel::High
+            let effort = if let Some(conf) = configuration {
+                if conf.reasoning_effort == ReasoningEffortLevel::None {
+                    ReasoningEffortLevel::Minimal
+                } else if conf.reasoning_effort == ReasoningEffortLevel::Xhigh {
+                    ReasoningEffortLevel::High
+                } else {
+                    conf.reasoning_effort
+                }
             } else {
-                configuration.reasoning_effort
+                ReasoningEffortLevel::Minimal
             };
             LLMRequestParams::GPTThinking(ThinkingParams {
                 reasoning: Some(Reasoning {

@@ -80,6 +80,9 @@ importers:
       '@react-aria/dialog':
         specifier: ^3.6.1
         version: 3.6.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@react-aria/live-announcer':
+        specifier: ^3.5.1
+        version: 3.5.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@react-aria/overlays':
         specifier: ^3.32.1
         version: 3.32.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -1547,6 +1550,12 @@ packages:
 
   '@react-aria/dialog@3.6.1':
     resolution: {integrity: sha512-Eo3Kj23TjENuERUYrGkH+VN1PJvK8/zep76pfwBg29erUVDpGdfagYRq82aGcxJ/ohG8iRxZDwp2tTrU1RG1MQ==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+      react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-aria/live-announcer@3.5.1':
+    resolution: {integrity: sha512-kLvwHjM3D7KgdquiAhUpRnMLKFrvl2r8naDXqPUlSWGRG15wsJRLhQOHLxGp0Umyg7KcSA+OD1mhQV5aRv0P1w==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
       react-dom: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -6571,6 +6580,13 @@ snapshots:
       react-aria: 3.50.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react-dom: 19.2.7(react@19.2.7)
 
+  '@react-aria/live-announcer@3.5.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+    dependencies:
+      '@swc/helpers': 0.5.23
+      react: 19.2.7
+      react-aria: 3.50.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      react-dom: 19.2.7(react@19.2.7)
+
   '@react-aria/overlays@3.32.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@swc/helpers': 0.5.23
@@ -10352,6 +10368,7 @@ time:
   '@next/bundle-analyzer@16.2.9': '2026-06-09T23:02:03.251Z'
   '@popperjs/core@2.11.8': '2023-05-26T17:27:25.366Z'
   '@react-aria/dialog@3.6.1': '2026-05-28T17:28:39.778Z'
+  '@react-aria/live-announcer@3.5.1': '2026-05-28T17:28:41.548Z'
   '@react-aria/overlays@3.32.1': '2026-05-28T17:28:41.787Z'
   '@react-aria/utils@3.34.1': '2026-05-28T17:28:44.337Z'
   '@react-stately/collections@3.13.1': '2026-05-28T17:28:34.530Z'

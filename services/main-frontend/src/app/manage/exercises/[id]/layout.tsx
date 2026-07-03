@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { getExerciseOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   manageCourseExercisesRoute,
   manageCourseRoute,
@@ -28,6 +29,8 @@ export default function ExerciseLayout({ children }: { children: React.ReactNode
 
   const courseId = exerciseQuery.data?.course_id ?? null
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
+
+  usePageTitle(exerciseQuery.data?.name ?? null)
 
   const crumbs = useMemo(
     () => [

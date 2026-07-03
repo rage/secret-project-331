@@ -39,6 +39,7 @@
     "@popperjs/core": "^2.11.8",
     "@react-aria/dialog": "^3.6.1",
     "@react-aria/focus": "^3.22.1",
+    "@react-aria/live-announcer": "^3.5.1",
     "@react-aria/overlays": "^3.32.1",
     "@react-aria/utils": "^3.34.1",
     "@react-stately/collections": "^3.13.1",

@@ -33,6 +33,7 @@ import type {
 } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { primaryFont } from "@/shared-module/common/styles"
@@ -193,6 +194,8 @@ const ManageOrganization: React.FC = () => {
       },
     }),
   })
+
+  usePageTitle(organization.data?.name ?? null)
 
   React.useEffect(() => {
     if (roleQuery.data) {

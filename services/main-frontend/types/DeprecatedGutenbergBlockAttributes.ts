@@ -211,13 +211,13 @@ export interface ButtonDeprecated1Attributes {
   gradient?: string
   width?: number
   borderColor?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -244,14 +244,14 @@ export interface ButtonDeprecated2Attributes {
   gradient?: string
   width?: number
   borderColor?: string
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -278,14 +278,14 @@ export interface ButtonDeprecated3Attributes {
   gradient?: string
   width?: number
   borderColor?: string
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -308,14 +308,14 @@ export interface ButtonDeprecated4Attributes {
   textColor?: string
   gradient?: string
   width?: number
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -338,14 +338,14 @@ export interface ButtonDeprecated5Attributes {
   textColor?: string
   gradient?: string
   width?: number
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -368,14 +368,14 @@ export interface ButtonDeprecated6Attributes {
   textColor?: string
   gradient?: string
   width?: number
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -722,15 +722,15 @@ export interface HeadingDeprecated1Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
+  fitText?: boolean
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
-  fitText?: boolean
   style?: {
     [k: string]: unknown
   }
@@ -750,14 +750,14 @@ export interface HeadingDeprecated2Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1152,13 +1152,13 @@ export interface ListDeprecated1Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1180,13 +1180,13 @@ export interface ListDeprecated2Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1208,13 +1208,13 @@ export interface ListDeprecated3Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1236,13 +1236,13 @@ export interface ListDeprecated4Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1436,21 +1436,21 @@ export interface ParagraphDeprecated7Attributes {
  * @deprecated
  */
 export interface PullquoteDeprecated1Attributes {
-  value?: string
-  citation: string
+  value?: StringWithHTML
+  citation?: StringWithHTML
   textAlign?: string
   borderColor?: string
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1465,13 +1465,13 @@ export interface PullquoteDeprecated1Attributes {
 export interface PullquoteDeprecated2Attributes {
   value?: string
   citation: string
-  mainColor?: string
-  customMainColor?: string
-  textColor?: string
-  customTextColor?: string
+  textAlign?: string
   borderColor?: string
   backgroundColor?: string
+  textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
@@ -1496,12 +1496,14 @@ export interface PullquoteDeprecated3Attributes {
   customMainColor?: string
   textColor?: string
   customTextColor?: string
-  figureStyle?: {
-    [k: string]: unknown
-  }
+  borderColor?: string
+  backgroundColor?: string
+  gradient?: string
+  align?: "left" | "center" | "right" | "wide" | "full" | ""
   lock?: {
     [k: string]: unknown
   }
+  anchor?: string
   className?: string
   style?: {
     [k: string]: unknown
@@ -1521,6 +1523,9 @@ export interface PullquoteDeprecated4Attributes {
   customMainColor?: string
   textColor?: string
   customTextColor?: string
+  figureStyle?: {
+    [k: string]: unknown
+  }
   lock?: {
     [k: string]: unknown
   }
@@ -1560,6 +1565,28 @@ export interface PullquoteDeprecated5Attributes {
  */
 export interface PullquoteDeprecated6Attributes {
   value?: string
+  citation: string
+  mainColor?: string
+  customMainColor?: string
+  textColor?: string
+  customTextColor?: string
+  lock?: {
+    [k: string]: unknown
+  }
+  className?: string
+  style?: {
+    [k: string]: unknown
+  }
+  metadata?: {
+    [k: string]: unknown
+  }
+}
+
+/**
+ * @deprecated
+ */
+export interface PullquoteDeprecated7Attributes {
+  value?: string
   citation?: string
   mainColor?: string
   customMainColor?: string
@@ -1588,13 +1615,13 @@ export interface QuoteDeprecated1Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1610,12 +1637,12 @@ export interface QuoteDeprecated2Attributes {
   value: string
   citation: string
   align?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1723,13 +1750,13 @@ export interface VerseDeprecated1Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }
@@ -1747,13 +1774,13 @@ export interface VerseDeprecated2Attributes {
   backgroundColor?: string
   textColor?: string
   gradient?: string
+  fontFamily?: string
+  fontSize?: string
   lock?: {
     [k: string]: unknown
   }
   anchor?: string
   className?: string
-  fontFamily?: string
-  fontSize?: string
   style?: {
     [k: string]: unknown
   }

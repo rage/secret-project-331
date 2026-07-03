@@ -66,7 +66,7 @@ tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.76"
 # Utilities for random number generation
-rand = "0.10.1"
+rand = "0.10.2"
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
 

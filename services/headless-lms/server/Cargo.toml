@@ -129,7 +129,7 @@ tar = "0.4.46"
 # DEFLATE compression and gzip decompression.
 flate2 = "1.1.9"
 # Utilities for random number generation
-rand = "0.10.1"
+rand = "0.10.2"
 # A pure Rust implementation of the RSA public key cryptosystem.
 rsa = { version = "0.9", features = ["pem"] }
 # Another JWT crate, used for asymmetric signing for OAuth
@@ -173,7 +173,7 @@ pretty_assertions = "1.4.1"
 # HTTP mocking for Rust.
 mockito = "1.7.2"
 # Random number generators and other randomness functionality.
-rand = "0.10.1"
+rand = "0.10.2"
 
 [lints.clippy]
 unwrap_used = "deny"

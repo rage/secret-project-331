@@ -62,7 +62,7 @@ ts-rs = { git = "https://github.com/Heliozoa/ts-rs", rev = "94bf3c040ece6627b69f
 # Email client
 lettre = "0.11.22"
 # Random number generators and other randomness functionality.
-rand = "0.10.1"
+rand = "0.10.2"
 # Core random number generation traits and tools for implementation.
 rand_core = "0.10.1"
 # Flexible concrete Error type built on std::error::Error

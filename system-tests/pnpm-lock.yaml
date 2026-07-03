@@ -37,8 +37,8 @@ importers:
         specifier: ^1.61.1
         version: 1.61.1
       '@types/node':
-        specifier: ^26.0.0
-        version: 26.0.0
+        specifier: ^26.0.1
+        version: 26.0.1
       '@types/tar-fs':
         specifier: ^2.0.4
         version: 2.0.4
@@ -71,8 +71,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@types/node@26.0.0':
-    resolution: {integrity: sha512-vf2YFi1iY9lHGwNJMs01biZFbKJkrZR1T6/MlzjhJLPdntOHLhTrDSnSVcdtvjihi4VQNlrFRIxLsDBlQpAipA==}
+  '@types/node@26.0.1':
+    resolution: {integrity: sha512-fc3KiUoBt6kie0N9bIW3E47vZsuaMf0PM2AaUpLCLT0s/LvX1nxAim6Fc049cNxODPpGm6qRAuUOB86SkRuPQw==}
 
   '@types/tar-fs@2.0.4':
     resolution: {integrity: sha512-ipPec0CjTmVDWE+QKr9cTmIIoTl7dFG/yARCM5MqK8i6CNLIG1P8x4kwDsOQY1ChZOZjH0wO9nvfgBvWl4R3kA==}
@@ -350,18 +350,18 @@ snapshots:
     dependencies:
       playwright: 1.61.1
 
-  '@types/node@26.0.0':
+  '@types/node@26.0.1':
     dependencies:
       undici-types: 8.3.0
 
   '@types/tar-fs@2.0.4':
     dependencies:
-      '@types/node': 26.0.0
+      '@types/node': 26.0.1
       '@types/tar-stream': 3.1.4
 
   '@types/tar-stream@3.1.4':
     dependencies:
-      '@types/node': 26.0.0
+      '@types/node': 26.0.1
 
   '@types/which@3.0.4': {}
 
@@ -506,7 +506,7 @@ time:
   '@axe-core/playwright@4.12.1': '2026-06-23T15:31:17.929Z'
   '@playwright/browser-chromium@1.61.1': '2026-06-23T19:49:43.110Z'
   '@playwright/test@1.61.1': '2026-06-23T19:49:12.825Z'
-  '@types/node@26.0.0': '2026-06-19T07:14:52.347Z'
+  '@types/node@26.0.1': '2026-06-24T20:33:01.352Z'
   '@types/tar-fs@2.0.4': '2023-11-07T17:40:09.496Z'
   '@types/which@3.0.4': '2024-05-30T17:36:03.133Z'
   axe-core@4.12.1: '2026-06-10T10:27:03.257Z'

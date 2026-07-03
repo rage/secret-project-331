@@ -21,7 +21,9 @@ import type {
   VerbosityLevel,
 } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
+import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
+import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -296,6 +298,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 label={t("suggest-next-messages")}
                 {...register("suggest_next_messages")}
               />
+              <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
+
               {suggestMessagesFieldValue && (
                 <div className={itemCss}>
                   <h4>{t("message-suggestions")}</h4>

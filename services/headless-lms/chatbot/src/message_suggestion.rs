@@ -131,6 +131,7 @@ pub async fn generate_suggested_messages(
         max_output_tokens,
         tools: vec![],
         tool_choice: None,
+        store: false,
         params,
         text: Some(RequestTextOptions {
             verbosity: None,

@@ -347,6 +347,7 @@ async fn process_block_chunk(
         model: task_lm.model.to_owned(),
         tools: vec![],
         tool_choice: None,
+        store: false,
         params,
         text: None,
     };

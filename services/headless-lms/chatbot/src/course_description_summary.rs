@@ -107,6 +107,7 @@ pub async fn generate_description(
         max_output_tokens,
         tools: vec![],
         tool_choice: None,
+        store: false,
         params,
         text: Some(RequestTextOptions {
             verbosity: None,

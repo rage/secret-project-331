@@ -41,7 +41,7 @@
     "date-fns": "^4.4.0",
     "date-fns-tz": "^3.2.0",
     "i18next": "^26.3.2",
-    "motion": "^12.41.0",
+    "motion": "^12.42.0",
     "react-aria": "^3.50.0",
     "react-hook-form": "^7.80.0",
     "react-i18next": "^17.0.8",

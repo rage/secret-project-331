@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 
 import { ExerciseAttributes } from "../../../blocks/Exercise"
+import CmsPageTitle from "../../../components/CmsPageTitle"
 import PeerReviewEditor from "../../../components/PeerReviewEditor"
 import PeerReviewAdditionalInstructionsEditor from "../../../components/editors/PeerReviewAdditionalInstructionsEditor"
 import { isBlockInstanceArray } from "../../../utils/Gutenberg/blockInstance"
@@ -131,32 +132,35 @@ const PeerReviewManager: React.FC<React.PropsWithChildren<PeerReviewManagerProps
   }, [])
 
   return (
-    <QueryResult query={peerOrSelfReviewConfigurationQuery}>
-      {(data) => (
-        <>
-          <PeerReviewEditor
-            attributes={attributes}
-            setAttributes={setAttributes}
-            courseId={data.peer_or_self_review_config.course_id}
-            courseGlobalEditor={true}
-            instructionsEditor={
-              <PeerReviewAdditionalInstructionsEditor
-                content={parsedAdditionalInstructions}
-                setContent={updateAdditionalInstructions}
-                courseId={data.peer_or_self_review_config.course_id}
-              />
-            }
-          />
-          <Button
-            variant="primary"
-            size="medium"
-            onClick={() => mutateCourseDefaultPeerReview.mutate()}
-          >
-            {t("save")}
-          </Button>
-        </>
-      )}
-    </QueryResult>
+    <>
+      <CmsPageTitle title={t("edit-default-peer-review")} />
+      <QueryResult query={peerOrSelfReviewConfigurationQuery}>
+        {(data) => (
+          <>
+            <PeerReviewEditor
+              attributes={attributes}
+              setAttributes={setAttributes}
+              courseId={data.peer_or_self_review_config.course_id}
+              courseGlobalEditor={true}
+              instructionsEditor={
+                <PeerReviewAdditionalInstructionsEditor
+                  content={parsedAdditionalInstructions}
+                  setContent={updateAdditionalInstructions}
+                  courseId={data.peer_or_self_review_config.course_id}
+                />
+              }
+            />
+            <Button
+              variant="primary"
+              size="medium"
+              onClick={() => mutateCourseDefaultPeerReview.mutate()}
+            >
+              {t("save")}
+            </Button>
+          </>
+        )}
+      </QueryResult>
+    </>
   )
 }
 

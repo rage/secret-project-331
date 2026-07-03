@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
 
+import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
@@ -23,7 +24,6 @@ import type {
 import Accordion from "@/shared-module/common/components/Accordion"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
-import SpeechBalloon from "@/shared-module/common/components/SpeechBalloon"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -166,6 +166,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     return value.constructor === HTMLButtonElement
   }
 
+  const chatbotStateAndData = useChatbotStateAndData(oldChatbotConf.id, undefined)
+
   const onConfigureChatbotWrapper = handleSubmit(async (data, event) => {
     if (!event) {
       return new Error("Handlesubimit triggered without an event")
@@ -209,8 +211,20 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         chatbot_configuration_id: assertNotNullOrUndefined(oldChatbotConf.id),
       },
     })
+
     if (event.submitter.name === "preview") {
       setChatbotPreview(true)
+      const currentConversationInfo = chatbotStateAndData.currentConversationInfo
+      const newConversationMutation = chatbotStateAndData.newConversationMutation
+      if (
+        !newConversationMutation.isPending &&
+        !(currentConversationInfo && !currentConversationInfo.data?.current_conversation)
+      ) {
+        newConversationMutation.mutate()
+      }
+
+      // This prompts the agreement modal
+      // currentConversationInfo && !currentConversationInfo.data?.current_conversation
     }
   })
 

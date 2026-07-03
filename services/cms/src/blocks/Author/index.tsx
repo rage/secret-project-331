@@ -11,7 +11,7 @@ import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
 const AuthorConfiguration: BlockConfiguration = {
   title: "Authors",
-  description: "Author Section",
+  description: "Section displaying brief bios and photos of the page author(s)",
   category: MOOCFI_CATEGORY_SLUG,
   attributes: {},
   edit: AuthorEditor,

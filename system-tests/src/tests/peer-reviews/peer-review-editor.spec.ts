@@ -1,4 +1,4 @@
-import { type Page, test } from "@playwright/test"
+import { expect, type Page, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
@@ -6,8 +6,20 @@ import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
+/**
+ * These checkboxes are controlled through Gutenberg block attributes, and Gutenberg re-renders
+ * non-selected blocks asynchronously — the DOM can reflect a click only after an idle callback.
+ * setChecked() asserts the state immediately after clicking and fails on that race, so click and
+ * poll instead, re-clicking if needed.
+ */
 async function setPeerReviewCheckbox(page: Page, label: string, checked: boolean) {
-  await page.getByRole("checkbox", { name: label, exact: true }).setChecked(checked)
+  const checkbox = page.getByRole("checkbox", { name: label, exact: true })
+  await expect(async () => {
+    if ((await checkbox.isChecked()) !== checked) {
+      await checkbox.click()
+    }
+    await expect(checkbox).toBeChecked({ checked, timeout: 2000 })
+  }).toPass()
 }
 
 test.use({
@@ -30,7 +42,6 @@ async function openPeerReviewConfig(page: Page) {
     .click()
 
   await page.getByText("Peer and self review configuration").click()
-  // Wait out the editor's async QueryResult frames so checkbox clicks aren't lost to a re-render.
   await waitForSpinnersToDisappear(page, "Peer review editor did not finish loading")
 }
 

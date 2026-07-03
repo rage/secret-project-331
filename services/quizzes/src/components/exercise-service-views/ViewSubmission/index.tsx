@@ -121,6 +121,8 @@ const componentDescriptorByTypeName = (
 
 const FlexItem = styled.div`
   flex: 1;
+  /* Allow a wide child (e.g. a code block or long token) to shrink instead of overflowing the row. */
+  min-width: 0;
 `
 
 const SubmissionFeedback: React.FC<{

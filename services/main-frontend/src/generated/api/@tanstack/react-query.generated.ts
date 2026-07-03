@@ -305,6 +305,7 @@ import {
   updateExerciseService,
   updateGeneratedCertificate,
   updateGlossaryTerm,
+  updateMetadata,
   updateOrganization,
   updateOrganizationImage,
   updatePageDetails,
@@ -845,6 +846,8 @@ import type {
   UpdateGeneratedCertificateData,
   UpdateGeneratedCertificateResponse,
   UpdateGlossaryTermData,
+  UpdateMetadataData,
+  UpdateMetadataResponse,
   UpdateOrganizationData,
   UpdateOrganizationImageData,
   UpdatePageDetailsData,
@@ -3411,6 +3414,28 @@ export const getCourseLanguageVersionsOptions = (options: Options<GetCourseLangu
       }),
     queryKey: getCourseLanguageVersionsQueryKey(options),
   })
+
+/**
+ *
+ * POST `/api/v0/main-frontend/courses/:course_id/metadata` - Update metadata.
+ */
+export const updateMetadataMutation = (
+  options?: Partial<Options<UpdateMetadataData>>,
+): UseMutationOptions<UpdateMetadataResponse, DefaultError, Options<UpdateMetadataData>> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateMetadataResponse,
+    DefaultError,
+    Options<UpdateMetadataData>
+  > = {
+    mutationFn: async (fnOptions) =>
+      await updateMetadata({
+        ...options,
+        ...fnOptions,
+        throwOnError: true,
+      }),
+  }
+  return mutationOptions
+}
 
 /**
  *

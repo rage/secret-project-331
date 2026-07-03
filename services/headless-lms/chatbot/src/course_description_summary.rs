@@ -32,9 +32,19 @@ pub struct SisuDescriptionResponse {
 pub struct Module {
     pub course_code: String,
     pub description: String,
+    pub prerequisites: Vec<String>,
 }
 
-const SYSTEM_PROMPT: &str = r#"You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key. Your task is to generate a single description combining information from all different modules but also generate module specific descriptions for each module.
+// You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key. Your task is to generate a single description combining information from all different modules but also generate module specific descriptions and prerequisites for each module. The prerequisites should be given in a list of individual requisites.
+
+const SYSTEM_PROMPT: &str = r#"You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key.
+Your task is to
+1. Generate a single general description combining the information from all the different modules behind the key "course_description".
+2. Behind the "modules" key, you will generate an array of items, where each item represents one module, and thus the array has as many items as there are module codes. Each module item inside the array will have three fields, "course_code", "description", and "prerequisites".
+  2.1 The "course_code" field will have the corresponing module code.
+  2.2 The "description" field will be a description summarized from all the information you are given on the specific module.
+  2.3 The "prerequisites" field will be an array, with each prerequisite differentiated as an item in the list.
+
 
 When generating the description:
 - Use the same language in the description that is used in the given information.
@@ -55,7 +65,8 @@ Your output must follow the JSON schema exactly:
     "modules": [
         {
             "course_code": "...",
-            "description": "..."
+            "description": "...",
+            "prerequisites": ["...", "...", "..."]
         }
     ]
 }"#;
@@ -141,10 +152,20 @@ pub async fn generate_description(
                                                 type_field: JSONType::String,
                                             }),
                                         ),
+                                        (
+                                            "prerequisites".to_string(),
+                                            SchemaPropertyType::ArrayProperty(ArrayProperty {
+                                                type_field: JSONType::Array,
+                                                items: ArrayItem::JsonItem(JsonItem {
+                                                    type_field: JSONType::String,
+                                                }),
+                                            }),
+                                        ),
                                     ]),
                                     required: Vec::from([
                                         "course_code".to_string(),
                                         "description".to_string(),
+                                        "prerequisites".to_string(),
                                     ]),
                                     additional_properties: false,
                                 }),
@@ -162,6 +183,7 @@ pub async fn generate_description(
     let completion = make_blocking_llm_request(chat_request, app_config).await?;
 
     let completion_content: &String = &parse_text_completion(completion)?;
+    dbg!(&completion_content);
 
     let descriptions: SisuDescriptionResponse =
         serde_json::from_str(completion_content).map_err(|_| {

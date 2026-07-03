@@ -599,6 +599,8 @@ import type {
   UpdateGlossaryTermData,
   UpdateGlossaryTermErrors,
   UpdateGlossaryTermResponses,
+  UpdateMetadataData,
+  UpdateMetadataResponses,
   UpdateOrganizationData,
   UpdateOrganizationImageData,
   UpdateOrganizationImageResponses,
@@ -856,6 +858,7 @@ import {
   zUpdateExerciseRepositoryResponse,
   zUpdateExerciseServiceResponse,
   zUpdateGeneratedCertificateResponse,
+  zUpdateMetadataResponse,
   zUpdatePageDetailsResponse,
   zUpdatePlaygroundExampleResponse,
   zUpdateUserInfoResponse,
@@ -2633,6 +2636,24 @@ export const getCourseLanguageVersions = <ThrowOnError extends boolean = true>(
       ...options,
     },
   )
+
+/**
+ *
+ * POST `/api/v0/main-frontend/courses/:course_id/metadata` - Update metadata.
+ */
+export const updateMetadata = <ThrowOnError extends boolean = true>(
+  options: Options<UpdateMetadataData, ThrowOnError>,
+) =>
+  (options.client ?? client).post<UpdateMetadataResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zUpdateMetadataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/metadata",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+  })
 
 /**
  *

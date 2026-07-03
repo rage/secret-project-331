@@ -1767,6 +1767,7 @@
   "text-field-label-name": "Name",
   "text-field-label-or-header-slug-or-short-name": "Slug",
   "text-field-label-path": "Path",
+  "text-field-label-prerequisites": "Prerequisites",
   "text-field-label-search": "User email or name",
   "text-field-label-title": "Title",
   "text-no-results": "No results",

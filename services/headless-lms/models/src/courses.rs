@@ -4,6 +4,7 @@ use utoipa::ToSchema;
 use crate::{
     chapters::{Chapter, course_chapters},
     course_modules::CourseModule,
+    course_prerequisites::{CoursePrerequisite, insert_course_prerequisites},
     pages::Page,
     pages::{PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
@@ -12,6 +13,11 @@ use crate::{
 pub struct CourseInfo {
     pub id: Uuid,
     pub is_draft: bool,
+}
+
+pub struct CourseDescription {
+    pub id: Uuid,
+    pub description: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -1437,4 +1443,44 @@ mod test {
             assert_eq!(reread.course_material_ai_instructions, Some(true));
         }
     }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct CourseMetadataUpdate {
+    course_description: Option<String>,
+    course_prerequisites: Vec<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
+pub struct CourseMetadata {
+    course_description: Option<String>,
+    course_prerequisites: Vec<CoursePrerequisite>,
+}
+
+pub async fn set_metadata(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+    course_metadata: CourseMetadataUpdate,
+) -> ModelResult<CourseMetadata> {
+    let prerequisites =
+        insert_course_prerequisites(conn, course_id, course_metadata.course_prerequisites).await?;
+    let course = sqlx::query_as!(
+        CourseDescription,
+        r#"
+UPDATE courses
+SET description = $1
+WHERE id = $2
+  AND deleted_at IS NULL
+RETURNING id, description
+    "#,
+        course_metadata.course_description,
+        course_id
+    )
+    .fetch_one(conn)
+    .await?;
+    let res = CourseMetadata {
+        course_description: course.description,
+        course_prerequisites: prerequisites,
+    };
+    Ok(res)
 }

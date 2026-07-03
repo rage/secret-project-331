@@ -7,14 +7,13 @@ import React, { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import {
-  getSisuCourseLlmDescriptionsOptions,
-  updateCourseMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
-import type { Course, CourseUpdate } from "@/generated/api/types.generated"
+import { getSisuCourseLlmDescriptionsOptions } from "@/generated/api/@tanstack/react-query.generated"
+import { updateCourse, updateMetadata } from "@/generated/api/sdk.generated"
+import type { Course, CourseMetadataUpdate, CourseUpdate } from "@/generated/api/types.generated"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
+import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { QueryResult, TextArea } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
@@ -53,49 +52,48 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
 
   useEffect(() => {
     if (sisuQuery.data) {
-      setValue("description", sisuQuery.data.course_description)
+      setValue("course_description", sisuQuery.data.course_description)
+      setValue("course_prerequisites", sisuQuery.data.modules[0].prerequisites)
     }
   })
-
-  const methods = useForm<CourseUpdate>({
+  //sisuQuery.data?.modules[0].course_description
+  const methods = useForm<CourseMetadataUpdate>({
     defaultValues: {
-      ...course,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
+      // eslint-disable-next-line i18next/no-literal-string
+      course_description: "testi",
+      // eslint-disable-next-line i18next/no-literal-string
+      course_prerequisites: ["213", "testi"],
     },
   })
-
+  console.log("METHODS: ", methods)
   const { control, register, handleSubmit, setValue, reset } = methods
 
-  useEffect(() => {
-    reset({
-      ...course,
-      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
-    })
-  }, [course, reset])
+  // useEffect(() => {
+  //   reset({
+  //     ...course,
+  //   })
+  // }, [course, reset])
 
-  const setUpdateCourseMutation = useToastMutationOptions(
-    updateCourseMutation(),
-    {
-      notify: true,
-      method: "POST",
+  const updateCourseMetadataMutation = useToastMutation(
+    async (data: CourseMetadataUpdate) => {
+      console.log("DATA: ", data)
+      await updateMetadata({
+        body: {
+          ...data,
+        },
+        path: {
+          course_id: course.id,
+        },
+      })
+      onSubmitForm()
+      onClose()
     },
-    {
-      onSuccess: () => {
-        onSubmitForm()
-        onClose()
-      },
-    },
+    { method: "POST", notify: true },
   )
 
   const onSubmit = handleSubmit((data) => {
-    setUpdateCourseMutation.mutate({
-      body: {
-        ...data,
-      },
-      path: {
-        course_id: course.id,
-      },
-    })
+    updateCourseMetadataMutation.mutate(data)
+    console.log("DATA IN onSubmit: ", data)
   })
 
   return (
@@ -128,15 +126,25 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
               return <ErrorBanner variant={"readOnly"} error={error} />
             }}
           >
-            {(_data) => (
-              <FieldContainer>
-                <TextArea
-                  control={control}
-                  label={t("text-field-label-ai-description")}
-                  autoResize={true}
-                  {...register("description")}
+            {(data) => (
+              <>
+                <FieldContainer>
+                  <TextArea
+                    control={control}
+                    label={t("text-field-label-ai-description")}
+                    autoResize={true}
+                    {...register("course_description")}
+                  />
+                </FieldContainer>
+                <TextField
+                  label={t("text-field-label-prerequisites")}
+                  {...register("course_prerequisites")}
                 />
-              </FieldContainer>
+                {data.modules[0].prerequisites.map((prerequisite, index) => (
+                  // <TextField label={t("text-field-label-prerequisites")} {...prerequisite} />
+                  <li key={index}>{prerequisite}</li>
+                ))}
+              </>
             )}
           </QueryResult>
         </div>

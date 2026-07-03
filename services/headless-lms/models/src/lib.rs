@@ -39,6 +39,7 @@ pub mod course_language_groups;
 pub mod course_module_completion_registered_to_study_registries;
 pub mod course_module_completions;
 pub mod course_modules;
+pub mod course_prerequisites;
 pub mod courses;
 pub mod email_deliveries;
 pub mod email_templates;

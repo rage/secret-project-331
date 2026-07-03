@@ -21,7 +21,10 @@ use models::{
     course_instances::{CourseInstance, CourseInstanceForm, NewCourseInstance},
     course_module_completions::CourseModuleCompletion,
     course_modules::ModuleUpdates,
-    courses::{Course, CourseBreadcrumbInfo, CourseStructure, CourseUpdate, NewCourse},
+    courses::{
+        Course, CourseBreadcrumbInfo, CourseMetadata, CourseMetadataUpdate, CourseStructure,
+        CourseUpdate, NewCourse,
+    },
     exercise_slide_submissions::{
         self, ExerciseAnswersInCourseRequiringAttentionCount, ExerciseSlideSubmissionCount,
         ExerciseSlideSubmissionCountByExercise, ExerciseSlideSubmissionCountByWeekAndHour,
@@ -118,7 +121,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         post_partners_block,
         get_partners_block,
         delete_partners_block,
-        get_sisu_course_llm_descriptions
+        get_sisu_course_llm_descriptions,
+        update_metadata
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
@@ -2682,7 +2686,41 @@ async fn get_sisu_course_llm_descriptions(
         parsed_course_info,
     )
     .await?;
+    dbg!(&llm_descriptions);
     token.authorized_ok(web::Json(llm_descriptions))
+}
+
+/**
+POST `/api/v0/main-frontend/courses/:course_id/metadata` - Update metadata.
+
+*/
+#[utoipa::path(
+    post,
+    path = "/{course_id}/metadata",
+    operation_id = "updateMetadata",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    request_body = CourseMetadataUpdate,
+    responses(
+        (status = 200, description = "Updated metadata", body = CourseMetadata)
+    )
+)]
+#[instrument(skip(pool))]
+async fn update_metadata(
+    payload: web::Json<CourseMetadataUpdate>,
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<CourseMetadata>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let metadata_update = payload.0;
+    dbg!(&metadata_update);
+    let course = models::courses::set_metadata(&mut conn, *course_id, metadata_update).await?;
+
+    token.authorized_ok(web::Json(course))
 }
 
 /**
@@ -2905,5 +2943,6 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/sisu-course-llm-descriptions",
             web::get().to(get_sisu_course_llm_descriptions),
-        );
+        )
+        .route("/{course_id}/metadata", web::post().to(update_metadata));
 }

@@ -768,6 +768,16 @@ export type CourseMaterialExerciseTask = {
   public_spec?: unknown
 }
 
+export type CourseMetadata = {
+  course_description?: string | null
+  course_prerequisites: Array<CoursePrerequisite>
+}
+
+export type CourseMetadataUpdate = {
+  course_description?: string | null
+  course_prerequisites: Array<string>
+}
+
 /**
  *
  * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -873,6 +883,15 @@ export type CourseModuleThresholdInfo = {
    * otherwise [`MINIMUM_CHEATER_THRESHOLD_SECONDS`].
    */
   minimum_duration_seconds: number
+}
+
+export type CoursePrerequisite = {
+  course_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  prerequisite: string
+  updated_at: string
 }
 
 export type CourseStructure = {
@@ -1449,6 +1468,7 @@ export type ModifiedModule = {
 export type Module = {
   course_code: string
   description: string
+  prerequisites: Array<string>
 }
 
 export type ModuleUpdates = {
@@ -4405,6 +4425,27 @@ export type GetCourseLanguageVersionsResponses = {
 
 export type GetCourseLanguageVersionsResponse =
   GetCourseLanguageVersionsResponses[keyof GetCourseLanguageVersionsResponses]
+
+export type UpdateMetadataData = {
+  body: CourseMetadataUpdate
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/metadata"
+}
+
+export type UpdateMetadataResponses = {
+  /**
+   * Updated metadata
+   */
+  200: CourseMetadata
+}
+
+export type UpdateMetadataResponse = UpdateMetadataResponses[keyof UpdateMetadataResponses]
 
 export type UpdateCourseChapterOrderingData = {
   body: Array<Chapter>

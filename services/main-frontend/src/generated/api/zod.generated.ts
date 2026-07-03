@@ -644,6 +644,11 @@ export const zCourseInstanceForm = z.object({
   teacher_in_charge_name: z.string(),
 })
 
+export const zCourseMetadataUpdate = z.object({
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(z.string()),
+})
+
 /**
  *
  * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -729,6 +734,20 @@ export const zCourseModuleThresholdInfo = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+export const zCoursePrerequisite = z.object({
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  prerequisite: z.string(),
+  updated_at: z.iso.datetime(),
+})
+
+export const zCourseMetadata = z.object({
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zCoursePrerequisite),
 })
 
 export const zCourseUpdate = z.object({
@@ -1477,6 +1496,7 @@ export const zModifiedModule = z.object({
 export const zModule = z.object({
   course_code: z.string(),
   description: z.string(),
+  prerequisites: z.array(z.string()),
 })
 
 export const zNewChapter = z.object({
@@ -3681,6 +3701,17 @@ export const zGetCourseLanguageVersionsPath = z.object({
  * Course language versions
  */
 export const zGetCourseLanguageVersionsResponse = z.array(zCourse)
+
+export const zUpdateMetadataBody = zCourseMetadataUpdate
+
+export const zUpdateMetadataPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Updated metadata
+ */
+export const zUpdateMetadataResponse = zCourseMetadata
 
 export const zUpdateCourseChapterOrderingBody = z.array(zChapter)
 

@@ -25,6 +25,7 @@ test("Managing course instances works", async ({ page }) => {
     "http://project-331.local/manage/courses/1e0c52c7-8cb9-4089-b1c3-c24fc0dd5ae4",
   )
 
+  await page.getByText("For instructions on how to edit your course materials, view the").waitFor()
   await page.getByRole("tab", { name: "Course instances" }).waitFor()
 
   await page.getByText("Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()

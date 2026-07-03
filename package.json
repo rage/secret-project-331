@@ -37,7 +37,7 @@
   "devDependencies": {
     "@eslint/compat": "^2.1.0",
     "@eslint/js": "^10.0.1",
-    "@hey-api/openapi-ts": "0.97.3",
+    "@hey-api/openapi-ts": "0.98.2",
     "@next/eslint-plugin-next": "^16.2.6",
     "@tanstack/eslint-plugin-query": "^5.100.14",
     "@types/node": "^25.9.1",

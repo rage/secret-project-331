@@ -44,7 +44,7 @@
     "@react-stately/select": "^3.10.1",
     "@react-stately/toggle": "^3.10.1",
     "@tanstack/react-query": "^5.101.1",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.0.1",
     "@types/ws": "^8.18.1",
     "@vectopus/atlas-icons-react": "github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b",
     "date-fns": "^4.4.0",
@@ -70,7 +70,7 @@
     "react-popper": "^2.3.0",
     "react-spring": "^10.0.4",
     "svgo": "^4.0.1",
-    "tar": "7.5.16",
+    "tar": "7.5.17",
     "tar-stream": "^3.2.0",
     "tempy": "^3.2.0",
     "tree-kill": "^1.2.2",
@@ -91,7 +91,7 @@
     "jest-environment-jsdom": "^30.4.1",
     "node-loader": "^2.1.0",
     "postcss-styled-syntax": "^0.7.2",
-    "pyodide": "^314.0.0",
+    "pyodide": "^314.0.1",
     "ts-jest": "^29.4.11",
     "typescript": "^6.0.3"
   }

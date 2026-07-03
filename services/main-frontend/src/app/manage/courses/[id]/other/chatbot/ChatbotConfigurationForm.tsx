@@ -216,7 +216,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 autoResizeMaxHeightPx={900}
                 {...register("prompt")}
               />
-              <TextField label={t("initial-message")} {...register("initial_message")} />
+              <TextField required label={t("initial-message")} {...register("initial_message")} />
               <div
                 className={css`
                   flex-direction: row;
@@ -547,45 +547,59 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 </details>
               </Accordion>
 
-              <div>
-                <Button
-                  type="submit"
-                  size="medium"
-                  variant="primary"
-                  disabled={configureChatbotMutation.isPending}
+              <div
+                className={css`
+                  display: flex;
+                  justify-content: space-between;
+                  flex-wrap: wrap;
+                `}
+              >
+                <div
+                  className={css`
+                    flex: 1;
+                  `}
                 >
-                  {t("save")}
-                </Button>
-                <Button
-                  type="button"
-                  size="medium"
-                  variant="tertiary"
-                  disabled={deleteChatbotMutation.isPending}
-                  onClick={async () => {
-                    if (
-                      await confirm(
-                        t("delete-chatbot-confirmation", { name: oldChatbotConf.chatbot_name }),
-                      )
-                    ) {
-                      deleteChatbotMutation.mutate({
-                        path: {
-                          chatbot_configuration_id: oldChatbotConf.id,
-                        },
-                      })
-                    }
-                  }}
-                >
-                  {t("delete")}
-                </Button>
-                <Button
-                  disabled={oldChatbotConf.prompt === ""}
-                  type="button"
-                  size="medium"
-                  variant="blue"
-                  onClick={() => setChatbotPreview(true)}
-                >
-                  {t("preview-chatbot")}
-                </Button>
+                  <Button
+                    type="submit"
+                    size="medium"
+                    variant="primary"
+                    disabled={configureChatbotMutation.isPending}
+                  >
+                    {t("save")}
+                  </Button>
+                  <Button
+                    disabled={oldChatbotConf.prompt === ""}
+                    type="button"
+                    size="medium"
+                    variant="blue"
+                    onClick={() => setChatbotPreview(true)}
+                  >
+                    {t("save-and-preview-chatbot")}
+                  </Button>
+                </div>
+                <div>
+                  <Button
+                    type="button"
+                    size="medium"
+                    variant="tertiary"
+                    disabled={deleteChatbotMutation.isPending}
+                    onClick={async () => {
+                      if (
+                        await confirm(
+                          t("delete-chatbot-confirmation", { name: oldChatbotConf.chatbot_name }),
+                        )
+                      ) {
+                        deleteChatbotMutation.mutate({
+                          path: {
+                            chatbot_configuration_id: oldChatbotConf.id,
+                          },
+                        })
+                      }
+                    }}
+                  >
+                    {t("delete")}
+                  </Button>
+                </div>
                 <ChatbotPreviewModal
                   open={showChatbotPreview}
                   onClose={() => setChatbotPreview(false)}

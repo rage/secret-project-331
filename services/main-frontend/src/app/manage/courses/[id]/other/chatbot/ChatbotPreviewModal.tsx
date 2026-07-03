@@ -1,5 +1,6 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { t } from "i18next"
 
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
@@ -22,7 +23,13 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
   return (
     <div>
       <StandardDialog open={open} onClose={onClose} title={t("chatbot-preview-modal-title")}>
-        <ChatbotChatBox {...chatbotStateAndData} />
+        <div
+          className={css`
+            height: 75vh;
+          `}
+        >
+          <ChatbotChatBox {...chatbotStateAndData} />
+        </div>
       </StandardDialog>
     </div>
   )

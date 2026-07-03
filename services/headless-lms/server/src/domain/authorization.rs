@@ -945,17 +945,15 @@ pub async fn get_or_create_user_from_tmc_mooc_fi_response(
             let inserted = models::users::insert_with_upstream_id_and_moocfi_id(
                 conn,
                 &email,
-                // convert empty names to None
-                if user_field.first_name.trim().is_empty() {
-                    None
-                } else {
-                    Some(user_field.first_name.as_str())
-                },
-                if user_field.last_name.trim().is_empty() {
-                    None
-                } else {
-                    Some(user_field.last_name.as_str())
-                },
+                // convert missing/empty names to None
+                user_field
+                    .first_name
+                    .as_deref()
+                    .filter(|s| !s.trim().is_empty()),
+                user_field
+                    .last_name
+                    .as_deref()
+                    .filter(|s| !s.trim().is_empty()),
                 upstream_id,
                 id,
             )

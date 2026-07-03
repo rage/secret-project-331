@@ -97,7 +97,6 @@ const useChatbotStateAndData = (
             }
             try {
               const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
-              console.log(parsedValue)
               if (parsedValue.type === "Delta") {
                 dispatch({
                   type: "RECEIVED_TEXT_DELTA",

@@ -29,11 +29,11 @@
   },
   "devDependencies": {
     "@svgr/webpack": "latest",
-    "@types/node": "^26.0.0",
+    "@types/node": "^26.0.1",
     "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "postcss-styled-syntax": "^0.7.2",
-    "stylelint": "^17.13.0",
+    "stylelint": "^17.14.0",
     "stylelint-config-recommended": "^18.0.0",
     "tsx": "^4.22.3",
     "typescript": "^6.0.3"

@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react"
 
-import useMessageChannel from "../../src/react/hooks/useMessageChannel"
+import useMessageChannel from "../../src/useMessageChannel"
 import { createMockMessageChannel } from "../utils/iframeTestUtils"
 
 test("useMessageChannel returns a message channel and recreate function", () => {

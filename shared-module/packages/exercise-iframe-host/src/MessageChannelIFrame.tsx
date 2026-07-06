@@ -5,8 +5,8 @@ import { isEqual } from "lodash"
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
-import useEventCallback from "../react/hooks/useEventCallback"
-import useMessageChannel from "../react/hooks/useMessageChannel"
+import useEventCallback from "./useEventCallback"
+import useMessageChannel from "./useMessageChannel"
 
 import {
   DialogResponseMessage,

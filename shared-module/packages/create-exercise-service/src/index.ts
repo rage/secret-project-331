@@ -15,9 +15,10 @@ const TEMPLATE_SERVICE_NAME = "example-exercise"
  * Shared-module packages vendored into the generated project's `src/shared-module/`. The layout
  * mirrors `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve.
  * The exercise-service code is a self-contained layered set — `exercise-protocol` (zero-dep
- * contract) ← `exercise-client` (framework-agnostic engines, dep: immer) ← `exercise-react` (React
- * adapter + host) — and the template imports nothing from `common`/`components`, so only these
- * three are vendored. (A future non-React template would vendor only protocol + client.)
+ * contract) ← `exercise-client` (framework-agnostic engines, dep: immer) ← `exercise-react` (the
+ * React adapter for the iframe *child*) — and the template imports nothing from `common`/
+ * `components` or the host-side `exercise-iframe-host`, so only these three are vendored. (A future
+ * non-React template would vendor only protocol + client.)
  */
 const VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react"]
 

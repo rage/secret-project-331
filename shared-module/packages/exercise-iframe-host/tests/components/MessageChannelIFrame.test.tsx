@@ -5,7 +5,7 @@ import { http, HttpResponse } from "msw"
 import { setupServer } from "msw/node"
 import { I18nextProvider } from "react-i18next"
 
-import MessageChannelIFrame from "../../src/parent/MessageChannelIFrame"
+import MessageChannelIFrame from "../../src/MessageChannelIFrame"
 import i18nTest from "../testing/i18nTest"
 import { createMockMessageChannel, createMockMessageEvent } from "../utils/iframeTestUtils"
 

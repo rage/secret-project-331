@@ -34,8 +34,9 @@ const HeadingBlock: React.FC<
         margin-top: ${marginTopHeadingMapper(level)};
         font-weight: 600;
         ${textAlign && `text-align: ${textAlign};`}
-        ${fitText &&
-        `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "3rem"});`}
+        ${
+          fitText && `font-size: clamp(1rem, 4vw, ${fontSize ? fontSizeMapper(fontSize) : "3rem"});`
+        }
         ${!fitText && fontSize && `font-size: ${fontSizeMapper(fontSize)};`}
       `,
     ),

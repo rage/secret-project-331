@@ -41,7 +41,7 @@ const withCustomHtmlParagraphWarning = createHigherOrderComponent((BlockEdit) =>
               margin-top: 0.75rem;
             `}
           >
-            {/* eslint-disable-next-line i18next/no-literal-string */}
+            {}
             <Notice status="warning" isDismissible={false}>
               {t("warning-custom-html-missing-paragraph-wrapper")}
             </Notice>

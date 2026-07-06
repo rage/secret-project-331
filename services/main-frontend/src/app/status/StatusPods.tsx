@@ -108,24 +108,28 @@ const StatusPods: React.FC = () => {
                               border-radius: 4px;
                               font-size: 0.85rem;
                               font-weight: 600;
-                              background-color: ${isHealthy
-                                ? baseTheme.colors.green[100]
-                                : isFailed
-                                  ? baseTheme.colors.red[100]
-                                  : isPending
-                                    ? baseTheme.colors.yellow[100]
-                                    : isSucceeded
-                                      ? baseTheme.colors.green[100]
-                                      : baseTheme.colors.clear[300]};
-                              color: ${isHealthy
-                                ? baseTheme.colors.green[700]
-                                : isFailed
-                                  ? baseTheme.colors.red[700]
-                                  : isPending
-                                    ? baseTheme.colors.yellow[700]
-                                    : isSucceeded
-                                      ? baseTheme.colors.green[700]
-                                      : baseTheme.colors.gray[600]};
+                              background-color: ${
+                                isHealthy
+                                  ? baseTheme.colors.green[100]
+                                  : isFailed
+                                    ? baseTheme.colors.red[100]
+                                    : isPending
+                                      ? baseTheme.colors.yellow[100]
+                                      : isSucceeded
+                                        ? baseTheme.colors.green[100]
+                                        : baseTheme.colors.clear[300]
+                              };
+                              color: ${
+                                isHealthy
+                                  ? baseTheme.colors.green[700]
+                                  : isFailed
+                                    ? baseTheme.colors.red[700]
+                                    : isPending
+                                      ? baseTheme.colors.yellow[700]
+                                      : isSucceeded
+                                        ? baseTheme.colors.green[700]
+                                        : baseTheme.colors.gray[600]
+                              };
                             `}
                           >
                             {pod.phase}

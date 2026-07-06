@@ -8,8 +8,7 @@ function getRunWorkerUrl(): string {
 }
 
 export type OutputSegment =
-  | { type: "stdout"; text: string }
-  | { type: "input"; prompt: string; line: string }
+  { type: "stdout"; text: string } | { type: "input"; prompt: string; line: string }
 
 export function useRunOutput() {
   const [segments, setSegments] = useState<OutputSegment[]>([])

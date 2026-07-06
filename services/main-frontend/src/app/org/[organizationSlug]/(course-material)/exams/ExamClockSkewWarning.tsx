@@ -113,9 +113,11 @@ const formatUtcOffset = (now: Date): string => {
 }
 
 const severityStyles = (isSevere: boolean) => css`
-  background: ${isSevere
-    ? `linear-gradient(140deg, ${baseTheme.colors.red[100]}, ${baseTheme.colors.clear[100]})`
-    : `linear-gradient(140deg, ${baseTheme.colors.yellow[100]}, ${baseTheme.colors.clear[100]})`};
+  background: ${
+    isSevere
+      ? `linear-gradient(140deg, ${baseTheme.colors.red[100]}, ${baseTheme.colors.clear[100]})`
+      : `linear-gradient(140deg, ${baseTheme.colors.yellow[100]}, ${baseTheme.colors.clear[100]})`
+  };
   border: 1px solid ${isSevere ? baseTheme.colors.red[300] : baseTheme.colors.yellow[300]};
   border-left: 10px solid ${isSevere ? baseTheme.colors.red[600] : baseTheme.colors.yellow[600]};
   border-radius: 10px;

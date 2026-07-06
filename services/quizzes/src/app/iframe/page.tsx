@@ -203,8 +203,7 @@ const IFrame: React.FC = () => {
             userAnswer: quiz_answer as UserAnswer,
             userInformation: messageData.user_information,
             gradingFeedbackJson: messageData.data.grading?.feedback_json as
-              | ItemAnswerFeedback[]
-              | null,
+              ItemAnswerFeedback[] | null,
           })
         } else {
           console.error("Unknown view type received from parent")

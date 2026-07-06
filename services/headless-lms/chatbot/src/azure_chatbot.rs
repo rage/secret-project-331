@@ -495,8 +495,6 @@ pub struct LLMRequest {
     pub max_output_tokens: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub text: Option<RequestTextOptions>,
-    /// Store the LLM response in Azure for 30 days
-    pub store: bool,
     #[serde(flatten)]
     pub params: LLMRequestParams,
 }
@@ -609,7 +607,6 @@ impl LLMRequest {
                 max_output_tokens: Some(configuration.max_output_tokens),
                 tools,
                 tool_choice,
-                store: true,
                 text: Some(RequestTextOptions {
                     verbosity: Some(configuration.verbosity),
                     format: None,

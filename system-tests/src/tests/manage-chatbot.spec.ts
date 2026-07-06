@@ -67,6 +67,50 @@ test.describe("Chatbot settings testing", () => {
     })
   })
 
+  test("Teacher uses chatbot preview after creating chatbot", async ({ page }) => {
+    await page
+      .getByRole("listitem")
+      .filter({ hasText: "Chatbot 2 Edit" })
+      .getByRole("button", { name: "Edit" })
+      .click()
+    await page.getByRole("button", { name: "Save and preview chatbot", exact: true }).click()
+
+    await test.step("agree to terms", async () => {
+      await expect(page.getByText("About the chatbot")).toBeVisible()
+      await page.getByRole("button", { name: "Agree" }).click()
+      await expect(page.getByText("Chatbots can make mistakes.")).toBeVisible()
+    })
+
+    await test.step("send message", async () => {
+      await page.getByPlaceholder("Message").click()
+      await page.getByPlaceholder("Message").fill("Hello, pls help me!")
+      await page.getByRole("button", { name: "Send" }).click()
+      await page.getByText("Hello! How can I assist you today?").waitFor()
+    })
+  })
+
+  test("Teacher uses chatbot preview after editing existing chatbot", async ({ page }) => {
+    await page
+      .getByRole("listitem")
+      .filter({ hasText: "Chatbot 2 Edit" })
+      .getByRole("button", { name: "Edit" })
+      .click()
+    await page.getByRole("textbox", { name: "Name" }).click()
+    await page.getByRole("textbox", { name: "Name" }).fill("Chatbot 2 edited")
+    await page.getByRole("button", { name: "Save", exact: true }).click()
+
+    await page.getByRole("button", { name: "Save and preview chatbot", exact: true }).click()
+
+    await test.step("send message", async () => {
+      await expect(page.getByRole("heading", { name: "Chatbot 2 edited" })).toBeVisible()
+
+      await page.getByPlaceholder("Message").click()
+      await page.getByPlaceholder("Message").fill("Hello, pls help me!")
+      await page.getByRole("button", { name: "Send" }).click()
+      await page.getByText("Hello! How can I assist you today?").waitFor()
+    })
+  })
+
   test("Deleting a chatbot", async ({ page }) => {
     await page
       .getByRole("listitem")

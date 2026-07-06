@@ -1,5 +1,5 @@
 import { cp, mkdir, readdir, readFile, rename, writeFile } from "node:fs/promises"
-import { dirname, join, relative, resolve, sep } from "node:path"
+import { dirname, extname, join, relative, resolve, sep } from "node:path"
 import { fileURLToPath } from "node:url"
 
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url))
@@ -24,8 +24,7 @@ const VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-rea
 /** Top-level entries in the template that must never be copied into a generated project. */
 const COPY_EXCLUDES = new Set([
   "node_modules",
-  ".next",
-  "out",
+  "dist",
   "build",
   "coverage",
   ".turbo",
@@ -52,12 +51,13 @@ trim_trailing_whitespace = true
 `
 
 // pnpm does not run dependencies' build scripts unless they are allow-listed. The generated
-// Next.js project needs esbuild and sharp built; without this, `pnpm install` warns and exits
-// non-zero. The monorepo configures this in its own pnpm-workspace.yaml (excluded from the copy),
-// so we write a minimal standalone one. npm and yarn ignore this file.
+// rsbuild project needs unrs-resolver (rspack's native resolver) and esbuild (used by vitest)
+// built; without this, `pnpm install` warns and exits non-zero. The monorepo configures this in
+// its own pnpm-workspace.yaml (excluded from the copy), so we write a minimal standalone one. npm
+// and yarn ignore this file.
 const STANDALONE_PNPM_WORKSPACE = `allowBuilds:
   esbuild: true
-  sharp: true
+  unrs-resolver: true
 `
 
 interface PackageJson {
@@ -189,23 +189,66 @@ async function renameLocales(projectPath: string, projectName: string): Promise<
   }
 }
 
+/** Binary file extensions that must not be read/written as UTF-8 during name replacement. */
+const BINARY_EXTENSIONS = new Set([
+  ".woff",
+  ".woff2",
+  ".ttf",
+  ".otf",
+  ".eot",
+  ".ico",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".webp",
+  ".gif",
+  ".avif",
+  ".pdf",
+])
+
+/**
+ * Recursively apply literal replacements to every text file in the generated project, skipping the
+ * vendored shared-module snapshot (shared code, not template-specific), VCS/build/dependency dirs
+ * and binary assets. A whole-tree sweep (rather than editing a fixed list of files) keeps the
+ * generator correct as the template evolves: the service name appears in the SERVICE_NAME constant,
+ * the i18next namespace, the service-info display name, the document title, the production server
+ * log line and various comments.
+ */
+async function replaceNameInAllFiles(
+  root: string,
+  replacements: Array<[string, string]>,
+  dir: string = root,
+): Promise<void> {
+  const sharedModuleDir = join(root, "src", "shared-module")
+  for (const entry of await readdir(dir, { withFileTypes: true })) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      if (
+        ["node_modules", ".git", "dist", ".turbo"].includes(entry.name) ||
+        full === sharedModuleDir
+      ) {
+        continue
+      }
+      await replaceNameInAllFiles(root, replacements, full)
+    } else if (entry.isFile() && !BINARY_EXTENSIONS.has(extname(entry.name).toLowerCase())) {
+      await replaceInFile(full, replacements)
+    }
+  }
+}
+
 /** Replace the service name and other template-specific values throughout the generated project. */
 async function parameterize(projectPath: string, projectName: string): Promise<void> {
-  const nameReplacement: Array<[string, string]> = [[TEMPLATE_SERVICE_NAME, projectName]]
-
-  // SERVICE_NAME constant (drives the i18next namespace; lives only in ClientLayoutWrapper).
-  await replaceInFile(join(projectPath, "src/components/layout/ClientLayoutWrapper.tsx"), [
-    [`const SERVICE_NAME = "${TEMPLATE_SERVICE_NAME}"`, `const SERVICE_NAME = "${projectName}"`],
-  ])
-
-  // i18next type augmentation: import path, defaultNS and the resources key all use the namespace.
-  await replaceInFile(join(projectPath, "types/i18next.d.ts"), nameReplacement)
-
-  // Human-readable display name reported by the service-info endpoint (e.g. "my-exercise" -> "My
-  // exercise"). Derived from the project name; the author can refine it afterwards.
+  // Human-readable display name (e.g. "my-exercise" -> "My exercise"), used for the service-info
+  // service_name and the document <title>. Derived from the project name; refine afterwards.
   const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
-  await replaceInFile(join(projectPath, "src/app/api/service-info/route.ts"), [
-    [`service_name: "Example exercise"`, `service_name: "${displayName}"`],
+
+  // Replace the display literal first, then the slug. The two literals do not overlap ("Example
+  // exercise" has a space + capital; "example-exercise" is the hyphenated slug), so this covers the
+  // SERVICE_NAME constant, i18next namespace, service_info name, document title, server log line and
+  // comments in one pass — guaranteeing no template name leaks into the generated project.
+  await replaceNameInAllFiles(projectPath, [
+    ["Example exercise", displayName],
+    [TEMPLATE_SERVICE_NAME, projectName],
   ])
 
   await renameLocales(projectPath, projectName)
@@ -224,14 +267,6 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
     .replace(/^# Shared module that has been copied to this project\n/m, "")
     .replace(/^shared-module\n?/m, "")
   await writeFile(gitignorePath, gitignore)
-
-  // Drop the monorepo-relative typeRoot; keep the local one + node_modules.
-  await replaceInFile(join(projectPath, "tsconfig.json"), [
-    [
-      `"typeRoots": ["types", "./shared-module/types", "./node_modules/@types"]`,
-      `"typeRoots": ["types", "./node_modules/@types"]`,
-    ],
-  ])
 }
 
 export interface ScaffoldOptions {
@@ -283,7 +318,7 @@ async function main() {
         name: "React",
         value: "react",
         description:
-          "An exercise service built with React using the Next.js framework and using Typescript..",
+          "An exercise service built with React using TanStack Start (rsbuild bundler), rendered entirely client-side, using TypeScript.",
       },
       {
         name: "Svelte",

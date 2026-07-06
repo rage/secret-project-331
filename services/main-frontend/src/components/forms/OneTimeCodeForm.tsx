@@ -66,20 +66,22 @@ const OneTimeCodeForm: React.FC<OneTimeCodeFormProps> = ({
 
         <OneTimePassCodeField onChange={(val) => setValue("code", val, { shouldValidate: true })} />
 
-        {hasError && (
-          <div
-            id="code-error"
-            aria-live="assertive"
-            className={css`
+        {/* The live region is always in the DOM so that assistive technology has registered it
+            before the error text is inserted; otherwise the announcement can be missed. */}
+        <div
+          id="code-error"
+          aria-live="assertive"
+          className={css`
+            &:not(:empty) {
               padding: 10px;
               border: 2px solid ${baseTheme.colors.red[500]};
               font-weight: bold;
               color: ${baseTheme.colors.red[500]};
-            `}
-          >
-            {error}
-          </div>
-        )}
+            }
+          `}
+        >
+          {hasError ? error : null}
+        </div>
 
         <Button
           type="submit"

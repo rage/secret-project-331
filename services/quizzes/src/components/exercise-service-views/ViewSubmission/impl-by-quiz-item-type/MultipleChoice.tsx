@@ -1,7 +1,8 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React from "react"
+import React, { useId } from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
@@ -61,6 +62,7 @@ const MultipleChoiceSubmission: React.FC<
   user_information,
 }) => {
   const { t } = useTranslation()
+  const titleId = useId()
 
   const modelSolution = quiz_item_model_solution as ModelSolutionQuizItemMultiplechoice
   // Column means that all the options are always diplayed on top of each other, regardless of the
@@ -78,11 +80,14 @@ const MultipleChoiceSubmission: React.FC<
 
   return (
     <div
+      role="group"
+      aria-labelledby={titleId}
       className={css`
         margin: 0.5rem 0;
       `}
     >
       <div
+        id={titleId}
         className={css`
           font-weight: 500;
           color: #4c5868;
@@ -105,6 +110,7 @@ const MultipleChoiceSubmission: React.FC<
         )}
       </p>
       <div
+        role="list"
         className={css`
           display: flex;
           flex-direction: column;
@@ -146,10 +152,9 @@ const MultipleChoiceSubmission: React.FC<
             }
           }
           return (
-            <>
+            <div key={qo.id} role="listitem">
               <div>
                 <div
-                  key={qo.id}
                   className={cx(
                     gradingOption,
                     answerSelectedThisOption && gradingOptionSelected,
@@ -168,6 +173,9 @@ const MultipleChoiceSubmission: React.FC<
                     `}
                   >
                     <ParsedText inline parseMarkdown parseLatex text={qo.title || qo.body || ""} />
+                    {answerSelectedThisOption && (
+                      <VisuallyHidden>{t("you-selected-this-option")}</VisuallyHidden>
+                    )}
                   </div>
                   <div>
                     <div
@@ -223,7 +231,7 @@ const MultipleChoiceSubmission: React.FC<
                   feedback={feedBackForOption}
                 />
               </div>
-            </>
+            </div>
           )
         })}
       </div>

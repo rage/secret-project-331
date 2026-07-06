@@ -3,7 +3,7 @@
 import { css, cx } from "@emotion/css"
 import { InfoCircle } from "@vectopus/atlas-icons-react"
 import _ from "lodash"
-import React from "react"
+import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoice } from "../../../../../types/quizTypes/answer"
@@ -49,6 +49,8 @@ const MultipleChoice: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemMultiplechoice, UserItemAnswerMultiplechoice>
 > = ({ quizItemAnswerState, quizItem, user_information, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
+  const titleId = useId()
+  const bodyId = useId()
   // Column means that all the options are always diplayed on top of each other, regardless of the
   // device width.
   const direction = sanitizeFlexDirection(quizItem.optionDisplayDirection, ROW)
@@ -97,6 +99,7 @@ const MultipleChoice: React.FunctionComponent<
       `}
     >
       <div
+        id={titleId}
         className={css`
           ${QUIZ_TITLE_STYLE}
         `}
@@ -104,6 +107,7 @@ const MultipleChoice: React.FunctionComponent<
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
       </div>
       <p
+        id={bodyId}
         className={css`
           color: ${quizTheme.quizBodyColor};
           font-size: ${quizTheme.quizBodyFontSize};
@@ -113,6 +117,9 @@ const MultipleChoice: React.FunctionComponent<
         <ParsedText parseLatex parseMarkdown inline text={quizItem.body} />
       </p>
       <div
+        role="group"
+        aria-labelledby={titleId}
+        aria-describedby={quizItem.body ? bodyId : undefined}
         className={css`
           display: flex;
           flex-direction: column;

@@ -75,20 +75,22 @@ export const CredentialsForm: React.FC<CredentialsFormProps> = ({
         }}
         required
       />
-      {error && (
-        <div
-          aria-live="assertive"
-          className={css`
+      {/* The live region is always in the DOM so that assistive technology has registered it
+          before the error text is inserted; otherwise the announcement can be missed. */}
+      <div
+        aria-live="assertive"
+        className={css`
+          &:not(:empty) {
             padding: 1rem;
             border: 2px solid ${baseTheme.colors.red[500]};
             font-weight: bold;
             color: ${baseTheme.colors.red[500]};
             margin-top: 1rem;
-          `}
-        >
-          {t("incorrect-email-or-password")}
-        </div>
-      )}
+          }
+        `}
+      >
+        {error ? t("incorrect-email-or-password") : null}
+      </div>
       <Button
         className={css`
           margin: 2rem 0rem;

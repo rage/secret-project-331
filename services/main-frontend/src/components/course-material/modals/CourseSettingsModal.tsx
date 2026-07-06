@@ -173,10 +173,11 @@ const CourseSettingsModal: React.FC<React.PropsWithChildren<CourseSettingsModalP
       leftAlignTitle={true}
       showCloseButton={false}
       closeable={false}
+      lang={dialogLanguage}
     >
       <div
         className={css`
-          padding: 2rem 3rem;
+          padding: 2rem clamp(1rem, 5vw, 3rem);
         `}
       >
         {!!submitError && <ErrorBanner variant={"readOnly"} error={submitError} />}

@@ -20,6 +20,11 @@ const ExpandableContentInnerBlock: React.FC<
   const heading = props.data.attributes.name
 
   const [open, setOpen] = useState(false)
+  const reactId = React.useId()
+  // eslint-disable-next-line i18next/no-literal-string
+  const headingId = `expandable-heading-${reactId}`
+  // eslint-disable-next-line i18next/no-literal-string
+  const panelId = `expandable-panel-${reactId}`
   return (
     <div
       className={css`
@@ -30,41 +35,49 @@ const ExpandableContentInnerBlock: React.FC<
         background: #dfdfe480;
       `}
     >
-      <button
-        type="button"
+      <h4
+        id={headingId}
         className={css`
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          gap: 8px;
-          font-family: ${headingFont};
-          color: #4c5868;
-          cursor: pointer;
-          border: 0;
-          width: 100%;
-          text-align: left;
-          background: transparent;
-          ${open ? "padding-bottom: 1rem;" : ""}
+          margin: 0;
+          font-weight: ${fontWeights.semibold};
         `}
-        aria-expanded={open}
-        onClick={() => setOpen((prev) => !prev)}
       >
-        {open ? (
-          <MinusCircle size={18} color="#4C5868" />
-        ) : (
-          <PlusCircle size={18} color="#4C5868" />
-        )}
-        <h4
+        <button
+          type="button"
           className={css`
-            font-weight: ${fontWeights.semibold};
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 8px;
+            font-family: ${headingFont};
+            font-weight: inherit;
+            font-size: inherit;
+            color: #4c5868;
+            cursor: pointer;
+            border: 0;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            ${open ? "padding-bottom: 1rem;" : ""}
           `}
+          aria-expanded={open}
+          aria-controls={panelId}
+          onClick={() => setOpen((prev) => !prev)}
         >
+          {open ? (
+            <MinusCircle size={18} color="#4C5868" />
+          ) : (
+            <PlusCircle size={18} color="#4C5868" />
+          )}
           {heading}
-        </h4>
-      </button>
+        </button>
+      </h4>
 
       {open && (
         <div
+          id={panelId}
+          role="region"
+          aria-labelledby={headingId}
           className={css`
             background: ${baseTheme.colors.primary[100]};
             border-radius: 2px;

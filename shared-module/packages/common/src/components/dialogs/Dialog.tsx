@@ -27,6 +27,8 @@ interface DialogProps extends AriaDialogProps {
   preventBackgroundScroll?: boolean
   children: React.ReactNode
   className?: string
+  /** Language of the dialog contents, set as a `lang` attribute on the dialog root so screen readers use the correct pronunciation. */
+  lang?: string
   "data-testid"?: string
   /** Whether the dialog is closable by clicking outside of it */
   isDismissable?: boolean
@@ -43,6 +45,7 @@ const Dialog: React.FC<DialogProps> = ({
   width = "normal",
   disableContentScroll = false,
   preventBackgroundScroll = false,
+  lang,
   "data-testid": dataTestId,
   isDismissable = false,
   shouldCloseOnBlur = false,
@@ -108,6 +111,7 @@ const Dialog: React.FC<DialogProps> = ({
         <FocusScope contain restoreFocus autoFocus>
           <div
             {...activeOverlayProps}
+            lang={lang}
             ref={ref}
             className={cx(
               props.className,
@@ -143,7 +147,7 @@ const Dialog: React.FC<DialogProps> = ({
                 display: flex;
                 flex-direction: column;
                 ${!disableContentScroll && !noPadding && "overflow-y: auto;"}
-                ${!noPadding && "padding: 2rem 3rem;"}
+                ${!noPadding && "padding: 2rem clamp(1rem, 5vw, 3rem);"}
               `}
             >
               {children}

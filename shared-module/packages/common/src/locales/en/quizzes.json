@@ -183,6 +183,7 @@
   "word-count-below-minimum": "Word count {{count}} is below the minimum of {{min}} words.",
   "word-count-status": "Word count: {{count}} words",
   "words": "words",
+  "you-selected-this-option": "You selected this option.",
   "your-answer-was-correct": "Your answer was correct.",
   "your-answer-was-not-correct": "Your answer was not correct.",
   "your-answer-was-partially-correct": "Your answer was partially correct."

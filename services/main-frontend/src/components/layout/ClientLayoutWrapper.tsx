@@ -17,6 +17,7 @@ import GlobalStyles from "@/shared-module/common/styles/GlobalStyles"
 import initI18n from "@/shared-module/common/utils/initI18n"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { RouteFocusManager } from "@/shared-module/components"
 
 const SERVICE_NAME = "main-frontend"
 
@@ -85,6 +86,7 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
               <LanguageOptionsProvider>
                 <GlobalStyles />
                 <PageTitleManager />
+                <RouteFocusManager />
                 <LoginStateContextProvider>{children}</LoginStateContextProvider>
               </LanguageOptionsProvider>
             </DialogProvider>

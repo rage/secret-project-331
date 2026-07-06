@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
-import "react"
+import { useRef } from "react"
 import { useTranslation } from "react-i18next"
 import Zoom from "react-medium-image-zoom"
 
@@ -29,6 +29,7 @@ const ImageBlock: React.FC<
 > = ({ data }) => {
   const { t } = useTranslation()
   const { disableInteractivity } = useImageInteractivity()
+  const captionRef = useRef<HTMLElement>(null)
   const {
     alt,
     isDecorative,
@@ -116,21 +117,24 @@ const ImageBlock: React.FC<
         >
           {disableInteractivity ? renderImage() : <>{renderImage()}</>}
         </div>
+        {caption && caption.trim() !== "" && (
+          <ParsedText
+            text={caption}
+            tag="figcaption"
+            tagProps={{
+              className: css`
+                caption-side: bottom;
+                text-align: center;
+                font-size: 0.8125rem;
+                margin-top: 0.5rem;
+                margin-bottom: 0.8125rem;
+              `,
+            }}
+            useWrapperElement={false}
+            wrapperRef={captionRef}
+          />
+        )}
       </figure>
-      <ParsedText
-        text={caption ?? ""}
-        tag="figcaption"
-        tagProps={{
-          className: css`
-            caption-side: bottom;
-            text-align: center;
-            font-size: 0.8125rem;
-            margin-top: 0.5rem;
-            margin-bottom: 0.8125rem;
-          `,
-        }}
-        useWrapperElement={true}
-      />
     </div>
   )
 

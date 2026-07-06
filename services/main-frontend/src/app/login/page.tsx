@@ -14,6 +14,7 @@ import Spinner from "@/shared-module/common/components/Spinner"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
+import { baseTheme } from "@/shared-module/common/styles"
 import { validateReturnToRouteOrDefault } from "@/shared-module/common/utils/redirectBackAfterLoginOrSignup"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -53,11 +54,9 @@ const Login: React.FC = () => {
       className={css`
         margin: 0 auto;
         a {
-          text-decoration: none;
-          color: #007bff;
-          :hover {
-            text-decoration: underline;
-          }
+          /* Underline links so they are distinguishable by more than colour alone (WCAG 1.4.1). */
+          text-decoration: underline;
+          color: ${baseTheme.colors.blue[600]};
         }
       `}
     >

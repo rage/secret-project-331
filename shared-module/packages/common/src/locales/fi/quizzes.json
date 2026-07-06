@@ -185,6 +185,7 @@
   "word-count-below-minimum": "Sanamäärä {{count}} alittaa vähimmäismäärän {{min}} sanaa.",
   "word-count-status": "Sanamäärä: {{count}} sanaa",
   "words": "sanaa",
+  "you-selected-this-option": "Valitsit tämän vaihtoehdon.",
   "your-answer-was-correct": "Vastauksesi oli oikein.",
   "your-answer-was-not-correct": "Vastauksesi ei ollut oikein.",
   "your-answer-was-partially-correct": "Vastauksesi oli osittain oikein."

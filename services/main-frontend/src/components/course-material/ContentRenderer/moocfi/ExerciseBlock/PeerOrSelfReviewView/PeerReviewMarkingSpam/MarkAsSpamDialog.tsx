@@ -1,16 +1,13 @@
 "use client"
 
 import { css } from "@emotion/css"
-import styled from "@emotion/styled"
-import React, { useState } from "react"
+import React from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
+import { Radio, RadioGroup, TextArea } from "@/shared-module/components"
 
-const FieldContainer = styled.div`
-  margin-bottom: 1rem;
-`
 export const ReportReasonValues = {
   // eslint-disable-next-line i18next/no-literal-string
   Spam: "Spam",
@@ -23,20 +20,26 @@ export const ReportReasonValues = {
 // Ensure the type aligns with the backend type
 export type ReportReason = (typeof ReportReasonValues)[keyof typeof ReportReasonValues]
 
+interface ReportFormFields {
+  reason: string
+  description: string
+}
+
 const MarkAsSpamDialog: React.FC<{
   isOpen: boolean
   onClose: () => void
   onSubmit: (reason: ReportReason, description: string) => void
 }> = ({ isOpen, onClose, onSubmit }) => {
   const { t } = useTranslation()
-  const [selectedReason, setSelectedReason] = useState<ReportReason | null>(null)
-  const [description, setDescription] = useState<string>("")
+  const { control, watch, reset } = useForm<ReportFormFields>({
+    defaultValues: { reason: "", description: "" },
+  })
+  const selectedReason = watch("reason")
 
   const handleSubmit = () => {
     if (selectedReason) {
-      onSubmit(selectedReason, description)
-      setSelectedReason(null)
-      setDescription("")
+      onSubmit(selectedReason as ReportReason, watch("description"))
+      reset()
       onClose()
     }
   }
@@ -45,7 +48,6 @@ const MarkAsSpamDialog: React.FC<{
     <StandardDialog
       open={isOpen}
       onClose={onClose}
-      aria-labelledby="report-dialog-title"
       title={t("title-report-dialog")}
       buttons={[
         {
@@ -56,50 +58,29 @@ const MarkAsSpamDialog: React.FC<{
         },
       ]}
     >
-      <div
+      <RadioGroup
+        name="reason"
+        control={control}
+        label={t("select-reason")}
         className={css`
           margin-bottom: 1rem;
         `}
       >
-        {t("select-reason")}
-        <FieldContainer>
-          <RadioButton
-            label={t("flagging-reason-spam")}
-            value={ReportReasonValues.Spam}
+        <Radio value={ReportReasonValues.Spam} label={t("flagging-reason-spam")} />
+        <Radio
+          value={ReportReasonValues.HarmfulContent}
+          label={t("flagging-reason-harmful-content")}
+        />
+        <Radio value={ReportReasonValues.AiGenerated} label={t("flagging-reason-ai-generated")} />
+      </RadioGroup>
 
-            name="reason"
-            onChange={() => setSelectedReason(ReportReasonValues.Spam)}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <RadioButton
-            label={t("flagging-reason-harmful-content")}
-            value={ReportReasonValues.HarmfulContent}
-
-            name="reason"
-            onChange={() => setSelectedReason(ReportReasonValues.HarmfulContent)}
-          />
-        </FieldContainer>
-        <FieldContainer>
-          <RadioButton
-            label={t("flagging-reason-ai-generated")}
-            value={ReportReasonValues.AiGenerated}
-
-            name="reason"
-            onChange={() => setSelectedReason(ReportReasonValues.AiGenerated)}
-          />
-        </FieldContainer>
-      </div>
-
-      <textarea
-        placeholder={t("optional-description")}
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
+      <TextArea
+        name="description"
+        control={control}
+        label={t("optional-description")}
+        rows={3}
         className={css`
-          width: 100%;
-          height: 5rem;
           margin-bottom: 1rem;
-          padding: 10px 12px;
         `}
       />
     </StandardDialog>

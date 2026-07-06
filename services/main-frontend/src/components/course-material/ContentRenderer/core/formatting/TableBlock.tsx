@@ -106,6 +106,8 @@ const TableBlock: React.FC<
                       text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                       tag="th"
                       tagProps={{
+                        // eslint-disable-next-line i18next/no-literal-string
+                        scope: "col",
                         className: fetchAlignment(cell.align),
                         colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
@@ -154,6 +156,8 @@ const TableBlock: React.FC<
                       text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                       tag="th"
                       tagProps={{
+                        // eslint-disable-next-line i18next/no-literal-string
+                        scope: "col",
                         className: fetchAlignment(cell.align),
                         colSpan: stringToNumberOrPlaceholder(cell.colspan, undefined),
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),

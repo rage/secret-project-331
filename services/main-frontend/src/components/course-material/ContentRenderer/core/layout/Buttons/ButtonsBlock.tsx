@@ -6,8 +6,8 @@ import { useTranslation } from "react-i18next"
 import { BlockRendererProps } from "../../.."
 
 import { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
-import Button from "@/shared-module/common/components/Button"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import { Link } from "@/shared-module/components"
 import colorMapper from "@/styles/course-material/colorMapper"
 import { fontSizeMapper } from "@/styles/course-material/fontSizeMapper"
 
@@ -86,35 +86,36 @@ const ButtonsBlock: React.FC<
           : "noopener"
         : rel
 
+    const opensInNewTab = Boolean(linkTarget && linkTarget.includes("_blank"))
+
     return (
-      <a
+      <Link
         key={button.clientId}
+        styledAsButton
+        variant={getButtonTypeFromClassName(className)}
+        size="medium"
+        href={url ?? ""}
+        {...(linkTarget && { target: linkTarget })}
         rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
-        href={url}
-        target={linkTarget}
+        className={css`
+          ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
+          ${gradient && `background: ${colorMapper(gradient)} !important;`}
+          ${
+            textColor &&
+            `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
+              textColor,
+            )} !important;`
+          }
+          ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
+          margin: 0.5rem 0rem;
+          margin-right: 0.5rem;
+        `}
       >
-        <Button
-          className={css`
-            ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
-            ${gradient && `background: ${colorMapper(gradient)} !important;`}
-            ${
-              textColor &&
-              `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
-                textColor,
-              )} !important;`
-            }
-            ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
-            margin: 0.5rem 0rem;
-            margin-right: 0.5rem;
-          `}
-          variant={getButtonTypeFromClassName(className)}
-          size="medium"
-          dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
-        />
-        {linkTarget && linkTarget.includes("_blank") && (
+        <span dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }} />
+        {opensInNewTab && (
           <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
         )}
-      </a>
+      </Link>
     )
   })
   return (

@@ -8,12 +8,15 @@ import { produce } from "immer"
 import { useAtomValue } from "jotai"
 import { usePathname, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useId, useMemo, useReducer, useRef, useState } from "react"
+import { VisuallyHidden } from "react-aria-components"
 import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../.."
 
 import ExerciseStatusMessage from "./ExerciseStatusMessage"
+import ExerciseSubmitButton from "./ExerciseSubmitButton"
 import ExerciseTask from "./ExerciseTask"
+import OutOfTriesNotification from "./OutOfTriesNotification"
 import PeerOrSelfReviewView from "./PeerOrSelfReviewView"
 import PeerOrSelfReviewsReceived from "./PeerOrSelfReviewView/PeerOrSelfReviewsReceivedComponent/index"
 import WaitingForPeerReviews from "./PeerOrSelfReviewView/WaitingForPeerReviews"
@@ -110,13 +113,18 @@ export const exerciseButtonStyles = css`
       #69af8a 0 -3px 0 inset;
   }
 
-  &:disabled {
+  &:disabled,
+  &[aria-disabled="true"] {
     background: #929896;
     box-shadow:
       rgba(45, 35, 66, 0) 0 4px 8px,
       rgba(45, 35, 66, 0) 0 7px 13px -3px,
       #68716c 0 -3px 0 inset;
     cursor: not-allowed;
+  }
+
+  &[aria-disabled="true"]:hover {
+    filter: none;
   }
 `
 
@@ -157,6 +165,12 @@ function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
       overflow-wrap: anywhere;
       min-width: 0;
       margin-top: -2px;
+
+      /* Focused programmatically after grading so screen readers continue from the
+      exercise; not part of the tab order, so no visible focus ring is needed. */
+      &:focus {
+        outline: none;
+      }
 
       ${respondToOrLarger.xxxs} {
         font-size: ${long ? "1.06rem" : "1.14rem"};
@@ -220,7 +234,9 @@ const ExerciseBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ExerciseBlockAttributes>>
 > = (props) => {
   const sectionRef = useRef<HTMLElement>(null)
+  const exerciseTitleRef = useRef<HTMLHeadingElement>(null)
   const exerciseTitleId = useId()
+  const [submissionAnnouncement, setSubmissionAnnouncement] = useState<string | null>(null)
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const returnTo = useCurrentPagePathForReturnTo(
@@ -304,6 +320,20 @@ const ExerciseBlock: React.FC<
           payload: data,
           signedIn: Boolean(loginState.signedIn),
         })
+        // Announce the grading result to screen readers and move focus to the
+        // exercise heading so that the reading order continues from the exercise
+        // instead of jumping to the beginning of the page.
+        const scoreGiven = data.exercise_status?.score_given
+        const maxScore = getCourseMaterialExercise.data?.exercise.score_maximum
+        setSubmissionAnnouncement(
+          scoreGiven !== null && scoreGiven !== undefined && maxScore != null
+            ? t("answer-submitted-with-points-announcement", {
+                points: scoreGiven,
+                maxPoints: maxScore,
+              })
+            : t("answer-submitted-announcement"),
+        )
+        exerciseTitleRef.current?.focus({ preventScroll: true })
         await getCourseMaterialExercise.refetch()
         makeSureComponentStaysVisibleAfterChangingView(sectionRef)
       },
@@ -333,6 +363,7 @@ const ExerciseBlock: React.FC<
         isChapterLocked: Boolean(isChapterLocked),
       })
       postSubmissionMutation.reset()
+      setSubmissionAnnouncement(null)
 
       setAnswers(answers)
 
@@ -483,7 +514,12 @@ const ExerciseBlock: React.FC<
             >
               <ExerciseCardHeader
                 title={
-                  <h2 id={exerciseTitleId} className={exerciseTitleStyles.heading}>
+                  <h2
+                    id={exerciseTitleId}
+                    ref={exerciseTitleRef}
+                    tabIndex={-1}
+                    className={exerciseTitleStyles.heading}
+                  >
                     <div className={exerciseTitleStyles.label}>{t("label-exercise")}:</div>
                     <div className={exerciseTitleStyles.nameLine}>
                       {courseMaterialExercise.exercise.name}
@@ -582,6 +618,12 @@ const ExerciseBlock: React.FC<
                   </div>
                 }
               />
+
+              <VisuallyHidden>
+                <div role="status" aria-live="polite">
+                  {submissionAnnouncement}
+                </div>
+              </VisuallyHidden>
 
               {chapterLockingEnabled &&
                 courseMaterialExercise &&
@@ -745,19 +787,20 @@ const ExerciseBlock: React.FC<
                       </div>
                     </YellowBox>
                   )}
+                <OutOfTriesNotification ranOutOfTries={Boolean(ranOutOfTries)} />
                 <div>
                   {courseMaterialExercise.can_post_submission &&
                     !userOnWrongLanguageVersion &&
                     !inSubmissionView &&
                     !isChapterLocked && (
-                      <button
-                        disabled={
-                          postSubmissionMutation.isPending ||
+                      <ExerciseSubmitButton
+                        isPending={postSubmissionMutation.isPending}
+                        answersIncomplete={
                           answers.size < (postThisStateToIFrame?.length ?? 0) ||
                           Array.from(answers.values()).some((x) => !x.valid)
                         }
-                        className={cx(exerciseButtonStyles)}
-                        onClick={() => {
+                        buttonClassName={cx(exerciseButtonStyles)}
+                        onSubmit={() => {
                           if (!courseInstanceId && !courseMaterialExercise.exercise.exam_id) {
                             return
                           }
@@ -812,9 +855,7 @@ const ExerciseBlock: React.FC<
                             },
                           )
                         }}
-                      >
-                        {t("submit-button")}
-                      </button>
+                      />
                     )}
 
                   {userOnWrongLanguageVersion &&

@@ -160,12 +160,20 @@ const MultipleChoiceClickableFeedback: React.FC<
                       };
                     `}
                   >
-                    {shouldBeSelected === undefined || isCorrect ? (
-                      <CheckCircle size={20} />
-                    ) : (
-                      <XmarkCircle size={20} />
-                    )}
-                    <VisuallyHidden>{t("choose-n-selected")}</VisuallyHidden>
+                    <span aria-hidden="true">
+                      {shouldBeSelected === undefined || isCorrect ? (
+                        <CheckCircle size={20} />
+                      ) : (
+                        <XmarkCircle size={20} />
+                      )}
+                    </span>
+                    <VisuallyHidden>
+                      {t("choose-n-selected")}{" "}
+                      {shouldBeSelected !== undefined &&
+                        (isCorrect
+                          ? t("your-answer-was-correct")
+                          : t("your-answer-was-not-correct"))}
+                    </VisuallyHidden>
                   </span>
                 )}
               </div>

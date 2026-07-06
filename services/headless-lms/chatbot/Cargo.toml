@@ -15,7 +15,7 @@ headless-lms-models = { path = "../models" }
 secrecy.workspace = true
 
 # Date and time library for Rust
-chrono = { version = "0.4.44", features = ["serde"] }
+chrono = { version = "0.4.45", features = ["serde"] }
 # An implementation of futures and streams featuring zero allocations, composability, and itera…
 futures = "0.3.32"
 # Common utilities and extension traits for the futures-rs library.
@@ -42,15 +42,15 @@ serde_json = "1.0.150"
 # Application-level tracing for Rust.
 tracing = "0.1.44"
 # A library to generate and parse UUIDs.
-uuid = { version = "1.23.2", features = ["serde", "v4", "v5"] }
+uuid = { version = "1.23.4", features = ["serde", "v4", "v5"] }
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.102"
+anyhow = "1.0.103"
 # 🧰 The Rust SQL Toolkit. An async, pure Rust SQL crate featuring compile-time checked queries
 sqlx.workspace = true
 # Asynchronous streams using async & await notation
 async-stream = "0.3.6"
 # Types and traits for working with bytes
-bytes = "1.11.1"
+bytes = "1.12.0"
 # Azure Storage crate from the Azure SDK for Rust
 azure_storage = "0.21.0"
 # Azure Blob Storage crate from the Azure SDK for Rust
@@ -66,7 +66,7 @@ tracing-error = "0.2.1"
 #  A library to acquire a stack trace (backtrace) at runtime in a Rust program. Should be removed after Rust 1.65.
 backtrace = "0.3.76"
 # Utilities for random number generation
-rand = "0.10.1"
+rand = "0.10.2"
 # Code-first OpenAPI schema generation for shared utility structs used in request/response models.
 utoipa.workspace = true
 

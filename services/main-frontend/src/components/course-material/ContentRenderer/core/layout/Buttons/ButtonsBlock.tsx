@@ -97,10 +97,12 @@ const ButtonsBlock: React.FC<
           className={css`
             ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
             ${gradient && `background: ${colorMapper(gradient)} !important;`}
-            ${textColor &&
-            `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
-              textColor,
-            )} !important;`}
+            ${
+              textColor &&
+              `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
+                textColor,
+              )} !important;`
+            }
             ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
             margin: 0.5rem 0rem;
             margin-right: 0.5rem;

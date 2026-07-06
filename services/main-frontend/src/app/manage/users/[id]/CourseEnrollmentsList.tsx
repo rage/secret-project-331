@@ -50,10 +50,12 @@ const CourseEnrollmentsList: React.FC<CourseEnrollmentsListProps> = ({ userId })
                   padding: 1rem;
                   margin: 1rem 0;
                   border: 1px solid #ccc;
-                  ${!is_current &&
-                  `
+                  ${
+                    !is_current &&
+                    `
                   opacity: 0.7;
-                  `}
+                  `
+                  }
                 `}
               >
                 <div

@@ -103,7 +103,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   const { t } = useTranslation()
   useDisableBrowserDefaultDragFileBehavior()
   const clearerRef = useBlockSelectionClearer()
-  const localRef = useRef()
+  const localRef = useRef<HTMLDivElement>(null)
   const contentRef = useMergeRefs([clearerRef, localRef])
 
   const [isGutenbergBootstrapped, setIsGutenbergBootstrapped] = useState(false)

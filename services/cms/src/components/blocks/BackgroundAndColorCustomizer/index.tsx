@@ -102,7 +102,6 @@ const BackgroundAndColorCustomizer: React.FC<
     <>
       {/* Warning for missing mobile background image */}
       {isMissingMobileBackground && (
-        // eslint-disable-next-line i18next/no-literal-string
         <Notice status="warning" isDismissible={false}>
           {t("warning-mobile-background-missing")}
         </Notice>

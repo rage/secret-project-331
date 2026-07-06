@@ -155,7 +155,7 @@ subtle = "2.6.1"
 # Password hashing using Argon2id
 argon2 = "0.6.0-rc.8"
 # For building an EC public key from JWK {x,y} and encoding to SPKI DER
-p256 = { version = "0.13", features = ["pkcs8"] }
+p256 = { version = "0.14", features = ["pkcs8"] }
 pkcs8 = "0.11"
 # Dpop verifying
 dpop-verifier = { version = "4.4.0", features = ["actix-web"] }

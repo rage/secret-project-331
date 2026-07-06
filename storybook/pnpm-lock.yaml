@@ -70,8 +70,8 @@ importers:
         specifier: ^3.36.0
         version: 3.36.0(react@19.2.7)
       '@tanstack/react-query':
-        specifier: ^5.101.1
-        version: 5.101.1(react@19.2.7)
+        specifier: ^5.101.2
+        version: 5.101.2(react@19.2.7)
       '@vectopus/atlas-icons-react':
         specifier: github:rage/Atlas-icons-react#d310057c60f4f011306c35ae9caf025c5a09e41b
         version: https://codeload.github.com/rage/Atlas-icons-react/tar.gz/d310057c60f4f011306c35ae9caf025c5a09e41b
@@ -82,8 +82,8 @@ importers:
         specifier: ^3.2.0
         version: 3.2.0(date-fns@4.4.0)
       i18next:
-        specifier: ^26.3.2
-        version: 26.3.2(typescript@5.9.2)
+        specifier: ^26.3.3
+        version: 26.3.3(typescript@5.9.2)
       motion:
         specifier: ^12.42.0
         version: 12.42.0(@emotion/is-prop-valid@1.4.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -95,7 +95,7 @@ importers:
         version: 7.80.0(react@19.2.7)
       react-i18next:
         specifier: ^17.0.8
-        version: 17.0.8(i18next@26.3.2(typescript@5.9.2))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.2)
+        version: 17.0.8(i18next@26.3.3(typescript@5.9.2))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.2)
       uuid:
         specifier: ^14.0.1
         version: 14.0.1
@@ -1159,11 +1159,11 @@ packages:
   '@swc/helpers@0.5.23':
     resolution: {integrity: sha512-5lSsMOTXURePglDfvuAQUqkGek9Hg2kksOYay2m0+XR++b2NWYL/4sWyuvVBIs8oKnJaxkdi9whaL/sqN13afw==}
 
-  '@tanstack/query-core@5.101.1':
-    resolution: {integrity: sha512-Y6Y92dkXtNqx67m2pMSxUsA3zOCwv862JexZRP8/EPwvKXMPu9m8rv43spiXWzOUIggQ3SQApttALStzhA8B4g==}
+  '@tanstack/query-core@5.101.2':
+    resolution: {integrity: sha512-hH5MLoJhF7KaIGd7q3xTXGXvslI+GYlM1Z/35aSHHWaCJWB7XvTSHYuV3eM7tw+aE0mT/xMro4M4Q9rCGHT0lw==}
 
-  '@tanstack/react-query@5.101.1':
-    resolution: {integrity: sha512-ZnONUuQKJe1bJMStXUL1s5uKN9FcfC28j5cK+iDZcdSHtUv1wtin1cGc/Oewhf2Oc4eKY7lggtpvT/AbMmhHew==}
+  '@tanstack/react-query@5.101.2':
+    resolution: {integrity: sha512-seDkr6kzGzX1okaaTtZPtgA688CDPlXUz1C6xSg0ESqn04Vuc8tlrYms1s3de+znBqhPVxFRfpAfUf+6XvfPWg==}
     peerDependencies:
       react: ^18 || ^19
 
@@ -1670,8 +1670,8 @@ packages:
   html-parse-stringify@3.0.1:
     resolution: {integrity: sha512-KknJ50kTInJ7qIScF3jeaFRpMpE8/lfiTdzf/twXyPBLAGrLRTmkz3AdTnKeh40X8k9L2fdYwEp/42WGXIRGcg==}
 
-  i18next@26.3.2:
-    resolution: {integrity: sha512-QQkXAM1sPDHqhxMQuBeHVMUn6mJchF+wdpOoQerciLAFqO3ZYdxO0EUbeEhruyutnNwpUQIITDVzLjwnNL0T1w==}
+  i18next@26.3.3:
+    resolution: {integrity: sha512-aYVegyBdXSO93CMMihvr47jI7GHSOcIahMpJX+qzUXDzW4xDJf2uenIA+45vDU+YhiVdcfsql70AC9RVdMNrHg==}
     peerDependencies:
       typescript: ^5 || ^6
     peerDependenciesMeta:
@@ -3383,11 +3383,11 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@tanstack/query-core@5.101.1': {}
+  '@tanstack/query-core@5.101.2': {}
 
-  '@tanstack/react-query@5.101.1(react@19.2.7)':
+  '@tanstack/react-query@5.101.2(react@19.2.7)':
     dependencies:
-      '@tanstack/query-core': 5.101.1
+      '@tanstack/query-core': 5.101.2
       react: 19.2.7
 
   '@testing-library/dom@10.4.0':
@@ -3903,7 +3903,7 @@ snapshots:
     dependencies:
       void-elements: 3.1.0
 
-  i18next@26.3.2(typescript@5.9.2):
+  i18next@26.3.3(typescript@5.9.2):
     optionalDependencies:
       typescript: 5.9.2
 
@@ -4271,11 +4271,11 @@ snapshots:
     dependencies:
       react: 19.2.7
 
-  react-i18next@17.0.8(i18next@26.3.2(typescript@5.9.2))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.2):
+  react-i18next@17.0.8(i18next@26.3.3(typescript@5.9.2))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(typescript@5.9.2):
     dependencies:
       '@babel/runtime': 7.29.2
       html-parse-stringify: 3.0.1
-      i18next: 26.3.2(typescript@5.9.2)
+      i18next: 26.3.3(typescript@5.9.2)
       react: 19.2.7
       use-sync-external-store: 1.6.0(react@19.2.7)
     optionalDependencies:
@@ -4549,13 +4549,13 @@ time:
   '@storybook/addon-onboarding@10.4.6': '2026-06-16T11:42:01.175Z'
   '@storybook/react-vite@10.4.6': '2026-06-16T11:42:40.527Z'
   '@storybook/react@10.4.6': '2026-06-16T11:43:30.413Z'
-  '@tanstack/react-query@5.101.1': '2026-06-23T10:00:17.739Z'
+  '@tanstack/react-query@5.101.2': '2026-06-27T20:31:41.595Z'
   '@types/react@19.2.17': '2026-06-05T20:10:24.692Z'
   '@vitejs/plugin-react@6.0.3': '2026-06-23T10:11:14.652Z'
   date-fns-tz@3.2.0: '2024-09-30T05:32:59.139Z'
   date-fns@4.4.0: '2026-05-29T23:23:42.628Z'
   eslint-plugin-storybook@10.4.6: '2026-06-16T11:43:14.113Z'
-  i18next@26.3.2: '2026-06-24T04:54:19.923Z'
+  i18next@26.3.3: '2026-06-26T11:23:58.220Z'
   motion@12.42.0: '2026-06-25T10:45:39.249Z'
   prop-types@15.8.1: '2022-01-05T00:08:33.458Z'
   react-aria@3.50.0: '2026-06-18T15:48:13.266Z'

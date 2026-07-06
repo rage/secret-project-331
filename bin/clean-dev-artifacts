@@ -113,6 +113,7 @@ section "Frontend build outputs"
 shopt -s nullglob
 safe_rm \
   "$REPO_ROOT"/services/*/.next \
+  "$REPO_ROOT"/services/*/dist \
   "$REPO_ROOT"/services/*/out \
   "$REPO_ROOT"/services/*/build \
   "$REPO_ROOT"/storybook/.next \

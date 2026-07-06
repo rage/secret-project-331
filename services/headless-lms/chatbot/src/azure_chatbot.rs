@@ -52,6 +52,7 @@ const ALL_EXPECTED_EVENTS: &[&str] = &[
     "response.queued",
     "response.created",
     "response.output_item.added",
+    "response.output_item.done",
     "response.content_part.added",
     "response.content_part.done",
     // we can stream reasoning summary text with these
@@ -1161,8 +1162,7 @@ async fn parse_text_response<'a>(
                         },
                         "response.error" | "error" | "response.failed" => {
                             // error is logged in the next iteration
-
-                         }
+                        }
                         _ => {
                             if !ALL_EXPECTED_EVENTS.contains(&event_type.as_str()) {
                                 error!("Received unexpected event from Azure: Event: {}", event_type);

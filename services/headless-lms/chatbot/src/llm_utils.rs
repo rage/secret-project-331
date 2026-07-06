@@ -160,7 +160,8 @@ impl TryFrom<ChatbotConversationMessage> for APIInputMessage {
 #[serde(untagged)]
 pub enum MessageContent {
     Text(String),
-    Object(Vec<MessageContentItem>),
+    OutputText(Vec<MessageContentItem>),
+    Refusal(Vec<RefusalContentItem>),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -168,13 +169,23 @@ pub struct MessageContentItem {
     pub text: String,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct RefusalContentItem {
+    pub refusal: String,
+}
+
 impl MessageContent {
     pub fn get_content_text(self) -> String {
         match self {
             MessageContent::Text(msg_text) => msg_text,
-            MessageContent::Object(output) => output
+            MessageContent::OutputText(output) => output
                 .iter()
                 .map(|x| x.text.to_owned())
+                .collect::<Vec<String>>()
+                .join(""),
+            MessageContent::Refusal(refusal) => refusal
+                .iter()
+                .map(|x| x.refusal.to_owned())
                 .collect::<Vec<String>>()
                 .join(""),
         }

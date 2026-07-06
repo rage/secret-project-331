@@ -45,6 +45,31 @@ use crate::prelude::*;
 
 pub const CONTENT_FIELD_SEPARATOR: &str = ",|||,";
 
+/// These are the events we expect to receive from Azure API but will not handle.
+/// This list doesn't include the events we explicitly handle.
+const ALL_EXPECTED_EVENTS: &[&str] = &[
+    "response.in_progress",
+    "response.queued",
+    "response.created",
+    "response.output_item.added",
+    "response.content_part.added",
+    "response.content_part.done",
+    // we can stream reasoning summary text with these
+    "response.reasoning_summary_part.added",
+    "response.reasoning_summary_part.done",
+    "response.reasoning_summary_text.delta",
+    "response.reasoning_summary_text.done",
+    "response.reasoning_text.delta",
+    "response.reasoning_text.done",
+    "response.function_call_arguments.delta",
+    "response.function_call_arguments.done",
+    "response.custom_tool_call_input.delta",
+    "response.custom_tool_call_input.done",
+    "response.output_text.done",
+    "response.refusal.delta",
+    "response.refusal.done",
+];
+
 /// Appended to the system prompt when course-material search is enabled, to ground answers
 /// in retrieved course material.
 const SEARCH_GROUNDING_INSTRUCTION: &str = "\n\nSearch the course material with the azure_ai_search tool before answering, and ground your answer in the results with citations. Put only what you want to find in the query; the search is already limited to this course, so don't include the course name. Searching more than once is fine when it helps — to cover distinct sub-questions or angles, to refine when the first results don't answer, or when a follow-up or new instruction needs material you don't already have. When one search already answers, stop there. Skip searching only for messages that don't need course material, like greetings or thanks.";
@@ -168,6 +193,7 @@ pub struct ResponseOutput {
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
     pub incomplete_response: Option<IncompleteResponse>,
+    pub error: Option<ResponseError>,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -280,7 +306,20 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                 tool_call_id: call_id,
                 finished: true,
             },
-            _ => ChatbotChatStreamEvent::Invalid,
+            StreamItem {
+                item: OutputItem::Message { content, .. },
+                ..
+            } => {
+                if let MessageContent::Refusal(..) = &content {
+                    let text = content.get_content_text();
+                    ChatbotChatStreamEvent::Delta {
+                        text,
+                        message_id: Uuid::nil(), //
+                    }
+                } else {
+                    ChatbotChatStreamEvent::Invalid
+                }
+            }
         }
     }
 }
@@ -753,12 +792,21 @@ pub async fn process_output_item(
 
             ChatbotResult::Ok(conversation_message)
         }
-        OutputItem::Message { .. } => {
-            // this chunk has a text message and should be streamed!
-            Err(chatbot_err!(
-                StreamingError,
-                "Unexpected message output item, it should have been streamed.".to_string()
-            ))
+        OutputItem::Message { ref content, .. } => {
+            if let MessageContent::Refusal(..) = content {
+                let message = APIOutputMessage {
+                    message_type: item.clone(),
+                }
+                .to_chatbot_conversation_message(conversation_id)?;
+
+                ChatbotResult::Ok(chatbot_conversation_messages::insert(conn, message).await?)
+            } else {
+                // this chunk has a text message and should be streamed!
+                Err(chatbot_err!(
+                    StreamingError,
+                    "Unexpected message output item, it should have been streamed.".to_string()
+                ))
+            }
         }
         OutputItem::FunctionCall { .. } => {
             // this chunk has tool call data andit should already be saved!!
@@ -793,7 +841,6 @@ async fn parse_tool<'a>(
     let mut messages = vec![];
     let mut common_response_id: Option<String> = None;
     let mut response_received = false;
-    let mut response_failed = false;
 
     trace!("Parsing tool calls...");
 
@@ -812,15 +859,13 @@ async fn parse_tool<'a>(
                             "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
                         ))?
                     }
-                    "response.error" | "error" => {
+                    "response.error" | "response.failed" | "error" => {
                         // error is logged in the next iteration
                      }
-                    "response.failed" => {
-                        response_failed = true;
-                        error!("Chatbot response failed");
-                    }
                     _ => {
-                        // check if this is an expected to be ignored event, if not then log
+                        if !ALL_EXPECTED_EVENTS.contains(&event_type.as_str()) {
+                            error!("Received unexpected event from Azure: Event: {}", event_type);
+                        };
                     }
                 };
                 continue;
@@ -841,12 +886,11 @@ async fn parse_tool<'a>(
                 format!("Error received from the API: {}. Response id: {}", error, response.id)
             ))?
         };
-        if response_failed {
-            // if there was an error in the response, it's already returned.
-            // at this point, all we can do is inform of the failure.'
+        // Surface the error in case there is no response object, just an error
+        if let Some(error) = &response_output.error {
             return Err(chatbot_err!(
                 StreamingError,
-                format!("Response failed. Response output: {:?}. Response id: {}", response_output, common_response_id.unwrap_or("not received".to_string()))
+                format!("Error received from the API: {}. Response id: {}", error, common_response_id.unwrap_or("not received".to_string()))
             ))?
 
         };
@@ -927,10 +971,17 @@ async fn parse_tool<'a>(
                     ));
                     yield StreamEvent::Item(StreamItem { item, finished: false });
                 }
-                OutputItem::Message { .. } => Err(chatbot_err!(
-                    StreamingError,
-                    "Error: unexpected message item !!!".to_string()
-                ))?,
+                OutputItem::Message { content, .. } => {
+                    if let MessageContent::Refusal(..) = content {
+                        yield StreamEvent::Refusal(content.get_content_text());
+                        messages.push(APIOutputMessage { message_type: item });
+
+                    } else {
+                    Err(chatbot_err!(
+                        StreamingError,
+                        "Error: unexpected message item !!!".to_string()
+                    ))?}
+                },
                 _ => {
                     let finished = response_output.response_type.as_str() == "response.output_item.done";
                     yield StreamEvent::Item(StreamItem { item: item.to_owned(), finished});
@@ -983,7 +1034,7 @@ fn stream_and_detect_response_stream_type<'a>(
                             "response.output_item.done" => {
                                 output_item_done = true;
                             }
-                            "response.function_call_arguments.delta" => {
+                            "response.function_call_arguments.delta" | "response.custom_tool_call_input.delta" => {
                                 if let Some(id) = &response_id {
                                     yield StreamEvent::ResponseIdStream((
                                         id.to_string(),
@@ -996,7 +1047,7 @@ fn stream_and_detect_response_stream_type<'a>(
                                     ))?;
                                 };
                             }
-                            "response.output_text.delta" => {
+                            "response.output_text.delta" | "response.refusal.delta" => {
                                 if let Some(id) = &response_id {
                                     yield StreamEvent::ResponseIdStream((
                                         id.to_string(),
@@ -1010,15 +1061,14 @@ fn stream_and_detect_response_stream_type<'a>(
                                 };
                             }
                             "response.incomplete" => {
+                                // put in incomplete reason!
                                 break Err(anyhow::anyhow!("Response incomplete. Response id: {}", response_id.as_deref().unwrap_or("not received")))?
                             },
-                            "response.error" | "error" => { error_incoming = true; }
-                            "response.failed" => {
-                                error_incoming = true;
-                                error!("Chatbot response failed");
-                            }
+                            "response.error" | "error" | "response.failed" => { error_incoming = true; }
                             _ => {
-                                // check if this is an expected to be ignored event, if not then log
+                                if !ALL_EXPECTED_EVENTS.contains(&event_type.as_str()) {
+                                    error!("Received unexpected event from Azure: Event: {}", event_type);
+                                };
                             }
                         }
                     }
@@ -1027,6 +1077,11 @@ fn stream_and_detect_response_stream_type<'a>(
                             if let Some(response) = &response_output.response
                             && let Some(error) = &response.error {
                                 break Err(chatbot_err!(StreamingError, format!("Error received from Azure: {} Response id: {}", error, response_id.as_deref().unwrap_or("not received"))))?
+                            } else if let Some(error) = &response_output.error {
+                                return Err(chatbot_err!(
+                                    StreamingError,
+                                    format!("Error received from the API: {}. Response id: {}", error, response_id.as_deref().unwrap_or("not received"))
+                                ))?
                             } else {
                                 break Err(chatbot_err!(StreamingError, format!("Response failed without receiving an API error. Response output: {:?} Response id: {}", response_output, response_id.as_deref().unwrap_or("not received"))))?
                             };
@@ -1088,7 +1143,6 @@ async fn parse_text_response<'a>(
     trace!("Parsing stream to user...");
 
     let mut response_received = false;
-    let mut response_failed = false;
 
     Box::pin(async_stream::try_stream! {
         while let Some(val) = lines.next().await {
@@ -1098,24 +1152,21 @@ async fn parse_text_response<'a>(
                     trace!("Event: {event_type}");
                     match event_type.as_str() {
                         "response.completed" | "response.incomplete" => {response_received = true;},
-                        "response.output_text.delta" => {
+                        "response.output_text.delta" | "response.refusal.delta" => {
                             // streaming
                         },
-                        "response.function_call_arguments.delta" => {
+                        "response.function_call_arguments.delta" | "response.custom_tool_call_input.delta" => {
                             error!("ERROR, function call received but can't be processed while streaming to user.");
                             return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming to user")))?
                         },
-                        "response.error" | "error" => {
+                        "response.error" | "error" | "response.failed" => {
                             // error is logged in the next iteration
 
                          }
-                        "response.failed" => {
-                            // log error response.error if exists, else inform that the respones just failed
-                            error!("Response failed.");
-                            response_failed = true;
-                        }
                         _ => {
-                            // check if this is an expected to be ignored event, if not then log
+                            if !ALL_EXPECTED_EVENTS.contains(&event_type.as_str()) {
+                                error!("Received unexpected event from Azure: Event: {}", event_type);
+                            };
                         }
                     };
                     continue;
@@ -1132,15 +1183,13 @@ async fn parse_text_response<'a>(
                 Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, response.id)))?
             };
 
-            if response_failed {
-            // if there was an error in the response, it's already returned.
-            // at this point, all we can do is inform of the failure.'
-            return Err(chatbot_err!(
-                StreamingError,
-                format!("Response failed. Response output: {:?}. Response id: {}", response_output, &response_id)
-            ))?
-
-        };
+            // Surface the error in case there is no response object, just an error
+            if let Some(error) = &response_output.error {
+                return Err(chatbot_err!(
+                    StreamingError,
+                    format!("Error received from the API: {}. Response id: {}", error, &response_id)
+                ))?
+            };
 
             let mut full_response_text = full_response_text.lock().await;
 
@@ -1197,6 +1246,7 @@ async fn parse_text_response<'a>(
 /// For passing streamed events and data between streaming functions.
 enum StreamEvent<'a> {
     Delta(String),
+    Refusal(String),
     Item(StreamItem),
     Messages(Vec<APIInputMessage>),
     ResponseIdStream((String, ResponseStreamType<'a>)),
@@ -1311,6 +1361,7 @@ pub async fn send_chat_request_and_parse_stream(
                         break;
                     },
                     Ok(StreamEvent::Item(item)) => {
+                        // check out refusal message
                         if item.finished {
                             // save it to db and put it in the LLM Request input
                             // in case another request will be made
@@ -1326,6 +1377,16 @@ pub async fn send_chat_request_and_parse_stream(
                             yield Bytes::from(event_string);
                             yield Bytes::from("\n");
                         };
+                    },
+                    Ok(StreamEvent::Refusal(text)) => {
+                        // in practice this event shoudln't happen because when a refusal
+                        // is being streamed, its streaming is done by parse_text_response
+                        let message_id = *response_message_id.lock().await;
+                        let event = ChatbotChatStreamEvent::Delta { text, message_id }; // todo is it the correct id
+                        let event_string = serde_json::to_string(&event)?;
+                        yield Bytes::from(event_string);
+                        yield Bytes::from("\n");
+
                     },
                     Ok(StreamEvent::Done) => {
                         break 'outer Err(anyhow::anyhow!("This shouldn't happen, stream ended unxpectedly."))?
@@ -1383,15 +1444,15 @@ pub async fn send_chat_request_and_parse_stream(
             while let Some(line) = final_stream.next().await {
                 let val = line?;
                 match val {
-                    StreamEvent::Delta(delta) => {
-                        let response =  ChatbotChatStreamEvent::Delta  { text: delta.clone(), message_id };
+                    StreamEvent::Delta(text) | StreamEvent::Refusal(text) => {
+                        let response =  ChatbotChatStreamEvent::Delta  { text, message_id };
                         let response_as_string = serde_json::to_string(&response)?;
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");
                     },
                     StreamEvent::Item(stream_item) => {
                         match stream_item.item  {
-                            OutputItem::Message { .. } | OutputItem::FunctionCall { .. } | OutputItem::FunctionCallOutput { .. } => {
+                            OutputItem::FunctionCall { .. } | OutputItem::FunctionCallOutput { .. } => {
                                 // item already processed
                             },
                             _ => {

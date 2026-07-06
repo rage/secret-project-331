@@ -1,7 +1,6 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import { POST } from "../../src/app/api/grade/route"
 
 import testClient from "./utils/appRouterTestClient"
 import { oldGenerateMultipleChoiceRequest } from "./utils/oldQuizGenerator"
@@ -12,9 +11,10 @@ import {
   generateUnknownItemTypeGradingRequest,
 } from "./utils/privateSpecGenerator"
 
+import { handleGrade } from "@/server/grade"
 import { ExerciseTaskGradingResult, isExerciseTaskGradingResult } from "@/utils/exerciseServiceApi"
 
-const client = testClient(POST)
+const client = testClient(handleGrade)
 
 describe("grade", () => {
   let realConsoleError: typeof console.error

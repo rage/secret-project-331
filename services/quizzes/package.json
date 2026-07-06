@@ -79,6 +79,8 @@
   "devDependencies": {
     "@jest/globals": "^30.4.1",
     "@svgr/webpack": "latest",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",
     "@types/katex": "^0.16.8",
     "@types/lodash": "^4.17.24",

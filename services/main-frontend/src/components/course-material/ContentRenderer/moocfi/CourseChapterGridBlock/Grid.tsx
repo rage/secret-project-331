@@ -25,8 +25,12 @@ const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
   lockedChapterIds,
 }) => {
   return (
-    <div
+    <ul
       className={css`
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
         @supports (display: grid) {
           display: grid;
           gap: 20px;
@@ -47,17 +51,18 @@ const Grid: React.FC<React.PropsWithChildren<GridProps>> = ({
       {chapters
         .sort((a, b) => a.chapter_number - b.chapter_number)
         .map((chapter) => (
-          <StyledCard
-            key={chapter.id}
-            chapter={chapter}
-            courseSlug={courseSlug}
-            now={now}
-            organizationSlug={organizationSlug}
-            previewable={previewable}
-            isLocked={lockedChapterIds.has(chapter.id)}
-          />
+          <li key={chapter.id}>
+            <StyledCard
+              chapter={chapter}
+              courseSlug={courseSlug}
+              now={now}
+              organizationSlug={organizationSlug}
+              previewable={previewable}
+              isLocked={lockedChapterIds.has(chapter.id)}
+            />
+          </li>
         ))}
-    </div>
+    </ul>
   )
 }
 

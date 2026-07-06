@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useMemo } from "react"
+import { useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerMultiplechoiceDropdown } from "../../../../../types/quizTypes/answer"
@@ -35,6 +35,8 @@ const MultipleChoiceDropdown: React.FunctionComponent<
   >
 > = ({ quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
+  const selectId = useId()
+  const bodyId = useId()
   const handleOptionSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedOptionId = event.currentTarget.value
     if (!quizItemAnswerState) {
@@ -72,8 +74,12 @@ const MultipleChoiceDropdown: React.FunctionComponent<
         >
           {quizItem.title ? (
             <>
-              <h2
+              {/* The visible prompt is the accessible name of the select (label/for), so speech
+                  input users can activate the control by speaking the visible label (WCAG 2.5.3). */}
+              <label
+                htmlFor={selectId}
                 className={css`
+                  display: block;
                   font-size: ${quizTheme.quizTitleFontSize} !important;
                   font-weight: 500;
                   color: #4c5868;
@@ -82,7 +88,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
                 `}
               >
                 {quizItem.title}
-              </h2>
+              </label>
             </>
           ) : null}
         </div>
@@ -94,13 +100,14 @@ const MultipleChoiceDropdown: React.FunctionComponent<
           >
             {quizItem.body ? (
               <>
-                <h3
+                <p
+                  id={bodyId}
                   className={css`
                     font-size: 1.25rem !important;
                   `}
                 >
                   {quizItem.body}
-                </h3>
+                </p>
               </>
             ) : null}
           </div>
@@ -128,8 +135,12 @@ const MultipleChoiceDropdown: React.FunctionComponent<
         `}
       >
         <select
+          id={selectId}
           onChange={handleOptionSelect}
-          aria-label={t("answer")}
+          // Fall back to naming the select by the item body (or a generic label) only when there
+          // is no visible title; the title is associated with the label/for technique above.
+          aria-labelledby={!quizItem.title && quizItem.body ? bodyId : undefined}
+          aria-label={!quizItem.title && !quizItem.body ? t("answer") : undefined}
           className={css`
             display: grid;
             width: 100%;
@@ -138,7 +149,8 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             padding: 0.5rem 2rem 0.5rem 0.625rem;
             font-size: 1.125rem;
             cursor: pointer;
-            border: 0.188rem solid #dfe1e6;
+            /* Gray 400 from the design system: >= 3:1 contrast against white (WCAG 1.4.11) */
+            border: 0.188rem solid #767b85;
             background: none;
             min-height: 2.5rem;
             grid-template-areas: "select";

@@ -11,7 +11,11 @@ const customJestConfig = {
   setupFilesAfterEnv: ["<rootDir>/tests/setup-jest.js"],
   testPathIgnorePatterns: ["/node_modules/", "/src/shared-module/"],
   modulePathIgnorePatterns: ["<rootDir>/.next/"],
-  extensionsToTreatAsEsm: [".ts", ".tsx"],
+  moduleNameMapper: {
+    // uuid v14 is ESM-only and next/jest does not let it through the transformer, so importing it
+    // in a test crashes. Map it to a CommonJS stand-in with faithful validate/v4 implementations.
+    "^uuid$": "<rootDir>/tests/__mocks__/uuid.js",
+  },
 }
 
 // createJestConfig is exported in this way to ensure that next/jest can load the Next.js configuration, which is async

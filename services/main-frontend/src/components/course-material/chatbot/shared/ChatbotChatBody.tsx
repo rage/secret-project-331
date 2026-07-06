@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { Fragment, useCallback, useEffect, useMemo, useRef } from "react"
+import React, { useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
@@ -83,6 +83,13 @@ export type ChatbotConversationMessageWithStatus = {
   optimistic: boolean
 }
 
+// Each list item is a full-width flex column so the bubble inside can keep
+// aligning itself to the start (chatbot) or end (user) of the row.
+const messageListItemStyle = css`
+  display: flex;
+  flex-direction: column;
+`
+
 const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
   newConversationMutation,
@@ -93,7 +100,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   chatbotMessageAnnouncement,
   newMessageMutation,
 }) => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const scrollContainerRef = useRef<HTMLUListElement>(null)
   const { t } = useTranslation()
 
   const citations = useMemo(() => {
@@ -213,20 +220,26 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
         overflow: hidden;
       `}
     >
-      <div
+      <ul
         className={css`
           flex-grow: 1;
           overflow-y: auto;
           display: flex;
           flex-direction: column;
           padding: 1rem;
+          margin: 0;
+          list-style: none;
         `}
         ref={scrollContainerRef}
       >
         {[...messagesMap.entries(), ...messagesMap2.entries()].map(([message, items]) => {
           if (message === null && items !== null && items.length > 0) {
             const key = items[0].message.id
-            return <ToolCallReasoningBubble key={key} messages={items} />
+            return (
+              <li key={key} className={messageListItemStyle}>
+                <ToolCallReasoningBubble messages={items} />
+              </li>
+            )
           }
           if (message === null) {
             return
@@ -234,7 +247,10 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
           if (m.success) {
             return (
-              <Fragment key={`chatbot-status-message-${message.message.id}`}>
+              <li
+                key={`chatbot-status-message-${message.message.id}`}
+                className={messageListItemStyle}
+              >
                 {items !== null && <ToolCallReasoningBubble messages={items} />}
                 <MessageBubble
                   message={m.data.text ?? ""}
@@ -242,11 +258,11 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                   isFromChatbot={m.data.message_role === "assistant"}
                   isPending={!m.data.message_is_complete && newMessageMutation.isPending}
                 />
-              </Fragment>
+              </li>
             )
           }
         })}
-        <div
+        <li
           className={css`
             display: flex;
             flex-flow: column nowrap;
@@ -270,8 +286,8 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               }}
             />
           ))}
-        </div>
-      </div>
+        </li>
+      </ul>
       <VisuallyHidden aria-live="polite" role="status">
         {chatbotMessageAnnouncement}
       </VisuallyHidden>

@@ -15,8 +15,6 @@ const customJestConfig = {
   testEnvironmentOptions: {
     customExportConditions: ["node"],
   },
-
-  extensionsToTreatAsEsm: [".ts", ".tsx"],
 }
 
 module.exports = createJestConfig(customJestConfig)

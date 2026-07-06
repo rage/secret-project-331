@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import React, { useMemo, useRef, useState } from "react"
 import { useHover } from "react-aria"
+import { useTranslation } from "react-i18next"
 
 import ChatbotReferenceList from "./ChatbotReferenceList"
 import CitationPopovers from "./CitationPopovers"
@@ -107,6 +108,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   isPending,
   citations,
 }) => {
+  const { t } = useTranslation()
   // the ref is updated manually because there are multiple trigger elements for the popover
   // that need to be able to be set as the ref conditionally
   let triggerElement = useRef<HTMLButtonElement>(null)
@@ -166,7 +168,10 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   ])
 
   return (
-    <div className={bubbleStyle(isFromChatbot)}>
+    <div
+      className={bubbleStyle(isFromChatbot)}
+      aria-label={isFromChatbot ? t("message-from-chatbot") : t("message-from-you")}
+    >
       {processedMessage}
 
       {isFromChatbot && processedCitations.length > 0 && (

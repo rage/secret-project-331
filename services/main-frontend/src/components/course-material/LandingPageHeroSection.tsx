@@ -22,6 +22,18 @@ interface TextBoxProps {
   fontColor?: string
 }
 
+/**
+ * Guarantees hero title/subtitle stay legible over arbitrary author-provided
+ * background images (WCAG 1.4.3). A layered dark halo keeps light text readable
+ * over light image areas regardless of the chosen image or font colour.
+ */
+const TEXT_READABILITY_SHADOW = `
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.55),
+    0 0 6px rgba(0, 0, 0, 0.4);
+  paint-order: stroke fill;
+`
+
 //const HeroWrapper = styled.div``
 
 const TextBox = styled.div<TextBoxProps>`
@@ -42,6 +54,7 @@ const TextBox = styled.div<TextBoxProps>`
     font-weight: bold;
     max-width: 100%;
     line-height: 1.1;
+    ${TEXT_READABILITY_SHADOW}
 
     font-size: clamp(1.3rem, 4vw, 60px);
     ${respondToOrLarger.xxxs} {
@@ -64,6 +77,7 @@ const TextBox = styled.div<TextBoxProps>`
   .hero-subtitle {
     width: 100%;
     color: ${({ color }) => (color ? color : baseTheme.colors.gray[700])};
+    ${TEXT_READABILITY_SHADOW}
     ${respondToOrLarger.md} {
       width: 600px;
     }

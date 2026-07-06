@@ -95,10 +95,22 @@ const Likert: React.FC<LikertProps> = ({ question, content, index }) => {
     },
   ]
 
+  const questionLabel = `${t("question")} ${index + 1}: ${question}`
+  const selectedOption = content !== null ? arr[content - 1] : undefined
+  const selectedAnswerText = selectedOption
+    ? t("likert-scale-selected-answer", { answer: selectedOption.text })
+    : t("likert-scale-no-answer")
+
   return (
     <Wrapper>
-      <Question>{`${t("question")} ${index + 1}: ${question}`}</Question>
-      <IconContainer>
+      <Question>{questionLabel}</Question>
+      {/*
+        The selected option is conveyed to assistive technology via role="img" with an
+        aria-label describing the chosen answer. With role="img" the element is a leaf in the
+        accessibility tree, so the decorative icon grid (which shows the selection only through
+        styling) is not exposed to screen readers.
+      */}
+      <IconContainer role="img" aria-label={`${questionLabel}. ${selectedAnswerText}`}>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n + 1}>
             {<option.svg />}

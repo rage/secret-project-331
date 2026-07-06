@@ -21,6 +21,13 @@ const ClosedEndedQuestion: React.FC<
 > = ({ quizDirection, quizItem, quizItemAnswerState, setQuizItemAnswerState }) => {
   const { t } = useTranslation()
   const fieldId = useId()
+  const titleId = useId()
+  const bodyId = useId()
+  // The given word (title) is the field's accessible name; the instruction (body), when present,
+  // is its description. Reference only the parts that are actually rendered (WCAG 1.3.1). When
+  // there is no title, fall back to the body as the accessible name so the field is never unnamed.
+  const labelledBy = quizItem.title ? titleId : quizItem.body ? bodyId : undefined
+  const describedBy = quizItem.title && quizItem.body ? bodyId : undefined
 
   const validateAnswer = useCallback(
     (answer: string) => {
@@ -58,17 +65,17 @@ const ClosedEndedQuestion: React.FC<
 
   return (
     <CloseEndedQuestionWrapper wideScreenDirection={quizDirection}>
-      <div>
+      <div id={titleId}>
         {quizItem.title && <ParsedText inline parseLatex parseMarkdown text={quizItem.title} />}
       </div>
-      <div>
+      <div id={bodyId}>
         {quizItem.body && <ParsedText inline parseLatex parseMarkdown text={quizItem.body} />}
       </div>
       <div>
         <TextField
           id={fieldId}
-          aria-label={t("answer")}
-          label={t("answer")}
+          aria-labelledby={labelledBy}
+          aria-describedby={describedBy}
           type="text"
           className={css`
             label {
@@ -81,7 +88,8 @@ const ClosedEndedQuestion: React.FC<
             input {
               background: #f4f5f7 !important;
               border-radius: 0.25rem;
-              border: 0.188rem solid #dfe1e6 !important;
+              /* gray[400]: border contrast >= 3:1 against the field background (WCAG 1.4.11). */
+              border: 0.188rem solid #767b85 !important;
             }
           `}
           value={quizItemAnswerState?.textData ?? ""}

@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useContext, useMemo } from "react"
+import React, { useContext, useId, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
@@ -46,6 +46,25 @@ const Essay: React.FunctionComponent<
   const openDialog = useParentDialog(port)
   const text = quizItemAnswerState?.textData ?? ""
   const usersWordCount = useMemo(() => wordCount(text), [text])
+  const titleId = useId()
+  const bodyId = useId()
+  // The essay question (title/body) is the accessible name of the field. Reference only the
+  // parts that are actually rendered so the field is not labelled by empty elements.
+  const labelledBy =
+    [quizItem.title ? titleId : null, quizItem.body ? bodyId : null].filter(Boolean).join(" ") ||
+    undefined
+
+  // Message announced politely to screen readers: the current count, plus a warning when the
+  // answer is below the minimum or above the maximum word count (WCAG 4.1.3).
+  const wordCountAnnouncement = useMemo(() => {
+    if (quizItem.minWords && usersWordCount < quizItem.minWords) {
+      return t("word-count-below-minimum", { count: usersWordCount, min: quizItem.minWords })
+    }
+    if (quizItem.maxWords && usersWordCount > quizItem.maxWords) {
+      return t("word-count-above-maximum", { count: usersWordCount, max: quizItem.maxWords })
+    }
+    return t("word-count-status", { count: usersWordCount })
+  }, [usersWordCount, quizItem.minWords, quizItem.maxWords, t])
 
   return (
     <div
@@ -57,6 +76,7 @@ const Essay: React.FunctionComponent<
     >
       {quizItem.title && (
         <div
+          id={titleId}
           className={css`
             display: flex;
             margin: 0.5rem 0;
@@ -68,6 +88,7 @@ const Essay: React.FunctionComponent<
       )}
       {quizItem.body && (
         <div
+          id={bodyId}
           className={css`
             display: flex;
             margin: 0.5rem 0;
@@ -121,7 +142,7 @@ const Essay: React.FunctionComponent<
             setQuizItemAnswerState(newQuizItemAnswerState)
           }}
           placeholder={t("answer")}
-          aria-label={t("answer")}
+          aria-labelledby={labelledBy}
           rows={5}
           autoResize
           className={css`
@@ -132,14 +153,18 @@ const Essay: React.FunctionComponent<
               resize: vertical;
               background: #f4f5f7 !important;
               border-radius: 0.25rem;
-              border: 0.188rem solid #dfe1e6 !important;
-              outline: none;
+              /* gray[400]: border contrast >= 3:1 against the field background (WCAG 1.4.11). */
+              border: 0.188rem solid #767b85 !important;
             }
           `}
           value={text}
         />
       </div>
       <div>
+        {/*
+          Each fact is its own block so screen readers read them as separate paragraphs
+          ("Word count: N words", "Min words: X", "Max words: Y") instead of one run-on line.
+        */}
         <div
           className={css`
             display: flex;
@@ -154,13 +179,13 @@ const Essay: React.FunctionComponent<
         <div
           className={css`
             display: flex;
-            column-gap: 0.625rem;
+            flex-direction: column;
+            row-gap: 0.25rem;
+            color: #4c5868;
           `}
         >
           <div
             className={css`
-              display: flex;
-              color: #4c5868;
               font-size: 1.125rem;
               line-height: 140%;
               font-weight: 700;
@@ -168,31 +193,35 @@ const Essay: React.FunctionComponent<
           >
             {usersWordCount} {t("words")}
           </div>
-          <div
-            className={css`
-              display: flex;
-              color: #4c5868;
-
-              span {
-                background: #f4f5f7;
-                border-radius: 0.25rem;
-                margin-right: 0.375rem;
-                padding: 0.05rem 0.4rem;
-              }
-
-              strong {
-                color: #333333;
-                margin: 0 0.125rem;
-              }
-            `}
-          >
-            <span>
+          {quizItem.minWords !== null && (
+            <div>
               {t("min-words")}: {quizItem.minWords}
-            </span>
-            <span>
+            </div>
+          )}
+          {quizItem.maxWords !== null && (
+            <div>
               {t("max-words")}: {quizItem.maxWords}
-            </span>
-          </div>
+            </div>
+          )}
+        </div>
+        {/* Politely announces the count as it changes, and warns when below min / above max. */}
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className={css`
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip-path: rect(0 0 0 0);
+            white-space: nowrap;
+            border: 0;
+          `}
+        >
+          {wordCountAnnouncement}
         </div>
       </div>
     </div>

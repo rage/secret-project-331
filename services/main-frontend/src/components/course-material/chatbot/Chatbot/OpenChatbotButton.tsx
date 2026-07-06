@@ -25,9 +25,9 @@ const buttonStyle = (hide: boolean) => css`
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
-  background-color: ${baseTheme.colors.green[300]};
+  background-color: ${baseTheme.colors.green[600]};
   &:hover {
-    background-color: ${baseTheme.colors.green[400]};
+    background-color: ${baseTheme.colors.green[700]};
   }
   ${hide ? `visibility: hidden;` : ``}
 `

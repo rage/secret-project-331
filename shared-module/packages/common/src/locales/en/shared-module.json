@@ -177,6 +177,8 @@
   "likert-scale-agree": "Agree",
   "likert-scale-disagree": "Disagree",
   "likert-scale-neither-agree-nor-disagree": "Neither agree nor disagree",
+  "likert-scale-no-answer": "No answer selected",
+  "likert-scale-selected-answer": "Selected answer: {{answer}}",
   "likert-scale-strongly-agree": "Strongly agree",
   "likert-scale-strongly-disagree": "Strongly disagree",
   "link.loading": "Loading",

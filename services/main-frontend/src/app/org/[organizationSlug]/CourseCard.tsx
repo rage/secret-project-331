@@ -175,10 +175,7 @@ const CourseCard: React.FC<React.PropsWithChildren<CourseCardProps>> = ({
 
       <CourseWrapper>
         <CourseContent>
-          <PseudoContentLink
-            href={navigateToCourseHref}
-            aria-label={t("course-navigation", { title })}
-          >
+          <PseudoContentLink href={navigateToCourseHref}>
             <CourseHeading>
               {title}
               {isDraft && ` (${t("draft")})`}

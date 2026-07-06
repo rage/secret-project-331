@@ -89,7 +89,11 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   required={courseModuleProgress.attempted_exercises_required ?? undefined}
                   label={t("exercises-attempted")}
                 />
-                <ColorsIdentifier />
+                <ColorsIdentifier
+                  studentPoints={courseModuleProgress.score_given ?? undefined}
+                  requiredPoints={courseModuleProgress.score_required ?? undefined}
+                  maxPoints={courseModuleProgress.score_maximum ?? undefined}
+                />
               </div>
             </TotalWrapper>
             <Wrapper>

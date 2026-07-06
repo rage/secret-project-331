@@ -1,7 +1,7 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
-import React, { forwardRef, TextareaHTMLAttributes, useEffect, useRef } from "react"
+import React, { forwardRef, TextareaHTMLAttributes, useEffect, useId, useRef } from "react"
 import { FieldError } from "react-hook-form"
 
 export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -76,6 +76,13 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const textareaRef = useRef<HTMLTextAreaElement>(null)
     const combinedRef = useCombinedRefs(ref, textareaRef)
     const prevValueRef = useRef<string | number | readonly string[] | undefined>(rest.value)
+    const generatedLabelId = useId()
+    // When there is a visible label, expose it as the accessible name via aria-labelledby,
+    // unless the caller already provided an explicit aria-labelledby / aria-label.
+    const labelId = rest.label ? generatedLabelId : undefined
+    const hasCallerAriaLabel =
+      rest["aria-labelledby"] !== undefined || rest["aria-label"] !== undefined
+    const ariaLabelledBy = hasCallerAriaLabel ? rest["aria-labelledby"] : labelId
 
     const handleOnChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (onChangeByValue) {
@@ -144,9 +151,18 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
 
               textarea {
                 background: #fcfcfc;
-                border: 1.6px solid #dedede;
+                /* gray[400] keeps the border contrast >= 3:1 against the field background (WCAG 1.4.11). */
+                border: 1.6px solid #767b85;
+                border-radius: 3px;
                 padding: 10px 12px;
                 resize: ${resize};
+                outline: none;
+              }
+              textarea:focus,
+              textarea:focus-visible {
+                /* Visible focus indicator with >= 3:1 contrast against the background. */
+                border-color: #215887;
+                box-shadow: 0 0 0 2px #215887;
               }
               span {
                 color: #333;
@@ -160,12 +176,13 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
         )}
       >
         <label>
-          <span>{rest.label}</span>
+          {rest.label && <span id={labelId}>{rest.label}</span>}
           <textarea
             ref={combinedRef}
             onChange={handleOnChange}
             defaultValue={rest.defaultValue}
             {...rest}
+            aria-labelledby={ariaLabelledBy}
           />
         </label>
       </div>

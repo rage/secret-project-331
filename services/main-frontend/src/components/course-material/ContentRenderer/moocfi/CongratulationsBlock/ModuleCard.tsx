@@ -26,12 +26,7 @@ const Wrapper = styled.div`
 
   button {
     text-transform: capitalize;
-    color: #6fb27e !important;
     font-weight: 500;
-  }
-
-  button:disabled {
-    color: #91ac97 !important;
   }
 
   h3 {
@@ -109,7 +104,7 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
           <div className="points">{numericGrade == undefined ? passOrFAilGrade : numericGrade}</div>
         </BadgeWrapper>
       )}
-      <h2
+      <h3
         className={css`
           font-size: ${typography.h5};
           color: #04312e;
@@ -117,7 +112,7 @@ const ModuleCard: React.FC<React.PropsWithChildren<ModuleCardProps>> = ({
         `}
       >
         {module.name}
-      </h2>
+      </h3>
       <CongratulationsLinks
         certificateConfigurationId={certificateConfigurationId}
         module={module}

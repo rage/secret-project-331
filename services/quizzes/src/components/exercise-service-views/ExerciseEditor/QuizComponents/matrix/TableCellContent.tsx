@@ -82,7 +82,8 @@ const TableCellContent: React.FC<React.PropsWithChildren<TableCellContentProps>>
         >
           <BorderDiv column={column} row={row} matrixSize={matrixSize}></BorderDiv>
           <CellInputContainer
-            aria-label={t("matrix-cell-aria-label", { row, column })}
+            // 1-based so the label matches how screen readers announce the table cells (WCAG 1.3.1)
+            aria-label={t("matrix-cell-aria-label", { row: row + 1, column: column + 1 })}
             column={column}
             data-testid="matrix-cell"
             row={row}

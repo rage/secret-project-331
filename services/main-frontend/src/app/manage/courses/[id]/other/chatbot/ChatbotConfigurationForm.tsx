@@ -669,11 +669,13 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     {t("delete")}
                   </Button>
                 </div>
-                <ChatbotPreviewModal
-                  open={showChatbotPreview}
-                  onClose={() => setChatbotPreview(false)}
-                  chatbotConfigurationId={oldChatbotConf.id}
-                />
+                {showChatbotPreview && (
+                  <ChatbotPreviewModal
+                    open={showChatbotPreview}
+                    onClose={() => setChatbotPreview(false)}
+                    chatbotConfigurationId={oldChatbotConf.id}
+                  />
+                )}
               </div>
             </form>
           </div>

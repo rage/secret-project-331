@@ -7,13 +7,13 @@ import { getDefaultChatbotConfigurationForCourseOptions } from "@/generated/cour
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
-interface UseChatbotConfigurationOptions {
+interface UseDefaultChatbotConfigurationOptions {
   enabled?: boolean
 }
 
 const useDefaultChatbotConfiguration = (
   courseId: string | null | undefined,
-  options: UseChatbotConfigurationOptions = {},
+  options: UseDefaultChatbotConfigurationOptions = {},
 ) => {
   const { enabled = true } = options
   const loginState = useContext(LoginStateContext)

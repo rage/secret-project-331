@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { t } from "i18next"
+import { useTranslation } from "react-i18next"
 
 import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
 import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
@@ -18,6 +18,8 @@ const ChatbotPreviewModal: React.FC<ChatbotPreviewModalProps> = ({
   onClose,
   chatbotConfigurationId,
 }) => {
+  const { t } = useTranslation()
+
   const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined)
 
   return (

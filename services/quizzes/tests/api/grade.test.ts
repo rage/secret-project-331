@@ -31,7 +31,7 @@ describe("grade", () => {
   it("returns correct format", async () => {
     const data = oldGenerateMultipleChoiceRequest(4, 2, ["option-1"], "default")
     const response = await client.post("/api/grade").send(data)
-    expect(isExerciseTaskGradingResult(JSON.parse(response.text)))
+    expect(isExerciseTaskGradingResult(JSON.parse(response.text))).toBe(true)
   })
 
   // Non multiple-choice
@@ -39,7 +39,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(4, 1, ["option-1"], "default", false)
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(1)
@@ -49,7 +49,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(4, 2, ["option-1"], "default", false)
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(1)
@@ -59,7 +59,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(4, 0, ["option-1"], "default", false)
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -69,7 +69,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(4, 1, ["option-3"], "default", false)
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -85,7 +85,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(4, 2, ["option-1", "option-2"], "default")
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(1)
@@ -95,7 +95,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(4, 2, ["option-1", "option-3"], "default")
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -110,7 +110,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -120,7 +120,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(4, 2, ["option-4", "option-3"], "default")
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -136,7 +136,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(1)
@@ -151,7 +151,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0.5)
@@ -166,7 +166,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -182,7 +182,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(1)
@@ -197,7 +197,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0.5)
@@ -212,7 +212,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0.75)
@@ -227,7 +227,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0.25)
@@ -243,7 +243,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(1)
@@ -258,7 +258,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(1)
@@ -273,7 +273,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -283,7 +283,7 @@ describe("grade", () => {
     const data = oldGenerateMultipleChoiceRequest(6, 3, ["option-6"], "some-correct-none-incorrect")
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -294,7 +294,7 @@ describe("grade", () => {
     const data = generateMultipleChoiceGradingRequest(4, 0, ["option-1"], "default", true)
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -310,7 +310,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -326,7 +326,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -342,7 +342,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -359,7 +359,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -375,7 +375,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -391,7 +391,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -407,7 +407,7 @@ describe("grade", () => {
     )
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -428,7 +428,7 @@ describe("grade", () => {
     const data = generateChooseNGradingRequest(4, 0, ["option-1"], 2)
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -438,7 +438,7 @@ describe("grade", () => {
     const data = generateTimelineGradingRequest([], [])
     const response = await client.post("/api/grade").send(data)
     const result = JSON.parse(response.text)
-    expect(isExerciseTaskGradingResult(result))
+    expect(isExerciseTaskGradingResult(result)).toBe(true)
 
     const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
     expect(gradingResult.score_given).toBe(0)
@@ -458,7 +458,7 @@ describe("grade", () => {
       const data = generateChooseNGradingRequest(6, 4, ["option-1", "option-2"], 2)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(1)
@@ -468,7 +468,7 @@ describe("grade", () => {
       const data = generateChooseNGradingRequest(6, 4, ["option-1"], 2)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(0.5)
@@ -478,7 +478,7 @@ describe("grade", () => {
       const data = generateChooseNGradingRequest(6, 2, ["option-3", "option-4"], 2)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(0)
@@ -488,7 +488,7 @@ describe("grade", () => {
       const data = generateChooseNGradingRequest(4, 2, ["option-1"], 0)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(0)
@@ -498,7 +498,7 @@ describe("grade", () => {
       const data = generateChooseNGradingRequest(6, 2, ["option-1", "option-2"], 5)
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(1)
@@ -519,7 +519,7 @@ describe("grade", () => {
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(1)
@@ -542,7 +542,7 @@ describe("grade", () => {
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(0.5)
@@ -561,7 +561,7 @@ describe("grade", () => {
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(0)
@@ -574,7 +574,7 @@ describe("grade", () => {
       )
       const response = await client.post("/api/grade").send(data)
       const result = JSON.parse(response.text)
-      expect(isExerciseTaskGradingResult(result))
+      expect(isExerciseTaskGradingResult(result)).toBe(true)
 
       const gradingResult: ExerciseTaskGradingResult = result as ExerciseTaskGradingResult
       expect(gradingResult.score_given).toBe(1)

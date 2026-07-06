@@ -145,8 +145,10 @@ const server = createServer(async (req, res) => {
       return
     }
 
-    // 3) SPA shell for any other navigation.
-    if (isGet) {
+    // 3) SPA shell for navigation routes only. A GET that looks like a file (has an extension) but
+    // was not found in step 1 is a missing asset — return a real 404 instead of the HTML shell,
+    // which the browser would otherwise try to parse as JS/CSS.
+    if (isGet && !extname(stripBase(url.pathname))) {
       sendFile(res, SHELL)
       return
     }

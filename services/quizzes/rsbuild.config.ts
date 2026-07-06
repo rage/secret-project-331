@@ -80,8 +80,9 @@ export default defineConfig({
       "process.env.NEXT_PUBLIC_SERVICE_SLUG": defineEnv(process.env.NEXT_PUBLIC_SERVICE_SLUG),
       "process.env.NEXT_PUBLIC_BASE_PATH": defineEnv(BASE_PATH),
       "process.env.NEXT_PUBLIC_SITE_TITLE": defineEnv(process.env.NEXT_PUBLIC_SITE_TITLE),
-      "process.env.ERRORS_BASE_URL": defineEnv(process.env.ERRORS_BASE_URL),
-      "process.env.BASE_URL": defineEnv(process.env.BASE_URL),
+      // ERRORS_BASE_URL / BASE_URL are read only server-side (guarded by typeof window/process), so
+      // they must NOT be defined here: doing so would freeze them to their build-time value in the
+      // server bundle and defeat runtime configuration. The server reads process.env at runtime.
     },
   },
 })

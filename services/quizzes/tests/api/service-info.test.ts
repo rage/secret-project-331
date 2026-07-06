@@ -16,13 +16,13 @@ describe("service-info", () => {
   it("gives correct format", async () => {
     const client = testClient(handleServiceInfo)
     const response = await client.get("/api/service-info")
-    expect(isExerciseServiceInfoApi(JSON.parse(response.text)))
+    expect(isExerciseServiceInfoApi(JSON.parse(response.text))).toBe(true)
   })
 
   it("has correct name", async () => {
     const client = testClient(handleServiceInfo)
     const response = await client.get("/api/service-info")
-    expect(isExerciseServiceInfoApi(JSON.parse(response.text)))
+    expect(isExerciseServiceInfoApi(JSON.parse(response.text))).toBe(true)
     const exerciseService = JSON.parse(response.text) as ExerciseServiceInfoApi
     expect(exerciseService.service_name).toMatch("Quizzes")
   })
@@ -30,7 +30,7 @@ describe("service-info", () => {
   it("has correct paths", async () => {
     const client = testClient(handleServiceInfo)
     const response = await client.get("/api/service-info")
-    expect(isExerciseServiceInfoApi(JSON.parse(response.text)))
+    expect(isExerciseServiceInfoApi(JSON.parse(response.text))).toBe(true)
     const exerciseService = JSON.parse(response.text) as ExerciseServiceInfoApi
     expect(exerciseService).toMatchObject({
       service_name: "Quizzes",

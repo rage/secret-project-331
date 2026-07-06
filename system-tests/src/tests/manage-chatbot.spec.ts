@@ -25,6 +25,9 @@ test.describe("Chatbot settings testing", () => {
       await page.getByRole("button", { name: "Save" }).click()
     })
     await expect(page.getByText("Advanced settings")).toBeVisible()
+    await page.getByRole("textbox", { name: "Prompt" }).fill("Chatbot 1 prompt")
+    await page.getByRole("textbox", { name: "Initial message" }).fill("Chatbot 1 initial message")
+    await page.getByRole("button", { name: "Save", exact: true }).click()
   })
 
   test("Editing a chatbot", async ({ page }) => {
@@ -35,20 +38,22 @@ test.describe("Chatbot settings testing", () => {
       .click()
     await page.getByRole("textbox", { name: "Name" }).click()
     await page.getByRole("textbox", { name: "Name" }).fill("Chatbot 2")
-    await page.getByRole("button", { name: "Save" }).click()
+    await page.getByRole("button", { name: "Save", exact: true }).click()
     await page.getByText("Advanced settings").waitFor()
 
     await page.getByRole("textbox", { name: "Prompt" }).click()
     await page.getByRole("textbox", { name: "Prompt" }).fill("Hello")
     await page.getByRole("textbox", { name: "Initial message" }).click()
     await page.getByRole("textbox", { name: "Initial message" }).fill("Hi! :)")
-    await page.getByText("Enabled to students").click()
+    await page.getByRole("checkbox", { name: "Enabled to students" }).click()
     await page.getByRole("heading", { name: "Advanced settings" }).click()
     await page.getByRole("spinbutton", { name: "Frequency penalty" }).click()
     await page.getByRole("spinbutton", { name: "Frequency penalty" }).fill("0.2")
-    await page.getByText("Use course material search and cite sources").click()
+    await page
+      .getByRole("checkbox", { name: "Use course material search and cite sources" })
+      .click()
     await waitForSuccessNotification(page, async () => {
-      await page.getByRole("button", { name: "Save" }).click()
+      await page.getByRole("button", { name: "Save", exact: true }).click()
     })
   })
 

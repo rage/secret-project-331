@@ -29,7 +29,14 @@ import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutati
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
-import { Button, Checkbox, QueryResult, TextArea, TextField } from "@/shared-module/components"
+import {
+  Button,
+  Checkbox,
+  QueryResult,
+  Select,
+  TextArea,
+  TextField,
+} from "@/shared-module/components"
 import { isHtmlButtonElement, isReactOnSubmitEvent } from "@/utils/typeGuards"
 
 interface Props {
@@ -239,7 +246,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 label={t("label-name")}
                 {...register("chatbot_name", { required: t("required-field") })}
               />
-
               <TextArea
                 control={control}
                 label={t("prompt")}
@@ -265,8 +271,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   {...register("enabled_to_students")}
                 />
               </div>
-              <SelectMenu
+              <Select
                 id="model-select"
+                control={control}
                 label={t("select-LLM")}
                 options={chatbotModels.map((m) => {
                   return {
@@ -274,7 +281,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     label: `${m.model} (${["GPTThinking", "GPTHardThinking"].includes(m.model_type) ? t("reasoning") : t("non-reasoning")})`,
                   }
                 })}
-                showDefaultOption={false}
                 {...register("model_id")}
               />
               <Checkbox
@@ -294,7 +300,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 {...register("suggest_next_messages")}
               />
               <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
-
               {suggestMessagesFieldValue && (
                 <div className={itemCss}>
                   <h4>{t("message-suggestions")}</h4>

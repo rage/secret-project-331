@@ -73,13 +73,19 @@ const AddExerciseRepositoryForm: React.FC<Props> = ({ courseId, examId, onSucces
       />
       <TextAreaField
         label={t("public-key")}
-        placeholder="ssh-ed25519 ..."
+        placeholder={
+          // eslint-disable-next-line i18next/no-literal-string
+          "ssh-ed25519 ..."
+        }
         {...register("publicKey")}
         errorMessage={errors["publicKey"]?.message}
       />
       <TextAreaField
         label={t("exercise-repositories-deploy-key")}
-        placeholder="-----BEGIN OPENSSH PRIVATE KEY----- ..."
+        placeholder={
+          // eslint-disable-next-line i18next/no-literal-string
+          "-----BEGIN OPENSSH PRIVATE KEY----- ..."
+        }
         {...register("deployKey")}
         errorMessage={errors["deployKey"]?.message}
       />

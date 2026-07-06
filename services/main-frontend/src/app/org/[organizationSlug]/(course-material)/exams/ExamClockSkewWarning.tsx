@@ -61,6 +61,7 @@ const chooseEstimateFromSamples = (samples: ClockSkewSample[]): ClockSkewEstimat
   }
 }
 
+/* eslint-disable i18next/no-literal-string */
 const getDateStringInTimezone = (ms: number, tz: string): string =>
   new Intl.DateTimeFormat("en", {
     timeZone: tz,
@@ -102,6 +103,7 @@ const formatTimeInTimezone = (timestampMs: number, timeZone: string, language: s
     second: "2-digit",
   }).format(new Date(timestampMs))
 }
+/* eslint-enable i18next/no-literal-string */
 
 const formatUtcOffset = (now: Date): string => {
   const totalMinutes = -now.getTimezoneOffset()

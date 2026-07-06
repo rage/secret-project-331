@@ -16,6 +16,7 @@ import { extractUserDetail, isUserDetailsNotFound, useUserDetails } from "@/hook
 import DataLoadError from "@/shared-module/common/components/DataLoadError"
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResults } from "@/shared-module/components"
@@ -39,6 +40,11 @@ const UserPage: React.FC = () => {
   const courseIds = courseEnrollmentsQuery.data?.course_enrollments.map((e) => e.course_id) ?? null
 
   const userDetailsQuery = useUserDetails(courseIds, id)
+  const userDetail = userDetailsQuery.data ? extractUserDetail(userDetailsQuery.data) : null
+  // Use the user's name (not their email) as the title so no PII lands in document.title or the
+  // screen-reader route announcement; fall back to a generic label while details load / are absent.
+  const userDisplayName = `${userDetail?.first_name ?? ""} ${userDetail?.last_name ?? ""}`.trim()
+  usePageTitle(userDisplayName || t("header-user-details"))
 
   return (
     <QueryResults

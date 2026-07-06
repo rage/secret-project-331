@@ -12,6 +12,7 @@ import type { Course, EmailTemplate, EmailTemplateType } from "@/generated/api/t
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -27,6 +28,7 @@ interface GroupedTemplates {
 
 const EmailTemplatesList: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("email-templates-title"))
 
   const templatesQuery = useQuery({
     ...getEmailTemplatesOptions(),

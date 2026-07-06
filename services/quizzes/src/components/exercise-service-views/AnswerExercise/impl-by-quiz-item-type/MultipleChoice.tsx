@@ -119,10 +119,12 @@ const MultipleChoice: React.FunctionComponent<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
-            ${direction === ROW &&
-            `
+            ${
+              direction === ROW &&
+              `
               column-gap: 0.625rem;
-            `}
+            `
+            }
           }
         `}
       >

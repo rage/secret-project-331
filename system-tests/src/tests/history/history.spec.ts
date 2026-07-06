@@ -57,11 +57,16 @@ test("history test", async ({ page, headless }, testInfo) => {
 
   await page.getByText("Pages").click()
   await expectUrlPathWithRandomUuid(page, "/manage/courses/[id]/pages")
+  // The sub-tab title composes the section name with the course name so different tabs (and the
+  // same tab across different courses) can be told apart from the browser tab.
+  await expect(page).toHaveTitle(/Pages - Introduction to history/)
 
   await page.click(`button:text("Edit page"):right-of(:text("Page One"))`)
 
   // Fill input[type="text"]
   await page.fill(`label:has-text("Title")`, "New title!")
+  // The CMS editor tab reflects the page being edited and its course.
+  await expect(page).toHaveTitle(/Edit: New title! - Introduction to history/)
 
   await saveCMSPage(page)
 
@@ -184,7 +189,7 @@ screenshotTarget: page,
 */
 
   await page.getByText("Restore").click()
-  await page.getByText("Page edit history").click() // deselect restore
+  await page.getByRole("heading", { name: "Page edit history" }).click() // deselect restore
   await page.locator("[aria-label='Current page: 1']").waitFor()
   await page.waitForTimeout(100)
   /*

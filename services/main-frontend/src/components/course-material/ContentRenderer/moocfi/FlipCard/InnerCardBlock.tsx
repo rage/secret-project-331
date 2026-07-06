@@ -12,6 +12,7 @@ import { Block } from "@/types/courseMaterialBlock"
 interface FlipCardAttributes {
   href: string
   alt: string
+  isDecorative?: boolean
   height: string
   width: string
   backgroundColor: string
@@ -31,7 +32,7 @@ const InnerCardBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FlipCa
   if (isBlockImage(props.data) && props.data.innerBlocks.length == 1) {
     const imageBlock = props.data.innerBlocks[0] as Block<FlipCardAttributes>
     const imageLink = imageBlock.attributes.href
-    const altText = imageBlock.attributes.alt
+    const altText = imageBlock.attributes.isDecorative ? "" : imageBlock.attributes.alt
     return (
       <div
         className={css`

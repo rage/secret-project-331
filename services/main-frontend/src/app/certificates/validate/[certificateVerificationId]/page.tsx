@@ -12,12 +12,14 @@ import {
 } from "@/components/queryResultErrorRenderers"
 import { getCertificateByVerificationIdOptions } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
 
 const ModuleCertificateVerification: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-validate-certificate"))
   const { certificateVerificationId } = useParams<{ certificateVerificationId: string }>()
   const searchParams = useSearchParams()
   const debug = searchParams.get("debug")

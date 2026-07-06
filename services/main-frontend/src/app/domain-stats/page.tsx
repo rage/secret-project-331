@@ -14,6 +14,7 @@ import {
 } from "@/hooks/globalStats"
 import Button from "@/shared-module/common/components/Button"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const SelectedDomainCourseStatsTable = ({
@@ -30,6 +31,7 @@ const SelectedDomainCourseStatsTable = ({
 
 const DomainStatsPage = () => {
   const { t } = useTranslation()
+  usePageTitle(t("domain-completion-statistics"))
   const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined)
   const [selectedDomain, setSelectedDomain] = useState<string | undefined>(undefined)
 

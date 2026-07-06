@@ -30,6 +30,7 @@ import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
 import { Button, Checkbox, QueryResult, TextArea, TextField } from "@/shared-module/components"
+import { isHtmlButtonElement, isReactOnSubmitEvent } from "@/utils/typeGuards"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -149,22 +150,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       },
     },
   )
-
-  function isReactOnSubmitEvent(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    value: React.BaseSyntheticEvent<object, any, any>,
-  ): value is React.SubmitEvent<HTMLFormElement> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const valueAsAny = value as any
-    if (valueAsAny.submitter !== undefined && valueAsAny.type === "submit") {
-      return true
-    }
-    return false
-  }
-
-  function isHtmlButtonElement(value: HTMLElement): value is HTMLButtonElement {
-    return value.constructor === HTMLButtonElement
-  }
 
   const chatbotStateAndData = useChatbotStateAndData(oldChatbotConf.id, undefined)
 

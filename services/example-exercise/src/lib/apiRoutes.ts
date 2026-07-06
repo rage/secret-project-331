@@ -1,5 +1,3 @@
-import { NextResponse } from "next/server"
-
 import type { ClientErrorResponse } from "@/util/stateInterfaces"
 
 /**
@@ -33,8 +31,9 @@ export async function readJsonBody(request: Request): Promise<unknown> {
  * `500`, both as JSON. This lets the handlers focus on the happy path and keeps error responses
  * consistent across endpoints. Unexpected errors are logged before the `500` is returned.
  *
- * Unimplemented HTTP methods do not need handlers: Next.js responds with `405 Method Not Allowed`
- * automatically for any verb a route does not export.
+ * Note: unlike Next.js, TanStack Start does not auto-respond `405` for verbs a route does not
+ * declare — an undeclared method falls through to the app router. The backend only ever calls the
+ * documented verb per endpoint, so this is acceptable.
  */
 export function jsonRoute(
   handler: (request: Request) => Promise<Response> | Response,
@@ -44,13 +43,14 @@ export function jsonRoute(
       return await handler(request)
     } catch (error) {
       if (error instanceof BadRequestError) {
-        return NextResponse.json<ClientErrorResponse>({ message: error.message }, { status: 400 })
+        return Response.json({ message: error.message } satisfies ClientErrorResponse, {
+          status: 400,
+        })
       }
       console.error("Unhandled error in route handler:", error)
-      return NextResponse.json<ClientErrorResponse>(
-        { message: "Internal server error" },
-        { status: 500 },
-      )
+      return Response.json({ message: "Internal server error" } satisfies ClientErrorResponse, {
+        status: 500,
+      })
     }
   }
 }

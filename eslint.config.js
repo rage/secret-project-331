@@ -80,7 +80,6 @@ const config = [
           "services/cms/src/pages",
           "services/quizzes/src/app",
           "services/tmc/src/app",
-          "services/example-exercise/src/app",
         ],
       ],
       "@next/next/no-img-element": "error",
@@ -136,6 +135,7 @@ const config = [
         React: true,
         NodeJS: true,
         JSX: true,
+        globalThis: true,
         WindowEventMap: true,
         RequestInit: true,
         IntersectionObserverInit: true,
@@ -409,6 +409,9 @@ const config = [
               "getAttribute",
               "useRegisterBreadcrumbs",
               "format",
+              // TanStack Router route-definition calls: the string arg is a route path, not UI copy.
+              "createFileRoute",
+              "createRootRoute",
             ],
           },
           "object-properties": {
@@ -501,6 +504,23 @@ const config = [
     files: ["**/next-env.d.ts"],
     rules: {
       "@typescript-eslint/triple-slash-reference": "off",
+    },
+  },
+  {
+    // example-exercise and quizzes were migrated from Next.js to TanStack Start. They are no longer
+    // Next apps, and SPA mode renders the whole document, so these framework files legitimately hold
+    // a <head> element plus router/head-meta config strings rather than user-facing copy.
+    files: [
+      "services/example-exercise/src/router.tsx",
+      "services/example-exercise/src/routes/__root.tsx",
+      "services/example-exercise/src/routes/index.tsx",
+      "services/quizzes/src/router.tsx",
+      "services/quizzes/src/routes/__root.tsx",
+      "services/quizzes/src/routes/index.tsx",
+    ],
+    rules: {
+      "@next/next/no-head-element": "off",
+      "i18next/no-literal-string": "off",
     },
   },
   ...storybook.configs["flat/recommended"],

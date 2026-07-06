@@ -1,0 +1,29 @@
+import react from "@vitejs/plugin-react"
+import { fileURLToPath } from "node:url"
+import svgr from "vite-plugin-svgr"
+import { defineConfig } from "vitest/config"
+
+export default defineConfig({
+  // Resolve `@/*` -> `./src/*`. An explicit alias (rather than reading tsconfig) is required because
+  // src/shared-module is excluded from tsconfig, yet the vendored code imports via `@/`.
+  resolve: {
+    alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
+  },
+  plugins: [
+    // Mirror the production @rsbuild/plugin-svgr behaviour so component tests render the same icon
+    // components as the real build: `import Icon from "./x.svg"` -> React component (default export).
+    svgr({
+      include: "**/*.svg",
+      svgrOptions: { exportType: "default", svgProps: { role: "presentation" } },
+    }),
+    react(),
+  ],
+  test: {
+    // Component render tests need a DOM; the API-handler tests use the global Web Request/Response
+    // (available in Node in either environment), so jsdom as the default is fine for both.
+    environment: "jsdom",
+    globals: true,
+    setupFiles: ["./src/test/setup.ts"],
+    include: ["src/**/*.{test,spec}.{ts,tsx}"],
+  },
+})

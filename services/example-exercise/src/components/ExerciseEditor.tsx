@@ -4,9 +4,8 @@ import styled from "@emotion/styled"
 import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
-import { State } from "../app/iframe/page"
-
 import ButtonEditor from "./ButtonEditor"
+import { State } from "./IframeView"
 
 import { CurrentStateMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { Alternative } from "@/util/stateInterfaces"

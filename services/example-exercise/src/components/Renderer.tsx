@@ -3,10 +3,9 @@
 import React, { Dispatch, SetStateAction } from "react"
 import { useTranslation } from "react-i18next"
 
-import { State } from "../app/iframe/page"
-
 import AnswerExercise from "./AnswerExercise"
 import ExerciseEditor from "./ExerciseEditor"
+import { State } from "./IframeView"
 import ViewSubmission from "./ViewSubmission"
 
 import withErrorBoundary from "@/lib/withErrorBoundary"

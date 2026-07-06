@@ -216,15 +216,11 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
       setChatbotPreview(true)
       const currentConversationInfo = chatbotStateAndData.currentConversationInfo
       const newConversationMutation = chatbotStateAndData.newConversationMutation
-      if (
-        !newConversationMutation.isPending &&
-        !(currentConversationInfo && !currentConversationInfo.data?.current_conversation)
-      ) {
+      const isFirstConversation =
+        currentConversationInfo && !currentConversationInfo.data?.current_conversation
+      if (!isFirstConversation) {
         newConversationMutation.mutate()
       }
-
-      // This prompts the agreement modal
-      // currentConversationInfo && !currentConversationInfo.data?.current_conversation
     }
   })
 

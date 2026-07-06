@@ -130,15 +130,17 @@ pub struct Response {
 pub struct ResponseError {
     pub code: Option<String>,
     pub message: Option<String>,
+    pub param: Option<String>,
 }
 
 impl std::fmt::Display for ResponseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} (code: {})",
+            "{} (code: {}, param: {})",
             self.message.as_deref().unwrap_or("unknown error"),
-            self.code.as_deref().unwrap_or("none")
+            self.code.as_deref().unwrap_or("none"),
+            self.param.as_deref().unwrap_or("none")
         )
     }
 }
@@ -161,7 +163,7 @@ pub struct IncompleteReason {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ResponseOutput {
     #[serde(rename = "type")]
-    pub response_type: String,
+    pub response_type: String, // AllEvents
     pub delta: Option<String>,
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
@@ -791,6 +793,7 @@ async fn parse_tool<'a>(
     let mut messages = vec![];
     let mut common_response_id: Option<String> = None;
     let mut response_received = false;
+    let mut response_failed = false;
 
     trace!("Parsing tool calls...");
 
@@ -809,7 +812,16 @@ async fn parse_tool<'a>(
                             "Error: Received response text while parsing tool calls. Either the tool call parsing failed or the LLM responded in an unexpected way."
                         ))?
                     }
-                    _ => {}
+                    "response.error" | "error" => {
+                        // error is logged in the next iteration
+                     }
+                    "response.failed" => {
+                        response_failed = true;
+                        error!("Chatbot response failed");
+                    }
+                    _ => {
+                        // check if this is an expected to be ignored event, if not then log
+                    }
                 };
                 continue;
             }
@@ -829,6 +841,15 @@ async fn parse_tool<'a>(
                 format!("Error received from the API: {}. Response id: {}", error, response.id)
             ))?
         };
+        if response_failed {
+            // if there was an error in the response, it's already returned.
+            // at this point, all we can do is inform of the failure.'
+            return Err(chatbot_err!(
+                StreamingError,
+                format!("Response failed. Response output: {:?}. Response id: {}", response_output, common_response_id.unwrap_or("not received".to_string()))
+            ))?
+
+        };
 
         if response_received {
             // the stream ended
@@ -843,7 +864,7 @@ async fn parse_tool<'a>(
                     "The LLM response was supposed to contain function calls, but no function calls were found"
                 ))?
             }
-            let Some(response_id) = common_response_id else {
+            let Some(response_id) = &common_response_id else {
                 Err(chatbot_err!(StreamingError,
                     "Received tool response but response id not found, this shouldn't happen."
                 ))?
@@ -991,22 +1012,27 @@ fn stream_and_detect_response_stream_type<'a>(
                             "response.incomplete" => {
                                 break Err(anyhow::anyhow!("Response incomplete. Response id: {}", response_id.as_deref().unwrap_or("not received")))?
                             },
-                            "response.error" => { error_incoming = true; }
-                            _ => {}
+                            "response.error" | "error" => { error_incoming = true; }
+                            "response.failed" => {
+                                error_incoming = true;
+                                error!("Chatbot response failed");
+                            }
+                            _ => {
+                                // check if this is an expected to be ignored event, if not then log
+                            }
                         }
                     }
                     Some(ParsedResponseLine::Data(response_output)) => {
                         if error_incoming {
-                            let res = response_output.response.ok_or(chatbot_err!(
-                                DeserializationError,
-                                "Expected response object"
-                            ))?;
-                            let res_error = res.error.ok_or(chatbot_err!(
-                                DeserializationError,
-                                "Expected error object"
-                            ))?;
+                            if let Some(response) = &response_output.response
+                            && let Some(error) = &response.error {
+                                break Err(chatbot_err!(StreamingError, format!("Error received from Azure: {} Response id: {}", error, response_id.as_deref().unwrap_or("not received"))))?
+                            } else {
+                                break Err(chatbot_err!(StreamingError, format!("Response failed without receiving an API error. Response output: {:?} Response id: {}", response_output, response_id.as_deref().unwrap_or("not received"))))?
+                            };
 
-                            break Err(anyhow::anyhow!("Error received from Azure: {} Response id: {}", res_error, response_id.as_deref().unwrap_or("not received")))?
+
+
                         }
                         else if response_created_incoming {
                             let res = response_output.response.ok_or(chatbot_err!(
@@ -1057,10 +1083,12 @@ async fn parse_text_response<'a>(
     done: Arc<AtomicBool>,
     response_message: ChatbotConversationMessage,
     request_estimated_tokens: i32,
+    response_id: String,
 ) -> BoxStream<'a, ChatbotResult<StreamEvent<'a>>> {
     trace!("Parsing stream to user...");
 
     let mut response_received = false;
+    let mut response_failed = false;
 
     Box::pin(async_stream::try_stream! {
         while let Some(val) = lines.next().await {
@@ -1077,13 +1105,42 @@ async fn parse_text_response<'a>(
                             error!("ERROR, function call received but can't be processed while streaming to user.");
                             return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming to user")))?
                         },
-                        _ => {},
+                        "response.error" | "error" => {
+                            // error is logged in the next iteration
+
+                         }
+                        "response.failed" => {
+                            // log error response.error if exists, else inform that the respones just failed
+                            error!("Response failed.");
+                            response_failed = true;
+                        }
+                        _ => {
+                            // check if this is an expected to be ignored event, if not then log
+                        }
                     };
                     continue;
                 },
                 Some(ParsedResponseLine::Data(data)) => *data,
                 None => {continue;},
             };
+
+            // Surface any error the API reports (e.g. response.error, response.failed)
+            // instead of continuing. Normal responses carry no error object.
+            if let Some(response) = &response_output.response
+            && let Some(error) = &response.error
+            {
+                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, response.id)))?
+            };
+
+            if response_failed {
+            // if there was an error in the response, it's already returned.
+            // at this point, all we can do is inform of the failure.'
+            return Err(chatbot_err!(
+                StreamingError,
+                format!("Response failed. Response output: {:?}. Response id: {}", response_output, &response_id)
+            ))?
+
+        };
 
             let mut full_response_text = full_response_text.lock().await;
 
@@ -1113,14 +1170,6 @@ async fn parse_text_response<'a>(
                 yield StreamEvent::Done;
                 break;
             }
-
-            // Surface any error the API reports (e.g. response.error, response.failed)
-            // instead of continuing. Normal responses carry no error object.
-            if let Some(response) = &response_output.response
-            && let Some(error) = &response.error
-            {
-                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, response.id)))?
-            };
 
             if let Some(delta) = &response_output.delta {
                 full_response_text.push(delta.to_owned());
@@ -1326,7 +1375,7 @@ pub async fn send_chat_request_and_parse_stream(
                     {let mut response_message_id = response_message_id.lock().await;
                     *response_message_id = response_message.id;}
 
-                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message, request_estimated_tokens).await
+                    parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message, request_estimated_tokens, response_id.to_string()).await
                 }
             };
 

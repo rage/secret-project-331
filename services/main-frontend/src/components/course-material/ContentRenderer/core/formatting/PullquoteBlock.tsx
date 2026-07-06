@@ -26,7 +26,6 @@ const PullquoteBlock: React.FC<
     // borderColor, // Border color is same as textColor in CMS
     // className,
     // style,
-    textAlign,
     fontSize = "medium",
     value,
   } = data.attributes
@@ -38,7 +37,6 @@ const PullquoteBlock: React.FC<
       <figure
         className={css`
           text-align: center;
-          ${textAlign && `text-align: ${textAlign};`}
           border-top: 0.25rem solid #d5dbdf;
           border-bottom: 0.25rem solid #d5dbdf;
           padding: 3rem 0rem !important;

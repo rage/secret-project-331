@@ -13,9 +13,9 @@ license.workspace = true
 headless-lms-server = { path = "../server" }
 
 # Actix Web is a powerful, pragmatic, and extremely fast web framework for Rust
-actix-web = "4.13.0"
+actix-web = "4.14.0"
 # Flexible concrete Error type built on std::error::Error
-anyhow = "1.0.102"
+anyhow = "1.0.103"
 # A JSON serialization file format
 serde_json = "1.0.150"
 # Combinators and utilities for working with Futures, Streams, Sinks, and the AsyncRead and AsyncWrite traits.

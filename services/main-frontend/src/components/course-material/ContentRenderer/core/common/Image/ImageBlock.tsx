@@ -31,6 +31,7 @@ const ImageBlock: React.FC<
   const { disableInteractivity } = useImageInteractivity()
   const {
     alt,
+    isDecorative,
     align,
     caption,
     height,
@@ -63,7 +64,7 @@ const ImageBlock: React.FC<
           ${focalPointPos && `object-fit: cover; object-position: ${focalPointPos};`}
         `}
         src={url}
-        alt={alt}
+        alt={isDecorative ? "" : alt}
       />
       {linkTarget && linkTarget.includes("_blank") && (
         <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
@@ -75,29 +76,37 @@ const ImageBlock: React.FC<
     <div
       className={css`
         width: fit-content;
-        ${(align === "center" || align === undefined) &&
-        `margin-left: auto;
+        ${
+          (align === "center" || align === undefined) &&
+          `margin-left: auto;
         margin-right: auto;
-        text-align: center;`}
-        ${align === "right" &&
-        `
-        float: ${align};`}
-        ${align === "left" &&
-        `
+        text-align: center;`
+        }
+        ${
+          align === "right" &&
+          `
+        float: ${align};`
+        }
+        ${
+          align === "left" &&
+          `
         float: ${align};
-        margin-right: 1em;`}
+        margin-right: 1em;`
+        }
       `}
     >
       <figure
         className={css`
           ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
-          ${align !== "center" &&
-          `float: ${align};
+          ${
+            align !== "center" &&
+            `float: ${align};
         margin-top: 3rem;
         margin-bottom: 3rem;
         ${align === "right" && "margin-left: 1rem;"}
         ${align === "left" && "margin-right: 1rem;"}
-        `}
+        `
+          }
         `}
       >
         <div

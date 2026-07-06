@@ -21,7 +21,7 @@ const DETECT_CSS_REGEX_3 = /;.*:/s
 const DETECT_PX_REGEX = /^\d+px$/
 const DETECT_REM_REGEX = /^\d+rem$/
 const DETECT_EM_REGEX = /^\d+em$/
-const DETECT_COLOR_REGEX = /^#[0-9A-Fa-f]{6}$/
+const DETECT_COLOR_REGEX = /^#[0-9A-Fa-f]{6}$|^(?:rgb|rgba|hsl|hsla)\(.*\)$/
 const DETECT_STYLE_PROP =
   /^(height|width|transform|transition|background|color|margin|padding|border|display|position|top|bottom|left|right|z-index|font-size|font-weight|line-height|cursor|content|clip-path|appearance|gap|grid-template-columns|place-content|box-shadow|border-radius|transition-property|transition-duration|transition-timing-function|fill):/
 const DETECT_BEZIER = /cubic-bezier\([^)]+\)/

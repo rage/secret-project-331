@@ -147,12 +147,16 @@ const StatusEvents: React.FC = () => {
                   <tr
                     key={event.name}
                     className={css`
-                      ${event.type_ === "Warning"
-                        ? `background-color: ${baseTheme.colors.yellow[100]};`
-                        : ""}
-                      ${event.type_ === "Error"
-                        ? `background-color: ${baseTheme.colors.red[100]};`
-                        : ""}
+                      ${
+                        event.type_ === "Warning"
+                          ? `background-color: ${baseTheme.colors.yellow[100]};`
+                          : ""
+                      }
+                      ${
+                        event.type_ === "Error"
+                          ? `background-color: ${baseTheme.colors.red[100]};`
+                          : ""
+                      }
                     `}
                   >
                     <td>

@@ -8,7 +8,7 @@ minimumReleaseAge: 10080
 minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.16.0
+nodeVersion: 24.18.0
 
 overrides:
   picomatch@>=4.0.0 <4.0.4: '>=4.0.4'

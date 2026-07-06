@@ -1,9 +1,7 @@
 export type ErrorSource = "backend" | "frontend"
 export type ErrorOccurrenceTransport = "default" | "exit"
 type ErrorOccurrenceRequestHeaders =
-  | Headers
-  | ReadonlyArray<readonly [string, string]>
-  | Readonly<Record<string, string>>
+  Headers | ReadonlyArray<readonly [string, string]> | Readonly<Record<string, string>>
 
 export type ErrorOccurrenceReport = {
   service?: string

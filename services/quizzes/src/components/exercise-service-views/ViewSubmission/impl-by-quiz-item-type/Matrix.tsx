@@ -274,18 +274,24 @@ const MatrixTable: React.FC<React.PropsWithChildren<MatrixTableProps>> = ({
                             outline: none;
                             text-align: center;
                             resize: none;
-                            ${cell.text.length === 0 &&
-                            `
+                            ${
+                              cell.text.length === 0 &&
+                              `
                               background-color: #f5f6f7;
-                            `}
-                            ${cell.text !== "" &&
                             `
+                            }
+                            ${
+                              cell.text !== "" &&
+                              `
                                 background-color: #f9f9f9;
                                 color: #4C5868;
-                                `}
-                                ${cell.correct === false &&
-                            `background-color: #bfbec6;
-                                `}
+                                `
+                            }
+                                ${
+                                  cell.correct === false &&
+                                  `background-color: #bfbec6;
+                                `
+                                }
                           `}
                         >
                           <p

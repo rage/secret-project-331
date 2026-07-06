@@ -188,8 +188,9 @@ pub struct IncompleteReason {
 /// Streamed token of the response text
 #[derive(Deserialize, Serialize, Debug)]
 pub struct ResponseOutput {
+    /// The event type of this response
     #[serde(rename = "type")]
-    pub response_type: String, // AllEvents
+    pub response_type: String, // for examples check out ALL_EXPECTED_EVENTS
     pub delta: Option<String>,
     pub item: Option<OutputItem>,
     pub response: Option<Response>,
@@ -438,7 +439,6 @@ pub struct Schema {
     #[serde(rename = "type")]
     /// Type of the schema, should be Object
     pub type_field: JSONType,
-    // only array-type properties are supported for now
     pub properties: HashMap<String, SchemaPropertyType>,
     /// All 'properties' keys must be included in this 'required' list
     pub required: Vec<String>,
@@ -810,7 +810,7 @@ pub async fn process_output_item(
             }
         }
         OutputItem::FunctionCall { .. } => {
-            // this chunk has tool call data andit should already be saved!!
+            // this chunk has tool call data and it should already be saved!!
             Err(chatbot_err!(
                 StreamingError,
                 "Unexpected function call output item, it should have been processed.".to_string()
@@ -1158,7 +1158,7 @@ async fn parse_text_response<'a>(
                         },
                         "response.function_call_arguments.delta" | "response.custom_tool_call_input.delta" => {
                             error!("ERROR, function call received but can't be processed while streaming to user.");
-                            return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming to user")))?
+                            return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming t<o user")))?
                         },
                         "response.error" | "error" | "response.failed" => {
                             // error is logged in the next iteration
@@ -1361,7 +1361,6 @@ pub async fn send_chat_request_and_parse_stream(
                         break;
                     },
                     Ok(StreamEvent::Item(item)) => {
-                        // check out refusal message
                         if item.finished {
                             // save it to db and put it in the LLM Request input
                             // in case another request will be made
@@ -1382,7 +1381,7 @@ pub async fn send_chat_request_and_parse_stream(
                         // in practice this event shoudln't happen because when a refusal
                         // is being streamed, its streaming is done by parse_text_response
                         let message_id = *response_message_id.lock().await;
-                        let event = ChatbotChatStreamEvent::Delta { text, message_id }; // todo is it the correct id
+                        let event = ChatbotChatStreamEvent::Delta { text, message_id };
                         let event_string = serde_json::to_string(&event)?;
                         yield Bytes::from(event_string);
                         yield Bytes::from("\n");

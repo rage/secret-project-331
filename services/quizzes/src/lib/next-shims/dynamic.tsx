@@ -1,12 +1,8 @@
 "use client"
 
-// SPA replacement for `next/dynamic`. This service is 100% client-rendered (TanStack Start SPA
-// mode), so the Next-specific `ssr` option is a no-op and lazy loading is done with React.lazy +
-// Suspense. Two consumers resolve to this module:
-//   - code this service owns (src/utils/dynamicWithIframeReload.tsx) imports it directly, and
-//   - the vendored shared-module code (common/utils/dynamicImport) still imports "next/dynamic",
-//     which rsbuild `resolve.alias` maps here at build time (the shared source is unchanged so the
-//     Next-based apps that vendor it keep using the real next/dynamic).
+// SPA replacement for `next/dynamic`: lazy loading via React.lazy + Suspense, `ssr` a no-op (this
+// app is fully client-rendered). Consumed directly by dynamicWithIframeReload.tsx and, via rsbuild
+// `resolve.alias`, by vendored shared code that imports "next/dynamic".
 import { type ComponentType, createElement, lazy, type ReactNode, Suspense } from "react"
 
 type LoaderModule<P> = ComponentType<P> | { default: ComponentType<P> }
@@ -14,7 +10,7 @@ type LoaderModule<P> = ComponentType<P> | { default: ComponentType<P> }
 export type Loader<P = Record<string, unknown>> = () => Promise<LoaderModule<P>>
 
 export interface DynamicOptions {
-  /** Ignored: this app has no SSR. Kept for source-compatibility with next/dynamic call sites. */
+  /** Ignored: this app has no SSR. */
   ssr?: boolean
   loading?: ComponentType<{ error?: Error | null; isLoading?: boolean; pastDelay?: boolean }>
 }

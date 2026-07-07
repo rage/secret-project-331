@@ -502,9 +502,8 @@ const config = [
     },
   },
   {
-    // example-exercise and quizzes were migrated from Next.js to TanStack Start. They are no longer
-    // Next apps, and SPA mode renders the whole document, so these framework files legitimately hold
-    // a <head> element plus router/head-meta config strings rather than user-facing copy.
+    // SPA framework files: these legitimately hold a <head> element and router/head-meta config
+    // strings rather than user-facing copy, so the head-element and literal-string rules don't apply.
     files: [
       "services/example-exercise/src/router.tsx",
       "services/example-exercise/src/routes/__root.tsx",

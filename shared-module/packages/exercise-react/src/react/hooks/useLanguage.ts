@@ -29,10 +29,8 @@ export function getDir(language: string) {
   }
 }
 
-// Framework-agnostic replacement for next/navigation's useSearchParams: subscribe to History
-// navigations and read the `lang` query param directly from the URL. Keeps this hook usable from
-// any bundler/framework (it is vendored into both the TanStack Start exercise services and the
-// still-Next host app).
+// Framework-agnostic: subscribe to History navigations and read the `lang` query param directly
+// from the URL, so this hook works in any bundler it is vendored into.
 function subscribeToLocation(callback: () => void): () => void {
   if (IS_SERVER) {
     return () => {

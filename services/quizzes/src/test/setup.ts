@@ -14,18 +14,15 @@ if (!("ResizeObserver" in globalThis)) {
   }
 }
 
-// The exercise-service parent connection uses MessageChannel. jsdom does not provide it, and tests
-// only need inert ports (they never exchange real messages), matching the old Jest setup.
+// The parent connection uses MessageChannel, which jsdom lacks. Tests only need inert ports.
 class StubMessageChannel {
   port1 = { postMessage: () => {} }
   port2 = { postMessage: () => {} }
 }
 ;(globalThis as unknown as { MessageChannel: unknown }).MessageChannel = StubMessageChannel
 
-// Component tests render UI that calls useTranslation; return the key so assertions are stable and
-// don't depend on loaded translation resources (folds in the old tests/setup-jest.js stub). Only
-// useTranslation/Translation are overridden — the real module is spread through so other exports
-// (e.g. initReactI18next, used by initI18n) keep working.
+// Component tests call useTranslation; return the key so assertions don't depend on loaded
+// resources. Spread the real module so other exports (e.g. initReactI18next) keep working.
 vi.mock("react-i18next", async (importOriginal) => {
   const actual = await importOriginal<typeof import("react-i18next")>()
   return {

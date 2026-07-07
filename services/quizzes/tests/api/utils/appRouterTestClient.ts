@@ -1,14 +1,12 @@
-// Dependency-free request-based client for the migrated API handlers. Each call builds a real Web
-// `Request` (matching what headless-lms sends), invokes the handler directly, and exposes the
-// resulting `Response` as `{ status, text, body, headers }`. Replaces the old supertest + Next
-// App-Router client; keeps the same `.get()/.post().send()/.expect()` surface the tests already use.
+// Dependency-free request-based client for the API handlers. Each call builds a real Web `Request`
+// (matching what headless-lms sends), invokes the handler directly, and exposes the resulting
+// `Response` as `{ status, text, body, headers }` behind a `.get()/.post().send()/.expect()` surface.
 type Handler = (req: Request) => Promise<Response> | Response
 
 interface TestResponse {
   status: number
   text: string
-  // Parsed JSON response body. Typed loosely (like supertest's `.body`) so the ported tests can
-  // read response shapes directly without repetitive casts.
+  // Parsed JSON response body. Typed loosely so tests can read response shapes without casts.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   body: any
   headers: Headers

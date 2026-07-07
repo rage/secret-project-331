@@ -7,20 +7,17 @@ import { fileURLToPath } from "node:url"
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 
 // Base path this service is mounted under behind the nginx ingress, e.g. "/quizzes". Fixed at build
-// time (the production Dockerfile exports PUBLIC_BASE_PATH before `rsbuild build`), mirroring the
-// old NEXT_PUBLIC_BASE_PATH behaviour under a framework-neutral name. rsbuild auto-inlines PUBLIC_*
-// into both bundles, so the client router and the server routes agree.
+// time (the Dockerfile exports PUBLIC_BASE_PATH before `rsbuild build`); rsbuild auto-inlines
+// PUBLIC_* into both bundles, so the client router and server routes agree.
 const BASE_PATH = process.env.PUBLIC_BASE_PATH ?? ""
 
-// rsbuild only auto-inlines PUBLIC_* env vars, and a bare `process.env.X` throws "process is not
-// defined" in the browser. The vendored shared-module still reads a handful of NEXT_PUBLIC_* / URL
-// vars; inline them here (as their build-time values, "undefined" when unset) so no bare
-// process.env reference reaches the browser. Behaviour is unchanged from the old Next build.
+// rsbuild only auto-inlines PUBLIC_* vars, and a bare `process.env.X` throws in the browser. The
+// vendored shared-module reads a handful of NEXT_PUBLIC_* / URL vars; inline them here (their
+// build-time values, "undefined" when unset) so no bare process.env reference reaches the browser.
 const defineEnv = (value: string | undefined): string =>
   value === undefined ? "undefined" : JSON.stringify(value)
 
-// SPA replacement for next/dynamic, resolved for the vendored shared code that still imports it
-// (the shared source is untouched so the Next apps that vendor it keep the real next/dynamic).
+// SPA replacement for next/dynamic, aliased in for the vendored shared code that imports it.
 const NEXT_DYNAMIC_SHIM = fileURLToPath(
   new URL("./src/lib/next-shims/dynamic.tsx", import.meta.url),
 )
@@ -35,11 +32,11 @@ export default defineConfig({
     pluginReact(),
     pluginSvgr({
       svgrOptions: {
-        // `import Logo from "./x.svg"` yields the React component directly (matches @svgr/webpack).
+        // `import Logo from "./x.svg"` yields the React component directly.
         exportType: "default",
         svgProps: { role: "presentation" },
-        // Ported verbatim from the shared svgoConfig so SVG output is unchanged. Inlined (rather
-        // than a typed const) so the plugin's parameter type narrows the plugin `name` literals.
+        // Inlined (rather than a typed const) so the plugin's parameter type narrows the `name`
+        // literals.
         svgoConfig: {
           plugins: [
             { name: "preset-default", params: { overrides: { cleanupIds: { minify: false } } } },
@@ -61,7 +58,7 @@ export default defineConfig({
     // Absolute-prefix every static asset URL. Defaults to server.base, but set explicitly: the
     // sandboxed cross-origin iframe has an opaque origin and cannot resolve relative asset URLs.
     assetPrefix: BASE_PATH ? `${BASE_PATH}/` : undefined,
-    // Public source maps (this is open source; replaces Next's productionBrowserSourceMaps: true).
+    // Public source maps (this is open source).
     sourceMap: { js: "source-map" },
   },
   resolve: {
@@ -70,11 +67,10 @@ export default defineConfig({
     },
   },
   source: {
-    // Replaces Next's modularizeImports: rewrite `import { x } from "lodash"` to `lodash/x` so only
-    // the used functions are bundled.
+    // Rewrite `import { x } from "lodash"` to `lodash/x` so only the used functions are bundled.
     transformImport: [{ libraryName: "lodash", customName: "lodash/{{ member }}" }],
-    // Replaces Next's transpilePackages: this icon package ships untranspiled and lives in
-    // node_modules, which rsbuild does not transpile by default.
+    // This icon package ships untranspiled in node_modules, which rsbuild does not transpile by
+    // default.
     include: [/[\\/]node_modules[\\/]@vectopus[\\/]atlas-icons-react[\\/]/],
     define: {
       "process.env.NEXT_PUBLIC_SERVICE_SLUG": defineEnv(process.env.NEXT_PUBLIC_SERVICE_SLUG),

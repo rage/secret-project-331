@@ -1,11 +1,9 @@
 // Single source of truth for the HTTP response headers that let this app be embedded in a
-// sandboxed, cross-origin iframe. Byte-identical to the old next.config.js
-// `externallyEmbeddableIFrameResponseHeaders`.
+// sandboxed, cross-origin iframe.
 //
 // Used in two places:
 //   - server.mjs stamps these on every production response (incl. static assets / fonts).
-//   - rsbuild.config.ts feeds them to the dev server (`server.headers`) so the dev cluster's
-//     cross-origin iframe works the same as production.
+//   - rsbuild.config.ts feeds them to the dev server (`server.headers`).
 //
 // Permissive CSP is intentional: the iframe is sandboxed, which provides the isolation.
 export const IFRAME_HEADERS = {

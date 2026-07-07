@@ -6,14 +6,13 @@ import { tanstackStart } from "@tanstack/react-start/plugin/rsbuild"
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 
 // Base path this service is mounted under behind the nginx ingress, e.g. "/example-exercise".
-// Fixed at build time (the production Dockerfile exports PUBLIC_BASE_PATH before `rsbuild build`),
-// mirroring the old NEXT_PUBLIC_BASE_PATH behaviour under a framework-neutral name. rsbuild
-// auto-inlines PUBLIC_* into both bundles, so the client router and the server routes agree.
+// Fixed at build time (the Dockerfile exports PUBLIC_BASE_PATH before `rsbuild build`); rsbuild
+// auto-inlines PUBLIC_* into both bundles, so the client router and server routes agree.
 const BASE_PATH = process.env.PUBLIC_BASE_PATH ?? ""
 
-// rsbuild only auto-inlines PUBLIC_* env vars. The vendored shared error reporter still reads
-// process.env.NEXT_PUBLIC_SERVICE_SLUG; inline it here (as `undefined` when unset, preserving the
-// "unknown" fallback) so a bare `process.env` reference never reaches — and throws in — the browser.
+// rsbuild only auto-inlines PUBLIC_* vars. The vendored error reporter reads
+// process.env.NEXT_PUBLIC_SERVICE_SLUG, so inline it here — otherwise a bare `process.env`
+// reference throws in the browser.
 const SERVICE_SLUG = process.env.NEXT_PUBLIC_SERVICE_SLUG
 
 export default defineConfig({
@@ -26,11 +25,11 @@ export default defineConfig({
     pluginReact(),
     pluginSvgr({
       svgrOptions: {
-        // `import Logo from "./x.svg"` yields the React component directly (matches @svgr/webpack).
+        // `import Logo from "./x.svg"` yields the React component directly.
         exportType: "default",
         svgProps: { role: "presentation" },
-        // Ported verbatim from the old next.config.js so SVG output is unchanged. Inlined (rather
-        // than a typed const) so the plugin's parameter type narrows the plugin `name` literals.
+        // Inlined (rather than a typed const) so the plugin's parameter type narrows the `name`
+        // literals.
         svgoConfig: {
           plugins: [
             { name: "preset-default", params: { overrides: { cleanupIds: { minify: false } } } },
@@ -52,7 +51,7 @@ export default defineConfig({
     // Absolute-prefix every static asset URL. Defaults to server.base, but set explicitly: the
     // sandboxed cross-origin iframe has an opaque origin and cannot resolve relative asset URLs.
     assetPrefix: BASE_PATH ? `${BASE_PATH}/` : undefined,
-    // Public source maps (this is open source; replaces Next's productionBrowserSourceMaps: true).
+    // Public source maps (this is open source).
     sourceMap: { js: "source-map" },
   },
   source: {

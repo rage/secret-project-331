@@ -243,10 +243,8 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
   // service_name and the document <title>. Derived from the project name; refine afterwards.
   const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
 
-  // Replace the display literal first, then the slug. The two literals do not overlap ("Example
-  // exercise" has a space + capital; "example-exercise" is the hyphenated slug), so this covers the
-  // SERVICE_NAME constant, i18next namespace, service_info name, document title, server log line and
-  // comments in one pass — guaranteeing no template name leaks into the generated project.
+  // Display literal first, then the slug: the two do not overlap ("Example exercise" vs the
+  // hyphenated "example-exercise"), so the order is safe and every occurrence is covered in one pass.
   await replaceNameInAllFiles(projectPath, [
     ["Example exercise", displayName],
     [TEMPLATE_SERVICE_NAME, projectName],

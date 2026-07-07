@@ -10,8 +10,8 @@ export default defineConfig({
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   plugins: [
-    // Mirror the production @rsbuild/plugin-svgr behaviour so component tests render the same icon
-    // components as the real build: `import Icon from "./x.svg"` -> React component (default export).
+    // Match the build's SVG handling so tests render real icon components:
+    // `import Icon from "./x.svg"` -> React component (default export).
     svgr({
       include: "**/*.svg",
       svgrOptions: { exportType: "default", svgProps: { role: "presentation" } },

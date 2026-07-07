@@ -29,6 +29,7 @@ import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -76,9 +77,11 @@ const ModuleCertificate: React.FC = () => {
     enabled: !!moduleId,
   })
 
-  // Reflect the loaded course context in the tab (matching the dynamic heading); fall back to the
-  // generic label until the course/module data resolves.
-  usePageTitle(courseAndModule.data?.course?.name ?? t("title-generate-certificate"))
+  // Reflect the loaded course context in the tab (e.g. "Generate certificate - Programming 101");
+  // falls back to the generic label until the course/module data resolves.
+  usePageTitle(
+    joinTitleSegments([t("title-generate-certificate"), courseAndModule.data?.course?.name]),
+  )
 
   useEffect(() => {
     if (userInfo.isSuccess && userInfo.data && nameOnCertificate === "") {

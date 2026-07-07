@@ -2,7 +2,6 @@
 
 import { css, keyframes } from "@emotion/css"
 import styled from "@emotion/styled"
-import { sortBy } from "lodash"
 import React, { ReactPortal, useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
@@ -111,6 +110,10 @@ export interface ReferenceProps {
   data: Reference[]
 }
 
+// Placeholder shown for a \cite whose key has no resolvable reference, so a broken citation is
+// visible instead of collapsing into an empty gap.
+const UNRESOLVED_CITATION_MARKER = "[?]"
+
 export function formatCitationText(
   citeNumber: number,
   prenote: string | undefined,
@@ -184,62 +187,81 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
     }
   }, [])
 
-  let [portals, citeOrder]: [ReactPortal[] | null, string[] | null] = useMemo(() => {
-    if (!readyForPortal) {
-      return [null, null]
-    }
-    const citeOrder: string[] = []
-    const portals = Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]"))
-      .map((node, idx) => {
-        const reference = data.find((o) => o.id === node.dataset.citationId)
+  // Canonical citation number + tooltip text per key. Number = position in `data`, which
+  // usePageReferences produces in first-occurrence document order, so numbers stay stable regardless
+  // of when a marker mounts (e.g. when an expandable block is opened).
+  const referenceByKey = useMemo(() => {
+    const map = new Map<string, { number: number; text: string }>()
+    data.forEach((reference, index) => {
+      if (!map.has(reference.id)) {
+        map.set(reference.id, { number: index + 1, text: reference.text })
+      }
+    })
+    return map
+  }, [data])
 
-        if (!reference) {
+  // Attaches a numbered marker portal into every citation span currently in the DOM. Re-runs on
+  // scanVersion so markers appear when spans mount lazily; the number itself comes from referenceByKey.
+  const portals: ReactPortal[] | null = useMemo(() => {
+    if (!readyForPortal) {
+      return null
+    }
+    return Array.from(document.querySelectorAll<HTMLElement>("[data-citation-id]"))
+      .map((node, idx) => {
+        const citationId = node.dataset.citationId
+        if (!citationId) {
           return null
         }
-
-        let citeNumber: number = 0
-        if (reference && !citeOrder.includes(reference.id)) {
-          citeOrder.push(reference.id)
-          citeNumber = citeOrder.length
-        } else if (reference && citeOrder.includes(reference.id)) {
-          citeNumber = citeOrder.indexOf(reference.id) + 1
+        const reference = referenceByKey.get(citationId)
+        if (!reference) {
+          // The key is cited in the text but has no resolvable reference (missing from the course
+          // reference list, or citation-js failed to format it in usePageReferences). Render a
+          // visible marker so the broken citation is noticeable instead of collapsing into an
+          // invisible gap; the tooltip names the unresolved key to help authors fix it.
+          return createPortal(
+            <TooltipNTrigger
+              variant="references"
+              href={`#ref-${citationId}`}
+              tooltipContent={citationId}
+            >
+              {UNRESOLVED_CITATION_MARKER}
+            </TooltipNTrigger>,
+            node,
+            // idx (position among matched spans) already makes this unique across resolved/missing.
+            `${citationId}-${idx}`,
+          )
         }
 
         const citationContent = formatCitationText(
-          citeNumber,
+          reference.number,
           node.dataset.citationPrenote,
           node.dataset.citationPostnote,
         )
         return createPortal(
           <TooltipNTrigger
             variant="references"
-            href={"#ref-" + citeNumber}
+            href={"#ref-" + reference.number}
             tooltipContent={reference.text}
           >
             {citationContent}
           </TooltipNTrigger>,
           node,
-          idx,
+          // Stable key: citation id + its occurrence index among the matched spans.
+          `${citationId}-${idx}`,
         )
       })
-      .filter((o) => !!o)
-    return [portals, citeOrder]
-  }, [data, readyForPortal, scanVersion])
+      .filter((o): o is ReactPortal => !!o)
+    // scanVersion is a deliberate trigger (not read in the body): it re-runs the DOM scan when
+    // citation spans mount/unmount, e.g. when an expandable block is opened.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, referenceByKey, readyForPortal, scanVersion])
 
-  let sortedReferenceList = useMemo(() => {
-    if (!citeOrder) {
-      return []
-    }
-    return sortBy(data, (item) => {
-      return citeOrder.indexOf(item.id)
-    })
-  }, [citeOrder, data])
   return (
     <TextWrapper>
       <details>
         <summary>{t("title-references")}</summary>
         <ol>
-          {sortedReferenceList.map(({ id, text }, index) => {
+          {data.map(({ id, text }, index) => {
             return (
               <li
                 key={id}

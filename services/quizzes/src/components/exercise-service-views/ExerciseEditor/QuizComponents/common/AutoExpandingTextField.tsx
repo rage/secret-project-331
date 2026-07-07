@@ -6,9 +6,11 @@ import React, { TextareaHTMLAttributes, useEffect, useRef } from "react"
 import { primaryFont } from "@/shared-module/common/styles/typography"
 
 /**
- * A `<textarea>` that looks like the single-line shared-module `InputFields/TextField` while
- * `multiline` is false and grows to fit content while it's true. Always the same element, so
- * toggling `multiline` never drops focus or the caret. Styles mirror TextField — keep in sync.
+ * A `<textarea>` styled like the single-line shared-module `InputFields/TextField` that wraps long
+ * text and grows in height to fit its content, so a long value is never hidden behind a horizontal
+ * scroll. When `allowNewlines` is false the field is still a single logical line — Enter is
+ * suppressed and the caller collapses pasted newlines — so the value never contains a line break
+ * even though it may wrap across several visual rows. Styles mirror TextField — keep in sync.
  */
 
 const Wrapper = styled.div`
@@ -26,7 +28,7 @@ const Label = styled.span`
   margin-bottom: 2px;
 `
 
-const StyledTextArea = styled.textarea<{ whiteSpace: string }>`
+const StyledTextArea = styled.textarea`
   background: #fcfcfc;
   border: 2px solid #dedede;
   border-radius: 3px;
@@ -38,11 +40,9 @@ const StyledTextArea = styled.textarea<{ whiteSpace: string }>`
   min-width: 20px;
   resize: none;
   overflow: hidden;
-  transition:
-    ease-in-out,
-    width 0.35s ease-in-out;
-  /* Collapsed: no wrap, caret scrolls horizontally. Expanded: wraps and grows. */
-  white-space: ${({ whiteSpace }) => whiteSpace};
+  /* Wrap long lines and break unbreakable tokens, then grow in height, instead of scrolling. */
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
 
   &:focus,
   &:active {
@@ -59,7 +59,11 @@ export interface AutoExpandingTextFieldProps extends Omit<
   "onChange"
 > {
   label: string
-  multiline: boolean
+  /**
+   * Whether Enter inserts a newline. When false the field stays a single logical line (Enter is
+   * suppressed); it still wraps and grows visually. Pasted newlines must be collapsed by the caller.
+   */
+  allowNewlines: boolean
   onChangeByValue: (value: string) => void
 }
 
@@ -78,7 +82,7 @@ const resizeToContent = (textarea: HTMLTextAreaElement | null) => {
 
 const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
   label,
-  multiline,
+  allowNewlines,
   value,
   onChangeByValue,
   onKeyDown,
@@ -86,24 +90,15 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Grow to fit content while expanded; collapsed uses rows={1} for the single-line height.
+  // Grow to fit content on every value change; rows={1} keeps a single line as the minimum height.
   useEffect(() => {
-    const textarea = textareaRef.current
-    if (!textarea) {
-      return
-    }
-    if (!multiline) {
-      // Drop leftover inline height so rows={1} governs.
-      textarea.style.height = ""
-      return
-    }
-    resizeToContent(textarea)
-  }, [multiline, value])
+    resizeToContent(textareaRef.current)
+  }, [value])
 
   useEffect(() => {
     // Mounted hidden (e.g. in a collapsed <details>) reports scrollHeight 0; recompute when visible.
     const textarea = textareaRef.current
-    if (!multiline || !textarea) {
+    if (!textarea) {
       return
     }
     const observer = new IntersectionObserver((entries) => {
@@ -116,26 +111,24 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
     })
     observer.observe(textarea)
     return () => observer.disconnect()
-  }, [multiline])
+  }, [])
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChangeByValue(event.target.value)
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Collapsed = single-line: suppress Enter's newline, but not the Enter that commits an IME
+    // Single logical line: suppress Enter's newline, but not the Enter that commits an IME
     // composition (CJK input would lose its keystroke).
-    if (!multiline && event.key === "Enter" && !event.nativeEvent.isComposing) {
+    if (!allowNewlines && event.key === "Enter" && !event.nativeEvent.isComposing) {
       event.preventDefault()
     }
     onKeyDown?.(event)
   }
 
-  // CSS / HTML attribute values (not user-facing text).
+  // HTML attribute value (not user-facing text): soft wrapping so long text flows onto new rows.
   // eslint-disable-next-line i18next/no-literal-string
-  const whiteSpace = multiline ? "pre-wrap" : "nowrap"
-  // eslint-disable-next-line i18next/no-literal-string
-  const wrapMode = multiline ? "soft" : "off"
+  const wrapMode = "soft"
 
   return (
     <Wrapper>
@@ -144,7 +137,6 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
         <StyledTextArea
           {...rest}
           ref={textareaRef}
-          whiteSpace={whiteSpace}
           rows={1}
           wrap={wrapMode}
           value={value}

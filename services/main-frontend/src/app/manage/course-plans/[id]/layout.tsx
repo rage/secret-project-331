@@ -28,7 +28,7 @@ export default function CoursePlanLayout({ children }: { children: React.ReactNo
 
   const planName = planQuery.data?.plan.name ?? null
 
-  usePageTitle(planName)
+  usePageTitle(planQuery.isPending ? null : (planName ?? t("course-plans-untitled-plan")))
 
   const planHref = useMemo(() => {
     if (pathname.includes("/permissions") || pathname.includes("/workspace")) {

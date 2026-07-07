@@ -419,11 +419,14 @@ describe("parseText", () => {
         expect(parsedText).not.toContain("data-citation-prenote")
       })
 
-      test("escapes quotes and tildes in citation id", () => {
+      test("escapes quotes but preserves tildes in citation id", () => {
+        // The citation id must round-trip: reading node.dataset.citationId back has to equal the raw
+        // key so it matches the keys extracted from the block tree. Quotes are escaped for
+        // attribute safety, but the tilde -> &nbsp; display transform must NOT be applied here.
         const { parsedText } = parseText('Text\\cite{key"~1} with special id.', [], {
           glossary: false,
         })
-        expect(parsedText).toContain('data-citation-id="key&quot;&nbsp;1"')
+        expect(parsedText).toContain('data-citation-id="key&quot;~1"')
       })
     })
   })

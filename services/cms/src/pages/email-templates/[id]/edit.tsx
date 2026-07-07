@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
+import CmsPageTitle from "../../../components/CmsPageTitle"
 import CourseContext from "../../../contexts/CourseContext"
 
 import { EmailTemplateUpdate } from "@/generated/api"
@@ -15,9 +16,11 @@ import dontRenderUntilQueryParametersReady, {
   SimplifiedUrlQuery,
 } from "@/shared-module/common/utils/dontRenderUntilQueryParametersReady.pages"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components/components/queryResult/QueryResult"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
+import { useTranslation } from "@/utils/useCmsTranslation"
 
 const EmailEditor = dynamicImport(() => import("../../../components/editors/EmailEditor"))
 
@@ -28,6 +31,7 @@ export interface EmailTemplateEditProps {
 const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps>> = ({
   query,
 }) => {
+  const { t } = useTranslation()
   const [needToRunMigrationsAndValidations, setNeedToRunMigrationsAndValidations] = useState(false)
   const emailTemplateId = query.id
   const templateQuery = useQuery(
@@ -74,6 +78,7 @@ const EmailTemplateEdit: React.FC<React.PropsWithChildren<EmailTemplateEditProps
         const courseId = data.course_id
         return (
           <CourseContext.Provider value={courseId ? { courseId } : null}>
+            <CmsPageTitle title={joinTitleSegments([t("edit-email-template"), data.subject])} />
             <EmailEditor
               data={data}
               saveMutation={saveMutation}

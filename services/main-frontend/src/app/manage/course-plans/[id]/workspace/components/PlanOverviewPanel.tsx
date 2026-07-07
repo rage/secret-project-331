@@ -628,7 +628,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
 
             <Select
               id="course-plan-adjust-schedule-months"
-              // eslint-disable-next-line i18next/no-literal-string
+
               name="extendMonths"
               control={control}
               label={t("course-plans-adjust-schedule-months-label")}

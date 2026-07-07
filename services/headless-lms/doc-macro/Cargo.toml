@@ -10,9 +10,9 @@ license.workspace = true
 proc-macro = true
 
 [dependencies]
-syn = { version = "2.0.117", features = ["printing", "parsing", "extra-traits"] }
+syn = { version = "2.0.118", features = ["printing", "parsing", "extra-traits"] }
 proc-macro2 = "1.0.106"
-quote = "1.0.45"
+quote = "1.0.46"
 
 [lints.clippy]
 unwrap_used = "deny"

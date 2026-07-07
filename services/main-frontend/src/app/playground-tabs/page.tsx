@@ -49,7 +49,7 @@ export interface PlaygroundSettings {
 }
 
 let PlaygroudTabs = () => {
-  usePageTitle("Playground")
+  usePageTitle("Playground tabs")
   // Settings
   const defaultUrl =
     typeof window !== "undefined"

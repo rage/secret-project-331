@@ -87,12 +87,16 @@ const AllSubmissionsList: React.FC<AllSubmissionsListProps> = ({
                       padding: 1rem 1.5rem;
                       border-radius: 8px;
                       border: 2px solid
-                        ${isCurrentSubmission
-                          ? baseTheme.colors.green[500]
-                          : baseTheme.colors.gray[200]};
-                      background-color: ${isCurrentSubmission
-                        ? baseTheme.colors.green[100]
-                        : baseTheme.colors.clear[100]};
+                        ${
+                          isCurrentSubmission
+                            ? baseTheme.colors.green[500]
+                            : baseTheme.colors.gray[200]
+                        };
+                      background-color: ${
+                        isCurrentSubmission
+                          ? baseTheme.colors.green[100]
+                          : baseTheme.colors.clear[100]
+                      };
                       position: relative;
 
                       &:hover {

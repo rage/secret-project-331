@@ -15,12 +15,14 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import NoIndexMeta from "@/shared-module/common/components/NoIndexMeta"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { courseMaterialAtom } from "@/state/course-material"
 import { viewParamsAtom } from "@/state/course-material/params"
 import {
   currentCourseIdAtom,
   currentPageIdAtom,
+  materialCourseAtom,
   refetchViewAtom,
 } from "@/state/course-material/selectors"
 import { courseLanguagePreferenceAtom } from "@/state/courseLanguagePreference"
@@ -84,9 +86,12 @@ const PagePage: React.FC = () => {
   const courseMaterialState = useAtomValue(courseMaterialAtom)
   const courseId = useAtomValue(currentCourseIdAtom)
   const pageId = useAtomValue(currentPageIdAtom)
+  const courseName = useAtomValue(materialCourseAtom)?.name
 
-  // Specific page title; wins over the layout's course-name baseline once the page resolves.
-  usePageTitle(courseMaterialState.page?.title ?? null, { order: 10 })
+  // Specific page title composed with the course name (e.g. "Chapter 1 - Programming 101") so
+  // identically named pages across courses can be told apart. Wins over the layout's
+  // course-name baseline once the page resolves; while loading it collapses to the course name.
+  usePageTitle(joinTitleSegments([courseMaterialState.page?.title, courseName]), { order: 10 })
   const setLanguagePreference = useSetAtom(courseLanguagePreferenceAtom)
 
   const languageNavigation = useLanguageNavigation({

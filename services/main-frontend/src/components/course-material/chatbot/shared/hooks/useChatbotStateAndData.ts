@@ -2,8 +2,11 @@ import { UseMutationResult, UseQueryResult } from "@tanstack/react-query"
 import { useReducer, useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import chatbotReducer, { ChatbotAction, ChatbotState } from "../chatbotReducer"
+
 import { client as courseMaterialClient } from "@/generated/course-material-api/client.generated"
 import type {
+  ChatbotChatStreamEvent,
   ChatbotConversation,
   ChatbotConversationInfo,
   SendChatbotMessageData,
@@ -15,37 +18,14 @@ import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 const SEND_CHATBOT_MESSAGE_PATH: SendChatbotMessageData["url"] =
   "/api/v0/course-material/chatbot/{chatbot_configuration_id}/conversations/{conversation_id}/send-message"
 
-export interface MessageState {
-  optimisticMessage: string | null
-  streamingMessage: string | null
-}
-
-export type MessageAction =
-  | { type: "SET_OPTIMISTIC_MESSAGE"; payload: string | null }
-  | { type: "APPEND_STREAMING_MESSAGE"; payload: string }
-  | { type: "RESET_MESSAGES" }
-
-const messageReducer = (state: MessageState, action: MessageAction): MessageState => {
-  switch (action.type) {
-    case "SET_OPTIMISTIC_MESSAGE":
-      return { ...state, optimisticMessage: action.payload }
-    case "APPEND_STREAMING_MESSAGE":
-      return { ...state, streamingMessage: (state.streamingMessage || "") + action.payload }
-    case "RESET_MESSAGES":
-      return { optimisticMessage: null, streamingMessage: null }
-    default:
-      return state
-  }
-}
-
 /// Queries, state and data needed for chatbot functionality
 export interface ChatbotStateAndData {
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>
   newMessage: string
   setNewMessage: React.Dispatch<React.SetStateAction<string>>
   error: unknown | null
-  messageState: MessageState
-  dispatch: (action: MessageAction) => void
+  messageState: ChatbotState
+  dispatch: (action: ChatbotAction) => void
   newConversationMutation: UseMutationResult<ChatbotConversation, unknown, void, unknown>
   chatbotMessageAnnouncement: string
   newMessageMutation: UseMutationResult<
@@ -64,9 +44,8 @@ const useChatbotStateAndData = (
   const [newMessage, setNewMessage] = useState("")
   const [error, setError] = useState<unknown | null>(null)
   const [chatbotMessageAnnouncement, setChatbotMessageAnnouncement] = useState<string>("")
-  const [messageState, dispatch] = useReducer(messageReducer, {
-    optimisticMessage: null,
-    streamingMessage: null,
+  const [messageState, dispatch] = useReducer(chatbotReducer, {
+    messages: [],
   })
 
   const currentConversationInfo = useCurrentConversationInfo(chatbotConfigurationId)
@@ -79,13 +58,14 @@ const useChatbotStateAndData = (
   const newMessageMutation = useToastMutation(
     async (messageToSend: string) => {
       setChatbotMessageAnnouncement("")
+      setError(null)
       setIsOpen?.(true)
       if (!currentConversationInfo.data?.current_conversation) {
         throw new Error("No active conversation")
       }
       setChatbotMessageAnnouncement(t("chatbot-is-responding"))
       const message = messageToSend.trim()
-      dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: message })
+      dispatch({ type: "USER_SENDS_MESSAGE", payload: message })
       setNewMessage("")
       const stream = await courseMaterialClient.post<
         ReadableStream<Uint8Array>,
@@ -116,9 +96,34 @@ const useChatbotStateAndData = (
               continue
             }
             try {
-              const parsedValue = JSON.parse(line)
-              if (parsedValue.text) {
-                dispatch({ type: "APPEND_STREAMING_MESSAGE", payload: parsedValue.text })
+              const parsedValue: ChatbotChatStreamEvent = JSON.parse(line)
+              console.log(parsedValue)
+              if (parsedValue.type === "Delta") {
+                dispatch({
+                  type: "RECEIVED_TEXT_DELTA",
+                  payload: { text: parsedValue.data.text, message_id: parsedValue.data.message_id },
+                })
+              } else if (parsedValue.type === "Reasoning") {
+                if (parsedValue.data.finished) {
+                  dispatch({
+                    type: "REASONING_FINISHED",
+                    payload: { reasoning_id: parsedValue.data.reasoning_id },
+                  })
+                } else {
+                  dispatch({
+                    type: "REASONING_IN_PROGRESS",
+                    payload: { reasoning_id: parsedValue.data.reasoning_id },
+                  })
+                }
+              } else if (parsedValue.type === "ToolCall") {
+                if (parsedValue.data.finished) {
+                  dispatch({
+                    type: "TOOL_CALL_FINISHED",
+                    payload: { tool_call_id: parsedValue.data.tool_call_id },
+                  })
+                } else {
+                  dispatch({ type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } })
+                }
               }
             } catch (e) {
               console.error(e)
@@ -132,13 +137,13 @@ const useChatbotStateAndData = (
     {
       onSuccess: async () => {
         await currentConversationInfo.refetch()
-        dispatch({ type: "RESET_MESSAGES" })
+        dispatch({ type: "RESPONSE_COMPLETED" })
         setError(null)
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {
         setError(error)
-        dispatch({ type: "SET_OPTIMISTIC_MESSAGE", payload: null })
+        dispatch({ type: "RESPONSE_COMPLETED" })
         await currentConversationInfo.refetch()
       },
     },

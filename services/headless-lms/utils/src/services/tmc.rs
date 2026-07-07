@@ -51,14 +51,22 @@ pub struct TMCUser {
     pub email: String,
     pub administrator: bool,
     pub courses_mooc_fi_user_id: Option<Uuid>,
+    #[serde(default)]
     pub user_field: TMCUserField,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+/// User fields are optional data on the TMC side: a user who never filled in their profile (or a
+/// TMC instance without the field definitions) serializes them as null or omits them entirely, so
+/// deserialization must not require them.
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct TMCUserField {
-    pub first_name: String,
-    pub last_name: String,
-    pub organizational_id: String,
+    #[serde(default)]
+    pub first_name: Option<String>,
+    #[serde(default)]
+    pub last_name: Option<String>,
+    #[serde(default)]
+    pub organizational_id: Option<String>,
+    #[serde(default)]
     pub course_announcements: bool,
 }
 

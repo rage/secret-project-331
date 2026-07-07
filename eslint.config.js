@@ -517,6 +517,18 @@ const config = [
       "i18next/no-literal-string": "off",
     },
   },
+  {
+    // These two services are client-only SPAs (TanStack Start + rsbuild); RSC "use client"/"use
+    // server" directives are inert here, so don't require or enforce them.
+    files: [
+      "services/example-exercise/**/*.{js,jsx,ts,tsx}",
+      "services/quizzes/**/*.{js,jsx,ts,tsx}",
+    ],
+    rules: {
+      "explicit-use-directives/require-use-directive-first": "off",
+      "explicit-use-directives/empty-line-after-use-directive": "off",
+    },
+  },
   ...storybook.configs["flat/recommended"],
 ]
 

@@ -1,5 +1,3 @@
-"use client"
-
 import styled from "@emotion/styled"
 import { Eye, InfoCircle, Pencil } from "@vectopus/atlas-icons-react"
 import React, { useContext, useMemo, useState } from "react"

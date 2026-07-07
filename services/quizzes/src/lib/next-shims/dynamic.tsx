@@ -1,5 +1,3 @@
-"use client"
-
 // SPA replacement for `next/dynamic`: lazy loading via React.lazy + Suspense, `ssr` a no-op (this
 // app is fully client-rendered). Consumed directly by dynamicWithIframeReload.tsx and, via rsbuild
 // `resolve.alias`, by vendored shared code that imports "next/dynamic".

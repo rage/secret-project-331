@@ -1,5 +1,3 @@
-"use client"
-
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router"
 import { type ReactNode, Suspense, useEffect } from "react"
 import { useTranslation } from "react-i18next"

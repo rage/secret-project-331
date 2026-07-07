@@ -1,5 +1,3 @@
-"use client"
-
 import type { ComponentType } from "react"
 
 import dynamic, { type DynamicOptions, type Loader } from "@/lib/next-shims/dynamic"

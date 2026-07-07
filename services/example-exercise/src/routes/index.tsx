@@ -1,5 +1,3 @@
-"use client"
-
 import { createFileRoute } from "@tanstack/react-router"
 
 // The exercise UI lives at /iframe (the parent app embeds it there via the service-info endpoint).

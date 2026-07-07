@@ -1,5 +1,3 @@
-"use client"
-
 import React, { ComponentClass, ComponentType, ErrorInfo } from "react"
 import { Translation } from "react-i18next"
 

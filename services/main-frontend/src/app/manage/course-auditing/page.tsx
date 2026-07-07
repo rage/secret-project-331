@@ -1,10 +1,12 @@
 "use client"
 
+import { css } from "@emotion/css"
 import { useQuery } from "@tanstack/react-query"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import CourseAuditingContainer from "./CourseAuditingContainer"
+import FilterMenu from "./FilterMenu"
 
 import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
@@ -13,11 +15,20 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
 import { QueryResult } from "@/shared-module/components"
 
-// TODO: can save and prepare for backend ??
+export type CourseFilter = {
+  searchCourse: string
+  emptyUhCourseCode: boolean
+}
 
+// TODO: can save and prepare for backend ??
 const CourseAuditing = () => {
   const { t } = useTranslation()
   const getCoursesForAuditing = useQuery(getCoursesForAuditingOptions())
+
+  const [filters, setFilters] = useState<CourseFilter>({
+    searchCourse: "",
+    emptyUhCourseCode: false,
+  })
 
   const sortedCoursesForAuditing = useMemo(
     () => [...(getCoursesForAuditing.data ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
@@ -25,13 +36,21 @@ const CourseAuditing = () => {
   )
 
   return (
-    <div>
+    <div
+      className={css`
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      `}
+    >
       <h1>{t("title-course-auditing")}</h1>
+      <FilterMenu onFilterChange={setFilters} />
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>
         {() => (
           <CourseAuditingContainer
             coursesForAuditing={sortedCoursesForAuditing}
             refetch={getCoursesForAuditing.refetch}
+            filterParams={filters}
           />
         )}
       </QueryResult>

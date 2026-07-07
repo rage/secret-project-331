@@ -1956,5 +1956,9 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion.",
   "your-code-code": "Your code is: {{code}}",
   "your-name": "Your name",
-  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect."
+  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect.",
+  "course-auditing-filter-empty-uh-course-codes": "Empty UH course codes",
+  "course-auditing-filter-search-course": "Search course",
+  "course-auditing-advanced-filter": "Advanced filter",
+  "course-auditing-filter-title": "Filter"
 }

@@ -29,6 +29,7 @@ const COPY_EXCLUDES = new Set([
   "build",
   "coverage",
   ".turbo",
+  ".tanstack",
   "pnpm-lock.yaml",
   "pnpm-workspace.yaml",
   "tsconfig.tsbuildinfo",
@@ -51,14 +52,11 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 `
 
-// pnpm does not run dependencies' build scripts unless they are allow-listed. The generated
-// rsbuild project needs unrs-resolver (rspack's native resolver) and esbuild (used by vitest)
-// built; without this, `pnpm install` warns and exits non-zero. The monorepo configures this in
-// its own pnpm-workspace.yaml (excluded from the copy), so we write a minimal standalone one. npm
-// and yarn ignore this file.
+// pnpm warns and skips a dependency's build script unless it is allow-listed. esbuild (pulled by
+// vitest) is the only build-scripted dep in the standalone tree. The monorepo's own
+// pnpm-workspace.yaml is excluded from the copy, so write a minimal standalone one; npm/yarn ignore it.
 const STANDALONE_PNPM_WORKSPACE = `allowBuilds:
   esbuild: true
-  unrs-resolver: true
 `
 
 interface PackageJson {
@@ -94,8 +92,8 @@ async function replaceInFile(path: string, replacements: Array<[string, string]>
 }
 
 /**
- * Copy the template directory tree, skipping excluded top-level entries, the synced shared-module
- * directory (re-vendored fresh), and any symlinks (e.g. the monorepo `.vscode` link).
+ * Copy the template directory tree, skipping excluded top-level entries (e.g. the `.vscode` symlink
+ * to the monorepo) and the synced shared-module directory, which is re-vendored fresh.
  */
 async function copyTemplate(src: string, dest: string): Promise<void> {
   const sharedModuleDir = join(src, "src", "shared-module")

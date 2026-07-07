@@ -10,6 +10,7 @@ node_modules
 
 # build output
 /dist
+.tanstack
 
 # production
 /build

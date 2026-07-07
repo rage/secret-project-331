@@ -97,7 +97,6 @@ describe("scaffoldReactProject", () => {
     const workspace = await readFile(join(projectPath, "pnpm-workspace.yaml"), "utf8")
     assert.match(workspace, /allowBuilds:/)
     assert.match(workspace, /esbuild: true/)
-    assert.match(workspace, /unrs-resolver: true/)
   })
 
   test("generates the TanStack Start stack, not Next.js", async () => {
@@ -110,8 +109,20 @@ describe("scaffoldReactProject", () => {
       "server.mjs",
       "vitest.config.ts",
       "iframe-headers.mjs",
+      "src/routeTree.gen.ts",
     ]) {
       await assert.doesNotReject(stat(join(projectPath, rel)), `${rel} should exist`)
+    }
+  })
+
+  test("omits monorepo-only files", async () => {
+    for (const rel of [
+      "Dockerfile",
+      "Dockerfile.production.slim.dockerfile",
+      ".dockerignore",
+      "pnpm-lock.yaml",
+    ]) {
+      await assert.rejects(stat(join(projectPath, rel)), `${rel} should not be generated`)
     }
   })
 
@@ -141,8 +152,7 @@ describe("scaffoldReactProject", () => {
   })
 
   test("the generated app code imports no next/* modules", async () => {
-    // The vendored shared-module still imports next/dynamic (resolved via rsbuild alias); only the
-    // project's own code must be free of Next imports.
+    // SKIP_DIRS excludes the vendored shared-module, so this checks only the project's own code.
     const offenders = await findFilesMatching(projectPath, /from ["']next\/|require\(["']next\//)
     assert.deepEqual(offenders, [], `next imports still present in: ${offenders.join(", ")}`)
   })

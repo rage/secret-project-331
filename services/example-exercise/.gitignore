@@ -10,6 +10,7 @@
 
 # rsbuild / TanStack Start build output
 /dist
+.tanstack
 
 # production
 /build

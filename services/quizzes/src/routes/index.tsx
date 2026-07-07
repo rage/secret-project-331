@@ -10,6 +10,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <main>
+      {/* eslint-disable-next-line i18next/no-literal-string -- dev-facing placeholder, route not normally visited */}
       <p>This is an exercise service. Its user interface is served at /iframe.</p>
     </main>
   )

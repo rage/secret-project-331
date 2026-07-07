@@ -11,6 +11,7 @@ export function getRouter() {
   return createTanStackRouter({
     routeTree,
     basepath: BASE_PATH || undefined,
+    // eslint-disable-next-line i18next/no-literal-string -- TanStack config value, not UI copy
     defaultPreload: "intent",
     scrollRestoration: true,
   })

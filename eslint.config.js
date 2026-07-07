@@ -502,25 +502,6 @@ const config = [
     },
   },
   {
-    // SPA framework files: these legitimately hold a <head> element and router/head-meta config
-    // strings rather than user-facing copy, so the head-element and literal-string rules don't apply.
-    files: [
-      "services/example-exercise/src/router.tsx",
-      "services/example-exercise/src/routes/__root.tsx",
-      "services/example-exercise/src/routes/index.tsx",
-      "services/quizzes/src/router.tsx",
-      "services/quizzes/src/routes/__root.tsx",
-      "services/quizzes/src/routes/index.tsx",
-      "services/tmc/src/router.tsx",
-      "services/tmc/src/routes/__root.tsx",
-      "services/tmc/src/routes/index.tsx",
-    ],
-    rules: {
-      "@next/next/no-head-element": "off",
-      "i18next/no-literal-string": "off",
-    },
-  },
-  {
     // These services are client-only SPAs (TanStack Start + rsbuild); RSC "use client"/"use
     // server" directives are inert here, so don't require or enforce them.
     files: [

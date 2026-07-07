@@ -28,6 +28,8 @@ pub enum ChatbotErrorType {
     UrlParse,
     TokioIo,
     SerdeJson,
+    SqlxError,
+    ReqwestError,
     Other,
     DeserializationError,
     AzureAISearchFilterError,
@@ -190,6 +192,26 @@ impl From<serde_json::Error> for ChatbotError {
             ChatbotErrorType::SerdeJson,
             source.to_string(),
             Some(source.into()),
+        )
+    }
+}
+
+impl From<sqlx::Error> for ChatbotError {
+    fn from(err: sqlx::Error) -> ChatbotError {
+        ChatbotError::new(
+            ChatbotErrorType::SqlxError,
+            err.to_string(),
+            Some(err.into()),
+        )
+    }
+}
+
+impl From<reqwest::Error> for ChatbotError {
+    fn from(err: reqwest::Error) -> ChatbotError {
+        ChatbotError::new(
+            ChatbotErrorType::ReqwestError,
+            err.to_string(),
+            Some(err.into()),
         )
     }
 }

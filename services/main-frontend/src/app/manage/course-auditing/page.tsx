@@ -32,15 +32,12 @@ const CourseAuditing = () => {
   const { t } = useTranslation()
   const getCoursesForAuditing = useQuery(getCoursesForAuditingOptions())
 
+  const courseData = getCoursesForAuditing.data
+
   const [filters, setFilters] = useState<CourseFilter>({
     searchCourse: "",
     emptyUhCourseCode: false,
   })
-
-  const sortedCoursesForAuditing = useMemo(
-    () => [...(getCoursesForAuditing.data ?? [])].sort((a, b) => a.name.localeCompare(b.name)),
-    [getCoursesForAuditing.data],
-  )
 
   const [expanded, setExpanded] = useState<boolean>(false)
 
@@ -65,11 +62,27 @@ const CourseAuditing = () => {
     return () => callback()
   }, [subscribe, setFilters])
 
-  const filteredCourses = sortedCoursesForAuditing.filter(
-    (course) =>
-      course.name.toLocaleLowerCase().includes(filters.searchCourse?.toLocaleLowerCase()) ||
-      course.description?.toLocaleLowerCase().includes(filters.searchCourse?.toLocaleLowerCase()),
+  const filteredCourses = useMemo(
+    () =>
+      [...(courseData ?? [])]
+        .filter((course) => {
+          if (
+            !course.name.toLocaleLowerCase().includes(filters.searchCourse?.toLocaleLowerCase()) &&
+            !course.description
+              ?.toLocaleLowerCase()
+              .includes(filters.searchCourse?.toLocaleLowerCase())
+          ) {
+            return false
+          }
+          if (filters.emptyUhCourseCode && course.uh_course_code !== null) {
+            return false
+          }
+          return true
+        })
+        .sort((a, b) => a.name.localeCompare(b.name)),
+    [courseData, filters],
   )
+
   return (
     <div
       className={css`
@@ -81,7 +94,7 @@ const CourseAuditing = () => {
       <h1>{t("title-course-auditing")}</h1>
       <div className={sectionCardStyles}>
         <SectionCollapsibleHeader
-          sectionNum={1}
+          sectionNum={3}
           expanded={expanded}
           onToggle={() => setExpanded(!expanded)}
           title={t("course-auditing-filter-title")}
@@ -103,6 +116,7 @@ const CourseAuditing = () => {
           </div>
         )}
       </div>
+      {t("course-auditing-showing-courses", { count: filteredCourses.length })}
       <QueryResult query={getCoursesForAuditing} treatEmptyAsData>
         {() => (
           <div

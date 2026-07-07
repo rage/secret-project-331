@@ -314,6 +314,11 @@
   "country": "Country",
   "country-added-successfully": "Country addedd successfully",
   "course": "Course",
+  "course-auditing-advanced-filter": "Advanced filter",
+  "course-auditing-filter-empty-uh-course-codes": "Empty UH course codes",
+  "course-auditing-filter-search-course": "Search course",
+  "course-auditing-filter-title": "Filter",
+  "course-auditing-showing-courses": "Showing {{count}} courses",
   "course-closed-additional-label": "Additional information",
   "course-closed-warning-message": "This course has been closed and and you can no longer take it.",
   "course-closed-warning-successor-button": "New version of the course",
@@ -1974,9 +1979,5 @@
   "you-have-completed-the-course-to-receive-credits-use-following-links": "You have successfully completed the course! To receive ECTS credits for your completions, you can use the following links to register your completion.",
   "your-code-code": "Your code is: {{code}}",
   "your-name": "Your name",
-  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect.",
-  "course-auditing-filter-empty-uh-course-codes": "Empty UH course codes",
-  "course-auditing-filter-search-course": "Search course",
-  "course-auditing-advanced-filter": "Advanced filter",
-  "course-auditing-filter-title": "Filter"
+  "youtube-embed-error": "Unable to load YouTube video. The YouTube URL may be incorrect."
 }

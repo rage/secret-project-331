@@ -15,15 +15,9 @@ import {
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
   getChatbotModelsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
-import type {
-  ChatbotConfiguration,
-  NewChatbotConf,
-  ReasoningEffortLevel,
-  VerbosityLevel,
-} from "@/generated/api/types.generated"
+import type { ChatbotConfiguration, NewChatbotConf } from "@/generated/api/types.generated"
 import Accordion from "@/shared-module/common/components/Accordion"
 import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -83,11 +77,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
   const router = useRouter()
   const { confirm } = useDialog()
   const {
-    register,
     control,
     handleSubmit,
     watch,
-    formState: { errors, isLoading },
+    formState: { errors, isSubmitting },
   } = useForm<ConfigureChatbotFields>({
     defaultValues: {
       chatbot_name: oldChatbotConf.chatbot_name,
@@ -291,7 +284,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
               <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
               {suggestMessagesFieldValue && (
                 <div className={itemsContainerCss}>
-                  <h4>{t("message-suggestions")}</h4>
+                  <h4>{t("initial-message-suggestions")}</h4>
                   <div
                     className={css`
                       margin: 20px 20px;
@@ -435,23 +428,24 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                 margin: 20px 20px;
                               `}
                             >
-                              <SelectMenu<VerbosityLevel>
+                              <Select
                                 id="verbosity-select"
+                                control={control}
+                                name={"verbosity"}
                                 label={t("select-verbosity")}
-                                error={errors.verbosity?.message}
+                                isDisabled={!selectedModelThinking}
                                 options={[
                                   { value: LOW, label: t("reasoning-effort-low") },
                                   { value: MEDIUM, label: t("reasoning-effort-medium") },
                                   { value: HIGH, label: t("reasoning-effort-high") },
                                 ]}
-                                disabled={!selectedModelThinking}
-                                showDefaultOption={false}
-                                {...register("verbosity")}
                               />
-                              <SelectMenu<ReasoningEffortLevel>
+                              <Select
                                 id="reasoning-effort-select"
                                 label={t("select-reasoning-effort")}
-                                error={errors.reasoning_effort?.message}
+                                name={"reasoning_effort"}
+                                control={control}
+                                isDisabled={!selectedModelThinking}
                                 options={[
                                   { value: NONE, label: t("reasoning-effort-none") },
                                   { value: MINIMAL, label: t("reasoning-effort-minimal") },
@@ -460,9 +454,6 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                   { value: HIGH, label: t("reasoning-effort-high") },
                                   { value: XHIGH, label: t("reasoning-effort-xhigh") },
                                 ]}
-                                disabled={!selectedModelThinking}
-                                showDefaultOption={false}
-                                {...register("reasoning_effort")}
                               />
                             </div>
                           </div>
@@ -615,7 +606,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   `}
                 >
                   <Button
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                     type="submit"
                     size="medium"
                     variant="primary"
@@ -624,7 +615,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     {t("save")}
                   </Button>
                   <Button
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                     type="submit"
                     size="medium"
                     variant="tertiary"

@@ -1,14 +1,14 @@
-use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
-use utoipa::ToSchema;
-
 use crate::{
     chapters::{Chapter, course_chapters},
     course_modules::CourseModule,
-    course_prerequisites::{CoursePrerequisite, insert_course_prerequisites},
-    pages::Page,
-    pages::{PageVisibility, get_all_by_course_id_and_visibility},
+    course_prerequisites::{
+        CoursePrerequisite, NewCoursePrerequisite, insert_course_prerequisites,
+    },
+    pages::{Page, PageVisibility, get_all_by_course_id_and_visibility},
     prelude::*,
 };
+use headless_lms_utils::{file_store::FileStore, language_tag_to_name::LANGUAGE_TAG_TO_NAME};
+use utoipa::ToSchema;
 
 pub struct CourseInfo {
     pub id: Uuid,
@@ -1448,7 +1448,7 @@ mod test {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 pub struct CourseMetadataUpdate {
     course_description: Option<String>,
-    course_prerequisites: Vec<String>,
+    course_prerequisites: Vec<NewCoursePrerequisite>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
@@ -1462,6 +1462,18 @@ pub async fn set_metadata(
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
 ) -> ModelResult<CourseMetadata> {
+    let old_prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let new_prerequisites: Vec<String> = course_metadata
+        .course_prerequisites
+        .iter()
+        .map(|x| x.prerequisite.to_owned())
+        .collect();
+
+    let to_delete = old_prerequisites
+        .iter()
+        .filter(|x| !new_prerequisites.contains(&x.prerequisite))
+        .map(|x| x.id);
+
     let prerequisites =
         insert_course_prerequisites(conn, course_id, course_metadata.course_prerequisites).await?;
     let course = sqlx::query_as!(

@@ -281,6 +281,8 @@ import type {
   GetCoursePartnersBlockResponses,
   GetCoursePlanMembersData,
   GetCoursePlanMembersResponses,
+  GetCoursePrerequisitesData,
+  GetCoursePrerequisitesResponses,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponses,
   GetCourseReferencesData,
@@ -722,6 +724,7 @@ import {
   zGetCoursePageVisitDatumSummaryByPagesResponse,
   zGetCoursePageVisitDatumSummaryResponse,
   zGetCoursePlanMembersResponse,
+  zGetCoursePrerequisitesResponse,
   zGetCourseProgressForUserResponse,
   zGetCourseReferencesResponse,
   zGetCourseResponse,
@@ -2558,6 +2561,20 @@ export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseFeedbackCountResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/feedback-count",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+ */
+export const getCoursePrerequisites = <ThrowOnError extends boolean = true>(
+  options: Options<GetCoursePrerequisitesData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<GetCoursePrerequisitesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCoursePrerequisitesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites",
     ...options,
   })
 

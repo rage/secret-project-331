@@ -1,8 +1,8 @@
-use crate::{courses::Course, prelude::*};
+use crate::prelude::*;
 use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema)]
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
 pub struct CoursePrerequisite {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
@@ -12,11 +12,20 @@ pub struct CoursePrerequisite {
     pub prerequisite: String,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
+pub struct NewCoursePrerequisite {
+    pub prerequisite: String,
+}
+
 pub async fn insert_course_prerequisites(
     conn: &mut PgConnection,
     course_id: Uuid,
-    prerequisites: Vec<String>,
+    new_prerequisites: Vec<NewCoursePrerequisite>,
 ) -> ModelResult<Vec<CoursePrerequisite>> {
+    let prerequisites: Vec<String> = new_prerequisites
+        .iter()
+        .map(|x| x.prerequisite.to_owned())
+        .collect();
     let res = sqlx::query_as!(
         CoursePrerequisite,
         "
@@ -30,6 +39,25 @@ RETURNING *
 ",
         course_id,
         &prerequisites
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}
+
+pub async fn get_by_course_id(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<Vec<CoursePrerequisite>> {
+    let res = sqlx::query_as!(
+        CoursePrerequisite,
+        "
+SELECT *
+FROM course_prerequisites
+WHERE course_id = $1
+AND deleted_at IS NULL
+",
+        course_id
     )
     .fetch_all(conn)
     .await?;

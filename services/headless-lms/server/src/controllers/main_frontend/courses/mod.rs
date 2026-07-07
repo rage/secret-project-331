@@ -9,6 +9,7 @@ use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOpe
 use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
+    course_prerequisites::CoursePrerequisite,
     partner_block::PartnersBlock,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
 };
@@ -122,7 +123,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         get_partners_block,
         delete_partners_block,
         get_sisu_course_llm_descriptions,
-        update_metadata
+        update_metadata,
+        get_course_prerequisites
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
@@ -2717,12 +2719,40 @@ async fn update_metadata(
     let mut conn = pool.acquire().await?;
     let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
     let metadata_update = payload.0;
-    dbg!(&metadata_update);
     let course = models::courses::set_metadata(&mut conn, *course_id, metadata_update).await?;
 
     token.authorized_ok(web::Json(course))
 }
 
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-prerequisites",
+    operation_id= "getCoursePrerequisites",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course prerequisites", body = Vec<CoursePrerequisite>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_prerequisites(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CoursePrerequisite>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let prerequisites =
+        models::course_prerequisites::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(prerequisites))
+}
 /**
 Add a route for each controller in this module.
 
@@ -2944,5 +2974,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
             "/{course_id}/sisu-course-llm-descriptions",
             web::get().to(get_sisu_course_llm_descriptions),
         )
-        .route("/{course_id}/metadata", web::post().to(update_metadata));
+        .route("/{course_id}/metadata", web::post().to(update_metadata))
+        .route(
+            "/{course_id}/get-course-prerequisites",
+            web::get().to(get_course_prerequisites),
+        );
 }

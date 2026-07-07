@@ -147,6 +147,7 @@ import {
   getCoursePageVisitDatumSummaryByPages,
   getCoursePartnersBlock,
   getCoursePlanMembers,
+  getCoursePrerequisites,
   getCourseProgressForUser,
   getCourseReferences,
   getCourseStructure,
@@ -553,6 +554,8 @@ import type {
   GetCoursePartnersBlockData,
   GetCoursePlanMembersData,
   GetCoursePlanMembersResponse,
+  GetCoursePrerequisitesData,
+  GetCoursePrerequisitesResponse,
   GetCourseProgressForUserData,
   GetCourseProgressForUserResponse,
   GetCourseReferencesData,
@@ -3312,6 +3315,30 @@ export const getCourseFeedbackCountOptions = (options: Options<GetCourseFeedback
         throwOnError: true,
       }),
     queryKey: getCourseFeedbackCountQueryKey(options),
+  })
+
+export const getCoursePrerequisitesQueryKey = (options: Options<GetCoursePrerequisitesData>) =>
+  createQueryKey("getCoursePrerequisites", options)
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.
+ */
+export const getCoursePrerequisitesOptions = (options: Options<GetCoursePrerequisitesData>) =>
+  queryOptions<
+    GetCoursePrerequisitesResponse,
+    DefaultError,
+    GetCoursePrerequisitesResponse,
+    ReturnType<typeof getCoursePrerequisitesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCoursePrerequisites({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCoursePrerequisitesQueryKey(options),
   })
 
 export const getCourseGlossaryQueryKey = (options: Options<GetCourseGlossaryData>) =>

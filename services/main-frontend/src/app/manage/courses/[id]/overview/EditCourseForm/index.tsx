@@ -2,7 +2,7 @@
 
 import styled from "@emotion/styled"
 import { parseISO } from "date-fns"
-import React from "react"
+import React, { useEffect } from "react"
 import { FormProvider, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -72,7 +72,15 @@ const EditCourseForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> = (
     handleSubmit,
     formState: { errors },
     watch,
+    reset,
   } = methods
+
+  useEffect(() => {
+    reset({
+      ...course,
+      flagged_answers_threshold: course.flagged_answers_threshold ?? undefined,
+    })
+  }, [course, reset])
 
   const draftStatus = watch("is_draft")
 

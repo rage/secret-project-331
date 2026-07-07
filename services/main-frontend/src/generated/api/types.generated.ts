@@ -775,7 +775,7 @@ export type CourseMetadata = {
 
 export type CourseMetadataUpdate = {
   course_description?: string | null
-  course_prerequisites: Array<string>
+  course_prerequisites: Array<NewCoursePrerequisite>
 }
 
 /**
@@ -1556,6 +1556,10 @@ export type NewCourse = {
    * Name of the teacher who is responsible for the course. Must be a valid name.
    */
   teacher_in_charge_name: string
+}
+
+export type NewCoursePrerequisite = {
+  prerequisite: string
 }
 
 export type NewExam = {
@@ -4316,6 +4320,28 @@ export type GetCourseFeedbackCountResponses = {
 
 export type GetCourseFeedbackCountResponse =
   GetCourseFeedbackCountResponses[keyof GetCourseFeedbackCountResponses]
+
+export type GetCoursePrerequisitesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites"
+}
+
+export type GetCoursePrerequisitesResponses = {
+  /**
+   * Course prerequisites
+   */
+  200: Array<CoursePrerequisite>
+}
+
+export type GetCoursePrerequisitesResponse =
+  GetCoursePrerequisitesResponses[keyof GetCoursePrerequisitesResponses]
 
 export type GetCourseGlossaryData = {
   body?: never

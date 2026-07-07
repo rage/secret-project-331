@@ -644,11 +644,6 @@ export const zCourseInstanceForm = z.object({
   teacher_in_charge_name: z.string(),
 })
 
-export const zCourseMetadataUpdate = z.object({
-  course_description: z.string().nullish(),
-  course_prerequisites: z.array(z.string()),
-})
-
 /**
  *
  * * Based on [CourseModulesSchema] but completion_policy parsed and addded (and some not needeed fields removed).
@@ -1551,6 +1546,15 @@ export const zCopyCourseRequest = zNewCourse.and(
     mode: zCopyCourseMode,
   }),
 )
+
+export const zNewCoursePrerequisite = z.object({
+  prerequisite: z.string(),
+})
+
+export const zCourseMetadataUpdate = z.object({
+  course_description: z.string().nullish(),
+  course_prerequisites: z.array(zNewCoursePrerequisite),
+})
 
 export const zNewExam = z.object({
   ends_at: z.iso.datetime().nullish(),
@@ -3661,6 +3665,15 @@ export const zGetCourseFeedbackCountPath = z.object({
  * Feedback counts for the course
  */
 export const zGetCourseFeedbackCountResponse = zFeedbackCount
+
+export const zGetCoursePrerequisitesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course prerequisites
+ */
+export const zGetCoursePrerequisitesResponse = z.array(zCoursePrerequisite)
 
 export const zGetCourseGlossaryPath = z.object({
   course_id: z.uuid(),

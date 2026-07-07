@@ -4,17 +4,21 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect } from "react"
-import { FormProvider, useForm } from "react-hook-form"
+import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { getSisuCourseLlmDescriptionsOptions } from "@/generated/api/@tanstack/react-query.generated"
-import { updateCourse, updateMetadata } from "@/generated/api/sdk.generated"
-import type { Course, CourseMetadataUpdate, CourseUpdate } from "@/generated/api/types.generated"
+import {
+  getCoursePrerequisitesOptions,
+  getSisuCourseLlmDescriptionsOptions,
+} from "@/generated/api/@tanstack/react-query.generated"
+import { updateMetadata } from "@/generated/api/sdk.generated"
+import type { Course, CourseMetadataUpdate } from "@/generated/api/types.generated"
+import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import TextField from "@/shared-module/common/components/InputFields/TextField"
+// import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
-import { QueryResult, TextArea } from "@/shared-module/components"
+import { QueryResult, TextArea, TextField } from "@/shared-module/components"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const FieldContainer = styled.div`
@@ -50,29 +54,50 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     }),
   )
 
+  const prerequisitesQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: open,
+      build: (courseId) =>
+        getCoursePrerequisitesOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
+
+  const hasPrerequisites =
+    prerequisitesQuery.data !== undefined && prerequisitesQuery.data?.length > 0
+
   useEffect(() => {
     if (sisuQuery.data) {
       setValue("course_description", sisuQuery.data.course_description)
-      setValue("course_prerequisites", sisuQuery.data.modules[0].prerequisites)
+      setValue(
+        "course_prerequisites",
+        sisuQuery.data.modules[0].prerequisites.map((prerequisite) => ({
+          prerequisite,
+        })),
+      )
     }
-  })
-  //sisuQuery.data?.modules[0].course_description
+  }, [sisuQuery.data])
+
   const methods = useForm<CourseMetadataUpdate>({
     defaultValues: {
-      // eslint-disable-next-line i18next/no-literal-string
-      course_description: "testi",
-      // eslint-disable-next-line i18next/no-literal-string
-      course_prerequisites: ["213", "testi"],
+      course_description: "",
+
+      course_prerequisites: [
+        {
+          prerequisite: "",
+        },
+      ],
     },
   })
-  console.log("METHODS: ", methods)
-  const { control, register, handleSubmit, setValue, reset } = methods
 
-  // useEffect(() => {
-  //   reset({
-  //     ...course,
-  //   })
-  // }, [course, reset])
+  const { control, register, handleSubmit, setValue } = methods
+
+  // eslint-disable-next-line i18next/no-literal-string
+  const { fields, append, remove } = useFieldArray({ control, name: "course_prerequisites" })
 
   const updateCourseMetadataMutation = useToastMutation(
     async (data: CourseMetadataUpdate) => {
@@ -120,30 +145,97 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
             {t("current-course-description-title")}
           </span>
           <FieldContainer>{course.description}</FieldContainer>
+
           <QueryResult
             query={sisuQuery}
             renderBlockingError={({ error, retry: _retry }) => {
               return <ErrorBanner variant={"readOnly"} error={error} />
             }}
           >
-            {(data) => (
+            {(_data) => (
               <>
                 <FieldContainer>
                   <TextArea
                     control={control}
                     label={t("text-field-label-ai-description")}
                     autoResize={true}
-                    {...register("course_description")}
+                    name={"course_description"}
                   />
                 </FieldContainer>
-                <TextField
-                  label={t("text-field-label-prerequisites")}
-                  {...register("course_prerequisites")}
-                />
-                {data.modules[0].prerequisites.map((prerequisite, index) => (
-                  // <TextField label={t("text-field-label-prerequisites")} {...prerequisite} />
-                  <li key={index}>{prerequisite}</li>
+                {/* <div
+                  className={css`
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                  `}
+                > */}
+                <span
+                  className={css`
+                    font-weight: 500;
+                  `}
+                >
+                  {t("current-prerequisites-title")}
+                </span>
+                {hasPrerequisites ? (
+                  <div>
+                    {prerequisitesQuery.data?.map((preq, idx) => (
+                      <li key={idx}>{preq.prerequisite}</li>
+                    ))}
+                  </div>
+                ) : (
+                  <div>{t("course-has-no-prerequisites")}</div>
+                )}
+
+                <span
+                  className={css`
+                    font-weight: 500;
+                  `}
+                >
+                  {t("suggested-prerequisites-title")}
+                </span>
+                {fields.map((item, idx) => (
+                  <div
+                    key={idx}
+                    className={css`
+                      display: flex;
+                      flex-flow: row nowrap;
+                      gap: 1.5rem;
+                    `}
+                  >
+                    <TextField
+                      className={css`
+                        flex-grow: 1;
+                        margin: 0.5rem;
+                      `}
+                      key={idx}
+                      control={control}
+                      name={`course_prerequisites.${idx}.prerequisite`}
+                      label={t("text-field-label-prerequisites", { index: idx + 1 })}
+                    />
+                    <Button
+                      className={css`
+                        height: fit-content;
+                        margin: 1rem;
+                      `}
+                      size="small"
+                      type="button"
+                      variant="tertiary"
+                      onClick={() => remove(idx)}
+                    >
+                      {t("button-remove")}
+                    </Button>
+                  </div>
                 ))}
+
+                <Button
+                  size="medium"
+                  type="button"
+                  variant="secondary"
+                  onClick={() => append({ prerequisite: "" })}
+                >
+                  {t("add-new-prerequisite")}
+                </Button>
+                {/* </div> */}
               </>
             )}
           </QueryResult>

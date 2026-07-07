@@ -3175,6 +3175,40 @@
         }
       }
     },
+    "/api/v0/main-frontend/courses/{course_id}/get-course-prerequisites": {
+      "get": {
+        "tags": ["courses"],
+        "summary": "\nget `/api/v0/main-frontend/courses/:course_id/get-course-prerequisites` - Get course prerequisites.",
+        "operationId": "getCoursePrerequisites",
+        "parameters": [
+          {
+            "name": "course_id",
+            "in": "path",
+            "description": "Course id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Course prerequisites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CoursePrerequisite"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/courses/{course_id}/glossary": {
       "get": {
         "tags": ["glossary"],
@@ -13196,7 +13230,7 @@
           "course_prerequisites": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/NewCoursePrerequisite"
             }
           }
         }
@@ -15703,6 +15737,15 @@
           "teacher_in_charge_name": {
             "type": "string",
             "description": "Name of the teacher who is responsible for the course. Must be a valid name."
+          }
+        }
+      },
+      "NewCoursePrerequisite": {
+        "type": "object",
+        "required": ["prerequisite"],
+        "properties": {
+          "prerequisite": {
+            "type": "string"
           }
         }
       },

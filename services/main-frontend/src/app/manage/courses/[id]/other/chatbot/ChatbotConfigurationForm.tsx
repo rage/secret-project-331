@@ -27,6 +27,8 @@ import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { isHtmlButtonElement } from "@/shared-module/common/utils/dom"
+import { isReactOnSubmitEvent } from "@/shared-module/common/utils/events"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { courseChatbotSettingsRoute } from "@/shared-module/common/utils/routes"
 import {
@@ -37,7 +39,6 @@ import {
   TextArea,
   TextField,
 } from "@/shared-module/components"
-import { isHtmlButtonElement, isReactOnSubmitEvent } from "@/utils/typeGuards"
 
 interface Props {
   oldChatbotConf: ChatbotConfiguration
@@ -53,7 +54,7 @@ type ConfigureChatbotFields = Omit<
   "course_id" | "maintain_azure_search_index" | "chatbotconf_id"
 > & { suggested_messages: Message[] }
 
-const itemCss = css`
+const itemsContainerCss = css`
   flex: 1;
   ${respondToOrLarger.sm} {
     flex: 0 45%;
@@ -86,7 +87,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     control,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isLoading },
   } = useForm<ConfigureChatbotFields>({
     defaultValues: {
       chatbot_name: oldChatbotConf.chatbot_name,
@@ -205,14 +206,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     })
 
     if (event.submitter.name === "preview") {
-      setChatbotPreview(true)
       const currentConversationInfo = chatbotStateAndData.currentConversationInfo
       const newConversationMutation = chatbotStateAndData.newConversationMutation
       const isFirstConversation =
         currentConversationInfo && !currentConversationInfo.data?.current_conversation
+      // If there is an existing conversation start a new one so that the edits to the chatbot take place
       if (!isFirstConversation) {
-        newConversationMutation.mutate()
+        await newConversationMutation.mutateAsync()
       }
+      setChatbotPreview(true)
     }
   })
 
@@ -231,20 +233,13 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
         return (
           <div>
             <h2>{t("customize-chatbot")}</h2>
-            <form
-              className={css`
-                display: flex;
-                flex-direction: column;
-                gap: 1rem;
-              `}
-              onSubmit={onConfigureChatbotWrapper}
-            >
+            <form className={itemsContainerCss} onSubmit={onConfigureChatbotWrapper}>
               <TextField
                 control={control}
                 isRequired
-                errorMessage={errors.chatbot_name?.message}
                 label={t("label-name")}
-                {...register("chatbot_name", { required: t("required-field") })}
+                name={"chatbot_name"}
+                rules={{ required: t("required-field") }}
               />
               <TextArea
                 control={control}
@@ -252,13 +247,15 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 isRequired
                 autoResize={true}
                 autoResizeMaxHeightPx={900}
-                {...register("prompt", { required: t("required-field") })}
+                name={"prompt"}
+                rules={{ required: t("required-field") }}
               />
               <TextField
                 control={control}
                 isRequired
                 label={t("initial-message")}
-                {...register("initial_message", { required: t("required-field") })}
+                name={"initial_message"}
+                rules={{ required: t("required-field") }}
               />
               <div
                 className={css`
@@ -268,7 +265,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                 <Checkbox
                   control={control}
                   label={t("enabled-to-students")}
-                  {...register("enabled_to_students")}
+                  name={"enabled_to_students"}
                 />
               </div>
               <Select
@@ -281,27 +278,19 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                     label: `${m.model} (${["GPTThinking", "GPTHardThinking"].includes(m.model_type) ? t("reasoning") : t("non-reasoning")})`,
                   }
                 })}
-                {...register("model_id")}
+                name={"model_id"}
               />
-              <Checkbox
-                control={control}
-                label={t("use-azure-search")}
-                {...register("use_azure_search")}
-              />
-              <Checkbox
-                control={control}
-                label={t("hide-citations")}
-                {...register("hide_citations")}
-              />
-              <Checkbox control={control} label={t("enable-tool-use")} {...register("use_tools")} />
+              <Checkbox control={control} label={t("use-azure-search")} name={"use_azure_search"} />
+              <Checkbox control={control} label={t("hide-citations")} name={"hide_citations"} />
+              <Checkbox control={control} label={t("enable-tool-use")} name={"use_tools"} />
               <Checkbox
                 control={control}
                 label={t("suggest-next-messages")}
-                {...register("suggest_next_messages")}
+                name={"suggest_next_messages"}
               />
               <GenericInfobox>{t("recommend-message-suggesting")}</GenericInfobox>
               {suggestMessagesFieldValue && (
-                <div className={itemCss}>
+                <div className={itemsContainerCss}>
                   <h4>{t("message-suggestions")}</h4>
                   <div
                     className={css`
@@ -322,12 +311,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                             flex-grow: 3;
                           `}
                           control={control}
+                          name={`suggested_messages.${idx}.message` as const}
                           key={item.id}
                           errorMessage={errors.suggested_messages?.[idx]?.message?.message}
                           label={t("label-message")}
-                          {...register(`suggested_messages.${idx}.message` as const, {
-                            required: t("required-field"),
-                          })}
                         />
                         <Button
                           className={css`
@@ -377,21 +364,21 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                         }
                       `}
                     >
-                      <div className={itemCss}>
+                      <div className={itemsContainerCss}>
                         <h4>{t("configure-tokens")}</h4>
                         <TextField
                           control={control}
                           className={textFieldCss}
                           type="number"
                           label={t("daily-token-user")}
-                          {...register("daily_tokens_per_user")}
+                          name={"daily_tokens_per_user"}
                         />
                         <TextField
                           control={control}
                           className={textFieldCss}
                           type="number"
                           label={t("weekly-token-user")}
-                          {...register("weekly_tokens_per_user")}
+                          name={"weekly_tokens_per_user"}
                         />
                         <TextField
                           className={textFieldCss}
@@ -402,8 +389,8 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                               ? t("max-completion-tokens")
                               : t("max-token-response")
                           }
-                          errorMessage={errors.max_output_tokens?.message}
-                          {...register("max_output_tokens", {
+                          name={"max_output_tokens"}
+                          rules={{
                             required: t("required-field"),
                             min: {
                               value: MIN_OUTPUT_TOKENS,
@@ -414,10 +401,10 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                 lower: String(MIN_OUTPUT_TOKENS),
                               }),
                             },
-                          })}
+                          }}
                         />
                       </div>
-                      <div className={itemCss}>
+                      <div className={itemsContainerCss}>
                         <h4>{t("configure-search")}</h4>
                         <div
                           className={css`
@@ -427,7 +414,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                           <Checkbox
                             control={control}
                             label={t("use-semantic-reranking")}
-                            {...register("use_semantic_reranking")}
+                            name={"use_semantic_reranking"}
                           />
                         </div>
                       </div>
@@ -441,7 +428,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                         `}
                       >
                         {selectedModelThinking ? (
-                          <div className={itemCss}>
+                          <div className={itemsContainerCss}>
                             <h4>{t("configure-reasoning")}</h4>
                             <div
                               className={css`
@@ -482,17 +469,18 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                         ) : (
                           <div>
                             {" "}
-                            <div className={itemCss}>
+                            <div className={itemsContainerCss}>
                               <h3>{t("non-reasoning-model-settings")}</h3>
                               <h4>{t("configure-penalty")}</h4>
                               <TextField
                                 className={textFieldCss}
                                 control={control}
                                 type="number"
-                                errorMessage={errors.frequency_penalty?.message}
                                 label={t("frequency-penalty")}
-                                disabled={selectedModelThinking}
-                                {...register("frequency_penalty", {
+                                step="0.01"
+                                isDisabled={selectedModelThinking}
+                                name={"frequency_penalty"}
+                                rules={{
                                   required: t("required-field"),
                                   min: {
                                     value: 0,
@@ -510,16 +498,17 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                       upper: "1",
                                     }),
                                   },
-                                })}
+                                }}
                               />
                               <TextField
                                 className={textFieldCss}
                                 type="number"
                                 control={control}
-                                errorMessage={errors.presence_penalty?.message}
                                 label={t("presence-penalty")}
-                                disabled={selectedModelThinking}
-                                {...register("presence_penalty", {
+                                step="0.01"
+                                isDisabled={selectedModelThinking}
+                                name={"presence_penalty"}
+                                rules={{
                                   required: t("required-field"),
                                   min: {
                                     value: 0,
@@ -537,20 +526,20 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                       upper: "1",
                                     }),
                                   },
-                                })}
+                                }}
                               />
                             </div>
-                            <div className={itemCss}>
+                            <div className={itemsContainerCss}>
                               <h4>{t("configure-creativity")}</h4>
                               <TextField
                                 control={control}
                                 className={textFieldCss}
                                 type="number"
-                                errorMessage={errors.temperature?.message}
-                                //step="0.01"
+                                step="0.01"
                                 label={t("temperature")}
-                                disabled={selectedModelThinking}
-                                {...register("temperature", {
+                                isDisabled={selectedModelThinking}
+                                name={"temperature"}
+                                rules={{
                                   required: t("required-field"),
                                   min: {
                                     value: 0,
@@ -568,17 +557,17 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                       upper: "1",
                                     }),
                                   },
-                                })}
+                                }}
                               />
                               <TextField
                                 className={textFieldCss}
                                 type="number"
                                 control={control}
-                                errorMessage={errors.top_p?.message}
-                                //step="0.01"
+                                step="0.01"
                                 label={t("top-p")}
-                                disabled={selectedModelThinking}
-                                {...register("top_p", {
+                                isDisabled={selectedModelThinking}
+                                name={"top_p"}
+                                rules={{
                                   required: t("required-field"),
                                   min: {
                                     value: 0,
@@ -596,7 +585,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                                       upper: "1",
                                     }),
                                   },
-                                })}
+                                }}
                               />
                             </div>
                           </div>
@@ -626,15 +615,16 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
                   `}
                 >
                   <Button
+                    disabled={isLoading}
                     type="submit"
                     size="medium"
                     variant="primary"
-                    disabled={configureChatbotMutation.isPending}
                     name="save"
                   >
                     {t("save")}
                   </Button>
                   <Button
+                    disabled={isLoading}
                     type="submit"
                     size="medium"
                     variant="tertiary"

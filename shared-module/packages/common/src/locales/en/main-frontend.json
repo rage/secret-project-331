@@ -1418,7 +1418,7 @@
   "received-number-data": "Received number data",
   "received-reviews": "Received reviews",
   "received-text-data": "Received text data",
-  "recommend-message-suggesting": "It is highly recommended to suggest at least three, preferably five, different messages to students.",
+  "recommend-message-suggesting": "This feature allows the creation of suggested conversation starters students could use when interacting with the chatbot for the first time. Please activate the feature and add at least 5 example messages conversations could be started with.",
   "reference-added-successfully": "Reference added successfully",
   "reference-deleted-successfully": "Reference deleted successfully",
   "reference-parsing-error": "Error: This format is not supported or recognized",

@@ -9,7 +9,3 @@ export function isReactOnSubmitEvent(
   }
   return false
 }
-
-export function isHtmlButtonElement(value: HTMLElement): value is HTMLButtonElement {
-  return value.constructor === HTMLButtonElement
-}

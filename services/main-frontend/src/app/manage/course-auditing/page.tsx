@@ -1,69 +1,26 @@
 "use client"
 
-import { css, cx } from "@emotion/css"
-import { useTabListState } from "@react-stately/tabs"
-import { QueryObserverResult, useQuery } from "@tanstack/react-query"
-import {
-  BellXmark,
-  CheckCircle,
-  FloppyDiskSave,
-  Pencil,
-  XmarkCircle,
-} from "@vectopus/atlas-icons-react"
-import { parseISO } from "date-fns"
-import { usePathname } from "next/navigation"
-import type { Dispatch, SetStateAction } from "react"
-import React, { useEffect, useMemo, useRef, useState } from "react"
-import { useTabList } from "react-aria"
-import { Control, Form, FormProvider, useForm } from "react-hook-form"
+import { css } from "@emotion/css"
+import { useQuery } from "@tanstack/react-query"
+import { useEffect, useMemo, useState } from "react"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import SectionCollapsibleHeader from "../course-plans/[id]/workspace/components/analysis-form/SectionCollapsibleHeader"
 import {
   analysisSectionBodyId,
-  analysisSectionHeadingId,
-  SECTION_DOM_PREFIX,
-  sectionAccentByIndex,
   sectionBodyStyles,
   sectionCardStyles,
   subsectionTitleStyles,
 } from "../course-plans/[id]/workspace/components/analysis-form/analysisFormDomain"
 
-import ContentArea from "./ContentArea"
 import CourseAuditingCard from "./CourseAuditingCard"
-import CourseAuditingContainer from "./CourseAuditingContainer"
-import CourseAuditingField from "./CourseAuditingField"
-import FilterMenu from "./FilterMenu"
-//import type { CourseFilter } from "./page"
 
-import {
-  getCoursesForAuditingOptions,
-  updateCourseAfterAuditingMutation,
-} from "@/generated/api/@tanstack/react-query.generated"
-import type {
-  AnalysisCourseType,
-  CourseToAudit,
-  CourseToAuditUpdate,
-} from "@/generated/api/types.generated"
-//import Button from "@/shared-module/common/components/Button"
-import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
-import TimeComponent from "@/shared-module/common/components/TimeComponent"
-import Dialog from "@/shared-module/common/components/dialogs/Dialog"
+import { getCoursesForAuditingOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
-import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
-import {
-  Button,
-  Checkbox,
-  ComboBox,
-  nullIfEmpty,
-  QueryResult,
-  Select,
-  TextArea,
-  TextField,
-} from "@/shared-module/components"
+import { Checkbox, nullIfEmpty, QueryResult, TextField } from "@/shared-module/components"
 
 export type CourseFilter = {
   searchCourse: string
@@ -122,11 +79,7 @@ const CourseAuditing = () => {
       `}
     >
       <h1>{t("title-course-auditing")}</h1>
-      <div
-        className={cx(sectionCardStyles, sectionAccentByIndex[0])}
-        id={`${SECTION_DOM_PREFIX}1`}
-        aria-labelledby={analysisSectionHeadingId(1)}
-      >
+      <div className={sectionCardStyles}>
         <SectionCollapsibleHeader
           sectionNum={1}
           expanded={expanded}

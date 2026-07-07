@@ -309,19 +309,9 @@ impl From<StreamItem> for ChatbotChatStreamEvent {
                 finished: true,
             },
             StreamItem {
-                item: OutputItem::Message { content, .. },
+                item: OutputItem::Message { .. },
                 ..
-            } => {
-                if let MessageContent::Refusal(..) = &content {
-                    let text = content.get_content_text();
-                    ChatbotChatStreamEvent::Delta {
-                        text,
-                        message_id: Uuid::nil(), //
-                    }
-                } else {
-                    ChatbotChatStreamEvent::Invalid
-                }
-            }
+            } => ChatbotChatStreamEvent::Invalid,
         }
     }
 }
@@ -1155,7 +1145,7 @@ async fn parse_text_response<'a>(
                         },
                         "response.function_call_arguments.delta" | "response.custom_tool_call_input.delta" => {
                             error!("ERROR, function call received but can't be processed while streaming to user.");
-                            return Err(chatbot_err!(StreamingError, format!("Unexpected function call while streaming t<o user")))?
+                            return Err(chatbot_err!(StreamingError, "Unexpected function call while streaming to user"))?
                         },
                         "response.error" | "error" | "response.failed" => {
                             // error is logged in the next iteration
@@ -1376,7 +1366,8 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     Ok(StreamEvent::Refusal(text)) => {
                         // in practice this event shoudln't happen because when a refusal
-                        // is being streamed, its streaming is done by parse_text_response
+                        // is being streamed, its streaming is done by parse_text_response.
+                        error!("Chatbot refusal event encountered before response id was received.");
                         let message_id = *response_message_id.lock().await;
                         let event = ChatbotChatStreamEvent::Delta { text, message_id };
                         let event_string = serde_json::to_string(&event)?;
@@ -1398,15 +1389,8 @@ pub async fn send_chat_request_and_parse_stream(
             let mut response_id = response_id.lock().await;
             *response_id = received_response_id;
 
-            let mut final_stream = match typed_response_stream {
-                ResponseStreamType::Toolcall(stream) => {
-                    parse_tool(&mut conn, stream, conversation_id, &user_context).await
-                }
-                ResponseStreamType::TextResponse(stream) => {
-                    // first, create the response message, update citation ids
-                    // and update the response_message_id arc mutex.
-                    // then, stream the response in parse_text_response.
-                    let response_message = models::chatbot_conversation_messages::insert(
+            // create response_message once response_id is found.
+            let response_message = models::chatbot_conversation_messages::insert(
                     &mut conn,
                     ChatbotConversationMessage {
                         conversation_id,
@@ -1422,15 +1406,24 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     )
                     .await?;
+            // set the correct response_message_id
+            {
+                let mut response_message_id = response_message_id.lock().await;
+                *response_message_id = response_message.id;
+            }
+
+            let mut final_stream = match typed_response_stream {
+                ResponseStreamType::Toolcall(stream) => {
+                    parse_tool(&mut conn, stream, conversation_id, &user_context).await
+                }
+                ResponseStreamType::TextResponse(stream) => {
+                    // update citation ids and update the response_message_id arc mutex.
+                    // then, stream the response in parse_text_response.
                     models::chatbot_conversation_messages_citations::update_citation_message_ids(
                         &mut conn,
                         response_id.to_string(),
                         response_message.id,
                     ).await?;
-
-                    // set the correct response_message_id
-                    {let mut response_message_id = response_message_id.lock().await;
-                    *response_message_id = response_message.id;}
 
                     parse_text_response(&mut conn, stream, full_response_text.clone(), done.clone(), response_message, request_estimated_tokens, response_id.to_string()).await
                 }
@@ -1441,7 +1434,7 @@ pub async fn send_chat_request_and_parse_stream(
                 let val = line?;
                 match val {
                     StreamEvent::Delta(text) | StreamEvent::Refusal(text) => {
-                        let response =  ChatbotChatStreamEvent::Delta  { text, message_id };
+                        let response = ChatbotChatStreamEvent::Delta { text, message_id };
                         let response_as_string = serde_json::to_string(&response)?;
                         yield Bytes::from(response_as_string);
                         yield Bytes::from("\n");

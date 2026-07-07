@@ -99,7 +99,7 @@ const config = [
   ...fixupConfigRules(importPlugin.flatConfigs.recommended),
   eslintPluginPrettierRecommended,
   {
-    files: ["**/*.{js,jsx,ts,tsx}"],
+    files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
     rules: {
       // Disable import checking rules
       "import/no-unresolved": "off",

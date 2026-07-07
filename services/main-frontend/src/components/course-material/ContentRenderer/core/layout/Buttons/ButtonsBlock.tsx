@@ -95,6 +95,7 @@ const ButtonsBlock: React.FC<
         variant={getButtonTypeFromClassName(className)}
         size="medium"
         href={url ?? ""}
+        isDisabled={!url}
         {...(linkTarget && { target: linkTarget })}
         rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
         className={css`

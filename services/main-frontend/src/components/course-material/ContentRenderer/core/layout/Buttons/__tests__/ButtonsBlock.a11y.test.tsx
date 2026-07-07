@@ -2,7 +2,7 @@
 
 import "@testing-library/jest-dom"
 
-import { render, screen, within } from "@testing-library/react"
+import { fireEvent, render, screen, within } from "@testing-library/react"
 
 import ButtonsBlock from "../ButtonsBlock"
 
@@ -50,5 +50,17 @@ describe("ButtonsBlock accessibility (issue #69)", () => {
     expect(link).toHaveAttribute("target", "_blank")
     expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"))
     expect(link.querySelector("button")).toBeNull()
+  })
+
+  it("disables a button whose url is not configured, so it does not link to the current page", () => {
+    render(<ButtonsBlock {...makeProps({ text: "Unconfigured", url: undefined })} />)
+
+    const control = screen.getByText("Unconfigured").closest("a")
+    expect(control).not.toBeNull()
+    // Exposed as disabled to assistive technology.
+    expect(control).toHaveAttribute("aria-disabled", "true")
+    // Clicking must not trigger a navigation (default action is prevented).
+    const clickNotPrevented = fireEvent.click(control as HTMLAnchorElement)
+    expect(clickNotPrevented).toBe(false)
   })
 })

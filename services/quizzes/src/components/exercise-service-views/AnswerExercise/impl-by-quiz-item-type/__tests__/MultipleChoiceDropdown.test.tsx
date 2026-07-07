@@ -78,7 +78,8 @@ describe("MultipleChoiceDropdown accessibility", () => {
           .join("\n"),
       )
       .join("\n")
-    expect(styleText).toContain("#767b85")
+    // gray[400] from the theme (#767B85); match case-insensitively.
+    expect(styleText).toMatch(/#767b85/i)
     expect(styleText).not.toContain("#dfe1e6")
   })
 

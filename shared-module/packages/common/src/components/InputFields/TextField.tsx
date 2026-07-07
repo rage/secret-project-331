@@ -12,7 +12,7 @@ import { errorToDescription } from "../../utils/strings"
 const ERRORCOLOR = baseTheme.colors.red[600]
 // gray[400]: border contrast >= 3:1 against the field background (WCAG 1.4.11).
 // Focus state uses blue[600] (#215887): >= 3:1 against both the border and the field background.
-const DEFAULTCOLOR = "#767b85"
+const DEFAULTCOLOR = baseTheme.colors.gray[400]
 
 interface InputExtraProps {
   error?: string

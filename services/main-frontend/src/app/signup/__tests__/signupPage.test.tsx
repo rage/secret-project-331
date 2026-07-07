@@ -2,7 +2,7 @@
 
 import "@testing-library/jest-dom"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { fireEvent, render, screen, waitFor } from "@testing-library/react"
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import CreateAccountForm from "../page"
 
@@ -12,10 +12,16 @@ jest.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }))
 
+// Each render gets a fresh pending promise; tests that care about the ip-country
+// prefill resolve it with mockResolveIpCountry, the rest just leave it pending.
+let mockResolveIpCountry: (country: string | null) => void = () => {}
 jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
   getUsersIpCountryOptions: () => ({
     queryKey: ["users-ip-country"],
-    queryFn: async () => null,
+    queryFn: () =>
+      new Promise((resolve) => {
+        mockResolveIpCountry = resolve
+      }),
   }),
 }))
 
@@ -102,6 +108,47 @@ describe("Create account form accessibility", () => {
       .map((id) => document.getElementById(id))
       .find((el) => el?.textContent?.includes("required-field"))
     expect(errorNode).toBeTruthy()
+  })
+
+  it("keeps the user's chosen country when the ip-country prefill resolves afterwards", async () => {
+    renderPage()
+    const combobox = screen.getByRole("combobox") as HTMLInputElement
+
+    // Let the ip-country query start fetching so mockResolveIpCountry targets this render.
+    await act(async () => {})
+
+    // The user picks a country before the geolocation query has resolved.
+    fireEvent.keyDown(combobox, { key: "ArrowDown" })
+    const option = await screen.findByRole("option", { name: "fi" })
+    fireEvent.click(option)
+    await waitFor(() => {
+      expect(combobox).toHaveValue("fi")
+    })
+
+    // The prefill query resolves late with a different country.
+    await act(async () => {
+      mockResolveIpCountry("se")
+    })
+
+    // The user's explicit choice must not be overwritten.
+    expect(combobox).toHaveValue("fi")
+  })
+
+  it("prefills the country from the ip-country query when the user has not chosen one", async () => {
+    renderPage()
+    const combobox = screen.getByRole("combobox") as HTMLInputElement
+    expect(combobox).toHaveValue("")
+
+    // Let the ip-country query start fetching so mockResolveIpCountry targets this render.
+    await act(async () => {})
+
+    await act(async () => {
+      mockResolveIpCountry("se")
+    })
+
+    await waitFor(() => {
+      expect(combobox).toHaveValue("se")
+    })
   })
 
   it("styles the log-in link as an underlined link", () => {

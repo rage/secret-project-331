@@ -20,6 +20,10 @@ const useSearchPagesLiveRegion = ({
   const lastAnnouncedMessageRef = useRef("")
   const previousSearchQueryRef = useRef(searchQuery)
   const hasSettledForCurrentQueryRef = useRef(false)
+  // True from the moment the query changes until the fetch for the new query actually starts
+  // (isLoading flips to true). While set, isLoading/isError/resultCount still describe the
+  // PREVIOUS query (the fetch effect runs after this one), so counts must not be announced.
+  const awaitingFreshResultsRef = useRef(false)
 
   useEffect(() => {
     const trimmedQuery = searchQuery.trim()
@@ -29,12 +33,21 @@ const useSearchPagesLiveRegion = ({
       previousSearchQueryRef.current = searchQuery
       hasSettledForCurrentQueryRef.current = false
       lastAnnouncedMessageRef.current = ""
+      awaitingFreshResultsRef.current = true
+    }
+    if (isLoading) {
+      awaitingFreshResultsRef.current = false
     }
 
     let nextMessage = ""
     if (trimmedQuery === "") {
       nextMessage = ""
       hasSettledForCurrentQueryRef.current = false
+      awaitingFreshResultsRef.current = false
+    } else if (awaitingFreshResultsRef.current) {
+      // Stale data from the previous query: announce "searching" and let a later render with
+      // fresh isLoading/resultCount report the new query's result.
+      nextMessage = t("search-pages-live-region-searching")
     } else if (isError) {
       nextMessage = t("search-pages-live-region-search-failed")
       hasSettledForCurrentQueryRef.current = true

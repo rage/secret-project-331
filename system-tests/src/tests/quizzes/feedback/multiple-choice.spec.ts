@@ -23,7 +23,7 @@ test.describe("Quizzes multiple-choice feedback", () => {
     ])
     await expect(page).toHaveURL("http://project-331.local/org/uh-cs")
 
-    await page.click(`[aria-label="Navigate to course 'Introduction to everything'"]`)
+    await page.getByRole("link", { name: "Introduction to everything", exact: true }).click()
 
     await selectCourseInstanceIfPrompted(page)
 

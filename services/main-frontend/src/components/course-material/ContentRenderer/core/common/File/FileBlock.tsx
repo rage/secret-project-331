@@ -47,6 +47,7 @@ const FileBlock: React.FC<React.PropsWithChildren<BlockRendererProps<FileAttribu
         >
           <Link
             href={href ?? ""}
+            isDisabled={!href}
             download={fileName}
             styledAsButton
             size="medium"

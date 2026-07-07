@@ -69,6 +69,16 @@ describe("ClosedEndedQuestion accessibility", () => {
     expect(input).not.toHaveAttribute("aria-describedby")
   })
 
+  it("falls back to a generic aria-label when both title and body are empty", () => {
+    renderQuestion({ title: null, body: null })
+    // The identity i18n mock returns the key, so t("answer") renders as "answer".
+    const input = screen.getByLabelText("answer")
+    expect(input.tagName).toBe("INPUT")
+    // No aria-labelledby pointing at empty elements.
+    expect(input).not.toHaveAttribute("aria-labelledby")
+    expect(input).not.toHaveAttribute("aria-describedby")
+  })
+
   it("never emits the 'Answerfalse' aria-label bug on the label or input (WCAG 1.3.1, 2.5.3)", () => {
     const { container } = renderQuestion()
     expect(container.innerHTML).not.toMatch(/Answerfalse/)

@@ -15,7 +15,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
 }) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page.getByRole("link", { name: "Navigate to course 'Advanced exercise states'" }).click()
+  await page.getByRole("link", { name: "Advanced exercise states", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
   const chapterSelector = new ChapterSelector(page)
   await chapterSelector.clickChapter(1)

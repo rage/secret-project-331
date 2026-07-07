@@ -53,13 +53,9 @@ test.describe("Quizzes timeline feedback", () => {
 
     // eslint-disable-next-line playwright/no-wait-for-timeout
     await page.waitForTimeout(100)
-    await page.locator(`button:disabled:text("Submit")`).waitFor()
+    await page.locator(`button[aria-disabled="true"]:text("Submit")`).waitFor()
 
-    await page
-      .frameLocator("iframe")
-      .locator(`[aria-label="Remove"]:right-of(:text("2002"))`)
-      .nth(0)
-      .click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 2002"]`).click()
 
     await page
       .frameLocator("iframe")
@@ -88,9 +84,9 @@ test.describe("Quizzes timeline feedback", () => {
 
     await page.getByText("Try again").click()
     // Clear previous answers
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1995"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1998"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 2002"]`).click()
 
     await page
       .frameLocator("iframe")
@@ -122,9 +118,9 @@ test.describe("Quizzes timeline feedback", () => {
 
     await page.getByText("Try again").click()
     // Clear previous answers
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
-    await page.frameLocator("iframe").locator(`[aria-label="Remove"]`).first().click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1995"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 1998"]`).click()
+    await page.frameLocator("iframe").locator(`[aria-label="Remove answer for year 2002"]`).click()
 
     await page
       .frameLocator("iframe")

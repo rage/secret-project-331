@@ -96,7 +96,8 @@ describe("Scale accessibility", () => {
   it("uses an unchecked ring color with >= 3:1 contrast instead of the failing light gray", () => {
     renderScale()
     const styleText = allCssText()
-    expect(styleText).toContain("#767b85")
+    // gray[400] from the theme (#767B85); match case-insensitively.
+    expect(styleText).toMatch(/#767b85/i)
     expect(styleText).not.toContain("#dfe1e6")
   })
 })

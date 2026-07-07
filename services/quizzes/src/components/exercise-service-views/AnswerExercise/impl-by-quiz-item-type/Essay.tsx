@@ -1,7 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
-import React, { useContext, useId, useMemo } from "react"
+import React, { useContext, useEffect, useId, useMemo, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { UserItemAnswerEssay } from "../../../../../types/quizTypes/answer"
@@ -16,7 +16,7 @@ import TextArea from "@/shared-module/common/components/InputFields/TextAreaFiel
 import { wordCount } from "@/shared-module/common/utils/strings"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import useParentDialog from "@/shared-module/exercise-react/react/hooks/useParentDialog"
-import { headingFont, secondaryFont } from "@/shared-module/exercise-react/styles"
+import { baseTheme, headingFont, secondaryFont } from "@/shared-module/exercise-react/styles"
 
 export const container = css`
   font-size: 0.563rem;
@@ -37,6 +37,31 @@ export const container = css`
     margin: 0;
   }
 `
+
+/** How long typing must pause before the word count is announced to screen readers. */
+const ANNOUNCEMENT_PAUSE_MS = 10_000
+
+/**
+ * Debounces a live-region announcement: the message is only exposed once it has stayed unchanged
+ * for `delayMs`, and only if it differs from what was last announced. This keeps screen readers
+ * from announcing the word count on every keystroke. The initial message is never announced.
+ */
+const usePausedAnnouncement = (message: string, delayMs: number): string => {
+  const [announcement, setAnnouncement] = useState("")
+  const lastAnnouncedRef = useRef(message)
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (message !== lastAnnouncedRef.current) {
+        lastAnnouncedRef.current = message
+        setAnnouncement(message)
+      }
+    }, delayMs)
+    return () => clearTimeout(timer)
+  }, [message, delayMs])
+
+  return announcement
+}
 
 const Essay: React.FunctionComponent<
   QuizItemComponentProps<PublicSpecQuizItemEssay, UserItemAnswerEssay>
@@ -65,6 +90,10 @@ const Essay: React.FunctionComponent<
     }
     return t("word-count-status", { count: usersWordCount })
   }, [usersWordCount, quizItem.minWords, quizItem.maxWords, t])
+
+  // Announce only after typing has paused for a while, and only when the count actually changed,
+  // so screen readers are not flooded with an announcement on every keystroke.
+  const announcedWordCount = usePausedAnnouncement(wordCountAnnouncement, ANNOUNCEMENT_PAUSE_MS)
 
   return (
     <div
@@ -154,7 +183,7 @@ const Essay: React.FunctionComponent<
               background: #f4f5f7 !important;
               border-radius: 0.25rem;
               /* gray[400]: border contrast >= 3:1 against the field background (WCAG 1.4.11). */
-              border: 0.188rem solid #767b85 !important;
+              border: 0.188rem solid ${baseTheme.colors.gray[400]} !important;
             }
           `}
           value={text}
@@ -204,7 +233,7 @@ const Essay: React.FunctionComponent<
             </div>
           )}
         </div>
-        {/* Politely announces the count as it changes, and warns when below min / above max. */}
+        {/* Politely announces the count once typing pauses, and warns when below min / above max. */}
         <div
           role="status"
           aria-live="polite"
@@ -221,7 +250,7 @@ const Essay: React.FunctionComponent<
             border: 0;
           `}
         >
-          {wordCountAnnouncement}
+          {announcedWordCount}
         </div>
       </div>
     </div>

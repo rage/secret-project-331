@@ -12,7 +12,7 @@ import { QuizItemComponentProps } from "."
 
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
-import { primaryFont } from "@/shared-module/exercise-react/styles"
+import { baseTheme, primaryFont } from "@/shared-module/exercise-react/styles"
 
 const SelectInputIcon = () => {
   return (
@@ -150,7 +150,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             font-size: 1.125rem;
             cursor: pointer;
             /* Gray 400 from the design system: >= 3:1 contrast against white (WCAG 1.4.11) */
-            border: 0.188rem solid #767b85;
+            border: 0.188rem solid ${baseTheme.colors.gray[400]};
             background: none;
             min-height: 2.5rem;
             grid-template-areas: "select";

@@ -32,7 +32,7 @@ test.describe("test teacher changing grade behavior", () => {
         "University of Helsinki, Department of Mathematics and Statistics",
       )
 
-      await studentPage.getByRole("link", { name: "Navigate to course 'Custom" }).click()
+      await studentPage.getByRole("link", { name: "Custom points", exact: true }).click()
       await selectCourseInstanceIfPrompted(studentPage)
       const studentChapterSelector = new ChapterSelector(studentPage)
       await studentChapterSelector.clickChapter(1)

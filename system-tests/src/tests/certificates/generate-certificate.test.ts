@@ -13,7 +13,7 @@ test.use({
 test("Generating certificates works", async ({ page, headless }, testInfo) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Computer Science")
-  await page.getByRole("link", { name: "Navigate to course 'Certificates'" }).click()
+  await page.getByRole("link", { name: "Certificates", exact: true }).click()
 
   await selectCourseInstanceIfPrompted(page)
 

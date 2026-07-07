@@ -13,7 +13,7 @@ test.use({
 test("Resetting teacher's own progress resets points", async ({ page }) => {
   await page.goto("http://project-331.local/organizations")
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
-  await page.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
+  await page.getByRole("link", { name: "Reset progress", exact: true }).click()
   await selectCourseInstanceIfPrompted(page)
   const chapterSelector = new ChapterSelector(page)
   await chapterSelector.clickChapter(1)
@@ -52,7 +52,7 @@ test("Teacher can reset progress for all students on draft courses", async ({ pa
       studentPage,
       "University of Helsinki, Department of Mathematics and Statistics",
     )
-    await studentPage.getByRole("link", { name: "Navigate to course 'Reset progress'" }).click()
+    await studentPage.getByRole("link", { name: "Reset progress", exact: true }).click()
     await selectCourseInstanceIfPrompted(studentPage)
     const studentChapterSelector = new ChapterSelector(studentPage)
     await studentChapterSelector.clickChapter(1)

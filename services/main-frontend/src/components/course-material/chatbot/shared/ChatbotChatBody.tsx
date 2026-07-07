@@ -250,6 +250,13 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               <li
                 key={`chatbot-status-message-${message.message.id}`}
                 className={messageListItemStyle}
+                // Sender attribution lives on the listitem because listitem supports
+                // naming, unlike the generic bubble div inside (aria-prohibited-attr).
+                aria-label={
+                  m.data.message_role === "assistant"
+                    ? t("message-from-chatbot")
+                    : t("message-from-you")
+                }
               >
                 {items !== null && <ToolCallReasoningBubble messages={items} />}
                 <MessageBubble

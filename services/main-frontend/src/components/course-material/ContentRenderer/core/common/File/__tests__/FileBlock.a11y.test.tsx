@@ -2,7 +2,7 @@
 
 import "@testing-library/jest-dom"
 
-import { render, screen } from "@testing-library/react"
+import { fireEvent, render, screen } from "@testing-library/react"
 
 import FileBlock from "../FileBlock"
 
@@ -46,5 +46,25 @@ describe("FileBlock accessibility (issue #69)", () => {
     const downloadLink = screen.getByRole("link", { name: "download-file" })
     expect(downloadLink).toHaveAttribute("aria-label", "download-file")
     expect(downloadLink.querySelector("button")).toBeNull()
+  })
+
+  it("disables the download control when the file has no href, so it does not link to the current page", () => {
+    render(
+      <FileBlock
+        {...makeProps({
+          href: undefined,
+          showDownloadButton: true,
+          downloadButtonText: "Download",
+        })}
+      />,
+    )
+
+    const downloadControl = screen.getByText("Download").closest("a")
+    expect(downloadControl).not.toBeNull()
+    // Exposed as disabled to assistive technology.
+    expect(downloadControl).toHaveAttribute("aria-disabled", "true")
+    // Clicking must not trigger a navigation (default action is prevented).
+    const clickNotPrevented = fireEvent.click(downloadControl as HTMLAnchorElement)
+    expect(clickNotPrevented).toBe(false)
   })
 })

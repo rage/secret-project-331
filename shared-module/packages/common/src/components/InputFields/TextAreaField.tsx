@@ -4,6 +4,8 @@ import { css, cx } from "@emotion/css"
 import React, { forwardRef, TextareaHTMLAttributes, useEffect, useId, useRef } from "react"
 import { FieldError } from "react-hook-form"
 
+import { baseTheme } from "../../styles"
+
 export interface TextAreaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string
   errorMessage?: string
@@ -152,7 +154,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
               textarea {
                 background: #fcfcfc;
                 /* gray[400] keeps the border contrast >= 3:1 against the field background (WCAG 1.4.11). */
-                border: 1.6px solid #767b85;
+                border: 1.6px solid ${baseTheme.colors.gray[400]};
                 border-radius: 3px;
                 padding: 10px 12px;
                 resize: ${resize};

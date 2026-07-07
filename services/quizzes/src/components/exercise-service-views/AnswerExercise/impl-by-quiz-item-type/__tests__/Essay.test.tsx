@@ -1,11 +1,23 @@
 "use client"
 
 import "@testing-library/jest-dom"
-import { fireEvent, render, screen } from "@testing-library/react"
+import { act, fireEvent, render, screen } from "@testing-library/react"
 
 import { UserItemAnswerEssay } from "../../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemEssay } from "../../../../../../types/quizTypes/publicSpec"
 import Essay from "../Essay"
+
+// Override the global identity i18n mock with one that includes the interpolation options, so
+// announcements for different word counts are distinguishable strings (as they are in production).
+jest.mock("react-i18next", () => ({
+  useTranslation: () => ({
+    t: (key: string, options?: Record<string, unknown>) =>
+      options ? `${key} ${JSON.stringify(options)}` : key,
+    i18n: { changeLanguage: () => Promise.resolve() },
+  }),
+  Translation: ({ children }: { children: (t: (key: string) => string) => React.ReactNode }) =>
+    children((key: string) => key),
+}))
 
 // jsdom has no IntersectionObserver; the auto-resizing textarea in TextAreaField relies on it.
 beforeAll(() => {
@@ -31,22 +43,32 @@ const baseItem: PublicSpecQuizItemEssay = {
   body: "Explain your reasoning in full sentences.",
 }
 
+const makeAnswer = (textData: string): UserItemAnswerEssay => ({
+  quizItemId: "essay-1",
+  textData,
+  valid: true,
+  type: "essay",
+})
+
 const renderEssay = (
   overrides: Partial<PublicSpecQuizItemEssay> = {},
   answer: UserItemAnswerEssay | null = null,
 ) => {
   const setQuizItemAnswerState = jest.fn()
-  const utils = render(
+  const makeElement = (currentAnswer: UserItemAnswerEssay | null) => (
     <Essay
       quizDirection="column"
       quizItem={{ ...baseItem, ...overrides }}
-      quizItemAnswerState={answer}
+      quizItemAnswerState={currentAnswer}
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       user_information={{} as any}
       setQuizItemAnswerState={setQuizItemAnswerState}
-    />,
+    />
   )
-  return { ...utils, setQuizItemAnswerState }
+  const utils = render(makeElement(answer))
+  // Simulates the parent updating the controlled answer state as the user types.
+  const setText = (text: string) => utils.rerender(makeElement(makeAnswer(text)))
+  return { ...utils, setQuizItemAnswerState, setText }
 }
 
 describe("Essay accessibility", () => {
@@ -89,50 +111,92 @@ describe("Essay accessibility", () => {
     expect(status).toHaveAttribute("aria-live", "polite")
   })
 
-  it("announces the count normally when within the allowed range", () => {
-    renderEssay(
-      {},
-      {
-        quizItemId: "essay-1",
-        textData: "one two three four five six",
-        valid: true,
-        type: "essay",
-      },
-    )
-    // Identity i18n mock returns the key, so the branch is observable by its key.
-    expect(screen.getByRole("status")).toHaveTextContent("word-count-status")
-  })
-
-  it("announces a below-minimum warning when the count is too low", () => {
-    renderEssay(
-      {},
-      {
-        quizItemId: "essay-1",
-        textData: "one two",
-        valid: false,
-        type: "essay",
-      },
-    )
-    expect(screen.getByRole("status")).toHaveTextContent("word-count-below-minimum")
-  })
-
-  it("announces an above-maximum warning when the count is too high", () => {
-    renderEssay(
-      { maxWords: 3 },
-      {
-        quizItemId: "essay-1",
-        textData: "one two three four five",
-        valid: false,
-        type: "essay",
-      },
-    )
-    expect(screen.getByRole("status")).toHaveTextContent("word-count-above-maximum")
-  })
-
-  it("updates the announced count as the user types", () => {
+  it("updates the answer state as the user types", () => {
     const { setQuizItemAnswerState } = renderEssay()
     const textarea = screen.getByLabelText(/What is your opinion\?/) as HTMLTextAreaElement
     fireEvent.change(textarea, { target: { value: "one two three four five six seven" } })
     expect(setQuizItemAnswerState).toHaveBeenCalled()
+  })
+})
+
+describe("Essay word count announcement debouncing", () => {
+  beforeEach(() => {
+    jest.useFakeTimers()
+  })
+
+  afterEach(() => {
+    jest.useRealTimers()
+  })
+
+  const advance = (ms: number) => {
+    act(() => {
+      jest.advanceTimersByTime(ms)
+    })
+  }
+
+  it("does not announce anything on initial render", () => {
+    renderEssay()
+    advance(20_000)
+    expect(screen.getByRole("status")).toBeEmptyDOMElement()
+  })
+
+  it("does not announce while typing continues (the pause timer keeps resetting)", () => {
+    const { setText } = renderEssay()
+    setText("one")
+    advance(9_000)
+    setText("one two")
+    advance(9_000)
+    setText("one two three")
+    advance(9_000)
+    expect(screen.getByRole("status")).toBeEmptyDOMElement()
+  })
+
+  it("announces the count about 10 seconds after the last change", () => {
+    const { setText } = renderEssay()
+    setText("one two")
+    advance(9_999)
+    expect(screen.getByRole("status")).toBeEmptyDOMElement()
+    advance(1)
+    // Two words is below the minimum of five, so the below-minimum variant is used.
+    expect(screen.getByRole("status")).toHaveTextContent("word-count-below-minimum")
+    expect(screen.getByRole("status")).toHaveTextContent(/"count":2/)
+  })
+
+  it("announces the plain status when the count is within the allowed range", () => {
+    const { setText } = renderEssay()
+    setText("one two three four five six")
+    advance(10_000)
+    expect(screen.getByRole("status")).toHaveTextContent("word-count-status")
+    expect(screen.getByRole("status")).toHaveTextContent(/"count":6/)
+  })
+
+  it("announces the above-maximum warning when the count is too high", () => {
+    const { setText } = renderEssay({ maxWords: 3 })
+    setText("one two three four five")
+    advance(10_000)
+    expect(screen.getByRole("status")).toHaveTextContent("word-count-above-maximum")
+  })
+
+  it("does not re-announce when the value has not changed after another pause", () => {
+    const { setText } = renderEssay()
+    setText("one two")
+    advance(10_000)
+    const announcedOnce = screen.getByRole("status").textContent
+    expect(announcedOnce).toContain("word-count-below-minimum")
+    // Same text again (e.g. the user typed and deleted a character): nothing new to announce.
+    setText("one two")
+    advance(20_000)
+    expect(screen.getByRole("status").textContent).toBe(announcedOnce)
+  })
+
+  it("announces again when the value changes after a pause", () => {
+    const { setText } = renderEssay()
+    setText("one two")
+    advance(10_000)
+    expect(screen.getByRole("status")).toHaveTextContent(/"count":2/)
+    setText("one two three four five six")
+    advance(10_000)
+    expect(screen.getByRole("status")).toHaveTextContent("word-count-status")
+    expect(screen.getByRole("status")).toHaveTextContent(/"count":6/)
   })
 })

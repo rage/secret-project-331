@@ -65,6 +65,25 @@ describe("MultipleChoice answer view accessibility", () => {
     }
   })
 
+  it("names the group with the body instead of an empty title element when title is null", () => {
+    renderMultipleChoice({ title: null })
+    const group = screen.getByRole("group", { name: /Think about a clear day\./ })
+    // The group must not be labelled by the (empty) title element.
+    const labelledBy = group.getAttribute("aria-labelledby") as string
+    expect(labelledBy).toBeTruthy()
+    for (const id of labelledBy.split(" ")) {
+      expect(document.getElementById(id)?.textContent).not.toBe("")
+    }
+  })
+
+  it("falls back to a generic accessible name when both title and body are empty", () => {
+    renderMultipleChoice({ title: null, body: null })
+    // The identity i18n mock returns the key, so t("answer") renders as "answer".
+    const group = screen.getByRole("group", { name: "answer" })
+    expect(group).not.toHaveAttribute("aria-labelledby")
+    expect(group).not.toHaveAttribute("aria-describedby")
+  })
+
   it("exposes the selected option via aria-pressed", () => {
     renderMultipleChoice(
       {},

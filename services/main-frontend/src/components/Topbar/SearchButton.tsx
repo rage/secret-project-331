@@ -76,6 +76,8 @@ const EmptyState = styled.div`
 `
 
 const ResultCard = styled.div`
+  /* Positioning context for the stretched heading link, which makes the whole card clickable. */
+  position: relative;
   background: #ffffff;
   margin-bottom: 0.5rem;
   padding: 1rem;
@@ -124,6 +126,15 @@ const ResultHeadingLink = styled(Link)`
   text-decoration: none;
   color: unset;
   display: block;
+
+  /* Stretched link: extend the link's hit area over the whole result card while keeping the
+     accessible name (and screen reader link text) limited to the heading. The card contains no
+     other interactive elements, so nothing gets shadowed by the overlay. */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
 
   &:focus-visible {
     outline: 2px solid ${baseTheme.colors.green[500]};

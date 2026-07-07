@@ -15,6 +15,7 @@ import { QUIZ_TITLE_STYLE } from "./AnswerQuizStyles"
 
 import { QuizItemComponentProps } from "."
 
+import { baseTheme } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -47,7 +48,7 @@ const optionCircleStyle = css`
   margin-left: 0.375em;
   transition: 0.25s ease;
   /* Gray 400 from the design system: >= 3:1 contrast against white (WCAG 1.4.11) */
-  box-shadow: inset 0 0 0 0.15em #767b85;
+  box-shadow: inset 0 0 0 0.15em ${baseTheme.colors.gray[400]};
 
   &[data-selected="true"] {
     box-shadow: inset 0 0 0 0.371rem #627ba7;

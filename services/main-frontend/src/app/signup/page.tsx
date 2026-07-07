@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query"
 import { Envelope } from "@vectopus/atlas-icons-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useContext, useEffect, useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, useFormState } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import ResearchOnCoursesForm from "@/components/forms/ResearchOnCoursesForm"
@@ -126,7 +126,7 @@ const Wrapper = styled.div`
 `
 
 const CreateAccountForm: React.FC = () => {
-  const { formState, watch, reset, handleSubmit, trigger, control, setError, setValue } =
+  const { formState, watch, reset, handleSubmit, trigger, control, setError, setValue, getValues } =
     useForm<FormFields>({
       // eslint-disable-next-line i18next/no-literal-string
       mode: "onChange",
@@ -142,12 +142,15 @@ const CreateAccountForm: React.FC = () => {
     })
 
   const preFillCountry = useQuery(getUsersIpCountryOptions())
+  const { dirtyFields } = useFormState({ control })
 
   useEffect(() => {
-    if (preFillCountry.data) {
+    // Only prefill while the field is untouched and empty so a late-resolving
+    // geolocation query never overwrites a country the user has already chosen.
+    if (preFillCountry.data && !dirtyFields.country && !getValues("country")) {
       setValue("country", preFillCountry.data)
     }
-  }, [preFillCountry.data, setValue])
+  }, [preFillCountry.data, dirtyFields.country, getValues, setValue])
 
   const loginStateContext = useContext(LoginStateContext)
   const router = useRouter()

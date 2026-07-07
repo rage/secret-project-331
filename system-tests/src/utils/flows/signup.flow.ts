@@ -26,13 +26,13 @@ export async function signUp(
   const returnToParam = returnTo ? `return_to=${encodeURIComponent(returnTo)}&` : ""
   await page.goto(`http://project-331.local/signup?${returnToParam}lang=en-US`)
 
-  await page.getByRole("textbox", { name: "First name (Required)" }).fill(firstName)
-  await page.getByRole("textbox", { name: "Last name (Required)" }).fill(lastName)
+  await page.getByRole("textbox", { name: "First name *" }).fill(firstName)
+  await page.getByRole("textbox", { name: "Last name *" }).fill(lastName)
   await page.getByRole("button", { name: "Select an item Where do you" }).click()
   await page.getByLabel("Where do you live?").getByText(country).click()
-  await page.getByRole("textbox", { name: "Email (Required)" }).fill(email)
-  await page.getByRole("textbox", { name: "Password (Required)", exact: true }).fill(password)
-  await page.getByRole("textbox", { name: "Confirm password (Required)" }).fill(password)
+  await page.getByRole("textbox", { name: "Email *" }).fill(email)
+  await page.getByRole("textbox", { name: "Password *", exact: true }).fill(password)
+  await page.getByRole("textbox", { name: "Confirm password *" }).fill(password)
 
   await waitForSuccessNotification(page, async () => {
     await page.getByRole("button", { name: "Create an account" }).click()

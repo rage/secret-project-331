@@ -9,6 +9,7 @@ import { PublicSpecQuizItemMatrix } from "../../../../../../types/quizTypes/publ
 
 import MatrixCell from "./MatrixCell"
 
+import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const MatrixTableContainer = styled.table`
@@ -18,7 +19,7 @@ const MatrixTableContainer = styled.table`
   border-collapse: collapse;
   td {
     /* Gray 400 from the design system: >= 3:1 contrast against the cell background (WCAG 1.4.11) */
-    border: 0.125rem solid #767b85;
+    border: 0.125rem solid ${baseTheme.colors.gray[400]};
   }
 
   td {

@@ -118,8 +118,12 @@ const MultipleChoice: React.FunctionComponent<
       </p>
       <div
         role="group"
-        aria-labelledby={titleId}
-        aria-describedby={quizItem.body ? bodyId : undefined}
+        // The group's accessible name is the question title, or the body when there is no title.
+        // Reference only rendered, non-empty parts so the name never resolves to an empty element;
+        // when both are empty, fall back to a generic aria-label so the group is never unnamed.
+        aria-labelledby={quizItem.title ? titleId : quizItem.body ? bodyId : undefined}
+        aria-label={!quizItem.title && !quizItem.body ? t("answer") : undefined}
+        aria-describedby={quizItem.title && quizItem.body ? bodyId : undefined}
         className={css`
           display: flex;
           flex-direction: column;

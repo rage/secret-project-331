@@ -1,6 +1,5 @@
 "use client"
 
-import { usePathname } from "next/navigation"
 import { useEffect, useRef } from "react"
 
 const DEFAULT_TARGET_SELECTOR = "#maincontent"
@@ -10,6 +9,8 @@ const HEADING_SELECTOR = "h1"
 const TABINDEX_ATTRIBUTE = "tabindex"
 
 export interface RouteFocusManagerProps {
+  /** Current route path, e.g. from Next.js `usePathname()`. */
+  pathname: string
   /** CSS selector for the main content container; focus lands on its first `h1`, or itself if none. */
   targetSelector?: string
 }
@@ -18,11 +19,15 @@ export interface RouteFocusManagerProps {
  * Moves focus to the new page's main heading on client-side navigation, so assistive
  * technology users notice the page changed (WCAG 2.4.3). Mount once, high in the tree.
  * No-op on the initial page load (the browser already handles focus then).
+ *
+ * Takes `pathname` as a prop rather than reading it via `next/navigation` itself, so this
+ * package stays framework-agnostic (it's built standalone by Storybook, which can't resolve
+ * Next.js imports).
  */
 const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
+  pathname,
   targetSelector = DEFAULT_TARGET_SELECTOR,
 }) => {
-  const pathname = usePathname()
   const previousPathnameRef = useRef<string | null>(null)
 
   useEffect(() => {

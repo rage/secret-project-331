@@ -3,7 +3,7 @@
 import { OverlayProvider } from "@react-aria/overlays"
 import { QueryClientProvider } from "@tanstack/react-query"
 import { Provider } from "jotai"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import React, { useEffect, useState } from "react"
 import { RouterProvider } from "react-aria-components"
 
@@ -29,6 +29,7 @@ interface ClientLayoutWrapperProps {
 
 function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const initialLanguage = useLanguage()
   const [language, setLanguage] = useState(initialLanguage ?? DEFAULT_LANGUAGE)
   const [translationResourcesLoadedCounter, setTranslationResourcesLoadedCounter] = useState(0)
@@ -86,7 +87,7 @@ function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
               <LanguageOptionsProvider>
                 <GlobalStyles />
                 <PageTitleManager />
-                <RouteFocusManager />
+                <RouteFocusManager pathname={pathname} />
                 <LoginStateContextProvider>{children}</LoginStateContextProvider>
               </LanguageOptionsProvider>
             </DialogProvider>

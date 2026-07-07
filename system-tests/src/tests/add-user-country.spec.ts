@@ -53,13 +53,13 @@ test("User can add missing country information", async ({ page }) => {
     await page.goto(
       "http://project-331.local/signup?return_to=%2Forg%2Fuh-mathstat%2Fcourses%2Faccessibility-course&lang=en-US",
     )
-    await page.getByRole("textbox", { name: "First name *" }).fill("Test")
-    await page.getByRole("textbox", { name: "Last name *" }).fill("User")
+    await page.getByRole("textbox", { name: "First name" }).fill("Test")
+    await page.getByRole("textbox", { name: "Last name" }).fill("User")
     await page.getByRole("button", { name: "Select an item Where do you" }).click()
     await page.getByRole("option", { name: "Andorra" }).click()
-    await page.getByRole("textbox", { name: "Email *" }).fill("test-user@example.com")
-    await page.getByRole("textbox", { name: "Password *", exact: true }).fill("test-user")
-    await page.getByRole("textbox", { name: "Confirm password *" }).fill("test-user")
+    await page.getByRole("textbox", { name: "Email" }).fill("test-user@example.com")
+    await page.getByRole("textbox", { name: "Password", exact: true }).fill("test-user")
+    await page.getByRole("textbox", { name: "Confirm password" }).fill("test-user")
     await page.getByText("I consent to receiving email communication").click()
 
     await page.getByRole("button", { name: "Create an account" }).click()

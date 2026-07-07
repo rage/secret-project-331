@@ -58,7 +58,7 @@
   "an-insight-to-consider": "An insight to consider",
   "answer-submitted-announcement": "Answer submitted.",
   "answer-submitted-with-points-announcement": "Answer submitted. You received {{points}} out of {{maxPoints}} points.",
-  "answer-the-exercise-before-submitting": "Answer the exercise before submitting.",
+  "answer-the-exercise-before-submitting": "Please complete your answer first.",
   "answered-at": "Answered: {{time}}",
   "answers-in-manual-review": "Answers in manual review",
   "answers-in-manual-review-explanation": "These answers are waiting for manual grading. Automatic module completion is on hold until course staff grade them.",

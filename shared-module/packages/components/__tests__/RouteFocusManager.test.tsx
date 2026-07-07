@@ -7,10 +7,6 @@ import RouteFocusManager from "../src/components/RouteFocusManager"
 
 const mockState = { pathname: "/" }
 
-jest.mock("next/navigation", () => ({
-  usePathname: () => mockState.pathname,
-}))
-
 function Page({ heading, children }: { heading?: string | null; children?: React.ReactNode }) {
   return (
     <main id="maincontent">
@@ -23,7 +19,7 @@ function Page({ heading, children }: { heading?: string | null; children?: React
 function App({ heading, children }: { heading?: string | null; children?: React.ReactNode }) {
   return (
     <>
-      <RouteFocusManager />
+      <RouteFocusManager pathname={mockState.pathname} />
       <Page heading={heading}>{children}</Page>
     </>
   )
@@ -119,7 +115,7 @@ describe("RouteFocusManager", () => {
     function CustomApp() {
       return (
         <>
-          <RouteFocusManager targetSelector="#custom-root" />
+          <RouteFocusManager pathname={mockState.pathname} targetSelector="#custom-root" />
           <div id="custom-root">
             <h1>Custom</h1>
           </div>

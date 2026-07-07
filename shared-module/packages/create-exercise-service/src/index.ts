@@ -207,11 +207,8 @@ const BINARY_EXTENSIONS = new Set([
 
 /**
  * Recursively apply literal replacements to every text file in the generated project, skipping the
- * vendored shared-module snapshot (shared code, not template-specific), VCS/build/dependency dirs
- * and binary assets. A whole-tree sweep (rather than editing a fixed list of files) keeps the
- * generator correct as the template evolves: the service name appears in the SERVICE_NAME constant,
- * the i18next namespace, the service-info display name, the document title, the production server
- * log line and various comments.
+ * vendored shared-module snapshot, VCS/build/dependency dirs and binary assets. A whole-tree sweep
+ * (rather than a fixed file list) keeps the generator correct as the template evolves.
  */
 async function replaceNameInAllFiles(
   root: string,

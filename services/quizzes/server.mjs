@@ -28,7 +28,7 @@ const ROOT = fileURLToPath(new URL(".", import.meta.url))
 const CLIENT_DIR = join(ROOT, "dist", "client")
 const SHELL = join(CLIENT_DIR, "_shell.html")
 const PORT = Number(process.env.PORT) || 3004
-// Trailing slashes trimmed so "/example-exercise" matches cleanly.
+// Trailing slashes trimmed so "/quizzes" matches cleanly.
 const BASE_PATH = (process.env.PUBLIC_BASE_PATH ?? "").replace(/\/+$/, "")
 
 const MIME = {

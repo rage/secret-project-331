@@ -6,7 +6,7 @@ const SERVICE = "quizzes"
 
 /**
  * Metadata the host backend reads to discover this plugin's endpoints. All paths are prefixed with
- * the service's base path so they resolve behind the ingress. Pure so it is unit-testable.
+ * the service's base path so they resolve behind the ingress.
  */
 export const handleServiceInfo = wrapRouteHandler(
   (): Response => {

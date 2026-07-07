@@ -1,5 +1,3 @@
-"use client"
-
 import React from "react"
 
 import { TestResultCard as StyledCard, TestResultHeader, TestResultMessage } from "../styles"

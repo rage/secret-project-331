@@ -75,7 +75,7 @@ const config = [
     rules: {
       "@next/next/no-html-link-for-pages": [
         "error",
-        ["services/main-frontend/src/app", "services/cms/src/pages", "services/tmc/src/app"],
+        ["services/main-frontend/src/app", "services/cms/src/pages"],
       ],
       "@next/next/no-img-element": "error",
       "@next/next/no-sync-scripts": "error",
@@ -511,6 +511,9 @@ const config = [
       "services/quizzes/src/router.tsx",
       "services/quizzes/src/routes/__root.tsx",
       "services/quizzes/src/routes/index.tsx",
+      "services/tmc/src/router.tsx",
+      "services/tmc/src/routes/__root.tsx",
+      "services/tmc/src/routes/index.tsx",
     ],
     rules: {
       "@next/next/no-head-element": "off",
@@ -518,11 +521,12 @@ const config = [
     },
   },
   {
-    // These two services are client-only SPAs (TanStack Start + rsbuild); RSC "use client"/"use
+    // These services are client-only SPAs (TanStack Start + rsbuild); RSC "use client"/"use
     // server" directives are inert here, so don't require or enforce them.
     files: [
       "services/example-exercise/**/*.{js,jsx,ts,tsx}",
       "services/quizzes/**/*.{js,jsx,ts,tsx}",
+      "services/tmc/**/*.{js,jsx,ts,tsx}",
     ],
     rules: {
       "explicit-use-directives/require-use-directive-first": "off",

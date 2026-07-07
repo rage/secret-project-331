@@ -3,6 +3,8 @@ import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
+import { ParsedSpecRequest, privateSpecSchema, specRequestSchema } from "./requestSchemas"
+
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
@@ -15,10 +17,10 @@ import {
   prepareStub,
 } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
+import { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { buildArchiveName } from "@/util/helpers"
 import { createScopedLogger } from "@/util/logger"
-import { PrivateSpec, PublicSpec } from "@/util/stateInterfaces"
+import { PublicSpec } from "@/util/stateInterfaces"
 
 async function postImpl(request: Request): Promise<Response> {
   let body: unknown
@@ -27,10 +29,11 @@ async function postImpl(request: Request): Promise<Response> {
   } catch {
     return badRequest("Invalid JSON payload")
   }
-  if (!isSpecRequest(body)) {
+  const parsed = specRequestSchema.safeParse(body)
+  if (!parsed.success) {
     return badRequest("Invalid spec request")
   }
-  const specRequest = body
+  const specRequest = parsed.data
   const requestId = specRequest.request_id.slice(0, 4)
 
   const uploadClaim = request.headers.get(EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER)
@@ -45,7 +48,7 @@ export const handlePublicSpec = wrapRouteHandler(postImpl, {
 
 async function processPublicSpec(
   requestId: string,
-  specRequest: SpecRequest,
+  specRequest: ParsedSpecRequest,
   uploadClaim: string | null,
 ): Promise<Response> {
   const { log, debug } = createScopedLogger("public-spec", requestId)
@@ -54,13 +57,17 @@ async function processPublicSpec(
     log("Processing public spec")
 
     const { private_spec, upload_url } = specRequest
-    const privateSpec = private_spec as PrivateSpec | null
-    if (privateSpec === null) {
+    if (private_spec === null || private_spec === undefined) {
       return badRequest("Private spec cannot be null")
     }
     if (upload_url === null) {
       return badRequest("Missing upload URL")
     }
+    const privateSpecResult = privateSpecSchema.safeParse(private_spec)
+    if (!privateSpecResult.success) {
+      return badRequest("Invalid private spec")
+    }
+    const privateSpec = privateSpecResult.data
 
     debug("preparing stub dir")
     const { stubDir, templateDir, paths } = await prepareStubDir(

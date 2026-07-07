@@ -1,25 +1,15 @@
 import { v4 } from "uuid"
 
+import { testRequestSchema } from "./requestSchemas"
 import { testRuns } from "./testRuns"
 
 import { reportErrorOccurrence } from "@/shared-module/common/errors/reportErrorOccurrence"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { RunResult } from "@/tmc/cli"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { ExerciseFile } from "@/util/stateInterfaces"
 import { runTests } from "@/util/test"
 
-export type TestRequest =
-  | {
-      type: "browser"
-      templateDownloadUrl: string
-      files: Array<ExerciseFile>
-    }
-  | {
-      type: "editor"
-      templateDownloadUrl: string
-      archiveDownloadUrl: string
-    }
+export type { TestRequest } from "./requestSchemas"
 
 export type TestRequestResult = {
   id: string
@@ -65,49 +55,18 @@ function reportBackgroundFailure(err: unknown, request: Request): void {
   )
 }
 
-function isValidTestRequest(body: unknown): body is TestRequest {
-  if (
-    body === null ||
-    typeof body !== "object" ||
-    !("type" in body) ||
-    !("templateDownloadUrl" in body)
-  ) {
-    return false
-  }
-  const b = body as TestRequest
-  if (typeof b.templateDownloadUrl !== "string") {
-    return false
-  }
-  if (b.type === "browser") {
-    return (
-      Array.isArray(b.files) &&
-      b.files.every(
-        (f): f is { filepath: string; contents: string } =>
-          typeof f === "object" &&
-          f !== null &&
-          "filepath" in f &&
-          "contents" in f &&
-          typeof f.filepath === "string" &&
-          typeof f.contents === "string",
-      )
-    )
-  }
-  if (b.type === "editor") {
-    return typeof (b as { archiveDownloadUrl?: unknown }).archiveDownloadUrl === "string"
-  }
-  return false
-}
-
 async function postImpl(req: Request): Promise<Response> {
-  let body: unknown
+  let rawBody: unknown
   try {
-    body = await req.json()
+    rawBody = await req.json()
   } catch {
     return badRequest("Invalid JSON payload")
   }
-  if (!isValidTestRequest(body)) {
+  const parsed = testRequestSchema.safeParse(rawBody)
+  if (!parsed.success) {
     return badRequest("Invalid test request")
   }
+  const body = parsed.data
 
   const testRunId = v4()
   testRuns.set(testRunId, null)

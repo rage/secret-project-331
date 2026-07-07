@@ -3,22 +3,30 @@ import * as nodeFs from "fs"
 import { promises as fsPromises } from "fs"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
+import { ParsedSpecRequest, privateSpecSchema, specRequestSchema } from "./requestSchemas"
+
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import { EXERCISE_SERVICE_UPLOAD_CLAIM_HEADER } from "@/shared-module/exercise-protocol/server/exerciseServices"
 import { compressProject, extractProject, prepareSolution } from "@/tmc/langs"
 import { badRequest, jsonOk } from "@/util/apiResponse"
-import { isSpecRequest, RepositoryExercise, SpecRequest } from "@/util/exerciseServiceApi"
+import { RepositoryExercise } from "@/util/exerciseServiceApi"
 import { createScopedLogger } from "@/util/logger"
-import { ModelSolutionSpec, PrivateSpec } from "@/util/stateInterfaces"
+import { ModelSolutionSpec } from "@/util/stateInterfaces"
 
 async function postImpl(request: Request): Promise<Response> {
-  const body = await request.json()
-  if (!isSpecRequest(body)) {
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
+  }
+  const parsed = specRequestSchema.safeParse(body)
+  if (!parsed.success) {
     return badRequest("Request was not valid.")
   }
-  const specRequest = body as SpecRequest
+  const specRequest = parsed.data
   const requestId = specRequest.request_id.slice(0, 4)
 
   let uploadClaim: string | null = null
@@ -37,7 +45,7 @@ export const handleModelSolution = wrapRouteHandler(postImpl, {
 
 const processModelSolution = async (
   requestId: string,
-  specRequest: SpecRequest,
+  specRequest: ParsedSpecRequest,
   uploadClaim: string | null,
 ): Promise<Response> => {
   const { log, debug, error } = createScopedLogger("model-solution", requestId)
@@ -52,7 +60,11 @@ const processModelSolution = async (
     if (upload_url === null || upload_url === undefined) {
       return badRequest("Missing upload URL")
     }
-    const privateSpec = private_spec as PrivateSpec
+    const privateSpecResult = privateSpecSchema.safeParse(private_spec)
+    if (!privateSpecResult.success) {
+      return badRequest("Invalid private spec")
+    }
+    const privateSpec = privateSpecResult.data
 
     debug("downloading template")
     const templateArchive = temporaryFile()

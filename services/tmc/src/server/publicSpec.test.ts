@@ -42,4 +42,19 @@ describe("POST /api/public-spec", () => {
     const body = (await res.json()) as { message: string }
     expect(body.message).toContain("Missing upload URL")
   })
+
+  it("rejects a malformed private spec with 400", async () => {
+    const res = await handlePublicSpec(
+      post(
+        JSON.stringify({
+          request_id: "1234",
+          private_spec: { type: "editor" },
+          upload_url: "http://x",
+        }),
+      ),
+    )
+    expect(res.status).toBe(400)
+    const body = (await res.json()) as { message: string }
+    expect(body.message).toContain("Invalid private spec")
+  })
 })

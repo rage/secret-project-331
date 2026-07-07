@@ -2,10 +2,15 @@ import { promises as fs } from "fs"
 import path from "path"
 import { temporaryDirectory, temporaryFile } from "tempy"
 
+import {
+  GradeRequest,
+  gradeRequestSchema,
+  userAnswerSchema,
+  wrappedUserAnswerSchema,
+} from "./requestSchemas"
+
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
-import { GradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types-2"
-import { isNonGenericGradingRequest } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
 import {
   compressProject,
   extractProject,
@@ -16,7 +21,7 @@ import { badRequest, jsonOk } from "@/util/apiResponse"
 import { ExerciseTaskGradingResult, GradingProgress } from "@/util/exerciseServiceApi"
 import { createLogger } from "@/util/logger"
 import { runInSandboxPod } from "@/util/podExecution"
-import { PrivateSpec, UserAnswer } from "@/util/stateInterfaces"
+import { UserAnswer } from "@/util/stateInterfaces"
 
 const { log, debug } = createLogger("grade")
 
@@ -66,44 +71,39 @@ function normalizePodOutput(parsed: unknown): NormalizedRunResult | null {
 }
 
 async function postImpl(request: Request): Promise<Response> {
-  const body = await request.json()
-  if (!isNonGenericGradingRequest(body)) {
+  let body: unknown
+  try {
+    body = await request.json()
+  } catch {
+    return badRequest("Invalid JSON payload")
+  }
+  const parsed = gradeRequestSchema.safeParse(body)
+  if (!parsed.success) {
     return badRequest("Invalid grading request")
   }
-  const specRequest = body as TmcGradingRequest
-  return await processGrading(specRequest)
+  return await processGrading(parsed.data)
 }
 
 export const handleGrade = wrapRouteHandler(postImpl, { service: "tmc", operation: "POST /grade" })
 
-type TmcGradingRequest = GradingRequest<PrivateSpec, UserAnswer>
-
 /** Unwrap submission_data if the frontend sent { private_spec: UserAnswer } (current-state payload). */
 function normalizeSubmissionData(raw: unknown): UserAnswer | null {
-  if (raw && typeof raw === "object" && "type" in raw) {
-    const t = (raw as UserAnswer).type
-    if (t === "browser" || t === "editor") {
-      return raw as UserAnswer
-    }
+  const direct = userAnswerSchema.safeParse(raw)
+  if (direct.success) {
+    return direct.data
   }
-  if (raw && typeof raw === "object" && "private_spec" in raw) {
-    const inner = (raw as { private_spec: unknown }).private_spec
-    if (inner && typeof inner === "object" && "type" in inner) {
-      const t = (inner as UserAnswer).type
-      if (t === "browser" || t === "editor") {
-        return inner as UserAnswer
-      }
-    }
+  const wrapped = wrappedUserAnswerSchema.safeParse(raw)
+  if (wrapped.success) {
+    return wrapped.data.private_spec
   }
   return null
 }
 
-const processGrading = async (req: TmcGradingRequest): Promise<Response> => {
+const processGrading = async (req: GradeRequest): Promise<Response> => {
   const tempPaths: string[] = []
   try {
     const { exercise_spec } = req
-    const rawSubmissionData = req.submission_data as unknown
-    const submission_data = normalizeSubmissionData(rawSubmissionData)
+    const submission_data = normalizeSubmissionData(req.submission_data)
     if (!submission_data) {
       return badRequest(
         `unexpected submission type '${exercise_spec.type}' (missing or invalid submission_data)`,

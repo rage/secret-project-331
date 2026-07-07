@@ -1,24 +1,25 @@
 import { promises as fs } from "fs"
 import { temporaryFile } from "tempy"
 
+import { extractStubRequestSchema } from "./requestSchemas"
+
 import { downloadStream } from "@/lib"
 import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
 import { badRequest, jsonOk } from "@/util/apiResponse"
 import { extractTarZstd } from "@/util/helpers"
 
-type ExtractStubBody = { stub_download_url?: string }
-
 async function postImpl(request: Request): Promise<Response> {
-  let body: ExtractStubBody
+  let body: unknown
   try {
-    body = (await request.json()) as ExtractStubBody
+    body = await request.json()
   } catch {
     return badRequest("invalid JSON body")
   }
-  const stubDownloadUrl = body?.stub_download_url
-  if (typeof stubDownloadUrl !== "string" || stubDownloadUrl.length === 0) {
+  const parsed = extractStubRequestSchema.safeParse(body)
+  if (!parsed.success) {
     return badRequest("stub_download_url is required")
   }
+  const stubDownloadUrl = parsed.data.stub_download_url
   const tmpPath = temporaryFile()
   try {
     await downloadStream(stubDownloadUrl, tmpPath)

@@ -5,7 +5,7 @@
  * PYODIDE_INDEX_URL is injected at build time from src/util/pyodide-version.json.
  */
 /* global importScripts, loadPyodide */
-var PYODIDE_INDEX_URL = "/pyodide/v0.29.3/full/"
+var PYODIDE_INDEX_URL = "/tmc/pyodide/v0.29.3/full/"
 
 importScripts(PYODIDE_INDEX_URL + "pyodide.js")
 

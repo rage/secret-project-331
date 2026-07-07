@@ -107,7 +107,7 @@ test.describe("Chatbot settings testing", () => {
     await page.getByRole("button", { name: "Save and preview chatbot", exact: true }).click()
 
     await test.step("send message", async () => {
-      await expect(page.getByRole("heading", { name: "Chatbot 2 edited" })).toBeVisible()
+      await expect(page.getByRole("heading", { level: 1, name: "Chatbot 2 edited" })).toBeVisible()
 
       await page.getByPlaceholder("Message").click()
       await page.getByPlaceholder("Message").fill("Hello, pls help me!")

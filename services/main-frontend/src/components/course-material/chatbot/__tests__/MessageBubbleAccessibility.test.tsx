@@ -9,8 +9,7 @@ import MessageBubble from "../shared/MessageBubble"
 
 // t is mocked in tests/setup-jest.js to return the translation key verbatim.
 
-// jsdom does not implement IntersectionObserver, which TextAreaField (rendered
-// inside ChatbotChatBody) uses for its auto-resize behaviour.
+// jsdom lacks IntersectionObserver, needed by TextAreaField's auto-resize inside ChatbotChatBody.
 beforeAll(() => {
   class IntersectionObserverStub {
     observe() {}
@@ -87,9 +86,7 @@ const makeChatBodyProps = (): any => ({
 })
 
 describe("Chat message sender attribution (issue #56)", () => {
-  // The sender label must live on an element whose role permits naming.
-  // role=listitem supports aria-label; role=generic (a bare div) does not
-  // (axe: aria-prohibited-attr), so the label sits on the <li> wrapping each bubble.
+  // role=generic (the bubble div) can't be named, so the label sits on the <li> instead.
   it("exposes the chatbot message listitem with an accessible name identifying the sender", () => {
     render(<ChatbotChatBody {...makeChatBodyProps()} />)
 
@@ -115,8 +112,7 @@ describe("Chat message sender attribution (issue #56)", () => {
       />,
     )
 
-    // A bare div has role=generic, which prohibits accessible naming; the bubble
-    // must stay label-free so the attribution comes from the wrapping listitem.
+    // role=generic prohibits accessible naming, so the bubble itself must stay label-free.
     expect(container.querySelector("[aria-label]")).toBeNull()
   })
 })

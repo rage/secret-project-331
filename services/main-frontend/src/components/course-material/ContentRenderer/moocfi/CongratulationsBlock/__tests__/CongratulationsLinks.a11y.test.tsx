@@ -28,12 +28,10 @@ describe("CongratulationsLinks accessibility (issue #55)", () => {
     render(<CongratulationsLinks certificateConfigurationId="ccid-1" module={baseModule} />)
 
     const links = screen.getAllByRole("link")
-    // Register + generate-certificate = two links, none containing a nested button.
     expect(links).toHaveLength(2)
     links.forEach((link) => {
       expect(within(link).queryByRole("button")).not.toBeInTheDocument()
       expect(link.querySelector("button")).toBeNull()
-      // No button ancestor either.
       expect(link.closest("button")).toBeNull()
     })
   })
@@ -41,7 +39,6 @@ describe("CongratulationsLinks accessibility (issue #55)", () => {
   it("uses the visible label as the accessible name (no overriding aria-label)", () => {
     render(<CongratulationsLinks certificateConfigurationId="ccid-1" module={baseModule} />)
 
-    // The accessible name comes from the visible text, not a hardcoded English aria-label.
     const certificateLink = screen.getByRole("link", {
       name: "generate-certificate-button-label",
     })
@@ -63,7 +60,6 @@ describe("CongratulationsLinks accessibility (issue #55)", () => {
       />,
     )
 
-    // No links when incomplete, and the CTAs are disabled buttons instead.
     expect(screen.queryByRole("link")).not.toBeInTheDocument()
     const buttons = screen.getAllByRole("button")
     expect(buttons).toHaveLength(2)

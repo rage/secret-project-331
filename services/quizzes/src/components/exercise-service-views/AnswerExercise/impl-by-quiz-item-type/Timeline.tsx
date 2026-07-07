@@ -55,8 +55,7 @@ const container = css`
     position: relative;
   }
 
-  /* On narrow screens the timeline flows as a single column: the year label is stacked on top
-     of the select so everything fits into a 320 CSS px wide viewport (WCAG 1.4.10). */
+  /* Stack into a single column so content still fits a 320px wide viewport. */
   @media (max-width: 767.98px) {
     width: 100%;
     padding-left: 0;
@@ -185,8 +184,7 @@ const Timeline: React.FunctionComponent<
                   transition: all 200ms linear;
                   z-index: 1;
 
-                  /* The decorative marker is hidden in the narrow single-column layout so the
-                     content fits into 320 CSS px (WCAG 1.4.10). */
+                  /* Hidden in the narrow single-column layout to keep content within 320px. */
                   @media (max-width: 767.98px) {
                     display: none;
                   }
@@ -304,8 +302,6 @@ const Timeline: React.FunctionComponent<
             </div>
           )
         })}
-      {/* Persistent live region: duplicate answers keep the submit button disabled, so the
-          reason is announced to screen readers and shown visually as soon as it happens. */}
       <div
         role="status"
         aria-live="polite"

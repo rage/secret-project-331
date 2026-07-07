@@ -8,8 +8,7 @@ import React from "react"
 import ImageBlock from "../ImageBlock"
 import { ImageInteractivityContext } from "../ImageInteractivityContext"
 
-// react-medium-image-zoom ships ESM that jest does not transform; the zoom
-// wrapper is irrelevant to the figure/figcaption structure under test.
+// react-medium-image-zoom ships ESM that jest can't transform; mock it out.
 jest.mock("react-medium-image-zoom", () => ({
   __esModule: true,
   default: ({ children }: { children: React.ReactNode }) => <>{children}</>,

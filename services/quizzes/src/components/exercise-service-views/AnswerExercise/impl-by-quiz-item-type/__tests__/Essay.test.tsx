@@ -7,8 +7,7 @@ import { UserItemAnswerEssay } from "../../../../../../types/quizTypes/answer"
 import { PublicSpecQuizItemEssay } from "../../../../../../types/quizTypes/publicSpec"
 import Essay from "../Essay"
 
-// Override the global identity i18n mock with one that includes the interpolation options, so
-// announcements for different word counts are distinguishable strings (as they are in production).
+// Override the global identity i18n mock so interpolation options show up in the rendered string.
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) =>
@@ -74,14 +73,11 @@ const renderEssay = (
 describe("Essay accessibility", () => {
   it("labels the textarea with the essay question via aria-labelledby (WCAG 1.3.1)", () => {
     renderEssay()
-    // Accessible name is the question, not the generic "Answer".
     const textarea = screen.getByLabelText(/What is your opinion\?/)
     expect(textarea.tagName).toBe("TEXTAREA")
-    // The generic aria-label must be gone.
     expect(textarea).not.toHaveAttribute("aria-label")
     const labelledBy = textarea.getAttribute("aria-labelledby")
     expect(labelledBy).toBeTruthy()
-    // The referenced ids include both the title and the body text.
     const referenced = (labelledBy as string)
       .split(" ")
       .map((id) => document.getElementById(id)?.textContent)
@@ -101,7 +97,6 @@ describe("Essay accessibility", () => {
   it("gives the textarea a border color with >= 3:1 contrast", () => {
     const { container } = renderEssay()
     const textarea = container.querySelector("textarea") as HTMLTextAreaElement
-    // The failing #dfe1e6 border must be replaced by the accessible gray[400] shade.
     expect(textarea.outerHTML).not.toMatch(/dfe1e6/i)
   })
 
@@ -157,7 +152,6 @@ describe("Essay word count announcement debouncing", () => {
     advance(9_999)
     expect(screen.getByRole("status")).toBeEmptyDOMElement()
     advance(1)
-    // Two words is below the minimum of five, so the below-minimum variant is used.
     expect(screen.getByRole("status")).toHaveTextContent("word-count-below-minimum")
     expect(screen.getByRole("status")).toHaveTextContent(/"count":2/)
   })
@@ -183,7 +177,6 @@ describe("Essay word count announcement debouncing", () => {
     advance(10_000)
     const announcedOnce = screen.getByRole("status").textContent
     expect(announcedOnce).toContain("word-count-below-minimum")
-    // Same text again (e.g. the user typed and deleted a character): nothing new to announce.
     setText("one two")
     advance(20_000)
     expect(screen.getByRole("status").textContent).toBe(announcedOnce)

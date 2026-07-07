@@ -10,8 +10,7 @@ import { primaryFont } from "../../styles/typography"
 import { errorToDescription } from "../../utils/strings"
 
 const ERRORCOLOR = baseTheme.colors.red[600]
-// gray[400]: border contrast >= 3:1 against the field background (WCAG 1.4.11).
-// Focus state uses blue[600] (#215887): >= 3:1 against both the border and the field background.
+// gray[400] keeps border contrast >= 3:1 against the field background (WCAG 1.4.11).
 const DEFAULTCOLOR = baseTheme.colors.gray[400]
 
 interface InputExtraProps {

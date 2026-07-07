@@ -113,7 +113,6 @@ const Wrapper = styled.div`
     margin: 0 auto;
 
     a {
-      /* Style the link as a link (underline + link colour) so it is recognisable. */
       text-decoration: underline;
       font-size: 20px;
       color: ${baseTheme.colors.blue[600]};

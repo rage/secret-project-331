@@ -13,15 +13,9 @@ import { currentlyOpenFeedbackDialogAtom } from "@/stores/course-material/materi
 
 // jsdom does not implement IntersectionObserver (used by the shared TextAreaField)
 class IntersectionObserverStub {
-  observe() {
-    // NOP
-  }
-  unobserve() {
-    // NOP
-  }
-  disconnect() {
-    // NOP
-  }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(global as any).IntersectionObserver = IntersectionObserverStub

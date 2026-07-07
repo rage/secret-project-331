@@ -18,13 +18,7 @@ interface TextBoxProps {
   direction: string
 }
 
-/**
- * Guarantees hero text stays legible over arbitrary author-provided background
- * images (WCAG 1.4.3). A layered shadow paints a dark halo around each glyph so
- * light text stays readable over light image areas, plus a soft blur for depth.
- * Applied unconditionally so contrast never depends on the chosen image or font
- * colour.
- */
+// Keeps hero text legible over arbitrary author background images (WCAG 1.4.3).
 const TEXT_READABILITY_SHADOW = `
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 0.55),

@@ -27,7 +27,7 @@ interface DialogProps extends AriaDialogProps {
   preventBackgroundScroll?: boolean
   children: React.ReactNode
   className?: string
-  /** Language of the dialog contents, set as a `lang` attribute on the dialog root so screen readers use the correct pronunciation. */
+  /** Sets `lang` on the dialog root for correct screen reader pronunciation */
   lang?: string
   "data-testid"?: string
   /** Whether the dialog is closable by clicking outside of it */

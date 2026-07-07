@@ -42,17 +42,11 @@ const IdentifierContainer = styled.div`
 `
 
 export interface ColorsIdentifierProps {
-  /** Student (given) points, shown as text next to the legend. */
   studentPoints?: number | null
-  /** Points required for completion, shown as text next to the legend. */
   requiredPoints?: number | null
-  /** Maximum obtainable points, shown as text next to the legend. */
   maxPoints?: number | null
-  /**
-   * Forces the yellow "required" legend row to be shown even when requiredPoints
-   * has no numeric value. Pass this when any visible progress bar draws the
-   * required marker for a different threshold (e.g. required attempted exercises).
-   */
+  // Forces the required legend row even without a numeric requiredPoints, for
+  // when another progress bar draws the required marker for a different threshold.
   showRequiredLegend?: boolean
 }
 
@@ -63,9 +57,7 @@ const ColorsIdentifier: React.FunctionComponent<ColorsIdentifierProps> = ({
   showRequiredLegend = false,
 }) => {
   const { t } = useTranslation()
-  // Append the numeric value to the label so the information is not conveyed by
-  // colour alone (WCAG 1.3.1, 1.4.1). The required-points legend is only shown
-  // when a required threshold exists (or a required marker is drawn elsewhere).
+  // Append the value so the info isn't conveyed by colour alone (WCAG 1.4.1).
   const withValue = (label: string, value: number | null | undefined) =>
     value === null || value === undefined ? label : `${label}: ${value}`
 

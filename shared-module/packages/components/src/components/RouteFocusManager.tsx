@@ -10,29 +10,14 @@ const HEADING_SELECTOR = "h1"
 const TABINDEX_ATTRIBUTE = "tabindex"
 
 export interface RouteFocusManagerProps {
-  /**
-   * CSS selector for the main content container. Focus lands on the first `h1` inside it,
-   * or on the container itself if no `h1` has rendered yet. Defaults to `#maincontent`
-   * (the skip-link target).
-   */
+  /** CSS selector for the main content container; focus lands on its first `h1`, or itself if none. */
   targetSelector?: string
 }
 
 /**
- * Moves keyboard/screen-reader focus to the new page's main heading on client-side (soft)
- * navigation, so assistive technology users get a cue that the page changed (WCAG 1.3.1/2.4.3).
- *
- * Mount exactly once, high in the client tree (next to `PageTitleManager`). Headless: renders
- * nothing. On the initial (full) page load the browser handles focus, so nothing is done then.
- *
- * The focus move is skipped when:
- * - the URL has a fragment (`#...`) — the browser / in-page scroll handling owns the target, or
- * - focus already sits inside the main content (e.g. an autofocused field or an opened dialog),
- *   so we never steal focus from something the new page placed it on intentionally.
- *
- * The target gets `tabindex="-1"` so that non-interactive elements are programmatically
- * focusable, and is focused with `preventScroll` so the router's own scroll restoration
- * (scroll to top) is not disturbed.
+ * Moves focus to the new page's main heading on client-side navigation, so assistive
+ * technology users notice the page changed (WCAG 2.4.3). Mount once, high in the tree.
+ * No-op on the initial page load (the browser already handles focus then).
  */
 const RouteFocusManager: React.FC<RouteFocusManagerProps> = ({
   targetSelector = DEFAULT_TARGET_SELECTOR,

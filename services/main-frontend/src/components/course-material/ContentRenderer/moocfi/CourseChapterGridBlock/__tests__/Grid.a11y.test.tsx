@@ -47,7 +47,6 @@ describe("Chapter grid list semantics (issue #72)", () => {
     expect(screen.getAllByRole("list")).toHaveLength(1)
     const items = screen.getAllByRole("listitem")
     expect(items).toHaveLength(3)
-    // Each list item contains a chapter card.
     items.forEach((item) => {
       expect(item.querySelector("[data-testid^='card-']")).not.toBeNull()
     })

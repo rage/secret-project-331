@@ -120,9 +120,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
   const charactersLeft = 1000 - comment.length
 
   return (
-    // The feedback dialog is non-modal on purpose (users can still select text on the page while
-    // it is open), so focus is not trapped. FocusScope still moves focus into the dialog when it
-    // opens and restores it to the trigger when it closes.
+    // Non-modal by design (page text stays selectable), so focus isn't trapped.
     // eslint-disable-next-line jsx-a11y/no-autofocus
     <FocusScope restoreFocus autoFocus>
       <div

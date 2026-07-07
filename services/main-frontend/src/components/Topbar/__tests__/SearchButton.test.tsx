@@ -11,10 +11,7 @@ import {
 } from "@/generated/course-material-api/sdk.generated"
 import type { PageSearchResult } from "@/generated/course-material-api/types.generated"
 
-// The global react-i18next mock (tests/setup-jest.js) returns a NEW `t` function on every
-// useTranslation() call. SearchButton's data-fetching effect depends on `t` and sets new
-// array state on each run, which turns that unstable identity into an infinite render loop
-// in jsdom. Override the mock with a stable `t` for this suite.
+// Stable t() to avoid an infinite render loop from the global i18next mock's unstable identity.
 jest.mock("react-i18next", () => {
   const t = (key: string) => key
   return {

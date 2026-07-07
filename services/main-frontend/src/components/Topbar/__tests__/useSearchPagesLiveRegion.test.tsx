@@ -87,20 +87,16 @@ describe("useSearchPagesLiveRegion", () => {
       },
     })
 
-    // Query A has settled with 3 results.
     expect(result.current).toBe("search-pages-live-region-many-results-found")
 
-    // The debounced query changes to B. On this render isLoading is still false and
-    // resultCount still holds query A's results, because the fetch effect that flips
-    // isLoading runs after the live-region effect. The stale count must NOT be announced.
+    // resultCount here still holds query A's results, since the fetch effect that flips
+    // isLoading runs after the live-region effect; the stale count must NOT be announced.
     rerender({ searchQuery: "cells", isLoading: false, isError: false, resultCount: 3 })
     expect(result.current).toBe("search-pages-live-region-searching")
 
-    // The fetch effect kicks in for query B.
     rerender({ searchQuery: "cells", isLoading: true, isError: false, resultCount: 3 })
     expect(result.current).toBe("search-pages-live-region-searching")
 
-    // Query B settles with a new count, which gets announced.
     rerender({ searchQuery: "cells", isLoading: false, isError: false, resultCount: 1 })
     expect(result.current).toBe("search-pages-live-region-one-result-found")
   })
@@ -120,8 +116,7 @@ describe("useSearchPagesLiveRegion", () => {
     expect(result.current).toBe("search-pages-live-region-searching")
     rerender({ searchQuery: "cells", isLoading: true, isError: false, resultCount: 3 })
 
-    // Same count as the previous query: the dedup ref was reset on query change, so the
-    // count is announced again for the new query.
+    // The dedup ref was reset on query change, so the same count is announced again.
     rerender({ searchQuery: "cells", isLoading: false, isError: false, resultCount: 3 })
     expect(result.current).toBe("search-pages-live-region-many-results-found")
   })

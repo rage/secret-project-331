@@ -2,13 +2,9 @@ import enMainFrontend from "@/shared-module/common/locales/en/main-frontend.json
 import fiMainFrontend from "@/shared-module/common/locales/fi/main-frontend.json"
 import fiSharedModule from "@/shared-module/common/locales/fi/shared-module.json"
 
-/**
- * These accessibility fixes are translation-value changes, so we assert on the
- * locale files directly (the test i18n mock only echoes keys back).
- */
+// Asserts on the locale files directly since the test i18n mock only echoes keys back.
 describe("accessibility locale copy", () => {
   it("labels the search toggle button as search, not browse (issue #63)", () => {
-    // Was 'Selaa sivuja' (browse pages), which reads as navigation, not search.
     expect(fiMainFrontend["button-label-search-for-pages"]).toBe("Haku")
   })
 

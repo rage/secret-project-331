@@ -9,12 +9,7 @@ export interface OutOfTriesNotificationProps {
   ranOutOfTries: boolean
 }
 
-/**
- * Visible notification shown when the user has used all their tries for an exercise.
- *
- * The wrapping element is a persistent `role="status"` live region so that screen
- * readers announce the message when it appears after the last submission.
- */
+// Wrapper stays mounted with role="status" so screen readers announce the message when it appears.
 const OutOfTriesNotification: React.FC<OutOfTriesNotificationProps> = ({ ranOutOfTries }) => {
   const { t } = useTranslation()
 

@@ -93,9 +93,7 @@ const CourseProgress: React.FC<React.PropsWithChildren<CourseProgressProps>> = (
                   studentPoints={courseModuleProgress.score_given ?? undefined}
                   requiredPoints={courseModuleProgress.score_required ?? undefined}
                   maxPoints={courseModuleProgress.score_maximum ?? undefined}
-                  // The exercises bar above draws the required marker from
-                  // attempted_exercises_required, so the legend must appear when
-                  // either threshold exists.
+                  // The exercises bar above also draws a required marker, from attempted_exercises_required.
                   showRequiredLegend={
                     courseModuleProgress.score_required != null ||
                     courseModuleProgress.attempted_exercises_required != null

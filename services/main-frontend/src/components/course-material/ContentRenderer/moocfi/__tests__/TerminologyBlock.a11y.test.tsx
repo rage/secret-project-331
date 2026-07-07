@@ -6,8 +6,7 @@ import { render, screen } from "@testing-library/react"
 
 import TerminologyBlock from "../TerminologyBlock"
 
-// The inner blocks pull in the whole ContentRenderer; stub them out so the test
-// focuses on the term heading semantics (issue #70).
+// Stub out InnerBlocks; it pulls in the whole ContentRenderer.
 jest.mock("@/components/course-material/ContentRenderer/util/InnerBlocks", () => ({
   __esModule: true,
   default: () => <div data-testid="inner-blocks" />,

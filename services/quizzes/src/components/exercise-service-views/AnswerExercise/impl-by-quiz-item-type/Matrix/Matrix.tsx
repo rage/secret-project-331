@@ -18,7 +18,7 @@ const MatrixTableContainer = styled.table`
   background-color: #e2e4e6;
   border-collapse: collapse;
   td {
-    /* Gray 400 from the design system: >= 3:1 contrast against the cell background (WCAG 1.4.11) */
+    /* gray[400] for sufficient contrast against the cell background */
     border: 0.125rem solid ${baseTheme.colors.gray[400]};
   }
 

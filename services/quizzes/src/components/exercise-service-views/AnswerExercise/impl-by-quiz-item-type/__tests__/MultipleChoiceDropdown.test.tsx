@@ -42,7 +42,6 @@ describe("MultipleChoiceDropdown accessibility", () => {
     renderDropdown()
     const select = screen.getByLabelText("Which planet is closest to the sun?")
     expect(select.tagName).toBe("SELECT")
-    // The name comes from a real <label for>, not from a generic aria-label.
     expect(select).not.toHaveAttribute("aria-label")
     const label = document.querySelector(`label[for="${select.id}"]`)
     expect(label).not.toBeNull()
@@ -78,7 +77,6 @@ describe("MultipleChoiceDropdown accessibility", () => {
           .join("\n"),
       )
       .join("\n")
-    // gray[400] from the theme (#767B85); match case-insensitively.
     expect(styleText).toMatch(/#767b85/i)
     expect(styleText).not.toContain("#dfe1e6")
   })

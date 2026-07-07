@@ -104,12 +104,7 @@ const Likert: React.FC<LikertProps> = ({ question, content, index }) => {
   return (
     <Wrapper>
       <Question>{questionLabel}</Question>
-      {/*
-        The selected option is conveyed to assistive technology via role="img" with an
-        aria-label describing the chosen answer. With role="img" the element is a leaf in the
-        accessibility tree, so the decorative icon grid (which shows the selection only through
-        styling) is not exposed to screen readers.
-      */}
+      {/* role="img" makes this a leaf in the a11y tree so the decorative icon grid isn't exposed. */}
       <IconContainer role="img" aria-label={`${questionLabel}. ${selectedAnswerText}`}>
         {arr.map((option, n) => (
           <Icon key={n} active={content === n + 1}>

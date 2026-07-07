@@ -8,11 +8,8 @@ import { useTranslation } from "react-i18next"
 import { baseTheme } from "@/shared-module/common/styles"
 
 export interface ExerciseSubmitButtonProps {
-  /** True while the submission request is in flight. */
   isPending: boolean
-  /** True when the user has not yet given a complete, valid answer. */
   answersIncomplete: boolean
-  /** Called when the user submits a complete answer. */
   onSubmit: () => void
   buttonClassName?: string
 }
@@ -25,14 +22,7 @@ const validationMessageStyles = css`
   text-align: center;
 `
 
-/**
- * Submit button for an exercise.
- *
- * Uses `aria-disabled` instead of the `disabled` attribute so the button stays
- * focusable for keyboard and screen reader users, exposes an explanation of why
- * it cannot be used yet via `aria-describedby`, and shows a visible error message
- * if the user tries to submit an incomplete answer.
- */
+// Uses aria-disabled instead of disabled so the button stays focusable for screen readers.
 const ExerciseSubmitButton: React.FC<ExerciseSubmitButtonProps> = ({
   isPending,
   answersIncomplete,

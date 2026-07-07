@@ -79,8 +79,7 @@ const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     const combinedRef = useCombinedRefs(ref, textareaRef)
     const prevValueRef = useRef<string | number | readonly string[] | undefined>(rest.value)
     const generatedLabelId = useId()
-    // When there is a visible label, expose it as the accessible name via aria-labelledby,
-    // unless the caller already provided an explicit aria-labelledby / aria-label.
+    // Don't override an aria-labelledby/aria-label the caller already set.
     const labelId = rest.label ? generatedLabelId : undefined
     const hasCallerAriaLabel =
       rest["aria-labelledby"] !== undefined || rest["aria-label"] !== undefined

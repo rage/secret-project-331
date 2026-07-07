@@ -89,14 +89,12 @@ describe("Scale accessibility", () => {
     const label = radio.closest("label")
     expect(label).not.toBeNull()
     expect(label?.querySelector('[data-focus-visible="true"]')).not.toBeNull()
-    // The focus ring styles must actually be defined for the indicator element.
     expect(allCssText()).toMatch(/data-focus-visible="true"[^}]*outline/)
   })
 
   it("uses an unchecked ring color with >= 3:1 contrast instead of the failing light gray", () => {
     renderScale()
     const styleText = allCssText()
-    // gray[400] from the theme (#767B85); match case-insensitively.
     expect(styleText).toMatch(/#767b85/i)
     expect(styleText).not.toContain("#dfe1e6")
   })

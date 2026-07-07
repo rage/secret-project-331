@@ -127,9 +127,8 @@ const ResultHeadingLink = styled(Link)`
   color: unset;
   display: block;
 
-  /* Stretched link: extend the link's hit area over the whole result card while keeping the
-     accessible name (and screen reader link text) limited to the heading. The card contains no
-     other interactive elements, so nothing gets shadowed by the overlay. */
+  /* Stretched link: extends the hit area over the whole card while the accessible name stays the
+     heading text. Safe only because the card has no other interactive elements to shadow. */
   &::after {
     content: "";
     position: absolute;

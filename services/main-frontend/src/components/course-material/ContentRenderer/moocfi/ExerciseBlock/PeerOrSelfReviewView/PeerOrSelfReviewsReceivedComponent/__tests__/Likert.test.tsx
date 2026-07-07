@@ -12,10 +12,8 @@ describe("Likert (peer/self review results view)", () => {
   it("exposes the selected option to assistive technology via role=img + aria-label", () => {
     render(<Likert question="Was the answer good?" index={0} content={4} />)
 
-    // The selected answer must be programmatically available, not conveyed by styling alone.
     const image = screen.getByRole("img")
     expect(image).toBeInTheDocument()
-    // The label combines the question and the selected answer (key from t()).
     expect(image).toHaveAccessibleName(expect.stringContaining("question 1: Was the answer good?"))
     expect(image).toHaveAccessibleName(expect.stringContaining("likert-scale-selected-answer"))
   })
@@ -28,10 +26,8 @@ describe("Likert (peer/self review results view)", () => {
   })
 
   it("hides the decorative icon grid from the accessibility tree", () => {
-    // With role=img on the container, the icon labels inside are not separately exposed as
-    // interactive/queryable roles to assistive technology.
+    // role=img on the container means the inner icons aren't exposed as separate roles.
     render(<Likert question="Was the answer good?" index={0} content={2} />)
-    // Only a single img node represents the whole scale.
     expect(screen.getAllByRole("img")).toHaveLength(1)
   })
 })

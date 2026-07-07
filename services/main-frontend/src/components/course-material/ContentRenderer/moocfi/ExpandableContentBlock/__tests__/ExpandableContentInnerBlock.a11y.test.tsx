@@ -6,8 +6,7 @@ import { fireEvent, render, screen, within } from "@testing-library/react"
 
 import ExpandableContentInnerBlock from "../ExpandableContentInnerBlock"
 
-// The inner blocks pull in the whole ContentRenderer; stub them out so the test
-// focuses on the disclosure heading/button semantics (issue #68).
+// Stub out InnerBlocks so the test doesn't pull in the whole ContentRenderer.
 jest.mock("@/components/course-material/ContentRenderer/util/InnerBlocks", () => ({
   __esModule: true,
   default: () => <div data-testid="inner-blocks" />,
@@ -32,11 +31,9 @@ describe("ExpandableContentInnerBlock accessibility (issue #68)", () => {
     const heading = screen.getByRole("heading", { name: "Mild hearing problems" })
     expect(heading.tagName).toBe("H4")
 
-    // The button must be inside the heading, and the heading text is the button's
-    // accessible name.
     const button = within(heading).getByRole("button", { name: "Mild hearing problems" })
     expect(button.tagName).toBe("BUTTON")
-    // No heading nested inside the button (that would strip the heading role).
+    // A nested heading would strip the heading role.
     expect(button.querySelector("h1, h2, h3, h4, h5, h6")).toBeNull()
   })
 
@@ -45,14 +42,12 @@ describe("ExpandableContentInnerBlock accessibility (issue #68)", () => {
 
     const button = screen.getByRole("button", { name: "Mild hearing problems" })
     expect(button).toHaveAttribute("aria-expanded", "false")
-    // Panel is not rendered while collapsed.
     expect(screen.queryByRole("region")).not.toBeInTheDocument()
 
     fireEvent.click(button)
 
     expect(button).toHaveAttribute("aria-expanded", "true")
     const region = screen.getByRole("region", { name: "Mild hearing problems" })
-    // aria-controls points at the revealed region.
     expect(button.getAttribute("aria-controls")).toBe(region.getAttribute("id"))
     expect(within(region).getByTestId("inner-blocks")).toBeInTheDocument()
 

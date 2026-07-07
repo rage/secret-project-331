@@ -6,8 +6,7 @@ import { render, screen } from "@testing-library/react"
 
 import AuthorBlock from "../AuthorBlock"
 
-// The inner blocks pull in the whole ContentRenderer; stub them out so the test
-// focuses on the Authors heading semantics (issue #73).
+// Stub out InnerBlocks; it pulls in the whole ContentRenderer.
 jest.mock("../../util/InnerBlocks", () => ({
   __esModule: true,
   default: () => <div data-testid="inner-blocks" />,
@@ -19,7 +18,6 @@ jest.mock("i18next", () => ({
   t: (key: string) => key,
 }))
 
-// t is mocked in tests/setup-jest.js to return the translation key verbatim.
 describe("AuthorBlock accessibility (issue #73)", () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const props: any = {

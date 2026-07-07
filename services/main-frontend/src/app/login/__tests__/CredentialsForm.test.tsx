@@ -34,7 +34,7 @@ describe("CredentialsForm error live region", () => {
     rerender(<CredentialsForm onSubmit={noop} error={true} isSubmitting={false} />)
 
     const liveRegionAfter = container.querySelector('[aria-live="assertive"]')
-    // Must be the same element that was already in the DOM, now with the message inside.
+    // The live region element must not be re-created when the error appears.
     expect(liveRegionAfter).toBe(liveRegionBefore)
     expect(liveRegionAfter).toHaveTextContent("incorrect-email-or-password")
   })

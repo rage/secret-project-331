@@ -7,8 +7,7 @@ import { UserItemAnswerClosedEndedQuestion } from "../../../../../../types/quizT
 import { PublicSpecQuizItemClosedEndedQuestion } from "../../../../../../types/quizTypes/publicSpec"
 import ClosedEndedQuestion from "../ClosedEndedQuestion"
 
-// Render ParsedText synchronously so accessible-name lookups are deterministic (it otherwise
-// resolves its content via a dynamic import).
+// Render synchronously; ParsedText otherwise resolves content via a dynamic import.
 jest.mock("../../../../ParsedText", () => ({
   __esModule: true,
   default: ({ text }: { text: string | null }) => <span>{text}</span>,
@@ -46,7 +45,6 @@ describe("ClosedEndedQuestion accessibility", () => {
     renderQuestion()
     const input = screen.getByLabelText("juhannus")
     expect(input.tagName).toBe("INPUT")
-    // Generic aria-label / visible "Answer" label removed.
     expect(input).not.toHaveAttribute("aria-label")
     const labelledBy = input.getAttribute("aria-labelledby") as string
     expect(document.getElementById(labelledBy)?.textContent).toBe("juhannus")
@@ -65,16 +63,13 @@ describe("ClosedEndedQuestion accessibility", () => {
     renderQuestion({ title: null })
     const input = screen.getByLabelText("Fill in the sentence using the given word.")
     expect(input.tagName).toBe("INPUT")
-    // No redundant description when body is used as the label.
     expect(input).not.toHaveAttribute("aria-describedby")
   })
 
   it("falls back to a generic aria-label when both title and body are empty", () => {
     renderQuestion({ title: null, body: null })
-    // The identity i18n mock returns the key, so t("answer") renders as "answer".
     const input = screen.getByLabelText("answer")
     expect(input.tagName).toBe("INPUT")
-    // No aria-labelledby pointing at empty elements.
     expect(input).not.toHaveAttribute("aria-labelledby")
     expect(input).not.toHaveAttribute("aria-describedby")
   })
@@ -82,7 +77,6 @@ describe("ClosedEndedQuestion accessibility", () => {
   it("never emits the 'Answerfalse' aria-label bug on the label or input (WCAG 1.3.1, 2.5.3)", () => {
     const { container } = renderQuestion()
     expect(container.innerHTML).not.toMatch(/Answerfalse/)
-    // The stray boolean-stringified aria-label must be gone from the <label>.
     const label = container.querySelector("label") as HTMLLabelElement
     expect(label).not.toHaveAttribute("aria-label")
   })

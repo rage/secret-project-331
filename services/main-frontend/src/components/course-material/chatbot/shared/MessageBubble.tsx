@@ -166,9 +166,8 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   ])
 
   return (
-    // The sender attribution (aria-label) is intentionally NOT set here: this is a
-    // generic div, and ARIA prohibits naming role=generic elements (axe:
-    // aria-prohibited-attr). The wrapping <li> in ChatbotChatBody carries the label.
+    // No aria-label here: role=generic can't be named (axe: aria-prohibited-attr);
+    // the wrapping <li> in ChatbotChatBody carries the sender label instead.
     <div className={bubbleStyle(isFromChatbot)}>
       {processedMessage}
 

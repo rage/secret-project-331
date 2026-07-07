@@ -35,14 +35,12 @@ describe("FileBlock accessibility (issue #69)", () => {
     // WCAG 1.3.1: no <button> nested inside the link.
     expect(downloadLink.querySelector("button")).toBeNull()
 
-    // No <button> anywhere in the block.
     expect(screen.queryByRole("button")).not.toBeInTheDocument()
   })
 
   it("gives the download link an accessible name even when the button text is empty", () => {
     render(<FileBlock {...makeProps({ showDownloadButton: true, downloadButtonText: "" })} />)
 
-    // Falls back to the translated "download {{fileName}}" label.
     const downloadLink = screen.getByRole("link", { name: "download-file" })
     expect(downloadLink).toHaveAttribute("aria-label", "download-file")
     expect(downloadLink.querySelector("button")).toBeNull()

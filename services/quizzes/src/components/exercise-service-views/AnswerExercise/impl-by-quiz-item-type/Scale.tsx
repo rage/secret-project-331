@@ -47,7 +47,7 @@ const optionCircleStyle = css`
   background-color: #fff;
   margin-left: 0.375em;
   transition: 0.25s ease;
-  /* Gray 400 from the design system: >= 3:1 contrast against white (WCAG 1.4.11) */
+  /* gray[400] for sufficient contrast against white */
   box-shadow: inset 0 0 0 0.15em ${baseTheme.colors.gray[400]};
 
   &[data-selected="true"] {

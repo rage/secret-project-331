@@ -12,8 +12,7 @@ jest.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }))
 
-// Each render gets a fresh pending promise; tests that care about the ip-country
-// prefill resolve it with mockResolveIpCountry, the rest just leave it pending.
+// Fresh pending promise per render; tests needing the prefill resolve it via mockResolveIpCountry.
 let mockResolveIpCountry: (country: string | null) => void = () => {}
 jest.mock("@/generated/api/@tanstack/react-query.generated", () => ({
   getUsersIpCountryOptions: () => ({
@@ -117,7 +116,6 @@ describe("Create account form accessibility", () => {
     // Let the ip-country query start fetching so mockResolveIpCountry targets this render.
     await act(async () => {})
 
-    // The user picks a country before the geolocation query has resolved.
     fireEvent.keyDown(combobox, { key: "ArrowDown" })
     const option = await screen.findByRole("option", { name: "fi" })
     fireEvent.click(option)
@@ -125,7 +123,6 @@ describe("Create account form accessibility", () => {
       expect(combobox).toHaveValue("fi")
     })
 
-    // The prefill query resolves late with a different country.
     await act(async () => {
       mockResolveIpCountry("se")
     })

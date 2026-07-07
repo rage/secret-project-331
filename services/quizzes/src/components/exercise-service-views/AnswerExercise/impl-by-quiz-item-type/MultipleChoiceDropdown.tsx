@@ -74,8 +74,6 @@ const MultipleChoiceDropdown: React.FunctionComponent<
         >
           {quizItem.title ? (
             <>
-              {/* The visible prompt is the accessible name of the select (label/for), so speech
-                  input users can activate the control by speaking the visible label (WCAG 2.5.3). */}
               <label
                 htmlFor={selectId}
                 className={css`
@@ -137,8 +135,6 @@ const MultipleChoiceDropdown: React.FunctionComponent<
         <select
           id={selectId}
           onChange={handleOptionSelect}
-          // Fall back to naming the select by the item body (or a generic label) only when there
-          // is no visible title; the title is associated with the label/for technique above.
           aria-labelledby={!quizItem.title && quizItem.body ? bodyId : undefined}
           aria-label={!quizItem.title && !quizItem.body ? t("answer") : undefined}
           className={css`
@@ -149,7 +145,7 @@ const MultipleChoiceDropdown: React.FunctionComponent<
             padding: 0.5rem 2rem 0.5rem 0.625rem;
             font-size: 1.125rem;
             cursor: pointer;
-            /* Gray 400 from the design system: >= 3:1 contrast against white (WCAG 1.4.11) */
+            /* gray[400] for sufficient contrast against white */
             border: 0.188rem solid ${baseTheme.colors.gray[400]};
             background: none;
             min-height: 2.5rem;

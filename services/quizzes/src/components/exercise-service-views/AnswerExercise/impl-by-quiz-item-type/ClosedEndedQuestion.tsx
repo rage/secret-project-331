@@ -23,10 +23,7 @@ const ClosedEndedQuestion: React.FC<
   const fieldId = useId()
   const titleId = useId()
   const bodyId = useId()
-  // The given word (title) is the field's accessible name; the instruction (body), when present,
-  // is its description. Reference only the parts that are actually rendered (WCAG 1.3.1). When
-  // there is no title, fall back to the body as the accessible name so the field is never unnamed.
-  // If neither is set, a generic aria-label is used instead (see below).
+  // Fall back to body as the accessible name when there's no title.
   const labelledBy = quizItem.title ? titleId : quizItem.body ? bodyId : undefined
   const describedBy = quizItem.title && quizItem.body ? bodyId : undefined
 
@@ -76,7 +73,6 @@ const ClosedEndedQuestion: React.FC<
         <TextField
           id={fieldId}
           aria-labelledby={labelledBy}
-          // Generic fallback name so the field is never unnamed when both title and body are empty.
           aria-label={labelledBy ? undefined : t("answer")}
           aria-describedby={describedBy}
           type="text"
@@ -91,7 +87,7 @@ const ClosedEndedQuestion: React.FC<
             input {
               background: #f4f5f7 !important;
               border-radius: 0.25rem;
-              /* gray[400]: border contrast >= 3:1 against the field background (WCAG 1.4.11). */
+              /* gray[400] for sufficient contrast against the field background */
               border: 0.188rem solid ${baseTheme.colors.gray[400]} !important;
             }
           `}

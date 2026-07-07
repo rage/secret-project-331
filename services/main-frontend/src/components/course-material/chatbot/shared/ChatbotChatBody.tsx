@@ -83,8 +83,7 @@ export type ChatbotConversationMessageWithStatus = {
   optimistic: boolean
 }
 
-// Each list item is a full-width flex column so the bubble inside can keep
-// aligning itself to the start (chatbot) or end (user) of the row.
+// Full-width flex column so the bubble can align itself to the start or end of the row.
 const messageListItemStyle = css`
   display: flex;
   flex-direction: column;
@@ -250,8 +249,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
               <li
                 key={`chatbot-status-message-${message.message.id}`}
                 className={messageListItemStyle}
-                // Sender attribution lives on the listitem because listitem supports
-                // naming, unlike the generic bubble div inside (aria-prohibited-attr).
+                // role=generic (the bubble div) can't be named, so the label lives here (aria-prohibited-attr).
                 aria-label={
                   m.data.message_role === "assistant"
                     ? t("message-from-chatbot")

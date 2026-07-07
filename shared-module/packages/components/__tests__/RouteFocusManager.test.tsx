@@ -104,8 +104,6 @@ describe("RouteFocusManager", () => {
         <input aria-label="Search" />
       </App>,
     )
-    // Simulate the new page autofocusing a field during commit, before the manager's effect… by
-    // pre-focusing and re-navigating.
     const input = document.querySelector("input")
     input?.focus()
     mockState.pathname = "/search-2"

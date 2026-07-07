@@ -7,8 +7,7 @@ import { UserItemAnswerMatrix } from "../../../../../../../types/quizTypes/answe
 import { PublicSpecQuizItemMatrix } from "../../../../../../../types/quizTypes/publicSpec"
 import Matrix from "../Matrix"
 
-// Override the global identity i18n mock with one that appends interpolation values, so tests
-// can assert the row/column numbers used in the cell labels.
+// Override the global identity i18n mock so interpolation values (row/column) are visible.
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) =>
@@ -55,10 +54,8 @@ const renderMatrix = (answer: UserItemAnswerMatrix | null = null) => {
 describe("Matrix accessibility", () => {
   it("labels cells with 1-based row and column numbers (WCAG 1.3.1)", () => {
     renderMatrix()
-    // The first cell is row 1, column 1 — matching how screen readers announce table cells.
     expect(screen.getByLabelText("matrix-cell-aria-label row=1 column=1")).toBeInTheDocument()
     expect(screen.getByLabelText("matrix-cell-aria-label row=6 column=6")).toBeInTheDocument()
-    // No cell may use the old 0-based numbering.
     expect(screen.queryByLabelText(/row=0|column=0/)).not.toBeInTheDocument()
   })
 
@@ -77,7 +74,6 @@ describe("Matrix accessibility", () => {
   it("uses cell separator borders with >= 3:1 contrast instead of the failing light gray", () => {
     renderMatrix()
     const styleText = allCssText()
-    // gray[400] from the theme (#767B85); match case-insensitively.
     expect(styleText).toMatch(/#767b85/i)
     expect(styleText).not.toContain("#e1e1e1")
   })

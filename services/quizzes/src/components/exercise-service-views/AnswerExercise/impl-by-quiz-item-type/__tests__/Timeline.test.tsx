@@ -7,8 +7,7 @@ import { UserItemAnswerTimeline } from "../../../../../../types/quizTypes/answer
 import { PublicSpecQuizItemTimeline } from "../../../../../../types/quizTypes/publicSpec"
 import Timeline from "../Timeline"
 
-// Override the global identity i18n mock with one that appends interpolation values, so tests
-// can assert that contextual values (like the year) end up in accessible names.
+// Override the global identity i18n mock so interpolation values (e.g. the year) are visible.
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
     t: (key: string, options?: Record<string, unknown>) =>

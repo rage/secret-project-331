@@ -28,12 +28,7 @@ const StyledLink = styled.a`
   text-decoration: underline;
 `
 
-/**
- * A single interactive element per CTA (no anchor wrapping a button, no
- * overriding aria-label): an enabled link styled as a button when the module is
- * completed, or a disabled button (non-navigable) otherwise. The visible label
- * is the accessible name (WCAG 1.3.1, 2.5.3).
- */
+// One interactive element per CTA, not an anchor wrapping a button (WCAG 1.3.1, 2.5.3).
 const Cta: React.FC<{ href: string; label: string; enabled: boolean }> = ({
   href,
   label,

@@ -166,8 +166,7 @@ function exerciseBlockTitleHeadingStyles(exerciseNameIsLong: boolean) {
       min-width: 0;
       margin-top: -2px;
 
-      /* Focused programmatically after grading so screen readers continue from the
-      exercise; not part of the tab order, so no visible focus ring is needed. */
+      /* Focused programmatically after grading, not via tab, so no focus ring needed. */
       &:focus {
         outline: none;
       }
@@ -320,9 +319,7 @@ const ExerciseBlock: React.FC<
           payload: data,
           signedIn: Boolean(loginState.signedIn),
         })
-        // Announce the grading result to screen readers and move focus to the
-        // exercise heading so that the reading order continues from the exercise
-        // instead of jumping to the beginning of the page.
+        // Announce grading to screen readers and move focus to the exercise heading.
         const scoreGiven = data.exercise_status?.score_given
         const maxScore = getCourseMaterialExercise.data?.exercise.score_maximum
         setSubmissionAnnouncement(

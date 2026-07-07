@@ -22,11 +22,7 @@ interface TextBoxProps {
   fontColor?: string
 }
 
-/**
- * Guarantees hero title/subtitle stay legible over arbitrary author-provided
- * background images (WCAG 1.4.3). A layered dark halo keeps light text readable
- * over light image areas regardless of the chosen image or font colour.
- */
+// Keeps hero title/subtitle legible over arbitrary author background images (WCAG 1.4.3).
 const TEXT_READABILITY_SHADOW = `
   text-shadow:
     0 1px 2px rgba(0, 0, 0, 0.55),

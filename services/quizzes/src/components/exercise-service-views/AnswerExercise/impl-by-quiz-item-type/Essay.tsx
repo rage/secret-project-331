@@ -38,14 +38,9 @@ export const container = css`
   }
 `
 
-/** How long typing must pause before the word count is announced to screen readers. */
 const ANNOUNCEMENT_PAUSE_MS = 10_000
 
-/**
- * Debounces a live-region announcement: the message is only exposed once it has stayed unchanged
- * for `delayMs`, and only if it differs from what was last announced. This keeps screen readers
- * from announcing the word count on every keystroke. The initial message is never announced.
- */
+// Debounces a live-region announcement so it only fires once typing has paused and the message changed.
 const usePausedAnnouncement = (message: string, delayMs: number): string => {
   const [announcement, setAnnouncement] = useState("")
   const lastAnnouncedRef = useRef(message)
@@ -73,14 +68,10 @@ const Essay: React.FunctionComponent<
   const usersWordCount = useMemo(() => wordCount(text), [text])
   const titleId = useId()
   const bodyId = useId()
-  // The essay question (title/body) is the accessible name of the field. Reference only the
-  // parts that are actually rendered so the field is not labelled by empty elements.
   const labelledBy =
     [quizItem.title ? titleId : null, quizItem.body ? bodyId : null].filter(Boolean).join(" ") ||
     undefined
 
-  // Message announced politely to screen readers: the current count, plus a warning when the
-  // answer is below the minimum or above the maximum word count (WCAG 4.1.3).
   const wordCountAnnouncement = useMemo(() => {
     if (quizItem.minWords && usersWordCount < quizItem.minWords) {
       return t("word-count-below-minimum", { count: usersWordCount, min: quizItem.minWords })
@@ -91,8 +82,6 @@ const Essay: React.FunctionComponent<
     return t("word-count-status", { count: usersWordCount })
   }, [usersWordCount, quizItem.minWords, quizItem.maxWords, t])
 
-  // Announce only after typing has paused for a while, and only when the count actually changed,
-  // so screen readers are not flooded with an announcement on every keystroke.
   const announcedWordCount = usePausedAnnouncement(wordCountAnnouncement, ANNOUNCEMENT_PAUSE_MS)
 
   return (
@@ -137,8 +126,7 @@ const Essay: React.FunctionComponent<
           key={"text-area-" + quizItem.id}
           id="essay"
           onPaste={(e) => {
-            // Warn, but do not block: pasting your own draft is legitimate, so we never discard the
-            // student's text. The warning dialog is shown by the parent over the iframe protocol.
+            // Warn but don't block; pasting a draft is legitimate.
             // eslint-disable-next-line i18next/no-literal-string
             const warning = getEssayPasteWarning(e.clipboardData.getData("text"), t)
             if (warning) {
@@ -182,7 +170,7 @@ const Essay: React.FunctionComponent<
               resize: vertical;
               background: #f4f5f7 !important;
               border-radius: 0.25rem;
-              /* gray[400]: border contrast >= 3:1 against the field background (WCAG 1.4.11). */
+              /* gray[400] for sufficient contrast against the field background */
               border: 0.188rem solid ${baseTheme.colors.gray[400]} !important;
             }
           `}
@@ -190,10 +178,7 @@ const Essay: React.FunctionComponent<
         />
       </div>
       <div>
-        {/*
-          Each fact is its own block so screen readers read them as separate paragraphs
-          ("Word count: N words", "Min words: X", "Max words: Y") instead of one run-on line.
-        */}
+        {/* Each fact is its own block so screen readers announce them as separate paragraphs. */}
         <div
           className={css`
             display: flex;
@@ -233,7 +218,6 @@ const Essay: React.FunctionComponent<
             </div>
           )}
         </div>
-        {/* Politely announces the count once typing pauses, and warns when below min / above max. */}
         <div
           role="status"
           aria-live="polite"

@@ -1,6 +1,6 @@
 ---
 name: run-create-exercise-service
-description: Build, run, and drive the create-exercise-service scaffolding CLI — the tool that generates a new moocfi exercise service/plugin from the example-exercise template. Use when asked to run/start/scaffold/generate/create a new exercise service or plugin, smoke-test or screenshot the generated service, or test/verify the create-exercise-service CLI.
+description: Build, run, and drive the create-exercise-service scaffolding CLI (which generates a new moocfi exercise service/plugin from the example-exercise template), and author the exercise itself — design its data model and implement its views/endpoints. Use when asked to run/start/scaffold/generate/create a new exercise service or plugin, to design/author/implement a new exercise type or its data model (private/public/model-solution specs, answer, grading), or to smoke-test/screenshot/verify the generated service or the create-exercise-service CLI.
 ---
 
 # Run: create-exercise-service
@@ -97,16 +97,55 @@ pnpm run dev            # → http://localhost:<port>
 ## Authoring your exercise (after scaffolding)
 
 The scaffold is a **complete multiple-choice exercise**, not a blank skeleton — you turn it into your
-exercise type by editing the ~20% that is exercise-specific and reusing the rest. In the generated
-project:
+exercise type by editing the ~20% that is exercise-specific and reusing the rest. But before you
+touch any of that code, lock the data model down **with the user**.
 
-1. **Data types** — `src/util/stateInterfaces.ts`: define your five types (`private_spec`,
-   `public_spec`, `model_solution_spec`, `answer`, `grading_feedback`) and their forgiving parsers.
-   This is the entry point; everything else follows from these.
-2. **Server transforms** — `src/server/publicSpec.ts` (derive the student-visible spec, dropping
-   anything that would leak answers), `modelSolution.ts`, and `grade.ts` (grade server-side).
+### Step 0 — Confirm the data model with the user (mandatory; do not write code until signed off)
+
+An exercise plugin's five data types are **stored forever in a host database you cannot migrate** —
+old blobs keep replaying into your endpoints and views indefinitely (a 3-year-old answer re-POSTed to
+`/api/grade`, an old private spec re-opened in the editor). _The private spec is your schema; you
+just don't get `ALTER TABLE`._ And the derivation from private → public spec is the anti-cheating
+boundary: a field you forget to drop leaks answers into every student's browser **irreversibly** — the
+spec was already served. These are the most expensive-to-get-wrong decisions in the whole task, so
+**stop and get explicit user sign-off on the model before implementing.**
+
+Read **`reference/07-key-design-decisions.md`** in full, then present a concrete _proposed_ model and
+confirm each of the following with the user. Use `AskUserQuestion` — propose a recommended shape for
+each, don't ask open-ended questions:
+
+1. **Versioned `private_spec`** — the master shape and where its `version` discriminant lives. Put
+   one in from day one; quizzes' lack of it forced an entire migration layer.
+2. **The two projections** — what `public_spec` and `model_solution_spec` each **drop**, built by
+   explicit field-pick (never `{...spec}` + `delete`, which leaks every future field by default).
+   Walk the leak catalogue in 07 §3c with the user: correctness encoded in ordering, id patterns,
+   asymmetric metadata, counts/weights, or authoring artifacts.
+3. **Visibility under peer review / exam mode** — the answer, feedback, and model solution can all
+   reach _other students_ once peer review is on; design as if it always is (07 §3a).
+4. **`answer`** — minimal, id-referencing (store `selectedOptionId`, not the label), versioned, and
+   sufficient to grade from `private_spec + answer` alone (no session, no DB).
+5. **Validity** — the invariants (≥1 option, exactly-one-correct, non-empty prompt, …) behind a
+   single `validate(privateSpec)` that drives the `valid` flag in `current-state`.
+6. **Grading model** — sync (`FullyGraded` inline) vs async (`Pending` + callback), and the
+   partial-credit policy. Feedback must be safe assuming retries remain (the grader can't see the
+   attempt count).
+7. **Migration doors** — which entry points normalize old versions. Answer: all four (public-spec,
+   model-solution, grade, and the editor's `set-state` handler).
+
+Only once the user has signed off on the above, implement it.
+
+### Implement the confirmed model
+
+1. **Data types** — `src/util/stateInterfaces.ts`: encode the five confirmed types and their
+   _forgiving_ parsers/guards (the iframe receives untyped `postMessage` data — degrade to
+   defaults, don't crash). This is the entry point; everything else follows from these.
+2. **Server transforms** — `src/server/publicSpec.ts` (the leak boundary — build the public spec by
+   explicit pick), `modelSolution.ts`, and `grade.ts` (grade **server-side only**, from
+   `private_spec + answer`). Keep grading code out of view files — public source maps ship it to
+   students (07 §L8).
 3. **Views** — `src/components/{ExerciseEditor,AnswerExercise,ViewSubmission}.tsx`. Keep the
    `IframeView`/`Renderer` skeleton; change what each view renders and the `current-state` it emits.
+   Mint ids in the editor, never in the generators (re-derivation would orphan stored answers).
 4. **CSV export** — `src/server/csvExportUtils.ts` is generic (pass your own item guard to
    `parseSpecArrayStrict`), but `exportAnswers.ts`/`exportDefinitions.ts` carry MC columns. To _drop_
    CSV export you must delete those two handlers, their `src/routes/api/export-*.ts` routes, and
@@ -117,10 +156,12 @@ project:
    messages.
 
 Keep verbatim: the protocol envelopes, `IframeView`/`Renderer`, `src/lib/apiRoutes.ts`, all of
-`src/shared-module/`, `rsbuild.config.ts`, `server.mjs`, `iframe-headers.mjs`. The deeper reference —
-data-modelling, leak analysis, the full change/keep split — is
-`docs/plugin-system.md` plus the step-by-step checklist in
-`.local/creating-new-exercise-services/05-step-by-step-checklist.md`.
+`src/shared-module/`, `rsbuild.config.ts`, `server.mjs`, `iframe-headers.mjs`. The full reference —
+the protocol, the change/keep split, backend/infra wiring, and the data-modelling + leak + testing
+guide — ships in **`reference/`** (start at `reference/README.md`;
+`reference/05-step-by-step-checklist.md` is the end-to-end sequence,
+`reference/07-key-design-decisions.md` the data-model deep dive), alongside the shipped protocol doc
+`docs/plugin-system.md`.
 
 ## Test
 

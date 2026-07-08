@@ -25,6 +25,7 @@ use utoipa::ToSchema;
 #[derive(serde::Serialize, serde::Deserialize, ToSchema, Debug)]
 pub struct SisuDescriptionResponse {
     pub course_description: String,
+    pub audience: Vec<String>,
     pub modules: Vec<Module>,
 }
 
@@ -40,10 +41,11 @@ pub struct Module {
 const SYSTEM_PROMPT: &str = r#"You are given different type of information for an university course. There can exist multiple modules for the course which are differentiated by the module code as the key.
 Your task is to
 1. Generate a single general description combining the information from all the different modules behind the key "course_description".
-2. Behind the "modules" key, you will generate an array of items, where each item represents one module, and thus the array has as many items as there are module codes. Each module item inside the array will have three fields, "course_code", "description", and "prerequisites".
-  2.1 The "course_code" field will have the corresponing module code.
-  2.2 The "description" field will be a description summarized from all the information you are given on the specific module.
-  2.3 The "prerequisites" field will be an array, with each prerequisite differentiated as an item in the list.
+2. Behind the "audience" key you should create an array with suitable audience types as items on the list. By default this should always be just "everyone", unless the course material information truly specifies suitable audience types. Audience types should be general, for example "students" or "veterans". Audience types like "Bachelor's degree students" are too specific.
+3. Behind the "modules" key, you will generate an array of items, where each item represents one module, and thus the array has as many items as there are module codes. Each module item inside the array will have three fields, "course_code", "description" and "prerequisites".
+  3.1 The "course_code" field will have the corresponing module code.
+  3.2 The "description" field will be a description summarized from all the information you are given on the specific module.
+  3.3 The "prerequisites" field will be an array, with each prerequisite differentiated as an item in the list.
 
 
 When generating the description:
@@ -62,6 +64,7 @@ Constraints:
 Your output must follow the JSON schema exactly:
 {
     "course_description": "...",
+    "audience": ["..."]
     "modules": [
         {
             "course_code": "...",
@@ -134,6 +137,15 @@ pub async fn generate_description(
                             }),
                         ),
                         (
+                            "audience".to_string(),
+                            SchemaPropertyType::ArrayProperty(ArrayProperty {
+                                type_field: JSONType::Array,
+                                items: ArrayItem::JsonItem(JsonItem {
+                                    type_field: JSONType::String,
+                                }),
+                            }),
+                        ),
+                        (
                             "modules".to_string(),
                             SchemaPropertyType::ArrayProperty(ArrayProperty {
                                 type_field: JSONType::Array,
@@ -172,7 +184,11 @@ pub async fn generate_description(
                             }),
                         ),
                     ]),
-                    required: Vec::from(["course_description".to_string(), "modules".to_string()]),
+                    required: Vec::from([
+                        "course_description".to_string(),
+                        "audience".to_string(),
+                        "modules".to_string(),
+                    ]),
                     additional_properties: false,
                 },
                 strict: true,

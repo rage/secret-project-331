@@ -12503,6 +12503,35 @@
         "description": "The AI policy a teacher has selected for a course. Drives which variant of the student-facing\nAI usage notice is shown; `NotSet` (the default) keeps the generic default message.",
         "enum": ["NotSet", "NoAi", "PlanningOnly", "Limited", "FullUse", "Required"]
       },
+      "CourseAudience": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at", "course_id", "audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          },
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "CourseBreadcrumbInfo": {
         "type": "object",
         "required": [
@@ -13207,8 +13236,14 @@
       },
       "CourseMetadata": {
         "type": "object",
-        "required": ["course_prerequisites"],
+        "required": ["course_audiences", "course_prerequisites"],
         "properties": {
+          "course_audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseAudience"
+            }
+          },
           "course_description": {
             "type": ["string", "null"]
           },
@@ -13222,8 +13257,14 @@
       },
       "CourseMetadataUpdate": {
         "type": "object",
-        "required": ["course_prerequisites"],
+        "required": ["course_audiences", "course_prerequisites"],
         "properties": {
+          "course_audiences": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewCourseAudience"
+            }
+          },
           "course_description": {
             "type": ["string", "null"]
           },
@@ -15740,6 +15781,15 @@
           }
         }
       },
+      "NewCourseAudience": {
+        "type": "object",
+        "required": ["audience"],
+        "properties": {
+          "audience": {
+            "type": "string"
+          }
+        }
+      },
       "NewCoursePrerequisite": {
         "type": "object",
         "required": ["prerequisite"],
@@ -17547,8 +17597,14 @@
       },
       "SisuDescriptionResponse": {
         "type": "object",
-        "required": ["course_description", "modules"],
+        "required": ["course_description", "audience", "modules"],
         "properties": {
+          "audience": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "course_description": {
             "type": "string"
           },

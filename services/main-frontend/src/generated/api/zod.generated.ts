@@ -409,6 +409,15 @@ export const zCourse = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zCourseAudience = z.object({
+  audience: z.string(),
+  course_id: z.uuid(),
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
+})
+
 export const zCourseBreadcrumbInfo = z.object({
   course_id: z.uuid(),
   course_name: z.string(),
@@ -741,6 +750,7 @@ export const zCoursePrerequisite = z.object({
 })
 
 export const zCourseMetadata = z.object({
+  course_audiences: z.array(zCourseAudience),
   course_description: z.string().nullish(),
   course_prerequisites: z.array(zCoursePrerequisite),
 })
@@ -1547,11 +1557,16 @@ export const zCopyCourseRequest = zNewCourse.and(
   }),
 )
 
+export const zNewCourseAudience = z.object({
+  audience: z.string(),
+})
+
 export const zNewCoursePrerequisite = z.object({
   prerequisite: z.string(),
 })
 
 export const zCourseMetadataUpdate = z.object({
+  course_audiences: z.array(zNewCourseAudience),
   course_description: z.string().nullish(),
   course_prerequisites: z.array(zNewCoursePrerequisite),
 })
@@ -2307,6 +2322,7 @@ export const zServiceInfo = z.object({
 })
 
 export const zSisuDescriptionResponse = z.object({
+  audience: z.array(z.string()),
   course_description: z.string(),
   modules: z.array(zModule),
 })

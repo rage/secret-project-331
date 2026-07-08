@@ -551,6 +551,15 @@ export type Course = {
  */
 export type CourseAiPolicy = "NotSet" | "NoAi" | "PlanningOnly" | "Limited" | "FullUse" | "Required"
 
+export type CourseAudience = {
+  audience: string
+  course_id: string
+  created_at: string
+  deleted_at?: string | null
+  id: string
+  updated_at: string
+}
+
 export type CourseBreadcrumbInfo = {
   course_id: string
   course_name: string
@@ -769,11 +778,13 @@ export type CourseMaterialExerciseTask = {
 }
 
 export type CourseMetadata = {
+  course_audiences: Array<CourseAudience>
   course_description?: string | null
   course_prerequisites: Array<CoursePrerequisite>
 }
 
 export type CourseMetadataUpdate = {
+  course_audiences: Array<NewCourseAudience>
   course_description?: string | null
   course_prerequisites: Array<NewCoursePrerequisite>
 }
@@ -1558,6 +1569,10 @@ export type NewCourse = {
   teacher_in_charge_name: string
 }
 
+export type NewCourseAudience = {
+  audience: string
+}
+
 export type NewCoursePrerequisite = {
   prerequisite: string
 }
@@ -2116,6 +2131,7 @@ export type ServicePortInfo = {
 }
 
 export type SisuDescriptionResponse = {
+  audience: Array<string>
   course_description: string
   modules: Array<Module>
 }

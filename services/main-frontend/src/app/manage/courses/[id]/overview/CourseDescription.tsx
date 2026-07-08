@@ -45,7 +45,7 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
           size="medium"
           onClick={() => setShowForm(true)}
         >
-          {t("generate-ai-description")}
+          {t("generate-ai-metadata")}
         </Button>
       ) : (
         <div>
@@ -58,7 +58,7 @@ const CourseDescription: React.FC<React.PropsWithChildren<Props>> = ({ course, r
             size="medium"
             onClick={() => setShowForm(true)}
           >
-            {t("generate-ai-description")}
+            {t("generate-ai-metadata")}
           </Button>
           <GenericInfobox>{t("missing-uh-course-code-notification")}</GenericInfobox>
         </div>

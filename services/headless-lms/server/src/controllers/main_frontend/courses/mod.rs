@@ -9,6 +9,7 @@ use domain::csv_export::user_exercise_states_export::UserExerciseStatesExportOpe
 use headless_lms_chatbot::course_description_summary::SisuDescriptionResponse;
 use headless_lms_models::{
     application_task_default_language_models::ApplicationTask,
+    course_audiences::CourseAudience,
     course_prerequisites::CoursePrerequisite,
     partner_block::PartnersBlock,
     suspected_cheaters::{CourseModuleThresholdInfo, SuspectedCheaterStatus, SuspectedCheaters},
@@ -124,7 +125,8 @@ use crate::domain::csv_export::users_export::UsersExportOperation;
         delete_partners_block,
         get_sisu_course_llm_descriptions,
         update_metadata,
-        get_course_prerequisites
+        get_course_prerequisites,
+        get_course_audiences
     ),
     nest(
         (path = "/{course_id}/chatbots", api = chatbots::MainFrontendCourseChatbotsApiDoc),
@@ -2753,6 +2755,35 @@ async fn get_course_prerequisites(
 
     token.authorized_ok(web::Json(prerequisites))
 }
+
+/**
+get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+
+*/
+#[utoipa::path(
+    get,
+    path = "/{course_id}/get-course-audiences",
+    operation_id= "getCourseAudiences",
+    tag = "courses",
+    params(
+        ("course_id" = Uuid, Path, description = "Course id")
+    ),
+    responses(
+        (status = 200, description = "Course audiences", body = Vec<CourseAudience>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_course_audiences(
+    course_id: web::Path<Uuid>,
+    pool: web::Data<PgPool>,
+    user: AuthUser,
+) -> ControllerResult<web::Json<Vec<CourseAudience>>> {
+    let mut conn = pool.acquire().await?;
+    let token = authorize(&mut conn, Act::Edit, Some(user.id), Res::Course(*course_id)).await?;
+    let audiences = models::course_audiences::get_by_course_id(&mut conn, *course_id).await?;
+
+    token.authorized_ok(web::Json(audiences))
+}
 /**
 Add a route for each controller in this module.
 
@@ -2978,5 +3009,9 @@ pub fn _add_routes(cfg: &mut ServiceConfig) {
         .route(
             "/{course_id}/get-course-prerequisites",
             web::get().to(get_course_prerequisites),
+        )
+        .route(
+            "/{course_id}/get-course-audiences",
+            web::get().to(get_course_audiences),
         );
 }

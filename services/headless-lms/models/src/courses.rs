@@ -1,5 +1,6 @@
 use crate::{
     chapters::{Chapter, course_chapters},
+    course_audiences::{CourseAudience, NewCourseAudience},
     course_modules::CourseModule,
     course_prerequisites::{
         CoursePrerequisite, NewCoursePrerequisite, insert_course_prerequisites,
@@ -1448,12 +1449,14 @@ mod test {
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 pub struct CourseMetadataUpdate {
     course_description: Option<String>,
+    course_audiences: Vec<NewCourseAudience>,
     course_prerequisites: Vec<NewCoursePrerequisite>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Eq, ToSchema)]
 pub struct CourseMetadata {
     course_description: Option<String>,
+    course_audiences: Vec<CourseAudience>,
     course_prerequisites: Vec<CoursePrerequisite>,
 }
 
@@ -1462,20 +1465,39 @@ pub async fn set_metadata(
     course_id: Uuid,
     course_metadata: CourseMetadataUpdate,
 ) -> ModelResult<CourseMetadata> {
-    let old_prerequisites = crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
+    let old_prerequisites: Vec<CoursePrerequisite> =
+        crate::course_prerequisites::get_by_course_id(conn, course_id).await?;
     let new_prerequisites: Vec<String> = course_metadata
         .course_prerequisites
         .iter()
         .map(|x| x.prerequisite.to_owned())
         .collect();
 
-    let to_delete = old_prerequisites
+    let old_strings: Vec<String> = old_prerequisites
+        .iter()
+        .map(|x| x.prerequisite.to_owned())
+        .collect();
+
+    let to_delete: Vec<Uuid> = old_prerequisites
         .iter()
         .filter(|x| !new_prerequisites.contains(&x.prerequisite))
-        .map(|x| x.id);
+        .map(|x| x.id.to_owned())
+        .collect();
 
-    let prerequisites =
-        insert_course_prerequisites(conn, course_id, course_metadata.course_prerequisites).await?;
+    let to_add: Vec<String> = new_prerequisites
+        .into_iter()
+        .filter(|x| !old_strings.contains(x))
+        .collect();
+
+    crate::course_prerequisites::delete_batch(conn, to_delete).await?;
+
+    let prerequisites = insert_course_prerequisites(conn, course_id, to_add).await?;
+    let audiences = crate::course_audiences::insert_course_audiences(
+        conn,
+        course_id,
+        course_metadata.course_audiences,
+    )
+    .await?;
     let course = sqlx::query_as!(
         CourseDescription,
         r#"
@@ -1492,6 +1514,7 @@ RETURNING id, description
     .await?;
     let res = CourseMetadata {
         course_description: course.description,
+        course_audiences: audiences,
         course_prerequisites: prerequisites,
     };
     Ok(res)

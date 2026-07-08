@@ -3,38 +3,39 @@ use serde::{Deserialize, Serialize};
 use utoipa::ToSchema;
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
-pub struct CoursePrerequisite {
+pub struct CourseAudience {
     pub id: Uuid,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
     pub deleted_at: Option<DateTime<Utc>>,
     pub course_id: Uuid,
-    pub prerequisite: String,
+    pub audience: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize, Serialize, ToSchema, Hash)]
-pub struct NewCoursePrerequisite {
-    pub prerequisite: String,
+pub struct NewCourseAudience {
+    pub audience: String,
 }
 
-pub async fn insert_course_prerequisites(
+pub async fn insert_course_audiences(
     conn: &mut PgConnection,
     course_id: Uuid,
-    new_prerequisites: Vec<String>,
-) -> ModelResult<Vec<CoursePrerequisite>> {
+    audiences: Vec<NewCourseAudience>,
+) -> ModelResult<Vec<CourseAudience>> {
+    let new_audiences: Vec<String> = audiences.iter().map(|x| x.audience.to_owned()).collect();
     let res = sqlx::query_as!(
-        CoursePrerequisite,
+        CourseAudience,
         "
-INSERT INTO course_prerequisites (
+INSERT INTO course_audiences (
     course_id,
-    prerequisite
+    audience
   )
   SELECT $1,
-  UNNEST ($2::TEXT []) prerequisite
+  UNNEST ($2::TEXT []) audience
 RETURNING *
 ",
         course_id,
-        &new_prerequisites
+        &new_audiences
     )
     .fetch_all(conn)
     .await?;
@@ -44,12 +45,12 @@ RETURNING *
 pub async fn get_by_course_id(
     conn: &mut PgConnection,
     course_id: Uuid,
-) -> ModelResult<Vec<CoursePrerequisite>> {
+) -> ModelResult<Vec<CourseAudience>> {
     let res = sqlx::query_as!(
-        CoursePrerequisite,
+        CourseAudience,
         "
 SELECT *
-FROM course_prerequisites
+FROM course_audiences
 WHERE course_id = $1
 AND deleted_at IS NULL
 ",
@@ -63,11 +64,11 @@ AND deleted_at IS NULL
 pub async fn delete_batch(
     conn: &mut PgConnection,
     ids_to_delete: Vec<Uuid>,
-) -> ModelResult<Vec<CoursePrerequisite>> {
+) -> ModelResult<Vec<CourseAudience>> {
     let res = sqlx::query_as!(
-        CoursePrerequisite,
+        CourseAudience,
         "
-UPDATE course_prerequisites
+UPDATE course_audiences
 SET deleted_at = now()
 WHERE id = ANY($1::UUID [])
 AND deleted_at IS NULL

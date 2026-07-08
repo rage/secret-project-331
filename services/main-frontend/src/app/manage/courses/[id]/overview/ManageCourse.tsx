@@ -223,7 +223,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
               font-size: 1rem;
             `}
           >
-            {t("suggest-description-card-title")}
+            {t("suggest-metadata-card-title")}
           </p>
           <CourseDescription course={course} refetch={refetch}></CourseDescription>
         </div>

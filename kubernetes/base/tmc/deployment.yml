@@ -53,7 +53,7 @@ spec:
             - containerPort: 3005
               name: http
           env:
-            - name: NEXT_PUBLIC_BASE_PATH
+            - name: PUBLIC_BASE_PATH
               value: "/tmc"
           resources:
             requests:

@@ -176,6 +176,7 @@
         shellSupportPackages = [
           pkgs.bc
           pkgs.cargo-chef
+          pkgs.cargo-edit
           pkgs.cargo-watch
           pkgs.cmake
           pkgs.coreutils

@@ -82,11 +82,7 @@ export type OutputData = {
 }
 
 export type OutputResult =
-  | "logged-in"
-  | "logged-out"
-  | "not-logged-in"
-  | "error"
-  | "executed-command"
+  "logged-in" | "logged-out" | "not-logged-in" | "error" | "executed-command"
 
 export type Status = "finished" | "crashed"
 
@@ -209,11 +205,7 @@ export type RunResult = {
 }
 
 export type RunStatus =
-  | "PASSED"
-  | "TESTS_FAILED"
-  | "COMPILE_FAILED"
-  | "TESTRUN_INTERRUPTED"
-  | "GENERIC_ERROR"
+  "PASSED" | "TESTS_FAILED" | "COMPILE_FAILED" | "TESTRUN_INTERRUPTED" | "GENERIC_ERROR"
 
 export type TestResult = {
   name: string

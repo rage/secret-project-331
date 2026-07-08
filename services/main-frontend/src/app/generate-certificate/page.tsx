@@ -24,10 +24,12 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { certificateValidateRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
@@ -74,6 +76,12 @@ const ModuleCertificate: React.FC = () => {
     },
     enabled: !!moduleId,
   })
+
+  // Reflect the loaded course context in the tab (e.g. "Generate certificate - Programming 101");
+  // falls back to the generic label until the course/module data resolves.
+  usePageTitle(
+    joinTitleSegments([t("title-generate-certificate"), courseAndModule.data?.course?.name]),
+  )
 
   useEffect(() => {
     if (userInfo.isSuccess && userInfo.data && nameOnCertificate === "") {

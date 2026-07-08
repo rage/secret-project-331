@@ -74,6 +74,9 @@ export type BlockDeprecation<
 
 export type BlockConfiguration<Attributes extends object = any> = Omit<
   GutenbergBlockConfiguration<UnknownAttributes>,
+  // `name` is supplied separately at registration (registerBlockType(name, config)),
+  // so our config objects omit it even though upstream now requires it.
+  | "name"
   | "attributes"
   | "deprecated"
   | "edit"

@@ -21,6 +21,7 @@ import { removeUnsupportedBlockType } from "../../utils/Gutenberg/removeUnsuppor
 import { denormalizeDocument, normalizeDocument } from "../../utils/documentSchemaProcessor"
 import { makeSurePeerOrSelfReviewConfigAdditionalInstructionsAreNullInsteadOfEmptyLookingArray } from "../../utils/peerOrSelfReviewConfig"
 import { coursePageRoute } from "../../utils/routing"
+import CmsPageTitle from "../CmsPageTitle"
 import UpdatePageDetailsForm from "../forms/UpdatePageDetailsForm"
 
 import HeadingHierarchyButton from "./HeadingHierarchyButton"
@@ -37,6 +38,7 @@ import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Menu from "@/shared-module/common/components/Navigation/NavBar/Menu/Menu"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import dynamicImport from "@/shared-module/common/utils/dynamicImport"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { pageRoute } from "@/shared-module/common/utils/routes"
 import { isGutenbergBlockArray } from "@/utils/Gutenberg/gutenbergBlocks"
 import type { BlockInstance } from "@/utils/Gutenberg/types"
@@ -294,6 +296,12 @@ const PageEditor: React.FC<React.PropsWithChildren<PageEditorProps>> = ({
   )
   return (
     <EditorContentDispatch.Provider value={contentDispatch}>
+      <CmsPageTitle
+        title={joinTitleSegments([
+          title.trim() ? t("editing-page", { title }) : t("edit"),
+          pageInfo.data?.course_name,
+        ])}
+      />
       <BreakFromCentered sidebar={false}>
         <div className="editor__top-button-wrapper">{saveAndReset}</div>
       </BreakFromCentered>

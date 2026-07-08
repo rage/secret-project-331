@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
 import { RouteTabListProvider } from "@/components/Navigation/RouteTabList/RouteTabListContext"
+import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import createFlaggedSuspectedCheaterCountHook from "@/hooks/count/useFlaggedSuspectedCheaterCount"
 import { useCourseQuery } from "@/hooks/useCourseQuery"
@@ -91,6 +92,7 @@ export default function OtherLayout({ children }: { children: React.ReactNode })
 
   return (
     <RouteTabListProvider tabs={tabs}>
+      <RouteTabPageTitle tabs={tabs} entityName={courseQuery.data?.name} order={20} />
       <RouteTabList tabs={tabs} />
       {children}
     </RouteTabListProvider>

@@ -31,6 +31,11 @@ const REACT_EXERCISE_TARGETS = [
   "services/tmc/src/shared-module",
 ]
 
+// The host SDK (MessageChannelIFrame) is used only by the apps that *embed* exercise iframes, not
+// by the exercise services themselves (which are the iframe child). Only cms and main-frontend
+// render it, so it is vendored there and nowhere else.
+const HOST_TARGETS = ["services/cms/src/shared-module", "services/main-frontend/src/shared-module"]
+
 // example-exercise is the standalone-capable template: it consumes only the exercise-service
 // packages, so common and components are not synced into it.
 const COMMON_AND_COMPONENTS_TARGETS = ALL_SERVICES_TARGETS.filter(
@@ -57,6 +62,10 @@ const SYNC_TARGETS = [
   {
     source: "exercise-react",
     destinations: REACT_EXERCISE_TARGETS,
+  },
+  {
+    source: "exercise-iframe-host",
+    destinations: HOST_TARGETS,
   },
 ]
 

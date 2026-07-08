@@ -4,7 +4,7 @@ use crate::{
 };
 use actix_web::{FromRequest, http::header};
 use futures_util::{FutureExt, future::LocalBoxFuture};
-use headless_lms_utils::{cache::Cache, tmc::TmcClient};
+use headless_lms_utils::{cache::Cache, services::tmc::TmcClient};
 use models::users::User;
 use secrecy::{ExposeSecret, SecretString};
 use std::ops::{Deref, DerefMut};

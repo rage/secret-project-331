@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import React, { useEffect, useState } from "react"
 
 import { ResearchConsentQuestionAttributes } from "../../../blocks/ResearchConsentQuestion"
+import CmsPageTitle from "../../../components/CmsPageTitle"
 import CourseContext from "../../../contexts/CourseContext"
 
 import { NewResearchForm, NewResearchFormQuestion, ResearchForm } from "@/generated/api"
@@ -131,27 +132,30 @@ const ResearchForms: React.FC<React.PropsWithChildren<ResearchFormProps>> = ({ q
   }
 
   return (
-    <QueryResult query={getResearchForm}>
-      {(data) => (
-        <>
-          {data !== null && (
-            <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
-              <ResearchFormEditor
-                data={data}
-                handleSave={handleSave}
-                needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
-                setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
-              />
-            </CourseContext.Provider>
-          )}
-          {data === null && (
-            <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
-              {t("button-text-create")}
-            </Button>
-          )}
-        </>
-      )}
-    </QueryResult>
+    <>
+      <CmsPageTitle title={t("edit-research-form")} />
+      <QueryResult query={getResearchForm}>
+        {(data) => (
+          <>
+            {data !== null && (
+              <CourseContext.Provider value={{ courseId: assertNotNullOrUndefined(courseId) }}>
+                <ResearchFormEditor
+                  data={data}
+                  handleSave={handleSave}
+                  needToRunMigrationsAndValidations={needToRunMigrationsAndValidations}
+                  setNeedToRunMigrationsAndValidations={setNeedToRunMigrationsAndValidations}
+                />
+              </CourseContext.Provider>
+            )}
+            {data === null && (
+              <Button variant="primary" size="medium" onClick={handleCreateNewForm}>
+                {t("button-text-create")}
+              </Button>
+            )}
+          </>
+        )}
+      </QueryResult>
+    </>
   )
 }
 

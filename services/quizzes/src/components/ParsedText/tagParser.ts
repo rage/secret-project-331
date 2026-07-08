@@ -117,7 +117,7 @@ const formatText = (latex = false, markdown = false, text: string | null, inline
   const parts: string[] = []
   let lastIndex = 0
 
-  for (let match: RegExpExecArray | null; (match = ANY_TAG_REGEX.exec(originalText)) !== null; ) {
+  for (let match: RegExpExecArray | null; (match = ANY_TAG_REGEX.exec(originalText)) !== null;) {
     const fullMatch = match[0]
     const tagName = match[1]
     const innerContent = match[2]

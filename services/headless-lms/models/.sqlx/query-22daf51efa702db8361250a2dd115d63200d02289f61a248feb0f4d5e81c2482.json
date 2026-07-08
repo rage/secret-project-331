@@ -24,7 +24,8 @@
               "Enum": [
                 "content-cleaning",
                 "message-suggestion",
-                "cms-paragraph-suggestion"
+                "cms-paragraph-suggestion",
+                "sisu-description-summary"
               ]
             }
           }
@@ -102,7 +103,8 @@
               "Enum": [
                 "content-cleaning",
                 "message-suggestion",
-                "cms-paragraph-suggestion"
+                "cms-paragraph-suggestion",
+                "sisu-description-summary"
               ]
             }
           }

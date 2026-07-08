@@ -10,7 +10,9 @@ import * as styles from "./StudentsPageStyles"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { manageCourseStudentsRoute } from "@/shared-module/common/utils/routes"
@@ -51,6 +53,7 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
   const courseId = params.id
   const { t } = useTranslation()
   const { inputValue, setSearchQuery } = useStudentsContext()
+  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
   const crumbs = useMemo(
     () => [
@@ -104,6 +107,11 @@ function StudentsLayoutContent({ children }: { children: React.ReactNode }) {
               <span className={styles.searchIcon}>🔍</span>
             </div>
 
+            <RouteTabPageTitle
+              tabs={tabs}
+              entityName={courseBreadcrumbInfo.data?.course_name}
+              order={20}
+            />
             <RouteTabList tabs={tabs} />
           </div>
         </div>

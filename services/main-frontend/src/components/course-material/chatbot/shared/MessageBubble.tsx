@@ -85,18 +85,20 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
   max-width: stretch;
   overflow-wrap: break-word;
   margin: 0.5rem 0;
-  ${isFromChatbot
-    ? `
+  ${
+    isFromChatbot
+      ? `
       margin-right: 2rem;
       align-self: flex-start;
       background-color: ${LIGHT_GREEN};
     `
-    : `
+      : `
       margin-left: 2rem;
       align-self: flex-end;
       border: 2px solid ${baseTheme.colors.green[200]};
       background-color: #ffffff;
-    `}
+    `
+  }
 `
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({

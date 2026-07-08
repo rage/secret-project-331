@@ -3,6 +3,7 @@
 import { TarBuilder } from "@bytedance/tar-wasm"
 import React, { useState } from "react"
 
+import CmsPageTitle from "../../../components/CmsPageTitle"
 import { denormalizeDocument } from "../../../utils/documentSchemaProcessor"
 
 import { getCmsCoursePages, getCmsPage, getCmsPageInfo } from "@/generated/api/sdk.generated"
@@ -128,6 +129,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
 
   return (
     <>
+      <CmsPageTitle title={t("export-course-pages")} />
       <h1>{t("header-export")}</h1>
       <Button
         variant="primary"

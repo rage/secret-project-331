@@ -20,7 +20,7 @@ authors = [
   "Henrik Nygren <nygrenh@gmail.com>",
 ]
 edition = "2024"
-rust-version = "1.95.0" # minimum required Rust version, update if you use a new API
+rust-version = "1.96.0" # minimum required Rust version, update if you use a new API
 license = "Apache-2.0"
 
 [profile.dev]
@@ -50,7 +50,7 @@ tokio = { version = "1.52.3", features = [
 ] }
 
 # Rustls is a modern TLS library written in Rust.
-rustls = { version = "0.23.40", default-features = false, features = ["ring"] }
+rustls = { version = "0.23.41", default-features = false, features = ["ring"] }
 # Pure Rust implementation of the Hash-based Message Authentication Code (HMAC).
 hmac = "0.13.0"
 # Pure Rust implementation of the SHA-2 hash function family.
@@ -74,3 +74,6 @@ sqlx = { version = "0.9.0", default-features = false, features = [
 tokio-stream = { version = "0.1.18", features = [ "io-util" ] }
 # Secret value wrapper to avoid leaking secrets in logs and memory.
 secrecy = { version = "0.10.3", features = ["serde"] }
+
+# Code-first OpenAPI schema generation for shared utility structs used in request/response models.
+utoipa = { version = "5.5.0", features = ["chrono", "uuid"] }

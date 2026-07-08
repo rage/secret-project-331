@@ -12,8 +12,15 @@ const progressBeam = keyframes`
   100% { transform: translateX(420%); }
 `
 
+/**
+ * `width: 100%` keeps the frame layout-transparent: it replaces content that relies on a full-width
+ * parent (echarts in a flex container collapses to ~0 width otherwise, painting nothing).
+ * `min-width: 0` lets it shrink in flex parents instead of overflowing. Do not remove.
+ */
 export const wrapperCss = css`
   position: relative;
+  width: 100%;
+  min-width: 0;
 `
 
 /**

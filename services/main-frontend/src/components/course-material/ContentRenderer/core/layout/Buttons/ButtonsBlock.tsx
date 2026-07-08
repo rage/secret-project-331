@@ -28,8 +28,7 @@ const ButtonsBlock: React.FC<
 > = ({ data }) => {
   // Fall back to top-level attributes for blocks saved before settings moved into `layout`.
   const layout = data.attributes?.layout as
-    | { orientation?: string; justifyContent?: string; verticalAlignment?: string }
-    | undefined
+    { orientation?: string; justifyContent?: string; verticalAlignment?: string } | undefined
   const orientation =
     layout?.orientation ?? (data.attributes?.orientation as string | undefined | null)
   const contentJustification =
@@ -107,10 +106,12 @@ const ButtonsBlock: React.FC<
           className={css`
             ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
             ${gradient && `background: ${colorMapper(gradient)} !important;`}
-            ${textColor &&
-            `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
-              textColor,
-            )} !important;`}
+            ${
+              textColor &&
+              `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
+                textColor,
+              )} !important;`
+            }
             ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
             margin: 0.5rem 0rem;
             margin-right: 0.5rem;

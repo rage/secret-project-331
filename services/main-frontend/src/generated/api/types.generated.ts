@@ -1446,6 +1446,11 @@ export type ModifiedModule = {
   uh_course_code?: string | null
 }
 
+export type Module = {
+  course_code: string
+  description: string
+}
+
 export type ModuleUpdates = {
   deleted_modules: Array<string>
   modified_modules: Array<ModifiedModule>
@@ -2085,6 +2090,11 @@ export type ServicePortInfo = {
   port: number
   protocol?: string | null
   target_port?: string | null
+}
+
+export type SisuDescriptionResponse = {
+  course_description: string
+  modules: Array<Module>
 }
 
 export type StudentsByCountryTotalsResult = {
@@ -4755,6 +4765,28 @@ export type SetCourseJoinCodeResponses = {
    */
   200: unknown
 }
+
+export type GetSisuCourseLlmDescriptionsData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/sisu-course-llm-descriptions"
+}
+
+export type GetSisuCourseLlmDescriptionsResponses = {
+  /**
+   * Sisu course LLM descriptions
+   */
+  200: SisuDescriptionResponse
+}
+
+export type GetSisuCourseLlmDescriptionsResponse =
+  GetSisuCourseLlmDescriptionsResponses[keyof GetSisuCourseLlmDescriptionsResponses]
 
 export type GetCourseCompletionsHistoryAllLanguageVersionsData = {
   body?: never

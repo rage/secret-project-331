@@ -620,14 +620,16 @@ const ExerciseBlock: React.FC<
               <div
                 className={css`
                   padding: 0 1rem;
-                  ${!loginState.isLoading &&
-                  !loginState.signedIn &&
-                  `
+                  ${
+                    !loginState.isLoading &&
+                    !loginState.signedIn &&
+                    `
               pointer-events: none !important;
               user-select: none !important;
               filter: blur(2px);
               opacity: 0.9;
-              `}
+              `
+                  }
                 `}
                 {...{ inert: !loginState.isLoading && !loginState.signedIn }}
               >

@@ -7,6 +7,7 @@ import tar from "tar-fs"
 import { getImgByURLPrefixAndSuffix } from "@/utils/imageLocators"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -22,6 +23,7 @@ test("course export", async ({ page }) => {
 
     await page.getByLabel("Manage course 'Change path'").click()
     await page.getByRole("tab", { name: "Pages" }).click()
+    await waitForSpinnersToDisappear(page)
     await page
       .getByRole("row", { name: "Page 4 /chapter-1/page-4 Edit page Dropdown menu" })
       .getByRole("button")

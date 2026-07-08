@@ -15,6 +15,7 @@ import type { ExerciseServiceNewOrUpdate } from "@/generated/api/types.generated
 import Button from "@/shared-module/common/components/Button"
 import { showErrorNotification } from "@/shared-module/common/components/Notifications/notificationHelpers"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import withSuspenseBoundary from "@/shared-module/common/utils/withSuspenseBoundary"
@@ -25,6 +26,7 @@ import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBacke
 
 const ExerciseServicePage: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-manage-exercise-services"))
   const [open, setOpen] = useState(false)
   const [exerciseService, setExerciseService] = useState<ExerciseServiceNewOrUpdate>({
     name: "",

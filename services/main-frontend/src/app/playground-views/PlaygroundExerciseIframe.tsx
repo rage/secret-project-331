@@ -110,6 +110,8 @@ const PlaygroundExerciseIframe: React.FC<
                 response = {
                   // eslint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
+                  // Echo the correlation id back so clients can match concurrent uploads.
+                  requestId: msg.requestId ?? null,
                   success: true,
                   urls: files,
                 }
@@ -117,6 +119,7 @@ const PlaygroundExerciseIframe: React.FC<
                 response = {
                   // eslint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
+                  requestId: msg.requestId ?? null,
                   success: false,
                   error: JSON.stringify(e, null, 2),
                 }

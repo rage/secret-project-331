@@ -26,7 +26,7 @@ cd <your-project>
 
 ## What it generates
 
-A standalone Next.js exercise service:
+A standalone TanStack Start (rsbuild bundler) exercise service, rendered entirely client-side:
 
 - The `example-exercise` template, with the service name, port, locale files, and
   `service-info` display name set to your project.

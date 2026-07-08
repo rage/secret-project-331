@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import { XmarkCircle } from "@vectopus/atlas-icons-react"
-import React, { useEffect, useMemo, useRef } from "react"
+import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react"
 import { v4 } from "uuid"
 
 import { ExerciseAttributes } from "../blocks/Exercise"
@@ -220,6 +220,36 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     return res
   }, [exerciseAttributes.peer_or_self_review_questions_config])
 
+  // setExerciseAttributes propagates back through Gutenberg's store only on a later render, so
+  // handlers reading the memoized snapshot see stale data. Two quick edits (e.g. a question's type
+  // then its text) would both read it and the second would clobber the first. These refs hold the
+  // latest values so handlers always read fresh.
+  const peerOrSelfReviewConfigRef = useRef(parsedPeerOrSelfReviewConfig)
+  const peerOrSelfReviewQuestionsRef = useRef(parsedPeerOrSelfReviewQuestionConfig)
+  // Layout effects flush synchronously after render and before the next event, so an external change
+  // (e.g. a Gutenberg undo) is mirrored into the refs before any handler can read them; a passive
+  // effect could leave the refs stale for a follow-up edit that then reverts the external change.
+  useLayoutEffect(() => {
+    peerOrSelfReviewConfigRef.current = parsedPeerOrSelfReviewConfig
+  }, [parsedPeerOrSelfReviewConfig])
+  useLayoutEffect(() => {
+    peerOrSelfReviewQuestionsRef.current = parsedPeerOrSelfReviewQuestionConfig
+  }, [parsedPeerOrSelfReviewQuestionConfig])
+
+  // Updates the refs before dispatching so a follow-up edit reads fresh values. setExerciseAttributes
+  // merges, so only the changed fields are written.
+  const commitPeerReview = (
+    config: CmsPeerOrSelfReviewConfig,
+    questions: CmsPeerOrSelfReviewQuestion[],
+  ) => {
+    peerOrSelfReviewConfigRef.current = config
+    peerOrSelfReviewQuestionsRef.current = questions
+    setExerciseAttributes({
+      peer_or_self_review_config: JSON.stringify(config),
+      peer_or_self_review_questions_config: JSON.stringify(questions),
+    })
+  }
+
   const peerOrSelfReviewQuestionTypeoptions: {
     label: string
     value: PeerOrSelfReviewQuestionType
@@ -255,49 +285,58 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   ]
 
   const handlePeerReviewValueChange = (value: string, field: keyof CmsPeerOrSelfReviewConfig) => {
-    let peerOrSelfReviewConfig
+    const current = peerOrSelfReviewConfigRef.current
+    let peerOrSelfReviewConfig = current
+    // Ignore empty/non-numeric input so clearing a field to retype does not silently persist 0
+    // (Number("") === 0) or null (NaN serializes to null).
+    const isNumericField =
+      field === "accepting_threshold" ||
+      field === "peer_reviews_to_give" ||
+      field === "peer_reviews_to_receive"
+    if (isNumericField && (value === "" || Number.isNaN(Number(value)))) {
+      return
+    }
     switch (field) {
       case "processing_strategy":
-        peerOrSelfReviewConfig = { ...parsedPeerOrSelfReviewConfig, processing_strategy: value }
+        peerOrSelfReviewConfig = {
+          ...current,
+          processing_strategy: value as PeerReviewProcessingStrategy,
+        }
         break
       case "accepting_threshold":
         peerOrSelfReviewConfig = {
-          ...parsedPeerOrSelfReviewConfig,
+          ...current,
           accepting_threshold: Number(value),
         }
         break
       case "peer_reviews_to_give":
         peerOrSelfReviewConfig = {
-          ...parsedPeerOrSelfReviewConfig,
+          ...current,
           peer_reviews_to_give: Number(value),
         }
         break
       case "peer_reviews_to_receive":
         peerOrSelfReviewConfig = {
-          ...parsedPeerOrSelfReviewConfig,
+          ...current,
           peer_reviews_to_receive: Number(value),
         }
         break
       case "points_are_all_or_nothing":
         peerOrSelfReviewConfig = {
-          ...parsedPeerOrSelfReviewConfig,
+          ...current,
           points_are_all_or_nothing: value === "true",
         }
         break
       case "reset_answer_if_zero_points_from_review":
         peerOrSelfReviewConfig = {
-          ...parsedPeerOrSelfReviewConfig,
+          ...current,
           reset_answer_if_zero_points_from_review: value === "true",
         }
         break
       default:
         break
     }
-    setExerciseAttributes({
-      ...exerciseAttributes,
-      peer_or_self_review_config: JSON.stringify(peerOrSelfReviewConfig),
-      peer_or_self_review_questions_config: JSON.stringify(parsedPeerOrSelfReviewQuestionConfig),
-    })
+    commitPeerReview(peerOrSelfReviewConfig, peerOrSelfReviewQuestionsRef.current)
   }
 
   const handlePeerOrSelfReviewQuestionValueChange = (
@@ -306,7 +345,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     field: keyof CmsPeerOrSelfReviewQuestion,
   ) => {
     const peerOrSelfReviewQuestions: CmsPeerOrSelfReviewQuestion[] =
-      parsedPeerOrSelfReviewQuestionConfig
+      peerOrSelfReviewQuestionsRef.current
         .map((prq) => {
           if (prq.id === id) {
             switch (field) {
@@ -319,7 +358,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                 return { ...prq, answer_required: Boolean(event.target.checked) }
               case "weight": {
                 let newWeight = Number(event.target.value)
-                if (newWeight < 0 || newWeight > 1) {
+                if (Number.isNaN(newWeight) || newWeight < 0 || newWeight > 1) {
                   newWeight = 0
                 }
                 return { ...prq, weight: newWeight }
@@ -333,18 +372,15 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
         })
         .sort((o1, o2) => o1.order_number - o2.order_number)
 
-    setExerciseAttributes({
-      ...exerciseAttributes,
-      peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),
-      peer_or_self_review_questions_config: JSON.stringify(peerOrSelfReviewQuestions),
-    })
+    commitPeerReview(peerOrSelfReviewConfigRef.current, peerOrSelfReviewQuestions)
   }
 
   const toggleUseDefaultPeerOrSelfReviewConfig = (checked: boolean) => {
     const prc = defaultPeerOrSelfReviewConfig(exerciseId, courseId)
 
+    peerOrSelfReviewConfigRef.current = prc
+    peerOrSelfReviewQuestionsRef.current = []
     setExerciseAttributes({
-      ...exerciseAttributes,
       use_course_default_peer_review: checked,
       // eslint-disable-next-line i18next/no-literal-string
       peer_or_self_review_config: checked ? "null" : JSON.stringify(prc),
@@ -354,40 +390,31 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
   }
 
   const addPeerOrSelfReviewQuestion = (peerReviewId: string) => {
-    if (exerciseAttributes.peer_or_self_review_questions_config === undefined) {
-      setExerciseAttributes({ ...exerciseAttributes, peer_or_self_review_questions_config: "[]" })
-    }
-    setExerciseAttributes({
-      ...exerciseAttributes,
-      peer_or_self_review_questions_config: JSON.stringify([
-        ...parsedPeerOrSelfReviewQuestionConfig,
-        {
-          id: v4(),
-          question: t("default-question"),
-          // eslint-disable-next-line i18next/no-literal-string
-          question_type: "Essay",
-          peer_or_self_review_config_id: peerReviewId,
-          answer_required: true,
-          order_number: parsedPeerOrSelfReviewQuestionConfig.length,
-          weight: 0,
-        } satisfies CmsPeerOrSelfReviewQuestion,
-      ]),
-      peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),
-    })
+    const questions = peerOrSelfReviewQuestionsRef.current
+    commitPeerReview(peerOrSelfReviewConfigRef.current, [
+      ...questions,
+      {
+        id: v4(),
+        question: t("default-question"),
+        // eslint-disable-next-line i18next/no-literal-string
+        question_type: "Essay",
+        peer_or_self_review_config_id: peerReviewId,
+        answer_required: true,
+        order_number: questions.length,
+        weight: 0,
+      } satisfies CmsPeerOrSelfReviewQuestion,
+    ])
   }
 
   const deletePeerOrSelfReviewQuestion = (peerOrSelfReviewQuestionId: string) => {
-    setExerciseAttributes({
-      ...exerciseAttributes,
-      peer_or_self_review_questions_config: JSON.stringify(
-        parsedPeerOrSelfReviewQuestionConfig
-          .filter((x) => x.id !== peerOrSelfReviewQuestionId)
-          .map((prq, idx) => {
-            return { ...prq, order_number: idx } as CmsPeerOrSelfReviewQuestion
-          }),
-      ),
-      peer_or_self_review_config: JSON.stringify(parsedPeerOrSelfReviewConfig),
-    })
+    commitPeerReview(
+      peerOrSelfReviewConfigRef.current,
+      peerOrSelfReviewQuestionsRef.current
+        .filter((x) => x.id !== peerOrSelfReviewQuestionId)
+        .map((prq, idx) => {
+          return { ...prq, order_number: idx } as CmsPeerOrSelfReviewQuestion
+        }),
+    )
   }
 
   return (

@@ -1,5 +1,6 @@
 import { deepStrictEqual } from "assert"
 import { readFile } from "fs/promises"
+import { test } from "vitest"
 
 import { extractTarZstd } from "@/util/helpers"
 import { ExerciseFile } from "@/util/stateInterfaces"

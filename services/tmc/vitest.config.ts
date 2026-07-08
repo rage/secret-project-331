@@ -4,14 +4,13 @@ import svgr from "vite-plugin-svgr"
 import { configDefaults, defineConfig } from "vitest/config"
 
 export default defineConfig({
-  // Resolve `@/*` -> `./src/*`. An explicit alias (rather than reading tsconfig) is required because
-  // src/shared-module is excluded from tsconfig, yet the vendored code imports via `@/`.
+  // Resolve `@/*` -> `./src/*`. An explicit alias, not tsconfig paths: src/shared-module is
+  // excluded from tsconfig but the vendored code imports via `@/`.
   resolve: {
     alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },
   },
   plugins: [
-    // Match the build's SVG handling so tests render real icon components:
-    // `import Icon from "./x.svg"` -> React component (default export).
+    // Match the build's SVG handling (default export) so tests render real icon components.
     svgr({
       include: "**/*.svg",
       svgrOptions: { exportType: "default", svgProps: { role: "presentation" } },
@@ -19,13 +18,13 @@ export default defineConfig({
     react(),
   ],
   test: {
-    // Component render tests need a DOM; the API-handler tests use the global Web Request/Response
-    // (available in Node in either environment), so jsdom as the default is fine for both.
+    // jsdom for component render tests; the API-handler tests use global Web Request/Response,
+    // which works under either environment.
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}", "tests/**/*.{test,spec}.{ts,tsx}"],
-    // Never run the vendored shared-module's own tests (they target the source repo's Jest setup).
+    // Skip the vendored shared-module's own tests (they target the source repo's Jest setup).
     exclude: [...configDefaults.exclude, "src/shared-module/**"],
   },
 })

@@ -5,22 +5,21 @@ import { tanstackStart } from "@tanstack/react-start/plugin/rsbuild"
 
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 
-// Base path this service is mounted under behind the nginx ingress, e.g. "/example-exercise".
-// Fixed at build time (the Dockerfile exports PUBLIC_BASE_PATH before `rsbuild build`); rsbuild
-// auto-inlines PUBLIC_* into both bundles, so the client router and server routes agree.
+// Base path this service is mounted under behind the ingress, e.g. "/example-exercise". Fixed at
+// build time (the Dockerfile exports PUBLIC_BASE_PATH before `rsbuild build`) and auto-inlined into
+// both bundles, so the client router and server routes agree.
 const BASE_PATH = process.env.PUBLIC_BASE_PATH ?? ""
 
-// rsbuild only auto-inlines PUBLIC_* vars. The vendored error reporter reads
-// process.env.NEXT_PUBLIC_SERVICE_SLUG, so inline it here — otherwise a bare `process.env`
-// reference throws in the browser.
+// rsbuild only auto-inlines PUBLIC_* vars, and a bare `process.env.X` throws in the browser. The
+// vendored error reporter reads process.env.NEXT_PUBLIC_SERVICE_SLUG, so inline it below.
 const SERVICE_SLUG = process.env.NEXT_PUBLIC_SERVICE_SLUG
 
 export default defineConfig({
   plugins: [
-    // SPA mode: no SSR of route components, but server routes + the server-entry fetch handler
+    // SPA mode: route components aren't SSR'd, but server routes + the server-entry fetch handler
     // still run at runtime. The build prerenders only the app shell (dist/client/_shell.html).
-    // maskPath must be the base path *with* a trailing slash: the router redirects "/{base}" ->
-    // "/{base}/" (307), and the shell prerender treats a redirect as a failure.
+    // maskPath needs a trailing slash: the router redirects "/{base}" -> "/{base}/" (307) and the
+    // shell prerender treats a redirect as failure.
     tanstackStart({ spa: { enabled: true, maskPath: BASE_PATH ? `${BASE_PATH}/` : "/" } }),
     pluginReact(),
     pluginSvgr({
@@ -28,8 +27,7 @@ export default defineConfig({
         // `import Logo from "./x.svg"` yields the React component directly.
         exportType: "default",
         svgProps: { role: "presentation" },
-        // Inlined (rather than a typed const) so the plugin's parameter type narrows the `name`
-        // literals.
+        // Inlined, not a typed const, so the plugin's parameter type narrows the `name` literals.
         svgoConfig: {
           plugins: [
             { name: "preset-default", params: { overrides: { cleanupIds: { minify: false } } } },
@@ -40,19 +38,18 @@ export default defineConfig({
     }),
   ],
   server: {
-    // Bind all interfaces (not just loopback) so the k8s probes and ingress can reach the dev
-    // server; rsbuild dev otherwise listens on 127.0.0.1 only.
+    // Bind all interfaces so k8s probes and the ingress reach the dev server; rsbuild dev otherwise
+    // listens on 127.0.0.1 only.
     host: "0.0.0.0",
     port: Number(process.env.PORT ?? 3002),
     // Serve the shell + assets under the ingress base path.
     base: BASE_PATH || undefined,
-    // The dev server does not run server.mjs, so stamp the iframe headers here too — the dev
-    // cluster embeds this app in a sandboxed cross-origin iframe just like production.
+    // The dev server doesn't run server.mjs, so stamp the iframe headers here too.
     headers: IFRAME_HEADERS,
   },
   output: {
-    // Absolute-prefix every static asset URL. Defaults to server.base, but set explicitly: the
-    // sandboxed cross-origin iframe has an opaque origin and cannot resolve relative asset URLs.
+    // Absolute-prefix every asset URL: the opaque-origin sandboxed iframe can't resolve relative
+    // URLs.
     assetPrefix: BASE_PATH ? `${BASE_PATH}/` : undefined,
     // Public source maps (this is open source).
     sourceMap: { js: "source-map" },

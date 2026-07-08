@@ -1,7 +1,6 @@
-// rsbuild's `@rsbuild/core/types` is intentionally NOT referenced here: it declares
-// `*.svg -> string`, which merges with (rather than being overridden by) the SVG-as-React-component
-// typing below (plugin-svgr exportType: "default"), breaking every `<Svg className=.../>`. We
-// re-declare the handful of asset/env types actually used instead.
+// Don't reference `@rsbuild/core/types`: it declares `*.svg -> string`, which merges with (rather
+// than overrides) the SVG-as-React-component typing below and breaks every `<Svg className=.../>`.
+// Re-declare only the asset/env types actually used.
 
 // SVG imported as a React component (matches svgrOptions.exportType: "default").
 declare module "*.svg" {

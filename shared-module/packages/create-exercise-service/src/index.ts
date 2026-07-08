@@ -12,13 +12,11 @@ const SHARED_PACKAGES_DIR = join(REPO_ROOT, "shared-module", "packages")
 const TEMPLATE_SERVICE_NAME = "example-exercise"
 
 /**
- * Shared-module packages vendored into the generated project's `src/shared-module/`. The layout
- * mirrors `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve.
- * The exercise-service code is a self-contained layered set — `exercise-protocol` (zero-dep
- * contract) ← `exercise-client` (framework-agnostic engines, dep: immer) ← `exercise-react` (the
- * React adapter for the iframe *child*) — and the template imports nothing from `common`/
- * `components` or the host-side `exercise-iframe-host`, so only these three are vendored. (A future
- * non-React template would vendor only protocol + client.)
+ * Shared-module packages vendored into the generated project's `src/shared-module/`, mirroring
+ * `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve. The
+ * exercise-service code is a layered set — exercise-protocol ← exercise-client ← exercise-react
+ * (the iframe child's React adapter) — and the template imports nothing from common/components or
+ * the host-side exercise-iframe-host, so only these three are vendored.
  */
 const VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react"]
 
@@ -34,8 +32,8 @@ const COPY_EXCLUDES = new Set([
   "pnpm-workspace.yaml",
   "tsconfig.tsbuildinfo",
   ".vscode",
-  // moocfi-internal deployment files (reference private GCR base images + pnpm workspace); useless
-  // and broken in a standalone project, so they are not generated.
+  // moocfi-internal deployment files (private GCR base images + pnpm workspace); broken in a
+  // standalone project, so not generated.
   "Dockerfile",
   "Dockerfile.production.slim.dockerfile",
   ".dockerignore",
@@ -52,9 +50,9 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 `
 
-// pnpm warns and skips a dependency's build script unless it is allow-listed. esbuild (pulled by
-// vitest) is the only build-scripted dep in the standalone tree. The monorepo's own
-// pnpm-workspace.yaml is excluded from the copy, so write a minimal standalone one; npm/yarn ignore it.
+// pnpm skips a dep's build script unless allow-listed. esbuild (via vitest) is the only
+// build-scripted dep in the standalone tree, and the monorepo's pnpm-workspace.yaml isn't copied,
+// so write a minimal one.
 const STANDALONE_PNPM_WORKSPACE = `allowBuilds:
   esbuild: true
 `
@@ -92,8 +90,8 @@ async function replaceInFile(path: string, replacements: Array<[string, string]>
 }
 
 /**
- * Copy the template directory tree, skipping excluded top-level entries (e.g. the `.vscode` symlink
- * to the monorepo) and the synced shared-module directory, which is re-vendored fresh.
+ * Copy the template tree, skipping COPY_EXCLUDES entries and the synced shared-module (re-vendored
+ * fresh).
  */
 async function copyTemplate(src: string, dest: string): Promise<void> {
   const sharedModuleDir = join(src, "src", "shared-module")
@@ -129,9 +127,8 @@ async function vendorSharedModules(projectPath: string): Promise<void> {
 }
 
 /**
- * Build the generated package.json. The vendored shared code pulls in dependencies the lean
- * template does not declare itself, so we merge the shared packages' dependency sets in. The
- * template's own pins win on conflict (they are the proven, lean versions).
+ * Build the generated package.json. The vendored shared code needs deps the lean template doesn't
+ * declare, so merge in the shared packages' dep sets; the template's own pins win on conflict.
  */
 async function buildPackageJson(
   projectPath: string,
@@ -153,13 +150,12 @@ async function buildPackageJson(
   pkg.dependencies = Object.fromEntries(
     Object.entries(merged).sort(([a], [b]) => a.localeCompare(b)),
   )
-  // The template pins an exact node version for the monorepo's controlled environment; a generated
-  // standalone project should not carry that constraint.
+  // The template pins an exact node version for the monorepo; a standalone project shouldn't carry
+  // it.
   delete pkg.devEngines
 
-  // Stylelint + its postcss-styled syntax exist only for the monorepo's root CSS lint job. A
-  // generated standalone project ships no stylelint config and no lint:css script, so these are
-  // dead weight there — drop them to keep the scaffolded project minimal.
+  // Stylelint + postcss-styled-syntax exist only for the monorepo's root CSS lint job; a standalone
+  // project has no stylelint config or lint:css script, so drop them.
   for (const lintOnlyDevDep of [
     "stylelint",
     "stylelint-config-recommended",
@@ -206,9 +202,9 @@ const BINARY_EXTENSIONS = new Set([
 ])
 
 /**
- * Recursively apply literal replacements to every text file in the generated project, skipping the
- * vendored shared-module snapshot, VCS/build/dependency dirs and binary assets. A whole-tree sweep
- * (rather than a fixed file list) keeps the generator correct as the template evolves.
+ * Apply literal replacements to every text file in the generated project, skipping the vendored
+ * shared-module, VCS/build/dependency dirs and binary assets. A whole-tree sweep (not a fixed file
+ * list) keeps the generator correct as the template evolves.
  */
 async function replaceNameInAllFiles(
   root: string,
@@ -234,12 +230,11 @@ async function replaceNameInAllFiles(
 
 /** Replace the service name and other template-specific values throughout the generated project. */
 async function parameterize(projectPath: string, projectName: string): Promise<void> {
-  // Human-readable display name (e.g. "my-exercise" -> "My exercise"), used for the service-info
-  // service_name and the document <title>. Derived from the project name; refine afterwards.
+  // Display name (e.g. "my-exercise" -> "My exercise") for service_name and the document <title>.
   const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
 
-  // Display literal first, then the slug: the two do not overlap ("Example exercise" vs the
-  // hyphenated "example-exercise"), so the order is safe and every occurrence is covered in one pass.
+  // Display literal first, then the slug: they don't overlap ("Example exercise" vs
+  // "example-exercise"), so one pass covers every occurrence.
   await replaceNameInAllFiles(projectPath, [
     ["Example exercise", displayName],
     [TEMPLATE_SERVICE_NAME, projectName],

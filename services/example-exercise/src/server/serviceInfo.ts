@@ -1,10 +1,7 @@
 import basePath from "@/lib/basePath"
 import { ExerciseServiceInfoApi } from "@/util/exerciseServiceApi"
 
-/**
- * Metadata the host backend reads to discover this plugin's endpoints. All paths are prefixed with
- * the service's base path so they resolve behind the ingress.
- */
+/** Endpoint metadata the host backend reads to discover this plugin (base-path-prefixed). */
 export function handleServiceInfo(): Response {
   const prefix = basePath()
   const data: ExerciseServiceInfoApi = {

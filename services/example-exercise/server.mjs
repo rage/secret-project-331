@@ -1,17 +1,13 @@
-// Production server for the exercise service.
-//
-// Zero runtime dependencies (only node: builtins) so nothing needs installing in the slim image.
-// Responsibilities:
-//   1. Serve dist/client static assets (under the base path).
-//   2. Forward /{base}/api/* (and /{base}/_serverFn/*) to the built TanStack Start server-entry
-//      fetch handler, with the base prefix stripped — server routes are declared at logical paths
-//      like /api/grade (server/file routes do not inherit the router basepath, TanStack/router
-//      #4888), so the handler must see the un-prefixed path.
-//   3. Serve the prerendered SPA shell (dist/client/_shell.html) for any other GET navigation; the
-//      client-side router (configured with basepath) then renders the matched route.
-//   4. Stamp the iframe/CORS/CSP header set on EVERY response — including static assets and
-//      @fontsource fonts, which the sandboxed opaque-origin iframe fetches cross-origin. TanStack
-//      Start middleware does not cover static responses, which is the whole reason for this server.
+// Production server. Zero deps (only node: builtins) so the slim image ships no node_modules.
+//   1. Serve dist/client static assets under the base path.
+//   2. Forward /{base}/api/* and /{base}/_serverFn/* to the TanStack Start server-entry fetch
+//      handler with the base stripped: server routes are declared at logical paths (/api/grade),
+//      don't inherit the router basepath (TanStack/router #4888), and so need them unprefixed.
+//   3. Serve the prerendered SPA shell (dist/client/_shell.html) for other GET navigations; the
+//      client router (with basepath) renders the matched route.
+//   4. Stamp the iframe/CORS/CSP headers on EVERY response, including static assets and @fontsource
+//      fonts the opaque-origin iframe fetches cross-origin — Start middleware skips static
+//      responses, which is why this server exists.
 //   5. Bind 0.0.0.0:$PORT.
 import { createReadStream } from "node:fs"
 import { stat } from "node:fs/promises"
@@ -20,7 +16,7 @@ import { extname, join, normalize } from "node:path"
 import { Readable } from "node:stream"
 import { fileURLToPath } from "node:url"
 
-// Built server-entry: exposes { fetch(request): Response | Promise<Response> }.
+// Built server-entry: { fetch(request) => Response }.
 import serverEntry from "./dist/server/index.js"
 import { IFRAME_HEADERS } from "./iframe-headers.mjs"
 
@@ -28,7 +24,7 @@ const ROOT = fileURLToPath(new URL(".", import.meta.url))
 const CLIENT_DIR = join(ROOT, "dist", "client")
 const SHELL = join(CLIENT_DIR, "_shell.html")
 const PORT = Number(process.env.PORT) || 3002
-// Trailing slashes trimmed so "/example-exercise" matches cleanly.
+// Trailing slash trimmed.
 const BASE_PATH = (process.env.PUBLIC_BASE_PATH ?? "").replace(/\/+$/, "")
 
 const MIME = {
@@ -145,9 +141,9 @@ const server = createServer(async (req, res) => {
       return
     }
 
-    // 3) SPA shell for navigation routes only. A GET that looks like a file (has an extension) but
-    // was not found in step 1 is a missing asset — return a real 404 instead of the HTML shell,
-    // which the browser would otherwise try to parse as JS/CSS.
+    // 3) SPA shell for navigation routes. A GET that looks like a file (has an extension) but was
+    // not found in step 1 is a missing asset — return 404, not the shell (the browser would try to
+    // parse it as JS/CSS).
     if (isGet && !extname(stripBase(url.pathname))) {
       sendFile(res, SHELL)
       return

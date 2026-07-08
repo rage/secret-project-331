@@ -1,6 +1,6 @@
-// Dependency-free request-based client for the API handlers. Each call builds a real Web `Request`
-// (matching what headless-lms sends), invokes the handler directly, and exposes the resulting
-// `Response` as `{ status, text, body, headers }` behind a `.get()/.post().send()/.expect()` surface.
+// Request-based test client for the API handlers: each call builds a real Web `Request` (matching
+// what headless-lms sends), invokes the handler, and exposes the `Response` as
+// `{ status, text, body, headers }` behind a `.get()/.post().send()/.expect()` surface.
 type Handler = (req: Request) => Promise<Response> | Response
 
 interface TestResponse {

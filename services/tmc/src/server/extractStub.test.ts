@@ -27,8 +27,8 @@ describe("POST /api/extract-stub", () => {
   })
 
   it("downloads and extracts a tar.zst stub into files", async () => {
-    // Serve the real test fixture for the stub URL; everything else (zstddec fetching its own
-    // wasm binary) falls through to the real fetch.
+    // Serve the real fixture for the stub URL; everything else (zstddec fetching its own wasm)
+    // falls through to real fetch.
     const archive = await readFile("./tests/util/test.tar.zst")
     const realFetch = globalThis.fetch
     vi.stubGlobal(

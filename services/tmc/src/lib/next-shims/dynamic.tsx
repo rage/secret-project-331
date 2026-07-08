@@ -1,6 +1,6 @@
-// SPA replacement for `next/dynamic`: lazy loading via React.lazy + Suspense, `ssr` a no-op (this
-// app is fully client-rendered). Consumed directly by dynamicWithIframeReload.tsx and, via rsbuild
-// `resolve.alias`, by vendored shared code that imports "next/dynamic".
+// SPA replacement for `next/dynamic`: React.lazy + Suspense, `ssr` a no-op. Consumed directly by
+// dynamicWithIframeReload.tsx and, via rsbuild resolve.alias, by vendored code importing
+// "next/dynamic".
 import { type ComponentType, createElement, lazy, type ReactNode, Suspense } from "react"
 
 type LoaderModule<P> = ComponentType<P> | { default: ComponentType<P> }

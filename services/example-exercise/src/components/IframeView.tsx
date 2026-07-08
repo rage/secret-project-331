@@ -46,8 +46,8 @@ export type State =
     }
 
 /**
- * The exercise UI rendered inside the sandboxed iframe. Kept as a plain component (the route wraps
- * it in the error boundary) so it can be rendered directly in unit tests.
+ * The exercise UI inside the sandboxed iframe. A plain component (the route wraps it in the error
+ * boundary) so unit tests can render it directly.
  */
 const IframeView: React.FC = () => {
   const { i18n } = useTranslation()

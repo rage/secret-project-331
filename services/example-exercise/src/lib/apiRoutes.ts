@@ -31,9 +31,8 @@ export async function readJsonBody(request: Request): Promise<unknown> {
  * `500`, both as JSON. This lets the handlers focus on the happy path and keeps error responses
  * consistent across endpoints. Unexpected errors are logged before the `500` is returned.
  *
- * Note: unlike Next.js, TanStack Start does not auto-respond `405` for verbs a route does not
- * declare — an undeclared method falls through to the app router. The backend only ever calls the
- * documented verb per endpoint, so this is acceptable.
+ * Unlike Next.js, TanStack Start doesn't auto-respond 405 for undeclared verbs — they fall through
+ * to the app router. The backend only ever calls the documented verb, so this is fine.
  */
 export function jsonRoute(
   handler: (request: Request) => Promise<Response> | Response,

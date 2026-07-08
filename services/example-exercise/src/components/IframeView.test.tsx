@@ -28,9 +28,8 @@ describe("<IframeView /> (exercise iframe)", () => {
 
   it("mounts and posts the 'ready' handshake to the parent", () => {
     const { container } = render(<IframeView />)
-    // It rendered without crashing.
     expect(container.firstChild).not.toBeNull()
-    // It announced readiness so the parent will transfer the MessagePort.
+    // Readiness lets the parent transfer the MessagePort.
     expect(postMessageSpy).toHaveBeenCalledWith("ready", "*")
   })
 })

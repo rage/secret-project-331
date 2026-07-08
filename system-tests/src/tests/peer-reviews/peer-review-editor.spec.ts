@@ -7,9 +7,9 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 async function setPeerReviewCheckbox(page: Page, label: string, checked: boolean) {
-  // The checkbox is controlled by a Gutenberg attribute that updates asynchronously, so a click can
-  // be briefly reverted before the new value settles. setChecked verifies the state only once and
-  // flakes on that transient revert; click and poll until the controlled value settles instead.
+  // The checkbox is controlled by a Gutenberg attribute that updates asynchronously; a click can be
+  // briefly reverted before the value settles. setChecked checks once and flakes on that transient
+  // revert, so click and poll until the controlled value settles.
   const checkbox = page.getByRole("checkbox", { name: label, exact: true })
   await expect(async () => {
     if ((await checkbox.isChecked()) !== checked) {

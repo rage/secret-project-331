@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import { handleTest } from "./testEndpoint"
 
-// The happy path runs the submission in a Kubernetes sandbox pod, so unit tests cover the request
-// validation layer; the full flow is exercised by the system tests.
+// The happy path runs the submission in a Kubernetes sandbox pod; unit tests cover request
+// validation, system tests cover the full flow.
 function post(body: string): Request {
   return new Request("http://localhost/api/test", {
     method: "POST",

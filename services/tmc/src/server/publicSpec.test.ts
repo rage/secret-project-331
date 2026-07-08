@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import { handlePublicSpec } from "./publicSpec"
 
-// The happy path downloads the exercise template and shells out to tmc-langs-cli, so unit tests
-// cover the request validation layer; the full flow is exercised by the system tests.
+// The happy path downloads the template and shells out to tmc-langs-cli; unit tests cover request
+// validation, system tests cover the full flow.
 function post(body: string): Request {
   return new Request("http://localhost/api/public-spec", {
     method: "POST",

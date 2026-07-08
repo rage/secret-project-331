@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import { handleGrade } from "./grade"
 
-// The grading happy path shells out to tmc-langs-cli and runs a Kubernetes sandbox pod, so unit
-// tests cover the request validation layer; the full flow is exercised by the system tests.
+// Grading shells out to tmc-langs-cli and a Kubernetes sandbox pod; unit tests cover request
+// validation, system tests cover the full flow.
 function post(body: unknown): Request {
   return new Request("http://localhost/api/grade", {
     method: "POST",

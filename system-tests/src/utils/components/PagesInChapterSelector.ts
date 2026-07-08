@@ -48,9 +48,9 @@ export class PagesInChapterSelector {
     await expect(link).toBeVisible()
     const href = await link.getAttribute("href")
     await link.click()
-    // The click starts a client-side route transition that commits asynchronously. Wait for the
-    // URL to change, or a page.reload() right after this reloads the old chapter page and cancels
-    // the pending navigation.
+    // The click starts an async client-side route transition; wait for the URL to change, or a
+    // page.reload() right after would reload the old chapter page and cancel the pending
+    // navigation.
     if (href) {
       await this.page.waitForURL((url) => url.pathname === href)
     }

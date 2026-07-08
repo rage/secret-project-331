@@ -10,7 +10,7 @@ import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normaliz
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
 interface ErrorDisplayProps {
-  error: unknown
+  error: unknown | string
 }
 
 /** Formats chatbot errors using normalized display metadata. */
@@ -69,7 +69,15 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
   const { t } = useTranslation()
   const [showDetails, setShowDetails] = useState(false)
 
-  const formattedError = formatErrorMessage(error, t)
+  const formattedError =
+    typeof error === "string"
+      ? {
+          boldPart: t("failed-to-send-message"),
+          normalPart: error,
+          details: [],
+          originalMessage: error,
+        }
+      : formatErrorMessage(error, t)
   const hasDetails = formattedError.details.length > 0
 
   return (
@@ -84,7 +92,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           box-shadow:
             0 2px 8px ${baseTheme.colors.red[200]}60,
             0 1px 3px ${baseTheme.colors.red[300]}40;
-          overflow: hidden;
+          overflow: scroll;
           backdrop-filter: blur(4px);
         `}
       >

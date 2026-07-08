@@ -123,6 +123,8 @@ const useChatbotStateAndData = (
                 } else {
                   dispatch({ type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } })
                 }
+              } else if (parsedValue.type === "Error") {
+                setError(parsedValue.data.message)
               }
             } catch (e) {
               console.error(e)
@@ -137,7 +139,6 @@ const useChatbotStateAndData = (
       onSuccess: async () => {
         await currentConversationInfo.refetch()
         dispatch({ type: "RESPONSE_COMPLETED" })
-        setError(null)
         setChatbotMessageAnnouncement(t("chatbot-finished-responding"))
       },
       onError: async (error) => {

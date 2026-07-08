@@ -1387,7 +1387,7 @@ export const deleteCodeGiveawayCode = <ThrowOnError extends boolean = true>(
  */
 export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
   options?: Options<GetCoursesForAuditingData, ThrowOnError>,
-) =>
+): RequestResult<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data"> =>
   (options?.client ?? client).get<GetCoursesForAuditingResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCoursesForAuditingResponse.parseAsync(data),
     responseStyle: "data",
@@ -1401,7 +1401,7 @@ export const getCoursesForAuditing = <ThrowOnError extends boolean = true>(
  */
 export const updateCourseAfterAuditing = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCourseAfterAuditingData, ThrowOnError>,
-) =>
+): RequestResult<UpdateCourseAfterAuditingResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).put<UpdateCourseAfterAuditingResponses, unknown, ThrowOnError, "data">(
     {
       responseValidator: async (data) => await zUpdateCourseAfterAuditingResponse.parseAsync(data),

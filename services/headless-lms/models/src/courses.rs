@@ -215,6 +215,9 @@ pub struct CourseToAudit {
     pub name: String,
     pub description: Option<String>,
     pub uh_course_code: Option<String>,
+    pub closed_at: Option<DateTime<Utc>>,
+    pub closed_additional_message: Option<String>,
+    pub closed_course_successor_id: Option<Uuid>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -342,7 +345,11 @@ SELECT c.id,
   c.created_at,
   c.updated_at,
   c.organization_id,
-  c.description, cm.uh_course_code
+  c.description, 
+  c.closed_at, 
+  c.closed_additional_message, 
+  c.closed_course_successor_id, 
+  cm.uh_course_code
 FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
 WHERE c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
 "#
@@ -364,7 +371,11 @@ SELECT c.id,
   c.created_at,
   c.updated_at,
   c.organization_id,
-  c.description, cm.uh_course_code
+  c.description, 
+  c.closed_at, 
+  c.closed_additional_message, 
+  c.closed_course_successor_id, 
+  cm.uh_course_code
 FROM courses as c LEFT JOIN course_modules as cm on c.id = cm.course_id
 WHERE c.id = $1 AND c.deleted_at IS NULL AND cm.deleted_at IS NULL AND order_number = 0;
 "#,

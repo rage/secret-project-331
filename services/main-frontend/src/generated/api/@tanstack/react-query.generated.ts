@@ -1972,8 +1972,8 @@ export const getCourseInstancePointsInfiniteQueryKey = (
 
 export const getCourseInstancePointsInfiniteOptions = (
   options: Options<GetCourseInstancePointsData>,
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     GetCourseInstancePointsResponse,
     DefaultError,
     InfiniteData<GetCourseInstancePointsResponse>,
@@ -2007,6 +2007,8 @@ export const getCourseInstancePointsInfiniteOptions = (
       queryKey: getCourseInstancePointsInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getCourseInstanceUserProgressQueryKey = (
   options: Options<GetCourseInstanceUserProgressData>,
@@ -3307,8 +3309,8 @@ export const getCourseFeedbackInfiniteQueryKey = (
  *
  * GET `/api/v0/main-frontend/courses/:id/feedback?read=true` - Returns feedback for the given course.
  */
-export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedbackData>) =>
-  infiniteQueryOptions<
+export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedbackData>) => {
+  const opts = infiniteQueryOptions<
     GetCourseFeedbackResponse,
     DefaultError,
     InfiniteData<GetCourseFeedbackResponse>,
@@ -3342,6 +3344,8 @@ export const getCourseFeedbackInfiniteOptions = (options: Options<GetCourseFeedb
       queryKey: getCourseFeedbackInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getCourseFeedbackCountQueryKey = (options: Options<GetCourseFeedbackCountData>) =>
   createQueryKey("getCourseFeedbackCount", options)
@@ -5431,8 +5435,8 @@ export const getExamSubmissionsWithExamIdInfiniteQueryKey = (
  */
 export const getExamSubmissionsWithExamIdInfiniteOptions = (
   options: Options<GetExamSubmissionsWithExamIdData>,
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     GetExamSubmissionsWithExamIdResponse,
     DefaultError,
     InfiniteData<GetExamSubmissionsWithExamIdResponse>,
@@ -5469,6 +5473,8 @@ export const getExamSubmissionsWithExamIdInfiniteOptions = (
       queryKey: getExamSubmissionsWithExamIdInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getExamSubmissionsWithExerciseIdQueryKey = (
   options: Options<GetExamSubmissionsWithExerciseIdData>,
@@ -5508,8 +5514,8 @@ export const getExamSubmissionsWithExerciseIdInfiniteQueryKey = (
  */
 export const getExamSubmissionsWithExerciseIdInfiniteOptions = (
   options: Options<GetExamSubmissionsWithExerciseIdData>,
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     GetExamSubmissionsWithExerciseIdResponse,
     DefaultError,
     InfiniteData<GetExamSubmissionsWithExerciseIdResponse>,
@@ -5546,6 +5552,8 @@ export const getExamSubmissionsWithExerciseIdInfiniteOptions = (
       queryKey: getExamSubmissionsWithExerciseIdInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getExamQueryKey = (options: Options<GetExamData>) => createQueryKey("getExam", options)
 
@@ -6135,8 +6143,8 @@ export const getExerciseAnswersRequiringAttentionInfiniteQueryKey = (
  */
 export const getExerciseAnswersRequiringAttentionInfiniteOptions = (
   options: Options<GetExerciseAnswersRequiringAttentionData>,
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     GetExerciseAnswersRequiringAttentionResponse,
     DefaultError,
     InfiniteData<GetExerciseAnswersRequiringAttentionResponse>,
@@ -6173,6 +6181,8 @@ export const getExerciseAnswersRequiringAttentionInfiniteOptions = (
       queryKey: getExerciseAnswersRequiringAttentionInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getExerciseCsvExportTaskOptionsQueryKey = (
   options: Options<GetExerciseCsvExportTaskOptionsData>,
@@ -6287,8 +6297,8 @@ export const getExerciseSubmissionsInfiniteQueryKey = (
  */
 export const getExerciseSubmissionsInfiniteOptions = (
   options: Options<GetExerciseSubmissionsData>,
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     GetExerciseSubmissionsResponse,
     DefaultError,
     InfiniteData<GetExerciseSubmissionsResponse>,
@@ -6322,6 +6332,8 @@ export const getExerciseSubmissionsInfiniteOptions = (
       queryKey: getExerciseSubmissionsInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getExerciseSubmissionsForUserQueryKey = (
   options: Options<GetExerciseSubmissionsForUserData>,
@@ -7377,8 +7389,8 @@ export const getOrganizationCoursesInfiniteQueryKey = (
  */
 export const getOrganizationCoursesInfiniteOptions = (
   options: Options<GetOrganizationCoursesData>,
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     GetOrganizationCoursesResponse,
     DefaultError,
     InfiniteData<GetOrganizationCoursesResponse>,
@@ -7412,6 +7424,8 @@ export const getOrganizationCoursesInfiniteOptions = (
       queryKey: getOrganizationCoursesInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getOrganizationActiveCoursesQueryKey = (
   options: Options<GetOrganizationActiveCoursesData>,
@@ -7443,8 +7457,8 @@ export const getOrganizationActiveCoursesInfiniteQueryKey = (
 
 export const getOrganizationActiveCoursesInfiniteOptions = (
   options: Options<GetOrganizationActiveCoursesData>,
-) =>
-  infiniteQueryOptions<
+) => {
+  const opts = infiniteQueryOptions<
     GetOrganizationActiveCoursesResponse,
     DefaultError,
     InfiniteData<GetOrganizationActiveCoursesResponse>,
@@ -7481,6 +7495,8 @@ export const getOrganizationActiveCoursesInfiniteOptions = (
       queryKey: getOrganizationActiveCoursesInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getOrganizationActiveCourseCountQueryKey = (
   options: Options<GetOrganizationActiveCourseCountData>,
@@ -7883,8 +7899,8 @@ export const getPageHistoryInfiniteQueryKey = (
  *
  * GET /api/v0/main-frontend/pages/:page_id/history
  */
-export const getPageHistoryInfiniteOptions = (options: Options<GetPageHistoryData>) =>
-  infiniteQueryOptions<
+export const getPageHistoryInfiniteOptions = (options: Options<GetPageHistoryData>) => {
+  const opts = infiniteQueryOptions<
     GetPageHistoryResponse,
     DefaultError,
     InfiniteData<GetPageHistoryResponse>,
@@ -7917,6 +7933,8 @@ export const getPageHistoryInfiniteOptions = (options: Options<GetPageHistoryDat
       queryKey: getPageHistoryInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getPageHistoryCountQueryKey = (options: Options<GetPageHistoryCountData>) =>
   createQueryKey("getPageHistoryCount", options)
@@ -8198,8 +8216,8 @@ export const getEditProposalsInfiniteQueryKey = (
  *
  * GET `/api/v0/main-frontend/proposed-edits/course/:id?pending=true` - Returns feedback for the given course.
  */
-export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposalsData>) =>
-  infiniteQueryOptions<
+export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposalsData>) => {
+  const opts = infiniteQueryOptions<
     GetEditProposalsResponse,
     DefaultError,
     InfiniteData<GetEditProposalsResponse>,
@@ -8232,6 +8250,8 @@ export const getEditProposalsInfiniteOptions = (options: Options<GetEditProposal
       queryKey: getEditProposalsInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 export const getEditProposalCountQueryKey = (options: Options<GetEditProposalCountData>) =>
   createQueryKey("getEditProposalCount", options)
@@ -8311,8 +8331,8 @@ export const getRegradingsInfiniteQueryKey = (
  *
  * GET `/api/v0/main-frontend/regradings` - Returns a paginated list of all the regradings.
  */
-export const getRegradingsInfiniteOptions = (options?: Options<GetRegradingsData>) =>
-  infiniteQueryOptions<
+export const getRegradingsInfiniteOptions = (options?: Options<GetRegradingsData>) => {
+  const opts = infiniteQueryOptions<
     GetRegradingsResponse,
     DefaultError,
     InfiniteData<GetRegradingsResponse>,
@@ -8345,6 +8365,8 @@ export const getRegradingsInfiniteOptions = (options?: Options<GetRegradingsData
       queryKey: getRegradingsInfiniteQueryKey(options),
     },
   )
+  return opts as Omit<typeof opts, "initialData">
+}
 
 /**
  *

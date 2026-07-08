@@ -98,7 +98,7 @@ export const zChatbotChatStreamEvent = z.union([
     type: z.enum(["Error"]),
   }),
   z.object({
-    type: z.enum(["None"]),
+    type: z.enum(["Invalid"]),
   }),
 ])
 

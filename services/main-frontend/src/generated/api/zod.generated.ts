@@ -732,6 +732,9 @@ export const zCourseModuleThresholdInfo = z.object({
 })
 
 export const zCourseToAudit = z.object({
+  closed_additional_message: z.string().nullish(),
+  closed_at: z.iso.datetime().nullish(),
+  closed_course_successor_id: z.uuid().nullish(),
   created_at: z.iso.datetime(),
   description: z.string().nullish(),
   id: z.uuid(),

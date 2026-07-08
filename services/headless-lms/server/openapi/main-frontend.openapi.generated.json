@@ -13459,6 +13459,17 @@
         "type": "object",
         "required": ["id", "organization_id", "created_at", "updated_at", "name"],
         "properties": {
+          "closed_additional_message": {
+            "type": ["string", "null"]
+          },
+          "closed_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "closed_course_successor_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"

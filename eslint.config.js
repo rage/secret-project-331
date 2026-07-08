@@ -75,13 +75,7 @@ const config = [
     rules: {
       "@next/next/no-html-link-for-pages": [
         "error",
-        [
-          "services/main-frontend/src/app",
-          "services/cms/src/pages",
-          "services/quizzes/src/app",
-          "services/tmc/src/app",
-          "services/example-exercise/src/app",
-        ],
+        ["services/main-frontend/src/app", "services/cms/src/pages"],
       ],
       "@next/next/no-img-element": "error",
       "@next/next/no-sync-scripts": "error",
@@ -105,7 +99,7 @@ const config = [
   ...fixupConfigRules(importPlugin.flatConfigs.recommended),
   eslintPluginPrettierRecommended,
   {
-    files: ["**/*.{js,jsx,ts,tsx}"],
+    files: ["**/*.{js,jsx,ts,tsx,mjs,cjs}"],
     rules: {
       // Disable import checking rules
       "import/no-unresolved": "off",
@@ -136,6 +130,7 @@ const config = [
         React: true,
         NodeJS: true,
         JSX: true,
+        globalThis: true,
         WindowEventMap: true,
         RequestInit: true,
         IntersectionObserverInit: true,
@@ -409,6 +404,9 @@ const config = [
               "getAttribute",
               "useRegisterBreadcrumbs",
               "format",
+              // TanStack Router route-definition calls: the string arg is a route path, not UI copy.
+              "createFileRoute",
+              "createRootRoute",
             ],
           },
           "object-properties": {
@@ -501,6 +499,19 @@ const config = [
     files: ["**/next-env.d.ts"],
     rules: {
       "@typescript-eslint/triple-slash-reference": "off",
+    },
+  },
+  {
+    // These services are client-only SPAs (TanStack Start + rsbuild); RSC "use client"/"use
+    // server" directives are inert here, so don't require or enforce them.
+    files: [
+      "services/example-exercise/**/*.{js,jsx,ts,tsx}",
+      "services/quizzes/**/*.{js,jsx,ts,tsx}",
+      "services/tmc/**/*.{js,jsx,ts,tsx}",
+    ],
+    rules: {
+      "explicit-use-directives/require-use-directive-first": "off",
+      "explicit-use-directives/empty-line-after-use-directive": "off",
     },
   },
   ...storybook.configs["flat/recommended"],

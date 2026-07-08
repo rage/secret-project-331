@@ -1,9 +1,6 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import request from "supertest"
-
-import { POST } from "../../src/app/api/export-answers/route"
 
 import testClient from "./utils/appRouterTestClient"
 import {
@@ -15,13 +12,15 @@ import {
   generatePrivateSpecWithOneTimelineQuizItem,
 } from "./utils/privateSpecGenerator"
 
+import { handleExportAnswers } from "@/server/exportAnswers"
+
 describe("export-answers", () => {
   it("exports multiple-choice answers with the reduced answer columns", async () => {
     const privateSpec = generatePrivateSpecWithOneMultipleChoiceQuizItem()
     const quizItemId = privateSpec.items[0].id
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -87,8 +86,8 @@ describe("export-answers", () => {
     const privateSpec = generatePrivateSpecWithOneTimelineQuizItem()
     const quizItemId = privateSpec.items[0].id
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -140,8 +139,8 @@ describe("export-answers", () => {
     const privateSpec = generatePrivateSpecWithOneEssayQuizItem()
     const quizItemId = privateSpec.items[0].id
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -206,8 +205,8 @@ describe("export-answers", () => {
       },
     ]
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -258,8 +257,8 @@ describe("export-answers", () => {
     const privateSpec = generatePrivateSpecWithOneCheckboxQuizItem()
     const quizItemId = privateSpec.items[0].id
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -299,8 +298,8 @@ describe("export-answers", () => {
     const privateSpec = generatePrivateSpecWithOneMatrixQuizItem()
     const quizItemId = privateSpec.items[0].id
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -354,8 +353,8 @@ describe("export-answers", () => {
   it("includes answer columns needed by historical submissions even if the current spec changed", async () => {
     const privateSpec = generateEmptyPrivateSpecQuiz()
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -394,8 +393,8 @@ describe("export-answers", () => {
   it("treats null answer payloads as empty submissions", async () => {
     const privateSpec = generatePrivateSpecWithOneEssayQuizItem()
 
-    const client = testClient(POST)
-    const response: request.Response = await client.post("/api/export-answers").send({
+    const client = testClient(handleExportAnswers)
+    const response = await client.post("/api/export-answers").send({
       items: [
         {
           private_spec: privateSpec,
@@ -414,7 +413,7 @@ describe("export-answers", () => {
   })
 
   it("fails with invalid payload", async () => {
-    const client = testClient(POST)
+    const client = testClient(handleExportAnswers)
     await client.post("/api/export-answers").send({}).expect(400)
   })
 })

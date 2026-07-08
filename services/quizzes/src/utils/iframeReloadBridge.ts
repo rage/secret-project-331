@@ -1,5 +1,3 @@
-"use client"
-
 /**
  * Registers a global callback used by dynamic imports to request iframe reload.
  */

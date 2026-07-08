@@ -1,5 +1,3 @@
-"use client"
-
 import { PrivateSpecQuizItem } from "../../../../../types/quizTypes/privateSpec"
 
 import CheckboxEditor from "./checkbox"

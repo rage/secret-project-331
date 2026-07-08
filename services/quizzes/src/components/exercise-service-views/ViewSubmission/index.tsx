@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { BullhornMegaphone, InfoCircle } from "@vectopus/atlas-icons-react"

@@ -11,6 +11,10 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Example exercise" },
     ],
+    // Empty-data-URI icon so the browser doesn't fire a `GET /favicon.ico` that 404s and shows up as
+    // a console error in every session (the exercise renders inside the host's chrome, so it has no
+    // favicon of its own).
+    links: [{ rel: "icon", href: "data:," }],
   }),
   component: RootComponent,
   notFoundComponent: NotFound,

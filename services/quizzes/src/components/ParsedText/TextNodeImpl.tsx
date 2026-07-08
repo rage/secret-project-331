@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import DOMPurify from "dompurify"
 import React from "react"

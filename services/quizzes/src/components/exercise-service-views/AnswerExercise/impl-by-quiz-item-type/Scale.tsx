@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import React, { useId } from "react"
 

@@ -1,0 +1,46 @@
+engineStrict: true
+
+linkWorkspacePackages: true
+
+pmOnFail: download
+
+minimumReleaseAge: 10080
+minimumReleaseAgeStrict: true
+minimumReleaseAgeIgnoreMissingTime: false
+
+nodeVersion: 24.18.0
+
+overrides:
+  picomatch@<2.3.2: '>=2.3.2'
+  picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
+  yaml@>=1.0.0 <1.10.3: '>=1.10.3'
+
+preferFrozenLockfile: true
+
+preferWorkspacePackages: true
+
+registrySupportsTimeField: false
+
+resolutionMode: time-based
+
+saveWorkspaceProtocol: rolling
+
+sharedWorkspaceLockfile: false
+
+strictDepBuilds: true
+
+allowBuilds:
+  node: false
+  sharp: false
+  unrs-resolver: true
+
+trustLockfile: true
+
+confirmModulesPurge: false
+
+updateNotifier: false
+
+verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - postcss@8.5.10

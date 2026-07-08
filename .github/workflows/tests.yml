@@ -312,6 +312,31 @@ jobs:
             echo "- **Service**: Shared Module Exercise React"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  shared-module-exercise-iframe-host:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/exercise-iframe-host
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/exercise-iframe-host
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-iframe-host
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🖼️ Exercise IFrame Host Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Exercise IFrame Host"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   shared-module-exercise-protocol:
     permissions:
       contents: read

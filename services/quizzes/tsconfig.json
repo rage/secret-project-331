@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "next/dynamic": ["./src/lib/next-shims/dynamic.tsx"]
     },
     "target": "esnext",
     "module": "esnext",
-    "types": ["jest"],
     "jsx": "react-jsx",
-    "lib": ["dom", "es2017", "ES6"],
-    "typeRoots": ["types", "./shared-module/packages/common/src/types", "./node_modules/@types"],
+    "lib": ["dom", "dom.iterable", "es2022"],
+    "typeRoots": ["types", "./node_modules/@types"],
     "moduleResolution": "bundler",
     "allowJs": true,
     "noEmit": true,
@@ -24,23 +24,16 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "strictNullChecks": true,
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ]
+    "incremental": true
   },
   "exclude": ["node_modules", "src/shared-module"],
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    "src/pages/_app.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/env.d.ts",
+    "types/**/*.ts",
+    "tests/**/*.ts",
+    "rsbuild.config.ts",
+    "vitest.config.ts"
   ]
 }

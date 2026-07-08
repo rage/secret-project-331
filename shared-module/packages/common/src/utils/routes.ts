@@ -83,6 +83,10 @@ export function manageExerciseServicesRoute() {
   return "/manage/exercise-services"
 }
 
+export function chatbotCommandCenterRoute() {
+  return "/chatbot-command-center"
+}
+
 export function manageOrganizationRoute(organizationId: string) {
   return `/manage/organizations/${organizationId}`
 }

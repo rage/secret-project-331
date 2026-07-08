@@ -1,5 +1,4 @@
 import { BadRequestError } from "@/lib/apiRoutes"
-import { Alternative, isAlternative } from "@/util/stateInterfaces"
 
 export type CsvScalar = string | number | boolean | null
 
@@ -34,23 +33,29 @@ export function parseItemsRequest<T>(body: unknown): CsvExportRequest<T> {
 }
 
 /**
- * Validates that the value is the exercise's private spec, throwing a 400 otherwise. This is the
- * strict counterpart to the forgiving `parsePrivateSpec` in `stateInterfaces.ts`: the export
- * endpoints reject malformed specs, while the iframe view tolerates them.
+ * Validates that `value` is an array whose every item passes `isItem`, throwing a 400 otherwise.
+ * This is the strict counterpart to the forgiving array parsers in `stateInterfaces.ts`: the export
+ * endpoints reject malformed specs, while the iframe views tolerate them. Generic on purpose — pass
+ * your exercise's own item guard (e.g. `isAlternative`) so this file stays free of exercise types.
  */
-export function parsePrivateSpecStrict(value: unknown): Alternative[] {
-  if (!Array.isArray(value) || !value.every(isAlternative)) {
-    throw new BadRequestError("Invalid private_spec: expected an array of alternatives")
+export function parseSpecArrayStrict<T>(
+  value: unknown,
+  isItem: (item: unknown) => item is T,
+  message = "Invalid private_spec: expected an array of the exercise's spec items",
+): T[] {
+  if (!Array.isArray(value) || !value.every(isItem)) {
+    throw new BadRequestError(message)
   }
   return value
 }
 
-export function parseSelectedOptionId(answer: unknown): string | null {
-  if (!answer || typeof answer !== "object") {
+/** Reads a top-level string field off an object, or `null` if absent/not a string. */
+export function parseStringField(value: unknown, fieldName: string): string | null {
+  if (!value || typeof value !== "object") {
     return null
   }
-  const typedAnswer = answer as Record<string, unknown>
-  return typeof typedAnswer.selectedOptionId === "string" ? typedAnswer.selectedOptionId : null
+  const typedValue = value as Record<string, unknown>
+  return typeof typedValue[fieldName] === "string" ? (typedValue[fieldName] as string) : null
 }
 
 export function parseNumberField(value: unknown, fieldName: string): number | null {

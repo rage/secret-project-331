@@ -3,8 +3,9 @@ import {
   CsvExportColumn,
   CsvExportResponse,
   parseItemsRequest,
-  parsePrivateSpecStrict,
+  parseSpecArrayStrict,
 } from "@/server/csvExportUtils"
+import { isAlternative } from "@/util/stateInterfaces"
 
 interface CsvExportDefinitionsRequestItem {
   private_spec: unknown
@@ -25,7 +26,11 @@ export const handleExportDefinitions = jsonRoute(async (request) => {
   const response: CsvExportResponse = {
     columns: COLUMNS,
     results: parsed.items.map((item) => {
-      const privateSpec = parsePrivateSpecStrict(item.private_spec)
+      const privateSpec = parseSpecArrayStrict(
+        item.private_spec,
+        isAlternative,
+        "Invalid private_spec: expected an array of alternatives",
+      )
       return {
         rows: privateSpec.map((alternative, index) => ({
           option_index: index,

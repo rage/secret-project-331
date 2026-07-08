@@ -64,6 +64,8 @@ const config = [
       "!shared-module/**",
       // But do ignore build/output dirs inside root shared module
       ...getIgnorePatterns("shared-module/"),
+      // Claude Code tooling (skills, injected browser snippets) — not application source.
+      "**/.claude/**",
     ],
   },
   explicitUse.configs["prefer-use-client"],

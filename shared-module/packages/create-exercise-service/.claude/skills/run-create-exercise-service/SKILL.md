@@ -1,0 +1,209 @@
+---
+name: run-create-exercise-service
+description: Build, run, and drive the create-exercise-service scaffolding CLI — the tool that generates a new moocfi exercise service/plugin from the example-exercise template. Use when asked to run/start/scaffold/generate/create a new exercise service or plugin, smoke-test or screenshot the generated service, or test/verify the create-exercise-service CLI.
+---
+
+# Run: create-exercise-service
+
+`create-exercise-service` is an **interactive Node CLI** (`@inquirer/prompts`) that scaffolds a new
+standalone exercise-service plugin by copying `services/example-exercise` and vendoring the shared
+exercise packages into `src/shared-module/`. Its output is a runnable TanStack Start (rsbuild) web
+app, so "driving" it fully means _scaffolding a project and booting what it produced_.
+
+The primary agent path is the driver **`.claude/skills/run-create-exercise-service/smoke.mjs`**: it
+scaffolds into a temp dir, asserts the structure, and (with `--boot`) installs the generated project
+and verifies it serves the exercise-service HTTP contract. That runtime check is what catches
+**template drift** — the CLI copies `services/example-exercise` live from disk, so it reflects the
+template on the checked-out branch (currently TanStack Start on rsbuild; older branches such as
+`master` still had the Next.js template, with which this generator is _not_ compatible).
+
+> Paths below are relative to the unit dir `shared-module/packages/create-exercise-service`, **except**
+> `bin/create-exercise-service`, which is at the **repo root**.
+
+## Prerequisites
+
+Node 24.x, pnpm 11.x, and `tmux` (for the interactive driver). For the optional screenshot,
+`playwright-cli` + `chromium`. In this repo's Nix dev shell (`flake.nix`) all of these are already on
+`PATH` — no `apt-get` was needed. Verify:
+
+```bash
+node --version   # v24.16.0 here (package.json pins 24.18.0 with onFail:download)
+pnpm --version   # 11.9.0
+tmux -V          # tmux 3.2a
+```
+
+## Setup
+
+Install the CLI's own dev deps (it runs its TypeScript via `tsx` — there is no build step). From the
+repo root:
+
+```bash
+pnpm --dir shared-module/packages/create-exercise-service install
+```
+
+## Run (agent path) — the driver
+
+```bash
+cd shared-module/packages/create-exercise-service/.claude/skills/run-create-exercise-service
+
+# Fast: scaffold into a temp dir + structural assertions (~seconds)
+node smoke.mjs
+
+# Full: ALSO pnpm-install the generated project, boot its dev server, and hit the
+# exercise-service endpoints (service-info, /iframe, public-spec). ~1 min. Cleans up + frees the port.
+node smoke.mjs --boot
+
+# Keep the generated temp project for inspection instead of deleting it
+node smoke.mjs --keep
+```
+
+`--boot` output ends with `PASS` and exit 0 when the generated service installs and serves correctly:
+
+```
+  ok   GET /api/service-info -> service_name "Smoke exercise"
+  ok   GET /iframe -> HTML document
+  ok   POST /api/public-spec strips the `correct` flag (no answer leak)
+
+PASS
+```
+
+To drive the **real interactive prompts** (use when a change touches the prompt flow itself) — a
+tmux wrapper that answers each prompt and asserts the scaffold:
+
+```bash
+cd shared-module/packages/create-exercise-service/.claude/skills/run-create-exercise-service
+./interactive-demo.sh
+```
+
+## Run (human path)
+
+From the **repo root**, the launcher runs the interactive CLI (`pnpm start` → `tsx src/index.ts`):
+
+```bash
+bin/create-exercise-service
+```
+
+It prompts, in order: **Project name** → **Path** (default is the name, resolved relative to the CLI
+package dir — pass an explicit path) → **Project type** (only _React_ works) → **Package manager** →
+**Dev server port** (default `3002`, which collides with example-exercise — pick another) →
+**Confirm** (default No, so type `y`). Then, per its printed next steps:
+
+```bash
+cd <your-project>
+pnpm install
+pnpm run dev            # → http://localhost:<port>
+```
+
+## Authoring your exercise (after scaffolding)
+
+The scaffold is a **complete multiple-choice exercise**, not a blank skeleton — you turn it into your
+exercise type by editing the ~20% that is exercise-specific and reusing the rest. In the generated
+project:
+
+1. **Data types** — `src/util/stateInterfaces.ts`: define your five types (`private_spec`,
+   `public_spec`, `model_solution_spec`, `answer`, `grading_feedback`) and their forgiving parsers.
+   This is the entry point; everything else follows from these.
+2. **Server transforms** — `src/server/publicSpec.ts` (derive the student-visible spec, dropping
+   anything that would leak answers), `modelSolution.ts`, and `grade.ts` (grade server-side).
+3. **Views** — `src/components/{ExerciseEditor,AnswerExercise,ViewSubmission}.tsx`. Keep the
+   `IframeView`/`Renderer` skeleton; change what each view renders and the `current-state` it emits.
+4. **CSV export** — `src/server/csvExportUtils.ts` is generic (pass your own item guard to
+   `parseSpecArrayStrict`), but `exportAnswers.ts`/`exportDefinitions.ts` carry MC columns. To _drop_
+   CSV export you must delete those two handlers, their `src/routes/api/export-*.ts` routes, and
+   their tests — omitting the `service-info` paths alone leaves them breaking `tsc`/`vitest`.
+5. **File uploads** — plugins don't store files; ask the host. Use `useFileUpload(port)`
+   (`@/shared-module/exercise-react/react/hooks/useFileUpload`) → `uploadFiles(Map<name,File>)` returns
+   a `Map<name,url>` you store in the `answer`. Don't hand-roll the `file-upload`/`upload-result`
+   messages.
+
+Keep verbatim: the protocol envelopes, `IframeView`/`Renderer`, `src/lib/apiRoutes.ts`, all of
+`src/shared-module/`, `rsbuild.config.ts`, `server.mjs`, `iframe-headers.mjs`. The deeper reference —
+data-modelling, leak analysis, the full change/keep split — is
+`docs/plugin-system.md` plus the step-by-step checklist in
+`.local/creating-new-exercise-services/05-step-by-step-checklist.md`.
+
+## Test
+
+The CLI's own suite scaffolds into a temp dir and asserts the output (10 tests):
+
+```bash
+pnpm --dir shared-module/packages/create-exercise-service test
+```
+
+## Drive views in isolation (host emulator)
+
+The scaffolded app is an iframe plugin; on its own it shows "Waiting for port..." until a host hands
+it a `MessagePort`. **`host-emulator.js`** (in this skill dir) is a local, scriptable stand-in for the
+host / the Playground: it transfers the port, lets you push any view with `set-state`, auto-answers
+`file-upload` (with fake stored URLs) and `open-dialog`, and records the iframe's latest message of
+each type so `current-state` isn't lost among the frequent `height-changed` messages.
+
+Boot a generated service first (e.g. `node smoke.mjs --boot --keep`, then
+`PUBLIC_BASE_PATH="" PORT=<port> pnpm --dir <kept-dir> run dev`, or the human path). Then, with
+`playwright-cli` (Chromium is on `PATH`):
+
+```bash
+SKILL=shared-module/packages/create-exercise-service/.claude/skills/run-create-exercise-service
+BASE=http://localhost:3021
+playwright-cli open "$BASE/iframe"                         # open FIRST so the iframe mounts
+playwright-cli eval "$(cat "$SKILL/host-emulator.js")"     # installs window.__host + hands over the port
+
+# Push a view. `data` is that view's payload (see stateInterfaces.ts for your shapes):
+playwright-cli eval "() => window.__host.setState('answer-exercise', { public_spec: { instructions: 'Upload your essay', allowedExtensions: ['txt'], maxFiles: 3, maxFileSizeBytes: null }, previous_submission: null })"
+
+# Read what the iframe emits back (keyed by type, so height spam doesn't clobber it):
+playwright-cli eval "() => JSON.stringify(window.__host.last('current-state')?.data)"
+playwright-cli screenshot --filename view.png
+playwright-cli close
+```
+
+**File-upload round-trip** — the emulator auto-answers `file-upload`, so you only drive the input.
+The `playwright-cli` file-chooser dance is non-obvious: `snapshot` → get the input/button `ref` →
+`click <ref>` (opens the chooser) → `upload <file>`. `upload` alone errors with "can only be used
+when there is related modal state present":
+
+```bash
+echo hello > /tmp/essay.txt
+REF=$(playwright-cli snapshot | grep 'button "Choose File"' | grep -oE 'ref=e[0-9]+' | head -1 | cut -d= -f2)
+playwright-cli click "$REF"
+playwright-cli upload /tmp/essay.txt
+# The iframe now emits current-state with the uploaded file's (fake) URL:
+playwright-cli eval "() => JSON.stringify(window.__host.last('current-state')?.data)"
+# -> {"files":[{"name":"essay.txt","url":"https://uploads.example/essay.txt"}]}
+```
+
+## Gotchas
+
+- **The CLI copies the template live from disk** — `services/example-exercise` on the _current
+  branch_. The template's framework and the CLI's parameterization must match. This branch is
+  TanStack Start (`rsbuild.config.ts`); `master` was Next.js (`next.config.js`). Run the CLI against
+  the branch's actual template; `smoke.mjs --boot` is the check that this still produces a bootable app.
+- **`pkill -f "rsbuild dev"` kills your own shell.** The pattern matches the running Bash command's
+  own argv (it contains the string), so the shell self-terminates (exit 144). Kill the dev server by
+  pid instead: `PID=$(ss -ltnp | grep ':3009' | grep -oP 'pid=\K[0-9]+' | head -1); kill "$PID"`.
+  `smoke.mjs` avoids this by launching the server `detached` and killing its process group.
+- **Default port 3002 collides with example-exercise**, and the **default project path resolves
+  relative to the CLI package dir** (the launcher `cd`s there), not to `services/`. Pass explicit
+  values.
+- **The generated project ships no lockfile** (excluded from the copy), so the first `pnpm install`
+  resolves fresh (~30s; faster after, via the shared pnpm store).
+- **Base path**: the dev server mounts under `PUBLIC_BASE_PATH`. Unset ⇒ served at root
+  (`/api/service-info`, `/iframe`). Set it (e.g. `PUBLIC_BASE_PATH=/my-exercise`) to mimic
+  production, and the endpoints become prefixed.
+- **The iframe needs the parent handshake to render a view** — without it you get "Waiting for
+  port...". Use `host-emulator.js` (see "Drive views in isolation"), which transfers the port and
+  auto-answers `file-upload`/`open-dialog`, rather than hand-rolling the parent side.
+- **Interactive prompts need a TTY** — pipe-driving `pnpm start` won't work; drive it under tmux
+  (`send-keys`, paced with `sleep`), as `interactive-demo.sh` does.
+- **Only the React project type is implemented**; selecting Svelte / No-framework exits 1.
+
+## Troubleshooting
+
+- `Target directory ... already exists and is not empty. Aborting.` — the CLI refuses a non-empty
+  target. Use a fresh path (the drivers use fresh temp dirs).
+- `tsx: command not found` / cannot find `@inquirer/prompts` — run the Setup `pnpm --dir ... install`.
+- `bin/create-exercise-service: No such file or directory` — you ran it from the unit dir; it lives
+  at the **repo root**. `cd` to the repo root first.
+- Dev server unreachable from `smoke.mjs --boot` within 60s — the generated app failed to build
+  (usually template drift). Re-run with `--keep` and `pnpm --dir <kept-dir> run dev` to see the
+  rsbuild error.

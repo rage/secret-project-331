@@ -4,3 +4,6 @@ target
 out
 kubernetes
 **/.sqlx/**/*.json
+# Injectable browser host emulator: a standalone arrow-function expression injected verbatim via
+# playwright-cli. Prettier would add a trailing `;` and rewrap it, diverging from HOST_EMULATOR_SOURCE.
+**/exercise-service-test-utils/src/browser/hostEmulator.js

@@ -1,0 +1,32 @@
+{
+  "name": "@moocfi/exercise-service-test-utils",
+  "version": "0.0.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "keywords": [],
+  "license": "Apache-2.0",
+  "main": "src/index.ts",
+  "private": true,
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
+  },
+  "scripts": {
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.9.1",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "jest": "^30.4.2",
+    "jest-environment-jsdom": "^30.4.1",
+    "next": "^16.2.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "typescript": "^6.0.3"
+  }
+}

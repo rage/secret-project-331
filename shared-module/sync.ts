@@ -36,6 +36,12 @@ const REACT_EXERCISE_TARGETS = [
 // render it, so it is vendored there and nowhere else.
 const HOST_TARGETS = ["services/cms/src/shared-module", "services/main-frontend/src/shared-module"]
 
+// The exercise-service testing utilities (host emulator + Playwright helpers) are only needed by
+// the standalone-capable template's e2e suite, which every generated service inherits. Vendoring it
+// into example-exercise lets its `@/shared-module/exercise-service-test-utils/...` imports resolve;
+// no other service uses it.
+const TEST_UTIL_TARGETS = ["services/example-exercise/src/shared-module"]
+
 // example-exercise is the standalone-capable template: it consumes only the exercise-service
 // packages, so common and components are not synced into it.
 const COMMON_AND_COMPONENTS_TARGETS = ALL_SERVICES_TARGETS.filter(
@@ -66,6 +72,10 @@ const SYNC_TARGETS = [
   {
     source: "exercise-iframe-host",
     destinations: HOST_TARGETS,
+  },
+  {
+    source: "exercise-service-test-utils",
+    destinations: TEST_UTIL_TARGETS,
   },
 ]
 

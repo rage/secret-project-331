@@ -15,10 +15,17 @@ const TEMPLATE_SERVICE_NAME = "example-exercise"
  * Shared-module packages vendored into the generated project's `src/shared-module/`, mirroring
  * `shared-module/sync.ts` so the template's `@/shared-module/<pkg>/...` imports resolve. The
  * exercise-service code is a layered set — exercise-protocol ← exercise-client ← exercise-react
- * (the iframe child's React adapter) — and the template imports nothing from common/components or
- * the host-side exercise-iframe-host, so only these three are vendored.
+ * (the iframe child's React adapter); the template imports nothing from common/components or the
+ * host-side exercise-iframe-host. exercise-service-test-utils is vendored for the inherited e2e
+ * suite (`e2e/protocol.spec.ts`); it declares no runtime deps, so it adds nothing to the generated
+ * package.json (its `@playwright/test` comes from the template's devDependencies).
  */
-const VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react"]
+const VENDORED_PACKAGES = [
+  "exercise-protocol",
+  "exercise-client",
+  "exercise-react",
+  "exercise-service-test-utils",
+]
 
 /** Top-level entries in the template that must never be copied into a generated project. */
 const COPY_EXCLUDES = new Set([

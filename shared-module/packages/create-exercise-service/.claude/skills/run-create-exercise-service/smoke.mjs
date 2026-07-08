@@ -63,9 +63,19 @@ async function main() {
   check(existsSync(join(out, "rsbuild.config.ts")), "rsbuild.config.ts present (TanStack Start stack)")
   check(!existsSync(join(out, "next.config.js")), "no next.config.js (not Next.js)")
   check(existsSync(join(out, "server.mjs")), "server.mjs present")
-  for (const p of ["exercise-protocol", "exercise-client", "exercise-react"]) {
+  for (const p of [
+    "exercise-protocol",
+    "exercise-client",
+    "exercise-react",
+    "exercise-service-test-utils",
+  ]) {
     check(existsSync(join(out, "src", "shared-module", p)), `vendored src/shared-module/${p}`)
   }
+  check(existsSync(join(out, "playwright.config.ts")), "playwright.config.ts present (inherited e2e)")
+  check(
+    existsSync(join(out, "e2e", "protocol.spec.ts")),
+    "e2e/protocol.spec.ts present (inherited e2e)",
+  )
   const info = readFileSync(join(out, "src", "server", "serviceInfo.ts"), "utf8")
   check(info.includes(`service_name: "${DISPLAY}"`), `service-info service_name === "${DISPLAY}"`)
   check(

@@ -229,7 +229,11 @@ async function replaceNameInAllFiles(
 }
 
 /** Replace the service name and other template-specific values throughout the generated project. */
-async function parameterize(projectPath: string, projectName: string): Promise<void> {
+async function parameterize(
+  projectPath: string,
+  projectName: string,
+  packageManager: PackageManager,
+): Promise<void> {
   // Display name (e.g. "my-exercise" -> "My exercise") for service_name and the document <title>.
   const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
 
@@ -245,9 +249,12 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
   // Standalone .editorconfig (the template's delegates to the monorepo root).
   await writeFile(join(projectPath, ".editorconfig"), STANDALONE_EDITORCONFIG)
 
-  // Standalone pnpm-workspace.yaml (the template's is excluded from the copy). Allows the build
-  // scripts the generated project needs so `pnpm install` succeeds.
-  await writeFile(join(projectPath, "pnpm-workspace.yaml"), STANDALONE_PNPM_WORKSPACE)
+  // Standalone pnpm-workspace.yaml (the template's is excluded from the copy). pnpm skips a dep's
+  // build script unless allow-listed, so this lets `pnpm install` build esbuild. Only relevant for
+  // pnpm — npm and yarn ignore it and run dep build scripts themselves, so don't emit it for them.
+  if (packageManager === "pnpm") {
+    await writeFile(join(projectPath, "pnpm-workspace.yaml"), STANDALONE_PNPM_WORKSPACE)
+  }
 
   // Track the vendored shared-module snapshot instead of ignoring it (it is real source now).
   const gitignorePath = join(projectPath, ".gitignore")
@@ -258,16 +265,20 @@ async function parameterize(projectPath: string, projectName: string): Promise<v
   await writeFile(gitignorePath, gitignore)
 }
 
+export type PackageManager = "npm" | "yarn" | "pnpm"
+
 export interface ScaffoldOptions {
   projectName: string
   /** Absolute path the project will be created at. */
   absoluteProjectPath: string
   port: number
+  /** Package manager the generated project targets. Only pnpm gets a `pnpm-workspace.yaml`. */
+  packageManager?: PackageManager
 }
 
 /** Create a standalone React exercise service from the example-exercise template. */
 export async function scaffoldReactProject(options: ScaffoldOptions): Promise<void> {
-  const { projectName, absoluteProjectPath, port } = options
+  const { projectName, absoluteProjectPath, port, packageManager = "pnpm" } = options
 
   if (await isNonEmptyDir(absoluteProjectPath)) {
     throw new Error(
@@ -285,7 +296,7 @@ export async function scaffoldReactProject(options: ScaffoldOptions): Promise<vo
   await buildPackageJson(absoluteProjectPath, projectName, port)
 
   console.log("Parameterizing project...")
-  await parameterize(absoluteProjectPath, projectName)
+  await parameterize(absoluteProjectPath, projectName, packageManager)
 }
 
 async function main() {
@@ -324,12 +335,15 @@ async function main() {
       },
     ],
   })
-  const packageManager = await select({
+  const packageManager: PackageManager = await select({
     message: "Package manager",
+    // pnpm is the repo's package manager and the only one that needs the generated
+    // pnpm-workspace.yaml, so it's the default.
+    default: "pnpm",
     choices: [
+      { name: "pnpm", value: "pnpm" },
       { name: "npm", value: "npm" },
       { name: "yarn", value: "yarn" },
-      { name: "pnpm", value: "pnpm" },
     ],
   })
   const port = await input({
@@ -357,7 +371,12 @@ async function main() {
   }
 
   try {
-    await scaffoldReactProject({ projectName, absoluteProjectPath, port: Number(port) })
+    await scaffoldReactProject({
+      projectName,
+      absoluteProjectPath,
+      port: Number(port),
+      packageManager,
+    })
   } catch (error) {
     console.error(error instanceof Error ? error.message : error)
     process.exitCode = 1

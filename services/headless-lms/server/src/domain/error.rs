@@ -2,6 +2,8 @@
 Contains error and result types for all the controllers.
 */
 
+use std::panic::Location;
+
 use crate::domain::authorization::AuthorizedResponse;
 use actix_web::{
     HttpResponse, HttpResponseBuilder, error,
@@ -10,9 +12,7 @@ use actix_web::{
 use backtrace::Backtrace;
 use derive_more::Display;
 use dpop_verifier::error::DpopError;
-use headless_lms_base::error::{
-    backend_error::BackendError, backtrace_formatter::format_backtrace,
-};
+use headless_lms_base::error::{backend_error::BackendError, clean_format::ColorChoice};
 use headless_lms_chatbot::prelude::ChatbotError;
 use headless_lms_models::{ModelError, ModelErrorType, prelude::UtilErrorType};
 use headless_lms_utils::error::util_error::{SisuErrorVariant, UtilError};
@@ -186,30 +186,22 @@ pub struct ControllerError {
     span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Box<Backtrace>,
+    /// Source location where the error was raised.
+    location: Option<&'static Location<'static>>,
 }
 
-/// Custom formatter so that errors that get printed to the console are easy-to-read with proper context where the error is coming from.
-impl std::fmt::Debug for ControllerError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ControllerError")
-            .field("error_type", &self.error_type)
-            .field("message", &self.message)
-            .field("source", &self.source)
-            .finish()?;
-
-        f.write_str("\n\nOperating system thread stack backtrace:\n")?;
-        format_backtrace(&self.backtrace, f)?;
-
-        f.write_str("\n\nTokio tracing span trace:\n")?;
-        f.write_fmt(format_args!("{}\n", &self.span_trace))?;
-
-        Ok(())
-    }
-}
+// Generates the clean developer `Debug`/`clean_string` and a cause resolver so console
+// logs and the stored error report render in the easy-to-read format.
+headless_lms_base::impl_clean_debug!(
+    ControllerError,
+    [ControllerError, ChatbotError, ModelError, UtilError]
+);
 
 impl std::error::Error for ControllerError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().and_then(|o| o.source())
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
@@ -230,20 +222,6 @@ impl std::fmt::Display for ControllerError {
 impl BackendError for ControllerError {
     type ErrorType = ControllerErrorType;
 
-    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
-        error_type: Self::ErrorType,
-        message: M,
-        source_error: S,
-    ) -> Self {
-        Self::new_with_traces(
-            error_type,
-            message,
-            source_error,
-            Backtrace::new(),
-            SpanTrace::capture(),
-        )
-    }
-
     fn backtrace(&self) -> Option<&Backtrace> {
         Some(&self.backtrace)
     }
@@ -260,12 +238,17 @@ impl BackendError for ControllerError {
         &self.span_trace
     }
 
-    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
+    fn location(&self) -> Option<&'static Location<'static>> {
+        self.location
+    }
+
+    fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
         source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
+        location: Option<&'static Location<'static>>,
     ) -> Self {
         Self {
             error_type,
@@ -273,6 +256,7 @@ impl BackendError for ControllerError {
             source: source_error.into(),
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
+            location,
         }
     }
 }
@@ -325,14 +309,12 @@ pub struct ApiErrorResponse {
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
         if let ControllerErrorType::InternalServerError = &self.error_type {
-            use std::fmt::Write as _;
-            let mut err_string = String::new();
-            let mut source = Some(self as &dyn std::error::Error);
-            while let Some(err) = source {
-                let _ = write!(err_string, "{}\n    ", err);
-                source = err.source();
-            }
-            error!("Internal server error: {}", err_string);
+            // Clean, human-readable developer format. Colored only when the console is a
+            // TTY (ColorChoice::Auto); the DB report below uses the plain Debug output.
+            error!(
+                "Internal server error:\n{}",
+                self.clean_string(ColorChoice::Auto)
+            );
 
             if let Some(pool) = crate::domain::internal_error_reporting::error_reporting_pool() {
                 let pool = pool.clone();
@@ -1191,5 +1173,33 @@ mod tests {
         assert_eq!(value["type"], "unauthorized");
         assert_eq!(value["message_key"], "unauthorized");
         assert_eq!(value["message"], "Unauthorized");
+    }
+
+    #[test]
+    fn debug_renders_clean_format() {
+        let err = controller_err!(InternalServerError, "database exploded".to_string());
+        let debug = format!("{err:?}");
+        assert!(
+            debug.contains("ControllerError · InternalServerError: database exploded"),
+            "got: {debug}"
+        );
+        // No error-infrastructure leakage in the raise line.
+        assert!(!debug.contains("backend_error.rs"), "got: {debug}");
+        assert!(!debug.contains("macros.rs"), "got: {debug}");
+    }
+
+    #[test]
+    fn debug_renders_wrapped_model_error_as_cause_node() {
+        let model_error = ModelError::new(ModelErrorType::Generic, "row missing".to_string(), None);
+        let err = ControllerError::from(model_error);
+
+        let debug = format!("{err:?}");
+        assert!(debug.contains("ControllerError ·"), "got: {debug}");
+        assert!(debug.contains("caused by:"), "got: {debug}");
+        assert!(
+            debug.contains("1. ModelError · Generic: row missing"),
+            "got: {debug}"
+        );
+        assert!(!debug.contains("(external)"), "got: {debug}");
     }
 }

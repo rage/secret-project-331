@@ -104,6 +104,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
           (url ? (
             <ExerciseTaskIframe
               exerciseTaskId={exerciseTask.id}
+              exerciseServiceSlug={exerciseTask.exercise_service_slug}
               postThisStateToIFrame={postThisStateToIFrame}
               url={url}
               setAnswer={setAnswer}

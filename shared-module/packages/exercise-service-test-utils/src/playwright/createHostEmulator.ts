@@ -118,9 +118,13 @@ export async function createHostEmulator(
       const intervalMs = options.intervalMs ?? 50
       const deadline = Date.now() + timeoutMs
       for (;;) {
-        const message = await page.evaluate((t) => window.__host.last(t), type)
-        if (message && (!predicate || predicate(message))) {
-          return message
+        // Scan the full history (like the in-browser `waitFor`), not just `last(type)`: a matching
+        // message can be superseded by a newer one of the same type between polls, and `last` would
+        // never return it.
+        const history = await page.evaluate((t) => window.__host.messages(t), type)
+        const match = predicate ? history.find((m) => predicate(m)) : history[0]
+        if (match) {
+          return match
         }
         if (Date.now() >= deadline) {
           throw new Error(`Timed out after ${timeoutMs}ms waiting for message: ${type}`)

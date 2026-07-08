@@ -104,9 +104,9 @@ const PlaygroundExerciseIframe: React.FC<
             if (msg.message === "current-state") {
               setCurrentStateReceivedFromIframe(msg)
             } else if (msg.message === "file-upload") {
-              const files = await uploadFilesFromIframe(msg.files)
               let response: MessageToIframe
               try {
+                const files = await uploadFilesFromIframe(msg.files)
                 response = {
                   // eslint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
@@ -121,7 +121,7 @@ const PlaygroundExerciseIframe: React.FC<
                   message: "upload-result",
                   requestId: msg.requestId ?? null,
                   success: false,
-                  error: JSON.stringify(e, null, 2),
+                  error: e instanceof Error ? e.message : String(e),
                 }
               }
               responsePort.postMessage(response)

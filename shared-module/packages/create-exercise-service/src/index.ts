@@ -39,6 +39,13 @@ const COPY_EXCLUDES = new Set([
   "pnpm-workspace.yaml",
   "tsconfig.tsbuildinfo",
   ".vscode",
+  // Playwright outputs from running the template's e2e suite; git-ignored, but the copier doesn't
+  // read .gitignore, so exclude them explicitly (they also hold binaries that name replacement would
+  // corrupt).
+  "test-results",
+  "playwright-report",
+  "blob-report",
+  ".playwright-cli",
   // moocfi-internal deployment files (private GCR base images + pnpm workspace); broken in a
   // standalone project, so not generated.
   "Dockerfile",
@@ -206,6 +213,9 @@ const BINARY_EXTENSIONS = new Set([
   ".gif",
   ".avif",
   ".pdf",
+  // Playwright trace/video artifacts, in case any escape COPY_EXCLUDES.
+  ".zip",
+  ".webm",
 ])
 
 /**
@@ -236,11 +246,7 @@ async function replaceNameInAllFiles(
 }
 
 /** Replace the service name and other template-specific values throughout the generated project. */
-async function parameterize(
-  projectPath: string,
-  projectName: string,
-  packageManager: PackageManager,
-): Promise<void> {
+async function parameterize(projectPath: string, projectName: string): Promise<void> {
   // Display name (e.g. "my-exercise" -> "My exercise") for service_name and the document <title>.
   const displayName = projectName.replace(/[-_]+/g, " ").replace(/^./, (c) => c.toUpperCase())
 
@@ -257,11 +263,10 @@ async function parameterize(
   await writeFile(join(projectPath, ".editorconfig"), STANDALONE_EDITORCONFIG)
 
   // Standalone pnpm-workspace.yaml (the template's is excluded from the copy). pnpm skips a dep's
-  // build script unless allow-listed, so this lets `pnpm install` build esbuild. Only relevant for
-  // pnpm — npm and yarn ignore it and run dep build scripts themselves, so don't emit it for them.
-  if (packageManager === "pnpm") {
-    await writeFile(join(projectPath, "pnpm-workspace.yaml"), STANDALONE_PNPM_WORKSPACE)
-  }
+  // build script unless allow-listed, so this lets `pnpm install` build esbuild. Always emitted:
+  // npm and yarn ignore the file, and this repo is a pnpm shop, so a `pnpm install` in a project
+  // scaffolded with npm/yarn still works instead of failing on esbuild's skipped build script.
+  await writeFile(join(projectPath, "pnpm-workspace.yaml"), STANDALONE_PNPM_WORKSPACE)
 
   // Track the vendored shared-module snapshot instead of ignoring it (it is real source now).
   const gitignorePath = join(projectPath, ".gitignore")
@@ -279,13 +284,13 @@ export interface ScaffoldOptions {
   /** Absolute path the project will be created at. */
   absoluteProjectPath: string
   port: number
-  /** Package manager the generated project targets. Only pnpm gets a `pnpm-workspace.yaml`. */
+  /** Package manager the generated project targets; used only for the printed "next steps". */
   packageManager?: PackageManager
 }
 
 /** Create a standalone React exercise service from the example-exercise template. */
 export async function scaffoldReactProject(options: ScaffoldOptions): Promise<void> {
-  const { projectName, absoluteProjectPath, port, packageManager = "pnpm" } = options
+  const { projectName, absoluteProjectPath, port } = options
 
   if (await isNonEmptyDir(absoluteProjectPath)) {
     throw new Error(
@@ -303,7 +308,7 @@ export async function scaffoldReactProject(options: ScaffoldOptions): Promise<vo
   await buildPackageJson(absoluteProjectPath, projectName, port)
 
   console.log("Parameterizing project...")
-  await parameterize(absoluteProjectPath, projectName, packageManager)
+  await parameterize(absoluteProjectPath, projectName)
 }
 
 async function main() {

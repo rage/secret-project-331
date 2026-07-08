@@ -24,7 +24,7 @@ sleep 5                                                   # tsx boots + prompt 1
 tmux send-keys -t "$SESSION" "$NAME" Enter;   sleep 2     # 1. Project name
 tmux send-keys -t "$SESSION" "$OUT" Enter;    sleep 2     # 2. Path (explicit; overrides the default)
 tmux send-keys -t "$SESSION" Enter;           sleep 1     # 3. Project type -> React (default)
-tmux send-keys -t "$SESSION" Enter;           sleep 1     # 4. Package manager -> npm (default)
+tmux send-keys -t "$SESSION" Enter;           sleep 1     # 4. Package manager -> pnpm (default)
 tmux send-keys -t "$SESSION" "3011" Enter;    sleep 1     # 5. Dev server port
 tmux send-keys -t "$SESSION" "y" Enter;       sleep 6     # 6. Confirm (default is No)
 

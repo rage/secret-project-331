@@ -133,43 +133,77 @@ pnpm --dir shared-module/packages/create-exercise-service test
 ## Drive views in isolation (host emulator)
 
 The scaffolded app is an iframe plugin; on its own it shows "Waiting for port..." until a host hands
-it a `MessagePort`. **`host-emulator.js`** (in this skill dir) is a local, scriptable stand-in for the
-host / the Playground: it transfers the port, lets you push any view with `set-state`, auto-answers
-`file-upload` (with fake stored URLs) and `open-dialog`, and records the iframe's latest message of
-each type so `current-state` isn't lost among the frequent `height-changed` messages.
+it a `MessagePort`. The reusable host emulator lives in the shared package
+**`@moocfi/exercise-service-test-utils`**; `src/browser/hostEmulator.js` is a single arrow-function
+you inject as-is. It plays the parent: transfers the port (it waits for the iframe's `ready`, so
+injection order doesn't matter), lets you push any view with `set-state`, auto-answers `file-upload`
+(fake stored URLs) and `open-dialog`, and records the iframe's **full message history** so
+`current-state` isn't lost among the frequent `height-changed` messages. Once injected,
+`window.__host` exposes `setState(viewType, data)`, `last(type)`, `messages(type?)`,
+`waitFor(type, pred?)`, `sendUploadResult`/`respondToDialog`, and `reset()`.
 
-Boot a generated service first (e.g. `node smoke.mjs --boot --keep`, then
-`PUBLIC_BASE_PATH="" PORT=<port> pnpm --dir <kept-dir> run dev`, or the human path). Then, with
-`playwright-cli` (Chromium is on `PATH`):
+Boot a service first (a generated one via `node smoke.mjs --boot --keep` then
+`PUBLIC_BASE_PATH="" PORT=<port> pnpm --dir <kept-dir> run dev`, the human path, or just
+`pnpm --dir services/example-exercise run dev` for the template on `:3002`). Then, from the repo
+root, with `playwright-cli` (Chromium is on `PATH`):
 
 ```bash
-SKILL=shared-module/packages/create-exercise-service/.claude/skills/run-create-exercise-service
-BASE=http://localhost:3021
-playwright-cli open "$BASE/iframe"                         # open FIRST so the iframe mounts
-playwright-cli eval "$(cat "$SKILL/host-emulator.js")"     # installs window.__host + hands over the port
+EMU=shared-module/packages/exercise-service-test-utils/src/browser/hostEmulator.js
+BASE=http://localhost:3002
+playwright-cli open "$BASE/iframe"                     # open FIRST so the iframe mounts
+playwright-cli eval "$(cat "$EMU")"                    # installs window.__host + hands over the port
 
-# Push a view. `data` is that view's payload (see stateInterfaces.ts for your shapes):
-playwright-cli eval "() => window.__host.setState('answer-exercise', { public_spec: { instructions: 'Upload your essay', allowedExtensions: ['txt'], maxFiles: 3, maxFileSizeBytes: null }, previous_submission: null })"
+# Push a view. The 2nd arg is that view's `data` payload (see stateInterfaces.ts for your shapes):
+playwright-cli eval "() => window.__host.setState('answer-exercise', { public_spec: [{ id: 'a', name: 'Helsinki' }, { id: 'b', name: 'Tampere' }], previous_submission: null })"
 
-# Read what the iframe emits back (keyed by type, so height spam doesn't clobber it):
-playwright-cli eval "() => JSON.stringify(window.__host.last('current-state')?.data)"
+# example-exercise emits current-state when the student picks an option:
+playwright-cli snapshot | grep checkbox                # -> - checkbox "Tampere" [ref=e8] ...
+playwright-cli click e8
+playwright-cli eval "() => JSON.stringify(window.__host.last('current-state'))"
+# -> {"message":"current-state","data":{"selectedOptionId":"b"},"valid":true}
 playwright-cli screenshot --filename view.png
 playwright-cli close
 ```
 
-**File-upload round-trip** — the emulator auto-answers `file-upload`, so you only drive the input.
-The `playwright-cli` file-chooser dance is non-obvious: `snapshot` → get the input/button `ref` →
-`click <ref>` (opens the chooser) → `upload <file>`. `upload` alone errors with "can only be used
-when there is related modal state present":
+**File-upload round-trip** — the emulator auto-answers `file-upload` with fake stored URLs, so you
+only drive the input. The `playwright-cli` file-chooser dance is non-obvious: `snapshot` → get the
+button `ref` → `click <ref>` (opens the chooser) → `upload <file>`. `upload` alone errors with "can
+only be used when there is related modal state present". Against a file-submission plugin:
 
 ```bash
 echo hello > /tmp/essay.txt
 REF=$(playwright-cli snapshot | grep 'button "Choose File"' | grep -oE 'ref=e[0-9]+' | head -1 | cut -d= -f2)
 playwright-cli click "$REF"
 playwright-cli upload /tmp/essay.txt
-# The iframe now emits current-state with the uploaded file's (fake) URL:
+# The iframe records the stored URL in its answer and emits current-state:
 playwright-cli eval "() => JSON.stringify(window.__host.last('current-state')?.data)"
 # -> {"files":[{"name":"essay.txt","url":"https://uploads.example/essay.txt"}]}
+```
+
+To exercise the _failure_ path instead, turn auto-answering off and reply yourself: inject the
+emulator with `{ autoUpload: false }`, wait for the `file-upload` message, then
+`window.__host.sendUploadResult(requestId, { error: "quota exceeded" })` (same idea for
+`respondToDialog` with `{ autoDialog: false }`).
+
+## Durable tests (@playwright/test)
+
+For committed tests, use the package's typed wrapper instead of raw `playwright-cli`.
+`createHostEmulator(page)` (`.../exercise-service-test-utils/playwright/createHostEmulator`) injects
+the same emulator and returns an async handle — `setState(state)`, `waitForViewType(vt)`,
+`waitForCurrentState(pred?)`, `lastMessage`, `driveFileUpload(file)` — alongside typed `set-state`
+builders (`answerExerciseState`, `exerciseEditorState`, `viewSubmissionState`). The scaffold ships a
+working example at **`e2e/protocol.spec.ts`** (inherited by every generated project); copy and adapt
+it to your data types. Run it against the dev server (Playwright boots it via `webServer`):
+
+```bash
+# In the moocfi dev shell, point Playwright at the system chromium (managed browsers aren't installed):
+PLAYWRIGHT_CHROMIUM_PATH="$(command -v chromium)" pnpm --dir services/example-exercise exec playwright test
+```
+
+The emulator's protocol logic is also unit-tested with a mock `MessageChannel` (no browser):
+
+```bash
+pnpm --dir shared-module/packages/exercise-service-test-utils test
 ```
 
 ## Gotchas
@@ -191,8 +225,9 @@ playwright-cli eval "() => JSON.stringify(window.__host.last('current-state')?.d
   (`/api/service-info`, `/iframe`). Set it (e.g. `PUBLIC_BASE_PATH=/my-exercise`) to mimic
   production, and the endpoints become prefixed.
 - **The iframe needs the parent handshake to render a view** — without it you get "Waiting for
-  port...". Use `host-emulator.js` (see "Drive views in isolation"), which transfers the port and
-  auto-answers `file-upload`/`open-dialog`, rather than hand-rolling the parent side.
+  port...". Use the emulator from `@moocfi/exercise-service-test-utils` (see "Drive views in
+  isolation"), which transfers the port and auto-answers `file-upload`/`open-dialog`, rather than
+  hand-rolling the parent side.
 - **Interactive prompts need a TTY** — pipe-driving `pnpm start` won't work; drive it under tmux
   (`send-keys`, paced with `sleep`), as `interactive-demo.sh` does.
 - **Only the React project type is implemented**; selecting Svelte / No-framework exits 1.

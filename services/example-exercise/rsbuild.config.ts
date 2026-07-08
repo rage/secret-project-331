@@ -40,6 +40,9 @@ export default defineConfig({
     }),
   ],
   server: {
+    // Bind all interfaces (not just loopback) so the k8s probes and ingress can reach the dev
+    // server; rsbuild dev otherwise listens on 127.0.0.1 only.
+    host: "0.0.0.0",
     port: Number(process.env.PORT ?? 3002),
     // Serve the shell + assets under the ingress base path.
     base: BASE_PATH || undefined,

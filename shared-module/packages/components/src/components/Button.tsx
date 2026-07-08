@@ -108,6 +108,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       onBlur,
       className,
       domProps,
+      name,
     } = props
 
     const { t } = useTranslation("shared-module")
@@ -165,6 +166,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         formAction={formAction}
         disabled={isDisabled}
         type={props.type ?? "button"}
+        name={name}
       >
         <span className={cx(contentCss, isLoading ? contentLoadingCss : undefined)}>
           {icon && iconPosition === "start" ? <span className={iconSlotCss}>{icon}</span> : null}

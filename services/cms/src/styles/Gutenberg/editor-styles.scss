@@ -1,3 +1,9 @@
+:root {
+  --wpds-typography-font-family-body: "Inter Variable", Inter, sans-serif;
+  --wpds-typography-font-family-heading: "Inter Variable", Inter, sans-serif;
+  --wpds-typography-font-family-mono: "Space Mono", monospace;
+}
+
 .editor-styles-wrapper {
   line-height: $editor-line-height;
   color: $gray-900;

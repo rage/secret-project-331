@@ -367,6 +367,31 @@ jobs:
             echo "- **Service**: Shared Module Exercise Protocol"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  shared-module-exercise-service-test-utils:
+    permissions:
+      contents: read
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-node-pnpm
+      - name: Install dependencies at repository root
+        run: pnpm install --frozen-lockfile
+      - name: Install dependencies for shared-module/packages/exercise-service-test-utils
+        run: pnpm install --frozen-lockfile
+        working-directory: ./shared-module/packages/exercise-service-test-utils
+      - name: Run tests
+        run: pnpm run test
+        working-directory: ./shared-module/packages/exercise-service-test-utils
+      - name: Test Summary
+        if: always()
+        run: |
+          {
+            echo "## 🧪 Exercise Service Test Utils Tests"
+            echo "- **Status**: ${{ job.status }}"
+            echo "- **Service**: Shared Module Exercise Service Test Utils"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   create-exercise-service:
     permissions:
       contents: read

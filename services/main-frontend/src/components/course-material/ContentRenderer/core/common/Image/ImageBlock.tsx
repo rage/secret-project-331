@@ -24,7 +24,6 @@ const StyledZoomWrapper = styled.div`
   }
 `
 
-/* eslint-disable i18next/no-literal-string */
 const normalizeCssSize = (value: number | string | undefined): string | undefined => {
   // Treat an empty string the same as "unset" because some images from material migration have
   // width="" / height="", which would lead to invalid CSS (`width: ;`)
@@ -32,11 +31,12 @@ const normalizeCssSize = (value: number | string | undefined): string | undefine
     return undefined
   }
   if (typeof value === "number") {
+    // eslint-disable-next-line i18next/no-literal-string
     return `${value}px`
   }
+  // eslint-disable-next-line i18next/no-literal-string
   return /^\d+$/.test(value) ? `${value}px` : value
 }
-/* eslint-enable i18next/no-literal-string */
 
 /** Strips HTML tags from a rich-text caption to get a plain-text fallback label. */
 const stripTags = (html: string): string => html.replace(/<[^>]*>/g, "").trim()

@@ -11,11 +11,10 @@ use tracing_error::SpanTrace;
 pub trait BackendError: std::error::Error + std::marker::Sync {
     type ErrorType: std::fmt::Debug;
 
-    /// Create a new error, capturing the caller's source location, a backtrace and the
-    /// current tracing span trace.
+    /// Create an error, capturing the caller's location, a backtrace and the span trace.
     ///
-    /// `#[track_caller]` makes [`Location::caller`] resolve to the real call site —
-    /// including *through* the `*_err!` macro expansions — instead of this trait method.
+    /// `#[track_caller]` makes [`Location::caller`] resolve to the real call site, even
+    /// through the `*_err!` macros, rather than to this method.
     #[track_caller]
     fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
@@ -35,8 +34,8 @@ pub trait BackendError: std::error::Error + std::marker::Sync {
         )
     }
 
-    /// Create a new error with explicit backtrace and span trace (e.g. to preserve the
-    /// traces of a source error), capturing the caller's source location.
+    /// Like [`new`](Self::new) but with an explicit backtrace and span trace, e.g. to
+    /// preserve a source error's traces.
     #[track_caller]
     fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
@@ -58,8 +57,7 @@ pub trait BackendError: std::error::Error + std::marker::Sync {
         )
     }
 
-    /// The single required constructor: stores the error type, message, optional source,
-    /// backtrace, span trace and the raise location.
+    /// The one required constructor; the others delegate to it.
     fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
@@ -77,7 +75,7 @@ pub trait BackendError: std::error::Error + std::marker::Sync {
 
     fn span_trace(&self) -> &SpanTrace;
 
-    /// The source location where the error was raised, if it was captured.
+    /// Source location where the error was raised, if captured.
     fn location(&self) -> Option<&'static Location<'static>>;
 
     #[track_caller]

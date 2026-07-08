@@ -1,11 +1,10 @@
 /*!
 Clean, human-readable rendering of backend errors for developers.
 
-This module turns one of our errors — plus its whole cause chain — into a sectioned,
-plain-text (never JSON) form that shows, for every error in the chain, its type, message,
-the real source location it was raised at, and a simplified stack of *our* code only.
-Third-party causes are shown message-only and tagged `(external)`. A one-line breadcrumb
-of the active tracing spans (with runtime field values) is appended.
+Renders an error and its cause chain as sectioned plain text (never JSON): per error, its
+type, message, raise location and an our-code-only stack. Third-party causes are shown
+message-only and tagged `(external)`. A one-line breadcrumb of the active tracing spans
+is appended.
 
 Example output:
 
@@ -27,13 +26,12 @@ spans
 
 ## Design
 
-The four error types (`ControllerError`, `ChatbotError`, `ModelError`, `UtilError`) live
-in crates that depend on `base`, so `base` cannot name them. Instead they expose their
-data through the object-safe [`ErrorTrace`] trait (blanket-implemented for every
-[`BackendError`]), and each type's generated `Debug`/`clean_string` passes a small
-crate-local downcast *resolver* — see [`crate::impl_clean_debug`]. Because the cause
-chain only ever contains error types "below" a given error in the dependency graph, a
-per-crate resolver covers every reachable cause with no runtime registry.
+The four error types live in crates that depend on `base`, so `base` cannot name them.
+They expose their data through the object-safe [`ErrorTrace`] trait (blanket-implemented
+for every [`BackendError`]); each type's generated `Debug`/`clean_string` passes a
+crate-local downcast resolver (see [`crate::impl_clean_debug`]). A cause chain only
+contains error types below a given error in the dependency graph, so a per-crate resolver
+covers every reachable cause without a runtime registry.
 */
 
 pub mod color;
@@ -51,20 +49,19 @@ pub use color::ColorChoice;
 use crate::error::backend_error::BackendError;
 use color::{bold, dim};
 
-/// Object-safe view over one of our errors, used by the clean formatter so that `base`
-/// can render error types defined in dependent crates.
+/// Object-safe view over an error, letting `base` render types defined in dependent crates.
 pub trait ErrorTrace {
     /// Short type name, e.g. `"ChatbotError"`.
     fn type_name(&self) -> &'static str;
-    /// The error-type variant, formatted via its `Debug`.
+    /// Error-type variant, via its `Debug`.
     fn variant(&self) -> String;
-    /// The human-facing message.
+    /// Human-facing message.
     fn message(&self) -> &str;
-    /// The captured OS backtrace, if any.
+    /// Captured OS backtrace, if any.
     fn backtrace(&self) -> Option<&Backtrace>;
-    /// The captured raise location, if any.
+    /// Captured raise location, if any.
     fn location(&self) -> Option<&'static Location<'static>>;
-    /// The captured tracing span trace.
+    /// Captured tracing span trace.
     fn span_trace(&self) -> &SpanTrace;
 }
 
@@ -102,7 +99,7 @@ impl<T: BackendError> ErrorTrace for T {
 pub type Resolver<'a> =
     dyn for<'e> Fn(&'e (dyn std::error::Error + 'static)) -> Option<&'e dyn ErrorTrace> + 'a;
 
-/// Guard against pathological / cyclic cause chains.
+/// Bound on cause-chain length, guarding against cycles.
 const MAX_CHAIN: usize = 64;
 
 /// Render `head` and its whole cause chain in the clean developer format.
@@ -181,8 +178,8 @@ fn write_stack(
     indent: &str,
     colored: bool,
 ) -> fmt::Result {
-    // Use the captured location for the raise line only when it is meaningful, i.e. not
-    // itself inside error infrastructure (e.g. a `From` impl body).
+    // Only use the captured location when it is meaningful, i.e. not inside error
+    // infrastructure (e.g. a `From` body).
     let raise_override = trace
         .location()
         .filter(|location| !frames::is_infra_path(location.file()))
@@ -208,11 +205,11 @@ fn write_stack(
     }
 }
 
-/// Generate the clean `Debug` implementation, a `clean_string` helper and a crate-local
-/// cause resolver for an error type.
+/// Generate the clean `Debug`, a `clean_string` helper and a crate-local cause resolver
+/// for an error type.
 ///
-/// `causes` lists the error types that can appear in this error's cause chain (itself
-/// plus every `BackendError` it can wrap). Ordering does not matter.
+/// The list is every error type that can appear in the cause chain (this type plus every
+/// `BackendError` it can wrap); order is irrelevant.
 ///
 /// ```ignore
 /// headless_lms_base::impl_clean_debug!(ChatbotError, [ChatbotError, ModelError, UtilError]);
@@ -249,7 +246,7 @@ macro_rules! impl_clean_debug {
                 )
             }
 
-            /// Render this error in the clean, human-readable developer format.
+            /// Render this error in the clean developer format.
             pub fn clean_string(
                 &self,
                 color: $crate::error::clean_format::ColorChoice,
@@ -272,8 +269,7 @@ macro_rules! impl_clean_debug {
 mod tests {
     use super::*;
 
-    /// A minimal `ErrorTrace` that is deliberately NOT a `BackendError`, so we can build
-    /// cause chains in tests without a real error type.
+    /// Minimal `ErrorTrace` (not a `BackendError`) for building cause chains in tests.
     struct FakeError {
         type_name: &'static str,
         variant: &'static str,
@@ -340,7 +336,7 @@ mod tests {
 
     #[test]
     fn renders_header_and_full_chain_without_skipping_levels() {
-        // external leaf <- ModelError <- ChatbotError (head)
+        // Chain: ChatbotError (head) -> ModelError -> external leaf.
         let leaf = FakeError {
             type_name: "io::Error",
             variant: "",
@@ -377,7 +373,7 @@ mod tests {
             out.contains("1. ModelError · Database: database call failed"),
             "{out}"
         );
-        // The leaf is not a FakeError → external, and it must still appear (no skipped level).
+        // The leaf is not a FakeError, so it takes the (external) path and must still appear.
         assert!(out.contains("2. pool timed out  (external)"), "{out}");
     }
 

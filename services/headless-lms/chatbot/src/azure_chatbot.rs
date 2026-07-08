@@ -626,9 +626,8 @@ where
     fn poll_next(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Option<Self::Item>> {
         let this = self.project();
         let polled = this.stream.poll_next(cx);
-        // The stream body error is otherwise only surfaced by actix's dispatcher as a
-        // terse Display line. Log it here in the clean developer format before it is
-        // erased into the response body.
+        // Log stream errors here in the clean format; actix's dispatcher otherwise only
+        // surfaces them as a terse Display line once the error is in the response body.
         if let Poll::Ready(Some(Err(error))) = &polled {
             log_stream_error(error);
         }
@@ -636,9 +635,8 @@ where
     }
 }
 
-/// Log a chatbot response-stream error in the clean developer format. When the error
-/// wraps a [`ChatbotError`] its cleaned `Debug` is used; otherwise the anyhow chain is
-/// logged.
+/// Log a chatbot stream error in the clean format, using the wrapped [`ChatbotError`]'s
+/// `Debug` when present, else the anyhow chain.
 fn log_stream_error(error: &anyhow::Error) {
     match error.downcast_ref::<ChatbotError>() {
         Some(chatbot_error) => error!("Chatbot response stream error:\n{chatbot_error:?}"),

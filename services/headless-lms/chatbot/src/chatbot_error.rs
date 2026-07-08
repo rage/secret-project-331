@@ -335,8 +335,8 @@ mod tests {
         assert_eq!(err.message(), "Unknown tool: test_tool");
     }
 
-    /// A three-crate cause chain (ChatbotError ← ModelError ← UtilError) renders every
-    /// link as its own node, proving the resolver reaches transitively-wrapped errors.
+    /// A three-crate chain (ChatbotError, ModelError, UtilError) renders every link as
+    /// its own node, checking the resolver reaches transitively-wrapped errors.
     #[test]
     fn debug_renders_deep_cross_crate_chain() {
         use headless_lms_utils::error::util_error::UtilErrorType;

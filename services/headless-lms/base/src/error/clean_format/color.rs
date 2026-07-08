@@ -1,34 +1,29 @@
 /*!
 Color handling for the clean error formatter.
 
-Coloring is intentionally minimal: only the error type line and section labels are
-emphasised. The decision to emit ANSI escapes is centralised here so that `Debug`
-output (consumed by the DB error report, `{:?}` in arbitrary logs, and log
-aggregators) stays plain, while the interactive console log can opt into color when
-stderr is a TTY.
+Centralised so `Debug` output (DB report, `{:?}`, aggregators) stays plain while the
+console log can use color on a TTY. Only the type line and section labels are colored.
 */
 
 use std::io::IsTerminal;
 use std::sync::OnceLock;
 
-/// Whether the process-wide "auto" color decision resolved to enabled. Set once at
-/// startup via [`init_auto`]; defaults to disabled (plain) until then, which keeps
-/// every code path safe by default.
+/// The process-wide "auto" decision, set once by [`init_auto`]. Defaults to off (plain).
 static AUTO_ENABLED: OnceLock<bool> = OnceLock::new();
 
-/// How the clean formatter should decide whether to emit ANSI color.
+/// How to decide whether to emit ANSI color.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum ColorChoice {
-    /// Follow the process-wide decision set by [`init_auto`] (TTY + env based).
+    /// Follow the process-wide [`init_auto`] decision.
     Auto,
-    /// Always emit color.
+    /// Always color.
     Always,
-    /// Never emit color. Used for `Debug`, the DB report and other non-TTY sinks.
+    /// Never color. Used by `Debug` and other non-TTY sinks.
     Never,
 }
 
 impl ColorChoice {
-    /// Resolve this choice to a concrete on/off decision.
+    /// Resolve to on/off.
     pub fn enabled(self) -> bool {
         match self {
             ColorChoice::Always => true,
@@ -38,10 +33,8 @@ impl ColorChoice {
     }
 }
 
-/// Resolve the process-wide "auto" color decision once, at startup.
-///
-/// Enabled only when stderr is a terminal and `NO_COLOR` is unset; `FORCE_COLOR`
-/// forces it on. Safe to call more than once (only the first call takes effect).
+/// Resolve the "auto" decision once at startup: on when stderr is a TTY and `NO_COLOR`
+/// is unset; `FORCE_COLOR` forces it on. Only the first call takes effect.
 pub fn init_auto() {
     let _ = AUTO_ENABLED.set(compute_auto());
 }
@@ -56,7 +49,7 @@ fn compute_auto() -> bool {
     std::io::stderr().is_terminal()
 }
 
-/// Wrap `text` in the dim/faint SGR sequence when `colored`, otherwise return it as-is.
+/// Dim `text` when `colored`, else return it unchanged.
 pub fn dim(text: &str, colored: bool) -> String {
     if colored {
         format!("\x1b[2m{text}\x1b[0m")
@@ -65,7 +58,7 @@ pub fn dim(text: &str, colored: bool) -> String {
     }
 }
 
-/// Wrap `text` in the bold SGR sequence when `colored`, otherwise return it as-is.
+/// Bold `text` when `colored`, else return it unchanged.
 pub fn bold(text: &str, colored: bool) -> String {
     if colored {
         format!("\x1b[1m{text}\x1b[0m")

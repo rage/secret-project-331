@@ -344,9 +344,8 @@ mod tests {
         assert_eq!(err.message(), "Failed to process file: /tmp/test.txt");
     }
 
-    /// Proves the macro-location fix: the captured `Location` points at the `util_err!`
-    /// call site (this test) rather than the macro definition in `macros.rs` or the
-    /// `new` constructor.
+    /// The captured `Location` points at the `util_err!` call site, not `macros.rs` or
+    /// the `new` constructor.
     #[test]
     fn err_macro_captures_the_real_call_site() {
         let expected_line = line!() + 1;
@@ -365,9 +364,7 @@ mod tests {
         );
     }
 
-    /// The `?`/`From` path captures a location too (here inside the `from` body, which is
-    /// treated as infra and suppressed by the formatter — the important part is that it
-    /// does not panic and the chain is preserved).
+    /// `Debug` renders the clean format without leaking infra paths.
     #[test]
     fn debug_uses_clean_format() {
         let err = util_err!(Other, "boom".to_string());

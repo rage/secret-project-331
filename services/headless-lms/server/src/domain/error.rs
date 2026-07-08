@@ -190,8 +190,7 @@ pub struct ControllerError {
     location: Option<&'static Location<'static>>,
 }
 
-// Generates the clean developer `Debug`/`clean_string` and a cause resolver so console
-// logs and the stored error report render in the easy-to-read format.
+// Generate the clean developer `Debug`/`clean_string` and a cause resolver.
 headless_lms_base::impl_clean_debug!(
     ControllerError,
     [ControllerError, ChatbotError, ModelError, UtilError]
@@ -309,8 +308,7 @@ pub struct ApiErrorResponse {
 impl error::ResponseError for ControllerError {
     fn error_response(&self) -> HttpResponse {
         if let ControllerErrorType::InternalServerError = &self.error_type {
-            // Clean, human-readable developer format. Colored only when the console is a
-            // TTY (ColorChoice::Auto); the DB report below uses the plain Debug output.
+            // Clean format, colored only on a TTY (Auto); the DB report below stays plain.
             error!(
                 "Internal server error:\n{}",
                 self.clean_string(ColorChoice::Auto)

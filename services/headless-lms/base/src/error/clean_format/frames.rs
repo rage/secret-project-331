@@ -1,13 +1,10 @@
 /*!
-Stack-frame extraction, classification and rendering for the clean error formatter.
+Extract, classify and render backtrace frames for the clean error formatter.
 
-The goal is a stack that shows only *our* code: the line where the error was raised
-(taken from the captured [`std::panic::Location`] when it is meaningful, otherwise from
-the backtrace) followed by our-code caller frames, with runs of third-party / runtime
-frames collapsed into a single "N framework frames hidden" marker.
-
-Everything here is split into small pure functions operating on [`FrameView`] so the
-classification and rendering can be unit-tested without capturing a real backtrace.
+Shows only our-code frames: the raise line (from the captured [`std::panic::Location`]
+when meaningful, else the backtrace) plus our-code callers, with runs of third-party and
+runtime frames collapsed into a "N framework frames hidden" marker. Pure functions over
+[`FrameView`] so they unit-test without a real backtrace.
 */
 
 use core::fmt;
@@ -16,34 +13,33 @@ use backtrace::Backtrace;
 
 use super::color::dim;
 
-/// A single stack frame reduced to the fields we care about.
+/// A stack frame reduced to what we display and classify on.
 #[derive(Debug, Clone)]
 pub struct FrameView {
-    /// Cleaned, human-friendly function name (last path segment, closures stripped).
+    /// Function name: last path segment, closures stripped.
     pub function: String,
-    /// The full demangled symbol, kept for classification.
+    /// Full demangled symbol, used for classification.
     pub raw_symbol: String,
-    /// Source file path, cleaned to a workspace-relative form when possible.
+    /// Source file, workspace-relative when possible.
     pub file: Option<String>,
-    /// Source line number.
+    /// Source line.
     pub line: Option<u32>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Kind {
-    /// Error-construction / conversion machinery — always hidden.
+    /// Error construction/conversion machinery; always hidden.
     Infra,
-    /// Third-party crate or the standard library / async runtime — collapsed.
+    /// Third-party, std or async runtime; collapsed.
     Foreign,
-    /// Our own code — shown.
+    /// Our code; shown.
     Ours,
 }
 
-/// Path fragments that identify error-infrastructure source files.
+/// Path fragments identifying error-infrastructure files.
 ///
-/// Note: `macros.rs` is deliberately absent — the `*_err!` expansion attributes the
-/// raise call site to `.../error/macros.rs`, and that frame is the one we want to keep
-/// (relabelled with the real [`Location`]).
+/// `macros.rs` is deliberately excluded: the `*_err!` expansion attributes the raise
+/// site to it, and we keep that frame (relabelled with the real [`Location`]).
 const INFRA_FILE_FRAGMENTS: &[&str] = &[
     "backend_error.rs",
     "/clean_format/",
@@ -53,7 +49,7 @@ const INFRA_FILE_FRAGMENTS: &[&str] = &[
     "/models/src/error.rs",
 ];
 
-/// Symbol substrings that mark a frame as error-construction / conversion machinery.
+/// Symbol substrings marking a frame as error construction/conversion.
 const INFRA_SYMBOL_FRAGMENTS: &[&str] = &[
     "BackendError",
     "convert::From<",
@@ -62,8 +58,8 @@ const INFRA_SYMBOL_FRAGMENTS: &[&str] = &[
     "clean_format",
 ];
 
-/// True if a source path belongs to error infrastructure (so a `Location` pointing
-/// there — e.g. a `From` impl body — should be treated as not meaningful).
+/// True if a path is error infrastructure, so a `Location` there (e.g. a `From` body)
+/// is not a meaningful raise site.
 pub fn is_infra_path(path: &str) -> bool {
     INFRA_FILE_FRAGMENTS.iter().any(|frag| path.contains(frag))
 }
@@ -92,8 +88,8 @@ fn classify(symbol: &str, file: Option<&str>) -> Kind {
     }
 }
 
-/// Reduce a full demangled symbol to a readable function name: drop the `::hXXXX`
-/// hash suffix and `::{{closure}}` wrappers, then keep the last `::` segment.
+/// Reduce a demangled symbol to its last segment, dropping `::{{closure}}` and the
+/// `::hXXXX` hash suffix.
 pub fn clean_function(symbol: &str) -> String {
     if symbol.is_empty() {
         return "<unknown>".to_string();
@@ -130,8 +126,8 @@ pub fn clean_path(path: &str) -> String {
     path.to_string()
 }
 
-/// Extract the frames of a backtrace as [`FrameView`]s. Resolves a clone so that a
-/// backtrace captured unresolved (cheap) is symbolized only when actually formatted.
+/// Extract [`FrameView`]s from a backtrace. Resolves a clone so an unresolved capture
+/// is symbolized only when formatted.
 pub fn extract_frames(backtrace: &Backtrace) -> Vec<FrameView> {
     let mut backtrace = backtrace.clone();
     backtrace.resolve();
@@ -170,14 +166,12 @@ fn format_frame(file: &str, line: Option<u32>, function: &str) -> String {
     }
 }
 
-/// Render the merged raise-site + caller stack for one error node.
+/// Render one node's raise line plus caller frames.
 ///
-/// - `frames` are the node's backtrace frames (innermost first).
-/// - `raise_override` is the `(file, line)` from the captured `Location` to use for the
-///   raise line when it is meaningful; the caller decides meaningfulness (see
-///   [`is_infra_path`]). When `None`, the raise frame's own file:line is used.
-/// - `indent` is the leading indentation for the raise line; caller frames are indented
-///   three spaces further.
+/// `raise_override` is the `(file, line)` used for the raise line (the caller passes the
+/// captured `Location` when meaningful; see [`is_infra_path`]), else the raise frame's
+/// own file:line is used. `frames` are innermost-first; caller frames indent three
+/// spaces past `indent`.
 pub fn render_stack(
     out: &mut dyn fmt::Write,
     frames: &[FrameView],
@@ -309,7 +303,7 @@ mod tests {
             ),
             Kind::Infra
         );
-        // Third-party / runtime.
+        // Third-party or runtime.
         assert_eq!(
             classify(
                 "tokio::runtime::task::poll",

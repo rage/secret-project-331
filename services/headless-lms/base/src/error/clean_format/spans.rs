@@ -1,11 +1,9 @@
 /*!
-Renders the tracing span trace as a single compact breadcrumb.
+Render the tracing span trace as a compact breadcrumb.
 
-Unlike the OS backtrace, the span trace carries the instrumented business-logic spans
-that were active when the error was created, together with their runtime field values
-(request_id, course_id, user_id, …). Rendered root-first as
-`http_request{request_id=…} › send_message{course_id=…}` it gives the request context
-at a glance.
+The span trace carries the instrumented spans active when the error was created plus
+their field values (request_id, course_id, ...). Rendered root-first as
+`http_request{request_id=…} › send_message{course_id=…}` for request context at a glance.
 */
 
 use tracing_error::SpanTrace;
@@ -23,8 +21,7 @@ pub struct SpanEntry {
     pub fields: String,
 }
 
-/// Build the breadcrumb string from ordered (root-first) span entries, or `None` when
-/// there is nothing worth showing.
+/// Build the breadcrumb from root-first entries, or `None` if there is nothing to show.
 pub fn render_breadcrumb(entries: &[SpanEntry]) -> Option<String> {
     if entries.is_empty() {
         return None;
@@ -67,7 +64,7 @@ pub fn extract_spans(span_trace: &SpanTrace) -> Vec<SpanEntry> {
     entries
 }
 
-/// Convenience: extract and render a span trace's breadcrumb in one step.
+/// Extract and render a span trace's breadcrumb.
 pub fn breadcrumb(span_trace: &SpanTrace) -> Option<String> {
     render_breadcrumb(&extract_spans(span_trace))
 }

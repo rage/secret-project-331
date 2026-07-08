@@ -193,7 +193,7 @@ test("refreshing marker stays attached until the blur-out transition genuinely e
 
   expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
 
-  // The query settled, but the blur-out transition is still running: stay marked busy.
+  // Query settled but blur-out still running: stay marked busy.
   rerender(
     <QueryResult query={makeQuery({ data: "ok", isFetching: false })} themeMode="light">
       {(d: string) => <div>{d}</div>}
@@ -202,7 +202,7 @@ test("refreshing marker stays attached until the blur-out transition genuinely e
   const content = screen.getByText("ok").parentElement as HTMLElement
   expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
 
-  // Unrelated transition properties and transitions bubbling from children must not unblock.
+  // Wrong property or bubbled from a child: must not unblock.
   fireTransitionEnd(content, "opacity")
   expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
   fireTransitionEnd(screen.getByText("ok"), "filter")

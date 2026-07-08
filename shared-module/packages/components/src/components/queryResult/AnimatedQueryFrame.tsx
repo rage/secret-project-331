@@ -67,19 +67,15 @@ export function useDelayedFlag(active: boolean, delayMs: number): boolean {
 }
 
 /**
- * Safety net for clearing the blur-settling state when the content `filter` transition never
- * fires `transitionend` (e.g. jsdom, or a refetch so fast the transition never starts).
- * Generously above `--query-content-transition` (180ms) so on slow machines a genuine
- * `transitionend` still wins first.
+ * Clears the settling state when `transitionend` never fires (jsdom, or a refetch so fast the
+ * transition never starts). Well above `--query-content-transition` (180ms).
  */
 const BLUR_SETTLE_FALLBACK_MS = 600
 
 /**
- * True while the content blur is transitioning back to sharp after a refetch. `refreshing` flips
- * false the moment the query settles, but the blur-out transition keeps running after that —
- * clicks landing in that window hit content that is still blurred. Callers keep pointer events
- * blocked (and the refreshing testid attached) until `onContentTransitionEnd` sees the frame's
- * own `filter` transition finish, so neither users nor Playwright can click mid-transition.
+ * True while the blur is transitioning back to sharp after a refetch. `refreshing` flips false
+ * before the blur-out finishes, so clicks in that window would hit still-blurred content. Cleared
+ * when `onContentTransitionEnd` sees the frame's own `filter` transition finish.
  */
 function useBlurSettling(refreshing: boolean) {
   const [settling, setSettling] = useState(false)
@@ -101,8 +97,7 @@ function useBlurSettling(refreshing: boolean) {
   }, [refreshing])
 
   const onContentTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
-    // Transitions bubbling up from children must not unblock early; only the frame's own blur
-    // transition counts.
+    // Ignore transitions bubbling from children and other properties.
     if (event.target === event.currentTarget && event.propertyName === "filter") {
       setSettling(false)
     }

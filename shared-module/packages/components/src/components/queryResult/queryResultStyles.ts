@@ -181,10 +181,8 @@ export const animatedContentRefreshingCss = css`
 `
 
 /**
- * Blocks clicks while the refresh blur is animating in, held, or animating out. Blurred content
- * looks non-interactive, and blocking pointer events makes that real: users cannot act on stale
- * content, and Playwright's "receives pointer events" actionability check makes `.click()` wait
- * until the content is sharp again instead of clicking mid-transition.
+ * Blocks clicks while the refresh blur is animating in, held, or animating out. Playwright's
+ * actionability checks make `.click()` wait for this to clear.
  */
 export const animatedContentNonInteractiveCss = css`
   pointer-events: none;

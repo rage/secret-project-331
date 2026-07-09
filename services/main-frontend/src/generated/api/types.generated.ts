@@ -919,11 +919,6 @@ export type CourseUserInfo = {
   user_id: string
 }
 
-export type CourseWithError = {
-  course: CourseToAudit
-  course_error?: string | null
-}
-
 export type CreateCourseDesignerPlanRequest = {
   name?: string | null
 }
@@ -2886,7 +2881,7 @@ export type UpdateCourseAfterAuditingResponses = {
   /**
    * Updated course
    */
-  200: CourseWithError
+  200: CourseToAudit
 }
 
 export type UpdateCourseAfterAuditingResponse =

@@ -779,11 +779,6 @@ export const zCourseUserInfo = z.object({
   user_id: z.uuid(),
 })
 
-export const zCourseWithError = z.object({
-  course: zCourseToAudit,
-  course_error: z.string().nullish(),
-})
-
 export const zCreateCourseDesignerPlanRequest = z.object({
   name: z.string().nullish(),
 })
@@ -3059,7 +3054,7 @@ export const zUpdateCourseAfterAuditingPath = z.object({
 /**
  * Updated course
  */
-export const zUpdateCourseAfterAuditingResponse = zCourseWithError
+export const zUpdateCourseAfterAuditingResponse = zCourseToAudit
 
 export const zGetCourseInstancePath = z.object({
   course_instance_id: z.uuid(),

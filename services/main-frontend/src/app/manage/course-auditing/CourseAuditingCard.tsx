@@ -1,6 +1,7 @@
 "use client"
 
 import { css } from "@emotion/css"
+import styled from "@emotion/styled"
 import { QueryObserverResult } from "@tanstack/react-query"
 import {
   BellXmark,
@@ -11,11 +12,10 @@ import {
 } from "@vectopus/atlas-icons-react"
 import { parseISO } from "date-fns"
 import { useState } from "react"
-import { Form, FormProvider, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import ContentArea from "./ContentArea"
-import CourseAuditingField from "./CourseAuditingField"
+import { uhLinkStyles } from "./analysisFormDomain"
 
 import { updateCourseAfterAuditingMutation } from "@/generated/api/@tanstack/react-query.generated"
 import type { CourseToAudit, CourseToAuditUpdate } from "@/generated/api/types.generated"
@@ -25,7 +25,7 @@ import TimeComponent from "@/shared-module/common/components/TimeComponent"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme } from "@/shared-module/common/styles"
-import { TextArea, TextField } from "@/shared-module/components"
+import { Link, TextArea, TextField } from "@/shared-module/components"
 
 interface CourseAuditingCardProps {
   id: string
@@ -34,9 +34,9 @@ interface CourseAuditingCardProps {
 }
 
 enum UpdateStatus {
-  "none",
-  "saved",
-  "failed",
+  none,
+  saved,
+  failed,
 }
 
 const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardProps>> = ({
@@ -60,9 +60,8 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     },
   })
 
-  const { control, register, handleSubmit } = methods
+  const { control, handleSubmit } = methods
 
-  //TODO: add cansave and prepare for backend?
   const onSubmit = handleSubmit((data) => {
     updateMutation.mutateAsync({
       body: { ...data },
@@ -72,22 +71,12 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     })
   })
 
-  // TODO: update error notifications
   const updateMutation = useToastMutationOptions(
     updateCourseAfterAuditingMutation(),
     { method: "PUT", notify: true },
     {
       onSuccess: async (updated) => {
-        if (updated.course_error) {
-          showErrorNotification({
-            header: t("could-not-connect-to-exercise-service-header"),
-            message: t("could-not-connect-to-exercise-service-message", {
-              message: updated.course_error,
-            }),
-          })
-        }
-
-        setCourse(updated.course)
+        setCourse(updated)
         setStatus(UpdateStatus.saved)
         await refetch()
         window.setTimeout(() => {
@@ -95,6 +84,9 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
         }, 4000)
       },
       onError: () => {
+        showErrorNotification({
+          message: t("course-auditing-update-error"),
+        })
         setStatus(UpdateStatus.failed)
         window.setTimeout(() => {
           setStatus(UpdateStatus.none)
@@ -110,6 +102,24 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
     margin: 0.25rem 0 0 0;
     padding-bottom: 0.35rem;
     border-bottom: 1px solid ${baseTheme.colors.gray[200]};
+  `
+
+  const FieldSet = styled.fieldset`
+    margin-bottom: 1rem;
+    border: 1px solid ${baseTheme.colors.gray[200]};
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+  `
+
+  const Legend = styled.legend`
+    font-weight: 600;
+    padding: 0 0.25rem;
+  `
+
+  const HelpText = styled.p`
+    margin: 0.25rem 0 0.5rem;
+    font-size: 0.9rem;
+    color: ${baseTheme.colors.gray[500]};
   `
   return (
     <div>
@@ -199,12 +209,12 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
               control={control}
               label={t("text-field-label-description")}
               autoResize={true}
-              {...register("description")}
+              name={"description"}
             />
             <TextField
               control={control}
               label={t("title-default-module-uh-course-code")}
-              {...register("uh_course_code")}
+              name={"uh_course_code"}
             />
           </div>
         ) : (
@@ -216,18 +226,25 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
             `}
           >
             <div>
+              <strong>{t("text-field-label-description") + ":"}</strong>
+              <br />
+              <span>{course.description}</span>
+            </div>
+            <div>
               <p className={fieldTitleStyle}>{t("text-field-label-description")}:</p>
               <br />
               <span> {course.description} </span>
             </div>
-            <div>
-              <p className={fieldTitleStyle}>{t("title-default-module-uh-course-code")}:</p>
-              <br />
+            <FieldSet>
+              <Legend>{t("text-field-label-description")}</Legend>
+              <span> {course.description} </span>
+            </FieldSet>
+            <FieldSet>
+              <Legend>{t("title-default-module-uh-course-code")}</Legend>
               <span> {course.uh_course_code} </span>
-            </div>
+            </FieldSet>
           </div>
         )}
-
         <div
           className={css`
             display: flex;
@@ -236,17 +253,29 @@ const CourseAuditingCard: React.FC<React.PropsWithChildren<CourseAuditingCardPro
           `}
         >
           <TimeComponent
-            label={`${t("label-created")} `}
+            label={t("label-created")}
             date={parseISO(courseToAudit.created_at)}
             right={false}
             boldLabel
           />
           <TimeComponent
-            label={`${t("label-updated")} `}
+            label={t("label-updated")}
             boldLabel
             date={parseISO(courseToAudit.updated_at)}
             right={true}
           />
+          {courseToAudit.closed_at && (
+            <TimeComponent
+              label={t("course-auditing-closed-at")}
+              boldLabel
+              date={parseISO(courseToAudit.closed_at)}
+              right={true}
+            />
+          )}
+
+          <Link className={uhLinkStyles} href={`courses/${courseToAudit.id}`}>
+            {t("course-overview")}
+          </Link>
         </div>
       </div>
     </div>

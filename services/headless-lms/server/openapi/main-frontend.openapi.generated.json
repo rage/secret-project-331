@@ -962,7 +962,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CourseWithError"
+                  "$ref": "#/components/schemas/CourseToAudit"
                 }
               }
             }
@@ -13596,18 +13596,6 @@
           "user_id": {
             "type": "string",
             "format": "uuid"
-          }
-        }
-      },
-      "CourseWithError": {
-        "type": "object",
-        "required": ["course"],
-        "properties": {
-          "course": {
-            "$ref": "#/components/schemas/CourseToAudit"
-          },
-          "course_error": {
-            "type": ["string", "null"]
           }
         }
       },

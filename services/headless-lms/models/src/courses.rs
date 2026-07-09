@@ -405,7 +405,8 @@ SET description = $2 WHERE id = $1
     .execute(&mut *tx)
     .await?;
 
-    sqlx::query!(
+    sqlx::query_as!(
+        CourseModule,
         r#"
 UPDATE course_modules
 SET uh_course_code = $2 WHERE course_id = $1 AND order_number = 0

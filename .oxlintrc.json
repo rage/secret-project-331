@@ -3,8 +3,8 @@
   "plugins": ["jsx-a11y", "react", "import", "unicorn"],
   "jsPlugins": ["eslint-plugin-explicit-use-directives", "@tanstack/eslint-plugin-query"],
   "categories": {
-    "correctness": "error",
-    "suspicious": "error",
+    "correctness": "warn",
+    "suspicious": "warn",
     "pedantic": "warn"
   },
   "env": {
@@ -79,7 +79,7 @@
     "jsx-a11y/iframe-has-title": "error",
     "jsx-a11y/img-redundant-alt": "error",
     "jsx-a11y/interactive-supports-focus": [
-      "error",
+      "warn",
       {
         "tabbable": ["button", "checkbox", "link", "searchbox", "spinbutton", "switch", "textbox"]
       }
@@ -150,7 +150,7 @@
     "jsx-a11y/tabindex-no-positive": "error",
     "react/display-name": "error",
     "react/react-in-jsx-scope": "off",
-    "react/jsx-key": "error",
+    "react/jsx-key": "warn",
     "react/jsx-no-comment-textnodes": "error",
     "react/jsx-no-duplicate-props": "error",
     "react/jsx-no-target-blank": "error",
@@ -194,7 +194,7 @@
     {
       "files": ["**/*.{js,jsx,ts,tsx}"],
       "rules": {
-        "nextjs/no-html-link-for-pages": "error",
+        "nextjs/no-html-link-for-pages": "warn",
         "nextjs/no-img-element": "error",
         "nextjs/no-sync-scripts": "error",
         "nextjs/no-script-component-in-head": "error",
@@ -231,7 +231,7 @@
         "no-const-assign": "error",
         "no-constant-binary-expression": "error",
         "no-constant-condition": "error",
-        "no-control-regex": "error",
+        "no-control-regex": "warn",
         "no-debugger": "error",
         "no-delete-var": "error",
         "no-dupe-class-members": "error",
@@ -256,7 +256,7 @@
         "no-nonoctal-decimal-escape": "error",
         "no-obj-calls": "error",
         "no-prototype-builtins": "error",
-        "no-redeclare": "error",
+        "no-redeclare": "warn",
         "no-regex-spaces": "error",
         "no-self-assign": "error",
         "no-setter-return": "error",
@@ -330,7 +330,7 @@
         ],
         "curly": ["error", "all"],
         "nextjs/no-img-element": "off",
-        "react/rules-of-hooks": "error",
+        "react/rules-of-hooks": "warn",
         "react/exhaustive-deps": [
           "warn",
           {

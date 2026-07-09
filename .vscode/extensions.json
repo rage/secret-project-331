@@ -1,6 +1,6 @@
 {
   "recommendations": [
-    "dbaeumer.vscode-eslint",
+    "oxc.oxc-vscode",
     "editorconfig.editorconfig",
     "rust-lang.rust-analyzer",
     "ms-kubernetes-tools.vscode-kubernetes-tools",

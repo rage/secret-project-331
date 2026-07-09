@@ -6,16 +6,16 @@
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": "active",
   "[javascript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescript]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[typescriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[javascriptreact]": {
-    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    "editor.defaultFormatter": "oxc.oxc-vscode"
   },
   "[rust]": {
     "editor.defaultFormatter": "rust-lang.rust-analyzer"
@@ -39,8 +39,9 @@
     // If someone wants to edit shared-module files, they should do it in the shared-module that's in the repo root and have `npm run watch` running there as well.
     "**/shared-module/**": true
   },
-  "eslint.lintTask.enable": true,
-  "eslint.format.enable": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.oxc": "explicit"
+  },
   "shellcheck.customArgs": ["--external-sources"],
   "stylelint.validate": ["css", "less", "postcss", "typescriptreact", "javascriptreact"],
   "stylelint.stylelintPath": "node_modules/stylelint",

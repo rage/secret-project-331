@@ -158,7 +158,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             <RadioButton
               id="researchConsent"
               label={t("research-consent-i-want-to-participate-in-educational-research")}
-
               name="researchConsent"
               onClick={() => handleConsentSelection(true)}
               checked={consent === true}
@@ -166,7 +165,6 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
             <RadioButton
               id="noResearchConsent"
               label={t("research-consent-i-do-not-want-participate-in-educational-research")}
-
               name="researchConsent"
               onClick={() => handleConsentSelection(false)}
               checked={consent === false}

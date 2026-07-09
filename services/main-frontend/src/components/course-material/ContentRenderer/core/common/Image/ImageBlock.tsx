@@ -76,37 +76,29 @@ const ImageBlock: React.FC<
     <div
       className={css`
         width: fit-content;
-        ${
-          (align === "center" || align === undefined) &&
-          `margin-left: auto;
+        ${(align === "center" || align === undefined) &&
+        `margin-left: auto;
         margin-right: auto;
-        text-align: center;`
-        }
-        ${
-          align === "right" &&
-          `
-        float: ${align};`
-        }
-        ${
-          align === "left" &&
-          `
+        text-align: center;`}
+        ${align === "right" &&
+        `
+        float: ${align};`}
+        ${align === "left" &&
+        `
         float: ${align};
-        margin-right: 1em;`
-        }
+        margin-right: 1em;`}
       `}
     >
       <figure
         className={css`
           ${align === "center" && `text-align: center;display: table;  margin: 0 auto;`}
-          ${
-            align !== "center" &&
-            `float: ${align};
+          ${align !== "center" &&
+          `float: ${align};
         margin-top: 3rem;
         margin-bottom: 3rem;
         ${align === "right" && "margin-left: 1rem;"}
         ${align === "left" && "margin-right: 1rem;"}
-        `
-          }
+        `}
         `}
       >
         <div

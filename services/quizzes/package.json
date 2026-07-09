@@ -2,13 +2,6 @@
   "name": "quizzes-dashboard",
   "version": "0.1.0",
   "type": "module",
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "build": "rsbuild build",
     "dev": "rsbuild dev --port 3004",
@@ -97,5 +90,12 @@
     "typescript": "^6.0.3",
     "vite-plugin-svgr": "^5.2.0",
     "vitest": "^4.1.9"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

@@ -75,28 +75,24 @@ const wizardStepPillStyles = (isActive: boolean, isCompleted: boolean) => css`
     color: ${baseTheme.colors.gray[500]};
   }
 
-  ${
-    isCompleted &&
-    css`
-      .wizard-step-circle {
-        background: ${baseTheme.colors.green[500]};
-        border-color: ${baseTheme.colors.green[600]};
-        color: white;
-      }
-    `
-  }
+  ${isCompleted &&
+  css`
+    .wizard-step-circle {
+      background: ${baseTheme.colors.green[500]};
+      border-color: ${baseTheme.colors.green[600]};
+      color: white;
+    }
+  `}
 
-  ${
-    isActive &&
-    css`
-      .wizard-step-circle {
-        background: ${baseTheme.colors.green[600]};
-        border-color: ${baseTheme.colors.green[700]};
-        color: white;
-        box-shadow: 0 0 0 4px ${baseTheme.colors.green[100]};
-      }
-    `
-  }
+  ${isActive &&
+  css`
+    .wizard-step-circle {
+      background: ${baseTheme.colors.green[600]};
+      border-color: ${baseTheme.colors.green[700]};
+      color: white;
+      box-shadow: 0 0 0 4px ${baseTheme.colors.green[100]};
+    }
+  `}
 
   .wizard-step-label {
     font-size: 0.8rem;

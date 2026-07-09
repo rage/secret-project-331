@@ -23,7 +23,7 @@ minimumReleaseAgeIgnoreMissingTime: false
 strictDepBuilds: true
 
 allowBuilds:
-  '@playwright/browser-chromium': true
+  "@playwright/browser-chromium": true
   node: false
 
 # Trust committed lockfiles instead of revalidating release-age policy on every install

@@ -26,7 +26,9 @@ const Input = styled.input<InputExtraProps>`
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
   ${({ colorField }) => !colorField && "padding: 8px 10px 10px 10px;"}
-  transition: ease-in-out, width 0.35s ease-in-out;
+  transition:
+    ease-in-out,
+    width 0.35s ease-in-out;
   outline: none;
   min-width: 20px;
   width: 100%;
@@ -79,11 +81,9 @@ const FileField = forwardRef<HTMLInputElement, FileFieldProps>(
         className={cx(
           css`
             margin-bottom: 1rem;
-            ${
-              disabled &&
-              `cursor: not-allowed;
-            filter: opacity(0.5);`
-            }
+            ${disabled &&
+            `cursor: not-allowed;
+            filter: opacity(0.5);`}
           `,
           className,
         )}

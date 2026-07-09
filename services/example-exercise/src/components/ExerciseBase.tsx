@@ -50,17 +50,17 @@ const ExerciseBase: React.FC<React.PropsWithChildren<Props>> = ({
                     background-color: ${selected ? chosenColor : color};
                     border-radius: 1rem;
                     border: ${border};
-                    color: ${
-                      selected ? baseTheme.colors.primary[100] : baseTheme.colors.primary[200]
-                    };
+                    color: ${selected
+                      ? baseTheme.colors.primary[100]
+                      : baseTheme.colors.primary[200]};
                     transition: all 0.3s;
                     cursor: pointer;
                     margin-top: 0.5rem;
                     margin-bottom: 0.5rem;
                     &:hover {
-                      background-color: ${
-                        selected ? baseTheme.colors.blue[700] : baseTheme.colors.blue[500]
-                      };
+                      background-color: ${selected
+                        ? baseTheme.colors.blue[700]
+                        : baseTheme.colors.blue[500]};
                     }
                   `
                 : css`

@@ -4,6 +4,6 @@
   "singleQuote": false,
   "trailingComma": "all",
   "printWidth": 100,
-  "sortPackageJson": false,
+  "sortPackageJson": true,
   "ignorePatterns": ["node_modules", "target", ".next", "out", "kubernetes", "**/.sqlx/**/*.json"]
 }

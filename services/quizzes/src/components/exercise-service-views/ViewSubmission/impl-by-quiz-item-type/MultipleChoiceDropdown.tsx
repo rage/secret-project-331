@@ -144,11 +144,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
               font-size: 18px;
               cursor: pointer;
               border: 0.188rem solid
-                ${
-                  correct
-                    ? quizTheme.gradingCorrectItemBorderColor
-                    : quizTheme.gradingWrongItemBorderColor
-                };
+                ${correct
+                  ? quizTheme.gradingCorrectItemBorderColor
+                  : quizTheme.gradingWrongItemBorderColor};
               background: none;
               min-height: 2.5rem;
               grid-template-areas: "select";
@@ -159,11 +157,9 @@ const MultipleChoiceDropdownFeedback: React.FC<
               overflow: hidden;
               text-overflow: ellipsis;
 
-              background: ${
-                correct
-                  ? quizTheme.gradingCorrectItemBackground
-                  : quizTheme.gradingWrongItemBackground
-              };
+              background: ${correct
+                ? quizTheme.gradingCorrectItemBackground
+                : quizTheme.gradingWrongItemBackground};
             `}
           >
             <option disabled selected={selectedOption.id === null} value="">
@@ -250,11 +246,9 @@ const SubmissionFeedbackMessage: React.FC<
           display: flex;
           font-size: 1.125rem;
           color: #3c4551;
-          border-left: ${
-            correctAnswer
-              ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
-              : `6px solid #ebcbcd`
-          };
+          border-left: ${correctAnswer
+            ? `6px solid ${quizTheme.gradingCorrectItemBackground}`
+            : `6px solid #ebcbcd`};
           box-sizing: border-box;
           background: ${quizTheme.feedbackBackground};
           padding: 0.5rem 0px 0.5rem 0.5rem;

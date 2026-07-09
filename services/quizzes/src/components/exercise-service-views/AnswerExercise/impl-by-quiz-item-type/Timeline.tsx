@@ -170,13 +170,11 @@ const Timeline: React.FunctionComponent<
                   background: ${selectedTimelineItem ? "#77C299" : "#EBEDEE"};
                   border: ${selectedTimelineItem ? "none" : "0.125rem solid #898E99"};
                   border-style: ${selectedTimelineItem ? "none" : "dashed"};
-                  ${
-                    selectedTimelineItem &&
-                    `box-shadow:
+                  ${selectedTimelineItem &&
+                  `box-shadow:
                   rgba(45, 35, 66, 0) 0 2px 4px,
                   rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                  #69AF8A 0 -2px 0 inset;`
-                  };
+                  #69AF8A 0 -2px 0 inset;`};
                   border-radius: 1.563rem;
                   transition: all 200ms linear;
                   z-index: 1;

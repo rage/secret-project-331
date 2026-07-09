@@ -1,18 +1,11 @@
 {
   "name": "@moocfi/exercise-client",
   "version": "0.0.0",
-  "author": "Henrik Nygren <nygrenh@gmail.com>",
+  "private": true,
   "keywords": [],
   "license": "Apache-2.0",
+  "author": "Henrik Nygren <nygrenh@gmail.com>",
   "main": "src/index.ts",
-  "private": true,
-  "devEngines": {
-    "runtime": {
-      "name": "node",
-      "onFail": "download",
-      "version": "24.18.0"
-    }
-  },
   "scripts": {
     "test": "NODE_OPTIONS=\"--experimental-vm-modules\" jest"
   },
@@ -28,5 +21,12 @@
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "typescript": "^6.0.3"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "onFail": "download",
+      "version": "24.18.0"
+    }
   }
 }

@@ -11,9 +11,9 @@ minimumReleaseAgeIgnoreMissingTime: false
 nodeVersion: 24.18.0
 
 overrides:
-  picomatch@<2.3.2: '>=2.3.2'
-  picomatch@>=4.0.0 <4.0.4: '>=4.0.4'
-  yaml@>=1.0.0 <1.10.3: '>=1.10.3'
+  picomatch@<2.3.2: ">=2.3.2"
+  picomatch@>=4.0.0 <4.0.4: ">=4.0.4"
+  yaml@>=1.0.0 <1.10.3: ">=1.10.3"
 
 preferFrozenLockfile: true
 
@@ -44,5 +44,5 @@ verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
   - postcss@8.5.10
-  - '@babel/core@7.29.1'
+  - "@babel/core@7.29.1"
   - js-yaml@3.15.0

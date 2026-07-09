@@ -19,13 +19,15 @@ interface InputExtraProps {
   colorField?: boolean
 }
 
+const NO_COLOR_FIELD_PADDING = "padding: 8px 10px 10px 10px;"
+
 const Input = styled.input<InputExtraProps>`
   background: #fcfcfc;
   border-width: 2px;
   border-style: solid;
   border-radius: 3px;
   border-color: ${({ error }) => (error ? ERRORCOLOR : DEFAULTCOLOR)};
-  ${({ colorField }) => !colorField && "padding: 8px 10px 10px 10px;"}
+  ${({ colorField }) => !colorField && NO_COLOR_FIELD_PADDING}
   transition:
     ease-in-out,
     width 0.35s ease-in-out;

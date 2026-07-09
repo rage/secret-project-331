@@ -37,26 +37,34 @@ const ButtonsBlock: React.FC<
   const verticalAlignment = layout?.verticalAlignment as string | undefined | null
 
   const getContentJustification = (contentJustification: string) => {
+    const JUSTIFY_CENTER = "justify-content: center;"
+    const JUSTIFY_FLEX_END = "justify-content: flex-end;"
+    const JUSTIFY_SPACE_BETWEEN = "justify-content: space-between;"
+    const JUSTIFY_FLEX_START = "justify-content: flex-start;"
     if (contentJustification === "center") {
-      return "justify-content: center;"
+      return JUSTIFY_CENTER
     } else if (contentJustification === "right") {
-      return "justify-content: flex-end;"
+      return JUSTIFY_FLEX_END
     } else if (contentJustification === "space-between") {
-      return "justify-content: space-between;"
+      return JUSTIFY_SPACE_BETWEEN
     } else {
-      return "justify-content: flex-start;"
+      return JUSTIFY_FLEX_START
     }
   }
 
   const getAlignItems = (verticalAlignment: string) => {
+    const ALIGN_CENTER = "align-items: center;"
+    const ALIGN_FLEX_END = "align-items: flex-end;"
+    const ALIGN_STRETCH = "align-items: stretch;"
+    const ALIGN_FLEX_START = "align-items: flex-start;"
     if (verticalAlignment === "center") {
-      return "align-items: center;"
+      return ALIGN_CENTER
     } else if (verticalAlignment === "bottom") {
-      return "align-items: flex-end;"
+      return ALIGN_FLEX_END
     } else if (verticalAlignment === "stretch") {
-      return "align-items: stretch;"
+      return ALIGN_STRETCH
     } else {
-      return "align-items: flex-start;"
+      return ALIGN_FLEX_START
     }
   }
 

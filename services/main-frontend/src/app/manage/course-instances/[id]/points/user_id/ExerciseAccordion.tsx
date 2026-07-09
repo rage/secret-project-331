@@ -206,7 +206,7 @@ const ExerciseAccordion: React.FC<ExerciseAccordionProps> = ({
               `}
               // eslint-disable-next-line i18next/no-literal-string
             >
-              ▼
+              {/* eslint-disable-next-line i18next/no-literal-string */}▼
             </span>
           </button>
           <div

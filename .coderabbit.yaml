@@ -57,6 +57,8 @@ reviews:
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
+        To silence an i18next/no-literal-string false positive (CSS-in-JS strings, magic values), prefer moving the value to a SCREAMING_CASE constant, which is exempt from the rule. Fall back to a single-line `// eslint-disable-next-line i18next/no-literal-string` only when a constant does not fit. Never use `eslint-disable` / `eslint-enable` block pairs.
+
     - path: "services/main-frontend/src/app/**/*.tsx"
       instructions: >
         Pages and layouts should set the browser title with the usePageTitle hook: import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle".

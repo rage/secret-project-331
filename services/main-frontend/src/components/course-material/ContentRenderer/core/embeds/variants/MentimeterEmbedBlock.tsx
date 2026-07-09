@@ -52,6 +52,7 @@ export const MentimeterEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttribu
               border-top: 2px solid white;
             `}
           >
+            {/* eslint-disable-next-line i18next/no-literal-string */}
             &nbsp;
           </span>
           <div

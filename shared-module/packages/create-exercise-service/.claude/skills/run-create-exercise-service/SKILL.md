@@ -13,9 +13,8 @@ app, so "driving" it fully means _scaffolding a project and booting what it prod
 The primary agent path is the driver **`.claude/skills/run-create-exercise-service/smoke.mjs`**: it
 scaffolds into a temp dir, asserts the structure, and (with `--boot`) installs the generated project
 and verifies it serves the exercise-service HTTP contract. That runtime check is what catches
-**template drift** — the CLI copies `services/example-exercise` live from disk, so it reflects the
-template on the checked-out branch (currently TanStack Start on rsbuild; older branches such as
-`master` still had the Next.js template, with which this generator is _not_ compatible).
+**template drift** — the CLI copies `services/example-exercise` live from disk, so it always reflects
+the template on the checked-out branch (currently TanStack Start on rsbuild).
 
 > Paths below are relative to the unit dir `shared-module/packages/create-exercise-service`, **except**
 > `bin/create-exercise-service`, which is at the **repo root**.
@@ -253,9 +252,8 @@ pnpm --dir shared-module/packages/exercise-service-test-utils test
 ## Gotchas
 
 - **The CLI copies the template live from disk** — `services/example-exercise` on the _current
-  branch_. The template's framework and the CLI's parameterization must match. This branch is
-  TanStack Start (`rsbuild.config.ts`); `master` was Next.js (`next.config.js`). Run the CLI against
-  the branch's actual template; `smoke.mjs --boot` is the check that this still produces a bootable app.
+  branch_ (currently TanStack Start, `rsbuild.config.ts`). The template's framework and the CLI's
+  parameterization must match; `smoke.mjs --boot` is the check that this still produces a bootable app.
 - **`pkill -f "rsbuild dev"` kills your own shell.** The pattern matches the running Bash command's
   own argv (it contains the string), so the shell self-terminates (exit 144). Kill the dev server by
   pid instead: `PID=$(ss -ltnp | grep ':3009' | grep -oP 'pid=\K[0-9]+' | head -1); kill "$PID"`.

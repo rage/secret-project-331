@@ -5,8 +5,8 @@
 // services/example-exercise template. The repo's own `tests/scaffold.test.ts` already asserts the
 // generated file structure; what nothing else checks is that the emitted project actually installs,
 // builds, and serves the exercise-service HTTP contract. That runtime check is the thing that
-// catches template drift (e.g. the Next.js -> TanStack Start migration) — so it is what this driver
-// adds on top of a quick structural sanity pass.
+// catches template drift (bundler/framework changes) — so it is what this driver adds on top of a
+// quick structural sanity pass.
 //
 // Usage:
 //   node smoke.mjs            # scaffold into a temp dir + structural assertions   (~seconds)
@@ -63,7 +63,6 @@ async function main() {
   check(pkg.name === NAME, `package.json name === "${NAME}"`)
   check(pkg.scripts?.dev?.includes(`--port ${PORT}`), `dev script uses --port ${PORT}`)
   check(existsSync(join(out, "rsbuild.config.ts")), "rsbuild.config.ts present (TanStack Start stack)")
-  check(!existsSync(join(out, "next.config.js")), "no next.config.js (not Next.js)")
   check(existsSync(join(out, "server.mjs")), "server.mjs present")
   for (const p of [
     "exercise-protocol",

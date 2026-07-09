@@ -125,8 +125,8 @@ for the full removal list.
 
 All POST handlers wrap in `jsonRoute()`, which turns a thrown `BadRequestError` into a `400` and any
 other error into a `500`, both as JSON `ClientErrorResponse`. `readJsonBody()` enforces
-`Content-Type: application/json` and non-empty valid JSON. Note the comment: unlike Next.js,
-TanStack Start doesn't auto-405 undeclared verbs, but the backend only calls the documented verb.
+`Content-Type: application/json` and non-empty valid JSON. Note: TanStack Start doesn't auto-405
+undeclared verbs, but the backend only calls the documented verb.
 
 ## 4. Client side — the three iframe views
 

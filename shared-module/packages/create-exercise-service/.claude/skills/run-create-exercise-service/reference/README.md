@@ -54,7 +54,7 @@ backend needs **no per-type Rust code**, only one seed row plus infra manifests.
 
 ## Stack note
 
-The reference service (and the scaffolder output) is now **TanStack Start on the rsbuild bundler**,
-React 19, SPA mode — a recent migration from Next.js. Server routes (`src/routes/api/*.ts`) run at
-runtime; view components are client-only. A zero-dependency `server.mjs` serves it in production and
-re-stamps the iframe headers on every response.
+The reference service (and the scaffolder output) is **TanStack Start on the rsbuild bundler**,
+React 19, SPA mode. Server routes (`src/routes/api/*.ts`) run at runtime; view components are
+client-only. A zero-dependency `server.mjs` serves it in production and re-stamps the iframe headers
+on every response.

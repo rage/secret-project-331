@@ -362,10 +362,12 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
             `}
           >
             <TextField
-              label={t("caption-optional")}
+              label={t("caption")}
+              required
               value={caption}
               onChangeByValue={(value) => setAttributes({ caption: value })}
               placeholder={t("describe-the-chart")}
+              error={caption.trim() ? undefined : t("required")}
             />
           </div>
         </div>

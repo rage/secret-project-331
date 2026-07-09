@@ -63,7 +63,7 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
   const hasData = Boolean(parsedSpec?.data)
 
   // Vega uses `description` as the chart's accessible name; fall back to the caption.
-  const accessibleDescription = parsedSpec?.description ?? (caption?.trim() ? caption : undefined)
+  const accessibleDescription = parsedSpec?.description ?? caption
 
   const responsiveSpec =
     parsedSpec && width !== null
@@ -109,7 +109,9 @@ const ChartBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ChartBlock
             width: 100%;
           `}
         >
-          <VegaLite spec={responsiveSpec} actions={false} />
+          {/* SVG so Vega emits per-axis/mark ARIA. */}
+          {/* eslint-disable-next-line i18next/no-literal-string */}
+          <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />
         </div>
       )}
       {parsedSpec && !hasData && (

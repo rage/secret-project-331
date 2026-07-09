@@ -71,7 +71,7 @@
   "button-text-create": "Luo",
   "button-text-export-all-pages": "Vie kaikki sivut",
   "button-text-select-media": "Valitse media (ei käytössä)",
-  "caption-optional": "Kuvateksti (valinnainen)",
+  "caption": "Kuvateksti",
   "chapter-locking-enabled-notice": "Tämän kurssin kappaleiden lukitus on käytössä. Opiskelijoiden on suoritettava kappaleet järjestyksessä.",
   "chapter-progress-placeholder": "Luvun edistyminen lohko",
   "chapter-progress-placeholder-explanation": "Tätä lohkoa käytetään luvun edistymisen näyttämiseen. Jos haluat näyttää koko kurssin edistymisen, sinun tulee käyttää Course Progress -lohkoa.",

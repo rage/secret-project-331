@@ -71,7 +71,7 @@
   "button-text-create": "Create",
   "button-text-export-all-pages": "Export all pages",
   "button-text-select-media": "Select media (not implemented)",
-  "caption-optional": "Caption (optional)",
+  "caption": "Caption",
   "chapter-locking-enabled-notice": "Chapter locking is enabled for this course. Students must complete chapters in order.",
   "chapter-progress-placeholder": "Chapter progress placeholder",
   "chapter-progress-placeholder-explanation": "This block is used to display Chapter progress. To display the whole course progress, you should use the Course Progress block.",

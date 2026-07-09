@@ -1,15 +1,13 @@
-"use client"
-
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
 
+import basePath from "@/lib/basePath"
+
 function getRunWorkerUrl(): string {
-  const base = typeof process !== "undefined" && process.env?.NEXT_PUBLIC_BASE_PATH
-  return `${base ?? ""}/runWorker.js`
+  return `${basePath()}/runWorker.js`
 }
 
 export type OutputSegment =
-  | { type: "stdout"; text: string }
-  | { type: "input"; prompt: string; line: string }
+  { type: "stdout"; text: string } | { type: "input"; prompt: string; line: string }
 
 export function useRunOutput() {
   const [segments, setSegments] = useState<OutputSegment[]>([])

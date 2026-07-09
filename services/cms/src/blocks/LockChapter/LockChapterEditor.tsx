@@ -92,7 +92,6 @@ const LockChapterEditor: React.FC<
           </p>
 
           <Notice
-            // eslint-disable-next-line i18next/no-literal-string
             status="info"
             isDismissible={false}
             className={css`

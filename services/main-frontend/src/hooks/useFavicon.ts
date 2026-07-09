@@ -1,17 +1,18 @@
-import { useEffect, useRef } from "react"
+import { useEffect } from "react"
 
 export interface UseFaviconOptions {
   favicon: string
-  title?: string
   defaultFavicon?: string
-  defaultTitle?: string
 }
 
-export const useFavicon = ({ favicon, title, defaultFavicon, defaultTitle }: UseFaviconOptions) => {
-  const originalTitleRef = useRef<string>(document.title)
-
+/**
+ * Swaps the document favicon while mounted, restoring `defaultFavicon` on unmount.
+ *
+ * This hook intentionally does NOT touch `document.title`: the page title is owned solely by
+ * `PageTitleManager` (via `usePageTitle`). Register a tab title with `usePageTitle` instead.
+ */
+export const useFavicon = ({ favicon, defaultFavicon }: UseFaviconOptions) => {
   useEffect(() => {
-    const originalTitle = originalTitleRef.current
     let faviconLink = document.querySelector('link[rel="icon"]') as HTMLLinkElement
     if (!faviconLink) {
       faviconLink = document.createElement("link")
@@ -21,19 +22,10 @@ export const useFavicon = ({ favicon, title, defaultFavicon, defaultTitle }: Use
     }
     faviconLink.href = favicon
 
-    if (title) {
-      document.title = title
-    }
-
     return () => {
-      if (defaultTitle) {
-        document.title = defaultTitle
-      } else {
-        document.title = originalTitle
-      }
       if (faviconLink && defaultFavicon) {
         faviconLink.href = defaultFavicon
       }
     }
-  }, [favicon, title, defaultFavicon, defaultTitle])
+  }, [favicon, defaultFavicon])
 }

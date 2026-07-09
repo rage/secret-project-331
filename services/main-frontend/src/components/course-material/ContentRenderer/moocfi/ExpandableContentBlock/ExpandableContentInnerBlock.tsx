@@ -35,6 +35,8 @@ const ExpandableContentInnerBlock: React.FC<
         className={css`
           display: flex;
           flex-direction: row;
+          align-items: center;
+          gap: 8px;
           font-family: ${headingFont};
           color: #4c5868;
           cursor: pointer;

@@ -4,22 +4,20 @@
  */
 import config from "./pyodide-version.json"
 
+import basePath from "@/lib/basePath"
+
 export const PYODIDE_VERSION = config.version
 
-function normalizeBasePath(basePath?: string) {
-  if (!basePath) {
+function normalizeBasePath(base: string) {
+  if (!base) {
     return ""
   }
-  return basePath.endsWith("/") ? basePath.slice(0, -1) : basePath
+  return base.endsWith("/") ? base.slice(0, -1) : base
 }
 
-// NEXT_PUBLIC_BASE_PATH is set to "/tmc" in production (see Dockerfile.production.slim.dockerfile).
+// PUBLIC_BASE_PATH is set to "/tmc" in production (see Dockerfile.production.slim.dockerfile).
 // Static files in `public/` are served under that base path too.
-const basePath = normalizeBasePath(
-  typeof process !== "undefined" ? process.env.NEXT_PUBLIC_BASE_PATH : undefined,
-)
-
-const pyodideBaseUrl = `${basePath}${config.baseUrl}`
+const pyodideBaseUrl = `${normalizeBasePath(basePath())}${config.baseUrl}`
 
 export const PYODIDE_INDEX_URL = `${pyodideBaseUrl}${config.version}/full/`
 export const PYODIDE_SCRIPT_URL = `${PYODIDE_INDEX_URL}pyodide.js`

@@ -68,7 +68,7 @@ impl Default for ChatbotConfiguration {
             initial_message: Default::default(),
             weekly_tokens_per_user: 20000 * 5,
             daily_tokens_per_user: 20000,
-            max_output_tokens: 600,
+            max_output_tokens: 20_000,
             temperature: 0.7,
             top_p: 1.0,
             frequency_penalty: 0.0,
@@ -148,6 +148,22 @@ impl Default for NewChatbotConf {
     }
 }
 
+/// Minimum `max_output_tokens` allowed for a configuration. Too small a budget cannot produce a
+/// usable response — and with reasoning models the hidden reasoning tokens are spent from the same
+/// budget, so the floor needs to leave room for the actual answer either way.
+const MIN_MAX_OUTPUT_TOKENS: i32 = 10_000;
+
+/// Rejects configurations whose `max_output_tokens` is too small to produce a usable response.
+fn validate_max_output_tokens(input: &NewChatbotConf) -> ModelResult<()> {
+    if input.max_output_tokens < MIN_MAX_OUTPUT_TOKENS {
+        return Err(model_err!(
+            PreconditionFailed,
+            format!("max_output_tokens must be at least {MIN_MAX_OUTPUT_TOKENS}.")
+        ));
+    }
+    Ok(())
+}
+
 pub async fn get_by_id(conn: &mut PgConnection, id: Uuid) -> ModelResult<ChatbotConfiguration> {
     let res = sqlx::query_as!(
         ChatbotConfiguration,
@@ -169,6 +185,7 @@ pub async fn insert(
     pkey_policy: PKeyPolicy<Uuid>,
     input: NewChatbotConf,
 ) -> ModelResult<ChatbotConfiguration> {
+    validate_max_output_tokens(&input)?;
     let maintain_azure_search_index = input.use_azure_search;
     let res = sqlx::query_as!(
         ChatbotConfiguration,
@@ -235,6 +252,7 @@ pub async fn edit(
     input: NewChatbotConf,
     chatbot_configuration_id: Uuid,
 ) -> ModelResult<ChatbotConfiguration> {
+    validate_max_output_tokens(&input)?;
     let res = sqlx::query_as!(
         ChatbotConfiguration,
         r#"

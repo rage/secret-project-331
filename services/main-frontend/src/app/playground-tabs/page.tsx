@@ -14,6 +14,7 @@ import PlaygroundSpecs from "../playground-views/PlaygroundSpecs"
 import { DEFAULT_SERVICE_INFO_URL } from "@/constants/playground"
 import useParsedPrivateSpec from "@/hooks/playground/useParsedPrivateSpec"
 import usePlaygroundQueriesAndMutations from "@/hooks/playground/usePlaygroundQueriesAndMutations"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 import { narrowContainerWidthPx } from "@/shared-module/common/styles/constants"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -48,6 +49,7 @@ export interface PlaygroundSettings {
 }
 
 let PlaygroudTabs = () => {
+  usePageTitle("Playground tabs")
   // Settings
   const defaultUrl =
     typeof window !== "undefined"

@@ -20,8 +20,10 @@ import GenericInfobox from "@/shared-module/common/components/GenericInfobox"
 import InfoComponent from "@/shared-module/common/components/InfoComponent"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { exerciseExamSubmissionsRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -39,6 +41,8 @@ const GradingPage: React.FC = () => {
       },
     }),
   })
+
+  usePageTitle(joinTitleSegments([t("questions"), getExam.data?.name]), { order: 10 })
 
   const getExercises = useQuery({
     ...getExamExercisesOptions({

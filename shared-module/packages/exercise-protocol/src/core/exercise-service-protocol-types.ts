@@ -208,9 +208,7 @@ export type CustomViewIframeState = {
 
 /** Defines the allowed data formats for the set-state-message */
 export type ExerciseIframeState =
-  | AnswerExerciseIframeState
-  | ViewSubmissionIframeState
-  | ExerciseEditorIframeState
+  AnswerExerciseIframeState | ViewSubmissionIframeState | ExerciseEditorIframeState
 
 export type ExtendedIframeState = ExerciseIframeState | CustomViewIframeState
 

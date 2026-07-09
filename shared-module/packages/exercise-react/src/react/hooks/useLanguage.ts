@@ -1,7 +1,7 @@
 "use client"
 
 import { dir } from "i18next"
-import { useSearchParams } from "next/navigation"
+import { useEffect, useSyncExternalStore } from "react"
 
 import { LANGUAGE_COOKIE_KEY } from "@/shared-module/exercise-client/utils/constants"
 import { getValueFromCookieString } from "@/shared-module/exercise-client/utils/cookies"
@@ -29,22 +29,40 @@ export function getDir(language: string) {
   }
 }
 
+// Framework-agnostic: subscribe to History navigations and read the `lang` query param directly
+// from the URL, so this hook works in any bundler it is vendored into.
+function subscribeToLocation(callback: () => void): () => void {
+  if (IS_SERVER) {
+    return () => {
+      /* nothing to unsubscribe on the server */
+    }
+  }
+  window.addEventListener("popstate", callback)
+  return () => window.removeEventListener("popstate", callback)
+}
+
+function getLangQueryValue(): string | null {
+  if (IS_SERVER) {
+    return null
+  }
+  return new URLSearchParams(window.location.search).get(LANGUAGE_QUERY_KEY)
+}
+
 // If language is specified with the `lang` query param, use that and save that as a langauge preference.
 // Otherwise use either the saved language preference or detect the desired language
 export default function useLanguage(): string | null {
-  const searchParams = useSearchParams()
-  const value = searchParams?.get(LANGUAGE_QUERY_KEY)
+  const value = useSyncExternalStore(subscribeToLocation, getLangQueryValue, () => null)
   const languageCandidate = determineLanguageFromQueryValue(value || undefined)
 
-  if (!languageCandidate) {
-    return null
-  }
-
   // We map the candidate to supported languages to be absolutely sure we're returning a supported language
-  const selectedLanguage =
-    mapLanguageCandidateToSupportedLanguage(languageCandidate) ?? DEFAULT_LANGUAGE
+  const selectedLanguage = languageCandidate
+    ? (mapLanguageCandidateToSupportedLanguage(languageCandidate) ?? DEFAULT_LANGUAGE)
+    : null
 
-  if (!IS_SERVER && CAN_ACCESS_COOKIES) {
+  useEffect(() => {
+    if (!selectedLanguage || IS_SERVER || !CAN_ACCESS_COOKIES) {
+      return
+    }
     // Remember the selected language in a cookie
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage}; path=/; SameSite=Strict; max-age=31536000;`
 
@@ -52,7 +70,7 @@ export default function useLanguage(): string | null {
     document.documentElement.lang = selectedLanguage
     // Set right text direction
     document.documentElement.dir = getDir(selectedLanguage)
-  }
+  }, [selectedLanguage])
 
   return selectedLanguage
 }

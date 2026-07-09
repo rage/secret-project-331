@@ -1,5 +1,3 @@
-"use client"
-
 import { HtmlRenderer, Parser } from "commonmark"
 import React from "react"
 

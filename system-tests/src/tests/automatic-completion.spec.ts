@@ -32,7 +32,7 @@ test("Registers automatic completion", async ({ page, headless }, testInfo) => {
   // Have to wait until the submit is done
   await page.getByText(`Good job!`).waitFor()
 
-  await page.getByText("Automatic Completions").click()
+  await page.getByRole("link", { name: "Automatic Completions" }).click()
   await expect(page).toHaveURL("http://project-331.local/org/uh-cs/courses/automatic-completions")
   await page.getByText("Congratulations!").waitFor()
   await expectScreenshotsToMatchSnapshots({

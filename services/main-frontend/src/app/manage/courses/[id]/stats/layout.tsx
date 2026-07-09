@@ -7,7 +7,9 @@ import { useTranslation } from "react-i18next"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import useCourseInstancesQuery from "@/hooks/useCourseInstancesQuery"
 import useCourseLanguageVersions from "@/hooks/useCourseLanguageVersions"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
@@ -45,6 +47,7 @@ export default function StatsLayout({ children }: { children: React.ReactNode })
 
   useRegisterBreadcrumbs({ key: `course:${courseId}:stats`, order: 30, crumbs })
 
+  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
   const courseLanguageVersions = useCourseLanguageVersions(courseId)
   const courseInstances = useCourseInstancesQuery(courseId)
 
@@ -110,6 +113,11 @@ export default function StatsLayout({ children }: { children: React.ReactNode })
       >
         {t("title-statistics")}
       </h1>
+      <RouteTabPageTitle
+        tabs={tabs}
+        entityName={courseBreadcrumbInfo.data?.course_name}
+        order={20}
+      />
       <RouteTabList tabs={tabs} />
       {children}
     </>

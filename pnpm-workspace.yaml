@@ -8,7 +8,7 @@ minimumReleaseAge: 10080
 minimumReleaseAgeStrict: true
 minimumReleaseAgeIgnoreMissingTime: false
 
-nodeVersion: 24.16.0
+nodeVersion: 24.18.0
 
 overrides:
   brace-expansion@<1.1.13: '>=1.1.13 <2'
@@ -46,3 +46,7 @@ confirmModulesPurge: false
 updateNotifier: false
 
 verifyDepsBeforeRun: install
+
+minimumReleaseAgeExclude:
+  - esbuild@0.28.1
+  - '@babel/core@7.29.1'

@@ -1,0 +1,113 @@
+import { OldQuiz } from "../../types/oldQuizTypes"
+import { ModelSolutionQuiz } from "../../types/quizTypes/modelSolutionSpec"
+import { PrivateSpecQuizItemClosedEndedQuestion } from "../../types/quizTypes/privateSpec"
+
+import { wrapRouteHandler } from "@/shared-module/common/errors/wrapRouteHandler"
+import { isOldQuiz } from "@/util/migration/migrationSettings"
+import migrateModelSolutionSpecQuiz from "@/util/migration/modelSolutionSpecQuiz"
+import { isSpecRequest } from "@/utils/exerciseServiceApi"
+
+const SERVICE = "quizzes"
+
+async function postImpl(request: Request): Promise<Response> {
+  try {
+    let body
+    try {
+      body = await request.json()
+    } catch (jsonError) {
+      const bodyText = await request.text()
+
+      const contentType = request.headers.get("content-type")
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error("Model solution request failed: Invalid Content-Type", {
+          contentType,
+          bodyText,
+        })
+        return Response.json({ message: "Content-Type must be application/json" }, { status: 400 })
+      }
+
+      if (!bodyText || bodyText.trim() === "") {
+        console.error("Model solution request failed: Empty request body", {
+          bodyText,
+        })
+        return Response.json({ message: "Request body is empty" }, { status: 400 })
+      }
+
+      console.error("Model solution request failed: Invalid JSON", {
+        bodyText,
+        parseError: jsonError instanceof Error ? jsonError.message : String(jsonError),
+      })
+      return Response.json({ message: "Invalid JSON in request body" }, { status: 400 })
+    }
+
+    const modelSolution = handleModelSolutionGeneration(body)
+    return Response.json(modelSolution, { status: 200 })
+  } catch (e) {
+    console.error("Model solution request failed:", e)
+    if (e instanceof Error) {
+      return Response.json(
+        {
+          error_name: e.name,
+          error_message: e.message,
+          error_stack: e.stack,
+        },
+        { status: 500 },
+      )
+    } else {
+      return Response.json({ error_message: e }, { status: 500 })
+    }
+  }
+}
+
+export const handleModelSolution = wrapRouteHandler(postImpl, {
+  service: SERVICE,
+  operation: "POST /model-solution",
+})
+
+function handleModelSolutionGeneration(body: unknown): ModelSolutionQuiz {
+  if (!isSpecRequest(body)) {
+    const errorInfo = {
+      body,
+      bodyKeys: Object.keys(body || {}),
+      bodyType: typeof body,
+      isArray: Array.isArray(body),
+      hasPrivateSpec: body && typeof body === "object" && "private_spec" in body,
+      privateSpecType:
+        body && typeof body === "object" && "private_spec" in body
+          ? typeof body.private_spec
+          : "undefined",
+      expectedKeys: ["request_id", "private_spec", "upload_url"],
+    }
+    console.error("Model solution request failed: Invalid spec request", errorInfo)
+    throw new Error(`Invalid spec request: ${JSON.stringify(errorInfo)}`)
+  }
+  const specRequest = body
+  const quiz = specRequest.private_spec as OldQuiz | null
+  if (quiz === null) {
+    throw new Error("Private spec cannot be null")
+  }
+
+  const modelSolution = createModelSolution(quiz)
+  return modelSolution
+}
+
+function createModelSolution(quiz: OldQuiz | ModelSolutionQuiz): ModelSolutionQuiz {
+  const modelSolution: ModelSolutionQuiz | null = isOldQuiz(quiz)
+    ? migrateModelSolutionSpecQuiz(quiz as OldQuiz)
+    : (quiz as ModelSolutionQuiz)
+  if (modelSolution === null) {
+    throw new Error("Model solution was null")
+  }
+  // Make sure we don't include illegal properties
+  for (const quizItem of modelSolution.items) {
+    if (quizItem.type === "closed-ended-question") {
+      const asPrivateSpec = quizItem as PrivateSpecQuizItemClosedEndedQuestion
+      if (asPrivateSpec.validityRegex !== undefined) {
+        // @ts-expect-error: Deleting a property that should not exist
+        delete asPrivateSpec.validityRegex
+      }
+    }
+  }
+
+  return modelSolution as ModelSolutionQuiz
+}

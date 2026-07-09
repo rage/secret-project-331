@@ -34,6 +34,7 @@ export interface UnnormalizedDocument {
   title: string
   urlPath: string
   chapterId: string | null
+  hidden: boolean
 }
 
 /**
@@ -168,6 +169,7 @@ export function normalizeDocument(args: UnnormalizedDocument): CmsPageUpdate {
     exercise_tasks: exerciseTasks,
     title: args.title,
     url_path: args.urlPath,
+    hidden: args.hidden,
   }
 }
 
@@ -278,6 +280,7 @@ export function denormalizeDocument(input: CmsPageUpdate): UnnormalizedDocument 
     title: input.title,
     urlPath: input.url_path,
     chapterId: input.chapter_id ?? null,
+    hidden: input.hidden,
   }
 
   return res

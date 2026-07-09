@@ -6,10 +6,12 @@ import { useTranslation } from "react-i18next"
 
 import { PermissionPage } from "@/components/PermissionPage"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 
 const GlobalPermissions: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("global-permissions"))
 
   return (
     <div

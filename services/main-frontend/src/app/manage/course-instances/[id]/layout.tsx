@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { getCourseInstanceOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   manageCourseInstancesRoute,
   manageCourseRoute,
@@ -28,6 +29,10 @@ export default function CourseInstanceLayout({ children }: { children: React.Rea
 
   const courseId = courseInstanceQuery.data?.course_id ?? null
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
+
+  usePageTitle(
+    courseInstanceQuery.isLoading ? null : courseInstanceQuery.data?.name || t("default-instance"),
+  )
 
   const crumbs = useMemo(
     () => [

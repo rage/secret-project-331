@@ -1,7 +1,6 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import { POST } from "../../src/app/api/public-spec/route"
 import {
   PrivateSpecQuiz,
   PrivateSpecQuizItemCheckbox,
@@ -45,9 +44,10 @@ import {
   VALIDITY_REGEX_CANARY_FOR_TESTS,
 } from "./utils/privateSpecGenerator"
 
+import { handlePublicSpec } from "@/server/publicSpec"
 import { SpecRequest } from "@/utils/exerciseServiceApi"
 
-const client = testClient(POST)
+const client = testClient(handlePublicSpec)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/public-spec"
 
 /**

@@ -19,6 +19,7 @@ import TextField from "@/shared-module/common/components/InputFields/TextField"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
 import { postAuthSignup } from "@/shared-module/common/generated/auth-api/sdk.generated"
 import { SignupResponse } from "@/shared-module/common/generated/auth-api/types.generated"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import "@/shared-module/common/init/registerAuthApiClients"
 import countries from "@/shared-module/common/locales/en/countries.json"
@@ -154,6 +155,7 @@ const CreateAccountForm: React.FC = () => {
   const [emailAlreadyTakenError, setEmailAlreadyTakenError] = useState<string | null>(null)
 
   const { t, i18n } = useTranslation()
+  usePageTitle(t("title-sign-up"))
 
   const email = watch("email")
   const password = watch("password")
@@ -350,7 +352,6 @@ const CreateAccountForm: React.FC = () => {
           />
 
           <Controller
-            // eslint-disable-next-line i18next/no-literal-string
             name="country"
             control={control}
             rules={{ required: t("required-field") }}

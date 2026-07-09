@@ -40,10 +40,7 @@ interface SetContentAction {
 }
 
 export type EditorContentAction =
-  | AddExerciseSlideAction
-  | AddExerciseTaskAction
-  | DeleteExerciseTaskAction
-  | SetContentAction
+  AddExerciseSlideAction | AddExerciseTaskAction | DeleteExerciseTaskAction | SetContentAction
 
 // Reducer
 

@@ -97,7 +97,6 @@ export default function WorkspaceTaskRow({
   return (
     <li className={`${taskRowStyles} ${taskRowWithHoverStyles}`}>
       <Checkbox
-        // eslint-disable-next-line i18next/no-literal-string
         name="isCompleted"
         control={control}
         label=""

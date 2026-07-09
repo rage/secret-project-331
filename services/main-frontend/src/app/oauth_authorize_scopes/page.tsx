@@ -6,10 +6,12 @@ import { useTranslation } from "react-i18next"
 
 import { approveOauthConsent, denyOauthConsent } from "@/generated/api/sdk.generated"
 import Button from "@/shared-module/common/components/Button"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 
 export default function ConsentPage() {
   const searchParams = useSearchParams()
   const { t } = useTranslation("main-frontend")
+  usePageTitle(t("title-authorize-application"))
 
   const query = {
     client_id: String(searchParams.get("client_id") ?? ""),

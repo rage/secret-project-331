@@ -7,6 +7,7 @@ import { useMemo } from "react"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import { getChatbotConfigurationOptions } from "@/generated/api/@tanstack/react-query.generated"
 import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
 import { manageCourseRoute, organizationFrontPageRoute } from "@/shared-module/common/utils/routes"
 
@@ -24,6 +25,8 @@ export default function ChatbotLayout({ children }: { children: React.ReactNode 
 
   const courseId = chatbotQuery.data?.course_id ?? null
   const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
+
+  usePageTitle(chatbotQuery.data?.chatbot_name ?? null)
 
   const crumbs = useMemo(
     () => [

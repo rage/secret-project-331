@@ -1,7 +1,6 @@
 /**
- * @jest-environment node
+ * @vitest-environment node
  */
-import { POST } from "../../src/app/api/model-solution/route"
 import {
   ModelSolutionQuiz,
   ModelSolutionQuizItemClosedEndedQuestion,
@@ -10,9 +9,10 @@ import {
 import testClient from "./utils/appRouterTestClient"
 import { generatePrivateSpecWithOneClosedEndedQuestionQuizItem } from "./utils/privateSpecGenerator"
 
+import { handleModelSolution } from "@/server/modelSolution"
 import { SpecRequest } from "@/utils/exerciseServiceApi"
 
-const client = testClient(POST)
+const client = testClient(handleModelSolution)
 const MODEL_SOLUTION_SPEC_ENDPOINT = "/api/model-solution"
 
 describe("Model solution spec generation", () => {

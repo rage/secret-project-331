@@ -1,5 +1,3 @@
-"use client"
-
 import { UserAnswer } from "../../types/quizTypes/answer"
 import QuizzesUserItemAnswerContext from "../contexts/QuizzesUserItemAnswerContext"
 

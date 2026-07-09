@@ -50,6 +50,7 @@ const loadEnsureStandaloneGutenbergBootstrap = async (
     registerEditorAiAbilities: jest.fn(),
   }))
   await jest.unstable_mockModule("../../src/utils/Gutenberg/modifyBlockAttributes", () => ({
+    modifyCodeBlockAttributes: jest.fn((settings: unknown) => settings),
     modifyEmbedBlockAttributes: jest.fn((settings: unknown) => settings),
     modifyImageBlockAttributes: jest.fn((settings: unknown) => settings),
   }))
@@ -64,6 +65,10 @@ const loadEnsureStandaloneGutenbergBootstrap = async (
       registerBlockVariation("core/embed", { name: "mentimeter" })
       registerBlockVariation("core/embed", { name: "thinglink" })
     }),
+  }))
+  await jest.unstable_mockModule("../../src/utils/Gutenberg/withCodeLanguageControls", () => ({
+    __esModule: true,
+    default: jest.fn(),
   }))
   await jest.unstable_mockModule("../../src/utils/Gutenberg/withMentimeterInspector", () => ({
     __esModule: true,

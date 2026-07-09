@@ -6,11 +6,13 @@ import Link from "next/link"
 import { useTranslation } from "react-i18next"
 
 import Button from "@/shared-module/common/components/Button"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme } from "@/shared-module/common/styles"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const EmailVerifiedPage: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-email-verified"))
   return (
     <>
       <div

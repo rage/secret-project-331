@@ -146,9 +146,7 @@ const StatusSummary: React.FC = () => {
     // eslint-disable-next-line i18next/no-literal-string
     const defaultHealth: "healthy" | "warning" | "error" = "healthy"
     const overallHealth = (systemHealthDetailed?.status || defaultHealth) as
-      | "healthy"
-      | "warning"
-      | "error"
+      "healthy" | "warning" | "error"
     const healthIssues = systemHealthDetailed?.issues || []
 
     return {
@@ -209,17 +207,21 @@ const StatusSummary: React.FC = () => {
           grid-column: 1 / -1;
           padding: 1.5rem;
           border-radius: 8px;
-          background-color: ${summary.overallHealth === "healthy"
-            ? baseTheme.colors.green[100]
-            : summary.overallHealth === "warning"
-              ? baseTheme.colors.yellow[100]
-              : baseTheme.colors.red[100]};
-          border: 2px solid
-            ${summary.overallHealth === "healthy"
-              ? baseTheme.colors.green[600]
+          background-color: ${
+            summary.overallHealth === "healthy"
+              ? baseTheme.colors.green[100]
               : summary.overallHealth === "warning"
-                ? baseTheme.colors.yellow[600]
-                : baseTheme.colors.red[600]};
+                ? baseTheme.colors.yellow[100]
+                : baseTheme.colors.red[100]
+          };
+          border: 2px solid
+            ${
+              summary.overallHealth === "healthy"
+                ? baseTheme.colors.green[600]
+                : summary.overallHealth === "warning"
+                  ? baseTheme.colors.yellow[600]
+                  : baseTheme.colors.red[600]
+            };
         `}
       >
         <h3

@@ -1,5 +1,3 @@
-"use client"
-
 import { primaryFont } from "@/shared-module/exercise-react/styles"
 
 export const TWO_DIMENSIONAL_BUTTON_STYLES = `

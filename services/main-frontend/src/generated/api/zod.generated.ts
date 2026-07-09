@@ -1474,6 +1474,11 @@ export const zModifiedModule = z.object({
   uh_course_code: z.string().nullish(),
 })
 
+export const zModule = z.object({
+  course_code: z.string(),
+  description: z.string(),
+})
+
 export const zNewChapter = z.object({
   chapter_number: z
     .int()
@@ -1992,6 +1997,7 @@ export const zNewPage = z.object({
   exercise_tasks: z.array(zCmsPageExerciseTask),
   exercises: z.array(zCmsPageExercise),
   front_page_of_chapter_id: z.uuid().nullish(),
+  hidden: z.boolean(),
   title: z.string(),
   url_path: z.string(),
 })
@@ -2275,6 +2281,11 @@ export const zServiceInfo = z.object({
   cluster_ip: z.string().nullish(),
   name: z.string(),
   ports: z.array(zServicePortInfo),
+})
+
+export const zSisuDescriptionResponse = z.object({
+  course_description: z.string(),
+  modules: z.array(zModule),
 })
 
 export const zStudentsByCountryTotalsResult = z.object({
@@ -3798,6 +3809,15 @@ export const zReprocessCourseCompletionsResponse = z.boolean()
 export const zSetCourseJoinCodePath = z.object({
   course_id: z.uuid(),
 })
+
+export const zGetSisuCourseLlmDescriptionsPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Sisu course LLM descriptions
+ */
+export const zGetSisuCourseLlmDescriptionsResponse = zSisuDescriptionResponse
 
 export const zGetCourseCompletionsHistoryAllLanguageVersionsPath = z.object({
   course_id: z.uuid(),

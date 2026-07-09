@@ -1,6 +1,7 @@
 import { test } from "@playwright/test"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -12,6 +13,7 @@ test("Can convert blocks", async ({ page }) => {
 
   await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByRole("button", { name: "New page" }).nth(2).click()
   await page.getByLabel("Title  *").fill("Test page")
   await page.getByRole("button", { name: "Create" }).click()

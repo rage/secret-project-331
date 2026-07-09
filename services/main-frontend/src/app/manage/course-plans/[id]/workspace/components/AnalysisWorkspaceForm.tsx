@@ -123,7 +123,6 @@ export default function AnalysisWorkspaceForm(props: {
           <div id={analysisSectionBodyId(1)} className={sectionBodyStyles}>
             <h3 className={subsectionTitleStyles}>{t("course-plans-analysis-subgroup-basic")}</h3>
             <TextField
-              // eslint-disable-next-line i18next/no-literal-string
               name="course_title"
               control={control}
               rules={nullIfEmpty}
@@ -155,7 +154,6 @@ export default function AnalysisWorkspaceForm(props: {
               </ComboBox>
             </div>
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="target_group"
               control={control}
               rules={nullIfEmpty}
@@ -174,7 +172,6 @@ export default function AnalysisWorkspaceForm(props: {
               {t("course-plans-analysis-subgroup-organizational")}
             </h3>
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="responsible_teachers"
               control={control}
               rules={nullIfEmpty}
@@ -184,7 +181,6 @@ export default function AnalysisWorkspaceForm(props: {
             />
             <div className={twoColGridStyles}>
               <TextField
-                // eslint-disable-next-line i18next/no-literal-string
                 name="degree_programme"
                 control={control}
                 rules={nullIfEmpty}
@@ -236,7 +232,6 @@ export default function AnalysisWorkspaceForm(props: {
           <div id={analysisSectionBodyId(2)} className={sectionBodyStyles}>
             <p className={staticTextStyles}>{t("course-plans-analysis-students-needs-intro")}</p>
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="students_demographic_data"
               control={control}
               rules={nullIfEmpty}
@@ -262,7 +257,6 @@ export default function AnalysisWorkspaceForm(props: {
         {expandedSections[3] !== false ? (
           <div id={analysisSectionBodyId(3)} className={sectionBodyStyles}>
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="wishes_topics"
               control={control}
               rules={nullIfEmpty}
@@ -272,7 +266,6 @@ export default function AnalysisWorkspaceForm(props: {
             />
             <ContentFormatCheckboxes control={control} t={t} />
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="wishes_content_format_notes"
               control={control}
               rules={nullIfEmpty}
@@ -281,7 +274,6 @@ export default function AnalysisWorkspaceForm(props: {
               rows={ROWS_STANDARD}
             />
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="wishes_assessment_text"
               control={control}
               rules={nullIfEmpty}
@@ -290,7 +282,6 @@ export default function AnalysisWorkspaceForm(props: {
               rows={ROWS_STANDARD}
             />
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="wishes_other_suggestions"
               control={control}
               rules={nullIfEmpty}
@@ -316,7 +307,6 @@ export default function AnalysisWorkspaceForm(props: {
         {expandedSections[4] !== false ? (
           <div id={analysisSectionBodyId(4)} className={sectionBodyStyles}>
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="market_results"
               control={control}
               rules={nullIfEmpty}
@@ -342,7 +332,6 @@ export default function AnalysisWorkspaceForm(props: {
         {expandedSections[5] !== false ? (
           <div id={analysisSectionBodyId(5)} className={sectionBodyStyles}>
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="resources_university"
               control={control}
               rules={nullIfEmpty}
@@ -351,7 +340,6 @@ export default function AnalysisWorkspaceForm(props: {
               rows={ROWS_STANDARD}
             />
             <TextArea
-              // eslint-disable-next-line i18next/no-literal-string
               name="resources_purchase_budget"
               control={control}
               rules={nullIfEmpty}

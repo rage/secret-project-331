@@ -457,6 +457,7 @@ export const zCmsPageUpdate = z.object({
   exercise_slides: z.array(zCmsPageExerciseSlide),
   exercise_tasks: z.array(zCmsPageExerciseTask),
   exercises: z.array(zCmsPageExercise),
+  hidden: z.boolean(),
   title: z.string(),
   url_path: z.string(),
 })

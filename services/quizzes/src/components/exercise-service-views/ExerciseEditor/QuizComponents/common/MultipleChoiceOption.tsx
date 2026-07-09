@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { CheckCircle, Pencil, XmarkCircle } from "@vectopus/atlas-icons-react"
@@ -7,6 +5,8 @@ import React, { useCallback, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { QuizItemOption } from "../../../../../../types/quizTypes/privateSpec"
+
+import ParsedTextField from "./ParsedTextField"
 
 import Button from "@/shared-module/common/components/Button"
 import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
@@ -77,7 +77,6 @@ const MessageDialogContainer = styled.div`
 const MessageDialogTextFieldContainer = styled.div`
   margin: 4px;
   color: #535a66;
-  height: 60px;
 `
 
 const MessageDialogTitle = styled.div`
@@ -309,32 +308,24 @@ const MultipleChoiceOption: React.FC<MultipleChoiceOptionProps> = ({
           ) : (
             <MultipleChoiceMessageDialogContainer>
               <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-after-submission-when-this-option-selected")}
-                </MessageDialogTitle>
                 <MessageDialogTextFieldContainer>
-                  <TextField
-                    onChange={(event) =>
-                      setMessageAfterSubmissionWhenThisOptionSelected(
-                        nullIfEmptyString(event.target.value),
-                      )
+                  <ParsedTextField
+                    label={t("message-after-submission-when-this-option-selected")}
+                    value={messageAfterSubmissionWhenThisOptionSelected ?? ""}
+                    onChange={(value) =>
+                      setMessageAfterSubmissionWhenThisOptionSelected(nullIfEmptyString(value))
                     }
-                    value={messageAfterSubmissionWhenThisOptionSelected ?? undefined}
                   />
                 </MessageDialogTextFieldContainer>
               </MessageDialogContainer>
               <MessageDialogContainer>
-                <MessageDialogTitle>
-                  {t("message-on-model-solution-when-this-option-selected")}
-                </MessageDialogTitle>
                 <MessageDialogTextFieldContainer>
-                  <TextField
-                    onChange={(event) =>
-                      setMessageOnModelSolutionWhenThisOptionSelected(
-                        nullIfEmptyString(event.target.value),
-                      )
+                  <ParsedTextField
+                    label={t("message-on-model-solution-when-this-option-selected")}
+                    value={messageOnModelSolutionWhenThisOptionSelected ?? ""}
+                    onChange={(value) =>
+                      setMessageOnModelSolutionWhenThisOptionSelected(nullIfEmptyString(value))
                     }
-                    value={messageOnModelSolutionWhenThisOptionSelected ?? undefined}
                   />
                 </MessageDialogTextFieldContainer>
               </MessageDialogContainer>

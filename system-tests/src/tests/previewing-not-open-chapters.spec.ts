@@ -4,6 +4,7 @@ import { selectCourseInstanceIfPrompted } from "../utils/courseMaterialActions"
 
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -15,6 +16,7 @@ test("Teachers can preview chapters that are not open yet", async ({ page, brows
   await selectOrganization(page, "University of Helsinki, Department of Mathematics and Statistics")
   await page.getByRole("link", { name: "Manage course 'Preview unopened chapters'" }).click()
   await page.getByRole("tab", { name: "Pages" }).click()
+  await waitForSpinnersToDisappear(page)
   await page
     .getByRole("heading", { name: "Chapter 1: The Basics Dropdown menu" })
     .getByRole("button", { name: "Dropdown menu" })

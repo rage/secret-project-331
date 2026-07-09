@@ -369,9 +369,9 @@
           "200": {
             "description": "Chatbot response stream",
             "content": {
-              "text/plain": {
+              "text/event-stream": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/ChatbotChatStreamEvent"
                 }
               }
             }
@@ -3012,6 +3012,122 @@
           }
         }
       },
+      "ChatbotChatStreamEvent": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["text", "message_id"],
+                "properties": {
+                  "message_id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Delta"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["finished", "reasoning_id"],
+                "properties": {
+                  "finished": {
+                    "type": "boolean"
+                  },
+                  "reasoning_id": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Reasoning"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["tool_call_id", "finished"],
+                "properties": {
+                  "arguments": {
+                    "type": ["string", "null"]
+                  },
+                  "finished": {
+                    "type": "boolean"
+                  },
+                  "tool_call_id": {
+                    "type": "string"
+                  },
+                  "tool_name": {
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["ToolCall"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["Done"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["data", "type"],
+            "properties": {
+              "data": {
+                "type": "object",
+                "required": ["message"],
+                "properties": {
+                  "message": {
+                    "type": "string"
+                  }
+                }
+              },
+              "type": {
+                "type": "string",
+                "enum": ["Error"]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["None"]
+              }
+            }
+          }
+        ]
+      },
       "ChatbotConversation": {
         "type": "object",
         "required": [
@@ -3252,6 +3368,7 @@
           "chatbot_conversation_message_id",
           "created_at",
           "updated_at",
+          "reasoning_id",
           "response_id"
         ],
         "properties": {
@@ -3270,6 +3387,9 @@
           "id": {
             "type": "string",
             "format": "uuid"
+          },
+          "reasoning_id": {
+            "type": "string"
           },
           "response_id": {
             "type": "string"
@@ -3316,7 +3436,9 @@
           "response_id": {
             "type": "string"
           },
-          "tool_arguments": {},
+          "tool_arguments": {
+            "type": "string"
+          },
           "tool_call_id": {
             "type": "string"
           },

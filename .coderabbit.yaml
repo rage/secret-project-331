@@ -57,6 +57,16 @@ reviews:
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
 
+    - path: "services/main-frontend/src/app/**/*.tsx"
+      instructions: >
+        Pages and layouts should set the browser title with the usePageTitle hook: import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle".
+
+        Where: set the title once per view. A section layout that has an entity (course, exam, organization, course instance, chatbot) registers the entity name so every child page inherits it — child pages must not re-set it. Standalone pages set their own title in the page component.
+
+        Format: pass only the page-specific part — PageTitleManager appends " - {siteName}" automatically, so never include the site name yourself. Use one concise, most-specific label; no "A · B" composites. Pass an already-translated string via a kebab-case title-* key (reuse existing keys where they fit), e.g. usePageTitle(t("title-account-settings")). For fetched names pass the value directly and null while loading, e.g. usePageTitle(course?.name ?? null); do not translate entity names, and never put PII such as emails in a title.
+
+        Order: default order 0. Only when a parent layout also registers a title, give the leaf page a higher order (e.g. { order: 10 }) so the more specific title wins.
+
     - path: "services/headless-lms/models/src/**/*.rs"
       instructions: >
         All sql queries should be written with the macros from the sqlx crate. Macros end with an exclamation mark. Example good functions: query!, query_as!, query_scalar!, query_file!, etc. Example bad functions: query, query_as, query_scalar, query_file, etc.

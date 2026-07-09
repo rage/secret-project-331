@@ -8,6 +8,7 @@ import MyCourses from "./MyCourses"
 
 import OnlyRenderIfPermissions from "@/shared-module/common/components/OnlyRenderIfPermissions"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import {
   allOrganizationsRoute,
   domainStatsRoute,
@@ -21,6 +22,7 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const FrontPage = () => {
   const { t } = useTranslation()
+  usePageTitle(t("home"))
 
   return (
     <div>

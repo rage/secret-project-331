@@ -67,6 +67,7 @@ pub async fn create_new_course(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: false,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -205,6 +206,7 @@ pub async fn create_new_chapter_with_content(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: false,
     };
 
     let page = match pkey_policy {
@@ -240,9 +242,10 @@ INSERT INTO pages(
     order_number,
     chapter_id,
     content_search_language,
-    page_language_group_id
+    page_language_group_id,
+    hidden
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id,
   created_at,
   updated_at,
@@ -267,7 +270,8 @@ RETURNING id,
                 0i32,
                 chapter_frontpage.chapter_id,
                 content_search_language as _,
-                page_language_group_id
+                page_language_group_id,
+                chapter_frontpage.hidden
             )
             .fetch_one(&mut *tx)
             .await?;

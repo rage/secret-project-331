@@ -30,7 +30,6 @@ const TerminologyBlockEditor: React.FC<
         <BackgroundColorCustomizer
           attributes={attributes}
           setAttributes={setAttributes}
-          // eslint-disable-next-line i18next/no-literal-string
           defaultBackgroundColor="rgb(53, 63, 75)"
           // eslint-disable-next-line i18next/no-literal-string
           customAttributeName="primaryColor"

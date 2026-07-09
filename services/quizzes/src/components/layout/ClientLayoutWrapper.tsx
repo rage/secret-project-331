@@ -1,5 +1,3 @@
-"use client"
-
 import { injectGlobal } from "@emotion/css"
 import { OverlayProvider } from "@react-aria/overlays"
 import React, { useEffect } from "react"

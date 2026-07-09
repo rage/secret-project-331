@@ -19,12 +19,14 @@ import {
 import { allowedBlockVariants } from "../../blocks/supportedGutenbergBlocks"
 import { registerEditorAiAbilities } from "../../utils/Gutenberg/ai/abilities"
 import {
+  modifyCodeBlockAttributes,
   modifyEmbedBlockAttributes,
   modifyImageBlockAttributes,
 } from "../../utils/Gutenberg/modifyBlockAttributes"
 import { modifyBlockButton } from "../../utils/Gutenberg/modifyBlockButton"
 import { modifyGutenbergCategories } from "../../utils/Gutenberg/modifyGutenbergCategories"
 import { registerBlockVariations } from "../../utils/Gutenberg/registerBlockVariations"
+import withCodeLanguageControls from "../../utils/Gutenberg/withCodeLanguageControls"
 import withMentimeterInspector from "../../utils/Gutenberg/withMentimeterInspector"
 import withParagraphAiToolbarAction from "../../utils/Gutenberg/withParagraphAiToolbarAction"
 
@@ -126,7 +128,9 @@ export const ensureStandaloneGutenbergBootstrap = (
       "moocfi/modifyEmbedAttributes",
       modifyEmbedBlockAttributes,
     )
+    addFilter("blocks.registerBlockType", "moocfi/modifyCodeAttributes", modifyCodeBlockAttributes)
     addFilter("editor.BlockEdit", "moocfi/cms/mentiMeterInspector", withMentimeterInspector)
+    addFilter("editor.BlockEdit", "moocfi/cms/codeLanguageControls", withCodeLanguageControls)
     addFilter("editor.BlockEdit", "moocfi/cms/paragraphAiToolbar", withParagraphAiToolbarAction)
 
     registerEditorAiAbilities()

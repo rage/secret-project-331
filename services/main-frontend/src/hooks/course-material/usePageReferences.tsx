@@ -4,11 +4,12 @@ import { useQuery } from "@tanstack/react-query"
 // @ts-expect-error: No type definitions
 import cite from "citation-js"
 import { useAtomValue } from "jotai"
-import { compact } from "lodash"
-import { useEffect, useState } from "react"
+import { useMemo } from "react"
 
+import { orderedUniqueCitationKeys } from "@/components/course-material/references/citationExtraction"
 import { getCourseMaterialReferencesOptions } from "@/generated/course-material-api/@tanstack/react-query.generated"
-import { currentPageDataAtom } from "@/state/course-material/selectors"
+import { pageContentAtom } from "@/state/course-material/selectors"
+import { Block } from "@/types/courseMaterialBlock"
 
 const BIBLIOGRAPHY = "bibliography"
 const EN_US = "en-US"
@@ -18,12 +19,10 @@ const VANCOUVER = "vancouver"
 export interface Citations {
   citation: string
   citationKey: string
-  citationNumber: number
 }
 
 const useReferences = (courseId: string) => {
-  const pageData = useAtomValue(currentPageDataAtom)
-  const [pageRefs, setPageRefs] = useState<ReadonlyArray<Citations>>()
+  const pageContent = useAtomValue(pageContentAtom)
 
   const getCourseReferences = useQuery(
     getCourseMaterialReferencesOptions({
@@ -33,45 +32,47 @@ const useReferences = (courseId: string) => {
     }),
   )
 
-  useEffect(() => {
-    if (!pageData) {
-      return
+  // Citations are derived from the page content block tree, not the rendered DOM, so citations
+  // inside collapsed expandable blocks are included and the numbering is deterministic. Numbers
+  // follow first-occurrence document order (the Vancouver convention) so they match the inline
+  // markers.
+  const pageRefs = useMemo<ReadonlyArray<Citations> | undefined>(() => {
+    if (getCourseReferences.isError) {
+      // Surface the failure to the error boundary instead of silently returning an empty list,
+      // which would drop the whole references section while inline \cite markers still render.
+      throw new Error("Error while loading course references")
     }
-    let attempt = 0
-    const callback = () => {
-      const refs = document.querySelectorAll<HTMLElement>("[data-citation-id]")
-      const numReferences = refs.length
-      if (numReferences === 0 && attempt < 10) {
-        attempt = attempt + 1
-        setTimeout(callback, 100)
+    if (!getCourseReferences.data) {
+      return undefined
+    }
+    const orderedKeys = orderedUniqueCitationKeys(pageContent as Block<unknown>[])
+    if (orderedKeys.length === 0) {
+      return []
+    }
+    const referenceByKey = new Map(getCourseReferences.data.map((x) => [x.citation_key, x]))
+    const citations: Citations[] = []
+    for (const key of orderedKeys) {
+      const reference = referenceByKey.get(key)
+      if (!reference) {
+        continue
       }
-      if (getCourseReferences.isError) {
-        throw new Error("Error while loading course references")
-      }
-      if (getCourseReferences.data) {
-        const textCitations = new Set(compact(Array.from(refs).map((x) => x.dataset.citationId)))
-        const citations = getCourseReferences.data
-          .filter((x) => textCitations.has(x.citation_key))
-          .map((x) => ({
-            citationKey: x.citation_key,
-            text: cite(x.reference).format(BIBLIOGRAPHY, {
-              type: STRING,
-              style: VANCOUVER,
-              lang: EN_US,
-            }),
-          }))
-          .sort((a, b) => a.text.localeCompare(b.text))
-          .map((x, i) => ({
-            citationKey: x.citationKey,
-            citationNumber: i + 1,
-            citation: x.text,
-          }))
-
-        setPageRefs(citations)
+      // citation-js throws on a malformed/unsupported reference string. Skip the bad entry rather
+      // than letting a single reference throw during render and take out the whole accordion.
+      try {
+        citations.push({
+          citationKey: key,
+          citation: cite(reference.reference).format(BIBLIOGRAPHY, {
+            type: STRING,
+            style: VANCOUVER,
+            lang: EN_US,
+          }),
+        })
+      } catch {
+        continue
       }
     }
-    setTimeout(callback, 10)
-  }, [getCourseReferences.data, getCourseReferences.isError, pageData])
+    return citations
+  }, [getCourseReferences.data, getCourseReferences.isError, pageContent])
 
   return pageRefs
 }

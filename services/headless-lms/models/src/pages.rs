@@ -6,7 +6,7 @@ use headless_lms_utils::document_schema_processor::{
     replace_duplicate_client_ids,
 };
 use itertools::Itertools;
-use percent_encoding::{AsciiSet, CONTROLS, percent_decode_str, utf8_percent_encode};
+use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde_json::{Value, json};
 use sqlx::{AssertSqlSafe, Postgres, QueryBuilder, Row};
 use url::Url;
@@ -150,17 +150,91 @@ const URL_PATH_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'|')
     .add(b'}');
 
-/// Canonicalizes a URL path for storage and lookup.
-///
-/// Percent-decodes any escapes, trims surrounding whitespace, then re-encodes only the
-/// unsafe ASCII characters in `URL_PATH_ENCODE_SET`. Valid non-ASCII UTF-8 (e.g. Cyrillic)
-/// is kept verbatim so that paths stay human-readable and continue to match values that
-/// were stored before URL normalization was introduced.
-///
-/// `utf8_percent_encode` always percent-encodes non-ASCII bytes regardless of the set, so
-/// only ASCII characters are run through it; everything else is passed through unchanged.
-fn normalize_url_path_for_storage(url_path: &str) -> String {
-    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
+/// Decode each maximal run of `%XX` escapes as one UTF-8 unit, dropping a run that isn't valid
+/// UTF-8 (rather than emitting U+FFFD). Non-escape characters pass through. Mirrors the migration's
+/// `safe_percent_decode`, so storage and lookup agree on inputs like `/%FF`.
+fn decode_percent_runs(input: &str) -> String {
+    let chars: Vec<char> = input.chars().collect();
+    let mut out = String::with_capacity(input.len());
+    let mut i = 0;
+    while i < chars.len() {
+        if percent_escape_byte_at(&chars, i).is_some() {
+            let mut bytes = Vec::new();
+            while let Some(byte) = percent_escape_byte_at(&chars, i) {
+                bytes.push(byte);
+                i += 3;
+            }
+            if let Ok(decoded) = std::str::from_utf8(&bytes) {
+                out.push_str(decoded);
+            }
+        } else {
+            out.push(chars[i]);
+            i += 1;
+        }
+    }
+    out
+}
+
+/// The byte a `%XX` escape at `chars[i]` decodes to, or `None` if there isn't one there.
+fn percent_escape_byte_at(chars: &[char], i: usize) -> Option<u8> {
+    if chars.get(i) != Some(&'%') {
+        return None;
+    }
+    let hi = chars.get(i + 1)?.to_digit(16)?;
+    let lo = chars.get(i + 2)?.to_digit(16)?;
+    Some((hi * 16 + lo) as u8)
+}
+
+/// Canonical storage/lookup form: decode `%xx`, then per `/`-segment turn whitespace into `-`,
+/// strip the unsafe ASCII in `URL_PATH_ENCODE_SET`, and collapse/trim dashes. Case, non-ASCII and
+/// `/`, `-`, `.`, `_`, `~` are kept. Unsafe chars are removed, not `%xx`-encoded, so every save
+/// funnels through here and paths can't re-accumulate escapes. Mirrors `clean_url_path` (page
+/// migration) and the frontend `cleanUrlPath`; keep the three in agreement.
+pub(crate) fn normalize_url_path_for_storage(url_path: &str) -> String {
+    decode_percent_runs(url_path)
+        .split('/')
+        .map(clean_url_path_segment)
+        .collect::<Vec<_>>()
+        .join("/")
+}
+
+/// Whether `ch` is an ASCII char that `URL_PATH_ENCODE_SET` would encode. The set's membership
+/// test is crate-private, so probe it via `utf8_percent_encode` (which encodes an ASCII char iff
+/// it's in the set). ASCII-only: the caller keeps non-ASCII verbatim.
+fn is_unsafe_ascii(ch: char) -> bool {
+    let mut buf = [0u8; 4];
+    let encoded = ch.encode_utf8(&mut buf);
+    utf8_percent_encode(encoded, URL_PATH_ENCODE_SET).next() != Some(encoded)
+}
+
+/// Cleans a single path segment (no `/`): whitespace runs become a single `-`, unsafe ASCII is
+/// dropped, runs of `-` collapse to one, and leading/trailing `-` are trimmed.
+fn clean_url_path_segment(segment: &str) -> String {
+    let mut out = String::with_capacity(segment.len());
+    for ch in segment.chars() {
+        // Whitespace becomes a dash; unsafe ASCII is dropped; everything else is kept.
+        let mapped = if ch.is_whitespace() {
+            Some('-')
+        } else if ch.is_ascii() && is_unsafe_ascii(ch) {
+            None
+        } else {
+            Some(ch)
+        };
+        match mapped {
+            // Collapse a run of dashes, whether from whitespace or a literal '-'.
+            Some('-') if out.ends_with('-') => {}
+            Some(c) => out.push(c),
+            None => {}
+        }
+    }
+    out.trim_matches('-').to_string()
+}
+
+/// Legacy lookup candidate: unsafe ASCII percent-encoded, non-ASCII kept decoded — the form used
+/// before paths were stored stripped. Lets pages written that way (notably exam pages, which the
+/// cleanup migration skips) still resolve.
+fn legacy_partially_encoded_url_path(url_path: &str) -> String {
+    let decoded = decode_percent_runs(url_path);
     let trimmed = decoded.trim();
     let mut normalized = String::with_capacity(trimmed.len());
     let mut buf = [0u8; 4];
@@ -178,27 +252,26 @@ fn normalize_url_path_for_storage(url_path: &str) -> String {
     normalized
 }
 
-/// The fully percent-encoded form that the previous normalization stored for paths
-/// containing non-ASCII characters (it also percent-encoded those characters). Used only
-/// as an additional lookup candidate so that pages stored before the decoded-canonical
-/// form was adopted still resolve.
+/// Legacy lookup candidate: the oldest form, with non-ASCII percent-encoded too. Lets pages stored
+/// that way still resolve.
 fn legacy_fully_encoded_url_path(url_path: &str) -> String {
-    let decoded = percent_decode_str(url_path).decode_utf8_lossy();
+    let decoded = decode_percent_runs(url_path);
     utf8_percent_encode(decoded.trim(), URL_PATH_ENCODE_SET).to_string()
 }
 
-/// The stored `url_path` forms to try when looking up a page by a requested path: the
-/// decoded-canonical form (current storage form) and the legacy fully-encoded form. The
-/// legacy form is included only when it differs, which happens only for paths containing
-/// non-ASCII characters.
+/// Stored `url_path` forms to try for a requested path: the strip-canonical form plus the two
+/// legacy encoded forms, deduped (an ASCII-only safe path yields a single candidate).
 fn url_path_lookup_candidates(url_path: &str) -> Vec<String> {
-    let normalized = normalize_url_path_for_storage(url_path);
-    let legacy = legacy_fully_encoded_url_path(url_path);
-    if legacy == normalized {
-        vec![normalized]
-    } else {
-        vec![normalized, legacy]
+    let mut candidates = vec![normalize_url_path_for_storage(url_path)];
+    for form in [
+        legacy_partially_encoded_url_path(url_path),
+        legacy_fully_encoded_url_path(url_path),
+    ] {
+        if !candidates.contains(&form) {
+            candidates.push(form);
+        }
     }
+    candidates
 }
 
 async fn get_lock_chapter_content_state_for_page(
@@ -372,6 +445,7 @@ pub struct NewPage {
     pub front_page_of_chapter_id: Option<Uuid>,
     /// Read from the course's settings if None. If course_id is None as well, defaults to "simple"
     pub content_search_language: Option<String>,
+    pub hidden: bool,
 }
 
 /// Represents the subset of page fields that can be updated from the main frontend dialog "Edit page details".
@@ -599,20 +673,25 @@ pub async fn insert_exam_page(
     let page_res = sqlx::query!(
         "
 INSERT INTO pages (
-    exam_id,
     content,
     url_path,
     title,
+    exam_id,
+    content_search_language,
+    hidden,
     order_number
   )
-VALUES ($1, $2, $3, $4, $5)
+VALUES ($1, $2, $3, $4, $5, $6, $7)
 RETURNING id
 ",
-        exam_id,
-        serde_json::Value::Array(vec![]),
+        serde_json::to_value(page.content.clone())?,
         page.url_path,
         page.title,
-        0
+        exam_id,
+        page.content_search_language
+            .unwrap_or_else(|| "simple".to_string()),
+        page.hidden,
+        0_i32
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -623,10 +702,10 @@ RETURNING id
         page_res.id,
         page.title.as_str(),
         &PageHistoryContent {
-            content: serde_json::Value::Array(vec![]),
-            exercises: vec![],
-            exercise_slides: vec![],
-            exercise_tasks: vec![],
+            content: serde_json::to_value(page.content)?,
+            exercises: page.exercises,
+            exercise_slides: page.exercise_slides,
+            exercise_tasks: page.exercise_tasks,
             peer_or_self_review_configs: Vec::new(),
             peer_or_self_review_questions: Vec::new(),
         },
@@ -1353,6 +1432,7 @@ pub struct CmsPageUpdate {
     pub url_path: String,
     pub title: String,
     pub chapter_id: Option<Uuid>,
+    pub hidden: bool,
 }
 
 impl CmsPageUpdate {
@@ -1407,6 +1487,174 @@ impl CmsPageUpdate {
         }
         Ok(())
     }
+
+    /// Detects exercises that share the same id within this single page and gives the duplicate
+    /// occurrences fresh ids so they become independent exercises (#148).
+    ///
+    /// Duplicating an exercise block in the CMS (Gutenberg) keeps the original block's id (and the
+    /// ids of its nested slides/tasks), so a saved page can contain several exercises that reference
+    /// the same backend exercise. Without this, the upsert collapses them into a single row through
+    /// `ON CONFLICT (id) DO UPDATE` and editing one secretly edits the others.
+    ///
+    /// The same id legitimately appearing once per page is how exercises move between pages, so only
+    /// repeats *within the same page* are remapped. The duplicate's whole subtree (slides, tasks and
+    /// any custom peer-review config/questions) is remapped consistently. Occurrences are matched in
+    /// document order, which `normalizeDocument` guarantees is identical across the content and the
+    /// flat exercise/slide/task lists.
+    ///
+    /// Returns a map from each regenerated duplicate's new exercise id to its original id, so callers
+    /// can recover data still keyed by the original id (e.g. custom peer-review config/questions).
+    pub fn regenerate_duplicate_exercise_ids(&mut self) -> HashMap<Uuid, Uuid> {
+        // For every original exercise id, the new id to use for each occurrence (index 0 is the
+        // first occurrence and keeps the original id).
+        let mut exercise_ids_by_occurrence: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+        // Maps each regenerated duplicate's new id back to its original exercise id.
+        let mut original_exercise_id_by_new_id: HashMap<Uuid, Uuid> = HashMap::new();
+        let mut found_duplicate = false;
+        for exercise in self.exercises.iter_mut() {
+            let original_id = exercise.id;
+            let occurrences = exercise_ids_by_occurrence.entry(original_id).or_default();
+            let new_id = if occurrences.is_empty() {
+                original_id
+            } else {
+                found_duplicate = true;
+                Uuid::new_v4()
+            };
+            occurrences.push(new_id);
+
+            if new_id != original_id {
+                exercise.id = new_id;
+                original_exercise_id_by_new_id.insert(new_id, original_id);
+                // Remap the duplicate's inline custom peer-review config/questions so they don't
+                // collapse onto the original exercise's config.
+                if let Some(config) = exercise.peer_or_self_review_config.as_mut() {
+                    let questions = exercise
+                        .peer_or_self_review_questions
+                        .as_deref_mut()
+                        .unwrap_or(&mut []);
+                    fork_peer_or_self_review_config(config, questions, new_id);
+                }
+            }
+        }
+
+        if !found_duplicate {
+            return original_exercise_id_by_new_id;
+        }
+
+        // Remap slides. The m-th occurrence of a slide id belongs to the m-th occurrence of its
+        // exercise, because each duplicated exercise carries an identical copy of its slides.
+        let mut slide_ids_by_occurrence: HashMap<Uuid, Vec<Uuid>> = HashMap::new();
+        for slide in self.exercise_slides.iter_mut() {
+            let original_slide_id = slide.id;
+            let occurrence = slide_ids_by_occurrence
+                .get(&original_slide_id)
+                .map_or(0, |occurrences| occurrences.len());
+
+            let new_exercise_id = exercise_ids_by_occurrence
+                .get(&slide.exercise_id)
+                .and_then(|occurrences| occurrences.get(occurrence))
+                .copied()
+                .unwrap_or(slide.exercise_id);
+            let new_slide_id = if occurrence == 0 {
+                original_slide_id
+            } else {
+                Uuid::new_v4()
+            };
+            slide_ids_by_occurrence
+                .entry(original_slide_id)
+                .or_default()
+                .push(new_slide_id);
+            slide.id = new_slide_id;
+            slide.exercise_id = new_exercise_id;
+        }
+
+        // Remap tasks the same way against the slide occurrences.
+        let mut task_ids_by_occurrence: HashMap<Uuid, usize> = HashMap::new();
+        for task in self.exercise_tasks.iter_mut() {
+            let original_task_id = task.id;
+            let occurrence = task_ids_by_occurrence.entry(original_task_id).or_insert(0);
+
+            let new_slide_id = slide_ids_by_occurrence
+                .get(&task.exercise_slide_id)
+                .and_then(|occurrences| occurrences.get(*occurrence))
+                .copied()
+                .unwrap_or(task.exercise_slide_id);
+            if *occurrence > 0 {
+                task.id = Uuid::new_v4();
+            }
+            task.exercise_slide_id = new_slide_id;
+            *occurrence += 1;
+        }
+
+        // Finally rewrite the exercise ids embedded in the page content so the duplicated block
+        // points at its newly created exercise. Exercise blocks only exist at the top level.
+        let mut content_occurrence: HashMap<Uuid, usize> = HashMap::new();
+        for block in self.content.iter_mut() {
+            if block.name != "moocfi/exercise" {
+                continue;
+            }
+            let Some(id) = block
+                .attributes
+                .get("id")
+                .and_then(|value| value.as_str())
+                .and_then(|value| Uuid::parse_str(value).ok())
+            else {
+                continue;
+            };
+            let occurrence = content_occurrence.entry(id).or_insert(0);
+            if let Some(new_id) = exercise_ids_by_occurrence
+                .get(&id)
+                .and_then(|occurrences| occurrences.get(*occurrence))
+                && *new_id != id
+            {
+                block
+                    .attributes
+                    .insert("id".to_string(), Value::String(new_id.to_string()));
+            }
+            *occurrence += 1;
+        }
+
+        original_exercise_id_by_new_id
+    }
+}
+
+/// Gives `questions` fresh ids pointing at `target_config_id` when it differs from `source_config_id`
+/// (i.e. they are being cloned onto a different config); otherwise returns them untouched so the
+/// upsert reuses the existing rows.
+fn rekey_peer_or_self_review_questions(
+    questions: Vec<CmsPeerOrSelfReviewQuestion>,
+    source_config_id: Uuid,
+    target_config_id: Uuid,
+) -> Vec<CmsPeerOrSelfReviewQuestion> {
+    if source_config_id == target_config_id {
+        return questions;
+    }
+    questions
+        .into_iter()
+        .map(|mut question| {
+            question.id = Uuid::new_v4();
+            question.peer_or_self_review_config_id = target_config_id;
+            question
+        })
+        .collect()
+}
+
+/// Re-keys a custom peer-review config and its questions onto `new_exercise_id` with a fresh config id
+/// and fresh question ids, producing an independent copy for a within-page exercise duplicate so it
+/// does not collapse onto the original exercise's config (#148). All `questions` must belong to
+/// `config`.
+fn fork_peer_or_self_review_config(
+    config: &mut CmsPeerOrSelfReviewConfig,
+    questions: &mut [CmsPeerOrSelfReviewQuestion],
+    new_exercise_id: Uuid,
+) {
+    let new_config_id = Uuid::new_v4();
+    config.id = new_config_id;
+    config.exercise_id = Some(new_exercise_id);
+    for question in questions.iter_mut() {
+        question.id = Uuid::new_v4();
+        question.peer_or_self_review_config_id = new_config_id;
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -1426,6 +1674,9 @@ pub async fn update_page(
     fetch_service_info: impl Fn(Url) -> BoxFuture<'static, ModelResult<ExerciseServiceInfoApi>>,
 ) -> ModelResult<ContentManagementPage> {
     let mut cms_page_update = page_update.cms_page_update;
+    // Give a fresh id to any exercise duplicated within this page so duplicates don't collapse into
+    // a single backend exercise (#148). Must run before validation and the upsert below.
+    let original_exercise_id_by_new_id = cms_page_update.regenerate_duplicate_exercise_ids();
     cms_page_update.validate_exercise_data()?;
 
     for exercise in cms_page_update.exercises.iter_mut() {
@@ -1455,7 +1706,8 @@ UPDATE pages
 SET content = $2,
   url_path = $3,
   title = $4,
-  chapter_id = $5
+  chapter_id = $5,
+  hidden = $6
 WHERE id = $1
 RETURNING id,
   created_at,
@@ -1476,10 +1728,28 @@ RETURNING id,
         serde_json::to_value(&content)?,
         normalized_url_path,
         cms_page_update.title.trim(),
-        cms_page_update.chapter_id
+        cms_page_update.chapter_id,
+        cms_page_update.hidden
     )
     .fetch_one(&mut *tx)
     .await?;
+
+    // Fetch the existing custom peer-review configs/questions before deleting exercises below. Both
+    // queries join `exercises` with `deleted_at IS NULL`, so they must run before
+    // `delete_exercises_by_page_id` or they would return nothing. They are used as a fallback to
+    // preserve custom peer-review settings for exercises whose payload does not explicitly include
+    // them (e.g. an inconsistent editor state) (#129).
+    let existing_peer_or_self_review_configs_by_exercise_id =
+        crate::peer_or_self_review_configs::get_peer_reviews_by_page_id(&mut tx, page.id)
+            .await?
+            .into_iter()
+            .filter_map(|pr| pr.exercise_id.map(|id| (id, pr)))
+            .collect::<HashMap<Uuid, CmsPeerOrSelfReviewConfig>>();
+    let existing_peer_or_self_review_questions_by_config_id =
+        crate::peer_or_self_review_questions::get_by_page_id(&mut tx, page.id)
+            .await?
+            .into_iter()
+            .into_group_map_by(|prq| prq.peer_or_self_review_config_id);
 
     // Exercises
     let existing_exercise_ids =
@@ -1517,13 +1787,107 @@ RETURNING id,
         )
         .await?;
 
+    // Configs present in this save's payload, keyed by exercise id. Lets a regenerated within-page
+    // duplicate that omits its own config recover its original's *current* config — preferring the
+    // edit the user just made over the pre-save DB snapshot (#148).
+    let payload_peer_or_self_review_by_exercise_id: HashMap<
+        Uuid,
+        (
+            CmsPeerOrSelfReviewConfig,
+            Option<Vec<CmsPeerOrSelfReviewQuestion>>,
+        ),
+    > = cms_page_update
+        .exercises
+        .iter()
+        .filter(|e| !e.use_course_default_peer_or_self_review_config)
+        .filter_map(|e| {
+            e.peer_or_self_review_config.as_ref().map(|config| {
+                (
+                    e.id,
+                    (config.clone(), e.peer_or_self_review_questions.clone()),
+                )
+            })
+        })
+        .collect();
+
+    // Recovers the custom config + questions stored/sent for `exercise_id`, preferring this save's
+    // payload over the pre-save DB snapshot and resolving omitted questions from the snapshot.
+    let recover_peer_or_self_review = |exercise_id: Uuid| -> Option<(
+        CmsPeerOrSelfReviewConfig,
+        Vec<CmsPeerOrSelfReviewQuestion>,
+    )> {
+        if let Some((config, questions)) =
+            payload_peer_or_self_review_by_exercise_id.get(&exercise_id)
+        {
+            let questions = match questions {
+                Some(questions) => questions.clone(),
+                None => existing_peer_or_self_review_questions_by_config_id
+                    .get(&config.id)
+                    .cloned()
+                    .unwrap_or_default(),
+            };
+            return Some((config.clone(), questions));
+        }
+        let config = existing_peer_or_self_review_configs_by_exercise_id
+            .get(&exercise_id)?
+            .clone();
+        let questions = existing_peer_or_self_review_questions_by_config_id
+            .get(&config.id)
+            .cloned()
+            .unwrap_or_default();
+        Some((config, questions))
+    };
+
     let (peer_or_self_review_configs, peer_or_self_review_questions) = cms_page_update
         .exercises
         .into_iter()
         .filter(|e| !e.use_course_default_peer_or_self_review_config)
-        .flat_map(|e| {
-            e.peer_or_self_review_config
-                .zip(e.peer_or_self_review_questions)
+        .filter_map(|e| {
+            let exercise_id = e.id;
+            // For a within-page duplicate that was regenerated a fresh id (#148), its settings still
+            // live under the original exercise/config id; otherwise this is the exercise's own id.
+            let original_exercise_id = original_exercise_id_by_new_id.get(&exercise_id).copied();
+            // Prefer the config/questions sent in the payload. If the payload omits them (e.g. an
+            // inconsistent editor state where a custom exercise is saved without its config or
+            // questions), fall back to the existing custom settings so they are not lost (#129). An
+            // exercise switching to the course default is filtered out above, so its config is
+            // correctly left deleted.
+            match e.peer_or_self_review_config {
+                Some(config) => {
+                    // The config is present, but the questions may be omitted. `None` means "keep the
+                    // existing questions"; `Some(vec![])` is an explicit "remove all questions". The
+                    // existing questions live under the source config id — this exercise's own for a
+                    // normal save, or the original's for a regenerated duplicate whose config id was
+                    // freshly minted, so they are re-keyed onto the new config id.
+                    let questions = match e.peer_or_self_review_questions {
+                        Some(questions) => questions,
+                        None => {
+                            recover_peer_or_self_review(original_exercise_id.unwrap_or(exercise_id))
+                                .map(|(source_config, source_questions)| {
+                                    rekey_peer_or_self_review_questions(
+                                        source_questions,
+                                        source_config.id,
+                                        config.id,
+                                    )
+                                })
+                                .unwrap_or_default()
+                        }
+                    };
+                    Some((config, questions))
+                }
+                None => {
+                    // The whole config is omitted. Recover this exercise's own stored config (#129);
+                    // if it is a regenerated duplicate with nothing of its own, recover the original's
+                    // current config and fork it onto this duplicate with fresh ids (#148).
+                    if let Some((config, questions)) = recover_peer_or_self_review(exercise_id) {
+                        return Some((config, questions));
+                    }
+                    let (mut config, mut questions) =
+                        original_exercise_id.and_then(&recover_peer_or_self_review)?;
+                    fork_peer_or_self_review_config(&mut config, &mut questions, exercise_id);
+                    Some((config, questions))
+                }
+            }
         })
         .fold((vec![], vec![]), |(mut a, mut b), (pr, prq)| {
             a.push(pr);
@@ -2375,6 +2739,7 @@ pub async fn insert_new_content_page(
         exercise_slides: vec![],
         exercise_tasks: vec![],
         content_search_language: None,
+        hidden: new_page.hidden,
     };
     let page = crate::pages::insert_page(
         &mut tx,
@@ -2444,9 +2809,10 @@ INSERT INTO pages(
     order_number,
     chapter_id,
     content_search_language,
-    page_language_group_id
+    page_language_group_id,
+    hidden
   )
-VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9)
+VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 RETURNING id,
   created_at,
   updated_at,
@@ -2471,6 +2837,7 @@ RETURNING id,
         new_page.chapter_id,
         content_search_language as _,
         page_language_group_id,
+        new_page.hidden,
     )
     .fetch_one(&mut *tx)
     .await?;
@@ -2490,6 +2857,7 @@ RETURNING id,
                 url_path: page.url_path,
                 title: page.title,
                 chapter_id: page.chapter_id,
+                hidden: new_page.hidden,
             },
             retain_ids: false,
             history_change_reason: HistoryChangeReason::PageSaved,
@@ -3516,6 +3884,7 @@ pub async fn restore(
                 url_path: page.url_path,
                 title: history_data.title,
                 chapter_id: page.chapter_id,
+                hidden: page.hidden,
             },
             retain_ids: true,
             history_change_reason: HistoryChangeReason::HistoryRestored,
@@ -4096,21 +4465,23 @@ mod test {
 
     #[test]
     fn normalizes_decoded_page_paths_for_storage_and_lookup() {
+        // Unsafe ASCII is stripped (not percent-encoded); whitespace becomes a dash.
         assert_eq!(
             normalize_url_path_for_storage("/foo bar#part"),
-            "/foo%20bar%23part"
+            "/foo-barpart"
         );
         assert_eq!(
             normalize_url_path_for_storage("/foo%20bar%23part"),
-            "/foo%20bar%23part"
+            "/foo-barpart"
         );
+        // A literal (undecodable) percent is part of the unsafe set, so it is stripped too.
         assert_eq!(
             normalize_url_path_for_storage(" /literal%percent "),
-            "/literal%25percent"
+            "/literalpercent"
         );
         assert_eq!(
             normalize_url_path_for_storage(" /literal%25percent "),
-            "/literal%25percent"
+            "/literalpercent"
         );
     }
 
@@ -4126,11 +4497,19 @@ mod test {
             normalize_url_path_for_storage("/chapter-1/%D1%8F%D0%BA"),
             "/chapter-1/як"
         );
-        // Unsafe ASCII is still encoded even when mixed with non-ASCII.
+        // Unsafe ASCII mixed with non-ASCII: the space becomes a dash, the non-ASCII is kept.
         assert_eq!(
             normalize_url_path_for_storage("/chapter 1/як"),
-            "/chapter%201/як"
+            "/chapter-1/як"
         );
+    }
+
+    #[test]
+    fn drops_invalid_percent_escape_runs_like_the_migration() {
+        // A `%xx` run that isn't valid UTF-8 is dropped whole (matching safe_percent_decode), not
+        // turned into U+FFFD, so storage and lookup stay aligned.
+        assert_eq!(normalize_url_path_for_storage("/%FF"), "/");
+        assert_eq!(normalize_url_path_for_storage("/%41%FF"), "/");
     }
 
     #[test]
@@ -4146,18 +4525,37 @@ mod test {
     }
 
     #[test]
-    fn lookup_candidates_cover_both_stored_forms() {
-        // ASCII-only paths have a single candidate (both forms are identical).
+    fn legacy_partially_encoded_form_encodes_only_unsafe_ascii() {
+        // Unsafe ASCII percent-encoded, non-ASCII kept decoded — the pre-strip storage form.
+        assert_eq!(
+            legacy_partially_encoded_url_path("/chapter 1/як"),
+            "/chapter%201/як"
+        );
+    }
+
+    #[test]
+    fn lookup_candidates_cover_stored_forms() {
+        // ASCII-only safe paths have a single candidate (all forms are identical).
         assert_eq!(
             url_path_lookup_candidates("/chapter-1/foo"),
             vec!["/chapter-1/foo".to_string()]
         );
-        // Non-ASCII paths are looked up in both the decoded-canonical and legacy forms.
+        // Pure non-ASCII paths: strip-canonical (== partially-encoded) plus the fully-encoded
+        // legacy form.
         assert_eq!(
             url_path_lookup_candidates("/chapter-1/як"),
             vec![
                 "/chapter-1/як".to_string(),
                 "/chapter-1/%D1%8F%D0%BA".to_string(),
+            ]
+        );
+        // A path mixing unsafe ASCII and non-ASCII has three distinct stored forms to try.
+        assert_eq!(
+            url_path_lookup_candidates("/chapter 1/як"),
+            vec![
+                "/chapter-1/як".to_string(),
+                "/chapter%201/як".to_string(),
+                "/chapter%201/%D1%8F%D0%BA".to_string(),
             ]
         );
     }
@@ -4178,6 +4576,7 @@ mod test {
             chapter_id: Some(chapter),
             front_page_of_chapter_id: None,
             content_search_language: None,
+            hidden: false,
         };
 
         // Stored in the decoded-canonical form (raw Cyrillic), as insert_page now stores it.
@@ -4290,6 +4689,7 @@ mod test {
                 chapter_id: None,
                 front_page_of_chapter_id: None,
                 content_search_language: None,
+                hidden: false,
             },
             user,
             |_, _, _| unimplemented!(),
@@ -4378,6 +4778,7 @@ mod test {
             url_path: "".to_string(),
             title: "".to_string(),
             chapter_id: None,
+            hidden: false,
         }
     }
 

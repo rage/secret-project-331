@@ -1,5 +1,3 @@
-"use client"
-
 import { useCallback, useRef, useState } from "react"
 
 import { getBrowserTestAdapter, TEST_TIMEOUT_MS } from "../browserTest"

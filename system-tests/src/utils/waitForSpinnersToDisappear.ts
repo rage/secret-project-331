@@ -5,7 +5,11 @@ import { Page } from "playwright"
 import { LOADING_SPINNER_TEST_ID } from "@/shared-module/common/utils/constants"
 
 // Loading testids rendered by AnimatedQueryFrame (QueryResult / QueryResults wrappers).
-const QUERY_LOADING_TEST_IDS = ["query-initial-loading", "query-loading-spinner"]
+const QUERY_LOADING_TEST_IDS = [
+  "query-initial-loading",
+  "query-loading-spinner",
+  "query-refreshing",
+]
 
 const LOADING_TEST_IDS = [LOADING_SPINNER_TEST_ID, ...QUERY_LOADING_TEST_IDS]
 
@@ -15,7 +19,7 @@ const LOADING_TEST_IDS = [LOADING_SPINNER_TEST_ID, ...QUERY_LOADING_TEST_IDS]
  */
 export default async function waitForSpinnersToDisappear(
   page: Page,
-  failureMessage: string,
+  failureMessage?: string,
 ): Promise<void> {
   try {
     await page.waitForTimeout(100)
@@ -27,6 +31,6 @@ export default async function waitForSpinnersToDisappear(
     }
   } catch (e) {
     console.warn(`Spinner did not disappear: ${e}`)
-    throw new Error(failureMessage, { cause: e })
+    throw new Error(failureMessage ?? "Loading indicator did not disappear", { cause: e })
   }
 }

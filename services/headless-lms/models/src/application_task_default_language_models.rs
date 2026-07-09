@@ -6,6 +6,7 @@ pub enum ApplicationTask {
     ContentCleaning,
     MessageSuggestion,
     CmsParagraphSuggestion,
+    SisuDescriptionSummary,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]

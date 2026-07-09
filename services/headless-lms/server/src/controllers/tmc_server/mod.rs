@@ -8,7 +8,7 @@ pub mod users;
 pub mod users_by_upstream_id;
 
 use crate::prelude::*;
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::services::tmc::TmcClient;
 
 /// Add controllers from all the submodules.
 pub fn _add_routes(cfg: &mut ServiceConfig) {

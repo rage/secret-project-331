@@ -11,6 +11,7 @@ import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useQueryParameter from "@/shared-module/common/hooks/useQueryParameter"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { isBoolean } from "@/shared-module/common/utils/fetching"
@@ -23,6 +24,7 @@ type SubmitEmailFormFields = {
 }
 const ResetPassword: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-reset-password"))
   const router = useRouter()
   const uncheckedReturnTo = useQueryParameter("return_to")
   const [emailSent, setEmailSent] = useState(false)

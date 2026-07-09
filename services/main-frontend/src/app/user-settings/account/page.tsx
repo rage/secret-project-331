@@ -8,12 +8,15 @@ import { useTranslation } from "react-i18next"
 import ChangeUserPasswordForm from "@/components/forms/ChangeUserPasswordForm"
 import EditUserInformationForm from "@/components/forms/EditUserInformationForm"
 import { useUserDetailsForUserQuery } from "@/hooks/useUserDetailsForUserQuery"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { QueryResult } from "@/shared-module/components"
 
 const AccountSettingsPage: React.FC = () => {
   const { t } = useTranslation()
+  // Higher order than the parent user-settings layout so this specific page title wins deterministically.
+  usePageTitle(t("title-account-settings"), { order: 10 })
 
   const getUserDetails = useUserDetailsForUserQuery()
 

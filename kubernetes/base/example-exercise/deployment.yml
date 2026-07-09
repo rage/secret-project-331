@@ -52,7 +52,7 @@ spec:
             - containerPort: 3002
               name: http
           env:
-            - name: NEXT_PUBLIC_BASE_PATH
+            - name: PUBLIC_BASE_PATH
               value: "/example-exercise"
           resources:
             requests:

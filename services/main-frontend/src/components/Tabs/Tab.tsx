@@ -55,27 +55,33 @@ const Tab: React.FC<TabProps> = ({ tabName, children }) => {
         padding: 0.625rem 1rem;
         transition: all 0.15s ease;
         position: relative;
-        ${isSelected &&
-        css`
-          box-shadow:
-            0 1px 3px rgba(0, 0, 0, 0.08),
-            0 1px 2px rgba(0, 0, 0, 0.06);
-        `}
+        ${
+          isSelected &&
+          css`
+            box-shadow:
+              0 1px 3px rgba(0, 0, 0, 0.08),
+              0 1px 2px rgba(0, 0, 0, 0.06);
+          `
+        }
         ${respondToOrLarger.sm} {
           padding: 0.75rem 1.5rem;
           font-size: 0.9375rem;
         }
-        ${isFocusVisible &&
-        css`
-          outline: 2px solid ${baseTheme.colors.green[400]};
-          outline-offset: 2px;
-        `}
-        ${isHovered &&
-        !isSelected &&
-        css`
-          color: ${baseTheme.colors.gray[700]};
-          background: rgba(255, 255, 255, 0.5);
-        `}
+        ${
+          isFocusVisible &&
+          css`
+            outline: 2px solid ${baseTheme.colors.green[400]};
+            outline-offset: 2px;
+          `
+        }
+        ${
+          isHovered &&
+          !isSelected &&
+          css`
+            color: ${baseTheme.colors.gray[700]};
+            background: rgba(255, 255, 255, 0.5);
+          `
+        }
       `}
     >
       {children}

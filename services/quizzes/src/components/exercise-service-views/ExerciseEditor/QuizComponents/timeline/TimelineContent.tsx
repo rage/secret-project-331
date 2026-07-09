@@ -1,5 +1,3 @@
-"use client"
-
 import { css, cx } from "@emotion/css"
 import styled from "@emotion/styled"
 import { PlusCircle, XmarkCircle } from "@vectopus/atlas-icons-react"

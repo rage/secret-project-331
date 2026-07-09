@@ -71,6 +71,14 @@ const TILDE_REGEX = /~/g
 const escapeCitationText = (value: string): string =>
   value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT).replace(TILDE_REGEX, HTML_ENTITY_NBSP)
 
+/**
+ * Escapes a citation key for a double-quoted HTML attribute. Unlike escapeCitationText it omits the
+ * tilde -> &nbsp; display transform (a prenote/postnote display convention), so the value
+ * round-trips: reading node.dataset.citationId back yields the original key and matches the keys
+ * extracted from the block tree.
+ */
+const escapeCitationId = (value: string): string => value.replace(QUOTE_REGEX, HTML_ENTITY_QUOT)
+
 /** Finds all whole-word matches of term in text; returns index and length for each. */
 export const findTermMatches = (
   text: string,
@@ -174,6 +182,88 @@ const parseGlossary = (data: string, glossary: Term[]): { parsedText: string; te
   return { parsedText: doc.body.innerHTML, terms: usedGlossary }
 }
 
+export interface CitationMatch {
+  citationKey: string
+  prenote?: string
+  postnote?: string
+}
+
+/**
+ * Applies the single-bracket rule of \cite: `\cite[x]{k}` means x is the POSTNOTE (not the
+ * prenote), while `\cite[a][b]{k}` means a=prenote, b=postnote. Shared by citation rendering and
+ * citation extraction so the rendered markers and the collected reference list can't diverge.
+ */
+const normalizeCitationNotes = (
+  prenote: string | undefined,
+  postnote: string | undefined,
+): { prenote: string | undefined; postnote: string | undefined } => {
+  if (prenote && postnote === undefined) {
+    return { prenote: undefined, postnote: prenote }
+  }
+  return { prenote, postnote }
+}
+
+const NAMED_HTML_ENTITIES: Record<string, string> = {
+  amp: "&",
+  lt: "<",
+  gt: ">",
+  quot: '"',
+  apos: "'",
+  nbsp: " ",
+}
+const HTML_ENTITY_REGEX = /&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/gi
+const MAX_UNICODE_CODE_POINT = 0x10ffff
+
+/**
+ * Decodes the HTML entities a citation key can carry once it has been through the CMS's HTML
+ * encoding (e.g. `a&amp;b`), so the key extracted from block content matches
+ * node.dataset.citationId — which the browser has already decoded to `a&b` — and the reference's
+ * stored citation_key. Kept dependency-free (no DOMParser) so it is safe during SSR.
+ */
+const decodeHtmlEntities = (value: string): string =>
+  value.replace(HTML_ENTITY_REGEX, (whole, body: string) => {
+    if (body[0] === "#") {
+      const codePoint =
+        body[1] === "x" || body[1] === "X"
+          ? parseInt(body.slice(2), 16)
+          : parseInt(body.slice(1), 10)
+      if (Number.isNaN(codePoint) || codePoint < 0 || codePoint > MAX_UNICODE_CODE_POINT) {
+        return whole
+      }
+      return String.fromCodePoint(codePoint)
+    }
+    return NAMED_HTML_ENTITIES[body.toLowerCase()] ?? whole
+  })
+
+/**
+ * Extracts all \cite{...} occurrences from a raw text/HTML string, in document order.
+ *
+ * Shares LATEX_CITE_REGEX and the prenote/postnote rule with parseCitation so the citations
+ * collected for the reference list and their numbering stay in lockstep with what is rendered.
+ * [latex]...[/latex] regions are removed first because parseText converts LaTeX before parsing
+ * citations, so a \cite inside a latex block is consumed by KaTeX and never becomes a citation.
+ */
+export const extractCitationsFromText = (text: string | null | undefined): CitationMatch[] => {
+  if (!text) {
+    return []
+  }
+  const withoutLatex = text.replace(LATEX_REGEX, "")
+  // Fresh RegExp so the module-level global regex's lastIndex isn't shared across calls.
+  const regex = new RegExp(LATEX_CITE_REGEX.source, LATEX_CITE_REGEX.flags)
+  const matches: CitationMatch[] = []
+  let match: RegExpExecArray | null
+  while ((match = regex.exec(withoutLatex)) !== null) {
+    const [, prenote, postnote, citationId] = match
+    const notes = normalizeCitationNotes(prenote, postnote)
+    matches.push({
+      citationKey: decodeHtmlEntities(citationId ?? ""),
+      prenote: notes.prenote,
+      postnote: notes.postnote,
+    })
+  }
+  return matches
+}
+
 /** Parses LaTeX \\cite commands in the raw HTML string into span markers.
  * This runs before DOM-based glossary parsing and assumes citation commands
  * appear only in text content, not inside HTML attribute values.
@@ -183,21 +273,15 @@ const parseCitation = (data: string) => {
     LATEX_CITE_REGEX,
 
     (_, prenote, postnote, citationId) => {
-      let actualPrenote = prenote
-      let actualPostnote = postnote
+      const notes = normalizeCitationNotes(prenote, postnote)
 
-      if (prenote && postnote === undefined) {
-        actualPostnote = prenote
-        actualPrenote = undefined
-      }
-
-      const prenoteAttr = actualPrenote
-        ? ` ${DATA_CITATION_PRENOTE_ATTR}="${escapeCitationText(actualPrenote)}"`
+      const prenoteAttr = notes.prenote
+        ? ` ${DATA_CITATION_PRENOTE_ATTR}="${escapeCitationText(notes.prenote)}"`
         : ""
-      const postnoteAttr = actualPostnote
-        ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(actualPostnote)}"`
+      const postnoteAttr = notes.postnote
+        ? ` ${DATA_CITATION_POSTNOTE_ATTR}="${escapeCitationText(notes.postnote)}"`
         : ""
-      const escapedCitationId = escapeCitationText(citationId ?? "")
+      const escapedCitationId = escapeCitationId(citationId ?? "")
       return `<${SPAN_TAG} ${DATA_CITATION_ID_ATTR}="${escapedCitationId}"${prenoteAttr}${postnoteAttr}></${SPAN_TAG}>`
     },
   )

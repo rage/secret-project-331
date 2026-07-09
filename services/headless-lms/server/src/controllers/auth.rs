@@ -22,7 +22,7 @@ use headless_lms_models::{
 };
 use headless_lms_utils::{
     prelude::UtilErrorType,
-    tmc::{NewUserInfo, TmcClient},
+    services::tmc::{NewUserInfo, TmcClient},
 };
 use secrecy::{ExposeSecret, SecretString};
 use tracing_log::log;

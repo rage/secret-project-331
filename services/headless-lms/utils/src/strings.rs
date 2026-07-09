@@ -7,6 +7,9 @@ static IETF_LANGUAGE_CODE_REGEX: Lazy<Regex> = Lazy::new(|| {
         .expect("Invalid IETF language code regex.")
 });
 
+static HTML_TAG_REGEX: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"<[^>]*>").expect("Invalid HTML tag regex."));
+
 pub fn generate_random_string(length: usize) -> String {
     rng()
         .sample_iter(Alphanumeric)
@@ -29,6 +32,11 @@ pub fn generate_easily_writable_random_string(length: usize) -> String {
 /// Checks whether the string is IETF language code where subtags are separated with underscore.
 pub fn is_ietf_language_code_like(string: &str) -> bool {
     IETF_LANGUAGE_CODE_REGEX.is_match(string)
+}
+
+/// Removes all HTML tags from the input, leaving only the text content.
+pub fn strip_html_tags(input: &str) -> String {
+    HTML_TAG_REGEX.replace_all(input, "").into_owned()
 }
 
 /// Truncates UTF-8 text to a max byte length at a valid char boundary.
@@ -61,6 +69,17 @@ mod test {
         assert!(is_ietf_language_code_like("eng"));
         assert!(is_ietf_language_code_like("en-US"));
         assert!(is_ietf_language_code_like("in-Cans-CA"));
+    }
+
+    #[test]
+    fn strip_html_tags_removes_all_tags() {
+        assert_eq!(
+            strip_html_tags("<em>Intro</em> to <strong>X</strong>"),
+            "Intro to X"
+        );
+        assert_eq!(strip_html_tags(r#"<a href="/x">link</a>"#), "link");
+        assert_eq!(strip_html_tags("plain text"), "plain text");
+        assert_eq!(strip_html_tags("<br>"), "");
     }
 
     #[test]

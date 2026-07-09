@@ -81,9 +81,11 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
         className={cx(
           css`
             margin-bottom: 1rem;
-            ${disabled &&
-            `cursor: not-allowed;
-            filter: opacity(0.5);`}
+            ${
+              disabled &&
+              `cursor: not-allowed;
+            filter: opacity(0.5);`
+            }
           `,
           className,
         )}

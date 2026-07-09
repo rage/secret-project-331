@@ -1000,11 +1000,24 @@ class StepRunner(StepRunnerProtocol):
         self, step: Step, substep_id: str, substep_record: dict[str, Any]
     ) -> None:
         self.command_runner.run(
-            [str(self.repo_root / "bin" / "pnpm-install-all")],
+            [str(self.repo_root / "bin" / "pnpm-install-all"), "--no-frozen-lockfile"],
             cwd=self.repo_root,
             step_id=step.id,
             substep_id=substep_id,
         )
+        # --no-frozen-lockfile re-syncs per-service lockfiles; commit any changes.
+        lockfiles = ["*pnpm-lock.yaml"]
+        changed = git_has_changes_for_paths(self.repo_root, lockfiles)
+        substep_record["changed"] = changed
+        if changed:
+            commit = self.git_commit(
+                cwd=self.repo_root,
+                add_args=lockfiles,
+                message="Sync per-service pnpm lockfiles",
+                step_id=step.id,
+                substep_id=substep_id,
+            )
+            self.add_commit(step.id, commit)
 
     def substep_sort_package_json(
         self, step: Step, substep_id: str, substep_record: dict[str, Any]
@@ -1893,7 +1906,10 @@ def build_steps(repo_root: Path) -> list[Step]:
             substeps=["cargo-upgrade", "cargo-update"],
             # 2026-06-03: this backend update pass keeps azure_core on the
             # locked line until its transitive API breakage has been reviewed.
-            cargo_upgrade_excludes=["azure_core"],
+            # 2026-07-01: kube and k8s-openapi held here too -- their k8s-openapi
+            # v1_XX feature must move in lockstep with the version (cargo upgrade
+            # can't), so they are migrated by hand.
+            cargo_upgrade_excludes=["azure_core", "kube", "k8s-openapi"],
             # 2026-06-03: constant_time_eq 0.4.3 is yanked on crates.io; keep
             # this pin discoverable here so it can be retired when no longer hit.
             cargo_version_pins=[

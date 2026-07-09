@@ -13,7 +13,7 @@ import type { CreatePageData, Page } from "@/generated/api/types.generated"
 import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
-import { normalizePath } from "@/utils/normalizePath"
+import { cleanUrlPath, normalizePath } from "@/utils/normalizePath"
 
 const PathFieldWithPrefixElement = styled.div`
   display: flex;
@@ -112,6 +112,7 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
       exercise_tasks: [],
       exam_id: null,
       content_search_language: null,
+      hidden: false,
     }
 
     await createPageMutation.mutateAsync({
@@ -178,6 +179,11 @@ const NewOrEditPageForm: React.FC<React.PropsWithChildren<NewOrEditPageFormProps
                 `}
                 onChangeByValue={(value) => {
                   setPath(value)
+                }}
+                onBlur={() => {
+                  // Clean a manually entered path the way the backend stores it. On blur, not
+                  // per-keystroke, so typing hyphens mid-edit still works.
+                  setPath((current) => cleanUrlPath(current))
                 }}
               />
             </PathFieldWithPrefixElement>

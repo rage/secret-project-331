@@ -133,7 +133,7 @@ test.describe("Teacher", () => {
     await page.getByLabel("Name  *", { exact: true }).fill("Best draft course")
     await page.getByLabel("Teacher in charge name  *").fill("Draft Teacher")
     await page.getByLabel("Teacher in charge email  *").fill("draft@example.com")
-    await page.getByLabel("Description").fill("draft")
+    await page.getByRole("textbox", { name: "Description" }).fill("draft")
     await page.locator("label").filter({ hasText: "English" }).click()
     await page.getByRole("dialog").getByRole("button", { name: "Create" }).click()
     await page.getByText("Course created successfully").waitFor()

@@ -85,18 +85,20 @@ const bubbleStyle = (isFromChatbot: boolean) => css`
   max-width: stretch;
   overflow-wrap: break-word;
   margin: 0.5rem 0;
-  ${isFromChatbot
-    ? `
+  ${
+    isFromChatbot
+      ? `
       margin-right: 2rem;
       align-self: flex-start;
       background-color: ${LIGHT_GREEN};
     `
-    : `
+      : `
       margin-left: 2rem;
       align-self: flex-end;
       border: 2px solid ${baseTheme.colors.green[200]};
       background-color: #ffffff;
-    `}
+    `
+  }
 `
 
 const MessageBubble: React.FC<MessageBubbleProps> = ({
@@ -128,7 +130,7 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   }, [message, citations, isFromChatbot])
 
   const [processedMessage, processedCitations, citationNumberingMap] = useMemo(() => {
-    const { filteredCitations, citedDocs, citationNumberingMap } = renumberFilterCitationsResult
+    const { filteredCitations, citationNumberingMap } = renumberFilterCitationsResult
 
     let renderOption = !isFromChatbot
       ? MessageRenderType.User
@@ -142,7 +144,6 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         citationButtonClicked={citationButtonClicked}
         currentTriggerId={triggerElementId}
         message={message}
-        citedDocs={citedDocs}
         citationNumberingMap={citationNumberingMap}
         handleClick={(e) => {
           setCitationButtonClicked(true)

@@ -2,7 +2,7 @@ use models::{pages::SearchRequest, user_details::UserDetail};
 use utoipa::{OpenApi, ToSchema};
 
 use crate::{controllers, prelude::*};
-use headless_lms_utils::{ip_to_country::IpToCountryMapper, tmc::TmcClient};
+use headless_lms_utils::{ip_to_country::IpToCountryMapper, services::tmc::TmcClient};
 use std::net::IpAddr;
 
 #[derive(OpenApi)]

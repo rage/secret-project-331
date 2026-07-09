@@ -14,9 +14,11 @@ import Button from "@/shared-module/common/components/Button"
 import BreakFromCentered from "@/shared-module/common/components/Centering/BreakFromCentered"
 import Pagination from "@/shared-module/common/components/Pagination"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import { baseTheme, fontWeights, headingFont } from "@/shared-module/common/styles"
 import { assertNotNullOrUndefined } from "@/shared-module/common/utils/nullability"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import { submissionGradingRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
@@ -40,6 +42,8 @@ const GradingPage: React.FC = () => {
       }),
     enabled: !!examId,
   })
+
+  usePageTitle(joinTitleSegments([t("header-submissions"), getExam.data?.name]), { order: 10 })
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [

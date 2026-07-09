@@ -64,6 +64,44 @@ export const zChapterWithStatus = z.object({
   updated_at: z.iso.datetime(),
 })
 
+export const zChatbotChatStreamEvent = z.union([
+  z.object({
+    data: z.object({
+      message_id: z.uuid(),
+      text: z.string(),
+    }),
+    type: z.enum(["Delta"]),
+  }),
+  z.object({
+    data: z.object({
+      finished: z.boolean(),
+      reasoning_id: z.string(),
+    }),
+    type: z.enum(["Reasoning"]),
+  }),
+  z.object({
+    data: z.object({
+      arguments: z.string().nullish(),
+      finished: z.boolean(),
+      tool_call_id: z.string(),
+      tool_name: z.string().nullish(),
+    }),
+    type: z.enum(["ToolCall"]),
+  }),
+  z.object({
+    type: z.enum(["Done"]),
+  }),
+  z.object({
+    data: z.object({
+      message: z.string(),
+    }),
+    type: z.enum(["Error"]),
+  }),
+  z.object({
+    type: z.enum(["None"]),
+  }),
+])
+
 export const zChatbotConversation = z.object({
   chatbot_configuration_id: z.uuid(),
   course_id: z.uuid(),
@@ -100,6 +138,7 @@ export const zChatbotConversationMessageReasoning = z.object({
   created_at: z.iso.datetime(),
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
+  reasoning_id: z.string(),
   response_id: z.string(),
   summary: z.string().nullish(),
   updated_at: z.iso.datetime(),
@@ -1019,7 +1058,7 @@ export const zChatbotConversationMessageToolCall = z.object({
   deleted_at: z.iso.datetime().nullish(),
   id: z.uuid(),
   response_id: z.string(),
-  tool_arguments: z.unknown(),
+  tool_arguments: z.string(),
   tool_call_id: z.string(),
   tool_kind: zToolKind,
   tool_name: z.string(),
@@ -1398,7 +1437,7 @@ export const zSendChatbotMessagePath = z.object({
 /**
  * Chatbot response stream
  */
-export const zSendChatbotMessageResponse = z.string()
+export const zSendChatbotMessageResponse = zChatbotChatStreamEvent
 
 export const zClaimCodeFromCodeGiveawayPath = z.object({
   id: z.uuid(),

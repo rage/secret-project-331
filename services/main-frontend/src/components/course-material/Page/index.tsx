@@ -23,7 +23,7 @@ import UserOnWrongCourseNotification from "../notifications/UserOnWrongCourseNot
 
 import { GlossaryContext, GlossaryState } from "@/contexts/course-material/GlossaryContext"
 import useAiUsageNoticeAcknowledgement from "@/hooks/course-material/useAiUsageNoticeAcknowledgement"
-import useChatbotConfiguration from "@/hooks/course-material/useChatbotConfiguration"
+import useDefaultChatbotConfiguration from "@/hooks/course-material/useDefaultChatbotConfiguration"
 import useDialogStep, { DialogStep } from "@/hooks/course-material/useDialogStep"
 import useGlossary from "@/hooks/course-material/useGlossary"
 import useHasCourseClosed from "@/hooks/course-material/useHasCourseClosed"
@@ -126,7 +126,7 @@ const Page: React.FC<React.PropsWithChildren<Props>> = ({ onRefresh, organizatio
 
   const researchConsentFormQuery = useResearchConsentForm(courseId)
   const researchConsentFormAnswerQuery = useResearchConsentFormAnswers(courseId)
-  const chatbotConfiguration = useChatbotConfiguration(courseId)
+  const chatbotConfiguration = useDefaultChatbotConfiguration(courseId)
 
   const userDetailsQuery = useUserDetails()
 

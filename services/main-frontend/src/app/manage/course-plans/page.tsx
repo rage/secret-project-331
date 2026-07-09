@@ -12,6 +12,7 @@ import {
   getCourseDesignerPlansOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { manageCoursePlanRoute } from "@/shared-module/common/utils/routes"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
@@ -33,6 +34,7 @@ const headerStyles = css`
 
 function CoursePlansListPage() {
   const { t } = useTranslation()
+  usePageTitle(t("course-plans-title"))
   const router = useRouter()
 
   const plansQuery = useQuery({ ...getCourseDesignerPlansOptions() })

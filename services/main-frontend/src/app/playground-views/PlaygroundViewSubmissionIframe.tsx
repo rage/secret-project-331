@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next"
 
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import {
   CurrentStateMessage,
   ExerciseIframeState,
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 interface PlaygroundViewSubmissionIframeProps {

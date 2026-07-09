@@ -7,8 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import createPendingChangeRequestCountHook from "@/hooks/count/usePendingChangeRequestCount"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
   manageCourseChangeRequestsOldRoute,
@@ -24,6 +26,7 @@ export default function ChangeRequestsLayout({ children }: { children: React.Rea
   const courseId = params.id
   const { t } = useTranslation()
   const pendingCountHook = createPendingChangeRequestCountHook(courseId)
+  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
   const crumbs = useMemo(
     () => [
@@ -66,6 +69,11 @@ export default function ChangeRequestsLayout({ children }: { children: React.Rea
       >
         {t("title-change-requests")}
       </h3>
+      <RouteTabPageTitle
+        tabs={tabs}
+        entityName={courseBreadcrumbInfo.data?.course_name}
+        order={20}
+      />
       <RouteTabList tabs={tabs} />
       {children}
     </>

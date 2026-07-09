@@ -62,6 +62,9 @@ test("feedback test", async ({ page, headless }, testInfo) => {
     headless,
     testInfo,
     snapshotName: "feedback-input",
+    beforeScreenshot: async () => {
+      await page.locator("#feedback-dialog-content").evaluate((e) => (e.scrollTop = e.scrollHeight))
+    },
     waitForTheseToBeVisibleAndStable: [page.locator(`text=I found this pretty confusing`)],
   })
 

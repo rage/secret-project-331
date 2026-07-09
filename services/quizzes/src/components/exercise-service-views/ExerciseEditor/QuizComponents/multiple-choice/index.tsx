@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import React, { useState } from "react"
@@ -46,14 +44,13 @@ const OptionCardContainer = styled.div`
 const OptionNameContainer = styled.div`
   width: 80vh;
   display: inline;
-  position: relative;
-  top: -10px;
 `
 const OptionCheckBoxContainer = styled.div`
   width: 15vh;
   display: inline;
   margin-left: 20px;
-  padding: 0px 8px;
+  /* Bottom padding lifts the checkbox to the input's vertical middle (the input is taller). */
+  padding: 0px 8px 10px 8px;
 `
 
 const OptionCreationWrapper = styled.div`
@@ -63,9 +60,9 @@ const OptionCreationWrapper = styled.div`
   }
   display: flex;
   flex-direction: row;
-  align-items: center;
+  /* Align the input box and checkbox on their bottom edge; the input's label sits above it. */
+  align-items: flex-end;
   margin-bottom: 8px;
-  height: 45px;
   margin-top: 16px;
 `
 
@@ -73,8 +70,17 @@ const OptionCreationContainer = styled.div`
   background-color: #fbfbfb;
   border: 1px solid #e2e4e6;
   width: 100%;
-  margin-top: 28px;
+  margin-top: 16px;
   padding: 20px;
+`
+
+const OptionsSectionHeading = styled.div`
+  /* More separation from the title above, tight against the options below. */
+  margin-top: 32px;
+  margin-bottom: 4px;
+  & > * {
+    margin-bottom: 0;
+  }
 `
 
 const AdvancedOptionsContainer = styled.div`
@@ -142,8 +148,10 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
         }}
         label={t("title")}
       />
-      <OptionTitle> {t("title-options")} </OptionTitle>
-      <OptionDescription>{t("title-options-description")}</OptionDescription>
+      <OptionsSectionHeading>
+        <OptionTitle> {t("title-options")} </OptionTitle>
+        <OptionDescription>{t("title-options-description")}</OptionDescription>
+      </OptionsSectionHeading>
       <OptionCardContainer>
         {selected.options.map((option) => (
           <MultipleChoiceOption

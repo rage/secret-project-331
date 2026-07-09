@@ -1,8 +1,9 @@
 import type { BrowserTestRunnerAdapter } from "./types"
 
+import basePath from "@/lib/basePath"
+
 function getTestWorkerUrl(): string {
-  const base = typeof process !== "undefined" && process.env?.NEXT_PUBLIC_BASE_PATH
-  return `${base ?? ""}/browserTestWorker.js`
+  return `${basePath()}/browserTestWorker.js`
 }
 
 /**

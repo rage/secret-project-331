@@ -45,30 +45,36 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
         transform: translateY(0);
       }
 
-      ${onClick &&
-      `
+      ${
+        onClick &&
+        `
         cursor: pointer;
 
         &:hover {
           filter: brightness(0.9);
         }
-      `}
+      `
+      }
 
       ${placement == "bottom" && `margin-top: calc(${POINTER_SIZE} * 2.5);`}
       ${placement == "top" && `margin-bottom: ${POINTER_SIZE};`}
       &:after {
-        ${placement == "bottom" &&
-        `
+        ${
+          placement == "bottom" &&
+          `
           top: -${POINTER_SIZE};
           border-bottom: ${POINTER_SIZE} solid ${COLORS.border};
           filter: drop-shadow(0px -10px 6px ${COLORS.shadowArrow});
-        `}
-        ${placement == "top" &&
         `
+        }
+        ${
+          placement == "top" &&
+          `
           bottom: -${POINTER_SIZE};
           border-top: ${POINTER_SIZE} solid ${COLORS.border};
           filter: drop-shadow(0 8px 6px ${COLORS.shadowArrow});
-        `}
+        `
+        }
         content: "";
         position: absolute;
         left: calc(50% - ${POINTER_SIZE});
@@ -79,16 +85,20 @@ const SpeechBalloon = React.forwardRef<HTMLDivElement, SpeechBalloonProps>(
       }
 
       &:before {
-        ${placement == "bottom" &&
-        `
+        ${
+          placement == "bottom" &&
+          `
           top: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
           border-bottom: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
-        `}
-        ${placement == "top" &&
         `
+        }
+        ${
+          placement == "top" &&
+          `
           bottom: calc(-${POINTER_SIZE} + ${BORDER_WIDTH} * 1.5);
           border-top: calc(${POINTER_SIZE} - ${BORDER_WIDTH} * 0.75) solid ${COLORS.bg};
-        `}
+        `
+        }
         content: "";
         position: absolute;
         left: calc(50% - ${POINTER_SIZE} + ${BORDER_WIDTH});

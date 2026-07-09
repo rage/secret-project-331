@@ -232,9 +232,10 @@ INSERT INTO course_modules (
     automatic_completion_number_of_points_treshold,
     automatic_completion_requires_exam,
     ects_credits,
-    enable_registering_completion_to_uh_open_university
+    enable_registering_completion_to_uh_open_university,
+    uh_course_code
   )
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING *
         ",
         pkey_policy.into_uuid(),
@@ -246,7 +247,8 @@ RETURNING *
         points_treshold,
         requires_exam,
         new_course_module.ects_credits,
-        new_course_module.enable_registering_completion_to_uh_open_university
+        new_course_module.enable_registering_completion_to_uh_open_university,
+        new_course_module.uh_course_code
     )
     .fetch_one(conn)
     .await?;

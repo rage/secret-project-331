@@ -38,9 +38,9 @@ interface ExerciseServiceCardProps {
 }
 
 enum UpdateStatus {
-  "none",
-  "saved",
-  "failed",
+  none,
+  saved,
+  failed,
 }
 
 const ExerciseServiceCard: React.FC<React.PropsWithChildren<ExerciseServiceCardProps>> = ({

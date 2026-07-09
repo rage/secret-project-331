@@ -4,6 +4,7 @@ import { test } from "@playwright/test"
 import { waitForFooterTranslationsToLoad } from "../../utils/waitingUtils"
 
 import { selectOrganization } from "@/utils/organizationUtils"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
 
 test.use({
   storageState: "src/states/teacher@example.com.json",
@@ -20,6 +21,7 @@ test.describe("Gutenberg spacer editing", () => {
     await selectOrganization(page, "University of Helsinki, Department of Computer Science")
     await page.getByRole("link", { name: "Manage course 'Permission management'" }).click()
     await page.getByRole("tab", { name: "Pages" }).click()
+    await waitForSpinnersToDisappear(page)
     await page
       .getByRole("row", { name: "The Basics /chapter-1" })
       .getByRole("button", { name: "Edit page" })

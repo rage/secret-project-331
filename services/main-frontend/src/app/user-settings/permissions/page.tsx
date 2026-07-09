@@ -17,6 +17,7 @@ import {
 import useAuthorizedClientsQuery from "@/hooks/useAuthorizedClientsQuery"
 import useUserResearchConsentQuery from "@/hooks/useUserResearchConsentQuery"
 import LoginStateContext from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, fontWeights } from "@/shared-module/common/styles"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import { courseFrontPageRoute } from "@/shared-module/common/utils/routes"
@@ -24,6 +25,8 @@ import { QueryResult } from "@/shared-module/components"
 
 const PermissionsSettingsPage: React.FC = () => {
   const { t } = useTranslation()
+  // Higher order than the parent user-settings layout so this specific page title wins deterministically.
+  usePageTitle(t("link-permissions"), { order: 10 })
 
   const loginStateContext = useContext(LoginStateContext)
   const [openResearchForm, setOpenResearchForm] = useState<boolean>(false)

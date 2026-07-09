@@ -12,6 +12,8 @@ export {
 } from "../core/bodySerializer.generated"
 export { buildClientParams } from "../core/params.generated"
 export { serializeQueryKeyValue } from "../core/queryKeySerializer.generated"
+export type { ServerSentEventsResult } from "../core/serverSentEvents.generated"
+export type { ClientMeta } from "../core/types.generated"
 export { createClient } from "./client.generated"
 export type {
   Client,

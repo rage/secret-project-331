@@ -2,7 +2,7 @@
 pmOnFail: download
 
 # Check that packages are compatible with the runtime in package.json devEngines.runtime
-nodeVersion: 24.16.0
+nodeVersion: 24.18.0
 # Dont install packages that are not combatibile with the 'nodeVersion'
 engineStrict: true
 # Use pnpm-lock.yaml if we can

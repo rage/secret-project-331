@@ -1,5 +1,3 @@
-"use client"
-
 import { changeLanguage } from "i18next"
 import { cloneDeep } from "lodash"
 import { orderBy } from "natural-orderby"

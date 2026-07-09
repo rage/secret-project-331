@@ -5,6 +5,7 @@ import { QueryObserverResult, RefetchOptions, RefetchQueryFilters } from "@tanst
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import CourseDescription from "./CourseDescription"
 import EditCourseForm from "./EditCourseForm"
 import UpdatePeerReviewQueueReviewsReceivedButton from "./UpdatePeerReviewQueueReviewsReceivedButton"
 
@@ -132,7 +133,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           `}
         >
           {t("wiki-link-text")}
-          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>.
+          <a href="https://github.com/rage/secret-project-331/wiki"> {t("documentation")}</a>
         </p>
         <h1
           className={css`
@@ -202,14 +203,48 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       )}
       <div
         className={css`
-          border: 3px dotted ${baseTheme.colors.gray[300]};
           color: ${baseTheme.colors.gray[500]};
-          padding: 20rem 0;
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
           margin: 2rem 0;
           text-align: center;
+          gap: 0.5rem;
         `}
       >
-        <p>{t("placeholder-text-reserved-for-course-overview")}</p>
+        <div
+          className={css`
+            padding: 1rem;
+            border: 3px solid ${baseTheme.colors.clear[200]};
+            color: ${baseTheme.colors.gray[700]};
+          `}
+        >
+          <p
+            className={css`
+              font-size: 1rem;
+            `}
+          >
+            {t("suggest-description-card-title")}
+          </p>
+          <CourseDescription course={course} refetch={refetch}></CourseDescription>
+        </div>
+        <div
+          className={css`
+            border: 3px dotted ${baseTheme.colors.gray[300]};
+            padding: 4.5rem 0;
+          `}
+        ></div>
+        <div
+          className={css`
+            border: 3px dotted ${baseTheme.colors.gray[300]};
+            padding: 4.5rem 0;
+          `}
+        ></div>
+        <div
+          className={css`
+            border: 3px dotted ${baseTheme.colors.gray[300]};
+            padding: 4.5rem 0;
+          `}
+        ></div>
       </div>
 
       <OnlyRenderIfPermissions

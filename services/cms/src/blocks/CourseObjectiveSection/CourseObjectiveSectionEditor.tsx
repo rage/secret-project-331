@@ -85,7 +85,10 @@ const CourseObjectiveSectionEditor: React.FC<
             tagName="h2"
             value={title}
             onChange={(value: string) => setAttributes({ title: value })}
-            placeholder={"In this course you'll..."}
+            placeholder={
+              // eslint-disable-next-line i18next/no-literal-string
+              "In this course you'll..."
+            }
           />
           <InnerBlocks
             template={COURSE_OBJECTIVE_SECTION_TEMPLATE}

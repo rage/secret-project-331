@@ -75,8 +75,7 @@ type ExpectScreenshotsToMatchSnapshotsPropsLocator =
   }
 
 export type ExpectScreenshotsToMatchSnapshotsProps =
-  | ExpectScreenshotsToMatchSnapshotsPropsPage
-  | ExpectScreenshotsToMatchSnapshotsPropsLocator
+  ExpectScreenshotsToMatchSnapshotsPropsPage | ExpectScreenshotsToMatchSnapshotsPropsLocator
 
 export default async function expectScreenshotsToMatchSnapshots({
   headless = false,

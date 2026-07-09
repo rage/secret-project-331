@@ -8,6 +8,7 @@ import { uploadFilesFromExerciseService } from "@/generated/api/sdk.generated"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import { isObjectMap, isString } from "@/shared-module/common/utils/fetching"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import {
   CurrentStateMessage,
   ExerciseIframeState,
@@ -15,7 +16,6 @@ import {
   UserInformation,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import { validateGeneratedData } from "@/utils/validateGeneratedData"
 
 interface PlaygroundExerciseIframeProps {

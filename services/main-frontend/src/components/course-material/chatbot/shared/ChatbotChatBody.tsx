@@ -2,10 +2,9 @@
 
 import { css } from "@emotion/css"
 import { PaperAirplane } from "@vectopus/atlas-icons-react"
-import React, { useCallback, useEffect, useMemo, useRef } from "react"
+import React, { Fragment, useCallback, useEffect, useMemo, useRef } from "react"
 import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
-import { v4 } from "uuid"
 
 import { CHATBOX_HEIGHT_PX } from "../Chatbot/ChatbotDialog"
 
@@ -13,17 +12,76 @@ import ChatbotDisclaimer from "./ChatbotDisclaimer"
 import ErrorDisplay from "./ErrorDisplay"
 import MessageBubble from "./MessageBubble"
 import SuggestedMessageChip from "./SuggestedMessageChip"
+import ToolCallReasoningBubble from "./ToolCallReasoningBubble"
 import { ChatbotStateAndData } from "./hooks/useChatbotStateAndData"
 
 import type {
   ChatbotConversationMessage,
   ChatbotConversationMessageCitation,
 } from "@/generated/course-material-api/types.generated"
-import { zChatbotConversationMessageMessage } from "@/generated/course-material-api/zod.generated"
+import {
+  zChatbotConversationMessageMessage,
+  zChatbotConversationMessageReasoning,
+  zChatbotConversationMessageToolCall,
+} from "@/generated/course-material-api/zod.generated"
 import Button from "@/shared-module/common/components/Button"
+import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
+import Spinner from "@/shared-module/common/components/Spinner"
 import { baseTheme } from "@/shared-module/common/styles"
-import { QueryResult } from "@/shared-module/components"
+
+/// Map each assistant message with the tool call and reasoning items that are
+/// associated with it (which appear before it in the conversation, after a text
+/// message.) User messages and assistant messages with no tool calls etc are
+/// mapped with null. The last tool calls etc. that are streamed and don't yet
+/// have an assistant message are mapped with a null key and should be shown still.
+const messageMapMaker = (
+  messages: ChatbotConversationMessageWithStatus[],
+): Map<
+  ChatbotConversationMessageWithStatus | null,
+  ChatbotConversationMessageWithStatus[] | null
+> => {
+  let messagesMap: Map<
+    ChatbotConversationMessageWithStatus | null,
+    ChatbotConversationMessageWithStatus[] | null
+  > = new Map()
+
+  let earliestItemIndex: number | null = null
+  messages.forEach((m, idx) => {
+    const messageResult = zChatbotConversationMessageMessage.safeParse(m.message.message)
+    let messageSuccess =
+      messageResult.success &&
+      (messageResult.data.message_role === "user" ||
+        messageResult.data.message_role === "assistant")
+    if (messageSuccess) {
+      if (earliestItemIndex !== null) {
+        let toolReasoningItemsForThisMessage = messages.slice(earliestItemIndex, idx)
+        messagesMap.set(m, toolReasoningItemsForThisMessage)
+        earliestItemIndex = null
+      } else {
+        messagesMap.set(m, null)
+      }
+      return
+    }
+    const toolCallResult = zChatbotConversationMessageToolCall.safeParse(m.message.message)
+    const reasoningResult = zChatbotConversationMessageReasoning.safeParse(m.message.message)
+    if ((toolCallResult.success || reasoningResult.success) && earliestItemIndex === null) {
+      earliestItemIndex = idx
+    }
+  })
+
+  if (earliestItemIndex !== null) {
+    messagesMap.set(null, messages.slice(earliestItemIndex))
+  }
+
+  return messagesMap
+}
+
+export type ChatbotConversationMessageWithStatus = {
+  message: ChatbotConversationMessage
+  finished: boolean
+  optimistic: boolean
+}
 
 const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   currentConversationInfo,
@@ -33,7 +91,6 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
   error,
   messageState,
   chatbotMessageAnnouncement,
-  dispatch,
   newMessageMutation,
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -60,70 +117,33 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
     currentConversationInfo.data?.hide_citations,
   ])
 
-  const messages = useMemo(() => {
-    const messages: ChatbotConversationMessage[] = [
-      ...(currentConversationInfo.data?.current_conversation_messages?.filter((m) => {
-        let result = zChatbotConversationMessageMessage.safeParse(m.message)
-        return (
-          result.success &&
-          (result.data.message_role === "user" || result.data.message_role === "assistant")
-        )
-      }) ?? []),
+  const messagesMap = useMemo(() => {
+    const messages: ChatbotConversationMessageWithStatus[] = [
+      ...(currentConversationInfo.data?.current_conversation_messages
+        ?.filter((m) => {
+          const messageResult = zChatbotConversationMessageMessage.safeParse(m.message)
+          let messageSuccess =
+            messageResult.success &&
+            (messageResult.data.message_role === "user" ||
+              messageResult.data.message_role === "assistant")
+          const toolCallResult = zChatbotConversationMessageToolCall.safeParse(m.message)
+          const reasoningResult = zChatbotConversationMessageReasoning.safeParse(m.message)
+          return messageSuccess || toolCallResult.success || reasoningResult.success
+        })
+        .map((m) => {
+          return { finished: true, message: m, optimistic: false }
+        }) ?? []),
     ]
-    const lastOrderNumber = Math.max(...messages.map((m) => m.order_number), 0)
-    if (messageState.optimisticMessage) {
-      messages.push({
-        id: v4(),
-        message: {
-          id: v4(),
-          text: messageState.optimisticMessage,
-          // eslint-disable-next-line i18next/no-literal-string
-          message_role: "user",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          deleted_at: null,
-          chatbot_conversation_message_id: v4(),
-          message_is_complete: true,
-          response_id: null,
-          used_tokens: 0,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        deleted_at: null,
-        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        order_number: lastOrderNumber + 1,
-      })
-    }
-    if (messageState.streamingMessage) {
-      messages.push({
-        id: v4(),
-        message: {
-          id: v4(),
-          text: messageState.streamingMessage,
-          // eslint-disable-next-line i18next/no-literal-string
-          message_role: "assistant",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          deleted_at: null,
-          chatbot_conversation_message_id: v4(),
-          message_is_complete: false,
-          response_id: "",
-          used_tokens: 0,
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        deleted_at: null,
-        conversation_id: currentConversationInfo.data?.current_conversation?.id ?? "",
-        order_number: lastOrderNumber + 2,
-      })
-    }
-    return messages
-  }, [
-    currentConversationInfo.data?.current_conversation?.id,
-    currentConversationInfo.data?.current_conversation_messages,
-    messageState.optimisticMessage,
-    messageState.streamingMessage,
-  ])
+
+    // map is ordered in the insertion order
+    let messagesMap = messageMapMaker(messages)
+
+    return messagesMap
+  }, [currentConversationInfo.data?.current_conversation_messages])
+
+  const messagesMap2 = useMemo(() => {
+    return messageMapMaker(messageState.messages)
+  }, [messageState.messages])
 
   const scrollToBottom = useCallback(() => {
     if (scrollContainerRef.current) {
@@ -133,195 +153,219 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
 
   useEffect(() => {
     scrollToBottom()
-  }, [scrollToBottom, messages])
+  }, [scrollToBottom, messagesMap, messageState.messages])
 
   const canSubmit = useMemo(
     () => Boolean(newMessage && newMessage.trim().length > 0 && !newMessageMutation.isPending),
     [newMessage, newMessageMutation.isPending],
   )
 
-  return (
-    <QueryResult query={currentConversationInfo}>
-      {(data) => {
-        if (!data.current_conversation) {
-          return (
-            <ChatbotDisclaimer
-              agreeButton={
-                <Button
-                  className={css`
-                    margin-top: 6px;
-                  `}
-                  size="medium"
-                  variant="secondary"
-                  onClick={() => {
-                    newConversationMutation.mutate()
-                    dispatch({ type: "RESET_MESSAGES" })
-                  }}
-                  disabled={newConversationMutation.isPending}
-                >
-                  {t("button-text-agree")}
-                </Button>
-              }
-            />
-          )
-        }
+  if (currentConversationInfo.isLoading) {
+    return <Spinner variant="medium" />
+  }
 
-        return (
-          <div
+  if (currentConversationInfo.isError) {
+    return (
+      <div
+        className={css`
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          padding: 20px;
+        `}
+      >
+        <ErrorBanner error={currentConversationInfo.error} variant="readOnly" />
+        <Button onClick={() => currentConversationInfo.refetch()} variant="secondary" size="small">
+          {t("try-again")}
+        </Button>
+      </div>
+    )
+  }
+
+  if (currentConversationInfo && !currentConversationInfo.data?.current_conversation) {
+    return (
+      <ChatbotDisclaimer
+        agreeButton={
+          <Button
             className={css`
-              flex-grow: 1;
-              display: flex;
-              flex-direction: column;
-              overflow: hidden;
+              margin-top: 6px;
             `}
+            size="medium"
+            variant="secondary"
+            onClick={() => {
+              newConversationMutation.mutate()
+            }}
+            disabled={newConversationMutation.isPending}
           >
-            <div
-              className={css`
-                flex-grow: 1;
-                overflow-y: auto;
-                display: flex;
-                flex-direction: column;
-                padding: 1rem;
-              `}
-              ref={scrollContainerRef}
-            >
-              {messages.map((message) => {
-                let m = zChatbotConversationMessageMessage.safeParse(message.message)
-                if (m.success) {
-                  return (
-                    <MessageBubble
-                      key={`chatbot-message-${message.id}`}
-                      message={m.data.text ?? ""}
-                      citations={citations.get(message.id)}
-                      isFromChatbot={m.data.message_role === "assistant"}
-                      isPending={!m.data.message_is_complete && newMessageMutation.isPending}
-                    />
-                  )
-                }
-              })}
-              <div
-                className={css`
-                  display: flex;
-                  flex-flow: column nowrap;
-                  margin-top: auto;
-                  margin-left: 2rem;
-                `}
-              >
-                {data.suggested_messages?.map((m) => (
-                  <SuggestedMessageChip
-                    key={m.id}
-                    isLoading={
-                      newMessageMutation.isPending ||
-                      currentConversationInfo.isLoading ||
-                      currentConversationInfo.isRefetching
-                    }
-                    message={m.message}
-                    handleClick={() => {
-                      if (!newMessageMutation.isPending) {
-                        newMessageMutation.mutate(m.message)
-                      }
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-            <VisuallyHidden aria-live="polite" role="status">
-              {chatbotMessageAnnouncement}
-            </VisuallyHidden>
-            {error != null ? <ErrorDisplay error={error} /> : null}
-            <div
-              className={css`
-                display: flex;
-                gap: 10px;
-                align-items: center;
-                margin: 0 1rem;
-              `}
-            >
-              <div
-                className={css`
-                  flex-grow: 1;
-                `}
-              >
-                <TextAreaField
-                  className={css`
-                    width: 100%;
-                    padding: 0.5rem;
-                    resize: none;
+            {t("button-text-agree")}
+          </Button>
+        }
+      />
+    )
+  }
 
-                    &:focus {
-                      outline: 1px solid ${baseTheme.colors.gray[300]};
-                    }
-                  `}
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault()
-                      if (canSubmit) {
-                        newMessageMutation.mutate(newMessage)
-                      }
-                    }
-                  }}
-                  // eslint-disable-next-line i18next/no-literal-string
-                  resize={"none"}
-                  autoResize={true}
-                  onAutoResized={scrollToBottom}
-                  autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
-                  placeholder={t("label-message")}
+  return (
+    <div
+      className={css`
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      `}
+    >
+      <div
+        className={css`
+          flex-grow: 1;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          padding: 1rem;
+        `}
+        ref={scrollContainerRef}
+      >
+        {[...messagesMap.entries(), ...messagesMap2.entries()].map(([message, items]) => {
+          if (message === null && items !== null && items.length > 0) {
+            const key = items[0].message.id
+            return <ToolCallReasoningBubble key={key} messages={items} />
+          }
+          if (message === null) {
+            return
+          }
+          let m = zChatbotConversationMessageMessage.safeParse(message.message.message)
+          if (m.success) {
+            return (
+              <Fragment key={`chatbot-status-message-${message.message.id}`}>
+                {items !== null && <ToolCallReasoningBubble messages={items} />}
+                <MessageBubble
+                  message={m.data.text ?? ""}
+                  citations={citations.get(message.message.id)}
+                  isFromChatbot={m.data.message_role === "assistant"}
+                  isPending={!m.data.message_is_complete && newMessageMutation.isPending}
                 />
-              </div>
-              <div>
-                <button
-                  className={css`
-                    background-color: ${baseTheme.colors.green[200]};
-                    border: none;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 0.3rem 0.6rem;
-                    transition: filter 0.2s;
+              </Fragment>
+            )
+          }
+        })}
+        <div
+          className={css`
+            display: flex;
+            flex-flow: column nowrap;
+            margin-top: auto;
+            margin-left: 2rem;
+          `}
+        >
+          {currentConversationInfo.data.suggested_messages?.map((m) => (
+            <SuggestedMessageChip
+              key={m.id}
+              isLoading={
+                newMessageMutation.isPending ||
+                currentConversationInfo.isLoading ||
+                currentConversationInfo.isRefetching
+              }
+              message={m.message}
+              handleClick={() => {
+                if (!newMessageMutation.isPending) {
+                  newMessageMutation.mutate(m.message)
+                }
+              }}
+            />
+          ))}
+        </div>
+      </div>
+      <VisuallyHidden aria-live="polite" role="status">
+        {chatbotMessageAnnouncement}
+      </VisuallyHidden>
+      {error != null ? <ErrorDisplay error={error} /> : null}
+      <div
+        className={css`
+          display: flex;
+          gap: 10px;
+          align-items: center;
+          margin: 0 1rem;
+        `}
+      >
+        <div
+          className={css`
+            flex-grow: 1;
+          `}
+        >
+          <TextAreaField
+            className={css`
+              width: 100%;
+              padding: 0.5rem;
+              resize: none;
 
-                    &:disabled {
-                      cursor: not-allowed;
-                      opacity: 0.5;
-                    }
+              &:focus {
+                outline: 1px solid ${baseTheme.colors.gray[300]};
+              }
+            `}
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault()
+                if (canSubmit) {
+                  newMessageMutation.mutate(newMessage)
+                }
+              }
+            }}
+            // eslint-disable-next-line i18next/no-literal-string
+            resize={"none"}
+            autoResize={true}
+            onAutoResized={scrollToBottom}
+            autoResizeMaxHeightPx={CHATBOX_HEIGHT_PX * 0.4}
+            placeholder={t("label-message")}
+          />
+        </div>
+        <div>
+          <button
+            className={css`
+              background-color: ${baseTheme.colors.green[200]};
+              border: none;
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 0.3rem 0.6rem;
+              transition: filter 0.2s;
 
-                    &:hover {
-                      filter: brightness(0.9) contrast(1.1);
-                    }
+              &:disabled {
+                cursor: not-allowed;
+                opacity: 0.5;
+              }
 
-                    svg {
-                      position: relative;
-                      top: 0px;
-                      left: -2px;
-                      transform: rotate(45deg);
-                    }
-                  `}
-                  disabled={!canSubmit}
-                  aria-label={t("send")}
-                  onClick={() => {
-                    newMessageMutation.mutate(newMessage)
-                  }}
-                >
-                  <PaperAirplane />
-                </button>
-              </div>
-            </div>
-            <div
-              className={css`
-                margin: 0.5rem;
-                font-size: 0.8rem;
-                color: ${baseTheme.colors.gray[500]};
-                text-align: center;
-              `}
-            >
-              {t("warning-chatbots-can-make-mistakes")}
-            </div>
-          </div>
-        )
-      }}
-    </QueryResult>
+              &:hover {
+                filter: brightness(0.9) contrast(1.1);
+              }
+
+              svg {
+                position: relative;
+                top: 0px;
+                left: -2px;
+                transform: rotate(45deg);
+              }
+            `}
+            disabled={!canSubmit}
+            aria-label={t("send")}
+            onClick={() => {
+              newMessageMutation.mutate(newMessage)
+            }}
+          >
+            <PaperAirplane />
+          </button>
+        </div>
+      </div>
+      <div
+        className={css`
+          margin: 0.5rem;
+          font-size: 0.8rem;
+          color: ${baseTheme.colors.gray[500]};
+          text-align: center;
+        `}
+      >
+        {t("warning-chatbots-can-make-mistakes")}
+      </div>
+    </div>
   )
 }
 

@@ -3,7 +3,7 @@
 //
 // Since this file is auto-generated, any changes you make to it will be overwritten by the next run of bin/generate-bindings.
 
-import type { Client, Options as Options2, TDataShape } from "./client"
+import type { Client, ClientMeta, Options as Options2, RequestResult, TDataShape } from "./client"
 import { client } from "./client.generated"
 import type {
   GetAuthLoggedInData,
@@ -55,7 +55,7 @@ export type Options<
    * You can pass arbitrary values through the `meta` object. This can be
    * used to access values that aren't defined as part of the SDK function.
    */
-  meta?: Record<string, unknown>
+  meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
 
 /**
@@ -65,7 +65,7 @@ export type Options<
  */
 export const postAuthAuthorize = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthAuthorizeData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthAuthorizeResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<PostAuthAuthorizeResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zPostAuthAuthorizeResponse.parseAsync(data),
     responseStyle: "data",
@@ -85,7 +85,7 @@ export const postAuthAuthorize = <ThrowOnError extends boolean = true>(
  */
 export const postAuthAuthorizeMultiple = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthAuthorizeMultipleData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthAuthorizeMultipleResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<
     PostAuthAuthorizeMultipleResponses,
     unknown,
@@ -109,7 +109,7 @@ export const postAuthAuthorizeMultiple = <ThrowOnError extends boolean = true>(
  */
 export const postAuthDeleteUserAccount = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthDeleteUserAccountData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthDeleteUserAccountResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<
     PostAuthDeleteUserAccountResponses,
     unknown,
@@ -133,7 +133,7 @@ export const postAuthDeleteUserAccount = <ThrowOnError extends boolean = true>(
  */
 export const getAuthLoggedIn = <ThrowOnError extends boolean = true>(
   options?: Options<GetAuthLoggedInData, ThrowOnError>,
-) =>
+): RequestResult<GetAuthLoggedInResponses, unknown, ThrowOnError, "data"> =>
   (options?.client ?? client).get<GetAuthLoggedInResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetAuthLoggedInResponse.parseAsync(data),
     responseStyle: "data",
@@ -149,7 +149,7 @@ export const getAuthLoggedIn = <ThrowOnError extends boolean = true>(
  */
 export const postAuthLogin = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthLoginData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthLoginResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<PostAuthLoginResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zPostAuthLoginResponse.parseAsync(data),
     responseStyle: "data",
@@ -168,7 +168,7 @@ export const postAuthLogin = <ThrowOnError extends boolean = true>(
  */
 export const postAuthLogout = <ThrowOnError extends boolean = true>(
   options?: Options<PostAuthLogoutData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthLogoutResponses, unknown, ThrowOnError, "data"> =>
   (options?.client ?? client).post<PostAuthLogoutResponses, unknown, ThrowOnError, "data">({
     responseStyle: "data",
     url: "/api/v0/auth/logout",
@@ -182,7 +182,7 @@ export const postAuthLogout = <ThrowOnError extends boolean = true>(
  */
 export const postAuthSendEmailCode = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthSendEmailCodeData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthSendEmailCodeResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<PostAuthSendEmailCodeResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zPostAuthSendEmailCodeResponse.parseAsync(data),
     responseStyle: "data",
@@ -217,7 +217,7 @@ export const postAuthSendEmailCode = <ThrowOnError extends boolean = true>(
  */
 export const postAuthSignup = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthSignupData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthSignupResponses, PostAuthSignupErrors, ThrowOnError, "data"> =>
   (options.client ?? client).post<
     PostAuthSignupResponses,
     PostAuthSignupErrors,
@@ -241,7 +241,7 @@ export const postAuthSignup = <ThrowOnError extends boolean = true>(
  */
 export const getAuthUserInfo = <ThrowOnError extends boolean = true>(
   options?: Options<GetAuthUserInfoData, ThrowOnError>,
-) =>
+): RequestResult<GetAuthUserInfoResponses, unknown, ThrowOnError, "data"> =>
   (options?.client ?? client).get<GetAuthUserInfoResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetAuthUserInfoResponse.parseAsync(data),
     responseStyle: "data",
@@ -256,7 +256,7 @@ export const getAuthUserInfo = <ThrowOnError extends boolean = true>(
  */
 export const postAuthVerifyEmail = <ThrowOnError extends boolean = true>(
   options: Options<PostAuthVerifyEmailData, ThrowOnError>,
-) =>
+): RequestResult<PostAuthVerifyEmailResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<PostAuthVerifyEmailResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zPostAuthVerifyEmailResponse.parseAsync(data),
     responseStyle: "data",

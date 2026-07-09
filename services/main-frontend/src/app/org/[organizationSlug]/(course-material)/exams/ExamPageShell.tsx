@@ -19,6 +19,7 @@ import useTime from "@/hooks/course-material/useTime"
 import Centered from "@/shared-module/common/components/Centering/Centered"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import Spinner from "@/shared-module/common/components/Spinner"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme, primaryFont } from "@/shared-module/common/styles"
 import { humanReadableDateTime } from "@/shared-module/common/utils/time"
@@ -75,6 +76,7 @@ export default function ExamPageShell({
   }, [organizationSlug, viewParams, setOrganizationSlug, setViewParams])
 
   const courseMaterialState = useAtomValue(courseMaterialAtom)
+  usePageTitle(courseMaterialState.examData?.name ?? null)
   const triggerRefetch = useSetAtom(refetchViewAtom)
   const handleRefresh = useCallback(async () => {
     await triggerRefetch()

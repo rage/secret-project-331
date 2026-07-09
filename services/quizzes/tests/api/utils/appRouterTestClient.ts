@@ -1,66 +1,91 @@
-import { RequestListener } from "http"
-import request from "supertest"
+// Request-based test client for the API handlers: each call builds a real Web `Request` (matching
+// what headless-lms sends), invokes the handler, and exposes the `Response` as
+// `{ status, text, body, headers }` behind a `.get()/.post().send()/.expect()` surface.
+type Handler = (req: Request) => Promise<Response> | Response
 
-// Type for headers that can be passed to Request constructor
-type HeadersInit = Headers | Record<string, string> | [string, string][]
+interface TestResponse {
+  status: number
+  text: string
+  // Parsed JSON response body. Typed loosely so tests can read response shapes without casts.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body: any
+  headers: Headers
+}
 
-type AppRouterHandler = (req: Request) => Promise<Response>
+type Expectation = (res: TestResponse) => void
 
-/** Creates a SuperTest client for a given app router handler. */
-const appRouterTestClient = (handler: AppRouterHandler) => {
-  const listener: RequestListener = async (req, res) => {
-    try {
-      // Convert Node.js IncomingMessage to Web API Request
-      const url = `http://localhost${req.url}`
-      const body = req.method !== "GET" && req.method !== "HEAD" ? await getBody(req) : undefined
+class RequestBuilder implements PromiseLike<TestResponse> {
+  private payload: unknown
+  private hasPayload = false
+  private readonly expectations: Expectation[] = []
 
-      // Create a proper Request object using the Web API
-      const requestObj = new Request(url, {
-        method: req.method,
-        headers: req.headers as HeadersInit,
-        body,
-      })
+  constructor(
+    private readonly handler: Handler,
+    private readonly method: string,
+    private readonly path: string,
+  ) {}
 
-      const response = await handler(requestObj)
-
-      // Set response status
-      res.statusCode = response.status
-
-      // Set response headers
-      response.headers.forEach((value, key) => {
-        res.setHeader(key, value)
-      })
-
-      // Ensure Content-Type is set for JSON responses
-      if (!res.getHeader("Content-Type")) {
-        res.setHeader("Content-Type", "application/json")
-      }
-
-      // Send response body
-      const responseBody = await response.text()
-      res.end(responseBody)
-    } catch (error) {
-      console.error("Test client error:", error)
-      res.statusCode = 500
-      res.end(JSON.stringify({ error: "Internal Server Error" }))
-    }
+  send(body: unknown): this {
+    this.payload = body
+    this.hasPayload = true
+    return this
   }
 
-  return request(listener)
+  expect(statusOrHeader: number | string, matcher?: RegExp | string): this {
+    if (typeof statusOrHeader === "number") {
+      const expectedStatus = statusOrHeader
+      this.expectations.push((res) => {
+        if (res.status !== expectedStatus) {
+          throw new Error(`expected status ${expectedStatus} but got ${res.status}`)
+        }
+      })
+    } else {
+      const headerName = statusOrHeader
+      this.expectations.push((res) => {
+        const value = res.headers.get(headerName) ?? ""
+        const matches = matcher instanceof RegExp ? matcher.test(value) : value === matcher
+        if (!matches) {
+          throw new Error(
+            `expected header ${headerName} to match ${String(matcher)} but got "${value}"`,
+          )
+        }
+      })
+    }
+    return this
+  }
+
+  private async run(): Promise<TestResponse> {
+    const init: RequestInit = { method: this.method }
+    if (this.hasPayload) {
+      init.body = JSON.stringify(this.payload)
+      init.headers = { "content-type": "application/json" }
+    }
+    const response = await this.handler(new Request(`http://localhost${this.path}`, init))
+    const text = await response.text()
+    let body: unknown
+    try {
+      body = text ? JSON.parse(text) : undefined
+    } catch {
+      body = undefined
+    }
+    const result: TestResponse = { status: response.status, text, body, headers: response.headers }
+    for (const expectation of this.expectations) {
+      expectation(result)
+    }
+    return result
+  }
+
+  then<TResult1 = TestResponse, TResult2 = never>(
+    onfulfilled?: ((value: TestResponse) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): PromiseLike<TResult1 | TResult2> {
+    return this.run().then(onfulfilled, onrejected)
+  }
 }
 
-/** Reads and returns the full request body as a string. */
-function getBody(req: NodeJS.ReadableStream): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let body = ""
-    req.on("data", (chunk: Buffer) => {
-      body += chunk.toString()
-    })
-    req.on("end", () => {
-      resolve(body)
-    })
-    req.on("error", reject)
-  })
-}
+const appRouterTestClient = (handler: Handler) => ({
+  get: (path: string) => new RequestBuilder(handler, "GET", path),
+  post: (path: string) => new RequestBuilder(handler, "POST", path),
+})
 
 export default appRouterTestClient

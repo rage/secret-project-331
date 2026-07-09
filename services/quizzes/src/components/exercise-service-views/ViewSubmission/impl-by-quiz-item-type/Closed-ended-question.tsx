@@ -1,5 +1,3 @@
-"use client"
-
 import { css, cx } from "@emotion/css"
 import React, { useId } from "react"
 import { useTranslation } from "react-i18next"
@@ -94,7 +92,7 @@ const ClosedEndedQuestionFeedback: React.FC<
       >
         {item_feedback && item_feedback.trim() !== "" && (
           <div className={cx(correct ? correctAnswer : incorrectAnswer)}>
-            <p>{item_feedback}</p>
+            <ParsedText inline blockContainer parseLatex parseMarkdown text={item_feedback} />
           </div>
         )}
       </div>

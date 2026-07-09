@@ -4,13 +4,13 @@
   "description": "Scaffolding CLI for creating new moocfi exercise services",
   "author": "Henrik Nygren <nygrenh@gmail.com>",
   "license": "Apache-2.0",
-  "type": "module",
   "main": "src/index.ts",
+  "type": "module",
   "devEngines": {
     "runtime": {
       "name": "node",
       "onFail": "download",
-      "version": "24.16.0"
+      "version": "24.18.0"
     }
   },
   "scripts": {
@@ -18,11 +18,11 @@
     "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
-    "@inquirer/prompts": "^8.5.0"
+    "@inquirer/prompts": "^8.5.2"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
-    "tsx": "^4.22.3",
+    "@types/node": "^26.0.1",
+    "tsx": "^4.22.4",
     "typescript": "^6.0.3"
   }
 }

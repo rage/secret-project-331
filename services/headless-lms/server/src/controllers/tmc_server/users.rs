@@ -17,7 +17,7 @@ use crate::domain::authorization::{
     get_or_create_user_from_tmc_mooc_fi_response,
 };
 use crate::prelude::*;
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::services::tmc::TmcClient;
 use models::users::User;
 use secrecy::SecretString;
 

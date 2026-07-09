@@ -6,6 +6,8 @@ import { scrollLocatorsParentIframeToViewIfNeeded } from "../../utils/iframeLoca
 
 import { selectOrganization } from "@/utils/organizationUtils"
 import { waitForLocatorToBeStable } from "@/utils/waitForLocatorToBeStable"
+import waitForSpinnersToDisappear from "@/utils/waitForSpinnersToDisappear"
+
 test.use({
   storageState: "src/states/user@example.com.json",
 })
@@ -50,6 +52,7 @@ test("quizzes, after wrong answer modify only the incorrect choice and resubmit"
     .click()
 
   await page.getByRole("button", { name: "Submit" }).click()
+  await waitForSpinnersToDisappear(page)
   await page.getByText("Try again").waitFor()
   await page
     .frameLocator('iframe[title="Exercise 1\\, task 1 content"]')

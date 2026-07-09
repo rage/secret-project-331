@@ -2,7 +2,7 @@ use crate::prelude::*;
 use crate::users::get_by_id;
 use argon2::password_hash::{PasswordHasher, PasswordVerifier, phc::PasswordHash};
 use argon2::{Algorithm, Argon2, Params, Version};
-use headless_lms_utils::tmc::TmcClient;
+use headless_lms_utils::services::tmc::TmcClient;
 use secrecy::{ExposeSecret, SecretString};
 use std::sync::LazyLock;
 use unicode_normalization::UnicodeNormalization;

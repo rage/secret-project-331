@@ -15,6 +15,7 @@ import {
   getCodeGiveawayCodesOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
 import Button from "@/shared-module/common/components/Button"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { baseTheme, headingFont, typography } from "@/shared-module/common/styles"
 import { QueryResults } from "@/shared-module/components"
 
@@ -29,6 +30,8 @@ const CodeGiveawayPage = () => {
       },
     }),
   )
+
+  usePageTitle(codeGiveawayQuery.data?.name ?? null)
 
   const [revealCodes, setRevealCodes] = useState(false)
 

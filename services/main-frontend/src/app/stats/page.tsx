@@ -16,6 +16,7 @@ import {
 } from "@/hooks/globalStats"
 import SelectMenu from "@/shared-module/common/components/SelectMenu"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 
 const YEAR_GRANULARITY = "Year"
@@ -23,6 +24,7 @@ const MONTH_GRANULARITY = "Month"
 
 const StatsPage = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-statistics"))
   const [granularity, setGranularity] = useState<TimeGranularity>(YEAR_GRANULARITY)
 
   const numberOfPeopleComplatedACourseQuery = useNumberOfPeopleCompletedACourseQuery(granularity)

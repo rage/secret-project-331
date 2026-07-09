@@ -16,11 +16,11 @@ import useCourseInfo from "@/hooks/course-material/useCourseInfo"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
 import { useDialog } from "@/shared-module/common/components/dialogs/DialogProvider"
 import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import {
   CustomViewIframeState,
   UserVariablesMap,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
-import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import {
   currentPageDataAtom,
   materialInstanceAtom,

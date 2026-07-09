@@ -50,6 +50,43 @@ export type ChaptersWithStatus = {
   modules: Array<CourseMaterialCourseModule>
 }
 
+export type ChatbotChatStreamEvent =
+  | {
+      data: {
+        message_id: string
+        text: string
+      }
+      type: "Delta"
+    }
+  | {
+      data: {
+        finished: boolean
+        reasoning_id: string
+      }
+      type: "Reasoning"
+    }
+  | {
+      data: {
+        arguments?: string | null
+        finished: boolean
+        tool_call_id: string
+        tool_name?: string | null
+      }
+      type: "ToolCall"
+    }
+  | {
+      type: "Done"
+    }
+  | {
+      data: {
+        message: string
+      }
+      type: "Error"
+    }
+  | {
+      type: "None"
+    }
+
 export type ChatbotConversation = {
   chatbot_configuration_id: string
   course_id: string
@@ -115,6 +152,7 @@ export type ChatbotConversationMessageReasoning = {
   created_at: string
   deleted_at?: string | null
   id: string
+  reasoning_id: string
   response_id: string
   summary?: string | null
   updated_at: string
@@ -126,7 +164,7 @@ export type ChatbotConversationMessageToolCall = {
   deleted_at?: string | null
   id: string
   response_id: string
-  tool_arguments: unknown
+  tool_arguments: string
   tool_call_id: string
   tool_kind: ToolKind
   tool_name: string
@@ -1355,7 +1393,7 @@ export type SendChatbotMessageResponses = {
   /**
    * Chatbot response stream
    */
-  200: string
+  200: ChatbotChatStreamEvent
 }
 
 export type SendChatbotMessageResponse =

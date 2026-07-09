@@ -32,10 +32,7 @@ export interface AiSubmenuGroup {
 
 /** Locale keys for group labels; use with t() so types match cms.json. */
 export type AiGroupLabelKey =
-  | "ai-group-improve"
-  | "ai-group-structure"
-  | "ai-group-learning-support"
-  | "ai-group-summaries"
+  "ai-group-improve" | "ai-group-structure" | "ai-group-learning-support" | "ai-group-summaries"
 
 /** Locale keys for action labels; use with t() so types match cms.json. */
 export type AiActionLabelKey =

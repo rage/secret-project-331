@@ -13,7 +13,10 @@ use headless_lms_server::{
     domain::models_requests::JwtKey,
     setup_tracing,
 };
-use headless_lms_utils::{file_store::local_file_store::LocalFileStore, tmc::TmcClient};
+use headless_lms_utils::{
+    file_store::local_file_store::LocalFileStore, services::sisu::SisuClient,
+    services::tmc::TmcClient,
+};
 use secrecy::SecretString;
 use sqlx::{Connection, PgConnection, PgPool, Postgres, migrate::MigrateDatabase};
 use tokio::sync::Mutex;
@@ -94,6 +97,7 @@ pub async fn test_config() -> ServerConfig {
             enable_admin_email_verification: false,
             azure_configuration: None,
             test_chatbot: false,
+            test_sisu: false,
             tmc_account_creation_origin: None,
             tmc_admin_access_token: SecretString::new("mock-access-token".to_string().into()),
             oauth_server_configuration: OAuthServerConfiguration {
@@ -110,6 +114,7 @@ pub async fn test_config() -> ServerConfig {
             "sMG87WlKnNZoITzvL2+jczriTR7JRsCtGu/bSKaSIvw=asdfjklasd***FSDfsdASDFDS".into(),
         ),
         tmc_client: TmcClient::mock_for_test(),
+        sisu_client: SisuClient::mock_for_test(),
     }
     .build()
     .await

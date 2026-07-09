@@ -9,7 +9,9 @@ import { useTranslation } from "react-i18next"
 import { PermissionPage } from "@/components/PermissionPage"
 import { getExamOptions } from "@/generated/api/@tanstack/react-query.generated"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
+import { joinTitleSegments } from "@/shared-module/common/utils/pageTitle"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { QueryResult } from "@/shared-module/components"
 
@@ -24,6 +26,8 @@ const ExamPermissions: React.FC = () => {
       },
     }),
   })
+
+  usePageTitle(joinTitleSegments([t("link-permissions"), exam.data?.name]), { order: 10 })
 
   return (
     <div

@@ -20,7 +20,8 @@ use crate::{
         seed_application_task_llms::SeedApplicationLLMsResult,
         seed_courses::{
             CommonCourseData, seed_accessibility_course, seed_chatbot::seed_chatbot_course,
-            seed_course_with_peer_review::seed_peer_review_course, seed_lock_chapter_course,
+            seed_course_with_peer_review::seed_peer_review_course, seed_generated_description,
+            seed_introduction_to_codes::seed_introduction_to_codes, seed_lock_chapter_course,
             seed_material_reference_course, seed_peer_review_course_without_submissions,
             seed_sample_course, seed_switching_course_instances_course,
         },
@@ -313,6 +314,22 @@ pub async fn seed_organization_uh_mathstat(
         uh_data.clone(),
         false,
         seed_users_result,
+    )
+    .await?;
+
+    let _generate_description_course = seed_generated_description(
+        Uuid::parse_str("84d392c8-3d44-4109-bff1-938fec5cd642")?,
+        "Description generation course",
+        "description-generation-course",
+        uh_data.clone(),
+    )
+    .await?;
+
+    let _introduction_to_codes = seed_introduction_to_codes(
+        Uuid::parse_str("da099841-4e90-4080-a6ae-48b7dd1f6e26")?,
+        "Introduction to codes",
+        "introduction-to-codes",
+        uh_data.clone(),
     )
     .await?;
 

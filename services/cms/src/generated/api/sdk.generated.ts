@@ -5,8 +5,10 @@
 
 import {
   type Client,
+  type ClientMeta,
   formDataBodySerializer,
   type Options as Options2,
+  type RequestResult,
   type TDataShape,
 } from "./client"
 import { client } from "./client.generated"
@@ -122,7 +124,7 @@ export type Options<
    * You can pass arbitrary values through the `meta` object. This can be
    * used to access values that aren't defined as part of the SDK function.
    */
-  meta?: Record<string, unknown>
+  meta?: keyof ClientMeta extends never ? Record<string, unknown> : ClientMeta
 }
 
 /**
@@ -135,7 +137,7 @@ export type Options<
  */
 export const requestParagraphSuggestions = <ThrowOnError extends boolean = true>(
   options: Options<RequestParagraphSuggestionsData, ThrowOnError>,
-) =>
+): RequestResult<RequestParagraphSuggestionsResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<
     RequestParagraphSuggestionsResponses,
     unknown,
@@ -158,7 +160,7 @@ export const requestParagraphSuggestions = <ThrowOnError extends boolean = true>
  */
 export const getAllChaptersByCourseId = <ThrowOnError extends boolean = true>(
   options: Options<GetAllChaptersByCourseIdData, ThrowOnError>,
-) =>
+): RequestResult<GetAllChaptersByCourseIdResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetAllChaptersByCourseIdResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetAllChaptersByCourseIdResponse.parseAsync(data),
     responseStyle: "data",
@@ -172,7 +174,7 @@ export const getAllChaptersByCourseId = <ThrowOnError extends boolean = true>(
  */
 export const getCmsCodeGiveawaysByCourse = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCodeGiveawaysByCourseData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCodeGiveawaysByCourseResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<
     GetCmsCodeGiveawaysByCourseResponses,
     unknown,
@@ -191,7 +193,7 @@ export const getCmsCodeGiveawaysByCourse = <ThrowOnError extends boolean = true>
  */
 export const getCmsCourseInstance = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseInstanceData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCourseInstanceResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsCourseInstanceResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsCourseInstanceResponse.parseAsync(data),
     responseStyle: "data",
@@ -208,7 +210,7 @@ export const getCmsCourseInstance = <ThrowOnError extends boolean = true>(
  */
 export const getCmsCourseInstanceOrganizationId = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseInstanceOrganizationIdData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCourseInstanceOrganizationIdResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<
     GetCmsCourseInstanceOrganizationIdResponses,
     unknown,
@@ -228,7 +230,7 @@ export const getCmsCourseInstanceOrganizationId = <ThrowOnError extends boolean 
  */
 export const getCmsCourse = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCourseResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsCourseResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsCourseResponse.parseAsync(data),
     responseStyle: "data",
@@ -242,7 +244,7 @@ export const getCmsCourse = <ThrowOnError extends boolean = true>(
  */
 export const getCmsCourseInstances = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseInstancesData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCourseInstancesResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsCourseInstancesResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsCourseInstancesResponse.parseAsync(data),
     responseStyle: "data",
@@ -252,7 +254,7 @@ export const getCmsCourseInstances = <ThrowOnError extends boolean = true>(
 
 export const getCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseDefaultPeerReviewData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCourseDefaultPeerReviewResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<
     GetCmsCourseDefaultPeerReviewResponses,
     unknown,
@@ -268,7 +270,7 @@ export const getCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = tru
 
 export const updateCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsCourseDefaultPeerReviewData, ThrowOnError>,
-) =>
+): RequestResult<UpdateCmsCourseDefaultPeerReviewResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).put<
     UpdateCmsCourseDefaultPeerReviewResponses,
     unknown,
@@ -293,7 +295,7 @@ export const updateCmsCourseDefaultPeerReview = <ThrowOnError extends boolean = 
  */
 export const getCmsCourseModules = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseModulesData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCourseModulesResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsCourseModulesResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsCourseModulesResponse.parseAsync(data),
     responseStyle: "data",
@@ -307,7 +309,12 @@ export const getCmsCourseModules = <ThrowOnError extends boolean = true>(
  */
 export const getCmsCourseNondefaultChatbotConfigurations = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseNondefaultChatbotConfigurationsData, ThrowOnError>,
-) =>
+): RequestResult<
+  GetCmsCourseNondefaultChatbotConfigurationsResponses,
+  unknown,
+  ThrowOnError,
+  "data"
+> =>
   (options.client ?? client).get<
     GetCmsCourseNondefaultChatbotConfigurationsResponses,
     unknown,
@@ -327,7 +334,7 @@ export const getCmsCourseNondefaultChatbotConfigurations = <ThrowOnError extends
  */
 export const getCmsCoursePages = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCoursePagesData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCoursePagesResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsCoursePagesResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsCoursePagesResponse.parseAsync(data),
     responseStyle: "data",
@@ -341,7 +348,7 @@ export const getCmsCoursePages = <ThrowOnError extends boolean = true>(
  */
 export const deleteCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
   options: Options<DeleteCmsCoursePartnersBlockData, ThrowOnError>,
-) =>
+): RequestResult<DeleteCmsCoursePartnersBlockResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).delete<
     DeleteCmsCoursePartnersBlockResponses,
     unknown,
@@ -360,7 +367,7 @@ export const deleteCmsCoursePartnersBlock = <ThrowOnError extends boolean = true
  */
 export const getCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCoursePartnersBlockData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCoursePartnersBlockResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsCoursePartnersBlockResponses, unknown, ThrowOnError, "data">(
     {
       responseValidator: async (data) => await zGetCmsCoursePartnersBlockResponse.parseAsync(data),
@@ -376,7 +383,7 @@ export const getCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
  */
 export const upsertCmsCoursePartnersBlock = <ThrowOnError extends boolean = true>(
   options: Options<UpsertCmsCoursePartnersBlockData, ThrowOnError>,
-) =>
+): RequestResult<UpsertCmsCoursePartnersBlockResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<
     UpsertCmsCoursePartnersBlockResponses,
     unknown,
@@ -398,7 +405,7 @@ export const upsertCmsCoursePartnersBlock = <ThrowOnError extends boolean = true
  */
 export const getCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsCourseResearchFormData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsCourseResearchFormResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsCourseResearchFormResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsCourseResearchFormResponse.parseAsync(data),
     responseStyle: "data",
@@ -412,7 +419,7 @@ export const getCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
  */
 export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>(
   options: Options<UpsertCmsCourseResearchFormData, ThrowOnError>,
-) =>
+): RequestResult<UpsertCmsCourseResearchFormResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).put<
     UpsertCmsCourseResearchFormResponses,
     unknown,
@@ -435,7 +442,7 @@ export const upsertCmsCourseResearchForm = <ThrowOnError extends boolean = true>
  */
 export const upsertCmsCourseResearchFormQuestions = <ThrowOnError extends boolean = true>(
   options: Options<UpsertCmsCourseResearchFormQuestionsData, ThrowOnError>,
-) =>
+): RequestResult<UpsertCmsCourseResearchFormQuestionsResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).put<
     UpsertCmsCourseResearchFormQuestionsResponses,
     unknown,
@@ -470,7 +477,7 @@ export const upsertCmsCourseResearchFormQuestions = <ThrowOnError extends boolea
  */
 export const uploadCmsCourseMedia = <ThrowOnError extends boolean = true>(
   options: Options<UploadCmsCourseMediaData, ThrowOnError>,
-) =>
+): RequestResult<UploadCmsCourseMediaResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<UploadCmsCourseMediaResponses, unknown, ThrowOnError, "data">({
     ...formDataBodySerializer,
     responseValidator: async (data) => await zUploadCmsCourseMediaResponse.parseAsync(data),
@@ -489,7 +496,7 @@ export const uploadCmsCourseMedia = <ThrowOnError extends boolean = true>(
  */
 export const deleteCmsEmailTemplate = <ThrowOnError extends boolean = true>(
   options: Options<DeleteCmsEmailTemplateData, ThrowOnError>,
-) =>
+): RequestResult<DeleteCmsEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).delete<DeleteCmsEmailTemplateResponses, unknown, ThrowOnError, "data">(
     {
       responseValidator: async (data) => await zDeleteCmsEmailTemplateResponse.parseAsync(data),
@@ -505,7 +512,7 @@ export const deleteCmsEmailTemplate = <ThrowOnError extends boolean = true>(
  */
 export const getCmsEmailTemplate = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsEmailTemplateData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsEmailTemplateResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsEmailTemplateResponse.parseAsync(data),
     responseStyle: "data",
@@ -519,7 +526,7 @@ export const getCmsEmailTemplate = <ThrowOnError extends boolean = true>(
  */
 export const updateCmsEmailTemplate = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsEmailTemplateData, ThrowOnError>,
-) =>
+): RequestResult<UpdateCmsEmailTemplateResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).put<UpdateCmsEmailTemplateResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zUpdateCmsEmailTemplateResponse.parseAsync(data),
     responseStyle: "data",
@@ -537,7 +544,7 @@ export const updateCmsEmailTemplate = <ThrowOnError extends boolean = true>(
  */
 export const getCmsExamInstructions = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsExamInstructionsData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsExamInstructionsResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsExamInstructionsResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsExamInstructionsResponse.parseAsync(data),
     responseStyle: "data",
@@ -558,7 +565,7 @@ export const getCmsExamInstructions = <ThrowOnError extends boolean = true>(
  */
 export const updateCmsExamInstructions = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsExamInstructionsData, ThrowOnError>,
-) =>
+): RequestResult<UpdateCmsExamInstructionsResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).put<UpdateCmsExamInstructionsResponses, unknown, ThrowOnError, "data">(
     {
       responseValidator: async (data) => await zUpdateCmsExamInstructionsResponse.parseAsync(data),
@@ -589,7 +596,7 @@ export const updateCmsExamInstructions = <ThrowOnError extends boolean = true>(
  */
 export const uploadCmsExamMedia = <ThrowOnError extends boolean = true>(
   options: Options<UploadCmsExamMediaData, ThrowOnError>,
-) =>
+): RequestResult<UploadCmsExamMediaResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).post<UploadCmsExamMediaResponses, unknown, ThrowOnError, "data">({
     ...formDataBodySerializer,
     responseValidator: async (data) => await zUploadCmsExamMediaResponse.parseAsync(data),
@@ -608,7 +615,7 @@ export const uploadCmsExamMedia = <ThrowOnError extends boolean = true>(
  */
 export const getCmsExerciseServices = <ThrowOnError extends boolean = true>(
   options?: Options<GetCmsExerciseServicesData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsExerciseServicesResponses, unknown, ThrowOnError, "data"> =>
   (options?.client ?? client).get<GetCmsExerciseServicesResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsExerciseServicesResponse.parseAsync(data),
     responseStyle: "data",
@@ -624,7 +631,7 @@ export const getCmsExerciseServices = <ThrowOnError extends boolean = true>(
  */
 export const getCmsPage = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsPageData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsPageResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsPageResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsPageResponse.parseAsync(data),
     responseStyle: "data",
@@ -658,7 +665,7 @@ export const getCmsPage = <ThrowOnError extends boolean = true>(
  */
 export const updateCmsPage = <ThrowOnError extends boolean = true>(
   options: Options<UpdateCmsPageData, ThrowOnError>,
-) =>
+): RequestResult<UpdateCmsPageResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).put<UpdateCmsPageResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zUpdateCmsPageResponse.parseAsync(data),
     responseStyle: "data",
@@ -678,7 +685,7 @@ export const updateCmsPage = <ThrowOnError extends boolean = true>(
  */
 export const getCmsPageInfo = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsPageInfoData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsPageInfoResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsPageInfoResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsPageInfoResponse.parseAsync(data),
     responseStyle: "data",
@@ -692,7 +699,7 @@ export const getCmsPageInfo = <ThrowOnError extends boolean = true>(
  */
 export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsPageNavigationData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsPageNavigationResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<GetCmsPageNavigationResponses, unknown, ThrowOnError, "data">({
     responseValidator: async (data) => await zGetCmsPageNavigationResponse.parseAsync(data),
     responseStyle: "data",
@@ -702,7 +709,7 @@ export const getCmsPageNavigation = <ThrowOnError extends boolean = true>(
 
 export const getCmsRepositoryExercisesForCourse = <ThrowOnError extends boolean = true>(
   options: Options<GetCmsRepositoryExercisesForCourseData, ThrowOnError>,
-) =>
+): RequestResult<GetCmsRepositoryExercisesForCourseResponses, unknown, ThrowOnError, "data"> =>
   (options.client ?? client).get<
     GetCmsRepositoryExercisesForCourseResponses,
     unknown,

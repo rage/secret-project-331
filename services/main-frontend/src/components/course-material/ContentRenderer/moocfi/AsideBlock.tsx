@@ -37,6 +37,14 @@ const AsideBLock: React.FC<React.PropsWithChildren<BlockRendererProps<AsideBlock
         h6 {
           margin-top: 0;
         }
+
+        /* Contain floated children (e.g. left-floated images) so they don't overflow past
+        the bottom border when the adjacent text is short. */
+        &::after {
+          content: "";
+          display: block;
+          clear: both;
+        }
       `}
     >
       <InnerBlocks parentBlockProps={props} dontAllowInnerBlocksToBeWiderThanParentBlock />

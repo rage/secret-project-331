@@ -129,11 +129,13 @@ const AudioPlayer: React.FC<React.PropsWithChildren<AudioPlayerProps>> = ({
                   display: flex;
                   align-items: center;
                   padding-left: 2px;
-                  ${isCloseFocusVisible &&
-                  css`
-                    outline: 2px solid #4a90e2;
-                    outline-offset: 2px;
-                  `}
+                  ${
+                    isCloseFocusVisible &&
+                    css`
+                      outline: 2px solid #4a90e2;
+                      outline-offset: 2px;
+                    `
+                  }
                 `}
               >
                 <CloseIcon aria-hidden="true" />

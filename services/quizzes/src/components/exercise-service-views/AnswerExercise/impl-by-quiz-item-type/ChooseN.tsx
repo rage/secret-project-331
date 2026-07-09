@@ -1,5 +1,3 @@
-"use client"
-
 import { css } from "@emotion/css"
 import { CheckCircle } from "@vectopus/atlas-icons-react"
 import React, { useEffect, useId, useRef, useState } from "react"
@@ -122,17 +120,19 @@ const ChooseN: React.FunctionComponent<
                   ${isSelected && TWO_DIMENSIONAL_BUTTON_SELECTED}
 
                   /* "Looks disabled" but stays interactive */
-                  ${visuallyMuted &&
-                  css`
-                    background-color: #f8f8f9;
-                    border-color: #d0d0d8;
-                    box-shadow:
-                      rgba(45, 35, 66, 0) 0 2px 4px,
-                      rgba(45, 35, 66, 0) 0 7px 13px -3px,
-                      #d0d0d8 0 -2px 0 inset;
-                    color: #2d3a4a;
-                    cursor: not-allowed;
-                  `}
+                  ${
+                    visuallyMuted &&
+                    css`
+                      background-color: #f8f8f9;
+                      border-color: #d0d0d8;
+                      box-shadow:
+                        rgba(45, 35, 66, 0) 0 2px 4px,
+                        rgba(45, 35, 66, 0) 0 7px 13px -3px,
+                        #d0d0d8 0 -2px 0 inset;
+                      color: #2d3a4a;
+                      cursor: not-allowed;
+                    `
+                  }
                 `}
               >
                 <span

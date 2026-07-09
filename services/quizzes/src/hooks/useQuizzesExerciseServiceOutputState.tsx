@@ -1,5 +1,3 @@
-"use client"
-
 import { PrivateSpecQuiz } from "../../types/quizTypes/privateSpec"
 import QuizzesExerciseServiceContext from "../contexts/QuizzesExerciseServiceContext"
 

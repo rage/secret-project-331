@@ -26,6 +26,7 @@ import TextAreaField from "@/shared-module/common/components/InputFields/TextAre
 import Pagination from "@/shared-module/common/components/Pagination"
 import Dialog from "@/shared-module/common/components/dialogs/Dialog"
 import { withSignedIn } from "@/shared-module/common/contexts/LoginStateContext"
+import { usePageTitle } from "@/shared-module/common/hooks/usePageTitle"
 import usePaginationInfo from "@/shared-module/common/hooks/usePaginationInfo"
 import useToastMutationOptions from "@/shared-module/common/hooks/useToastMutationOptions"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
@@ -42,6 +43,7 @@ interface Fields {
 
 const RegradingsPage: React.FC = () => {
   const { t } = useTranslation()
+  usePageTitle(t("title-regradings"))
   const router = useRouter()
   const paginationInfo = usePaginationInfo()
   const regradingsQuery = useQuery({

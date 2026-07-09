@@ -14,6 +14,8 @@ ensureLineHighlightPluginRegistered(hljs)
 interface SyntaxHighlightedContainerProps {
   content: string | undefined
   highlightedLines?: Set<number>
+  /** highlight.js language id/alias. When unset, highlight.js auto-detects the language. */
+  language?: string
 }
 
 const codeBlockStyles = css`
@@ -39,6 +41,7 @@ const codeBlockStyles = css`
 const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
   content,
   highlightedLines,
+  language,
 }) => {
   const ref = useRef<HTMLElement>(null)
 
@@ -57,10 +60,15 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
       delete ref.current.dataset.highlightLines
     }
 
+    // Reset className before re-highlighting so hljs- and language-* classes don't accumulate.
+    // A chosen language sets language-<id> so highlight.js uses it instead of auto-detecting.
+    // eslint-disable-next-line i18next/no-literal-string
+    ref.current.className = language ? `${codeBlockStyles} language-${language}` : codeBlockStyles
+
     // Sanitization is the source of truth for HTML safety; highlight.js does not preserve arbitrary HTML.
     ref.current.innerHTML = sanitizeCourseMaterialHtml(content ?? "")
     hljs.highlightElement(ref.current)
-  }, [content, highlightedLines])
+  }, [content, highlightedLines, language])
 
   return <code className={codeBlockStyles} ref={ref} />
 }

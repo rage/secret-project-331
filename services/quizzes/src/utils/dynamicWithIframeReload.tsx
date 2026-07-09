@@ -1,7 +1,6 @@
-"use client"
-
-import dynamic, { type DynamicOptions, type Loader } from "next/dynamic"
 import type { ComponentType } from "react"
+
+import dynamic, { type DynamicOptions, type Loader } from "@/lib/next-shims/dynamic"
 
 const RELOAD_BRIDGE_RETRY_INTERVAL_MS = 500
 const RELOAD_BRIDGE_MAX_WAIT_MS = 10_000
@@ -63,7 +62,7 @@ export interface DynamicWithIframeReloadDeps {
  */
 function dynamicWithIframeReload<Props extends object = Record<string, never>>(
   loader: DynamicLoader<Props>,
-  options?: DynamicOptions<Props>,
+  options?: DynamicOptions,
   deps: DynamicWithIframeReloadDeps = {},
 ): ComponentType<Props> {
   const { dynamicFn = dynamic } = deps

@@ -1,5 +1,3 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React, { useEffect, useState } from "react"
 

@@ -7,8 +7,10 @@ import { useTranslation } from "react-i18next"
 
 import type { RouteTabDefinition } from "@/components/Navigation/RouteTabList/RouteTab"
 import { RouteTabList } from "@/components/Navigation/RouteTabList/RouteTabList"
+import { RouteTabPageTitle } from "@/components/Navigation/RouteTabList/RouteTabPageTitle"
 import { useRegisterBreadcrumbs } from "@/components/breadcrumbs/useRegisterBreadcrumbs"
 import createUnreadFeedbackCountHook from "@/hooks/count/useUnreadFeedbackCount"
+import useCourseBreadcrumbInfoQuery from "@/hooks/useCourseBreadcrumbInfoQuery"
 import { baseTheme, headingFont } from "@/shared-module/common/styles"
 import {
   manageCourseFeedbackReadRoute,
@@ -24,6 +26,7 @@ export default function FeedbackLayout({ children }: { children: React.ReactNode
   const courseId = params.id
   const { t } = useTranslation()
   const unreadCountHook = createUnreadFeedbackCountHook(courseId)
+  const courseBreadcrumbInfo = useCourseBreadcrumbInfoQuery(courseId)
 
   const crumbs = useMemo(
     () => [
@@ -66,6 +69,11 @@ export default function FeedbackLayout({ children }: { children: React.ReactNode
       >
         {t("title-feedback")}
       </h3>
+      <RouteTabPageTitle
+        tabs={tabs}
+        entityName={courseBreadcrumbInfo.data?.course_name}
+        order={20}
+      />
       <RouteTabList tabs={tabs} />
       {children}
     </>

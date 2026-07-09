@@ -93,7 +93,6 @@ const ChapterExerciseListGroupedByPage: React.FC<
               <div key={e.id}>
                 <ExerciseBox
                   url={coursePageSectionRoute(organizationSlug, courseSlug, page.url_path, e.id)}
-                  // eslint-disable-next-line i18next/no-literal-string
                   bg={"rgb(242, 245, 247)"}
                   exerciseIndex={e.order_number + 1}
                   exerciseTitle={e.name}

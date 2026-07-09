@@ -4,6 +4,7 @@ import { css } from "@emotion/css"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { awaitingReviewCount, completedModuleCount } from "../lib/completions"
 import { TONE } from "../lib/displayConstants"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
@@ -28,17 +29,8 @@ const UserStatBar: React.FC<UserStatBarProps> = ({ enrollments, reviewTargetId }
 
   const enrolled = enrollments.length
   const active = enrollments.filter((e) => e.is_current).length
-  const completions = enrollments.reduce(
-    (sum, e) =>
-      sum +
-      new Set(e.course_module_completions.filter((c) => c.passed).map((c) => c.course_module_id))
-        .size,
-    0,
-  )
-  const awaitingReview = enrollments.reduce(
-    (sum, e) => sum + e.course_module_completions_needing_review,
-    0,
-  )
+  const completions = enrollments.reduce((sum, e) => sum + completedModuleCount(e), 0)
+  const awaitingReview = awaitingReviewCount(enrollments)
 
   return (
     <div className={rowCss}>

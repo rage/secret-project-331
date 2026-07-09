@@ -5,12 +5,15 @@ import Link from "next/link"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { completedModuleCount } from "../lib/completions"
 import { TONE } from "../lib/displayConstants"
 
 import CourseCompletionTimeline from "./CourseCompletionTimeline"
 import ModuleCompletionsTable from "./ModuleCompletionsTable"
 
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
+import Button from "@/shared-module/common/components/Button"
+import ietfLanguageTagToHumanReadableName from "@/shared-module/common/utils/ietfLanguageTagToHumanReadableName"
 import { courseUserStatusSummaryRoute } from "@/shared-module/common/utils/routes"
 import { Badge, Disclosure } from "@/shared-module/components"
 
@@ -18,6 +21,10 @@ export interface CourseEnrollmentCardProps {
   enrollment: CourseEnrollmentInfo
   userId: string
 }
+
+const cardCss = css`
+  margin-bottom: 0.75rem;
+`
 
 const summaryCss = css`
   display: flex;
@@ -48,25 +55,15 @@ const spacerCss = css`
 `
 
 const linkRowCss = css`
-  margin-top: 1rem;
+  margin: 0.5rem 0 0 0.25rem;
 `
-
-function languageName(code: string): string {
-  try {
-    return new Intl.DisplayNames(undefined, { type: "language" }).of(code) ?? code
-  } catch {
-    return code
-  }
-}
 
 /** One course a student is enrolled in: a scannable header row that expands to per-module detail. */
 const CourseEnrollmentCard: React.FC<CourseEnrollmentCardProps> = ({ enrollment, userId }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const totalModules = enrollment.course_modules.length
-  const completedModules = new Set(
-    enrollment.course_module_completions.filter((c) => c.passed).map((c) => c.course_module_id),
-  ).size
+  const completedModules = completedModuleCount(enrollment)
   const reviewCount = enrollment.course_module_completions_needing_review
 
   const title = (
@@ -83,20 +80,26 @@ const CourseEnrollmentCard: React.FC<CourseEnrollmentCardProps> = ({ enrollment,
         <Badge tone={TONE.WARNING}>{t("awaiting-review-count", { count: reviewCount })}</Badge>
       ) : null}
       <span className={spacerCss} />
-      <span className={metaCss}>{languageName(enrollment.course.language_code)}</span>
+      <span className={metaCss}>
+        {ietfLanguageTagToHumanReadableName(enrollment.course.language_code, i18n.language)}
+      </span>
     </span>
   )
 
   return (
-    <Disclosure title={title} aria-label={enrollment.course.name}>
-      <ModuleCompletionsTable enrollment={enrollment} />
-      <CourseCompletionTimeline enrollment={enrollment} />
+    <div className={cardCss} data-testid="course-status-card">
+      <Disclosure title={title} aria-label={enrollment.course.name}>
+        <ModuleCompletionsTable enrollment={enrollment} />
+        <CourseCompletionTimeline enrollment={enrollment} />
+      </Disclosure>
       <div className={linkRowCss}>
         <Link href={courseUserStatusSummaryRoute(enrollment.course_id, userId)}>
-          {t("course-status-summary")}
+          <Button variant="tertiary" size="medium">
+            {t("course-status-summary")}
+          </Button>
         </Link>
       </div>
-    </Disclosure>
+    </div>
   )
 }
 

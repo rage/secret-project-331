@@ -32,7 +32,11 @@ test("User search works", async ({ page, headless }, testInfo) => {
     })
     .getByRole("button", { name: "Details" })
     .click()
-  await page.getByText("Course: Introduction to feedback (introduction-to-feedback)").waitFor()
+  await page
+    .getByTestId("course-status-card")
+    .filter({ hasText: "Introduction to feedback" })
+    .first()
+    .waitFor()
   await page
     .getByTestId("course-status-card")
     .filter({ hasText: "Introduction to feedback" })

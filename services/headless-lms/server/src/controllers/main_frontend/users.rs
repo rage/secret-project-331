@@ -52,7 +52,15 @@ pub async fn get_user(
     let mut conn = pool.acquire().await?;
     let user = models::users::get_by_id(&mut conn, *user_id).await?;
 
-    let token = authorize(&mut conn, Act::Teach, Some(auth_user.id), Res::AnyCourse).await?;
+    // Same scope as the sibling user-details endpoints (course-enrollments, roles, suspected-cheaters)
+    // so a viewer who can open the user-details page can also read this basic account metadata.
+    let token = authorize(
+        &mut conn,
+        Act::ViewUserProgressOrDetails,
+        Some(auth_user.id),
+        Res::GlobalPermissions,
+    )
+    .await?;
     token.authorized_ok(web::Json(user))
 }
 

@@ -264,6 +264,7 @@ ORDER BY first_enrolled_at
         .collect();
     let all_course_instances =
         crate::course_instances::get_by_ids(conn, &course_instance_ids).await?;
+    let all_course_modules = crate::course_modules::get_by_course_ids(conn, &course_ids).await?;
 
     let mut course_enrollments = Vec::with_capacity(rows.len());
     for row in rows {
@@ -287,12 +288,12 @@ ORDER BY first_enrolled_at
             .iter()
             .find(|ucs| ucs.course_language_group_id == course.course_language_group_id)
             .cloned();
-        let course_modules = crate::course_modules::get_by_course_id(&mut *conn, row.course_id)
-            .await?
-            .into_iter()
+        let course_modules = all_course_modules
+            .iter()
+            .filter(|m| m.course_id == row.course_id)
             .map(|m| CourseModuleInfo {
                 id: m.id,
-                name: m.name,
+                name: m.name.clone(),
                 order_number: m.order_number,
             })
             .collect();

@@ -80,7 +80,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, 
     [],
   )
 
-  const { buttonProps } = useButton(
+  const { buttonProps, isPressed } = useButton(
     {
       "aria-label": label,
       onPress: async () => {
@@ -101,7 +101,13 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, 
 
   return (
     <>
-      <button {...buttonProps} ref={ref} className={cx(rootCss, className)} type="button">
+      <button
+        {...buttonProps}
+        ref={ref}
+        className={cx(rootCss, className)}
+        type="button"
+        data-pressed={isPressed}
+      >
         {children ?? <span aria-hidden="true">{COPY_GLYPH}</span>}
       </button>
       <VisuallyHidden>

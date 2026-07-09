@@ -1,8 +1,8 @@
 "use client"
 
-import { css } from "@emotion/css"
 import type { EChartsOption } from "echarts"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
@@ -13,18 +13,6 @@ export interface ActivityTimelineProps {
   enrollments: CourseEnrollmentInfo[]
 }
 
-const srOnlyCss = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-`
-
 interface TimelineRow {
   course: string
   event: string
@@ -34,7 +22,8 @@ interface TimelineRow {
 /**
  * Cross-course activity on a single time axis: one lane per course, with enrollment and each module
  * completion plotted, so whole-account patterns (e.g. a cluster of completions across courses) are
- * visible. Decorative for assistive tech — the same rows are exposed as a visually-hidden table.
+ * visible. Lanes are keyed by course id (course names are not unique) and labelled by name. Decorative
+ * for assistive tech — the same rows are exposed as a visually-hidden table.
  */
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const { t } = useTranslation()
@@ -42,14 +31,16 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const moduleName = (enrollment: CourseEnrollmentInfo, courseModuleId: string): string =>
     enrollment.course_modules.find((m) => m.id === courseModuleId)?.name ?? t("default-module")
 
-  const courseNames = enrollments.map((e) => e.course.name)
+  // Keyed by course id so two courses that share a display name stay on separate lanes.
+  const laneIds = enrollments.map((e) => e.course_id)
+  const nameByCourseId = new Map(enrollments.map((e) => [e.course_id, e.course.name]))
   const rows: TimelineRow[] = []
   const enrollmentData: { value: [number, string] }[] = []
   const completionData: { value: [number, string]; itemStyle: { color: string } }[] = []
 
   enrollments.forEach((enrollment) => {
     const enrolledAt = new Date(enrollment.first_enrolled_at)
-    enrollmentData.push({ value: [enrolledAt.getTime(), enrollment.course.name] })
+    enrollmentData.push({ value: [enrolledAt.getTime(), enrollment.course_id] })
     rows.push({
       course: enrollment.course.name,
       event: t("label-first-enrolled"),
@@ -58,7 +49,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     enrollment.course_module_completions.forEach((c) => {
       const when = new Date(c.completion_date)
       completionData.push({
-        value: [when.getTime(), enrollment.course.name],
+        value: [when.getTime(), enrollment.course_id],
         itemStyle: { color: c.needs_to_be_reviewed ? "#9e341f" : "#1f6964" },
       })
       rows.push({
@@ -73,7 +64,11 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
     tooltip: {},
     grid: { left: 8, right: 16, top: 16, bottom: 24, containLabel: true },
     xAxis: { type: "time" },
-    yAxis: { type: "category", data: courseNames },
+    yAxis: {
+      type: "category",
+      data: laneIds,
+      axisLabel: { formatter: (id: string) => nameByCourseId.get(id) ?? id },
+    },
     series: [
       {
         name: t("label-first-enrolled"),
@@ -93,8 +88,8 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
 
   return (
     <div>
-      <Echarts options={options} height={Math.max(140, courseNames.length * 40 + 60)} />
-      <div className={srOnlyCss}>
+      <Echarts options={options} height={Math.max(140, laneIds.length * 40 + 60)} />
+      <VisuallyHidden>
         <table>
           <caption>{t("activity-timeline-caption")}</caption>
           <thead>
@@ -114,7 +109,7 @@ const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
             ))}
           </tbody>
         </table>
-      </div>
+      </VisuallyHidden>
     </div>
   )
 }

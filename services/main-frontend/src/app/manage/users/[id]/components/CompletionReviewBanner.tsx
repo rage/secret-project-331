@@ -5,6 +5,8 @@ import { ExclamationTriangle } from "@vectopus/atlas-icons-react"
 import React from "react"
 import { useTranslation } from "react-i18next"
 
+import { awaitingReviewCount } from "../lib/completions"
+
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 
 export interface CompletionReviewBannerProps {
@@ -40,10 +42,7 @@ const CompletionReviewBanner: React.FC<CompletionReviewBannerProps> = ({
   targetId,
 }) => {
   const { t } = useTranslation()
-  const awaitingReview = enrollments.reduce(
-    (sum, e) => sum + e.course_module_completions_needing_review,
-    0,
-  )
+  const awaitingReview = awaitingReviewCount(enrollments)
 
   if (awaitingReview === 0) {
     return null

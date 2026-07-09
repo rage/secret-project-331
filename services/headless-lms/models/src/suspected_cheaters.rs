@@ -312,9 +312,16 @@ WHERE user_id = $1
     Ok(cheaters)
 }
 
-/// The cheater-duration threshold (seconds) that applies to a course: the explicitly configured
-/// threshold on the default module, or [`DEFAULT_CHEATER_THRESHOLD_SECONDS`] when none is set. Mirrors
-/// the resolution in `library/progressing.rs` so the review UI can show "completed in X vs Y".
+/// The cheater-duration threshold (seconds) shown for a course in the review UI: the explicitly
+/// configured threshold on the course's DEFAULT module, or [`DEFAULT_CHEATER_THRESHOLD_SECONDS`] when
+/// none is set.
+///
+/// Known limitation: flagging in `library/progressing.rs` uses the threshold of the *completed*
+/// module, so for a non-default module that has its own configured threshold this default-module
+/// value can differ from the one that actually triggered the flag. The `suspected_cheaters` row does
+/// not record which module triggered it, so this is a best-effort display figure — correct for the
+/// common case where detection is governed by the default module. A fully accurate value would
+/// require persisting the applied threshold on the flag row.
 pub async fn get_applicable_threshold_seconds(
     conn: &mut PgConnection,
     course_id: Uuid,

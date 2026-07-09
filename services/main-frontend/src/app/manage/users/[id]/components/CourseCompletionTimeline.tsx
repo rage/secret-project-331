@@ -3,6 +3,7 @@
 import { css } from "@emotion/css"
 import type { EChartsOption } from "echarts"
 import React from "react"
+import { VisuallyHidden } from "react-aria"
 import { useTranslation } from "react-i18next"
 
 import Echarts from "@/app/manage/courses/[id]/stats/Echarts"
@@ -15,18 +16,6 @@ export interface CourseCompletionTimelineProps {
 
 const wrapperCss = css`
   margin-top: 1rem;
-`
-
-const srOnlyCss = css`
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
 `
 
 /**
@@ -69,7 +58,7 @@ const CourseCompletionTimeline: React.FC<CourseCompletionTimelineProps> = ({ enr
   return (
     <div className={wrapperCss}>
       <Echarts options={options} height={120} />
-      <div className={srOnlyCss}>
+      <VisuallyHidden>
         <table>
           <caption>{t("completion-timeline-caption")}</caption>
           <thead>
@@ -91,7 +80,7 @@ const CourseCompletionTimeline: React.FC<CourseCompletionTimelineProps> = ({ enr
             ))}
           </tbody>
         </table>
-      </div>
+      </VisuallyHidden>
     </div>
   )
 }

@@ -5,8 +5,10 @@
 // required `undefined` arg). Those gates live in bin/git-run-branch-ready-checks
 // (lint-staged.branch-ready.config.js) and in CI (.github/workflows/code-style.yml + tests.yml).
 export default {
-  "*.{js,jsx,ts,tsx}": "oxfmt",
-  "*.{md,json,scss,css}": "oxfmt",
+  // --no-error-on-unmatched-pattern: staging only oxfmt-ignored files (e.g. generated *.guard.ts)
+  // otherwise makes oxfmt exit non-zero with "Expected at least one target file".
+  "*.{js,jsx,ts,tsx}": "oxfmt --no-error-on-unmatched-pattern",
+  "*.{md,json,scss,css}": "oxfmt --no-error-on-unmatched-pattern",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",
   ],

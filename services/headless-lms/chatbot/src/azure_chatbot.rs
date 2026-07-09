@@ -155,6 +155,8 @@ pub struct Response {
 pub struct ResponseError {
     pub code: Option<String>,
     pub message: Option<String>,
+    #[serde(rename = "type")]
+    pub error_type: Option<String>,
     pub param: Option<String>,
 }
 
@@ -162,7 +164,8 @@ impl std::fmt::Display for ResponseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "{} (code: {}, param: {})",
+            "{}: {} (code: {}, param: {})",
+            self.error_type.as_deref().unwrap_or("Error"),
             self.message.as_deref().unwrap_or("unknown error"),
             self.code.as_deref().unwrap_or("none"),
             self.param.as_deref().unwrap_or("none")
@@ -627,6 +630,7 @@ pub enum ChatbotChatStreamEvent {
     Done,
     Error {
         message: String,
+        error: Option<String>,
     },
     /// If a ChatbotChatStreamEvent has been constructed from a StreamItem etc.,
     /// not all variants are valid ChatbotChatStreamEvents and shouldn't be sent to
@@ -1280,11 +1284,35 @@ pub async fn make_request_and_create_stream<'a>(
 }
 
 /// Creates a ChatbotChatStreamEvent::Error from the message and returns it in string form.
-fn error_event_string_from_message(message: &str) -> Result<String, serde_json::Error> {
+/// Either message or error should be Some.
+/// If message is Some, use it as the StreamEvent message. Else, use ChatbotError's message.
+/// error is either a ResponseError received from Azure and stored in ChatbotError, or
+/// ChatbotError's error message, or None.
+fn error_event_string_from_message(
+    message: Option<&str>,
+    error: Option<&ChatbotError>,
+) -> ChatbotResult<String> {
+    let (message, error): (&str, Option<String>) = if let Some(e) = error {
+        let e_msg = if let Some(s) = e.azure_source() {
+            format!("{s:?}")
+        } else {
+            e.message().to_string()
+        };
+        (message.unwrap_or(e.message()), Some(e_msg))
+    } else {
+        (
+            message.ok_or(chatbot_err!(
+                Other,
+                "Called error_event_string_from_message with incorrect arguments"
+            ))?,
+            None,
+        )
+    };
     let err = ChatbotChatStreamEvent::Error {
         message: message.to_string(),
+        error,
     };
-    serde_json::to_string(&err)
+    serde_json::to_string(&err).map_err(ChatbotError::from)
 }
 
 /// Send and parse a Chatbot message and response and stream it to the user.
@@ -1335,7 +1363,7 @@ pub async fn send_chat_request_and_parse_stream(
             max_iterations_left -= 1;
             if max_iterations_left == 0 {
                 error!("Maximum tool call iterations exceeded");
-                let event_string = error_event_string_from_message("Maximum tool call iterations exceeded. The LLM may be stuck in a loop.")?;
+                let event_string = error_event_string_from_message(Some("Maximum tool call iterations exceeded. The LLM may be stuck in a loop."), None)?;
                 yield Bytes::from(event_string);
                 yield Bytes::from("\n");
                 done.store(true, atomic::Ordering::Relaxed);
@@ -1345,7 +1373,7 @@ pub async fn send_chat_request_and_parse_stream(
             let lines = match make_request_and_create_stream(chat_request.clone(), &app_config).await {
                 Ok(val) => val,
                 Err(error) => {
-                    let event_string = error_event_string_from_message(error.message())?;
+                    let event_string = error_event_string_from_message(None, Some(&error))?;
                     yield Bytes::from(event_string);
                     yield Bytes::from("\n");
                     done.store(true, atomic::Ordering::Relaxed);
@@ -1400,7 +1428,7 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.lock().await, e);
-                        let event_string = error_event_string_from_message(e.message())?;
+                        let event_string = error_event_string_from_message(None, Some(&e))?;
                         yield Bytes::from(event_string);
                         yield Bytes::from("\n");
                         done.store(true, atomic::Ordering::Relaxed);
@@ -1463,7 +1491,7 @@ pub async fn send_chat_request_and_parse_stream(
                     Ok(val) => val,
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.to_string(), e);
-                        let event_string = error_event_string_from_message(e.message())?;
+                        let event_string = error_event_string_from_message(None, Some(&e))?;
                         yield Bytes::from(event_string);
                         yield Bytes::from("\n");
                         done.store(true, atomic::Ordering::Relaxed);
@@ -1517,7 +1545,7 @@ pub async fn send_chat_request_and_parse_stream(
         }
         if !done.load(atomic::Ordering::Relaxed) {
             let id = response_id.lock().await;
-            let event_string = error_event_string_from_message(format!("Stream ended unexpectedly. Response id: {id}").as_str())?;
+            let event_string = error_event_string_from_message(Some(format!("Stream ended unexpectedly. Response id: {id}").as_str()), None)?;
             yield Bytes::from(event_string);
             yield Bytes::from("\n");
         }

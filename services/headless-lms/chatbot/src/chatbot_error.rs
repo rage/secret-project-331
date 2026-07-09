@@ -12,6 +12,7 @@ use tracing_error::SpanTrace;
 
 use headless_lms_base::error::backend_error::BackendError;
 
+use crate::azure_chatbot::ResponseError as AzureResponseError;
 use crate::search_filter::SearchFilterError;
 
 /**
@@ -104,6 +105,7 @@ pub struct ChatbotError {
     backtrace: Box<Backtrace>,
     /// Source location where the error was raised.
     location: Option<&'static Location<'static>>,
+    azure_source: Option<AzureResponseError>,
 }
 
 impl std::error::Error for ChatbotError {
@@ -165,7 +167,18 @@ impl BackendError for ChatbotError {
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
             location,
+            azure_source: None,
         }
+    }
+}
+
+impl ChatbotError {
+    pub fn azure_source(&self) -> &Option<AzureResponseError> {
+        &self.azure_source
+    }
+
+    pub fn add_azure_source(&mut self, err: AzureResponseError) -> () {
+        self.azure_source = Some(err);
     }
 }
 

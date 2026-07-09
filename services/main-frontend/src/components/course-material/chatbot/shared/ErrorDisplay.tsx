@@ -109,6 +109,7 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
           <span
             className={css`
               font-weight: bold;
+              margin-right: 0.5rem;
             `}
           >
             {formattedError.boldPart}

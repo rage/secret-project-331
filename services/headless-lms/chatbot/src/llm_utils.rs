@@ -3,7 +3,7 @@ use secrecy::{ExposeSecret, SecretString};
 use crate::{
     azure_chatbot::{
         InputItem, LLMRequest, LLMRequestParams, MistralParams, NonThinkingParams, OutputItem,
-        Reasoning, ReasoningOutput, SummaryType, ThinkingParams,
+        Reasoning, ReasoningOutput, ResponseError, ResponseOutput, SummaryType, ThinkingParams,
     },
     chatbot_error::ChatbotResult,
     prelude::*,
@@ -687,18 +687,24 @@ pub async fn make_streaming_llm_request(
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await?;
-        error!(
-            status = %status,
-            error = %error_text,
-            "Error calling streaming LLM API"
-        );
-        return Err(chatbot_err!(
+        let azure_error: Option<ResponseError> =
+            serde_json::from_str::<ResponseOutput>(&error_text)?.error;
+        let mut error = chatbot_err!(
             FailedAzureResponse,
             format!(
                 "Error calling LLM API: Status: {}. Error: {}",
                 status, error_text
             )
-        ));
+        );
+        if let Some(e) = azure_error {
+            error.add_azure_source(e); // todo does it work
+        }
+        error!(
+            status = %status,
+            error = %error_text,
+            "Error calling streaming LLM API"
+        );
+        return Err(error);
     }
 
     debug!("Successfully initiated streaming response");

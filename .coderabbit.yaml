@@ -37,7 +37,7 @@ reviews:
 
     - path: "**/*.tsx"
       instructions: >
-        Make sure to use the `useTranslation` hook for all text that is visible to the user.
+        Translate all user-facing text (button and link labels, headings, paragraphs, placeholders, aria-labels, tooltips, error and success messages) with the `useTranslation` hook and its `t` function. Never hardcode user-visible strings.
 
         If a component uses colors, use colors from the theme if possible. Example: import { baseTheme } from "@/shared-module/common/styles" ... background: ${baseTheme.colors.clear[100]};
 
@@ -56,8 +56,6 @@ reviews:
         For calling the React hooks useMemo and useEffect, don't use the React. prefix.
 
         If a component uses fonts, use fonts from the theme if possible. Example: import { primaryFont } from "@/shared-module/common/styles" ... font-family: ${primaryFont};
-
-        To silence an i18next/no-literal-string false positive (CSS-in-JS strings, magic values), prefer moving the value to a SCREAMING_CASE constant, which is exempt from the rule. Fall back to a single-line `// eslint-disable-next-line i18next/no-literal-string` only when a constant does not fit. Never use `eslint-disable` / `eslint-enable` block pairs.
 
     - path: "services/main-frontend/src/app/**/*.tsx"
       instructions: >

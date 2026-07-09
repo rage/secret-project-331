@@ -24,15 +24,24 @@ const messageStyle = (background: string, border: string, color: string) => css`
   align-items: center;
 `
 
+export const chartCaptionStyle = css`
+  margin: 0.5rem 0 0;
+  font-family: ${primaryFont};
+  font-size: 0.875rem;
+  color: ${baseTheme.colors.gray[600]};
+  text-align: center;
+`
+
 interface ChartPreviewProps {
   spec: string
   height: number
   caption?: string
+  showCaption?: boolean
 }
 
-const ChartPreview: React.FC<ChartPreviewProps> = ({ spec, height, caption }) => {
+const ChartPreview: React.FC<ChartPreviewProps> = ({ spec, height, caption, showCaption }) => {
   const { t } = useTranslation()
-  const containerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLElement>(null)
   const [width, setWidth] = useState<number | null>(null)
 
   useEffect(() => {
@@ -84,7 +93,12 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({ spec, height, caption }) =>
       : null
 
   return (
-    <div ref={containerRef}>
+    <figure
+      ref={containerRef}
+      className={css`
+        margin: 0;
+      `}
+    >
       {!parsedSpec && (
         <div
           className={messageStyle(
@@ -118,7 +132,10 @@ const ChartPreview: React.FC<ChartPreviewProps> = ({ spec, height, caption }) =>
           <VegaLite spec={responsiveSpec} actions={false} renderer="svg" />
         </div>
       )}
-    </div>
+      {showCaption && caption?.trim() && (
+        <figcaption className={chartCaptionStyle}>{caption}</figcaption>
+      )}
+    </figure>
   )
 }
 

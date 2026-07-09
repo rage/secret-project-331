@@ -15,7 +15,7 @@ import React, { useEffect, useState } from "react"
 import BlockWrapper from "../BlockWrapper"
 
 import ChartBlockEditModal from "./ChartBlockEditModal"
-import ChartPreview from "./ChartPreview"
+import ChartPreview, { chartCaptionStyle } from "./ChartPreview"
 
 import { ChartBlockAttributes } from "."
 
@@ -133,6 +133,7 @@ const ChartBlockEditor: React.FC<React.PropsWithChildren<BlockEditProps<ChartBlo
           >
             <ChartPreview spec={spec} height={height} caption={caption} />
           </ResizableBox>
+          {caption?.trim() && <div className={chartCaptionStyle}>{caption}</div>}
         </>
       )}
       {modal}

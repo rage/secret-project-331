@@ -138,6 +138,15 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
   const handleSpecChange = (value: string | undefined) => {
     const next = value ?? ""
     updateSpec(next)
+    // Caption and the spec's `description` mirror each other; last edit wins.
+    try {
+      const description = JSON.parse(next)?.description
+      if (typeof description === "string" && description.trim() && description !== caption) {
+        setAttributes({ caption: description })
+      }
+    } catch {
+      // Mid-edit invalid JSON; the caption syncs on the next valid state.
+    }
     if (debounceRef.current) {
       clearTimeout(debounceRef.current)
     }
@@ -385,7 +394,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               label={t("caption")}
               required
               value={caption}
-              onChangeByValue={(value) => setAttributes({ caption: value })}
+              onChangeByValue={handleCaptionChange}
               placeholder={t("describe-the-chart")}
               error={caption.trim() ? undefined : t("required")}
             />
@@ -418,7 +427,7 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
               overflow: auto;
             `}
           >
-            <ChartPreview spec={spec} height={height} caption={caption} />
+            <ChartPreview spec={spec} height={height} caption={caption} showCaption />
           </div>
         </div>
       </div>

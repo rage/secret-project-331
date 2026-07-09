@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n      SELECT *\n      FROM suspected_cheaters\n      WHERE user_id = $1\n      AND deleted_at IS NULL;\n    ",
+  "query": "\nSELECT *\nFROM suspected_cheaters\nWHERE user_id = $1\n  AND deleted_at IS NULL\n        ",
   "describe": {
     "columns": [
       {
@@ -131,5 +131,5 @@
       false
     ]
   },
-  "hash": "5969e87bc6e61db72eb2cdbf95a49609ec6ac4fe54a9539728eb54d564d89a19"
+  "hash": "01829e3b1a6ef8f932efd3b1560482c61f48dc98d5661e20a2f69bc114209acb"
 }

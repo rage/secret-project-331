@@ -639,11 +639,7 @@ export type CourseDesignerPlanStageWithTasks = CourseDesignerPlanStage & {
 }
 
 export type CourseDesignerPlanStatus =
-  | "Draft"
-  | "Scheduling"
-  | "InProgress"
-  | "Completed"
-  | "Archived"
+  "Draft" | "Scheduling" | "InProgress" | "Completed" | "Archived"
 
 export type CourseDesignerPlanSummary = {
   active_stage?: null | CourseDesignerStage
@@ -674,11 +670,7 @@ export type CourseDesignerScheduleSuggestionResponse = {
 }
 
 export type CourseDesignerStage =
-  | "Analysis"
-  | "Design"
-  | "Development"
-  | "Implementation"
-  | "Evaluation"
+  "Analysis" | "Design" | "Development" | "Implementation" | "Evaluation"
 
 /**
  * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
@@ -694,6 +686,11 @@ export type CourseEnrollmentInfo = {
   course_instances: Array<CourseInstance>
   course_module_completions: Array<CourseModuleCompletion>
   course_module_completions_needing_review: number
+  /**
+   * All non-deleted modules of the course, so per-module completions can be named and the total
+   * module count is known. Ordered by `order_number`.
+   */
+  course_modules: Array<CourseModuleInfo>
   first_enrolled_at: string
   is_current: boolean
   user_course_settings?: null | UserCourseSettings
@@ -850,6 +847,17 @@ export type CourseModuleCompletionWithRegistrationInfo = {
    * ID of the user for the completion.
    */
   user_id: string
+}
+
+/**
+ * Slim course-module descriptor used to give the frontend a module's name and ordering so it can
+ * label per-module completions and show "X of Y modules" without a separate course-structure fetch.
+ * A default (base) module has `name = None`.
+ */
+export type CourseModuleInfo = {
+  id: string
+  name?: string | null
+  order_number: number
 }
 
 /**
@@ -1014,10 +1022,7 @@ export type EmailTemplateNew = {
 }
 
 export type EmailTemplateType =
-  | "reset_password_email"
-  | "delete_user_email"
-  | "confirm_email_code"
-  | "generic"
+  "reset_password_email" | "delete_user_email" | "confirm_email_code" | "generic"
 
 export type EventInfo = {
   count?: number | null
@@ -2035,6 +2040,16 @@ export type ReviewingStage =
   | "ReviewedAndLocked"
   | "Locked"
 
+export type Role = {
+  course_id?: string | null
+  course_instance_id?: string | null
+  exam_id?: string | null
+  is_global: boolean
+  organization_id?: string | null
+  role: UserRole
+  user_id: string
+}
+
 export type RoleDomain =
   | {
       tag: "Global"
@@ -2125,11 +2140,7 @@ export type SystemHealthStatus = {
 }
 
 export type TeacherDecisionType =
-  | "FullPoints"
-  | "ZeroPoints"
-  | "CustomPoints"
-  | "SuspectedPlagiarism"
-  | "RejectAndReset"
+  "FullPoints" | "ZeroPoints" | "CustomPoints" | "SuspectedPlagiarism" | "RejectAndReset"
 
 export type TeacherGradingDecision = {
   created_at: string
@@ -2189,6 +2200,15 @@ export type UpdateCourseDesignerStageTaskRequest = {
  */
 export type UploadResult = {
   url: string
+}
+
+export type User = {
+  created_at: string
+  deleted_at?: string | null
+  email_domain?: string | null
+  id: string
+  updated_at: string
+  upstream_id?: number | null
 }
 
 export type UserChapterLockingStatus = {
@@ -2284,8 +2304,7 @@ export type UserInfoPayload = {
 }
 
 export type UserPointsUpdateStrategy =
-  | "CanAddPointsButCannotRemovePoints"
-  | "CanAddPointsAndCanRemovePoints"
+  "CanAddPointsButCannotRemovePoints" | "CanAddPointsAndCanRemovePoints"
 
 export type UserResearchConsent = {
   created_at: string
@@ -2305,6 +2324,27 @@ export type UserRole =
   | "MaterialViewer"
   | "TeachingAndLearningServices"
   | "StatsViewer"
+
+/**
+ * A user's suspected-cheater record in one course, paired with that course's applicable duration
+ * threshold, for the cross-course "Completion review" list on the user-details page. Read-only.
+ */
+export type UserSuspectedCheaterInfo = {
+  course_id: string
+  /**
+   * When the student was first flagged in this course (the record's `created_at`; unchanged on
+   * re-flag). Not a review timestamp.
+   */
+  first_flagged_at: string
+  status: SuspectedCheaterStatus
+  /**
+   * The duration threshold (seconds) that applies to this course; the student was flagged for
+   * completing faster than this.
+   */
+  threshold_seconds: number
+  total_duration_seconds?: number | null
+  total_points: number
+}
 
 export type UserWithModuleCompletions = {
   completed_modules: Array<CourseModuleCompletionWithRegistrationInfo>
@@ -8922,8 +8962,10 @@ export type GetUserResponses = {
   /**
    * User
    */
-  200: unknown
+  200: User
 }
+
+export type GetUserResponse = GetUserResponses[keyof GetUserResponses]
 
 export type GetUserCourseEnrollmentsData = {
   body?: never
@@ -8946,6 +8988,49 @@ export type GetUserCourseEnrollmentsResponses = {
 
 export type GetUserCourseEnrollmentsResponse =
   GetUserCourseEnrollmentsResponses[keyof GetUserCourseEnrollmentsResponses]
+
+export type GetUserRolesData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/roles"
+}
+
+export type GetUserRolesResponses = {
+  /**
+   * User roles across scopes
+   */
+  200: Array<Role>
+}
+
+export type GetUserRolesResponse = GetUserRolesResponses[keyof GetUserRolesResponses]
+
+export type GetUserSuspectedCheatersData = {
+  body?: never
+  path: {
+    /**
+     * User id
+     */
+    user_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/users/{user_id}/suspected-cheaters"
+}
+
+export type GetUserSuspectedCheatersResponses = {
+  /**
+   * User suspected-cheater records across courses
+   */
+  200: Array<UserSuspectedCheaterInfo>
+}
+
+export type GetUserSuspectedCheatersResponse =
+  GetUserSuspectedCheatersResponses[keyof GetUserSuspectedCheatersResponses]
 
 export type GetUserResetExerciseLogsData = {
   body?: never

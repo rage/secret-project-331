@@ -59,6 +59,22 @@ pub struct SuspectedCheaters {
     pub status: SuspectedCheaterStatus,
 }
 
+/// A user's suspected-cheater record in one course, paired with that course's applicable duration
+/// threshold, for the cross-course "Completion review" list on the user-details page. Read-only.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct UserSuspectedCheaterInfo {
+    pub course_id: Uuid,
+    pub status: SuspectedCheaterStatus,
+    pub total_duration_seconds: Option<i32>,
+    pub total_points: i32,
+    /// When the student was first flagged in this course (the record's `created_at`; unchanged on
+    /// re-flag). Not a review timestamp.
+    pub first_flagged_at: DateTime<Utc>,
+    /// The duration threshold (seconds) that applies to this course; the student was flagged for
+    /// completing faster than this.
+    pub threshold_seconds: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, ToSchema)]
 
 pub struct ThresholdData {
@@ -275,23 +291,62 @@ RETURNING *
     Ok(cheater)
 }
 
-pub async fn get_suspected_cheaters_by_id(
+/// All non-deleted suspected-cheater records for a user, across every course. A user can be flagged
+/// in more than one course, so this returns a list (never `fetch_one`).
+pub async fn get_all_by_user_id(
     conn: &mut PgConnection,
-    id: Uuid,
-) -> ModelResult<SuspectedCheaters> {
+    user_id: Uuid,
+) -> ModelResult<Vec<SuspectedCheaters>> {
     let cheaters = sqlx::query_as!(
         SuspectedCheaters,
-        "
-      SELECT *
-      FROM suspected_cheaters
-      WHERE user_id = $1
-      AND deleted_at IS NULL;
-    ",
-        id
+        r#"
+SELECT *
+FROM suspected_cheaters
+WHERE user_id = $1
+  AND deleted_at IS NULL
+        "#,
+        user_id
     )
-    .fetch_one(conn)
+    .fetch_all(conn)
     .await?;
     Ok(cheaters)
+}
+
+/// The cheater-duration threshold (seconds) that applies to a course: the explicitly configured
+/// threshold on the default module, or [`DEFAULT_CHEATER_THRESHOLD_SECONDS`] when none is set. Mirrors
+/// the resolution in `library/progressing.rs` so the review UI can show "completed in X vs Y".
+pub async fn get_applicable_threshold_seconds(
+    conn: &mut PgConnection,
+    course_id: Uuid,
+) -> ModelResult<i32> {
+    let default_module = course_modules::get_default_by_course_id(conn, course_id).await?;
+    let threshold = get_thresholds_by_module_id(conn, default_module.id)
+        .await?
+        .map(|t| t.duration_seconds)
+        .unwrap_or(DEFAULT_CHEATER_THRESHOLD_SECONDS);
+    Ok(threshold)
+}
+
+/// Every course where the user has a (non-deleted) suspected-cheater record, each paired with the
+/// course's applicable duration threshold. Cross-course, read-only view for the user-details page.
+pub async fn get_suspected_cheater_info_for_user(
+    conn: &mut PgConnection,
+    user_id: Uuid,
+) -> ModelResult<Vec<UserSuspectedCheaterInfo>> {
+    let rows = get_all_by_user_id(conn, user_id).await?;
+    let mut info = Vec::with_capacity(rows.len());
+    for row in rows {
+        let threshold_seconds = get_applicable_threshold_seconds(conn, row.course_id).await?;
+        info.push(UserSuspectedCheaterInfo {
+            course_id: row.course_id,
+            status: row.status,
+            total_duration_seconds: row.total_duration_seconds,
+            total_points: row.total_points,
+            first_flagged_at: row.created_at,
+            threshold_seconds,
+        });
+    }
+    Ok(info)
 }
 
 pub async fn get_all_suspected_cheaters_in_course(

@@ -710,6 +710,20 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
 })
 
 /**
+ * Slim course-module descriptor used to give the frontend a module's name and ordering so it can
+ * label per-module completions and show "X of Y modules" without a separate course-structure fetch.
+ * A default (base) module has `name = None`.
+ */
+export const zCourseModuleInfo = z.object({
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+})
+
+/**
  * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
  * render and validate the threshold form. Computed server-side so the exemption rule and the
  * minimum/default values live in one place instead of being duplicated in the frontend.
@@ -2413,6 +2427,19 @@ export const zUploadResult = z.object({
   url: z.string(),
 })
 
+export const zUser = z.object({
+  created_at: z.iso.datetime(),
+  deleted_at: z.iso.datetime().nullish(),
+  email_domain: z.string().nullish(),
+  id: z.uuid(),
+  updated_at: z.iso.datetime(),
+  upstream_id: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+})
+
 export const zUserChapterLockingStatus = z.object({
   chapter_id: z.uuid(),
   course_id: z.uuid(),
@@ -2506,6 +2533,7 @@ export const zCourseEnrollmentInfo = z.object({
     .int()
     .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
     .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  course_modules: z.array(zCourseModuleInfo),
   first_enrolled_at: z.iso.datetime(),
   is_current: z.boolean(),
   user_course_settings: zUserCourseSettings.nullish(),
@@ -2695,6 +2723,16 @@ export const zPendingRole = z.object({
   user_email: z.string(),
 })
 
+export const zRole = z.object({
+  course_id: z.uuid().nullish(),
+  course_instance_id: z.uuid().nullish(),
+  exam_id: z.uuid().nullish(),
+  is_global: z.boolean(),
+  organization_id: z.uuid().nullish(),
+  role: zUserRole,
+  user_id: z.uuid(),
+})
+
 export const zRoleInfo = z.object({
   domain: zRoleDomain,
   email: z.string(),
@@ -2707,6 +2745,29 @@ export const zRoleUser = z.object({
   last_name: z.string().nullish(),
   role: zUserRole,
   user_id: z.uuid(),
+})
+
+/**
+ * A user's suspected-cheater record in one course, paired with that course's applicable duration
+ * threshold, for the cross-course "Completion review" list on the user-details page. Read-only.
+ */
+export const zUserSuspectedCheaterInfo = z.object({
+  course_id: z.uuid(),
+  first_flagged_at: z.iso.datetime(),
+  status: zSuspectedCheaterStatus,
+  threshold_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  total_duration_seconds: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" })
+    .nullish(),
+  total_points: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zUserWithModuleCompletions = z.object({
@@ -5586,6 +5647,11 @@ export const zGetUserPath = z.object({
   user_id: z.uuid(),
 })
 
+/**
+ * User
+ */
+export const zGetUserResponse = zUser
+
 export const zGetUserCourseEnrollmentsPath = z.object({
   user_id: z.uuid(),
 })
@@ -5594,6 +5660,24 @@ export const zGetUserCourseEnrollmentsPath = z.object({
  * User course enrollments
  */
 export const zGetUserCourseEnrollmentsResponse = zCourseEnrollmentsInfo
+
+export const zGetUserRolesPath = z.object({
+  user_id: z.uuid(),
+})
+
+/**
+ * User roles across scopes
+ */
+export const zGetUserRolesResponse = z.array(zRole)
+
+export const zGetUserSuspectedCheatersPath = z.object({
+  user_id: z.uuid(),
+})
+
+/**
+ * User suspected-cheater records across courses
+ */
+export const zGetUserSuspectedCheatersResponse = z.array(zUserSuspectedCheaterInfo)
 
 export const zGetUserResetExerciseLogsPath = z.object({
   user_id: z.uuid(),

@@ -10621,7 +10621,9 @@
             "description": "User",
             "content": {
               "application/json": {
-                "schema": {}
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
               }
             }
           }
@@ -10652,6 +10654,74 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/CourseEnrollmentsInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/roles": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/roles` - All roles held by a user, across scopes. Teacher/admin\n(global) view; used to label the account (e.g. staff/teacher) on the user-details page.",
+        "operationId": "getUserRoles",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User roles across scopes",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Role"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v0/main-frontend/users/{user_id}/suspected-cheaters": {
+      "get": {
+        "tags": ["users"],
+        "summary": "\nGET `/api/v0/main-frontend/users/:id/suspected-cheaters` - Cross-course suspected-cheater records for\na user, each paired with the course's applicable duration threshold. Teacher/admin (global) view;\nread-only (confirm/dismiss happen on the per-course cheaters page).",
+        "operationId": "getUserSuspectedCheaters",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "User id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User suspected-cheater records across courses",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/UserSuspectedCheaterInfo"
+                  }
                 }
               }
             }
@@ -12883,6 +12953,7 @@
           "course_id",
           "course",
           "course_instances",
+          "course_modules",
           "course_module_completions",
           "course_module_completions_needing_review",
           "first_enrolled_at",
@@ -12911,6 +12982,13 @@
           "course_module_completions_needing_review": {
             "type": "integer",
             "format": "int32"
+          },
+          "course_modules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CourseModuleInfo"
+            },
+            "description": "All non-deleted modules of the course, so per-module completions can be named and the total\nmodule count is known. Ordered by `order_number`."
           },
           "first_enrolled_at": {
             "type": "string",
@@ -13336,6 +13414,24 @@
             "type": "string",
             "format": "uuid",
             "description": "ID of the user for the completion."
+          }
+        }
+      },
+      "CourseModuleInfo": {
+        "type": "object",
+        "description": "Slim course-module descriptor used to give the frontend a module's name and ordering so it can\nlabel per-module completions and show \"X of Y modules\" without a separate course-structure fetch.\nA default (base) module has `name = None`.",
+        "required": ["id", "order_number"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": ["string", "null"]
+          },
+          "order_number": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },
@@ -17232,6 +17328,38 @@
           "Locked"
         ]
       },
+      "Role": {
+        "type": "object",
+        "required": ["is_global", "role", "user_id"],
+        "properties": {
+          "course_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "course_instance_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "exam_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "is_global": {
+            "type": "boolean"
+          },
+          "organization_id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "role": {
+            "$ref": "#/components/schemas/UserRole"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
       "RoleDomain": {
         "oneOf": [
           {
@@ -17671,6 +17799,35 @@
           }
         }
       },
+      "User": {
+        "type": "object",
+        "required": ["id", "created_at", "updated_at"],
+        "properties": {
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deleted_at": {
+            "type": ["string", "null"],
+            "format": "date-time"
+          },
+          "email_domain": {
+            "type": ["string", "null"]
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "upstream_id": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          }
+        }
+      },
       "UserChapterLockingStatus": {
         "type": "object",
         "required": [
@@ -18056,6 +18213,44 @@
           "TeachingAndLearningServices",
           "StatsViewer"
         ]
+      },
+      "UserSuspectedCheaterInfo": {
+        "type": "object",
+        "description": "A user's suspected-cheater record in one course, paired with that course's applicable duration\nthreshold, for the cross-course \"Completion review\" list on the user-details page. Read-only.",
+        "required": [
+          "course_id",
+          "status",
+          "total_points",
+          "first_flagged_at",
+          "threshold_seconds"
+        ],
+        "properties": {
+          "course_id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "first_flagged_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the student was first flagged in this course (the record's `created_at`; unchanged on\nre-flag). Not a review timestamp."
+          },
+          "status": {
+            "$ref": "#/components/schemas/SuspectedCheaterStatus"
+          },
+          "threshold_seconds": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The duration threshold (seconds) that applies to this course; the student was flagged for\ncompleting faster than this."
+          },
+          "total_duration_seconds": {
+            "type": ["integer", "null"],
+            "format": "int32"
+          },
+          "total_points": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
       },
       "UserWithModuleCompletions": {
         "type": "object",

@@ -25,6 +25,16 @@ pub struct CourseInstanceEnrollmentsInfo {
     pub course_module_completions: Vec<CourseModuleCompletion>,
 }
 
+/// Slim course-module descriptor used to give the frontend a module's name and ordering so it can
+/// label per-module completions and show "X of Y modules" without a separate course-structure fetch.
+/// A default (base) module has `name = None`.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct CourseModuleInfo {
+    pub id: Uuid,
+    pub name: Option<String>,
+    pub order_number: i32,
+}
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 
 pub struct CourseEnrollmentInfo {
@@ -32,6 +42,9 @@ pub struct CourseEnrollmentInfo {
     pub course: Course,
     pub course_instances: Vec<CourseInstance>,
     pub user_course_settings: Option<UserCourseSettings>,
+    /// All non-deleted modules of the course, so per-module completions can be named and the total
+    /// module count is known. Ordered by `order_number`.
+    pub course_modules: Vec<CourseModuleInfo>,
     pub course_module_completions: Vec<CourseModuleCompletion>,
     pub course_module_completions_needing_review: i32,
     pub first_enrolled_at: DateTime<Utc>,
@@ -274,6 +287,15 @@ ORDER BY first_enrolled_at
             .iter()
             .find(|ucs| ucs.course_language_group_id == course.course_language_group_id)
             .cloned();
+        let course_modules = crate::course_modules::get_by_course_id(&mut *conn, row.course_id)
+            .await?
+            .into_iter()
+            .map(|m| CourseModuleInfo {
+                id: m.id,
+                name: m.name,
+                order_number: m.order_number,
+            })
+            .collect();
         let course_module_completions = all_course_module_completions
             .iter()
             .filter(|cmc| cmc.course_id == row.course_id)
@@ -301,6 +323,7 @@ ORDER BY first_enrolled_at
             course,
             course_instances,
             user_course_settings: user_course_settings_for_course,
+            course_modules,
             course_module_completions,
             course_module_completions_needing_review,
             first_enrolled_at,

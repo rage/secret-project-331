@@ -132,7 +132,14 @@ const server = createServer(async (req, res) => {
       for (const [k, v] of Object.entries(IFRAME_HEADERS)) {
         headers.set(k, v)
       }
-      res.writeHead(response.status, Object.fromEntries(headers.entries()))
+      const outHeaders = Object.fromEntries(headers.entries())
+      // Headers.entries() comma-joins duplicate headers, which corrupts multiple Set-Cookie
+      // values; restore them as an array so Node emits a separate Set-Cookie line per cookie.
+      const setCookies = headers.getSetCookie()
+      if (setCookies.length > 0) {
+        outHeaders["set-cookie"] = setCookies
+      }
+      res.writeHead(response.status, outHeaders)
       if (response.body) {
         Readable.fromWeb(response.body).pipe(res)
       } else {

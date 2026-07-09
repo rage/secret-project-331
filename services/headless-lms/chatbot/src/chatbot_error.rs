@@ -36,6 +36,9 @@ pub enum ChatbotErrorType {
     DeserializationError,
     AzureAISearchFilterError,
     StreamingError,
+    ContentCleaning,
+    AzureRequestBuildError,
+    FailedAzureResponse,
     SisuDescriptionError,
 }
 

@@ -523,7 +523,7 @@ pub struct LLMResponse {
 
 /// Builds common headers for LLM requests
 #[instrument(skip(api_key), fields(api_key_length = api_key.expose_secret().len()))]
-pub fn build_llm_headers(api_key: &SecretString) -> anyhow::Result<HeaderMap> {
+pub fn build_llm_headers(api_key: &SecretString) -> ChatbotResult<HeaderMap> {
     trace!("Building LLM request headers");
     let mut headers = HeaderMap::new();
     headers.insert(
@@ -531,14 +531,14 @@ pub fn build_llm_headers(api_key: &SecretString) -> anyhow::Result<HeaderMap> {
         // Exposed only here, at the point the header value is constructed.
         api_key.expose_secret().parse().map_err(|_e| {
             error!("Failed to parse API key");
-            anyhow::anyhow!("Invalid API key")
+            chatbot_err!(AzureRequestBuildError, "Invalid API key")
         })?,
     );
     headers.insert(
         "content-type",
         "application/json".parse().map_err(|_e| {
             error!("Failed to parse content-type header");
-            anyhow::anyhow!("Internal error")
+            chatbot_err!(AzureRequestBuildError, "Internal error")
         })?,
     );
     trace!("Successfully built headers");
@@ -578,7 +578,7 @@ async fn make_llm_request(
     chat_request: LLMRequest,
     endpoint: &url::Url,
     api_key: &SecretString,
-) -> anyhow::Result<LLMResponse> {
+) -> ChatbotResult<LLMResponse> {
     debug!(
         "Preparing LLM request with {} messages",
         chat_request.input.len()
@@ -607,7 +607,7 @@ async fn make_llm_request(
 
 /// Process a non-streaming LLM response
 #[instrument(skip(response), fields(status = %response.status()))]
-async fn process_llm_response(response: Response) -> anyhow::Result<LLMResponse> {
+async fn process_llm_response(response: Response) -> ChatbotResult<LLMResponse> {
     if !response.status().is_success() {
         let status = response.status();
         let error_text = response.text().await?;
@@ -616,10 +616,12 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LLMResponse>
             error = %error_text,
             "Error calling LLM API"
         );
-        return Err(anyhow::anyhow!(
-            "Error calling LLM API: Status: {}. Error: {}",
-            status,
-            error_text
+        return Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error calling LLM API: Status: {}. Error: {}",
+                status, error_text
+            )
         ));
     }
 
@@ -642,19 +644,25 @@ async fn process_llm_response(response: Response) -> anyhow::Result<LLMResponse>
 pub async fn make_streaming_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<Response> {
+) -> ChatbotResult<Response> {
     debug!(
         "Preparing streaming LLM request with {} messages",
         chat_request.input.len()
     );
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         error!("Azure configuration missing");
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let chatbot_config = azure_config.chatbot_config.as_ref().ok_or_else(|| {
         error!("Chatbot configuration missing");
-        anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Chatbot configuration is missing from the Azure configuration"
+        )
     })?;
 
     let request = AzureCompletionRequest {
@@ -684,10 +692,12 @@ pub async fn make_streaming_llm_request(
             error = %error_text,
             "Error calling streaming LLM API"
         );
-        return Err(anyhow::anyhow!(
-            "Error calling LLM API: Status: {}. Error: {}",
-            status,
-            error_text
+        return Err(chatbot_err!(
+            FailedAzureResponse,
+            format!(
+                "Error calling LLM API: Status: {}. Error: {}",
+                status, error_text
+            )
         ));
     }
 
@@ -704,19 +714,25 @@ pub async fn make_streaming_llm_request(
 pub async fn make_blocking_llm_request(
     chat_request: LLMRequest,
     app_config: &ApplicationConfiguration,
-) -> anyhow::Result<LLMResponse> {
+) -> ChatbotResult<LLMResponse> {
     debug!(
         "Preparing blocking LLM request with {} messages",
         chat_request.input.len()
     );
     let azure_config = app_config.azure_configuration.as_ref().ok_or_else(|| {
         error!("Azure configuration missing");
-        anyhow::anyhow!("Azure configuration is missing from the application configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Azure configuration is missing from the application configuration"
+        )
     })?;
 
     let chatbot_config = azure_config.chatbot_config.as_ref().ok_or_else(|| {
         error!("Chatbot configuration missing");
-        anyhow::anyhow!("Chatbot configuration is missing from the Azure configuration")
+        chatbot_err!(
+            AzureRequestBuildError,
+            "Chatbot configuration is missing from the Azure configuration"
+        )
     })?;
 
     let api_endpoint = chatbot_config.api_endpoint.to_owned();

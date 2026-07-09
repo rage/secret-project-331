@@ -1,4 +1,4 @@
-import { type Page, test } from "@playwright/test"
+import { expect, type Page, test } from "@playwright/test"
 
 import expectScreenshotsToMatchSnapshots from "../../utils/screenshot"
 import waitForSpinnersToDisappear from "../../utils/waitForSpinnersToDisappear"
@@ -7,7 +7,16 @@ import { waitForSuccessNotification } from "@/utils/notificationUtils"
 import { selectOrganization } from "@/utils/organizationUtils"
 
 async function setPeerReviewCheckbox(page: Page, label: string, checked: boolean) {
-  await page.getByRole("checkbox", { name: label, exact: true }).setChecked(checked)
+  // The checkbox is controlled by a Gutenberg attribute that updates asynchronously; a click can be
+  // briefly reverted before the value settles. setChecked checks once and flakes on that transient
+  // revert, so click and poll until the controlled value settles.
+  const checkbox = page.getByRole("checkbox", { name: label, exact: true })
+  await expect(async () => {
+    if ((await checkbox.isChecked()) !== checked) {
+      await checkbox.click()
+    }
+    await expect(checkbox).toBeChecked({ checked, timeout: 2000 })
+  }).toPass({ timeout: 15000 })
 }
 
 test.use({

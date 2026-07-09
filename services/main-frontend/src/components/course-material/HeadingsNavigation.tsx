@@ -314,11 +314,13 @@ const HeadingsNavigation: React.FC<React.PropsWithChildren<HeadingsNavigationPro
                       >
                         <StTopic
                           className={css`
-                            ${activeHeading === headingsNavigationIndex &&
-                            `background: #DAE6E5;
+                            ${
+                              activeHeading === headingsNavigationIndex &&
+                              `background: #DAE6E5;
                         &:before{
                           background: #1F6964 !important
-                        }`}
+                        }`
+                            }
                           `}
                         >
                           <div>{title}</div>

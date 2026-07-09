@@ -84,6 +84,7 @@ export type CmsPageUpdate = {
   exercise_slides: Array<CmsPageExerciseSlide>
   exercise_tasks: Array<CmsPageExerciseTask>
   exercises: Array<CmsPageExercise>
+  hidden: boolean
   title: string
   url_path: string
 }
@@ -255,10 +256,7 @@ export type EmailTemplate = {
 }
 
 export type EmailTemplateType =
-  | "reset_password_email"
-  | "delete_user_email"
-  | "confirm_email_code"
-  | "generic"
+  "reset_password_email" | "delete_user_email" | "confirm_email_code" | "generic"
 
 export type EmailTemplateUpdate = {
   content: unknown

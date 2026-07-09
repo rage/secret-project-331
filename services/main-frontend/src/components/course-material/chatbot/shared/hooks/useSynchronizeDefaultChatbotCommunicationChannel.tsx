@@ -6,8 +6,7 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 
 import ChatbotDisclaimer from "../ChatbotDisclaimer"
-
-import { MessageAction } from "./useChatbotStateAndData"
+import { ChatbotAction } from "../chatbotReducer"
 
 import type {
   ChatbotConversation,
@@ -24,7 +23,7 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
   currentConversationInfo: UseQueryResult<ChatbotConversationInfo, Error>,
   mutateNewMessageAsync: (message: string) => Promise<unknown>,
   mutateNewConversationAsync: () => Promise<ChatbotConversation>,
-  dispatch: (a: MessageAction) => void,
+  dispatch: (a: ChatbotAction) => void,
 ): void => {
   const { t } = useTranslation()
   const setDefaultChatbotCommunicationChannel = useSetAtom(defaultChatbotCommunicationChannel)
@@ -47,7 +46,7 @@ const useSynchronizeDefaultChatbotCommunicationChannel = (
               return
             }
             await mutateNewConversationAsync()
-            dispatch({ type: "RESET_MESSAGES" })
+            dispatch({ type: "RESPONSE_COMPLETED" })
             await currentConversationInfo.refetch()
           }
           // waiting for refetch

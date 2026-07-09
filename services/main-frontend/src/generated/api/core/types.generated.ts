@@ -11,15 +11,7 @@ import type {
 } from "./bodySerializer.generated"
 
 export type HttpMethod =
-  | "connect"
-  | "delete"
-  | "get"
-  | "head"
-  | "options"
-  | "patch"
-  | "post"
-  | "put"
-  | "trace"
+  "connect" | "delete" | "get" | "head" | "options" | "patch" | "post" | "put" | "trace"
 
 export type Client<
   RequestFn = never,
@@ -97,6 +89,12 @@ export interface Config {
    */
   responseValidator?: (data: unknown) => Promise<unknown>
 }
+
+/**
+ * Arbitrary metadata passed through the `meta` request option.
+ */
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface ClientMeta {}
 
 type IsExactlyNeverOrNeverUndefined<T> = [T] extends [never]
   ? true

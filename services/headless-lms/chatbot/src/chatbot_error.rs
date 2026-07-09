@@ -3,9 +3,11 @@ Contains error and result types for all the chatbot functions.
 */
 
 use std::fmt::Display;
+use std::panic::Location;
 
 use backtrace::Backtrace;
 use headless_lms_models::ModelError;
+use headless_lms_utils::error::util_error::UtilError;
 use tracing_error::SpanTrace;
 
 use headless_lms_base::error::backend_error::BackendError;
@@ -86,7 +88,6 @@ some_function_returning_an_error().map_err(|original_error| {
 # }
 ```
 */
-#[derive(Debug)]
 pub struct ChatbotError {
     error_type: <ChatbotError as BackendError>::ErrorType,
     message: String,
@@ -96,17 +97,24 @@ pub struct ChatbotError {
     span_trace: Box<SpanTrace>,
     /// Stack trace, generated automatically when the error is created.
     backtrace: Box<Backtrace>,
+    /// Source location where the error was raised.
+    location: Option<&'static Location<'static>>,
 }
 
 impl std::error::Error for ChatbotError {
     fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        self.source.as_ref().and_then(|o| o.source())
+        self.source
+            .as_deref()
+            .map(|e| e as &(dyn std::error::Error + 'static))
     }
 
     fn cause(&self) -> Option<&dyn std::error::Error> {
         self.source()
     }
 }
+
+// Generate the clean developer `Debug`/`clean_string` and a cause resolver.
+headless_lms_base::impl_clean_debug!(ChatbotError, [ChatbotError, ModelError, UtilError]);
 
 impl Display for ChatbotError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -116,20 +124,6 @@ impl Display for ChatbotError {
 
 impl BackendError for ChatbotError {
     type ErrorType = ChatbotErrorType;
-
-    fn new<M: Into<String>, S: Into<Option<anyhow::Error>>>(
-        error_type: Self::ErrorType,
-        message: M,
-        source_error: S,
-    ) -> Self {
-        Self::new_with_traces(
-            error_type,
-            message,
-            source_error,
-            Backtrace::new(),
-            SpanTrace::capture(),
-        )
-    }
 
     fn backtrace(&self) -> Option<&Backtrace> {
         Some(&self.backtrace)
@@ -147,12 +141,17 @@ impl BackendError for ChatbotError {
         &self.span_trace
     }
 
-    fn new_with_traces<M: Into<String>, S: Into<Option<anyhow::Error>>>(
+    fn location(&self) -> Option<&'static Location<'static>> {
+        self.location
+    }
+
+    fn new_with_traces_and_location<M: Into<String>, S: Into<Option<anyhow::Error>>>(
         error_type: Self::ErrorType,
         message: M,
         source_error: S,
         backtrace: Backtrace,
         span_trace: SpanTrace,
+        location: Option<&'static Location<'static>>,
     ) -> Self {
         Self {
             error_type,
@@ -160,6 +159,7 @@ impl BackendError for ChatbotError {
             source: source_error.into(),
             span_trace: Box::new(span_trace),
             backtrace: Box::new(backtrace),
+            location,
         }
     }
 }
@@ -333,5 +333,45 @@ mod tests {
         let tool_name = "test_tool";
         let err = chatbot_err!(InvalidToolName, format!("Unknown tool: {}", tool_name));
         assert_eq!(err.message(), "Unknown tool: test_tool");
+    }
+
+    /// A three-crate chain (ChatbotError, ModelError, UtilError) renders every link as
+    /// its own node, checking the resolver reaches transitively-wrapped errors.
+    #[test]
+    fn debug_renders_deep_cross_crate_chain() {
+        use headless_lms_utils::error::util_error::UtilErrorType;
+        let util_error = UtilError::new(UtilErrorType::Other, "disk on fire".to_string(), None);
+        let model_error = ModelError::from(util_error);
+        let chatbot_error = ChatbotError::from(model_error);
+
+        let debug = format!("{chatbot_error:?}");
+        assert!(
+            debug.contains("ChatbotError · ChatbotModelError"),
+            "got: {debug}"
+        );
+        assert!(debug.contains("caused by:"), "got: {debug}");
+        assert!(debug.contains("1. ModelError · Util"), "got: {debug}");
+        assert!(
+            debug.contains("2. UtilError · Other: disk on fire"),
+            "got: {debug}"
+        );
+        assert!(!debug.contains("(external)"), "got: {debug}");
+    }
+
+    /// A non-`BackendError` cause is rendered as a message-only `(external)` leaf.
+    #[test]
+    fn debug_tags_external_cause() {
+        let io_error = std::io::Error::other("connection reset");
+        let chatbot_error = chatbot_err!(TokioIo, "request failed".to_string(), io_error);
+
+        let debug = format!("{chatbot_error:?}");
+        assert!(
+            debug.contains("ChatbotError · TokioIo: request failed"),
+            "got: {debug}"
+        );
+        assert!(
+            debug.contains("connection reset  (external)"),
+            "got: {debug}"
+        );
     }
 }

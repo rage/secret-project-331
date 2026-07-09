@@ -1,7 +1,9 @@
 use actix_web::http::header::ContentType;
 use chrono::Utc;
 
-use headless_lms_chatbot::azure_chatbot::{ChatbotUserContext, send_chat_request_and_parse_stream};
+use headless_lms_chatbot::azure_chatbot::{
+    ChatbotChatStreamEvent, ChatbotUserContext, send_chat_request_and_parse_stream,
+};
 use headless_lms_chatbot::llm_utils::estimate_tokens;
 use headless_lms_models::application_task_default_language_models::ApplicationTask;
 use headless_lms_models::chatbot_conversation_message_messages::{
@@ -82,7 +84,12 @@ Sends a new chat message to the chatbot.
         content_type = "application/json"
     ),
     responses(
-        (status = 200, description = "Chatbot response stream", body = String)
+        (
+            status = 200,
+            description = "Chatbot response stream",
+            body = ChatbotChatStreamEvent,
+            content_type = "text/event-stream"
+        )
     )
 )]
 #[instrument(skip(pool, app_conf))]
@@ -125,10 +132,8 @@ async fn send_message(
         course_id: chatbot_configuration.course_id,
         course_name,
     };
-    let mut tx = conn.begin().await?;
 
     let response_stream = send_chat_request_and_parse_stream(
-        &mut tx,
         // An Arc, cheap to clone.
         pool.get_ref().clone(),
         &app_conf,
@@ -139,11 +144,9 @@ async fn send_message(
     )
     .await?;
 
-    tx.commit().await?;
-
     token.authorized_ok(
         HttpResponse::Ok()
-            .content_type(ContentType::json())
+            .content_type(ContentType(mime::TEXT_EVENT_STREAM))
             .streaming(response_stream),
     )
 }

@@ -1,8 +1,11 @@
 "use client"
 
 import { css, cx } from "@emotion/css"
+import { useContext } from "react"
 
 import { BlockRendererProps } from "../../.."
+
+import ListFontSizeContext from "./listFontSizeContext"
 
 import { ListItemAttributes } from "@/../types/GutenbergBlockAttributes"
 import InnerBlocks from "@/components/course-material/ContentRenderer/util/InnerBlocks"
@@ -15,6 +18,9 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
   props,
 ) => {
   const { content, fontSize } = props.data.attributes
+  const listFontSize = useContext(ListFontSizeContext)
+  // Fall back to the enclosing list's font size
+  const effectiveFontSize = fontSize ?? listFontSize
 
   return (
     <li
@@ -23,7 +29,7 @@ const ListItemBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ListIte
         css`
           font-size: 18px;
           ${respondToOrLarger.md} {
-            font-size: ${fontSizeMapper(fontSize)};
+            font-size: ${fontSizeMapper(effectiveFontSize)};
           }
         `,
       )}

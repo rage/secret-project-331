@@ -648,11 +648,7 @@ export type CourseDesignerPlanStageWithTasks = CourseDesignerPlanStage & {
 }
 
 export type CourseDesignerPlanStatus =
-  | "Draft"
-  | "Scheduling"
-  | "InProgress"
-  | "Completed"
-  | "Archived"
+  "Draft" | "Scheduling" | "InProgress" | "Completed" | "Archived"
 
 export type CourseDesignerPlanSummary = {
   active_stage?: null | CourseDesignerStage
@@ -683,11 +679,7 @@ export type CourseDesignerScheduleSuggestionResponse = {
 }
 
 export type CourseDesignerStage =
-  | "Analysis"
-  | "Design"
-  | "Development"
-  | "Implementation"
-  | "Evaluation"
+  "Analysis" | "Design" | "Development" | "Implementation" | "Evaluation"
 
 /**
  * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
@@ -1044,10 +1036,7 @@ export type EmailTemplateNew = {
 }
 
 export type EmailTemplateType =
-  | "reset_password_email"
-  | "delete_user_email"
-  | "confirm_email_code"
-  | "generic"
+  "reset_password_email" | "delete_user_email" | "confirm_email_code" | "generic"
 
 export type EventInfo = {
   count?: number | null
@@ -1630,6 +1619,7 @@ export type NewPage = {
    * If set, set this page to be the front page of this course part.
    */
   front_page_of_chapter_id?: string | null
+  hidden: boolean
   title: string
   url_path: string
 }
@@ -2164,11 +2154,7 @@ export type SystemHealthStatus = {
 }
 
 export type TeacherDecisionType =
-  | "FullPoints"
-  | "ZeroPoints"
-  | "CustomPoints"
-  | "SuspectedPlagiarism"
-  | "RejectAndReset"
+  "FullPoints" | "ZeroPoints" | "CustomPoints" | "SuspectedPlagiarism" | "RejectAndReset"
 
 export type TeacherGradingDecision = {
   created_at: string
@@ -2323,8 +2309,7 @@ export type UserInfoPayload = {
 }
 
 export type UserPointsUpdateStrategy =
-  | "CanAddPointsButCannotRemovePoints"
-  | "CanAddPointsAndCanRemovePoints"
+  "CanAddPointsButCannotRemovePoints" | "CanAddPointsAndCanRemovePoints"
 
 export type UserResearchConsent = {
   created_at: string

@@ -1,5 +1,3 @@
-"use client"
-
 import styled from "@emotion/styled"
 import React from "react"
 import { Trans, useTranslation } from "react-i18next"

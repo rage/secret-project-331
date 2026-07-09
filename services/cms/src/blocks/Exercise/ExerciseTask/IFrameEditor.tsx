@@ -18,12 +18,12 @@ import useUserInfo from "@/shared-module/common/hooks/useUserInfo"
 import { respondToOrLarger } from "@/shared-module/common/styles/respond"
 import getGuestPseudonymousUserId from "@/shared-module/common/utils/getGuestPseudonymousUserId"
 import withNoSsr from "@/shared-module/common/utils/withNoSsr"
+import MessageChannelIFrame from "@/shared-module/exercise-iframe-host/MessageChannelIFrame"
 import {
   ExerciseIframeState,
   MessageToIframe,
 } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 import { isMessageFromIframe } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types.guard"
-import MessageChannelIFrame from "@/shared-module/exercise-react/parent/MessageChannelIFrame"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
 const VIEW_TYPE = "exercise-editor"

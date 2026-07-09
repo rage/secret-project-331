@@ -1,0 +1,1 @@
+ALTER TABLE chatbot_conversation_message_reasoning DROP COLUMN reasoning_id;

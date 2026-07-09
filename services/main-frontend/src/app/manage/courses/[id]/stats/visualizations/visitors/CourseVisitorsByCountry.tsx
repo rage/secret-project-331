@@ -22,7 +22,7 @@ export interface CourseVisitorsByCountryProps {
 
 // Bucket key used for visitors whose country could not be determined (the backend country field is
 // nullable). Kept distinct from any real ISO code so it can be rendered as a readable label.
-// eslint-disable-next-line i18next/no-literal-string
+
 const UNKNOWN_COUNTRY_KEY = "null"
 
 const CourseVisitorsByCountry: React.FC<React.PropsWithChildren<CourseVisitorsByCountryProps>> = ({

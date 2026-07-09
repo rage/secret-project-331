@@ -1,15 +1,16 @@
-"use client"
-
 import styled from "@emotion/styled"
 import { Eye, InfoCircle, Pencil } from "@vectopus/atlas-icons-react"
-import React, { useContext, useMemo, useRef, useState } from "react"
+import React, { useContext, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import ParsedText from "../../../../ParsedText"
 
+import AutoExpandingTextField from "./AutoExpandingTextField"
+import { toSingleLine } from "./singleLine"
+import { containsMarkdownTag, containsRenderableTag } from "./tagBlocks"
+
 import MessagePortContext from "@/contexts/MessagePortContext"
 import Button from "@/shared-module/common/components/Button"
-import TextAreaField from "@/shared-module/common/components/InputFields/TextAreaField"
 import { OpenLinkMessage } from "@/shared-module/exercise-protocol/core/exercise-service-protocol-types"
 
 const DisplayContainer = styled.div`
@@ -53,6 +54,8 @@ const TextfieldWrapper = styled.div`
 
 const Grow = styled.div`
   flex-grow: 1;
+  /* Allow the flex item to shrink below its content width so the preview wraps to the row. */
+  min-width: 0;
 `
 
 const InfoLink = styled.a`
@@ -68,23 +71,25 @@ interface ParsedTextFieldProps {
 
 const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChange }) => {
   const [preview, setPreview] = useState(false)
-  const [text, setText] = useState(value ?? "")
-  const inputRef = useRef<HTMLTextAreaElement>(null)
   const messagePort = useContext(MessagePortContext)
 
   const { t } = useTranslation()
 
-  const containsMarkdown = useMemo(
-    () => text.includes("[markdown]") && text.includes("[/markdown]"),
-    [text],
-  )
+  // Derived from the prop, not a second state copy, so it can't go stale when the parent resets
+  // the value (e.g. clearing the "add option" field).
+  const text = value ?? ""
 
-  const containsLatex = useMemo(() => text.includes("[latex]") && text.includes("[/latex]"), [text])
+  // Allow newlines once a markdown tag is present, so a block can be composed/edited without Enter
+  // being suppressed (see AutoExpandingTextField). Plain feedback stays a single logical line but
+  // still wraps and grows to fit long text.
+  const allowNewlines = useMemo(() => containsMarkdownTag(text), [text])
 
-  const hasTags = useMemo(
-    () => containsMarkdown || containsLatex,
-    [containsMarkdown, containsLatex],
-  )
+  // Preview toggle shows for any markdown or latex tag.
+  const hasTags = useMemo(() => containsRenderableTag(text), [text])
+
+  // Only preview while tags are present: the toggle is hidden without them, so a stale preview=true
+  // (e.g. after the parent clears the value) would otherwise strand the field in the preview branch.
+  const showPreview = preview && hasTags
 
   const PreviewButton = (
     <>
@@ -95,23 +100,24 @@ const ParsedTextField: React.FC<ParsedTextFieldProps> = ({ label, value, onChang
     </>
   )
 
-  const handleOnChange = (value: string) => {
-    onChange(value)
-    setText(value)
+  const handleOnChange = (rawValue: string) => {
+    // Single-line fields collapse pasted newlines; with a markdown tag present newlines are kept,
+    // so editing a tag can't flatten existing line breaks.
+    const next = containsMarkdownTag(rawValue) ? rawValue : toSingleLine(rawValue)
+    onChange(next)
   }
 
   return (
     <TextfieldContainer>
       <TextfieldWrapper>
         <Grow>
-          {preview ? (
+          {showPreview ? (
             <ParsedTextContainer>
               <ParsedText text={value} parseMarkdown parseLatex inline />
             </ParsedTextContainer>
           ) : (
-            <TextAreaField
-              ref={inputRef}
-              autoResize
+            <AutoExpandingTextField
+              allowNewlines={allowNewlines}
               value={value ?? ""}
               onChangeByValue={(value) => handleOnChange(value)}
               label={label}

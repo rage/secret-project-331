@@ -2801,6 +2801,7 @@ pub async fn seed_cs_course_material(
             url_path: "/chapter-2/chart-rendering".to_string(),
             title: "Chart rendering".to_string(),
             chapter_id: Some(chapter_2.id),
+            hidden: false,
         },
     )
     .await?;

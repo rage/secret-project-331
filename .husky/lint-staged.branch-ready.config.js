@@ -2,7 +2,7 @@
 // These checks are slower and more likely to fail than the precommit checks.
 // See lint-staged.precommit.config.js for precommit checks.
 export default {
-  "*.{js,jsx,ts,tsx}": ["eslint --cache --fix", "stylelint --fix lax"],
+  "*.{js,jsx,ts,tsx}": ["oxlint --fix", "oxfmt", "stylelint --fix lax"],
   "services/example-exercise/src/**/*.{js,jsx,ts,tsx}": () =>
     "pnpm exec tsc -p services/example-exercise/ --noEmit",
   "services/cms/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/cms/ --noEmit",
@@ -10,7 +10,7 @@ export default {
     "pnpm exec tsc -p services/main-frontend/ --noEmit",
   "services/quizzes/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/quizzes/ --noEmit",
   "services/tmc/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/tmc/ --noEmit",
-  "*.{md,json,scss,css}": "prettier --write",
+  "*.{md,json,scss,css}": "oxfmt",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",
     "cargo clippy --manifest-path services/headless-lms/Cargo.toml -- -D warnings",

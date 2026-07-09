@@ -63,6 +63,33 @@
     "[javascriptreact]": {
       "editor.defaultFormatter": "oxc.oxc-vscode",
     },
+    "[json]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[jsonc]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[css]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[scss]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[less]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[yaml]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[html]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
+    "[graphql]": {
+      "editor.defaultFormatter": "oxc.oxc-vscode",
+    },
     "[rust]": {
       "editor.defaultFormatter": "rust-lang.rust-analyzer",
     },
@@ -157,6 +184,6 @@
     ],
   },
   "extensions": {
-    "recommendations": ["mkhl.direnv", "TypeScriptTeam.native-preview"],
+    "recommendations": ["mkhl.direnv", "TypeScriptTeam.native-preview", "oxc.oxc-vscode"],
   },
 }

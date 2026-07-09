@@ -13,6 +13,14 @@ export default {
     "pnpm exec tsc -p services/main-frontend/ --noEmit",
   "services/quizzes/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/quizzes/ --noEmit",
   "services/tmc/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/tmc/ --noEmit",
+  "shared-module/packages/exercise-protocol/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-protocol --noEmit",
+  "shared-module/packages/exercise-client/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-client --noEmit",
+  "shared-module/packages/exercise-react/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/exercise-react --noEmit",
+  "shared-module/packages/create-exercise-service/**/*.{js,jsx,ts,tsx}": () =>
+    "pnpm exec tsc -p shared-module/packages/create-exercise-service --noEmit",
   "*.{md,json,scss,css}": "oxfmt --no-error-on-unmatched-pattern",
   "*.rs": () => [
     "cargo fmt --manifest-path services/headless-lms/Cargo.toml --all -- --files-with-diff",

@@ -30,16 +30,10 @@ if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard
   run_command rm ./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
 fi
 
+# Only the source type file is formatted; guard files are committed as ts-auto-guard emits them
+# (they are excluded from oxfmt, so passing them here would be a no-op at best).
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/GutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
-if [ -f "./services/main-frontend/types/GutenbergBlockAttributes.guard.ts" ]; then
-  run_command pnpm exec oxfmt services/main-frontend/types/GutenbergBlockAttributes.ts services/main-frontend/types/GutenbergBlockAttributes.guard.ts
-else
-  run_command pnpm exec oxfmt services/main-frontend/types/GutenbergBlockAttributes.ts
-fi
+run_command pnpm exec oxfmt services/main-frontend/types/GutenbergBlockAttributes.ts
 
 run_command pnpm exec ts-auto-guard --export-all --paths services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts --project services/main-frontend/tsconfig.json
-if [ -f "./services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts" ]; then
-  run_command pnpm exec oxfmt services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts services/main-frontend/types/DeprecatedGutenbergBlockAttributes.guard.ts
-else
-  run_command pnpm exec oxfmt services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts
-fi
+run_command pnpm exec oxfmt services/main-frontend/types/DeprecatedGutenbergBlockAttributes.ts

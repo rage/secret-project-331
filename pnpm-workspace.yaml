@@ -48,8 +48,6 @@ updateNotifier: false
 verifyDepsBeforeRun: install
 
 minimumReleaseAgeExclude:
-  - esbuild@0.28.1
-  - "@babel/core@7.29.1"
   # TypeScript 7.0 GA (native) + v6 API compat package, published at GA and newer than the 7-day gate.
   # typescript@7 lists all 20 platform native-binary packages as deps, so exempt them all.
   - "typescript@7.0.2"

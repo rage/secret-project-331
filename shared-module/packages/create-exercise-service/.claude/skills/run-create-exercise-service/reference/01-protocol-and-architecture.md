@@ -106,7 +106,7 @@ its own spec/answer/feedback types.
 ## Lifecycles
 
 The two end-to-end sequences (edit & save; answer & grade) are in `docs/plugin-system.md`'s "Example
-Scenarios" (and `06`'s lifecycle section). The one non-obvious beat: on save the backend re-derives
+Scenarios". The one non-obvious beat: on save the backend re-derives
 **both** the public spec and the model solution from the private spec and stores them, so those
 generators run on every save — keep them pure and total (`07` §2).
 

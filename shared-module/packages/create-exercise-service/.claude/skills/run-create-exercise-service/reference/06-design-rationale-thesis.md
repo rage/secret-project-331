@@ -54,11 +54,12 @@ Mapping: Goals 1 & 2 → Need 1; Goal 8 → Need 2; Goals 1/3/4/5/7 → practica
 - **Model solution spec** — "typically very close to the private spec, but lacks certain testing
   rules used for sensitive correctness checking." Shown at full points / out of tries.
 
-The multiple-choice worked example (Appendix A), which `services/example-exercise` implements
-verbatim: private `{id,label,correct}` → public strips `correct` → model solution `{id,correct}`
-(labels dropped) → answer `{selectedOptionId}` → feedback `{selectedOptionIsCorrect}` (narrower than
-the model solution — reveals only whether _your_ choice was right). `07` turns this into the general
-leak analysis.
+The thesis's multiple-choice worked example (Appendix A) illustrates the pattern: private options
+carry the correct flag → public strips it → the model solution keeps only the correct ids → the
+answer references the chosen id → feedback reveals only whether _your_ choice was right (narrower than
+the model solution). `services/example-exercise` implements this pattern; for its exact shapes
+(`{id,name,correct}` → `{correctOptionIds}` → `{selectedOptionId}` → `{selectedOptionIsCorrect}`) see
+`02`/`07`, and `07` turns it into the general leak analysis.
 
 ## Threads worth carrying forward
 

@@ -41,9 +41,23 @@ for (const a of args) {
     console.warn(`  warn  unknown flag ${a} (known: ${[...KNOWN_FLAGS].join(", ")})`)
   }
 }
+// Read a `--name value` or `--name=value` flag. Warns (and returns undefined) if the flag is present
+// but its value is missing, so a bare `--base` doesn't silently fall back to boot mode.
 const flag = (name) => {
+  const eq = args.find((a) => a.startsWith(`${name}=`))
+  if (eq) {
+    return eq.slice(name.length + 1)
+  }
   const i = args.indexOf(name)
-  return i >= 0 ? (args[i + 1] ?? "") : undefined
+  if (i < 0) {
+    return undefined
+  }
+  const val = args[i + 1]
+  if (val === undefined || val.startsWith("--")) {
+    console.warn(`  warn  ${name} needs a value; ignoring it`)
+    return undefined
+  }
+  return val
 }
 const BASE = flag("--base") // undefined ⇒ boot example-exercise ourselves
 const SCREENSHOT = flag("--screenshot")
@@ -52,6 +66,12 @@ const KEEP_OPEN = args.includes("--keep-open")
 const PORT = 3002
 const SESSION = "drive-view" // dedicated session so we don't clobber an interactive playwright-cli
 const CHROMIUM = execFileSync("bash", ["-c", "command -v chromium || true"], { encoding: "utf8" }).trim()
+if (!CHROMIUM) {
+  console.warn(
+    "  warn  no `chromium` on PATH — relying on Playwright's managed browsers (run " +
+      "`playwright-cli`'s browser install if the first step fails with 'browser not found').",
+  )
+}
 
 let failures = 0
 const ok = (m) => console.log(`  ok   ${m}`)
@@ -76,7 +96,9 @@ function evalInPage(func) {
     throw new Error(`playwright-cli eval printed no result:\n${out}`)
   }
   let block = out.slice(start + "### Result".length)
-  const end = block.indexOf("### Ran Playwright code")
+  // The result runs until the next "### " section (e.g. "### Ran Playwright code" when codegen is on,
+  // "### Page" when it's off) — cut generically so we don't depend on which follows.
+  const end = block.search(/\n### /)
   if (end >= 0) {
     block = block.slice(0, end)
   }
@@ -88,15 +110,19 @@ function evalInPage(func) {
   }
 }
 
+/** Is a service already answering on `base`? One quick probe, no retries. */
+async function isServing(base) {
+  try {
+    return (await fetch(`${base}/api/service-info`)).ok
+  } catch {
+    return false
+  }
+}
+
 async function waitForService(base, seconds) {
   for (let i = 0; i < seconds; i++) {
-    try {
-      const r = await fetch(`${base}/api/service-info`)
-      if (r.ok) {
-        return
-      }
-    } catch {
-      /* not up yet */
+    if (await isServing(base)) {
+      return
     }
     await new Promise((r) => setTimeout(r, 1000))
   }
@@ -105,9 +131,15 @@ async function waitForService(base, seconds) {
 
 async function main() {
   const base = BASE || `http://localhost:${PORT}`
-  let dev
+  let dev // set only when WE spawn the server (so teardown only kills our own)
 
-  if (!BASE) {
+  if (BASE) {
+    console.log(`[attach] using already-running service at ${base}`)
+  } else if (await isServing(base)) {
+    // :3002 is example-exercise's own default, so bin/dev or a prior --keep-open run may already hold
+    // it. Attach to whatever is there rather than spawning a second server that fights for the port.
+    console.log(`[attach] :${PORT} is already serving — attaching instead of booting a second server`)
+  } else {
     console.log(`[boot] starting services/example-exercise on :${PORT} (PUBLIC_BASE_PATH="")`)
     dev = spawn("pnpm", ["--dir", EXAMPLE_EXERCISE, "run", "dev"], {
       env: { ...process.env, PUBLIC_BASE_PATH: "" },
@@ -115,8 +147,6 @@ async function main() {
       detached: true,
     })
     await waitForService(base, 60)
-  } else {
-    console.log(`[attach] using already-running service at ${base}`)
   }
 
   try {
@@ -158,20 +188,23 @@ async function main() {
       ok(`screenshot saved to ${resolve(SCREENSHOT)}`)
     }
   } finally {
-    if (!KEEP_OPEN) {
+    if (KEEP_OPEN) {
+      console.log(`(browser session "${SESSION}" left open — 'playwright-cli -s=${SESSION} close' to end it)`)
+      if (dev) {
+        console.log(`(dev server left running on :${PORT}, pid ${dev.pid} — 'kill ${dev.pid}' to stop it)`)
+      }
+    } else {
       try {
         pw("close")
       } catch {
         /* session may already be gone */
       }
-    } else {
-      console.log(`(browser session "${SESSION}" left open — 'playwright-cli -s=${SESSION} close' to end it)`)
-    }
-    if (dev) {
-      try {
-        process.kill(-dev.pid) // kill the detached dev-server process group
-      } catch {
-        /* already gone */
+      if (dev) {
+        try {
+          process.kill(-dev.pid) // kill the detached dev-server process group we spawned
+        } catch {
+          /* already gone */
+        }
       }
     }
   }

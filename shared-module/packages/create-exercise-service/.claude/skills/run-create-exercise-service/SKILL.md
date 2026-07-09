@@ -1,7 +1,7 @@
 ---
 name: run-create-exercise-service
 description: Scaffold, run, and smoke-test a new moocfi exercise service/plugin with the create-exercise-service CLI (generated from the example-exercise template), and author the exercise itself — its data model (private/public/model-solution specs, answer, grading) and its iframe views/REST endpoints. Use when asked to run/start/scaffold/generate/create/screenshot/verify an exercise service or plugin, or to design/author/implement a new exercise type or its data model.
-allowed-tools: Read, Bash(node *), Bash(pnpm *), Bash(playwright-cli *)
+allowed-tools: Read, Bash(node *), Bash(pnpm *), Bash(playwright-cli *), Bash(./interactive-demo.sh*)
 ---
 
 # create-exercise-service
@@ -193,7 +193,8 @@ split in `reference/05`.
 
 Verify as you go with `drive-view.mjs` (Part A). For committed tests, adapt the inherited
 `e2e/protocol.spec.ts` (every generated project ships it) — it uses the typed `createHostEmulator`
-wrapper and `set-state` builders. Run it against the dev server (Playwright boots it via `webServer`):
+wrapper and `set-state` builders. Run it against your own service (`services/<your-slug>`), or against
+the reference to sanity-check the harness (Playwright boots the dev server via `webServer`):
 
 ```bash
 PLAYWRIGHT_CHROMIUM_PATH="$(command -v chromium)" pnpm --dir services/example-exercise exec playwright test

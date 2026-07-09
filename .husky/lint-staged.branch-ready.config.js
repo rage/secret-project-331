@@ -1,8 +1,9 @@
-// Runs when you run bin/git-run-branch-ready-checks.
-// These checks are slower and more likely to fail than the precommit checks.
-// See lint-staged.precommit.config.js for precommit checks.
+// Runs when you run bin/git-run-branch-ready-checks. This is the "finishing touches" pass: it
+// applies the remaining autofixes AND runs the slow, failing gates (lint, type-check, clippy,
+// sqlx, actionlint) so you catch what CI (.github/workflows/code-style.yml + tests.yml) would
+// catch before pushing. See lint-staged.precommit.config.js for the fast per-commit formatters.
 export default {
-  "*.{js,jsx,ts,tsx}": ["oxlint --fix", "oxfmt", "stylelint --fix lax"],
+  "*.{js,jsx,ts,tsx}": ["oxlint --fix", "oxfmt", "stylelint --fix"],
   "services/example-exercise/src/**/*.{js,jsx,ts,tsx}": () =>
     "pnpm exec tsc -p services/example-exercise/ --noEmit",
   "services/cms/src/**/*.{js,jsx,ts,tsx}": () => "pnpm exec tsc -p services/cms/ --noEmit",

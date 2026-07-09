@@ -191,6 +191,8 @@ import type {
   GetCohortActivityHistoryResponses,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponses,
+  GetCourseAudiencesData,
+  GetCourseAudiencesResponses,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponses,
   GetCourseByJoinCodeData,
@@ -685,6 +687,7 @@ import {
   zGetCodeGiveawaysByCourseResponse,
   zGetCohortActivityHistoryResponse,
   zGetCompletionStatsByEmailDomainResponse,
+  zGetCourseAudiencesResponse,
   zGetCourseBreadcrumbInfoResponse,
   zGetCourseByJoinCodeResponse,
   zGetCourseChaptersResponse,
@@ -2561,6 +2564,20 @@ export const getCourseFeedbackCount = <ThrowOnError extends boolean = true>(
     responseValidator: async (data) => await zGetCourseFeedbackCountResponse.parseAsync(data),
     responseStyle: "data",
     url: "/api/v0/main-frontend/courses/{course_id}/feedback-count",
+    ...options,
+  })
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+ */
+export const getCourseAudiences = <ThrowOnError extends boolean = true>(
+  options: Options<GetCourseAudiencesData, ThrowOnError>,
+) =>
+  (options.client ?? client).get<GetCourseAudiencesResponses, unknown, ThrowOnError, "data">({
+    responseValidator: async (data) => await zGetCourseAudiencesResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences",
     ...options,
   })
 

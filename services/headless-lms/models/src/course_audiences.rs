@@ -20,9 +20,8 @@ pub struct NewCourseAudience {
 pub async fn insert_course_audiences(
     conn: &mut PgConnection,
     course_id: Uuid,
-    audiences: Vec<NewCourseAudience>,
+    audiences: Vec<String>,
 ) -> ModelResult<Vec<CourseAudience>> {
-    let new_audiences: Vec<String> = audiences.iter().map(|x| x.audience.to_owned()).collect();
     let res = sqlx::query_as!(
         CourseAudience,
         "
@@ -35,7 +34,7 @@ INSERT INTO course_audiences (
 RETURNING *
 ",
         course_id,
-        &new_audiences
+        &audiences
     )
     .fetch_all(conn)
     .await?;

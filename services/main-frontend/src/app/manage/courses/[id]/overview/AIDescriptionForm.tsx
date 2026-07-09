@@ -4,10 +4,11 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect } from "react"
-import { FormProvider, useFieldArray, useForm } from "react-hook-form"
+import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
+  getCourseAudiencesOptions,
   getCoursePrerequisitesOptions,
   getSisuCourseLlmDescriptionsOptions,
 } from "@/generated/api/@tanstack/react-query.generated"
@@ -15,6 +16,8 @@ import { updateMetadata } from "@/generated/api/sdk.generated"
 import type { Course, CourseMetadataUpdate } from "@/generated/api/types.generated"
 import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
+import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
+import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 // import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
@@ -86,6 +89,21 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     }),
   )
 
+  const audiencesQuery = useQuery(
+    optionalGeneratedQueryOptions({
+      value: courseId,
+      enabled: open,
+      build: (courseId) =>
+        getCourseAudiencesOptions({
+          path: {
+            course_id: courseId,
+          },
+        }),
+    }),
+  )
+
+  const hasAudiences = audiencesQuery.data !== undefined && audiencesQuery.data?.length > 0
+
   const hasPrerequisites =
     prerequisitesQuery.data !== undefined && prerequisitesQuery.data?.length > 0
 
@@ -107,11 +125,20 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
     }
   }, [sisuQuery.data])
 
-  const methods = useForm<CourseMetadataUpdate>({
+  const methods = useForm<
+    CourseMetadataUpdate & {
+      useSuggestedDescription: boolean
+      useSuggestedPrerequisites: boolean
+      useSuggestedAudiences: boolean
+    }
+  >({
     defaultValues: {
       course_description: "",
       course_audiences: [],
       course_prerequisites: [],
+      useSuggestedDescription: true,
+      useSuggestedPrerequisites: true,
+      useSuggestedAudiences: true,
     },
   })
 
@@ -122,6 +149,12 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   const course_preqs = watch("course_prerequisites")
 
   console.log("SET VALUE: ", course_preqs)
+
+  const useSuggestedDescription = watch("useSuggestedDescription")
+  const useSuggestedPrerequisites = watch("useSuggestedPrerequisites")
+  const useSuggestedAudiences = watch("useSuggestedAudiences")
+
+  console.log("USE SUGGESTED AUDIENCE: ", useSuggestedAudiences)
 
   const {
     fields: prereqField,
@@ -155,7 +188,17 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
   )
 
   const onSubmit = handleSubmit((data) => {
-    updateCourseMetadataMutation.mutate(data)
+    updateCourseMetadataMutation.mutate({
+      course_description: data.useSuggestedDescription
+        ? data.course_description
+        : course.description,
+      course_prerequisites: data.useSuggestedPrerequisites
+        ? data.course_prerequisites
+        : (prerequisitesQuery.data ?? []),
+      course_audiences: data.useSuggestedAudiences
+        ? data.course_audiences
+        : (audiencesQuery.data ?? []),
+    })
     console.log("DATA IN onSubmit: ", data)
   })
 
@@ -185,14 +228,25 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
               <>
                 <FieldSet>
                   <Legend>{t("description-fieldset-title")}</Legend>
-                  <HelpText>{t("fieldset-helptext-current")}</HelpText>
-                  {/* <span
+                  <div
                     className={css`
-                      font-weight: 500;
+                      display: flex;
+                      align-items: center;
                     `}
                   >
-                    {t("current-course-description-title")}
-                  </span> */}
+                    <HelpText>{t("fieldset-helptext-current")}</HelpText>
+                    <div
+                      className={css`
+                        margin-left: auto;
+                      `}
+                    >
+                      <CheckBox
+                        label={t("use-suggestion")}
+                        {...register("useSuggestedDescription")}
+                      />
+                    </div>
+                  </div>
+
                   <FieldContainer>{course.description}</FieldContainer>
 
                   <FieldContainer>
@@ -206,32 +260,56 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                 </FieldSet>
                 <FieldSet>
                   <Legend>{t("prerequisites-fieldset-title")}</Legend>
-                  <HelpText>{t("fieldset-helptext-current")}</HelpText>
-
-                  {/* <span
+                  <div
                     className={css`
-                      font-weight: 500;
+                      display: flex;
+                      align-items: center;
                     `}
                   >
-                    {t("current-prerequisites-title")}
-                  </span> */}
+                    <HelpText>{t("fieldset-helptext-current")}</HelpText>
+                    <div
+                      className={css`
+                        margin-left: auto;
+                      `}
+                    >
+                      <CheckBox
+                        label={t("use-suggestion")}
+                        {...register("useSuggestedPrerequisites")}
+                      />
+                    </div>
+                  </div>
+
                   {hasPrerequisites ? (
                     <div>
                       {prerequisitesQuery.data?.map((preq, idx) => (
-                        <li key={idx}>{preq.prerequisite}</li>
+                        <li
+                          key={idx}
+                          className={css`
+                            list-style-type: none;
+                          `}
+                        >
+                          {preq.prerequisite}
+                        </li>
                       ))}
                     </div>
                   ) : (
                     <div>{t("course-has-no-prerequisites")}</div>
                   )}
-
-                  <span
+                  <div
                     className={css`
-                      font-weight: 500;
+                      margin-top: 1rem;
+                      margin-bottom: 0.5rem;
                     `}
                   >
-                    {t("suggested-prerequisites-title")}
-                  </span>
+                    <span
+                      className={css`
+                        font-weight: 500;
+                      `}
+                    >
+                      {t("suggested-prerequisites-title")}
+                    </span>
+                  </div>
+
                   {prereqField.map((item, idx) => (
                     <div
                       key={idx}
@@ -265,25 +343,73 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                       </Button>
                     </div>
                   ))}
-
-                  <Button
-                    size="medium"
-                    type="button"
-                    variant="secondary"
-                    onClick={() => appendPrereq({ prerequisite: "" })}
+                  <div
+                    className={css`
+                      display: flex;
+                      align-items: center;
+                    `}
                   >
-                    {t("add-new-prerequisite")}
-                  </Button>
+                    <Button
+                      size="medium"
+                      type="button"
+                      variant="secondary"
+                      onClick={() => appendPrereq({ prerequisite: "" })}
+                    >
+                      {t("add-new-prerequisite")}
+                    </Button>
+                  </div>
                 </FieldSet>
                 <FieldSet>
                   <Legend>{t("audiences-fieldset-title")}</Legend>
-                  <span
+                  <div
                     className={css`
-                      font-weight: 500;
+                      display: flex;
+                      align-items: center;
                     `}
                   >
-                    {t("suggested-audiences-title")}
-                  </span>
+                    <HelpText>{t("fieldset-helptext-current")}</HelpText>
+                    <div
+                      className={css`
+                        margin-left: auto;
+                      `}
+                    >
+                      <CheckBox
+                        label={t("use-suggestion")}
+                        {...register("useSuggestedAudiences")}
+                      />
+                    </div>
+                  </div>
+                  {hasAudiences ? (
+                    <div>
+                      {audiencesQuery.data?.map((audience, idx) => (
+                        <li
+                          key={idx}
+                          className={css`
+                            list-style-type: none;
+                          `}
+                        >
+                          {audience.audience}
+                        </li>
+                      ))}
+                    </div>
+                  ) : (
+                    <div>{t("course-has-no-audiences")}</div>
+                  )}
+                  <div
+                    className={css`
+                      margin-top: 1rem;
+                      margin-bottom: 0.5rem;
+                    `}
+                  >
+                    <span
+                      className={css`
+                        font-weight: 500;
+                      `}
+                    >
+                      {t("suggested-audiences-title")}
+                    </span>
+                  </div>
+
                   {audienceField.map((item, idx) => (
                     <div
                       key={idx}

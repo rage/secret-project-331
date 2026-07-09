@@ -4337,6 +4337,28 @@ export type GetCourseFeedbackCountResponses = {
 export type GetCourseFeedbackCountResponse =
   GetCourseFeedbackCountResponses[keyof GetCourseFeedbackCountResponses]
 
+export type GetCourseAudiencesData = {
+  body?: never
+  path: {
+    /**
+     * Course id
+     */
+    course_id: string
+  }
+  query?: never
+  url: "/api/v0/main-frontend/courses/{course_id}/get-course-audiences"
+}
+
+export type GetCourseAudiencesResponses = {
+  /**
+   * Course audiences
+   */
+  200: Array<CourseAudience>
+}
+
+export type GetCourseAudiencesResponse =
+  GetCourseAudiencesResponses[keyof GetCourseAudiencesResponses]
+
 export type GetCoursePrerequisitesData = {
   body?: never
   path: {

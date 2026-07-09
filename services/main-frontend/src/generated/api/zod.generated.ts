@@ -3682,6 +3682,15 @@ export const zGetCourseFeedbackCountPath = z.object({
  */
 export const zGetCourseFeedbackCountResponse = zFeedbackCount
 
+export const zGetCourseAudiencesPath = z.object({
+  course_id: z.uuid(),
+})
+
+/**
+ * Course audiences
+ */
+export const zGetCourseAudiencesResponse = z.array(zCourseAudience)
+
 export const zGetCoursePrerequisitesPath = z.object({
   course_id: z.uuid(),
 })

@@ -1473,31 +1473,53 @@ pub async fn set_metadata(
         .map(|x| x.prerequisite.to_owned())
         .collect();
 
-    let old_strings: Vec<String> = old_prerequisites
+    let prerequisite_old_strings: Vec<String> = old_prerequisites
         .iter()
         .map(|x| x.prerequisite.to_owned())
         .collect();
 
-    let to_delete: Vec<Uuid> = old_prerequisites
+    let prerequisites_to_delete: Vec<Uuid> = old_prerequisites
         .iter()
         .filter(|x| !new_prerequisites.contains(&x.prerequisite))
         .map(|x| x.id.to_owned())
         .collect();
 
-    let to_add: Vec<String> = new_prerequisites
+    let prerequisites_to_add: Vec<String> = new_prerequisites
         .into_iter()
-        .filter(|x| !old_strings.contains(x))
+        .filter(|x| !prerequisite_old_strings.contains(x))
         .collect();
 
-    crate::course_prerequisites::delete_batch(conn, to_delete).await?;
+    crate::course_prerequisites::delete_batch(conn, prerequisites_to_delete).await?;
 
-    let prerequisites = insert_course_prerequisites(conn, course_id, to_add).await?;
-    let audiences = crate::course_audiences::insert_course_audiences(
-        conn,
-        course_id,
-        course_metadata.course_audiences,
-    )
-    .await?;
+    let prerequisites = insert_course_prerequisites(conn, course_id, prerequisites_to_add).await?;
+
+    let old_audiences: Vec<CourseAudience> =
+        crate::course_audiences::get_by_course_id(conn, course_id).await?;
+    let new_audiences: Vec<String> = course_metadata
+        .course_audiences
+        .iter()
+        .map(|x| x.audience.to_owned())
+        .collect();
+
+    let audience_old_strings: Vec<String> = old_audiences
+        .iter()
+        .map(|x| x.audience.to_owned())
+        .collect();
+
+    let audiences_to_delete: Vec<Uuid> = old_audiences
+        .iter()
+        .filter(|x| !new_audiences.contains(&x.audience))
+        .map(|x| x.id.to_owned())
+        .collect();
+
+    let audiences_to_add: Vec<String> = new_audiences
+        .into_iter()
+        .filter(|x| !audience_old_strings.contains(x))
+        .collect();
+
+    crate::course_audiences::delete_batch(conn, audiences_to_delete).await?;
+    let audiences =
+        crate::course_audiences::insert_course_audiences(conn, course_id, audiences_to_add).await?;
     let course = sqlx::query_as!(
         CourseDescription,
         r#"

@@ -103,6 +103,7 @@ import {
   getCohortActivityHistory,
   getCompletionStatsByEmailDomain,
   getCourse,
+  getCourseAudiences,
   getCourseBreadcrumbInfo,
   getCourseByJoinCode,
   getCourseChapters,
@@ -470,6 +471,8 @@ import type {
   GetCohortActivityHistoryResponse,
   GetCompletionStatsByEmailDomainData,
   GetCompletionStatsByEmailDomainResponse,
+  GetCourseAudiencesData,
+  GetCourseAudiencesResponse,
   GetCourseBreadcrumbInfoData,
   GetCourseBreadcrumbInfoResponse,
   GetCourseByJoinCodeData,
@@ -3315,6 +3318,30 @@ export const getCourseFeedbackCountOptions = (options: Options<GetCourseFeedback
         throwOnError: true,
       }),
     queryKey: getCourseFeedbackCountQueryKey(options),
+  })
+
+export const getCourseAudiencesQueryKey = (options: Options<GetCourseAudiencesData>) =>
+  createQueryKey("getCourseAudiences", options)
+
+/**
+ *
+ * get `/api/v0/main-frontend/courses/:course_id/get-course-audiences` - Get course audiences.
+ */
+export const getCourseAudiencesOptions = (options: Options<GetCourseAudiencesData>) =>
+  queryOptions<
+    GetCourseAudiencesResponse,
+    DefaultError,
+    GetCourseAudiencesResponse,
+    ReturnType<typeof getCourseAudiencesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) =>
+      await getCourseAudiences({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      }),
+    queryKey: getCourseAudiencesQueryKey(options),
   })
 
 export const getCoursePrerequisitesQueryKey = (options: Options<GetCoursePrerequisitesData>) =>

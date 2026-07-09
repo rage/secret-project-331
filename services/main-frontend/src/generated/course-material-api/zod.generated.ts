@@ -93,7 +93,7 @@ export const zChatbotChatStreamEvent = z.union([
   }),
   z.object({
     data: z.object({
-      error: z.string().nullish(),
+      details: z.string().nullish(),
       message: z.string(),
     }),
     type: z.enum(["Error"]),

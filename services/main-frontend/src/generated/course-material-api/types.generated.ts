@@ -79,7 +79,7 @@ export type ChatbotChatStreamEvent =
     }
   | {
       data: {
-        error?: string | null
+        details?: string | null
         message: string
       }
       type: "Error"

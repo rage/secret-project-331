@@ -3105,7 +3105,7 @@
                 "type": "object",
                 "required": ["message"],
                 "properties": {
-                  "error": {
+                  "details": {
                     "type": ["string", "null"]
                   },
                   "message": {

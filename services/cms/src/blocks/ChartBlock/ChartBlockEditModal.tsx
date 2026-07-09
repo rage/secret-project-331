@@ -146,11 +146,31 @@ const ChartBlockEditModal: React.FC<ChartBlockEditModalProps> = ({
     }, DATA_EXTRACTION_DEBOUNCE_MS)
   }
 
+  const handleCaptionChange = (value: string) => {
+    const attrs: Partial<ChartBlockAttributes> = { caption: value }
+    try {
+      const parsed = JSON.parse(latestSpecRef.current)
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        if (value.trim()) {
+          parsed.description = value
+        } else {
+          delete parsed.description
+        }
+        const nextSpec = JSON.stringify(parsed, null, 2)
+        latestSpecRef.current = nextSpec
+        attrs.spec = nextSpec
+      }
+    } catch {
+      // Spec isn't valid JSON right now; only the caption updates.
+    }
+    setAttributes(attrs)
+  }
+
   const handleDataFileSelect = (media: MediaObject) => {
     setExtractedDataUrl(undefined)
     const rewritten = specWithDataUrl(latestSpecRef.current, media.url)
     if (!rewritten) {
-      setDataFileError(t("invalid-json"))
+      setDataFileError(t("chart-data-file-ok-but-spec-invalid"))
       return
     }
     setDataFileError(undefined)

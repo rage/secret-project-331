@@ -5,6 +5,7 @@ import { image as icon } from "@wordpress/icons"
 
 import ChartBlockEditor from "./ChartBlockEditor"
 import ChartBlockSave from "./ChartBlockSave"
+import { VEGA_LITE_SCHEMA_URL } from "./chartSpec"
 
 import type { BlockConfiguration } from "@/utils/Gutenberg/types"
 
@@ -23,7 +24,7 @@ export const EXAMPLE_DATA_URL = "/chart-block-example-data.json"
 
 export const DEFAULT_VEGA_LITE_SPEC = JSON.stringify(
   {
-    $schema: "https://vega.github.io/schema/vega-lite/v6.json",
+    $schema: VEGA_LITE_SCHEMA_URL,
     description: "A simple bar chart",
     data: { url: EXAMPLE_DATA_URL, format: { type: "json" } },
     mark: "bar",

@@ -83,6 +83,7 @@
   "chart-data-extracted-warning": "Data found in the chart specification was saved as a separate file, so the specification now describes only the chart view.",
   "chart-data-file": "Chart data file (CSV or JSON)",
   "chart-data-file-instructions": "Upload a CSV or JSON file containing the chart data.",
+  "chart-data-file-ok-but-spec-invalid": "The data file was uploaded successfully and is not the problem. It could not be linked to the chart because the chart's Vega-Lite specification is not valid JSON. Fix the specification, then add the file again.",
   "chart-height-px": "Height (px)",
   "chatbot-block-placeholder": "Chatbot placeholder.",
   "chatbot-block-placeholder-explanation": "A chatbot that's placed within the material. Cannot be the same chatbot as the default chatbot of the course. The default chatbot is accessible on all course pages from the button in the lower right corner.",

@@ -3,6 +3,7 @@ import {
   dataUrlFromSpec,
   extractInlineData,
   specWithDataUrl,
+  VEGA_LITE_SCHEMA_URL,
 } from "../../../src/blocks/ChartBlock/chartSpec"
 
 const specWith = (data: unknown): string => JSON.stringify({ mark: "bar", data })
@@ -118,6 +119,20 @@ describe("specWithDataUrl", () => {
 
   it("returns null for unparseable JSON", () => {
     expect(specWithDataUrl("{ not json", "/files/data.csv")).toBeNull()
+  })
+
+  it("creates a starter spec when the spec is empty", () => {
+    expect(specWithDataUrl("", "/files/data.csv")).toEqual({
+      $schema: VEGA_LITE_SCHEMA_URL,
+      data: { url: "/files/data.csv", format: { type: "csv" } },
+    })
+  })
+
+  it("treats a whitespace-only spec as empty", () => {
+    expect(specWithDataUrl("  \n\t", "/files/data.json")).toEqual({
+      $schema: VEGA_LITE_SCHEMA_URL,
+      data: { url: "/files/data.json", format: { type: "json" } },
+    })
   })
 })
 

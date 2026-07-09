@@ -7,6 +7,8 @@ const JSON_EXT = "json"
 const JSON_MIME = "application/json"
 const TEXT_MIME = "text/plain"
 
+export const VEGA_LITE_SCHEMA_URL = "https://vega.github.io/schema/vega-lite/v6.json"
+
 export interface ExtractedData {
   specWithoutData: Record<string, unknown>
   contents: string
@@ -67,19 +69,26 @@ export const dataFormatForUrl = (url: string): { type: string } | undefined => {
   return undefined
 }
 
-/** Spec with its `data` pointed at the given URL; null if the spec text isn't valid JSON. */
+/**
+ * Spec with its `data` pointed at the given URL. An empty spec yields a minimal starter spec so a
+ * data file can be attached first; null if a non-empty spec isn't valid JSON.
+ */
 export const specWithDataUrl = (
   specString: string,
   url: string,
 ): Record<string, unknown> | null => {
+  const format = dataFormatForUrl(url)
+  const data = { url, ...(format ? { format } : {}) }
+  if (specString.trim() === "") {
+    return { $schema: VEGA_LITE_SCHEMA_URL, data }
+  }
   let parsed: Record<string, unknown>
   try {
     parsed = JSON.parse(specString)
   } catch {
     return null
   }
-  const format = dataFormatForUrl(url)
-  return { ...parsed, data: { url, ...(format ? { format } : {}) } }
+  return { ...parsed, data }
 }
 
 /** The data URL referenced by a spec, if any. */

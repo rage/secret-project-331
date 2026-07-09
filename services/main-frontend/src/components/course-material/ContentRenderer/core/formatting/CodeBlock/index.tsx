@@ -54,7 +54,8 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
   dontAllowBlockToBeWiderThanContainerWidth,
 }) => {
   const { t } = useTranslation()
-  const { content } = data.attributes
+  // `language` is added to core/code by a CMS block filter and isn't part of the generated CodeAttributes type.
+  const { content, language } = data.attributes as CodeAttributes & { language?: string }
 
   const processedContent = useMemo(() => replaceBrTagsWithNewlines(content ?? undefined), [content])
 
@@ -89,7 +90,11 @@ const CodeBlock: React.FC<React.PropsWithChildren<BlockRendererProps<CodeAttribu
         <pre
           className={getPreStyles(fontSizePx, dontAllowBlockToBeWiderThanContainerWidth ?? false)}
         >
-          <SyntaxHighlightedContainer content={cleanCode} highlightedLines={highlightedLines} />
+          <SyntaxHighlightedContainer
+            content={cleanCode}
+            highlightedLines={highlightedLines}
+            language={language}
+          />
         </pre>
       </div>
     </BreakFromCentered>

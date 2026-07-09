@@ -60,6 +60,7 @@ const ExportPage: React.FC<React.PropsWithChildren<ExportPageProps>> = ({ query 
             url_path: data.page.url_path,
             title: data.page.title,
             chapter_id: data.page.chapter_id,
+            hidden: data.page.hidden,
           }).content
           let filename = page.url_path
           if (filename === "/") {

@@ -25,8 +25,8 @@ published as a standalone `pnpm create` package.
    own directory (because the launcher `cd`s there first), so the default lands _inside_
    `shared-module/packages/create-exercise-service/<name>`, **not** under `services/`. For real LMS
    integration you must pass an explicit path like `services/<slug>` (see caveats).
-3. **Project type** — `React` (only one implemented). `Svelte` and `No framework` are disabled
-   placeholders; choosing them exits 1.
+3. **Project type** — `React` (only one implemented). `Svelte` and `No framework` are shown as
+   disabled placeholders in the picker and cannot be selected (arrow-key navigation skips them).
 4. **Package manager** — npm / yarn / pnpm. Only used for the printed next-steps text.
 5. **Dev server port** — default `3002`, validated 1–65535. ⚠️ `3002` collides with example-exercise;
    pick a free one (quizzes uses 3004, tmc 3005).
@@ -38,9 +38,12 @@ published as a standalone `pnpm create` package.
 
 1. **`copyTemplate`** — recursively copies `services/example-exercise`, skipping `node_modules`,
    `dist`/`build`/`coverage`/`.turbo`/`.tanstack`, `pnpm-lock.yaml`, `pnpm-workspace.yaml`,
-   `.vscode`, the moocfi-internal deploy files (`Dockerfile`, `Dockerfile.production.slim.
-dockerfile`, `.dockerignore`), and the template's own `src/shared-module/` (re-vendored next).
-2. **`vendorSharedModules`** — copies a fresh snapshot of three shared packages (see below).
+   `tsconfig.tsbuildinfo`, `.vscode`, the template's own Playwright output dirs (`test-results`,
+   `playwright-report`, `blob-report`, `.playwright-cli` — git-ignored but not `.gitignore`-aware
+   copying, so excluded explicitly), the moocfi-internal deploy files (`Dockerfile`,
+   `Dockerfile.production.slim.dockerfile`, `.dockerignore`), and the template's own
+   `src/shared-module/` (re-vendored next).
+2. **`vendorSharedModules`** — copies a fresh snapshot of four shared packages (see below).
 3. **`buildPackageJson`** — rewrites `package.json`: merges the vendored packages' deps +
    peerDeps (template deps win on conflict, sorted); sets `name`/`version` (`0.1.0`); drops
    `devEngines` (monorepo node pin) and the lint-only devDeps (`stylelint`,
@@ -72,20 +75,23 @@ For services that live _inside_ the monorepo (`services/example-exercise`, `quiz
 `shared-module/sync.ts` watches `shared-module/packages/*/src` (`@parcel/watcher`) and `rsync`s each
 package into every consuming service's `src/shared-module/<pkg>` per its `SYNC_TARGETS` table. Run
 via `pnpm --dir shared-module run sync` / `sync-once`, or the wrappers `bin/shared-module-sync-watch`
-and `bin/copy-and-check-shared-module`. For `example-exercise` it syncs only `exercise-protocol`,
-`exercise-client`, `exercise-react` (explicitly excluding `common`/`components` because
-example-exercise is the standalone-capable template). This is why the in-monorepo services'
-`src/shared-module/` is git-ignored and always regenerated.
+and `bin/copy-and-check-shared-module`. For `example-exercise` it syncs `exercise-protocol`,
+`exercise-client`, `exercise-react`, and `exercise-service-test-utils` (explicitly excluding
+`common`/`components` because example-exercise is the standalone-capable template; test-utils is
+synced only into example-exercise — see `TEST_UTIL_TARGETS` in `sync.ts`). This is why the
+in-monorepo services' `src/shared-module/` is git-ignored and always regenerated.
 
 ### Point-in-time vendor (generated standalone project) — `vendorSharedModules`
 
 The CLI mirrors that logic but copies **once**. Driven by
-`VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react"]`, it `cp`s each
-package's `src` into `<project>/src/shared-module/<pkg>`. Layering: protocol ← client ← react
-(the iframe-child React adapter). Host-side `exercise-iframe-host` and `common`/`components` are
-intentionally not vendored (the template imports nothing from them). The generated project tracks
-this snapshot as real source; **there is no sync script in a generated standalone project** — to
-update it you re-run the CLI into a fresh dir or copy the packages over manually.
+`VENDORED_PACKAGES = ["exercise-protocol", "exercise-client", "exercise-react",
+"exercise-service-test-utils"]`, it `cp`s each package's `src` into `<project>/src/shared-module/<pkg>`.
+Layering: protocol ← client ← react (the iframe-child React adapter); test-utils backs the inherited
+`e2e/protocol.spec.ts` suite and declares no runtime deps. Host-side `exercise-iframe-host` and
+`common`/`components` are intentionally not vendored (the template imports nothing from them). The
+generated project tracks this snapshot as real source; **there is no sync script in a generated
+standalone project** — to update it you re-run the CLI into a fresh dir or copy the packages over
+manually (all four, or the inherited e2e suite silently drifts out of date).
 
 ## Decision: standalone vs. in-monorepo
 
@@ -107,7 +113,7 @@ pnpm exec tsx scripts/scaffold-to.ts /tmp/x my-exercise 3002   # non-interactive
 
 ## Caveats to flag to a new author
 
-- Only the React project type works; Svelte / no-framework are placeholders.
+- Only the React project type works; Svelte / no-framework are disabled placeholders in the picker.
 - Default port `3002` duplicates example-exercise — change it.
 - Default target path resolves relative to the CLI package dir, not `services/` — pass an explicit
   path.

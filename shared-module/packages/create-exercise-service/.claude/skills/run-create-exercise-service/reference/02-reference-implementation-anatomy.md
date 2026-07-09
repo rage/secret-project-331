@@ -116,7 +116,10 @@ spec, and `submission_data` = the student's answer), output `GradingResult`. Ret
 
 `src/server/exportDefinitions.ts` (`/api/export-definitions`) and
 `src/server/exportAnswers.ts` (`/api/export-answers`, with `csvExportUtils.ts`) let teachers export
-answer data. Optional — omit the paths from `service-info` to disable.
+answer data. Optional — but disabling it takes more than omitting the two paths from `service-info`:
+the handlers, their `src/routes/api/export-*.ts` routes, and their tests must also be deleted, or
+they break `tsc`/`vitest` by importing types you removed. See `05-step-by-step-checklist.md` Step 3
+for the full removal list.
 
 ### The `jsonRoute` / `readJsonBody` helpers (`src/lib/apiRoutes.ts`)
 
@@ -216,7 +219,7 @@ Origin: *` and `Access-Control-Allow-Private-Network: true` because the iframe f
 
 ## 6. The vendored `src/shared-module/`
 
-Three packages are vendored (copied) into `src/shared-module/`:
+Four packages are vendored (copied) into `src/shared-module/`:
 
 - `exercise-protocol/` — the framework-agnostic contract (envelope types, guards, constants like
   `EXERCISE_SERVICE_CONTENT_ID`).
@@ -224,10 +227,16 @@ Three packages are vendored (copied) into `src/shared-module/`:
   `outputState`, `parentDialog`, cookie/language utils).
 - `exercise-react/` — the React adapter (hooks like `useExerciseServiceParentConnection`,
   `HeightTrackingContainer`, `withNoSsr`, i18n `createI18n`, theme/styles).
+- `exercise-service-test-utils/` — the host emulator + Playwright helpers backing the inherited
+  `e2e/protocol.spec.ts` suite (see below). Declares no runtime deps of its own.
 
 Consumers import via deep paths `@/shared-module/exercise-react/...`. The upstream source is
 `shared-module/packages/*`; a sync mechanism copies it in (see `03-scaffolding-cli.md`). **Treat
 `src/shared-module/` as read-only** — edits get overwritten on the next sync.
+
+Every generated project also inherits `playwright.config.ts` and `e2e/protocol.spec.ts`, a working
+protocol test built on `exercise-service-test-utils`; keep both when slimming a new plugin down —
+they're the regression coverage for the handshake/host-emulator round trip, not template cruft.
 
 ## 7. i18n & localisation
 

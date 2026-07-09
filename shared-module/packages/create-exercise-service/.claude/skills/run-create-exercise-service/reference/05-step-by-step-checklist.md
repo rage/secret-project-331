@@ -10,7 +10,11 @@ service`). Only steps 1–4 + step 9 (register by URL). No monorepo/skaffold/k8s
 - **Track B — first-party plugin shipped inside this monorepo** (like `example-exercise`, `quizzes`,
   `tmc`). All steps.
 
-## Step 0 — Pick identity
+> Before any step below: SKILL.md's mandatory Step 0 — confirming the data model with the user (see
+> `07-key-design-decisions.md`'s one-screen checklist) — must be signed off first. This file picks up
+> after that sign-off.
+
+## Pick identity
 
 - **Slug** (kebab-case, unique), e.g. `my-exercise`. This becomes the `exercise_services.slug` and
   **must equal** the `exercise_tasks.exercise_type` the CMS assigns — it's the routing key.
@@ -76,10 +80,15 @@ grading. Run `pnpm test` (the endpoint tests double as an envelope spec).
 
 ## Step 5 (Track B) — Keep the vendored shared-module synced
 
-In-monorepo services regenerate `src/shared-module/` from `shared-module/packages/*`. Add your slug
-to `shared-module/sync.ts` `SYNC_TARGETS` (mirror the `example-exercise` entry: `exercise-protocol`,
-`exercise-client`, `exercise-react`), and run `bin/shared-module-sync-watch` while developing. Treat
-`src/shared-module/` as read-only. (Standalone Track A keeps its point-in-time vendored snapshot.)
+In-monorepo services regenerate `src/shared-module/` from `shared-module/packages/*`. `shared-module/
+sync.ts`'s `SYNC_TARGETS` is keyed by _package_, each listing its destination services — add your
+service's `src/shared-module` path to `REACT_EXERCISE_TARGETS` (covers `exercise-protocol`,
+`exercise-client`, `exercise-react`, mirroring what `example-exercise` receives). If you keep the
+scaffold's inherited e2e suite (`e2e/protocol.spec.ts`, the default), also add it to
+`TEST_UTIL_TARGETS` for `exercise-service-test-utils` — that list currently contains only
+`example-exercise`, so a new Track B service is not synced by default and its vendored copy would go
+stale. Then run `bin/shared-module-sync-watch` while developing. Treat `src/shared-module/` as
+read-only. (Standalone Track A keeps its point-in-time vendored snapshot.)
 
 ## Step 6 (Track B) — Register in the backend seed
 
@@ -95,6 +104,10 @@ already supports arbitrary services.
 
 ## Step 7 (Track B) — Infra manifests
 
+- The scaffolder deliberately excludes `Dockerfile`, `Dockerfile.production.slim.dockerfile`, and
+  `.dockerignore` (moocfi-internal deploy files, broken in a standalone project — see `03`). Copy
+  these three from `services/example-exercise/` into `services/<slug>/` before wiring skaffold below,
+  or the build will fail with "Dockerfile not found."
 - `kubernetes/base/<slug>/deployment.yml` (headless Service + Deployment; env
   `PUBLIC_BASE_PATH=/<base-path>`; probes on `/<base-path>/api/status/up`) — model on
   `kubernetes/base/example-exercise/deployment.yml`.

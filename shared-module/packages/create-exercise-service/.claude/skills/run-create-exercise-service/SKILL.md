@@ -183,9 +183,12 @@ injection order doesn't matter), lets you push any view with `set-state`, auto-a
 `window.__host` exposes `setState(viewType, data)`, `last(type)`, `messages(type?)`,
 `waitFor(type, pred?)`, `sendUploadResult`/`respondToDialog`, and `reset()`.
 
-Boot a service first (a generated one via `node smoke.mjs --boot --keep` then
-`PUBLIC_BASE_PATH="" PORT=<port> pnpm --dir <kept-dir> run dev`, the human path, or just
-`pnpm --dir services/example-exercise run dev` for the template on `:3002`). Then, from the repo
+Boot a service first — a generated one via `node smoke.mjs --boot --keep`, then
+`PUBLIC_BASE_PATH="" pnpm --dir <kept-dir> run dev`. The kept project always listens on `:3998`
+(smoke.mjs's `PORT` constant is baked into its `dev` script at scaffold time, so a `PORT=<port>` env
+var has **no effect**; to run it on a different port, override the flag directly:
+`pnpm --dir <kept-dir> exec rsbuild dev --port <port>`). Or just run
+`pnpm --dir services/example-exercise run dev` for the template on `:3002`. Then, from the repo
 root, with `playwright-cli` (Chromium is on `PATH`):
 
 ```bash
@@ -271,7 +274,8 @@ pnpm --dir shared-module/packages/exercise-service-test-utils test
   hand-rolling the parent side.
 - **Interactive prompts need a TTY** — pipe-driving `pnpm start` won't work; drive it under tmux
   (`send-keys`, paced with `sleep`), as `interactive-demo.sh` does.
-- **Only the React project type is implemented**; selecting Svelte / No-framework exits 1.
+- **Only the React project type is implemented**; Svelte / No-framework are shown as disabled
+  placeholders in the picker and cannot be selected.
 
 ## Troubleshooting
 

@@ -85,7 +85,7 @@ exercise-specific portion.
 | **public-spec**                        | POST   | `SpecRequest { request_id, private_spec, upload_url }`                                      | `public_spec`                                    |
 | **model-solution**                     | POST   | `SpecRequest`                                                                               | `model_solution_spec`                            |
 | **grade**                              | POST   | `GradingRequest { grading_update_url, exercise_spec=private_spec, submission_data=answer }` | `GradingResult`                                  |
-| **csv export** (definitions / answers) | POST   | —                                                                                           | optional; teacher data export                    |
+| **csv export** (definitions / answers) | POST   | `ExerciseServiceCsvExportRequest<T> { items: T[] }`                                         | optional; teacher data export                    |
 | **status/up**                          | GET    | —                                                                                           | health check for k8s probes                      |
 
 `service-info` is the discovery + registration seam: the backend is seeded only with this endpoint's

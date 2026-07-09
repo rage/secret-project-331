@@ -17,6 +17,7 @@
 
 import { execFileSync, spawn } from "node:child_process"
 import { mkdtempSync, readFileSync, rmSync, existsSync } from "node:fs"
+import { createServer } from "node:net"
 import { tmpdir } from "node:os"
 import { dirname, join, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -56,6 +57,7 @@ async function main() {
   )
 
   // --- Structural assertions ----------------------------------------------------------------------
+  // Overlaps tests/scaffold.test.ts on purpose: this driver must stand alone without `pnpm test`.
   console.log(`\n[structure]`)
   const pkg = JSON.parse(readFileSync(join(out, "package.json"), "utf8"))
   check(pkg.name === NAME, `package.json name === "${NAME}"`)
@@ -95,6 +97,8 @@ async function main() {
 
   // --- Boot the generated service and hit the exercise-service HTTP contract -----------------------
   if (BOOT) {
+    await assertPortFree(PORT)
+
     console.log(`\n[boot] pnpm install (generated project) — this takes ~30s`)
     execFileSync("pnpm", ["--dir", out, "install"], { stdio: "inherit" })
 
@@ -161,6 +165,30 @@ async function main() {
     console.log(`(kept ${out})`)
   }
   process.exit(failures === 0 ? 0 : 1)
+}
+
+/**
+ * Reject if `port` is already bound. A leftover `--keep` server would otherwise satisfy every
+ * `waitFor`/fetch check below, turning a boot failure of the *new* server into a false PASS.
+ */
+async function assertPortFree(port) {
+  await new Promise((resolvePromise, reject) => {
+    const srv = createServer()
+    srv.once("error", (err) => {
+      if (err.code === "EADDRINUSE") {
+        reject(
+          new Error(
+            `Port ${port} is already in use (a previous --boot/--keep run may still be listening). ` +
+              `Kill it by pid, not \`pkill -f\` (see SKILL.md Gotchas), and retry.`,
+          ),
+        )
+      } else {
+        reject(err)
+      }
+    })
+    srv.once("listening", () => srv.close(() => resolvePromise()))
+    srv.listen(port, "127.0.0.1")
+  })
 }
 
 /** Poll a URL until it answers 2xx, or throw after `seconds`. */

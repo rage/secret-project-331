@@ -29,7 +29,8 @@ Quizzes learned this the hard way: its v1 specs had no version marker, so "is th
 detected by _absence_ of a field (`migrationSettings.ts::isOldQuiz`:
 `!Object.prototype.hasOwnProperty.call(quiz, "version")`), and a whole migration layer
 (`services/quizzes/src/util/migration/{privateSpecQuiz,publicSpecQuiz,modelSolutionSpecQuiz,
-userAnswerSpec}.ts` + `migrate.ts`) exists to lift old blobs into the current shape.
+userAnswerSpec}.ts` plus `services/quizzes/src/util/migrate.ts`) exists to lift old blobs into the
+current shape.
 
 Decisions to make:
 

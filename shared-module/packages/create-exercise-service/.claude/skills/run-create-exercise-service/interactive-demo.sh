@@ -8,8 +8,13 @@ set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PKG_ROOT="$(cd "$SKILL_DIR/../../.." && pwd)"
-OUT="${1:-$(mktemp -d "${TMPDIR:-/tmp}/ces-interactive-XXXX")}"
-rm -rf "$OUT"
+if [ -n "${1:-}" ]; then
+  OUT="$1"
+  CLEANUP=false
+else
+  OUT="$(mktemp -u "${TMPDIR:-/tmp}/ces-interactive-XXXX")"
+  CLEANUP=true
+fi
 NAME="interactive-exercise"
 SESSION="ces-demo-$$"
 
@@ -39,5 +44,9 @@ echo "$PANE" | grep -q "Done! Created exercise service \"$NAME\"" || { echo "FAI
 grep -q "\"name\": \"$NAME\"" "$OUT/package.json" || { echo "FAIL: package.json name not set"; fail=1; }
 grep -q "rsbuild dev --port 3011" "$OUT/package.json" || { echo "FAIL: port not applied"; fail=1; }
 
-rm -rf "$OUT"
+if $CLEANUP; then
+  rm -rf "$OUT"
+else
+  echo "kept: $OUT"
+fi
 [ "$fail" -eq 0 ] && echo "PASS" || { echo "FAILED"; exit 1; }

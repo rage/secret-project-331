@@ -3102,16 +3102,7 @@
             "required": ["data", "type"],
             "properties": {
               "data": {
-                "type": "object",
-                "required": ["message"],
-                "properties": {
-                  "details": {
-                    "type": ["string", "null"]
-                  },
-                  "message": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/components/schemas/StreamEventError"
               },
               "type": {
                 "type": "string",
@@ -6174,6 +6165,18 @@
         "properties": {
           "show_exercise_answers": {
             "type": "boolean"
+          }
+        }
+      },
+      "StreamEventError": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "details": {
+            "type": ["string", "null"]
+          },
+          "message": {
+            "type": "string"
           }
         }
       },

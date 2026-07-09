@@ -6,6 +6,7 @@ import { TFunction } from "i18next"
 import React, { useState } from "react"
 import { useTranslation } from "react-i18next"
 
+import { zStreamEventError } from "@/generated/course-material-api/zod.generated"
 import { normalizeErrorForDisplay } from "@/shared-module/common/errors/normalizeErrorForDisplay"
 import { baseTheme, monospaceFont } from "@/shared-module/common/styles"
 
@@ -69,15 +70,16 @@ const ErrorDisplay: React.FC<ErrorDisplayProps> = ({ error }) => {
   const { t } = useTranslation()
   const [showDetails, setShowDetails] = useState(false)
 
-  const formattedError =
-    typeof error === "string"
-      ? {
-          boldPart: t("failed-to-send-message"),
-          normalPart: error,
-          details: [],
-          originalMessage: error,
-        }
-      : formatErrorMessage(error, t)
+  let parsed = zStreamEventError.safeParse(error)
+
+  const formattedError = parsed.success
+    ? {
+        boldPart: t("failed-to-send-message"),
+        normalPart: parsed.data.message,
+        details: parsed.data.details ? [parsed.data.message] : [],
+        originalMessage: parsed.data.details ?? "",
+      }
+    : formatErrorMessage(error, t)
   const hasDetails = formattedError.details.length > 0
 
   return (

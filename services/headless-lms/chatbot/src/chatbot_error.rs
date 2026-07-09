@@ -21,7 +21,7 @@ Used as the result types for all of chatbot.
 pub type ChatbotResult<T> = Result<T, ChatbotError>;
 
 /// The type of [ChatbotError] that occured.
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum ChatbotErrorType {
     InvalidMessageShape,
     InvalidToolName,

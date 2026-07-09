@@ -145,7 +145,7 @@ pub enum ContentFilterSource {
 /// Response received from LLM API
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Response {
-    pub id: String,
+    pub id: Option<String>,
     pub error: Option<ResponseError>,
 }
 
@@ -628,14 +628,17 @@ pub enum ChatbotChatStreamEvent {
         finished: bool,
     },
     Done,
-    Error {
-        message: String,
-        details: Option<String>,
-    },
+    Error(StreamEventError),
     /// If a ChatbotChatStreamEvent has been constructed from a StreamItem etc.,
     /// not all variants are valid ChatbotChatStreamEvents and shouldn't be sent to
     /// the frontend in the stream. In that case, use this variant.
     Invalid,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct StreamEventError {
+    message: String,
+    details: Option<String>,
 }
 
 /// Custom stream that encapsulates both the response stream and the cancellation guard. Makes sure that the guard is always dropped when the stream is dropped.
@@ -875,20 +878,24 @@ async fn parse_tool<'a>(
 
         // Surface any error the API reports (e.g. response.error, response.failed)
         // instead of continuing. Normal responses carry no error object.
-        if let Some(response) = &response_output.response
-        && let Some(error) = &response.error
+        if let Some(response) = response_output.response
+        && let Some(err) = response.error
         {
-            Err(chatbot_err!(
+            let mut error = chatbot_err!(
                 StreamingError,
-                format!("Error received from the API: {}. Response id: {}", error, response.id)
-            ))?
+                format!("Error received from Azure API. Response id: {}", response.id.as_deref().unwrap_or("not received"))
+            );
+            error.add_azure_source(err);
+            Err(error)?
         };
         // Surface the error in case there is no response object, just an error
-        if let Some(error) = &response_output.error {
-            return Err(chatbot_err!(
+        if let Some(err) = response_output.error {
+            let mut error = chatbot_err!(
                 StreamingError,
-                format!("Error received from the API: {}. Response id: {}", error, common_response_id.unwrap_or("not received".to_string()))
-            ))?
+                format!("Error received from Azure API. Response id: {}", common_response_id.as_deref().unwrap_or("not received"))
+            );
+            error.add_azure_source(err);
+            Err(error)?
 
         };
 
@@ -1014,7 +1021,7 @@ fn stream_and_detect_response_stream_type<'a>(
             }
             Some(val) => {
                 let line = val?;
-                match ParsedResponseLine::parse(&line)? {
+                let response_output = match ParsedResponseLine::parse(&line)? {
                     Some(ParsedResponseLine::Event(event_type)) => {
                         trace!("Event: {event_type}");
                         match event_type.as_str() {
@@ -1064,47 +1071,59 @@ fn stream_and_detect_response_stream_type<'a>(
                                 };
                             }
                         }
+                        continue;
                     }
-                    Some(ParsedResponseLine::Data(response_output)) => {
-                        if error_incoming {
-                            if let Some(response) = &response_output.response
-                            && let Some(error) = &response.error {
-                                break Err(chatbot_err!(StreamingError, format!("Error received from Azure: {} Response id: {}", error, response_id.as_deref().unwrap_or("not received"))))?
-                            } else if let Some(error) = &response_output.error {
-                                return Err(chatbot_err!(
-                                    StreamingError,
-                                    format!("Error received from the API: {}. Response id: {}", error, response_id.as_deref().unwrap_or("not received"))
-                                ))?
-                            } else {
-                                break Err(chatbot_err!(StreamingError, format!("Response failed without receiving an API error. Response output: {:?} Response id: {}", response_output, response_id.as_deref().unwrap_or("not received"))))?
-                            };
-                        }
-                        else if response_created_incoming {
-                            let res = response_output.response.ok_or(chatbot_err!(
-                                DeserializationError,
-                                "Expected response object"
-                            ))?;
-                            response_id = Some(res.id);
-                            response_created_incoming = false;
-                        }
-                        if output_item_added {
-                            let item = response_output.item.ok_or(chatbot_err!(
-                                DeserializationError,
-                                "Expected response output item"
-                            ))?;
-                            yield StreamEvent::Item(StreamItem {item, finished: false});
-                            output_item_added = false;
-                        }
-                        else if output_item_done {
-                            let item = response_output.item.ok_or(chatbot_err!(
-                                DeserializationError,
-                                "Expected response output item"
-                            ))?;
-                            yield StreamEvent::Item(StreamItem {item, finished: true});
-                            output_item_done = false;
-                        }
+                    Some(ParsedResponseLine::Data(response_output)) => response_output,
+                    None => {
+                        continue;
                     }
-                    None => {}
+                };
+
+                if error_incoming {
+                    let fallback_error = chatbot_err!(StreamingError, format!("Response failed without receiving an API error. Response output: {:?} Response id: {}", &response_output, response_id.as_deref().unwrap_or("not received")));
+
+                    if let Some(response) = response_output.response
+                    && let Some(err) = response.error {
+                        let mut error = chatbot_err!(
+                            StreamingError,
+                            format!("Error received from Azure API. Response id: {}", response_id.as_deref().unwrap_or("not received"))
+                        );
+                        error.add_azure_source(err);
+                        break Err(error)?
+                    } else if let Some(err) = response_output.error {
+                        let mut error = chatbot_err!(
+                            StreamingError,
+                            format!("Error received from Azure API. Response id: {}", response_id.as_deref().unwrap_or("not received"))
+                        );
+                        error.add_azure_source(err);
+                        break Err(error)?
+                    } else {
+                        break Err(fallback_error)?
+                    };
+                };
+                if response_created_incoming {
+                    let res = response_output.response.ok_or(chatbot_err!(
+                        DeserializationError,
+                        "Expected response object"
+                    ))?;
+                    response_id = res.id;
+                    response_created_incoming = false;
+                }
+                if output_item_added {
+                    let item = response_output.item.ok_or(chatbot_err!(
+                        DeserializationError,
+                        "Expected response output item"
+                    ))?;
+                    yield StreamEvent::Item(StreamItem {item, finished: false});
+                    output_item_added = false;
+                }
+                else if output_item_done {
+                    let item = response_output.item.ok_or(chatbot_err!(
+                        DeserializationError,
+                        "Expected response output item"
+                    ))?;
+                    yield StreamEvent::Item(StreamItem {item, finished: true});
+                    output_item_done = false;
                 }
             }
         }
@@ -1165,18 +1184,22 @@ async fn parse_text_response<'a>(
 
             // Surface any error the API reports (e.g. response.error, response.failed)
             // instead of continuing. Normal responses carry no error object.
-            if let Some(response) = &response_output.response
-            && let Some(error) = &response.error
-            {
-                Err(chatbot_err!(StreamingError, format!("Error received from the API: {}. Response id: {}", error, response.id)))?
-            };
-
-            // Surface the error in case there is no response object, just an error
-            if let Some(error) = &response_output.error {
-                return Err(chatbot_err!(
+            if let Some(response) = response_output.response
+            && let Some(err) = response.error {
+                let mut error = chatbot_err!(
                     StreamingError,
-                    format!("Error received from the API: {}. Response id: {}", error, &response_id)
-                ))?
+                    format!("Error received from Azure API. Response id: {}", &response_id)
+                );
+                error.add_azure_source(err);
+                Err(error)?
+            // Surface the error in case there is no response object, just an error
+            } else if let Some(err) = response_output.error {
+                let mut error = chatbot_err!(
+                    StreamingError,
+                    format!("Error received from Azure API. Response id: {}", &response_id)
+                );
+                error.add_azure_source(err);
+                Err(error)?
             };
 
             let mut full_response_text = full_response_text.lock().await;
@@ -1294,7 +1317,7 @@ fn error_event_string_from_message(
 ) -> ChatbotResult<String> {
     let (message, details): (&str, Option<String>) = if let Some(e) = error {
         let e_msg = if let Some(s) = e.azure_source() {
-            format!("{s:?}")
+            format!("{s}")
         } else {
             e.message().to_string()
         };
@@ -1308,11 +1331,22 @@ fn error_event_string_from_message(
             None,
         )
     };
-    let err = ChatbotChatStreamEvent::Error {
+    let err = ChatbotChatStreamEvent::Error(StreamEventError {
         message: message.to_string(),
         details,
-    };
+    });
     serde_json::to_string(&err).map_err(ChatbotError::from)
+}
+
+fn check_error_should_terminate_stream(err: &ChatbotErrorType) -> bool {
+    vec![
+        ChatbotErrorType::SerdeJson,
+        ChatbotErrorType::DeserializationError,
+        ChatbotErrorType::SqlxError,
+        ChatbotErrorType::ReqwestError,
+        ChatbotErrorType::UrlParse,
+    ]
+    .contains(err)
 }
 
 /// Send and parse a Chatbot message and response and stream it to the user.
@@ -1373,6 +1407,9 @@ pub async fn send_chat_request_and_parse_stream(
             let lines = match make_request_and_create_stream(chat_request.clone(), &app_config).await {
                 Ok(val) => val,
                 Err(error) => {
+                    if check_error_should_terminate_stream(error.error_type()) {
+                        break Err(error)?;
+                    };
                     let event_string = error_event_string_from_message(None, Some(&error))?;
                     yield Bytes::from(event_string);
                     yield Bytes::from("\n");
@@ -1428,6 +1465,9 @@ pub async fn send_chat_request_and_parse_stream(
                     },
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.lock().await, e);
+                        if check_error_should_terminate_stream(e.error_type()) {
+                            return Err(e)?;
+                        };
                         let event_string = error_event_string_from_message(None, Some(&e))?;
                         yield Bytes::from(event_string);
                         yield Bytes::from("\n");
@@ -1491,6 +1531,9 @@ pub async fn send_chat_request_and_parse_stream(
                     Ok(val) => val,
                     Err(e) => {
                         error!("Stream ended unexpectedly. Response id: {} Error: {}", response_id.to_string(), e);
+                        if check_error_should_terminate_stream(e.error_type()) {
+                            return Err(e)?;
+                        };
                         let event_string = error_event_string_from_message(None, Some(&e))?;
                         yield Bytes::from(event_string);
                         yield Bytes::from("\n");

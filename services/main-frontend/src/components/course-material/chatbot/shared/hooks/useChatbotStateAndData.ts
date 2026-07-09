@@ -124,7 +124,7 @@ const useChatbotStateAndData = (
                   dispatch({ type: "TOOL_CALL_IN_PROGRESS", payload: { ...parsedValue.data } })
                 }
               } else if (parsedValue.type === "Error") {
-                setError(parsedValue.data.message)
+                setError(parsedValue.data)
               }
             } catch (e) {
               console.error(e)

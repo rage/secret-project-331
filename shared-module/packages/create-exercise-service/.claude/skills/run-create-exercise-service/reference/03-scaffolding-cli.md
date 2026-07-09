@@ -24,7 +24,8 @@ published as a standalone `pnpm create` package.
 2. **Path to the project** — default is the project name. ⚠️ Resolved relative to the CLI package's
    own directory (because the launcher `cd`s there first), so the default lands _inside_
    `shared-module/packages/create-exercise-service/<name>`, **not** under `services/`. For real LMS
-   integration you must pass an explicit path like `services/<slug>` (see caveats).
+   integration you must pass an explicit path like `services/<slug>` (see the standalone-vs-in-monorepo
+   decision below).
 3. **Project type** — `React` (only one implemented). `Svelte` and `No framework` are shown as
    disabled placeholders in the picker and cannot be selected (arrow-key navigation skips them).
 4. **Package manager** — npm / yarn / pnpm. Only used for the printed next-steps text.
@@ -111,10 +112,6 @@ pnpm test                                              # structural scaffold-to-
 pnpm exec tsx scripts/scaffold-to.ts /tmp/x my-exercise 3002   # non-interactive scaffold
 ```
 
-## Caveats to flag to a new author
-
-- Only the React project type works; Svelte / no-framework are disabled placeholders in the picker.
-- Default port `3002` duplicates example-exercise — change it.
-- Default target path resolves relative to the CLI package dir, not `services/` — pass an explicit
-  path.
-- The vendored shared-module is a snapshot; it does not auto-update in a standalone project.
+(The author-facing caveats — React-only, port `3002` collides, the default path resolves relative to
+the CLI dir, and the vendored snapshot doesn't auto-update — are flagged inline in "Prompts" and the
+two `src/shared-module/` sections above, rather than repeated here.)

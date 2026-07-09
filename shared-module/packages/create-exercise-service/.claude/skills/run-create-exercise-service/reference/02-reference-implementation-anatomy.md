@@ -204,9 +204,9 @@ name/port.
   base path (the opaque-origin iframe can't resolve relative URLs); stamps `IFRAME_HEADERS` on the
   dev server; inlines `NEXT_PUBLIC_SERVICE_SLUG` for the vendored error reporter; public source maps.
 - **`iframe-headers.mjs`**: the CSP/CORS/embedding headers. Permissive CSP
-  (`default-src *`) is safe _because the iframe sandbox provides isolation_. `Access-Control-Allow-
-Origin: *` and `Access-Control-Allow-Private-Network: true` because the iframe fetches its own
-  API/fonts/assets cross-origin.
+  (`default-src *`) is safe _because the iframe sandbox provides isolation_.
+  `Access-Control-Allow-Origin: *` and `Access-Control-Allow-Private-Network: true` because the
+  iframe fetches its own API/fonts/assets cross-origin.
 - **`server.mjs`**: zero-dependency production Node server (the slim image ships no `node_modules`).
   It (1) serves `dist/client` static assets under the base path, (2) strips the base and forwards
   `/{base}/api/*` and `/{base}/_serverFn/*` to the built TanStack server-entry fetch handler —

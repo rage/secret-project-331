@@ -29,6 +29,11 @@ const PKG_ROOT = resolve(SKILL_DIR, "../../..")
 const args = new Set(process.argv.slice(2))
 const BOOT = args.has("--boot")
 const KEEP = args.has("--keep")
+for (const a of args) {
+  if (!["--boot", "--keep"].includes(a)) {
+    console.warn(`  warn  unknown flag ${a} (known: --boot, --keep)`)
+  }
+}
 
 const NAME = "smoke-exercise"
 const DISPLAY = "Smoke exercise"
@@ -102,8 +107,10 @@ async function main() {
     execFileSync("pnpm", ["--dir", out, "install"], { stdio: "inherit" })
 
     console.log(`[boot] starting dev server on :${PORT}`)
+    // The port comes from the baked-in `--port ${PORT}` in the generated dev script, not from PORT.
+    // We serve at the root (no base path) so the checks below can hit /api/... and /iframe directly.
     const dev = spawn("pnpm", ["--dir", out, "run", "dev"], {
-      env: { ...process.env, PUBLIC_BASE_PATH: "", PORT: String(PORT) },
+      env: { ...process.env, PUBLIC_BASE_PATH: "" },
       stdio: "ignore",
       detached: true,
     })

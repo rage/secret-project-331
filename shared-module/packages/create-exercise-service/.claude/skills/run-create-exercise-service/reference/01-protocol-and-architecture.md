@@ -1,11 +1,16 @@
 # The exercise-plugin protocol & architecture (the contract)
 
-This is the contract every exercise service must satisfy, independent of language or framework. A
-plugin is an **independent web application** on its own server that the host system integrates with
-by (a) embedding its UIs in **sandboxed IFrames** communicating over the **Channel Messaging API**,
-and (b) calling its **REST endpoints** from the backend. The host owns storage and all common
-chrome; the plugin implements only the exercise-specific parts. Sources: `docs/plugin-system.md`,
-`services/example-exercise` (reference impl), and the thesis (see `06-design-rationale-thesis.md`).
+**This file is a delta over the shipped `docs/plugin-system.md`.** That doc is the canonical prose
+description of the protocol (message summary, the three views, the REST endpoints, example
+scenarios); read it first. This file adds what it omits and an agent needs: the architecture at a
+glance, the handshake mechanics, the **code locations** of each contract, and the **exact TypeScript
+shapes** of the envelopes/specs/grading. Where the two overlap, `docs/plugin-system.md` wins — don't
+treat the summaries here as a second source of truth.
+
+A plugin is an **independent web application** on its own server that the host integrates with by
+(a) embedding its UIs in **sandboxed IFrames** over the **Channel Messaging API**, and (b) calling
+its **REST endpoints** from the backend. The host owns storage and all common chrome. Sources:
+`docs/plugin-system.md`, `services/example-exercise` (reference impl), and `06-design-rationale-thesis.md`.
 
 ```
                  ┌─────────────────────── HOST SYSTEM ───────────────────────┐
@@ -47,21 +52,17 @@ checking stays server-side (thesis Goals 6 & 8).
 communication is over that port. The vendored `useExerciseServiceParentConnection` hook does all of
 this; a plugin never hand-rolls it.
 
-**Messages** (envelope types in `exercise-protocol/core/exercise-service-protocol-types.ts`):
+**Messages.** `docs/plugin-system.md` has the full From/To/Description table. The enrichments:
 
-| Message                                                                  | Direction       | Purpose                                                                                                |
-| ------------------------------------------------------------------------ | --------------- | ------------------------------------------------------------------------------------------------------ |
-| `set-state`                                                              | Parent → IFrame | Select the view (`view_type`) and supply its input `data`. IFrame discards own state and switches.     |
-| `current-state`                                                          | IFrame → Parent | Report output state changed; `{ data, valid }`. **`valid`** gates whether the host allows save/submit. |
-| `height-changed`                                                         | IFrame → Parent | Content height in px so the parent resizes the IFrame (auto-sent by `HeightTrackingContainer`).        |
-| `set-language`                                                           | Parent → IFrame | Preferred UI language as a BCP 47 tag; fall back to English.                                           |
-| `open-link`                                                              | IFrame → Parent | Open a link in the top browsing context.                                                               |
-| `request-iframe-reload`                                                  | IFrame → Parent | Ask the parent to reload the IFrame after a fatal client error.                                        |
-| `open-dialog` / `dialog-response`                                        | IFrame ↔ Parent | Request a modal (confirm/warning), correlated by `requestId`.                                          |
-| `file-upload` / `upload-result`                                          | IFrame ↔ Parent | Upload files via the parent.                                                                           |
-| `request-repository-exercises` / `repository-exercises` / `test-results` |                 | Programming-exercise (TMC) extensions.                                                                 |
-
-The mandatory ones for any plugin: `set-state`, `current-state`, `height-changed`, `set-language`.
+- Envelope types live in `exercise-protocol/core/exercise-service-protocol-types.ts` —
+  `MessageToIframe` (parent → iframe: `set-state`, `set-language`, `upload-result`,
+  `dialog-response`, `repository-exercises`, `test-results`) and `MessageFromIframe` (iframe →
+  parent: `current-state`, `height-changed`, `open-link`, `open-dialog`, `file-upload`,
+  `request-iframe-reload`, `request-repository-exercises`).
+- The mandatory four for any plugin: `set-state`, `current-state`, `height-changed`, `set-language`.
+  `current-state`'s **`valid`** flag gates whether the host allows save/submit. `height-changed` is
+  auto-sent by the vendored `HeightTrackingContainer`. Request/response pairs (`open-dialog`/
+  `dialog-response`, `file-upload`/`upload-result`) correlate by `requestId`.
 
 ## The three IFrame views (served at one URL, switched by `set-state`)
 
@@ -104,15 +105,10 @@ its own spec/answer/feedback types.
 
 ## Lifecycles
 
-**Edit & save:** CMS loads iframe → handshake → `set-state`(editor, private_spec | null) → producer
-edits, plugin streams `current-state`(private_spec) → on save CMS sends private_spec to backend →
-backend stores it, calls public-spec + model-solution generators, stores those.
-
-**Answer & grade:** course material loads iframe → handshake → `set-state`(answer, public_spec) →
-student interacts, plugin streams `current-state`(answer) → on submit backend saves answer, POSTs
-answer + private_spec to grade → plugin returns score + feedback_json → backend computes points →
-`set-state`(view-submission, answer + grading [+ model_solution]). "Try again" → `set-state`(answer)
-with the previous answer.
+The two end-to-end sequences (edit & save; answer & grade) are in `docs/plugin-system.md`'s "Example
+Scenarios" (and `06`'s lifecycle section). The one non-obvious beat: on save the backend re-derives
+**both** the public spec and the model solution from the private spec and stores them, so those
+generators run on every save — keep them pure and total (`07` §2).
 
 ## What "implementing a new exercise type" means, in one line
 

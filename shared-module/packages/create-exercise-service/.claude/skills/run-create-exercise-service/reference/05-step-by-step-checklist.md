@@ -148,7 +148,7 @@ immediately fetches its service-info. No monorepo changes.
 
 ## The 80/20 to remember
 
-You change ~20% (the 5 data types, 3 server transforms, 3 views, name/port/locales). You keep ~80%
-verbatim (protocol envelopes, `IframeView`/`Renderer` skeleton, `apiRoutes` helpers, all of
-`src/shared-module/`, `rsbuild.config.ts`, `server.mjs`, `iframe-headers.mjs`, `router.tsx`,
-Dockerfiles). The backend needs **zero** per-type Rust code beyond one seed row.
+You change ~20% (the 5 data types, 3 server transforms, 3 views, name/port/locales) and keep ~80%
+verbatim (the protocol plumbing, build/serve wiring, all of `src/shared-module/`). The backend needs
+**zero** per-type Rust code beyond one seed row. The full file-by-file change-vs-keep list lives in
+`02-reference-implementation-anatomy.md` — don't re-derive it.

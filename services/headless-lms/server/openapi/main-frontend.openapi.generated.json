@@ -15724,7 +15724,8 @@
           "exercise_tasks",
           "content",
           "url_path",
-          "title"
+          "title",
+          "hidden"
         ],
         "properties": {
           "chapter_id": {
@@ -15771,6 +15772,9 @@
             "type": ["string", "null"],
             "format": "uuid",
             "description": "If set, set this page to be the front page of this course part."
+          },
+          "hidden": {
+            "type": "boolean"
           },
           "title": {
             "type": "string"

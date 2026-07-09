@@ -1,0 +1,80 @@
+[
+  {
+    "clientId": "e25e69ca-1ee7-49f7-bb9d-55196d360873",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "def print():\n  System.out.println(\"Hello World!\");"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "5f2dc6d7-d57e-45b8-83db-edd7f5de4e88",
+    "isValid": true,
+    "name": "core/preformatted",
+    "attributes": {
+      "content": "Write Preformatted Text <strong>Bold </strong><em>Italic </em><mark style=\"background-color:#CF2E2E\" class=\"has-inline-color\">Background</mark> and <mark style=\"background-color:rgba(0, 0, 0, 0);color:#0693E3\" class=\"has-inline-color\">Text color</mark>"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "b1f0a3c2-1d4e-4a6b-9c8d-0e1f2a3b4c5d",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "def greet(name):\n    print(f\"Hello, {name}!\")\n\n\ngreet(\"World\")",
+      "language": "python"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "c2a1b4d3-2e5f-4b7c-8d9e-1f2a3b4c5d6e",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "function greet(name) {\n  console.log(`Hello, ${name}!`)\n}\n\ngreet(\"World\")",
+      "language": "javascript"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "d3b2c5e4-3f6a-4c8d-9e0f-2a3b4c5d6e7f",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "public class Main {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, World!\");\n    }\n}",
+      "language": "java"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "e4c3d6f5-4a7b-4d9e-8f1a-3b4c5d6e7f8a",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "#include <iostream>\n\nint main() {\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}",
+      "language": "cpp"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "f5d4e7a6-5b8c-4e0f-9a2b-4c5d6e7f8a9b",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "SELECT name, email\nFROM users\nWHERE active = TRUE\nORDER BY name;",
+      "language": "sql"
+    },
+    "innerBlocks": []
+  },
+  {
+    "clientId": "a6e5f8b7-6c9d-4f1a-8b3c-5d6e7f8a9b0c",
+    "isValid": true,
+    "name": "core/code",
+    "attributes": {
+      "content": "#!/bin/bash\nfor i in 1 2 3; do\n  echo \"Iteration $i\"\ndone",
+      "language": "bash"
+    },
+    "innerBlocks": []
+  }
+]

@@ -53,6 +53,7 @@ import {
 import runMigrationsAndValidations from "../../utils/Gutenberg/runMigrationsAndValidations"
 import withCustomHtmlParagraphWarning from "../../utils/Gutenberg/withCustomHtmlParagraphWarning"
 import withHeadingHierarchyWarnings from "../../utils/Gutenberg/withHeadingHierarchyWarnings"
+import withImageFocalPointReset from "../../utils/Gutenberg/withImageFocalPointReset"
 import withImageWarnings from "../../utils/Gutenberg/withImageWarnings"
 import withParagraphWarnings from "../../utils/Gutenberg/withParagraphWarnings"
 import CommonKeyboardShortcuts from "../CommonKeyboardShortcuts"
@@ -257,6 +258,13 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
     addFilter("editor.BlockEdit", "moocfi/cms/imageWarnings", withImageWarnings)
     return () => {
       removeFilter("editor.BlockEdit", "moocfi/cms/imageWarnings")
+    }
+  }, [])
+
+  useEffect(() => {
+    addFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset", withImageFocalPointReset)
+    return () => {
+      removeFilter("editor.BlockEdit", "moocfi/cms/imageFocalPointReset")
     }
   }, [])
 

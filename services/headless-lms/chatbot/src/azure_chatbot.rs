@@ -630,7 +630,7 @@ pub enum ChatbotChatStreamEvent {
     Done,
     Error {
         message: String,
-        error: Option<String>,
+        details: Option<String>,
     },
     /// If a ChatbotChatStreamEvent has been constructed from a StreamItem etc.,
     /// not all variants are valid ChatbotChatStreamEvents and shouldn't be sent to
@@ -1292,7 +1292,7 @@ fn error_event_string_from_message(
     message: Option<&str>,
     error: Option<&ChatbotError>,
 ) -> ChatbotResult<String> {
-    let (message, error): (&str, Option<String>) = if let Some(e) = error {
+    let (message, details): (&str, Option<String>) = if let Some(e) = error {
         let e_msg = if let Some(s) = e.azure_source() {
             format!("{s:?}")
         } else {
@@ -1310,7 +1310,7 @@ fn error_event_string_from_message(
     };
     let err = ChatbotChatStreamEvent::Error {
         message: message.to_string(),
-        error,
+        details,
     };
     serde_json::to_string(&err).map_err(ChatbotError::from)
 }

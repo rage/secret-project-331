@@ -642,5 +642,5 @@ jobs:
         working-directory: ./system-tests/
 
       - name: Run tsc
-        run: pnpm exec tsc --noEmit
-        working-directory: ./system-tests/
+        # Native TS 7 (root `tsc`), invoked from repo root with -p so it uses the root compiler.
+        run: pnpm exec tsc -p ./system-tests --noEmit

@@ -2,17 +2,20 @@
 set -euo pipefail
 source "$(dirname "$0")/.common"
 
+# Type-checks run with the native TypeScript 7 compiler (root `tsc` = @typescript/native).
+# Invoke from the repo root with `-p <dir>` (do NOT `cd` into the workspace: that would pick up
+# the workspace's own typescript@6 `tsc`). Resolution still follows each project's node_modules.
 run_command pnpm exec concurrently \
   -n "cms,main-frontend,example-exercise,quizzes,tmc,exercise-protocol,exercise-client,exercise-react,create-exercise-service" \
   -c "green.bold,red.bold,blue.bold,yellow.bold,cyan.bold,magenta.bold,white.bold,gray.bold,greenBright.bold" \
-  "cd services/cms && pnpm exec tsc --noEmit" \
-  "cd services/main-frontend && pnpm exec tsc --noEmit" \
-  "cd services/example-exercise && pnpm exec tsc --noEmit" \
-  "cd services/quizzes && pnpm exec tsc --noEmit" \
-  "cd services/tmc && pnpm exec tsc --noEmit" \
-  "cd shared-module/packages/exercise-protocol && pnpm exec tsc --noEmit" \
-  "cd shared-module/packages/exercise-client && pnpm exec tsc --noEmit" \
-  "cd shared-module/packages/exercise-react && pnpm exec tsc --noEmit" \
-  "cd shared-module/packages/create-exercise-service && pnpm exec tsc --noEmit"
+  "pnpm exec tsc -p services/cms --noEmit" \
+  "pnpm exec tsc -p services/main-frontend --noEmit" \
+  "pnpm exec tsc -p services/example-exercise --noEmit" \
+  "pnpm exec tsc -p services/quizzes --noEmit" \
+  "pnpm exec tsc -p services/tmc --noEmit" \
+  "pnpm exec tsc -p shared-module/packages/exercise-protocol --noEmit" \
+  "pnpm exec tsc -p shared-module/packages/exercise-client --noEmit" \
+  "pnpm exec tsc -p shared-module/packages/exercise-react --noEmit" \
+  "pnpm exec tsc -p shared-module/packages/create-exercise-service --noEmit"
 
 echo "finished"

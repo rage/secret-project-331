@@ -157,6 +157,6 @@
     ],
   },
   "extensions": {
-    "recommendations": ["mkhl.direnv"],
+    "recommendations": ["mkhl.direnv", "TypeScriptTeam.native-preview"],
   },
 }

@@ -5,7 +5,7 @@ use utoipa::OpenApi;
 use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
 
 #[derive(OpenApi)]
-#[openapi(paths(get_chatbot, edit_chatbot, delete_chatbot))]
+#[openapi(paths(get_chatbot, edit_chatbot, delete_chatbot, get_chatbot_ids))]
 pub(crate) struct MainFrontendChatbotsApiDoc;
 
 /// GET `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
@@ -116,11 +116,32 @@ async fn delete_chatbot(
     token.authorized_ok(web::Json(()))
 }
 
+/// GET `/api/v0/main-frontend/chatbots`
+#[utoipa::path(
+    get,
+    path = "/",
+    operation_id = "getChatbotConfigurationIds",
+    tag = "chatbots",
+    responses(
+        (status = 200, description = "Chatbot configuration ids", body = Vec<String>)
+    )
+)]
+#[instrument(skip(pool))]
+async fn get_chatbot_ids(pool: web::Data<PgPool>) -> ControllerResult<web::Json<Vec<String>>> {
+    let mut conn = pool.acquire().await?;
+    let chatbot_ids =
+        models::chatbot_configurations::get_chatbot_configuration_ids(&mut conn).await?;
+    let chatbot_ids_vec = chatbot_ids.into_iter().map(|x| x.id).collect();
+    let token = skip_authorize();
+    token.authorized_ok(web::Json(chatbot_ids_vec))
+}
+
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/{chatbot_configuration_id}", web::get().to(get_chatbot))
         .route("/{chatbot_configuration_id}", web::post().to(edit_chatbot))
         .route(
             "/{chatbot_configuration_id}",
             web::delete().to(delete_chatbot),
-        );
+        )
+        .route("/", web::get().to(get_chatbot_ids));
 }

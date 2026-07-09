@@ -423,3 +423,21 @@ RETURNING *
     .await?;
     Ok(res)
 }
+
+pub struct ChatbotConfigurationIds {
+    pub id: String,
+}
+pub async fn get_chatbot_configuration_ids(
+    conn: &mut PgConnection,
+) -> ModelResult<Vec<ChatbotConfigurationIds>> {
+    let res = sqlx::query_as!(
+        ChatbotConfigurationIds,
+        r#"
+SELECT id
+FROM chatbot_configurations
+        "#
+    )
+    .fetch_all(conn)
+    .await?;
+    Ok(res)
+}

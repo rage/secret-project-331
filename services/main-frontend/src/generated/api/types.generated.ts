@@ -291,6 +291,12 @@ export type ChapterUpdate = {
   opens_at?: string | null
 }
 
+export type ChatbotCommandCenterData = {
+  chatbot_name: string
+  configuration_id: string
+  course_name: string
+}
+
 export type ChatbotConfiguration = {
   chatbot_name: string
   course_id: string
@@ -639,11 +645,7 @@ export type CourseDesignerPlanStageWithTasks = CourseDesignerPlanStage & {
 }
 
 export type CourseDesignerPlanStatus =
-  | "Draft"
-  | "Scheduling"
-  | "InProgress"
-  | "Completed"
-  | "Archived"
+  "Draft" | "Scheduling" | "InProgress" | "Completed" | "Archived"
 
 export type CourseDesignerPlanSummary = {
   active_stage?: null | CourseDesignerStage
@@ -674,11 +676,7 @@ export type CourseDesignerScheduleSuggestionResponse = {
 }
 
 export type CourseDesignerStage =
-  | "Analysis"
-  | "Design"
-  | "Development"
-  | "Implementation"
-  | "Evaluation"
+  "Analysis" | "Design" | "Development" | "Implementation" | "Evaluation"
 
 /**
  * Discriminant for forward-compatible workspace payloads stored in `workspace_data`.
@@ -1014,10 +1012,7 @@ export type EmailTemplateNew = {
 }
 
 export type EmailTemplateType =
-  | "reset_password_email"
-  | "delete_user_email"
-  | "confirm_email_code"
-  | "generic"
+  "reset_password_email" | "delete_user_email" | "confirm_email_code" | "generic"
 
 export type EventInfo = {
   count?: number | null
@@ -2124,11 +2119,7 @@ export type SystemHealthStatus = {
 }
 
 export type TeacherDecisionType =
-  | "FullPoints"
-  | "ZeroPoints"
-  | "CustomPoints"
-  | "SuspectedPlagiarism"
-  | "RejectAndReset"
+  "FullPoints" | "ZeroPoints" | "CustomPoints" | "SuspectedPlagiarism" | "RejectAndReset"
 
 export type TeacherGradingDecision = {
   created_at: string
@@ -2283,8 +2274,7 @@ export type UserInfoPayload = {
 }
 
 export type UserPointsUpdateStrategy =
-  | "CanAddPointsButCannotRemovePoints"
-  | "CanAddPointsAndCanRemovePoints"
+  "CanAddPointsButCannotRemovePoints" | "CanAddPointsAndCanRemovePoints"
 
 export type UserResearchConsent = {
   created_at: string
@@ -2633,6 +2623,23 @@ export type GetChatbotModelResponses = {
 }
 
 export type GetChatbotModelResponse = GetChatbotModelResponses[keyof GetChatbotModelResponses]
+
+export type GetChatbotCommandCenterDataData = {
+  body?: never
+  path?: never
+  query?: never
+  url: "/api/v0/main-frontend/chatbots/"
+}
+
+export type GetChatbotCommandCenterDataResponses = {
+  /**
+   * Chatbot command center data
+   */
+  200: Array<ChatbotCommandCenterData>
+}
+
+export type GetChatbotCommandCenterDataResponse =
+  GetChatbotCommandCenterDataResponses[keyof GetChatbotCommandCenterDataResponses]
 
 export type DeleteChatbotConfigurationData = {
   body?: never

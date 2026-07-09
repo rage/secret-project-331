@@ -177,6 +177,8 @@ import type {
   GetCertificateByConfigurationIdResponses,
   GetCertificateByVerificationIdData,
   GetCertificateByVerificationIdResponses,
+  GetChatbotCommandCenterDataData,
+  GetChatbotCommandCenterDataResponses,
   GetChatbotConfigurationData,
   GetChatbotConfigurationResponses,
   GetChatbotModelData,
@@ -675,6 +677,7 @@ import {
   zGetAvgTimeToFirstSubmissionHistoryResponse,
   zGetBulkUserDetailsResponse,
   zGetCertificateByConfigurationIdResponse,
+  zGetChatbotCommandCenterDataResponse,
   zGetChatbotConfigurationResponse,
   zGetChatbotModelResponse,
   zGetChatbotModelsResponse,
@@ -1214,6 +1217,24 @@ export const getChatbotModel = <ThrowOnError extends boolean = true>(
       "Content-Type": "application/json",
       ...options.headers,
     },
+  })
+
+/**
+ * GET `/api/v0/main-frontend/chatbots`
+ */
+export const getChatbotCommandCenterData = <ThrowOnError extends boolean = true>(
+  options?: Options<GetChatbotCommandCenterDataData, ThrowOnError>,
+): RequestResult<GetChatbotCommandCenterDataResponses, unknown, ThrowOnError, "data"> =>
+  (options?.client ?? client).get<
+    GetChatbotCommandCenterDataResponses,
+    unknown,
+    ThrowOnError,
+    "data"
+  >({
+    responseValidator: async (data) => await zGetChatbotCommandCenterDataResponse.parseAsync(data),
+    responseStyle: "data",
+    url: "/api/v0/main-frontend/chatbots/",
+    ...options,
   })
 
 /**

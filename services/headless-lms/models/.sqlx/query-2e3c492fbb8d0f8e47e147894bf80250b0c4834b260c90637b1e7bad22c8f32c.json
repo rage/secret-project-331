@@ -1,0 +1,50 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n    SELECT co.chatbot_name, co.id AS configuration_id, c.name AS course_name\n    FROM chatbot_configurations AS co INNER JOIN courses AS c ON co.course_id = c.id\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "chatbot_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "chatbot_name"
+          }
+        }
+      },
+      {
+        "ordinal": 1,
+        "name": "configuration_id",
+        "type_info": "Uuid",
+        "origin": {
+          "Table": {
+            "table": "chatbot_configurations",
+            "name": "id"
+          }
+        }
+      },
+      {
+        "ordinal": 2,
+        "name": "course_name",
+        "type_info": "Varchar",
+        "origin": {
+          "Table": {
+            "table": "courses",
+            "name": "name"
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      false,
+      false,
+      false
+    ]
+  },
+  "hash": "2e3c492fbb8d0f8e47e147894bf80250b0c4834b260c90637b1e7bad22c8f32c"
+}

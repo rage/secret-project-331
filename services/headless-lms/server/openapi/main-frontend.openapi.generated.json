@@ -577,6 +577,28 @@
         }
       }
     },
+    "/api/v0/main-frontend/chatbots/": {
+      "get": {
+        "tags": ["chatbots"],
+        "summary": "GET `/api/v0/main-frontend/chatbots`",
+        "operationId": "getChatbotCommandCenterData",
+        "responses": {
+          "200": {
+            "description": "Chatbot command center data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ChatbotCommandCenterData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v0/main-frontend/chatbots/{chatbot_configuration_id}": {
       "get": {
         "tags": ["chatbots"],
@@ -11605,6 +11627,21 @@
           "opens_at": {
             "type": ["string", "null"],
             "format": "date-time"
+          }
+        }
+      },
+      "ChatbotCommandCenterData": {
+        "type": "object",
+        "required": ["configuration_id", "chatbot_name", "course_name"],
+        "properties": {
+          "chatbot_name": {
+            "type": "string"
+          },
+          "configuration_id": {
+            "type": "string"
+          },
+          "course_name": {
+            "type": "string"
           }
         }
       },

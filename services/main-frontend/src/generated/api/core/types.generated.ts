@@ -11,15 +11,7 @@ import type {
 } from "./bodySerializer.generated"
 
 export type HttpMethod =
-  | "connect"
-  | "delete"
-  | "get"
-  | "head"
-  | "options"
-  | "patch"
-  | "post"
-  | "put"
-  | "trace"
+  "connect" | "delete" | "get" | "head" | "options" | "patch" | "post" | "put" | "trace"
 
 export type Client<
   RequestFn = never,

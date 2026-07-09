@@ -210,6 +210,12 @@ export const zChapterUpdate = z.object({
   opens_at: z.iso.datetime().nullish(),
 })
 
+export const zChatbotCommandCenterData = z.object({
+  chatbot_name: z.string(),
+  configuration_id: z.string(),
+  course_name: z.string(),
+})
+
 export const zCmsPageExerciseSlide = z.object({
   exercise_id: z.uuid(),
   id: z.uuid(),
@@ -2938,6 +2944,11 @@ export const zGetChatbotModelPath = z.object({
  * Chatbot model
  */
 export const zGetChatbotModelResponse = zChatbotConfigurationModel
+
+/**
+ * Chatbot command center data
+ */
+export const zGetChatbotCommandCenterDataResponse = z.array(zChatbotCommandCenterData)
 
 export const zDeleteChatbotConfigurationPath = z.object({
   chatbot_configuration_id: z.uuid(),

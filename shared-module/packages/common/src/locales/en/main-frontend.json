@@ -1814,6 +1814,7 @@
   "title-change-requests": "Change requests",
   "title-chapter": "Chapter {{chapter-number}}: {{chapter-name}}",
   "title-chapter-only-number": "Chapter {{chapter-number}}",
+  "title-chatbot-command-center": "Chatbot command center",
   "title-color-palette": "Color palette",
   "title-communication-with-the-iframe": "Communication with the IFrame",
   "title-completion-registration-redirect": "Redirecting to completion registration",

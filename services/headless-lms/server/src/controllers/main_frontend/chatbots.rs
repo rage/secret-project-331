@@ -1,11 +1,17 @@
 //! Controllers for requests starting with `/api/v0/main-frontend/chatbots/`.
 use crate::prelude::*;
+use headless_lms_models::chatbot_configurations::ChatbotCommandCenterData;
 use utoipa::OpenApi;
 
 use models::chatbot_configurations::{ChatbotConfiguration, NewChatbotConf};
 
 #[derive(OpenApi)]
-#[openapi(paths(get_chatbot, edit_chatbot, delete_chatbot, get_chatbot_ids))]
+#[openapi(paths(
+    get_chatbot,
+    edit_chatbot,
+    delete_chatbot,
+    get_chatbot_command_center_data
+))]
 pub(crate) struct MainFrontendChatbotsApiDoc;
 
 /// GET `/api/v0/main-frontend/chatbots/{chatbot_configuration_id}`
@@ -120,22 +126,24 @@ async fn delete_chatbot(
 #[utoipa::path(
     get,
     path = "/",
-    operation_id = "getChatbotConfigurationIds",
+    operation_id = "getChatbotCommandCenterData",
     tag = "chatbots",
     responses(
-        (status = 200, description = "Chatbot configuration ids", body = Vec<String>)
+        (status = 200, description = "Chatbot command center data", body = Vec<ChatbotCommandCenterData>)
     )
 )]
 #[instrument(skip(pool))]
-async fn get_chatbot_ids(pool: web::Data<PgPool>) -> ControllerResult<web::Json<Vec<String>>> {
+async fn get_chatbot_command_center_data(
+    pool: web::Data<PgPool>,
+) -> ControllerResult<web::Json<Vec<ChatbotCommandCenterData>>> {
     let mut conn = pool.acquire().await?;
-    let chatbot_ids =
-        models::chatbot_configurations::get_chatbot_configuration_ids(&mut conn).await?;
-    let chatbot_ids_vec = chatbot_ids.into_iter().map(|x| x.id).collect();
+    let chatbot_command_center_data =
+        models::chatbot_configurations::get_chatbot_command_center_data(&mut conn).await?;
     let token = skip_authorize();
-    token.authorized_ok(web::Json(chatbot_ids_vec))
+    token.authorized_ok(web::Json(chatbot_command_center_data))
 }
 
+// get_chatbot_command_center_data
 pub fn _add_routes(cfg: &mut web::ServiceConfig) {
     cfg.route("/{chatbot_configuration_id}", web::get().to(get_chatbot))
         .route("/{chatbot_configuration_id}", web::post().to(edit_chatbot))
@@ -143,5 +151,5 @@ pub fn _add_routes(cfg: &mut web::ServiceConfig) {
             "/{chatbot_configuration_id}",
             web::delete().to(delete_chatbot),
         )
-        .route("/", web::get().to(get_chatbot_ids));
+        .route("/", web::get().to(get_chatbot_command_center_data));
 }

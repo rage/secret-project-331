@@ -11,8 +11,10 @@ import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 const ChatbotCommandCenterPage: React.FC = () => {
   const { t } = useTranslation()
   usePageTitle(t("chatbot-command-center-heading"))
+
   return (
     <>
+      <h1>{t("title-chatbot-command-center")}</h1>
       <ChatbotCommandCenter />
     </>
   )

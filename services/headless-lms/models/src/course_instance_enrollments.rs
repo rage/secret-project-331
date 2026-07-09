@@ -25,9 +25,8 @@ pub struct CourseInstanceEnrollmentsInfo {
     pub course_module_completions: Vec<CourseModuleCompletion>,
 }
 
-/// Slim course-module descriptor used to give the frontend a module's name and ordering so it can
-/// label per-module completions and show "X of Y modules" without a separate course-structure fetch.
-/// A default (base) module has `name = None`.
+/// Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
+/// without a separate course-structure fetch. Default (base) module has `name = None`.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct CourseModuleInfo {
     pub id: Uuid,
@@ -42,8 +41,7 @@ pub struct CourseEnrollmentInfo {
     pub course: Course,
     pub course_instances: Vec<CourseInstance>,
     pub user_course_settings: Option<UserCourseSettings>,
-    /// All non-deleted modules of the course, so per-module completions can be named and the total
-    /// module count is known. Ordered by `order_number`.
+    /// All non-deleted modules of the course, ordered by `order_number`.
     pub course_modules: Vec<CourseModuleInfo>,
     pub course_module_completions: Vec<CourseModuleCompletion>,
     pub course_module_completions_needing_review: i32,

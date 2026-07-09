@@ -59,19 +59,17 @@ pub struct SuspectedCheaters {
     pub status: SuspectedCheaterStatus,
 }
 
-/// A user's suspected-cheater record in one course, paired with that course's applicable duration
-/// threshold, for the cross-course "Completion review" list on the user-details page. Read-only.
+/// A user's suspected-cheater record in one course, paired with that course's duration threshold.
+/// Read-only, for the cross-course "Completion review" list on the user-details page.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
 pub struct UserSuspectedCheaterInfo {
     pub course_id: Uuid,
     pub status: SuspectedCheaterStatus,
     pub total_duration_seconds: Option<i32>,
     pub total_points: i32,
-    /// When the student was first flagged in this course (the record's `created_at`; unchanged on
-    /// re-flag). Not a review timestamp.
+    /// When first flagged in this course (record `created_at`, unchanged on re-flag).
     pub first_flagged_at: DateTime<Utc>,
-    /// The duration threshold (seconds) that applies to this course; the student was flagged for
-    /// completing faster than this.
+    /// Duration threshold (seconds) for this course; student was flagged for completing faster.
     pub threshold_seconds: i32,
 }
 
@@ -291,8 +289,8 @@ RETURNING *
     Ok(cheater)
 }
 
-/// All non-deleted suspected-cheater records for a user, across every course. A user can be flagged
-/// in more than one course, so this returns a list (never `fetch_one`).
+/// All non-deleted suspected-cheater records for a user across courses. A user can be flagged in
+/// more than one course, hence a list.
 pub async fn get_all_by_user_id(
     conn: &mut PgConnection,
     user_id: Uuid,
@@ -312,16 +310,13 @@ WHERE user_id = $1
     Ok(cheaters)
 }
 
-/// The cheater-duration threshold (seconds) shown for a course in the review UI: the explicitly
-/// configured threshold on the course's DEFAULT module, or [`DEFAULT_CHEATER_THRESHOLD_SECONDS`] when
-/// none is set.
+/// Duration threshold (seconds) shown for a course in the review UI: the DEFAULT module's configured
+/// threshold, or [`DEFAULT_CHEATER_THRESHOLD_SECONDS`] if unset.
 ///
-/// Known limitation: flagging in `library/progressing.rs` uses the threshold of the *completed*
-/// module, so for a non-default module that has its own configured threshold this default-module
-/// value can differ from the one that actually triggered the flag. The `suspected_cheaters` row does
-/// not record which module triggered it, so this is a best-effort display figure — correct for the
-/// common case where detection is governed by the default module. A fully accurate value would
-/// require persisting the applied threshold on the flag row.
+/// Known limitation: flagging (`library/progressing.rs`) uses the *completed* module's threshold, so
+/// for a non-default module with its own threshold this can differ from the value that triggered the
+/// flag. The `suspected_cheaters` row doesn't record which module triggered it, so this is a
+/// best-effort display figure.
 pub async fn get_applicable_threshold_seconds(
     conn: &mut PgConnection,
     course_id: Uuid,
@@ -334,8 +329,7 @@ pub async fn get_applicable_threshold_seconds(
     Ok(threshold)
 }
 
-/// Every course where the user has a (non-deleted) suspected-cheater record, each paired with the
-/// course's applicable duration threshold. Cross-course, read-only view for the user-details page.
+/// Each course where the user has a non-deleted suspected-cheater record, paired with its duration threshold.
 pub async fn get_suspected_cheater_info_for_user(
     conn: &mut PgConnection,
     user_id: Uuid,

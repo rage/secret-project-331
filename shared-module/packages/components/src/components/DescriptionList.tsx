@@ -40,10 +40,7 @@ const ddCss = css`
   font-size: var(--font-size-2);
 `
 
-/**
- * Semantic key/value list (`<dl>`). Programmatically associates each label with its value for
- * assistive tech — use instead of `<p>label: value</p>` rows.
- */
+/** Semantic key/value list (`<dl>`); associates each label with its value for assistive tech. Use instead of `<p>label: value</p>` rows. */
 export const DescriptionList: React.FC<DescriptionListProps> = ({
   items,
   layout = "inline",

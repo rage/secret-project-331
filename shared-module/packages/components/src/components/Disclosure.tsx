@@ -69,10 +69,7 @@ const panelCss = css`
   padding: 0 var(--space-4) var(--space-4);
 `
 
-/**
- * An accessible expand/collapse section built on react-aria's `useButton`. The trigger exposes
- * `aria-expanded`/`aria-controls`; the panel is a labelled region and its content is rendered lazily.
- */
+/** Expand/collapse section built on react-aria `useButton`. Trigger exposes `aria-expanded`/`aria-controls`; the panel is a labelled region, its content rendered lazily. */
 export const Disclosure: React.FC<DisclosureProps> = ({
   title,
   defaultExpanded = false,

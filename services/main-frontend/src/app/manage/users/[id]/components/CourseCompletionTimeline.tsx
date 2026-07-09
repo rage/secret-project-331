@@ -19,9 +19,9 @@ const wrapperCss = css`
 `
 
 /**
- * A compact time-axis view of one course: enrollment plus each module completion, so a burst of
- * completions in a short window (the strongest "too fast" signal) is visible at a glance. The chart
- * is decorative for assistive tech — the same events are provided as a visually-hidden table.
+ * Compact time axis for one course: enrollment plus each module completion, so a burst of completions
+ * in a short window (the strongest "too fast" signal) stands out. Decorative for assistive tech — the
+ * same events are provided as a visually-hidden table.
  */
 const CourseCompletionTimeline: React.FC<CourseCompletionTimelineProps> = ({ enrollment }) => {
   const { t } = useTranslation()

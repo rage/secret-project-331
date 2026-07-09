@@ -1,9 +1,8 @@
 import type { CourseEnrollmentInfo } from "@/generated/api/types.generated"
 
 /**
- * Modules the student has *passed* in this course, counted distinctly and restricted to modules that
- * still exist. A passed completion for a since-deleted module must not inflate the count past the
- * module total (otherwise the card can read "2 of 1 modules").
+ * Distinct modules passed in this course, restricted to modules that still exist — a completion for
+ * a deleted module must not push the count past the total ("2 of 1 modules").
  */
 export function completedModuleCount(enrollment: CourseEnrollmentInfo): number {
   const existingModuleIds = new Set(enrollment.course_modules.map((m) => m.id))

@@ -20,10 +20,10 @@ interface TimelineRow {
 }
 
 /**
- * Cross-course activity on a single time axis: one lane per course, with enrollment and each module
- * completion plotted, so whole-account patterns (e.g. a cluster of completions across courses) are
- * visible. Lanes are keyed by course id (course names are not unique) and labelled by name. Decorative
- * for assistive tech — the same rows are exposed as a visually-hidden table.
+ * Cross-course activity on one time axis: a lane per course with enrollment and each module completion
+ * plotted, so whole-account patterns (a cluster of completions across courses) stand out. Lanes are
+ * keyed by course id since course names are not unique. Decorative for assistive tech — the same rows
+ * are exposed as a visually-hidden table.
  */
 const ActivityTimeline: React.FC<ActivityTimelineProps> = ({ enrollments }) => {
   const { t } = useTranslation()

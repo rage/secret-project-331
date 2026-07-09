@@ -349,8 +349,8 @@ AND deleted_at IS NULL
     Ok(res)
 }
 
-/// Batched variant of [`get_by_course_id`]: fetches the modules for many courses in one query so
-/// callers building per-course views can group in memory instead of issuing one query per course.
+/// Batched [`get_by_course_id`]: modules for many courses in one query, to group in memory instead
+/// of one query per course.
 pub async fn get_by_course_ids(
     conn: &mut PgConnection,
     course_ids: &[Uuid],

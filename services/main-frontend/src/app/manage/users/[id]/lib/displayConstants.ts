@@ -1,6 +1,5 @@
-// Design-token and glyph constants for the user-details page. Kept as SCREAMING_CASE constants so
-// they read as non-translatable values (and satisfy the i18next literal-string lint) rather than
-// stray strings scattered through JSX.
+// Display constants for the user-details page. SCREAMING_CASE so the i18next literal-string lint
+// ignores them.
 
 /** Badge / Meter / StatTile tone values. */
 export const TONE = {
@@ -12,8 +11,8 @@ export const TONE = {
   ALERT: "alert",
 } as const
 
-/** " · " separator between inline meta values. */
+/** Separator between inline meta values. */
 export const MIDDLE_DOT = " · "
 
-/** Truncation ellipsis for shortened ids. */
+/** Ellipsis for truncated ids. */
 export const ELLIPSIS = "…"

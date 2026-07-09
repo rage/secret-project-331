@@ -11,8 +11,7 @@ export interface AvatarProps {
   className?: string
 }
 
-// Decorative initials monogram. The name is always shown as text next to it, so the avatar itself is
-// aria-hidden — it must not be the only place a name appears.
+// Decorative monogram; the name is shown as text alongside, so this is aria-hidden.
 const AVATAR_COLORS = [
   "var(--color-blue-600)",
   "var(--color-green-600)",

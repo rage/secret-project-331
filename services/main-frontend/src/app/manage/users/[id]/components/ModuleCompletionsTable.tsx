@@ -62,14 +62,12 @@ const emptyCss = css`
 `
 
 /**
- * Per-module completion breakdown for one course: each module's completion timestamp and derived
- * durations (cumulative since enrollment, and the gap since the previous completion), with an inline
- * bar making implausibly short gaps stand out. The bar is inverted — the shorter the gap, the fuller
- * (and, when suspiciously short, red) it is — so the "too fast" rows draw the eye. Durations are
- * derived from `completion_date`; the system does not store per-module durations.
+ * Per-module completion breakdown: each module's completion time and derived durations (cumulative
+ * since enrollment, and gap since the previous completion). The gap bar is inverted — shorter gaps
+ * are fuller and, when suspiciously short, red — so "too fast" rows stand out. Durations are derived
+ * from `completion_date`; per-module durations are not stored.
  */
-// A gap shorter than this between two module completions is implausible for genuine work and is
-// highlighted in red.
+// Gaps shorter than this are implausible for genuine work; highlighted in red.
 const SUSPICIOUSLY_FAST_GAP_SECONDS = 300
 const ModuleCompletionsTable: React.FC<ModuleCompletionsTableProps> = ({ enrollment }) => {
   const { t } = useTranslation()

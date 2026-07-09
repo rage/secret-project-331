@@ -6,7 +6,7 @@ import React from "react"
 export type BadgeTone = "neutral" | "info" | "success" | "warning" | "danger"
 
 export interface BadgeProps {
-  /** Semantic tone. Colour never carries meaning alone — always pair with text (and ideally an icon). */
+  /** Semantic tone. Colour alone never carries meaning — pair with text (ideally an icon). */
   tone?: BadgeTone
   icon?: React.ReactNode
   children: React.ReactNode
@@ -15,8 +15,8 @@ export interface BadgeProps {
   title?: string
 }
 
-// Tinted-chip recipe: pale background + darker border + dark text. Yellow is intentionally not a tone
-// here because the palette's yellow ramp is not contrast-safe as text; "warning" uses the red ramp.
+// Tinted chips: pale bg, darker border, dark text. No yellow tone — its ramp isn't contrast-safe as
+// text, so "warning" uses the red ramp.
 const toneCss: Record<BadgeTone, string> = {
   neutral: css`
     background: var(--color-gray-50);
@@ -64,7 +64,7 @@ const iconCss = css`
   font-size: 0.9em;
 `
 
-/** A small status pill. Reusable across the app for statuses, counts, and labels. */
+/** Status pill for statuses, counts, and labels. */
 export const Badge: React.FC<BadgeProps> = ({
   tone = "neutral",
   icon,

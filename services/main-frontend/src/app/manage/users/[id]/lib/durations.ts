@@ -1,11 +1,10 @@
 /**
- * Duration helpers for the user-details page. Per-module durations are not stored — only each
- * module's completion timestamp and a course-level total — so the module breakdown derives durations
- * from `completion_date` relative to enrollment (cumulative) and to the previous completion (gap).
- * These functions are pure and return numbers; unit strings are formatted in components via i18n.
+ * Duration helpers for the user-details page. Per-module durations aren't stored (only completion
+ * timestamps and a course total), so they're derived from `completion_date` — relative to enrollment
+ * (cumulative) and to the previous completion (gap).
  */
 
-/** Whole seconds between two instants, clamped at 0 (never negative). */
+/** Whole seconds between two instants, clamped at 0. */
 export function durationSeconds(from: Date, to: Date): number {
   return Math.max(0, Math.round((to.getTime() - from.getTime()) / 1000))
 }
@@ -30,15 +29,14 @@ export function ratioPercent(value: number, max: number): number {
 }
 
 /**
- * Per-module timing derived from completion timestamps. `sinceEnrollmentSeconds` is cumulative from
- * enrollment; `gapSeconds` is the interval since the previous completion (or from enrollment for the
- * first). Input completions are sorted by completion date ascending.
+ * Per-module timing derived from completion timestamps, sorted by completion date ascending.
+ * `sinceEnrollmentSeconds` is cumulative from enrollment.
  */
 export interface ModuleTiming<T> {
   completion: T
   completedAt: Date
   sinceEnrollmentSeconds: number
-  /** Gap since the previous completion. `null` for the first completion (measured from enrollment). */
+  /** Interval since the previous completion; `null` for the first. */
   gapSeconds: number | null
 }
 

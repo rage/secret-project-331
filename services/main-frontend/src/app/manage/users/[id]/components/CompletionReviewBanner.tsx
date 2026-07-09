@@ -34,8 +34,7 @@ const bannerCss = css`
 `
 
 /**
- * A prominent, hard-to-miss alert shown when the student has completions still awaiting cheating
- * review (hidden from them until a teacher decides). Links down to the completion-review section.
+ * Alert shown when the student has completions awaiting review; links to the completion-review section.
  */
 const CompletionReviewBanner: React.FC<CompletionReviewBannerProps> = ({
   enrollments,

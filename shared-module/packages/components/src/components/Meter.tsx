@@ -78,7 +78,7 @@ const fillCss = css`
   }
 `
 
-// The threshold marker sits above the fill; keep it outside the clipped track so it is always visible.
+// Threshold marker sits above the fill; keep it outside the clipped track so it stays visible.
 const trackWithTickCss = css`
   overflow: visible;
 `
@@ -98,11 +98,7 @@ function clampPct(value: number, min: number, max: number): number {
   return Math.min(100, Math.max(0, ((value - min) / (max - min)) * 100))
 }
 
-/**
- * A horizontal meter for a scalar within a known range, with an optional threshold marker — e.g.
- * "completed in X of the Y-hour threshold". Uses react-aria's `useMeter` for the `meter` role and
- * value text; the visual bar is decorative (`aria-hidden`).
- */
+/** Horizontal meter for a value in a range, with optional threshold marker. Uses react-aria `useMeter`; the visual bar is `aria-hidden`. */
 export const Meter: React.FC<MeterProps> = ({
   value,
   minValue = 0,

@@ -16,8 +16,7 @@ export interface ExerciseResetLogSectionProps {
   userId: string
 }
 
-// date-fns pattern for the calendar day used to group resets (SCREAMING_CASE so it is not treated as a
-// translatable string).
+// date-fns day pattern for grouping resets (SCREAMING_CASE = not a translatable string).
 const DAY_FORMAT = "yyyy-MM-dd"
 
 const headingCss = css`
@@ -83,8 +82,8 @@ const ExerciseResetLogSection: React.FC<ExerciseResetLogSectionProps> = ({ userI
           if (data.length === 0) {
             return <p className={emptyCss}>{t("no-exercise-resets")}</p>
           }
-          // Group by calendar day and resetter, so same-day resets aggregate into one card while
-          // resets by different people (or on different days) stay separate and correctly attributed.
+          // Group by day and resetter so same-day resets aggregate, but different people or days stay
+          // separate and attributed.
           const grouped = groupBy(
             data,
             (log) => `${format(new Date(log.created_at), DAY_FORMAT)}::${log.reset_by ?? ""}`,

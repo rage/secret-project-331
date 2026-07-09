@@ -73,9 +73,9 @@ const useStatusLabel = () => {
 }
 
 /**
- * Read-only cross-course view of the student's suspected-cheating records: for each course a status
- * badge and a duration-vs-threshold meter ("completed in X of the Y-hour threshold"). Teachers act
- * (confirm/dismiss) on the per-course cheaters page, linked from each row.
+ * Read-only cross-course view of the student's suspected-cheating records: per course a status badge
+ * and a duration-vs-threshold meter. Teachers confirm/dismiss on the per-course cheaters page, linked
+ * from each row.
  */
 const CompletionReviewSection: React.FC<CompletionReviewSectionProps> = ({
   userId,

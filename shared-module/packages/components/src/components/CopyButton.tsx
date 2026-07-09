@@ -64,7 +64,7 @@ async function writeToClipboard(value: string): Promise<void> {
   document.body.removeChild(textarea)
 }
 
-/** A small icon button that copies `value` to the clipboard and announces success politely. */
+/** Icon button that copies `value` to the clipboard and announces success politely. */
 export const CopyButton: React.FC<CopyButtonProps> = ({ value, label, children, className }) => {
   const { t } = useTranslation("shared-module")
   const ref = React.useRef<HTMLButtonElement>(null)

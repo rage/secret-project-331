@@ -70,7 +70,7 @@ const iconCss = css`
   align-items: center;
 `
 
-/** A single at-a-glance metric. Compose several into a row (wrap the row in a list for structure). */
+/** At-a-glance metric. Compose several into a row (wrap the row in a list for structure). */
 export const StatTile: React.FC<StatTileProps> = ({
   label,
   value,

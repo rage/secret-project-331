@@ -4,7 +4,7 @@ import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { useQuery } from "@tanstack/react-query"
 import React, { useEffect } from "react"
-import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form"
+import { FormProvider, useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -14,15 +14,13 @@ import {
 } from "@/generated/api/@tanstack/react-query.generated"
 import { updateMetadata } from "@/generated/api/sdk.generated"
 import type { Course, CourseMetadataUpdate } from "@/generated/api/types.generated"
-import Button from "@/shared-module/common/components/Button"
 import ErrorBanner from "@/shared-module/common/components/ErrorBanner"
-import CheckBox from "@/shared-module/common/components/InputFields/CheckBox"
-import RadioButton from "@/shared-module/common/components/InputFields/RadioButton"
 // import TextField from "@/shared-module/common/components/InputFields/TextField"
 import StandardDialog from "@/shared-module/common/components/dialogs/StandardDialog"
 import useToastMutation from "@/shared-module/common/hooks/useToastMutation"
 import { baseTheme } from "@/shared-module/common/styles"
 import { QueryResult, TextArea, TextField } from "@/shared-module/components"
+import { Button, Checkbox } from "@/shared-module/components/"
 import { optionalGeneratedQueryOptions } from "@/utils/optionalGeneratedQueryOptions"
 
 const FieldSet = styled.fieldset`
@@ -150,11 +148,11 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
 
   console.log("SET VALUE: ", course_preqs)
 
-  const useSuggestedDescription = watch("useSuggestedDescription")
-  const useSuggestedPrerequisites = watch("useSuggestedPrerequisites")
-  const useSuggestedAudiences = watch("useSuggestedAudiences")
+  // const useSuggestedDescription = watch("useSuggestedDescription")
+  // const useSuggestedPrerequisites = watch("useSuggestedPrerequisites")
+  // const useSuggestedAudiences = watch("useSuggestedAudiences")
 
-  console.log("USE SUGGESTED AUDIENCE: ", useSuggestedAudiences)
+  //console.log("USE SUGGESTED AUDIENCE: ", useSuggestedPrerequisites)
 
   const {
     fields: prereqField,
@@ -240,9 +238,10 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                         margin-left: auto;
                       `}
                     >
-                      <CheckBox
+                      <Checkbox
+                        control={control}
                         label={t("use-suggestion")}
-                        {...register("useSuggestedDescription")}
+                        name={"useSuggestedDescription"}
                       />
                     </div>
                   </div>
@@ -272,9 +271,10 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                         margin-left: auto;
                       `}
                     >
-                      <CheckBox
+                      <Checkbox
                         label={t("use-suggestion")}
-                        {...register("useSuggestedPrerequisites")}
+                        control={control}
+                        name={"useSuggestedPrerequisites"}
                       />
                     </div>
                   </div>
@@ -316,13 +316,11 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                       className={css`
                         display: flex;
                         flex-flow: row nowrap;
-                        gap: 1.5rem;
                       `}
                     >
                       <TextField
                         className={css`
                           flex-grow: 1;
-                          margin: 0.5rem;
                         `}
                         key={idx}
                         control={control}
@@ -333,6 +331,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                         className={css`
                           height: fit-content;
                           margin: 1rem;
+                          padding: 0.5rem;
                         `}
                         size="small"
                         type="button"
@@ -350,6 +349,9 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                     `}
                   >
                     <Button
+                      className={css`
+                        margin-top: 0.5rem;
+                      `}
                       size="medium"
                       type="button"
                       variant="secondary"
@@ -373,9 +375,10 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                         margin-left: auto;
                       `}
                     >
-                      <CheckBox
+                      <Checkbox
                         label={t("use-suggestion")}
-                        {...register("useSuggestedAudiences")}
+                        control={control}
+                        name={"useSuggestedAudiences"}
                       />
                     </div>
                   </div>
@@ -416,13 +419,11 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                       className={css`
                         display: flex;
                         flex-flow: row nowrap;
-                        gap: 1.5rem;
                       `}
                     >
                       <TextField
                         className={css`
                           flex-grow: 1;
-                          margin: 0.5rem;
                         `}
                         key={idx}
                         control={control}
@@ -433,6 +434,7 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                         className={css`
                           height: fit-content;
                           margin: 1rem;
+                          padding: 0.5rem;
                         `}
                         size="small"
                         type="button"
@@ -445,6 +447,9 @@ const AIDescriptionForm: React.FC<React.PropsWithChildren<EditCourseFormProps>> 
                   ))}
 
                   <Button
+                    className={css`
+                      margin-top: 0.5rem;
+                    `}
                     size="medium"
                     type="button"
                     variant="secondary"

@@ -2,7 +2,7 @@
 
 import { css } from "@emotion/css"
 import type { UseQueryResult } from "@tanstack/react-query"
-import { act, screen } from "@testing-library/react"
+import { act, fireEvent, screen } from "@testing-library/react"
 
 import { QueryResult } from "../src/components/queryResult/QueryResult"
 
@@ -175,6 +175,66 @@ test("treatNullAsEmpty shows empty fallback for null data", () => {
   )
 
   expect(screen.getByText("null-empty")).toBeInTheDocument()
+})
+
+/** jsdom has no TransitionEvent constructor, so build the event by hand. */
+function fireTransitionEnd(element: Element, propertyName: string) {
+  const event = new Event("transitionend", { bubbles: true })
+  Object.assign(event, { propertyName })
+  fireEvent(element, event)
+}
+
+test("refreshing marker stays attached until the blur-out transition genuinely ends", () => {
+  const { rerender } = renderUi(
+    <QueryResult query={makeQuery({ data: "ok", isFetching: true })} themeMode="light">
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+  // Query settled but blur-out still running: stay marked busy.
+  rerender(
+    <QueryResult query={makeQuery({ data: "ok", isFetching: false })} themeMode="light">
+      {(d: string) => <div>{d}</div>}
+    </QueryResult>,
+  )
+  const content = screen.getByText("ok").parentElement as HTMLElement
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+  // Wrong property or bubbled from a child: must not unblock.
+  fireTransitionEnd(content, "opacity")
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+  fireTransitionEnd(screen.getByText("ok"), "filter")
+  expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+  fireTransitionEnd(content, "filter")
+  expect(screen.queryByTestId("query-refreshing")).not.toBeInTheDocument()
+})
+
+test("refreshing marker clears via fallback timer when no transitionend arrives", () => {
+  jest.useFakeTimers()
+  try {
+    const { rerender } = renderUi(
+      <QueryResult query={makeQuery({ data: "ok", isFetching: true })} themeMode="light">
+        {(d: string) => <div>{d}</div>}
+      </QueryResult>,
+    )
+
+    rerender(
+      <QueryResult query={makeQuery({ data: "ok", isFetching: false })} themeMode="light">
+        {(d: string) => <div>{d}</div>}
+      </QueryResult>,
+    )
+    expect(screen.getByTestId("query-refreshing")).toBeInTheDocument()
+
+    act(() => {
+      jest.advanceTimersByTime(600)
+    })
+    expect(screen.queryByTestId("query-refreshing")).not.toBeInTheDocument()
+  } finally {
+    jest.useRealTimers()
+  }
 })
 
 test("refreshing announces status", () => {

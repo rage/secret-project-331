@@ -2,7 +2,7 @@
 
 import { cx } from "@emotion/css"
 import { motion, useReducedMotion } from "motion/react"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { Button } from "../Button"
@@ -11,6 +11,7 @@ import type { RetryFn } from "./queryResultState"
 import { getErrorMessage } from "./queryResultState"
 import {
   animatedContentCss,
+  animatedContentNonInteractiveCss,
   animatedContentRefreshingCss,
   bannerCss,
   blockingErrorCss,
@@ -63,6 +64,46 @@ export function useDelayedFlag(active: boolean, delayMs: number): boolean {
   }, [active, delayMs])
 
   return visible
+}
+
+/**
+ * Clears the settling state when `transitionend` never fires (jsdom, or a refetch so fast the
+ * transition never starts). Well above `--query-content-transition` (180ms).
+ */
+const BLUR_SETTLE_FALLBACK_MS = 600
+
+/**
+ * True while the blur is transitioning back to sharp after a refetch. `refreshing` flips false
+ * before the blur-out finishes, so clicks in that window would hit still-blurred content. Cleared
+ * when `onContentTransitionEnd` sees the frame's own `filter` transition finish.
+ */
+function useBlurSettling(refreshing: boolean) {
+  const [settling, setSettling] = useState(false)
+  const wasRefreshingRef = useRef(false)
+
+  useEffect(() => {
+    if (refreshing) {
+      wasRefreshingRef.current = true
+      setSettling(false)
+      return
+    }
+    if (!wasRefreshingRef.current) {
+      return
+    }
+    wasRefreshingRef.current = false
+    setSettling(true)
+    const fallback = setTimeout(() => setSettling(false), BLUR_SETTLE_FALLBACK_MS)
+    return () => clearTimeout(fallback)
+  }, [refreshing])
+
+  const onContentTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
+    // Ignore transitions bubbling from children and other properties.
+    if (event.target === event.currentTarget && event.propertyName === "filter") {
+      setSettling(false)
+    }
+  }
+
+  return { settling, onContentTransitionEnd }
 }
 
 export type AnimatedQueryFrameProps<E> = {
@@ -128,6 +169,7 @@ export function AnimatedQueryFrame<E>({
   const { t } = useTranslation()
   const shouldReduceMotion = !!useReducedMotion()
   const showDelayedSpinner = useDelayedFlag(initialLoading, loadingDelayMs)
+  const { settling: blurSettling, onContentTransitionEnd } = useBlurSettling(refreshing)
   const surfaceThemeCss =
     themeMode === "dark" ? initialLoadingSurfaceDarkCss : initialLoadingSurfaceLightCss
   const skeletonToneCss = themeMode === "dark" ? skeletonBlockDarkCss : skeletonBlockLightCss
@@ -192,9 +234,9 @@ export function AnimatedQueryFrame<E>({
   return (
     <section
       className={cx(wrapperCss, refreshing ? wrapperIsolationCss : undefined)}
-      aria-busy={refreshing ? "true" : undefined}
+      aria-busy={refreshing || blurSettling ? "true" : undefined}
       // eslint-disable-next-line i18next/no-literal-string
-      {...(refreshing && { "data-testid": "query-refreshing" })}
+      {...((refreshing || blurSettling) && { "data-testid": "query-refreshing" })}
     >
       {refreshing ? (
         <div
@@ -220,7 +262,12 @@ export function AnimatedQueryFrame<E>({
           </motion.div>
         ) : null}
         <div
-          className={cx(animatedContentCss, refreshing ? animatedContentRefreshingCss : undefined)}
+          className={cx(
+            animatedContentCss,
+            refreshing ? animatedContentRefreshingCss : undefined,
+            refreshing || blurSettling ? animatedContentNonInteractiveCss : undefined,
+          )}
+          onTransitionEnd={onContentTransitionEnd}
         >
           {children}
         </div>

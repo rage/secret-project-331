@@ -18,8 +18,13 @@ const FONT_SIZES: { [key: string]: string } = {
   huge: "34px",
 }
 
+// textAlign comes from block supports, so it's not in the generated attributes
+interface ExtraAttributes {
+  textAlign?: string
+}
+
 const PullquoteBlock: React.FC<
-  React.PropsWithChildren<BlockRendererProps<PullquoteAttributes>>
+  React.PropsWithChildren<BlockRendererProps<PullquoteAttributes & ExtraAttributes>>
 > = ({ data }) => {
   const {
     citation,
@@ -27,6 +32,7 @@ const PullquoteBlock: React.FC<
     // className,
     // style,
     align,
+    textAlign,
     fontSize = "medium",
     value,
   } = data.attributes
@@ -44,6 +50,7 @@ const PullquoteBlock: React.FC<
       <figure
         className={css`
           text-align: center;
+          ${textAlign && `text-align: ${textAlign};`}
           border-top: 0.25rem solid #d5dbdf;
           border-bottom: 0.25rem solid #d5dbdf;
           padding: 3rem 0rem !important;

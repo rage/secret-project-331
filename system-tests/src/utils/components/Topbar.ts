@@ -12,8 +12,10 @@ export class Topbar {
   public readonly userMenu: AriaMenu
   public readonly quickActions: AriaMenu
   public readonly languageMenu: AriaMenu
+  private readonly page: Page
 
-  public constructor(private readonly page: Page) {
+  public constructor(page: Page) {
+    this.page = page
     this.userMenuTrigger = page.locator("#topbar-user-menu")
     this.quickActionsTrigger = page.getByTestId("topbar-quick-actions")
     this.searchButton = page.locator("#search-for-pages-button")

@@ -102,6 +102,7 @@ export const replaceTextNodeWithGlossarySpans = (
   glossaryId: string,
 ): void => {
   const text = textNode.textContent ?? ""
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- the text node being split is mounted in the DOM, so it always has a parent node
   const parent = textNode.parentNode!
   const fragment = doc.createDocumentFragment()
   let lastIndex = 0

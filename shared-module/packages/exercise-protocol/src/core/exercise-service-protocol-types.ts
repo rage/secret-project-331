@@ -200,12 +200,12 @@ export interface CustomViewIframeState {
     submissions_by_exercise: {
       exercise_id: string
       exercise_name: string
-      exercise_tasks: Array<{
+      exercise_tasks: {
         task_id: string
         public_spec: unknown
         user_answer: unknown
         grading: unknown
-      }>
+      }[]
     }[]
   }
 }

@@ -37,6 +37,7 @@ export const useOrganizationCourses = (
   const getOrgCourses = useQuery({
     ...getOrganizationCoursesOptions({
       path: {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled: !!organizationId guards this query, so organizationId is set when it runs
         organization_id: organizationId!,
       },
       query: {

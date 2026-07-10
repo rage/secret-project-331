@@ -34,8 +34,10 @@ export const buildMonthTimeline = (stages: StageInput[]): MonthWithStage[] | nul
   }
 
   const starts = STAGE_ORDER.map((stage) =>
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- has-check loop above guarantees every STAGE_ORDER entry is present in byStage
     startOfMonth(parseISO(byStage.get(stage)!.planned_starts_on)),
   )
+  // oxlint-disable-next-line typescript/no-non-null-assertion -- has-check loop above guarantees every STAGE_ORDER entry is present in byStage
   const ends = STAGE_ORDER.map((stage) => endOfMonth(parseISO(byStage.get(stage)!.planned_ends_on)))
 
   const planStart = starts.reduce((a, b) => (a < b ? a : b))

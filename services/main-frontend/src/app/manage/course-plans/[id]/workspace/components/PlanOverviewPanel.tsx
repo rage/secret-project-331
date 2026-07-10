@@ -406,6 +406,7 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
     stages.length > 0
       ? stages.reduce(
           (latest, stage) => (stage.planned_ends_on > latest ? stage.planned_ends_on : latest),
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- stages.length > 0 in this ternary branch guarantees stages[0] exists
           stages[0]!.planned_ends_on,
         )
       : null

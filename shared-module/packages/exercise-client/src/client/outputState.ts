@@ -44,21 +44,21 @@ export function postCurrentStateMessage(
 }
 
 export interface OutputStateEngine<OutputType> {
-  getState(): OutputType | null
+  getState: () => OutputType | null
   /** Replace the state without posting a message. */
-  setState(state: OutputType | null): void
+  setState: (state: OutputType | null) => void
   /** Set (or clear) the port that `current-state` messages are posted to. */
-  setPort(port: MessagePort | null): void
+  setPort: (port: MessagePort | null) => void
   /**
    * Apply an update via a selector + draft mutation, post the resulting `current-state`
    * message (with validity computed from `validate`), and store the new state.
    * No-op (returns the unchanged state) if no port is set.
    */
-  update<SelectorReturnType>(
+  update: <SelectorReturnType>(
     selector: (arg: OutputType | null) => SelectorReturnType | null,
     func: UpdateFunction<SelectorReturnType>,
     options?: { wrapper?: string },
-  ): OutputType | null
+  ) => OutputType | null
 }
 
 export interface OutputStateEngineOptions<OutputType> {

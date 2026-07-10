@@ -9,7 +9,7 @@ import type { ExerciseService } from "@/generated/api/types.generated"
 
 interface ExerciseServiceEditorProps {
   exerciseServices: ExerciseService[]
-  refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
+  refetch: () => Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
 const ExerciseServiceContainer: React.FC<React.PropsWithChildren<ExerciseServiceEditorProps>> = ({

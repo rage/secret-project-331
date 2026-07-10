@@ -16,9 +16,9 @@ export interface ParentConnection {
    * Subscribe to the moment the port is received. If the port has already arrived, the
    * listener is invoked synchronously. Returns an unsubscribe function.
    */
-  onPort(listener: (port: MessagePort) => void): () => void
+  onPort: (listener: (port: MessagePort) => void) => () => void
   /** Remove listeners and cancel any pending retry timer. Idempotent. */
-  dispose(): void
+  dispose: () => void
 }
 
 export interface ParentConnectionOptions {

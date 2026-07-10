@@ -372,7 +372,15 @@
         "typescript/no-non-null-asserted-nullish-coalescing": "error",
         "typescript/prefer-enum-initializers": "error",
         "typescript/prefer-literal-enum-member": "error",
-        "typescript/unified-signatures": "error"
+        "typescript/unified-signatures": "error",
+        "typescript/array-type": "error",
+        "typescript/consistent-type-imports": ["error", { "disallowTypeAnnotations": false }],
+        "typescript/method-signature-style": "error",
+        "typescript/parameter-properties": "error",
+        "typescript/prefer-for-of": "error",
+        "typescript/no-extraneous-class": "error",
+        "typescript/no-dynamic-delete": "error",
+        "typescript/no-non-null-assertion": "error"
       },
       "globals": {
         "React": "writable",
@@ -732,6 +740,26 @@
       "rules": {
         "i18next/no-literal-string": "off"
       }
+    },
+    {
+      "files": ["services/tmc/src/tmc/cli.d.ts"],
+      "rules": {
+        "typescript/array-type": "off"
+      },
+      "plugins": ["typescript"]
+    },
+    {
+      "files": [
+        "**/*.test.{ts,tsx}",
+        "**/*.spec.{ts,tsx}",
+        "**/tests/**",
+        "system-tests/**",
+        "**/__tests__/**"
+      ],
+      "rules": {
+        "typescript/no-non-null-assertion": "off"
+      },
+      "plugins": ["typescript"]
     }
   ]
 }

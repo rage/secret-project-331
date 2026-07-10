@@ -32,7 +32,7 @@ const IFRAME_EDITOR = "IFRAME EDITOR"
 
 interface ExerciseTaskIFrameEditorProps {
   exerciseTaskId: string
-  onPrivateSpecChange(newSpec: string): void
+  onPrivateSpecChange: (newSpec: string) => void
   privateSpec: string | null
   url: string | null | undefined
 }

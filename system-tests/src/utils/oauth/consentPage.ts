@@ -4,10 +4,13 @@ import { expect } from "@playwright/test"
 import { ensureRedirectServer } from "./redirectServer"
 
 export class ConsentPage {
-  public constructor(
-    private page: Page,
-    private scopes: string[],
-  ) {}
+  private page: Page
+  private scopes: string[]
+
+  public constructor(page: Page, scopes: string[]) {
+    this.page = page
+    this.scopes = scopes
+  }
   private esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")
   private get scopesRegex() {
     return new RegExp(`\\b(${this.scopes.map(this.esc).join("|")})\\b`, "i")

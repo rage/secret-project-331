@@ -23,15 +23,15 @@ export interface ExerciseClient<TOutput> {
   /** Validated output-state controller; posts `current-state` to the parent on update. */
   readonly output: OutputStateEngine<TOutput>
   /** Register a handler for `set-state` messages (initial state and updates). */
-  onSetState(handler: (message: SetStateMessage) => void): void
+  onSetState: (handler: (message: SetStateMessage) => void) => void
   /** Register a handler for `set-language` messages; receives the language code. */
-  onSetLanguage(handler: (language: string) => void): void
+  onSetLanguage: (handler: (language: string) => void) => void
   /** Register a handler for every raw message (after the typed handlers run). */
-  onMessage(handler: (data: unknown) => void): void
+  onMessage: (handler: (data: unknown) => void) => void
   /** Start tracking `element`'s height and posting `height-changed`. Returns a disposer. */
-  trackHeightOf(element: HTMLElement): () => void
+  trackHeightOf: (element: HTMLElement) => () => void
   /** Tear down the connection and all height observers. */
-  dispose(): void
+  dispose: () => void
 }
 
 export interface ExerciseClientOptions<TOutput> {

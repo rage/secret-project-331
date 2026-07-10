@@ -106,6 +106,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
           citations.set(id, [cit])
         } else {
           // id is definitely in hashmap because of the condition branch we're in
+          // oxlint-disable-next-line typescript/no-non-null-assertion -- else branch means citations.has(id) is true, so get(id) is defined
           citations.set(id, citations.get(id)!.concat(cit))
         }
       })

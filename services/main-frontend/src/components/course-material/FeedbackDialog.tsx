@@ -92,8 +92,7 @@ const FeedbackDialog: React.FC<React.PropsWithChildren<Props>> = ({ courseId, pa
 
     const relatedBlocks: FeedbackBlock[] = []
     const blocks = document.getElementsByClassName(courseMaterialBlockClass)
-    for (let i = 0; i < blocks.length; i++) {
-      const block = blocks[i]
+    for (const block of blocks) {
       const rect = block.getBoundingClientRect()
       const topBelowScreen = rect.top > window.innerHeight
       const bottomAboveScreen = rect.bottom < 0

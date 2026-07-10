@@ -1,7 +1,7 @@
 import type React from "react"
 
 interface QueryableParent {
-  querySelector<T extends Element>(selector: string): T | null
+  querySelector: <T extends Element>(selector: string) => T | null
 }
 
 /** Assigns a value to a React ref (callback or object). */

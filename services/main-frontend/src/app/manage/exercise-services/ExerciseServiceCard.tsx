@@ -34,7 +34,7 @@ import { prepareExerciseServiceForBackend } from "@/utils/prepareServiceForBacke
 interface ExerciseServiceCardProps {
   id: string
   exerciseService: ExerciseService
-  refetch(): Promise<QueryObserverResult<ExerciseService[], unknown>>
+  refetch: () => Promise<QueryObserverResult<ExerciseService[], unknown>>
 }
 
 enum UpdateStatus {

@@ -117,6 +117,7 @@ export function parseYoutubeUrl(url: string): YouTubeVideoParams {
     COMMON_OPTIONS.forEach((option) => {
       const value = parsedUrl.searchParams.get(option)
       if (value !== null) {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- result.embedOptions is initialized to {} on the result object above and never cleared
         result.embedOptions![option] = value
       }
     })

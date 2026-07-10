@@ -101,10 +101,12 @@ const EmailTemplatesList: React.FC = () => {
 
       const courseGroups = new Map<string, EmailTemplate[]>()
       courseSpecific.forEach((template) => {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- courseSpecific was filtered above to items whose course_id is non-null/undefined
         const courseId = template.course_id!
         if (!courseGroups.has(courseId)) {
           courseGroups.set(courseId, [])
         }
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- courseId key was just inserted above when absent
         courseGroups.get(courseId)!.push(template)
       })
 

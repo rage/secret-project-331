@@ -9,17 +9,19 @@ export class MockIntersectionObserver implements IntersectionObserver {
   public readonly scrollMargin: string
   public readonly thresholds: readonly number[]
   private elements: Set<Element>
+  public callback: IntersectionObserverCallback
+  public options?: ObserverInit
 
-  public constructor(
-    public callback: IntersectionObserverCallback,
-    public options?: ObserverInit,
-  ) {
+  public constructor(callback: IntersectionObserverCallback, options?: ObserverInit) {
+    this.callback = callback
+    this.options = options
     this.root = options?.root instanceof Element ? options.root : null
     this.rootMargin = options?.rootMargin ?? "0px 0px 0px 0px"
     // oxlint-disable-next-line typescript/no-explicit-any
     this.scrollMargin = (options as any)?.scrollMargin ?? "0px 0px 0px 0px"
     this.thresholds = Array.isArray(options?.threshold)
-      ? options!.threshold!.slice().sort((a, b) => a - b)
+      ? // oxlint-disable-next-line typescript/no-non-null-assertion -- Array.isArray(options?.threshold) is true here, so options and options.threshold are defined
+        options!.threshold!.slice().sort((a, b) => a - b)
       : [options?.threshold ?? 0]
 
     this.elements = new Set<Element>()

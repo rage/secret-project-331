@@ -6,11 +6,15 @@ interface AriaMenuOpts {
 }
 
 export class AriaMenu {
-  public constructor(
-    private readonly page: Page,
-    private readonly trigger: Locator,
-    private readonly opts: AriaMenuOpts,
-  ) {}
+  private readonly page: Page
+  private readonly trigger: Locator
+  private readonly opts: AriaMenuOpts
+
+  public constructor(page: Page, trigger: Locator, opts: AriaMenuOpts) {
+    this.page = page
+    this.trigger = trigger
+    this.opts = opts
+  }
 
   /** Returns the locator for the underlying ARIA menu. */
   private menu(): Locator {

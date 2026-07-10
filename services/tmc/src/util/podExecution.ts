@@ -168,6 +168,7 @@ function captureStream(maxBytes = 0): { stream: Writable; getBuffer: () => Buffe
 
   const trimToMax = () => {
     while (totalBytes > maxBytes && chunks.length > 0) {
+      // oxlint-disable-next-line typescript/no-non-null-assertion -- while condition chunks.length > 0 guarantees chunks[0] exists
       const first = chunks[0]!
       const overflow = totalBytes - maxBytes
       if (overflow >= first.length) {

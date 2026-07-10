@@ -63,6 +63,7 @@ const TableBlock: React.FC<
     if (!refsMap.has(key)) {
       refsMap.set(key, React.createRef<HTMLElement>())
     }
+    // oxlint-disable-next-line typescript/no-non-null-assertion -- key was just inserted above when absent, so get(key) is defined
     return refsMap.get(key)!
   }
 

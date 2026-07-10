@@ -17,8 +17,8 @@ var templatePromise = null
 function base64EncodeUtf8(str) {
   var bytes = new TextEncoder().encode(str)
   var binary = ""
-  for (var i = 0; i < bytes.length; i++) {
-    binary += String.fromCharCode(bytes[i])
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte)
   }
   return btoa(binary)
 }

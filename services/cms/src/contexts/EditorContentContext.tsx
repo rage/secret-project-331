@@ -120,8 +120,7 @@ export const editorContentReducer = (
       })
     case "deleteExerciseTask":
       return produce(prev, (draft) => {
-        outerloop: for (let i = 0; i < draft.length; i++) {
-          const block = draft[i]
+        outerloop: for (const block of draft) {
           if (block.name !== "moocfi/exercise") {
             continue
           }
@@ -129,8 +128,7 @@ export const editorContentReducer = (
           if (!slidesBlock) {
             continue
           }
-          for (let j = 0; j < slidesBlock.innerBlocks.length; j++) {
-            const slideBlock = slidesBlock.innerBlocks[j]
+          for (const slideBlock of slidesBlock.innerBlocks) {
             const taskToDeleteIndex = slideBlock.innerBlocks.findIndex(
               (taskBlock) => taskBlock.clientId === action.payload.clientId,
             )

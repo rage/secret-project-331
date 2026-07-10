@@ -24,9 +24,9 @@ export interface OpenDialogOptions {
  * `MessagePort` is structurally assignable to this.
  */
 export interface DialogCapableMessagePort {
-  postMessage(message: unknown): void
-  addEventListener(type: "message", listener: (event: MessageEvent) => void): void
-  removeEventListener(type: "message", listener: (event: MessageEvent) => void): void
+  postMessage: (message: unknown) => void
+  addEventListener: (type: "message", listener: (event: MessageEvent) => void) => void
+  removeEventListener: (type: "message", listener: (event: MessageEvent) => void) => void
 }
 
 /**

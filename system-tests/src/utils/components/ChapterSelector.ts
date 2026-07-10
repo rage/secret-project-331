@@ -2,7 +2,11 @@ import type { Locator, Page } from "@playwright/test"
 import { expect } from "@playwright/test"
 
 export class ChapterSelector {
-  public constructor(private readonly page: Page) {}
+  private readonly page: Page
+
+  public constructor(page: Page) {
+    this.page = page
+  }
 
   public getChapterLink(chapterNumber: number): Locator {
     return this.page.getByTestId(`chapter-link-${chapterNumber}`)

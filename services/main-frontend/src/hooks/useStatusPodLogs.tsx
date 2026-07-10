@@ -12,6 +12,7 @@ export const useStatusPodLogs = (
   return useQuery({
     ...getStatusPodLogsOptions({
       path: {
+        // oxlint-disable-next-line typescript/no-non-null-assertion -- enabled: !!podName guards this query, so podName is set when it runs
         pod_name: podName!,
       },
       query: {

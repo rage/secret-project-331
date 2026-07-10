@@ -2,7 +2,11 @@ import type { Locator, Page } from "@playwright/test"
 import { expect } from "@playwright/test"
 
 export class PagesInChapterSelector {
-  public constructor(private readonly page: Page) {}
+  private readonly page: Page
+
+  public constructor(page: Page) {
+    this.page = page
+  }
 
   public getContainer(): Locator {
     return this.page.getByTestId("pages-in-chapter-container")

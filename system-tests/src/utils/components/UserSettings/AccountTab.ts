@@ -4,7 +4,11 @@ import { expect } from "@playwright/test"
 import { waitForSuccessNotification } from "@/utils/notificationUtils"
 
 export class AccountTab {
-  public constructor(private readonly page: Page) {}
+  private readonly page: Page
+
+  public constructor(page: Page) {
+    this.page = page
+  }
 
   public async waitForTab(): Promise<void> {
     await expect(this.page.getByRole("heading", { name: "Personal Information" })).toBeVisible()

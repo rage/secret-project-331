@@ -19,11 +19,15 @@ class RequestBuilder implements PromiseLike<TestResponse> {
   private hasPayload = false
   private readonly expectations: Expectation[] = []
 
-  public constructor(
-    private readonly handler: Handler,
-    private readonly method: string,
-    private readonly path: string,
-  ) {}
+  private readonly handler: Handler
+  private readonly method: string
+  private readonly path: string
+
+  public constructor(handler: Handler, method: string, path: string) {
+    this.handler = handler
+    this.method = method
+    this.path = path
+  }
 
   public send(body: unknown): this {
     this.payload = body

@@ -14,7 +14,7 @@ import "../init/registerAuthApiClients"
 
 export interface LoginState {
   isLoading: boolean
-  refresh(): Promise<unknown>
+  refresh: () => Promise<unknown>
   signedIn: boolean | null | undefined
 }
 

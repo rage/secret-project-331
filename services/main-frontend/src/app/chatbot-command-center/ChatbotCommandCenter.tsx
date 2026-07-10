@@ -28,7 +28,7 @@ const ChatbotCommandCenter = ({ chatbotData }: Props) => {
   })
 
   const configuration_id = watch("configuration_id")
-
+  const distinctCourses = [...new Set(chatbotData.map((data) => data.course_name))]
   return (
     <div>
       <form>
@@ -37,10 +37,17 @@ const ChatbotCommandCenter = ({ chatbotData }: Props) => {
           control={control}
           name={"configuration_id"}
           label={t("select-chatbot")}
-          options={chatbotData.map((data) => {
+          options={distinctCourses.map((course) => {
             return {
-              label: `${data.course_name}: ${data.chatbot_name}`,
-              value: data.configuration_id,
+              label: course,
+              options: chatbotData
+                .filter((data) => data.course_name === course)
+                .map((dataFiltered) => {
+                  return {
+                    label: `${dataFiltered.course_name}: ${dataFiltered.chatbot_name}`,
+                    value: dataFiltered.configuration_id,
+                  }
+                }),
             }
           })}
           className={css`

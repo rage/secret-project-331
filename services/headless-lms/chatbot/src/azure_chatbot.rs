@@ -1338,6 +1338,8 @@ fn error_event_string_from_message(
     serde_json::to_string(&err).map_err(ChatbotError::from)
 }
 
+/// These types of ChatbotErrors shouldn't be shown to the user and are likely created
+/// from an unrecoverable error in our code that should make the stream fail.
 fn check_error_should_terminate_stream(err: &ChatbotErrorType) -> bool {
     [
         ChatbotErrorType::SerdeJson,

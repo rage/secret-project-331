@@ -13464,8 +13464,20 @@
       "CourseModuleInfo": {
         "type": "object",
         "description": "Slim module descriptor so the frontend can label per-module completions and show \"X of Y modules\"\nwithout a separate course-structure fetch. Default (base) module has `name = None`.",
-        "required": ["id", "order_number"],
+        "required": ["id", "order_number", "exercise_count", "daily_submissions"],
         "properties": {
+          "daily_submissions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailySubmissionCount"
+            },
+            "description": "This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none."
+          },
+          "exercise_count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of non-deleted exercises in this module. Submission density is divided by this so courses\nof very different size stay comparable. `0` if the module has no chapter-bound exercises."
+          },
           "first_submission_at": {
             "type": ["string", "null"],
             "format": "date-time",
@@ -13660,6 +13672,21 @@
           },
           "schedule": {
             "type": "string"
+          }
+        }
+      },
+      "DailySubmissionCount": {
+        "type": "object",
+        "description": "One UTC day's exercise-submission count for a module, used for the activity-density violins on the\ncross-course timeline. `day` is midnight of the day the submissions fall in.",
+        "required": ["day", "count"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "day": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

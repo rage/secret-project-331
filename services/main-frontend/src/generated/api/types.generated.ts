@@ -854,6 +854,15 @@ export type CourseModuleCompletionWithRegistrationInfo = {
  */
 export type CourseModuleInfo = {
   /**
+   * This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
+   */
+  daily_submissions: Array<DailySubmissionCount>
+  /**
+   * Number of non-deleted exercises in this module. Submission density is divided by this so courses
+   * of very different size stay comparable. `0` if the module has no chapter-bound exercises.
+   */
+  exercise_count: number
+  /**
    * Earliest exercise submission by this user in this module. No module "start" is stored, so the
    * frontend uses this to infer when an additional module was first worked on. `None` if untouched.
    */
@@ -933,6 +942,15 @@ export type CronJobInfo = {
   last_schedule_time?: string | null
   name: string
   schedule: string
+}
+
+/**
+ * One UTC day's exercise-submission count for a module, used for the activity-density violins on the
+ * cross-course timeline. `day` is midnight of the day the submissions fall in.
+ */
+export type DailySubmissionCount = {
+  count: number
+  day: string
 }
 
 export type DatabaseChapter = {

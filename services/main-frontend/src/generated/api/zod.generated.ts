@@ -710,20 +710,6 @@ export const zCourseModuleCompletionWithRegistrationInfo = z.object({
 })
 
 /**
- * Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
- * without a separate course-structure fetch. Default (base) module has `name = None`.
- */
-export const zCourseModuleInfo = z.object({
-  first_submission_at: z.iso.datetime().nullish(),
-  id: z.uuid(),
-  name: z.string().nullish(),
-  order_number: z
-    .int()
-    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
-    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
-})
-
-/**
  * Per-module threshold configuration plus the policy-derived limits the configuration UI needs to
  * render and validate the threshold form. Computed server-side so the exemption rule and the
  * minimum/default values live in one place instead of being duplicated in the frontend.
@@ -788,6 +774,37 @@ export const zCronJobInfo = z.object({
   last_schedule_time: z.string().nullish(),
   name: z.string(),
   schedule: z.string(),
+})
+
+/**
+ * One UTC day's exercise-submission count for a module, used for the activity-density violins on the
+ * cross-course timeline. `day` is midnight of the day the submissions fall in.
+ */
+export const zDailySubmissionCount = z.object({
+  count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  day: z.iso.datetime(),
+})
+
+/**
+ * Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
+ * without a separate course-structure fetch. Default (base) module has `name = None`.
+ */
+export const zCourseModuleInfo = z.object({
+  daily_submissions: z.array(zDailySubmissionCount),
+  exercise_count: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
+  first_submission_at: z.iso.datetime().nullish(),
+  id: z.uuid(),
+  name: z.string().nullish(),
+  order_number: z
+    .int()
+    .min(-2147483648, { error: "Invalid value: Expected int32 to be >= -2147483648" })
+    .max(2147483647, { error: "Invalid value: Expected int32 to be <= 2147483647" }),
 })
 
 export const zDatabaseChapter = z.object({

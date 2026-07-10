@@ -27,6 +27,14 @@ pub struct CourseInstanceEnrollmentsInfo {
     pub course_module_completions: Vec<CourseModuleCompletion>,
 }
 
+/// One UTC day's exercise-submission count for a module, used for the activity-density violins on the
+/// cross-course timeline. `day` is midnight of the day the submissions fall in.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
+pub struct DailySubmissionCount {
+    pub day: DateTime<Utc>,
+    pub count: i32,
+}
+
 /// Slim module descriptor so the frontend can label per-module completions and show "X of Y modules"
 /// without a separate course-structure fetch. Default (base) module has `name = None`.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -37,6 +45,11 @@ pub struct CourseModuleInfo {
     /// Earliest exercise submission by this user in this module. No module "start" is stored, so the
     /// frontend uses this to infer when an additional module was first worked on. `None` if untouched.
     pub first_submission_at: Option<DateTime<Utc>>,
+    /// Number of non-deleted exercises in this module. Submission density is divided by this so courses
+    /// of very different size stay comparable. `0` if the module has no chapter-bound exercises.
+    pub exercise_count: i32,
+    /// This user's exercise submissions in this module bucketed by UTC day, ascending. Empty if none.
+    pub daily_submissions: Vec<DailySubmissionCount>,
 }
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone, ToSchema)]
@@ -277,6 +290,57 @@ GROUP BY c.course_module_id
         .filter_map(|r| r.course_module_id.map(|id| (id, r.first_submission_at)))
         .collect();
 
+    // Exercise count per module, to normalize submission density (submissions per exercise) so courses
+    // of very different size are comparable. Exercises map to a module via their chapter; exercises with
+    // no chapter (e.g. exams) are not counted.
+    let module_exercise_count_rows = sqlx::query!(
+        r#"
+SELECT c.course_module_id AS "course_module_id!",
+       COUNT(*) AS "count!"
+FROM exercises e
+JOIN chapters c ON c.id = e.chapter_id AND c.deleted_at IS NULL
+WHERE e.course_id = ANY($1) AND e.deleted_at IS NULL
+GROUP BY c.course_module_id
+        "#,
+        &course_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let exercise_count_by_module: HashMap<Uuid, i64> = module_exercise_count_rows
+        .into_iter()
+        .map(|r| (r.course_module_id, r.count))
+        .collect();
+
+    // This user's submissions per module bucketed by UTC day, for the activity-density violins. Same
+    // join path as the first-submission query; submissions to exercises with no chapter are excluded.
+    let module_daily_submission_rows = sqlx::query!(
+        r#"
+SELECT c.course_module_id AS "course_module_id!",
+       DATE_TRUNC('day', ess.created_at) AS "day!",
+       COUNT(*) AS "count!"
+FROM exercise_slide_submissions ess
+JOIN exercises e ON e.id = ess.exercise_id
+JOIN chapters c ON c.id = e.chapter_id
+WHERE ess.user_id = $1 AND ess.course_id = ANY($2) AND ess.deleted_at IS NULL
+GROUP BY c.course_module_id, DATE_TRUNC('day', ess.created_at)
+ORDER BY c.course_module_id, "day!"
+        "#,
+        user_id,
+        &course_ids
+    )
+    .fetch_all(&mut *conn)
+    .await?;
+    let mut daily_submissions_by_module: HashMap<Uuid, Vec<DailySubmissionCount>> = HashMap::new();
+    for r in module_daily_submission_rows {
+        daily_submissions_by_module
+            .entry(r.course_module_id)
+            .or_default()
+            .push(DailySubmissionCount {
+                day: r.day,
+                count: r.count as i32,
+            });
+    }
+
     let course_instance_enrollments = get_by_user_id(&mut *conn, user_id).await?;
     let all_course_module_completions =
         crate::course_module_completions::get_all_by_user_id(conn, user_id).await?;
@@ -321,6 +385,11 @@ GROUP BY c.course_module_id
                 name: m.name.clone(),
                 order_number: m.order_number,
                 first_submission_at: first_submission_by_module.get(&m.id).copied(),
+                exercise_count: exercise_count_by_module.get(&m.id).copied().unwrap_or(0) as i32,
+                daily_submissions: daily_submissions_by_module
+                    .get(&m.id)
+                    .cloned()
+                    .unwrap_or_default(),
             })
             .collect();
         let course_module_completions = all_course_module_completions

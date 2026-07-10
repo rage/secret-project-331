@@ -46,6 +46,9 @@ export const TIME_AXIS_LABEL = {
 /** Subtle alternating background bands for the time axis (splitArea): faint gray tint / transparent. */
 export const SPLIT_AREA_COLORS = ["rgba(83,90,102,0.04)", "rgba(255,255,255,0)"]
 
+/** Faint neutral fill for the enrolled→last-activity span track behind the density violins. */
+export const TRACK_FILL = "rgba(83,90,102,0.10)"
+
 /** Fallback color for marks with no module. */
 export const NEUTRAL_MARK_COLOR = "#767b85" // gray.400
 

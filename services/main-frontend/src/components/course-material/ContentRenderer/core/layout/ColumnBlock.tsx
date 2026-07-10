@@ -21,12 +21,15 @@ const ColumnBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnAtt
   } = data.attributes
 
   const getAlignSelf = (verticalAlignment: string) => {
+    const ALIGN_SELF_FLEX_END = "align-self: flex-end;"
+    const ALIGN_SELF_CENTER = "align-self: center;"
+    const ALIGN_SELF_FLEX_START = "align-celf: flex-start;"
     if (verticalAlignment === "bottom") {
-      return "align-self: flex-end;"
+      return ALIGN_SELF_FLEX_END
     } else if (verticalAlignment === "center") {
-      return "align-self: center;"
+      return ALIGN_SELF_CENTER
     } else if (verticalAlignment === "top") {
-      return "align-celf: flex-start;"
+      return ALIGN_SELF_FLEX_START
     }
   }
 

@@ -34,6 +34,7 @@ const createFavicon = (status: "healthy" | "warning" | "error"): string => {
     // eslint-disable-next-line i18next/no-literal-string
     healthy: "✓",
 
+    // eslint-disable-next-line i18next/no-literal-string
     warning: "⚠",
     // eslint-disable-next-line i18next/no-literal-string
     error: "✕",

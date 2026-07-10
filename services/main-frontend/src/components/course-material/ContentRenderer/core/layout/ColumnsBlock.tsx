@@ -43,15 +43,11 @@ const ColumnsBlock: React.FC<React.PropsWithChildren<BlockRendererProps<ColumnsA
         display: flex;
         flex-wrap: wrap;
 
-        ${
-          isStackedOnMobile &&
-          respondToOrLarger.md &&
-          "> div { width: 100%; }" /* Ensure width 100% for child divs */
-        }
-        ${
-          !isStackedOnMobile &&
-          "div:not(:first-child) { margin-left: 2rem; }" /* Ensure that margin-left for div #2> is on mobile if not stacked enabled */
-        }
+        ${isStackedOnMobile &&
+        respondToOrLarger.md &&
+        "> div { width: 100%; }" /* Ensure width 100% for child divs */}
+        ${!isStackedOnMobile &&
+        "div:not(:first-child) { margin-left: 2rem; }" /* Ensure that margin-left for div #2> is on mobile if not stacked enabled */}
       `}
     >
       {innerBlocks.map((block) => {

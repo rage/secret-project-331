@@ -670,6 +670,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                                   min-width: 93px;
                                 `}
                               >
+                                {/* eslint-disable-next-line i18next/no-literal-string */}
                                 &nbsp;
                               </div>
                             )}

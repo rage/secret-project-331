@@ -9,7 +9,6 @@ import { useTranslation } from "react-i18next"
 
 import ChatbotPreviewModal from "./ChatbotPreviewModal"
 
-import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
 import {
   configureChatbotMutation as configureChatbotMutationOptions,
   deleteChatbotConfigurationMutation as deleteChatbotMutationOptions,
@@ -152,11 +151,9 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     },
   )
 
-  const chatbotStateAndData = useChatbotStateAndData(oldChatbotConf.id, undefined)
-
   const onConfigureChatbotWrapper = handleSubmit(async (data, event) => {
     if (!event) {
-      return new Error("Handlesubimit triggered without an event")
+      throw new Error("handleSubmit triggered without an event")
     }
     if (!isReactOnSubmitEvent(event)) {
       throw new Error("Event does not seem like an react onsbumit event")
@@ -199,14 +196,7 @@ const ChatbotConfigurationForm: React.FC<Props> = ({ oldChatbotConf, chatbotQuer
     })
 
     if (event.submitter.name === "preview") {
-      const currentConversationInfo = chatbotStateAndData.currentConversationInfo
-      const newConversationMutation = chatbotStateAndData.newConversationMutation
-      const isFirstConversation =
-        currentConversationInfo && !currentConversationInfo.data?.current_conversation
-      // If there is an existing conversation start a new one so that the edits to the chatbot take place
-      if (!isFirstConversation) {
-        await newConversationMutation.mutateAsync()
-      }
+      // The preview modal starts a fresh conversation on open so it reflects the just-saved config.
       setChatbotPreview(true)
     }
   })

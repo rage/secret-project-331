@@ -628,7 +628,6 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
 
             <Select
               id="course-plan-adjust-schedule-months"
-
               name="extendMonths"
               control={control}
               label={t("course-plans-adjust-schedule-months-label")}

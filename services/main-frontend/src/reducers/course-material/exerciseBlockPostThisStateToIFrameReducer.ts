@@ -31,7 +31,9 @@ export interface TryAgain {
 }
 
 export type PostThisStateToIFrameAction =
-  ExerciseDownloadedAction | SubmissionGradedAction | TryAgain
+  | ExerciseDownloadedAction
+  | SubmissionGradedAction
+  | TryAgain
 
 function userVariableListToMap(list: UserCourseExerciseServiceVariable[]): UserVariablesMap {
   const res: UserVariablesMap = {}

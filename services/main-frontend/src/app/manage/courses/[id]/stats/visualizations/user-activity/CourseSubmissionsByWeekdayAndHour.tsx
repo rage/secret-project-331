@@ -108,7 +108,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
                 options={{
                   title: Object.keys(isodowToWeekdayName).map((weekdayNumber, i) => {
                     return {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       textBaseline: "middle",
                       top: ((i + 0.5) * 100) / 7 + "%",
                       // @ts-expect-error: todo
@@ -116,7 +116,7 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
                     }
                   }),
                   tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     position: "top",
                     formatter: (a) => {
                       return t("hourly-submissions-visualization-tooltip", {
@@ -144,11 +144,11 @@ const CourseSubmissionsByWeekdayAndHour: React.FC<
                   series: dataByWeekDayOrdered.map(([_weekdayNumber, entries], i) => {
                     return {
                       singleAxisIndex: i,
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       coordinateSystem: "singleAxis",
 
                       type: "scatter",
-                      // eslint-disable-next-line
+                      // oxlint-disable-next-line
                       data: entries.map((o) => [o.hour ?? -1, o.count ?? -1]),
                       symbolSize: function (dataItem) {
                         // scaling the size so that the largest value has size maxCircleSize

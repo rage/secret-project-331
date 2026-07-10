@@ -195,7 +195,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
               {enableSearch && enableLanguageMenu && (
                 <Separator
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   orientation="vertical"
                   className={css`
                     height: 24px;
@@ -220,7 +220,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
               {enableLanguageMenu && loginStateContext.signedIn && enableUserMenu && (
                 <Separator
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   orientation="vertical"
                   className={css`
                     height: 24px;
@@ -240,7 +240,7 @@ const Topbar: React.FC<TopbarProps> = ({
 
                   {enableUserMenu && enableQuickActions && (
                     <Separator
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       orientation="vertical"
                       className={css`
                         height: 24px;

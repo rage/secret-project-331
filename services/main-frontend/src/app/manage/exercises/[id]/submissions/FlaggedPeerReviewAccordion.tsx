@@ -14,7 +14,7 @@ export interface FlaggedPeerReviewAccordionProps {
   title: string
 }
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const Title = styled.h5`
   border-top: 1px solid ${baseTheme.colors.clear[600]};
   border-bottom: 1px solid ${baseTheme.colors.clear[600]};

@@ -54,7 +54,7 @@ export const EditUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     register,
     reset,
   } = useForm<SelectUserInfoFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       email,

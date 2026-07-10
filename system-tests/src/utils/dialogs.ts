@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-conditional-in-test */
+/* oxlint-disable playwright/no-conditional-in-test */
 import { expect, Page, test } from "@playwright/test"
 
 import {

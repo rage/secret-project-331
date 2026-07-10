@@ -1,5 +1,5 @@
 // Require imports needs to happen in a specific order.
-/* eslint-disable import/order */
+/* oxlint-disable import/order */
 
 import * as jsdom from "jsdom"
 import type { JSONSchemaTypeName } from "json-schema-to-typescript/dist/src/types/JSONSchema"
@@ -53,7 +53,7 @@ Object.defineProperty(global, "navigator", {
 
 const OriginalURL = global.URL
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 const urlThatDoesntCrashWithPaths = function (...args: any[]) {
   if (typeof args[0] === "string" && args[0].startsWith("/")) {
     return new OriginalURL(`https://example.com${args[0]}`)
@@ -268,7 +268,7 @@ import type { StringWithHTML } from "."
   process.exit(0)
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 function fixProperties(properties: { readonly [x: string]: any }) {
   const res = { ...properties }
   if (properties === null || properties === undefined) {
@@ -291,7 +291,7 @@ function addSupportsAttributes(block: BlockType): BlockType {
   }
 
   if (supports.typography?.fontSize) {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // oxlint-disable-next-line typescript/ban-ts-comment
     // @ts-ignore: adding a new attribute
     attributes["fontSize"] = {
       type: "string",

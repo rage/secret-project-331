@@ -126,7 +126,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
     return (
       <Fragment>
         <BlockEdit {...props} />
-        {/* eslint-disable-next-line i18next/no-literal-string */}
+        {/* oxlint-disable-next-line i18next/no-literal-string */}
         <BlockControls group="block">
           <ToolbarGroup>
             <Dropdown
@@ -177,7 +177,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                               setSubmenu(group.id)
                             }}
                             icon={chevronRight}
-                            // eslint-disable-next-line i18next/no-literal-string
+                            // oxlint-disable-next-line i18next/no-literal-string
                             aria-haspopup="menu"
                             aria-expanded={submenu === group.id}
                           >
@@ -189,7 +189,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                         <MenuItem
                           onClick={() => setSubmenu(SUBMENU_TONE)}
                           icon={chevronRight}
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           aria-haspopup="menu"
                           aria-expanded={submenu === SUBMENU_TONE}
                         >
@@ -198,7 +198,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
                         <MenuItem
                           onClick={() => setSubmenu(SUBMENU_TRANSLATE)}
                           icon={chevronRight}
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           aria-haspopup="menu"
                           aria-expanded={submenu === SUBMENU_TRANSLATE}
                         >
@@ -501,7 +501,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
 
   ParagraphWithAiToolbar.displayName = "ParagraphWithAiToolbar"
   return ParagraphWithAiToolbar
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
 }, "withParagraphAiToolbarAction")
 
 export default withParagraphAiToolbarAction

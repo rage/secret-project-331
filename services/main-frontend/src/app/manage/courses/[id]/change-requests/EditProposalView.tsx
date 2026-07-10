@@ -158,7 +158,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
             onChangeByValue={(newValue) =>
               setBlockActions((ba) => {
                 if (block.accept_preview != null) {
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   ba.set(block.id, { tag: "Accept", data: newValue })
                 }
                 return new Map(ba)
@@ -185,7 +185,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 })
                 setBlockActions((ba) => {
                   if (block.accept_preview != null) {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
                   return new Map(ba)
@@ -205,7 +205,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 })
                 setBlockActions((ba) => {
                   if (block.accept_preview != null) {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     ba.set(block.id, { tag: "Accept", data: block.accept_preview })
                   }
                   return new Map(ba)
@@ -223,7 +223,7 @@ const EditProposalView: React.FC<React.PropsWithChildren<Props>> = ({
                 return new Set(eb)
               })
               setBlockActions((ba) => {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 ba.set(block.id, { tag: "Reject" })
                 return new Map(ba)
               })

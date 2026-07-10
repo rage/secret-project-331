@@ -99,7 +99,7 @@ export default function ScheduleEditorStep({
         <LayoutGroup>
           <div className={stageListStyles}>
             {stageCards.map((card) => {
-              // eslint-disable-next-line i18next/no-literal-string -- stable test id prefix
+              // oxlint-disable-next-line i18next/no-literal-string -- stable test id prefix
               const stageTestId = `course-plan-stage-${card.stage}`
               return (
                 <StageCard
@@ -144,7 +144,7 @@ export default function ScheduleEditorStep({
                 ? { duration: 0 }
                 : {
                     duration: 0.2,
-                    // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+                    // oxlint-disable-next-line i18next/no-literal-string -- Motion ease value
                     ease: "easeOut",
                   }
             }

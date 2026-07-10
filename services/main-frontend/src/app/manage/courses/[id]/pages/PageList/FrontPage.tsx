@@ -13,7 +13,7 @@ import { baseTheme, typography } from "@/shared-module/common/styles"
 
 interface Props {
   data: Page | null | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   refetch: () => any
   chapter?: Chapter
   pageOrderDispatch: React.Dispatch<ManagePageOrderAction>

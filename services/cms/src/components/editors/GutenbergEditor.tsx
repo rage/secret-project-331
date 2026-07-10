@@ -65,7 +65,7 @@ import { primaryFont } from "@/shared-module/common/styles"
 import type { BlockConfiguration, BlockInstance } from "@/utils/Gutenberg/types"
 import { useTranslation } from "@/utils/useCmsTranslation"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 type CustomBlockDefinition = [string, BlockConfiguration<Record<string, any>>]
 
 interface GutenbergEditorProps {
@@ -232,7 +232,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
   const [sidebarView, setSidebarView] = useState<
     "block-props" | "block-list" | "block-menu" | string
   >(
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     "block-props",
   )
 
@@ -415,11 +415,11 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                       value={sidebarView}
                       label={t("editor-select-sidebar-view")}
                       options={[
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-props", label: t("block-props") },
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-list", label: t("block-list") },
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         { value: "block-menu", label: t("block-menu") },
                       ]}
                       onChangeByValue={(val) => setSidebarView(val)}
@@ -447,7 +447,7 @@ const GutenbergEditor: React.FC<React.PropsWithChildren<GutenbergEditorProps>> =
                     ref={contentRef}
                     className="editor-styles-wrapper"
                     tabIndex={-1}
-                    // eslint-disable-next-line react/forbid-component-props
+                    // oxlint-disable-next-line react/forbid-component-props
                     style={{
                       height: "100%",
                       width: "100%",

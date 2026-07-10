@@ -170,7 +170,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
 
   useEffect(() => {
     const getMap = async () => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       const mapElement: SVGLineElement = await getElementBySelectorAsync(".world-map")
       setMap(mapElement)
     }
@@ -210,7 +210,7 @@ const Map: React.FC<React.PropsWithChildren<MapProps>> = () => {
         )?.count
 
         if (evt.type === "mouseover") {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           svgElement.innerHTML = `<title style=''>${t("map-tooltip-students-in-country", { country: text, count })}</title>`
         } else if (evt.type === "mouseout") {
           svgElement.innerHTML = ""

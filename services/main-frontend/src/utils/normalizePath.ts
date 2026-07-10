@@ -28,7 +28,7 @@ export const cleanUrlPath = (path: string): string => {
     }
   })
   // Strip unsafe ASCII (URL_PATH_ENCODE_SET); keep alphanumerics, '/', '-', '.', '_', '~', non-ASCII.
-  // eslint-disable-next-line no-control-regex
+  // oxlint-disable-next-line no-control-regex
   const unsafeAscii = /[\x00-\x2C\x3A-\x40\x5B-\x5E\x60\x7B-\x7D\x7F]/g
   return decoded
     .replace(/\s+/g, "-")

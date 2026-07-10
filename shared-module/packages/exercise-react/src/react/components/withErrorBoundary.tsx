@@ -68,12 +68,12 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
         .filter((s): s is string => typeof s === "string" && s.trim() !== "")
         .join("\n\n")
       void reportErrorOccurrence({
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         error_source: "frontend",
         message: error.message,
         stack_trace: combinedStack || null,
         details: {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           kind: "react-error-boundary",
           component: Component.displayName ?? null,
         },
@@ -94,7 +94,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
                 </div>
                 {trace && (
                   <details>
-                    {/* eslint-disable-next-line i18next/no-literal-string */}
+                    {/* oxlint-disable-next-line i18next/no-literal-string */}
                     <summary>Details</summary>
                     <pre>{trace}</pre>
                   </details>
@@ -105,7 +105,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
         )
       }
 
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // oxlint-disable-next-line typescript/ban-ts-comment
       // @ts-ignore: Shared module might have a diffrerent react version
       return <Component {...this.props} />
     }

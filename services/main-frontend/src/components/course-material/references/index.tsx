@@ -176,7 +176,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       childList: true,
       subtree: true,
       attributes: true,
-      // eslint-disable-next-line i18next/no-literal-string -- DOM attribute names, not user-facing text
+      // oxlint-disable-next-line i18next/no-literal-string -- DOM attribute names, not user-facing text
       attributeFilter: ["data-citation-id", "data-citation-prenote", "data-citation-postnote"],
     })
     return () => {
@@ -253,7 +253,7 @@ const ReferenceComponent: React.FC<ReferenceProps> = ({ data }) => {
       .filter((o): o is ReactPortal => !!o)
     // scanVersion is a deliberate trigger (not read in the body): it re-runs the DOM scan when
     // citation spans mount/unmount, e.g. when an expandable block is opened.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [data, referenceByKey, readyForPortal, scanVersion])
 
   return (

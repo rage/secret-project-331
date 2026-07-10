@@ -151,7 +151,7 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
     // group by whether the review is self review or peer review
     const res2 = groupBy(res, (questionSubmisssions) => {
       if (questionSubmisssions.length === 0) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return "peer"
       }
       const peerOrSelfReviewSubmission =
@@ -162,10 +162,10 @@ const PeerOrSelfReviewsReceived: React.FunctionComponent<PeerReviewProps> = ({
         peerOrSelfReviewSubmission &&
         peerOrSelfReviewSubmission.user_id === userInfo.data?.user_id
       ) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         return "self"
       }
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return "peer"
     })
     return res2

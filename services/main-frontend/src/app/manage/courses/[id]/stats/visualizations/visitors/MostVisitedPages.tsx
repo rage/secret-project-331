@@ -125,9 +125,9 @@ const MostVisitedPages: React.FC<React.PropsWithChildren<MostVisitedPagesProps>>
                       },
                     ],
                     tooltip: {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       trigger: "item",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       formatter: "{b}: {c}",
                     },
                   }}

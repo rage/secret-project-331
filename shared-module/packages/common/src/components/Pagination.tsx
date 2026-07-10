@@ -124,7 +124,7 @@ const Pagination: React.FC<React.PropsWithChildren<PaginationProps>> = ({
     [handleChangeEvent, page, t, totalPages],
   )
   // have to have a custom key on the parent of generatedComponents, otherwise react canot update the list of components correctly
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const componentsKey = `pagination-${page}-${totalPages}`
 
   return (

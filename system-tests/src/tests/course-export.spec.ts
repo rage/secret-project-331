@@ -60,7 +60,7 @@ test("course export", async ({ page }) => {
     await page.getByRole("button", { name: "Export all pages" }).click()
     const download = await downloadPromise
     const readStream = await download.createReadStream()
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (readStream === null) {
       throw new Error("Could not download file")
     }
@@ -74,7 +74,7 @@ test("course export", async ({ page }) => {
     const toVisit = [tempDir]
     while (toVisit.length > 0) {
       const current = toVisit.pop()
-      // eslint-disable-next-line playwright/no-conditional-in-test
+      // oxlint-disable-next-line playwright/no-conditional-in-test
       if (current === undefined) {
         break
       }
@@ -82,7 +82,7 @@ test("course export", async ({ page }) => {
       for (const file of files) {
         const fullPath = path.join(current, file)
         const stats = await stat(fullPath)
-        // eslint-disable-next-line playwright/no-conditional-in-test
+        // oxlint-disable-next-line playwright/no-conditional-in-test
         if (stats.isDirectory()) {
           toVisit.push(fullPath)
         } else {

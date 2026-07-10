@@ -15,7 +15,7 @@ import MonacoEditor from "./monaco/MonacoEditor"
 export interface DebugModalProps {
   data: unknown
   readOnly?: boolean
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   updateDataOnClose?: Dispatch<any>
   buttonSize?: "small" | "medium" | "large"
   variant?: "default" | "minimal"

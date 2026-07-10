@@ -147,9 +147,9 @@ const ResearchOnCoursesForm: React.FC<React.PropsWithChildren<ResearchOnCoursesF
                 text-decoration: underline !important;
               `}
               href="mooc@cs.helsinki.fi"
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               mooc@cs.helsinki.fi
             </a>
             .

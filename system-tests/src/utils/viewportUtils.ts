@@ -21,7 +21,7 @@ export async function withViewportSize<T>(
       await page.setViewportSize(viewportSize)
       return await callback()
     } finally {
-      // eslint-disable-next-line playwright/no-conditional-in-test
+      // oxlint-disable-next-line playwright/no-conditional-in-test
       if (originalViewport) {
         await page.setViewportSize(originalViewport)
       }

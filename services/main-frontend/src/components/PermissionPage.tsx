@@ -124,12 +124,12 @@ const PermissionPageComponent: React.FC<React.PropsWithChildren<Props>> = ({ dom
   } else if (domain.tag == "Exam") {
     query = { exam_id: domain.id }
   } else {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     throw "Unknown domain type"
   }
 
   const [newEmail, setNewEmail] = useState("")
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [newRole, setNewRole] = useState<UserRole>("Assistant")
   const [editingRole, setEditingRole] = useState<EditingRole | null>(null)
   const [mutationError, setMutationError] = useState<unknown | null>(null)

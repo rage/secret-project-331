@@ -99,7 +99,7 @@ export function normalizeSelectOptions(
 
   entries.forEach((entry, index) => {
     if (isSelectOptionGroup(entry)) {
-      // eslint-disable-next-line i18next/no-literal-string -- internal collection key
+      // oxlint-disable-next-line i18next/no-literal-string -- internal collection key
       const groupKey = `group-${index}`
       entry.options.forEach((option) => {
         pushOption(option, {

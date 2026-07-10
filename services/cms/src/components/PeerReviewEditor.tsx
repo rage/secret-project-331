@@ -254,9 +254,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     label: string
     value: PeerOrSelfReviewQuestionType
   }[] = [
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     { label: t("essay"), value: "Essay" },
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     { label: t("likert-scale"), value: "Scale" },
   ]
 
@@ -265,21 +265,21 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     value: PeerReviewProcessingStrategy
   }[] = [
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       label: "Automatically grade by average",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       value: "AutomaticallyGradeByAverage",
     },
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       label: "Automatically grade or manual review by average",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       value: "AutomaticallyGradeOrManualReviewByAverage",
     },
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       label: "Manual review everything",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       value: "ManualReviewEverything",
     },
   ]
@@ -382,9 +382,9 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
     peerOrSelfReviewQuestionsRef.current = []
     setExerciseAttributes({
       use_course_default_peer_review: checked,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       peer_or_self_review_config: checked ? "null" : JSON.stringify(prc),
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       peer_or_self_review_questions_config: checked ? "null" : "[]",
     })
   }
@@ -396,7 +396,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
       {
         id: v4(),
         question: t("default-question"),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         question_type: "Essay",
         peer_or_self_review_config_id: peerReviewId,
         answer_required: true,
@@ -502,7 +502,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                       required
                       value={parsedPeerOrSelfReviewConfig.peer_reviews_to_receive}
                       onChangeByValue={(value) => {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         handlePeerReviewValueChange(value, "peer_reviews_to_receive")
                       }}
                     />
@@ -516,7 +516,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                       value={parsedPeerOrSelfReviewConfig.peer_reviews_to_give}
                       label={t("peer-reviews-to-give")}
                       onChangeByValue={(value) =>
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         handlePeerReviewValueChange(value, "peer_reviews_to_give")
                       }
                     />
@@ -536,7 +536,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     id={`peer-review-processing-strategy-${id}`}
                     label={t("peer-review-processing-strategy")}
                     onChangeByValue={(value) => {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       handlePeerReviewValueChange(value, "processing_strategy")
                     }}
                     options={peerReviewProcessingStrategyOptions}
@@ -546,7 +546,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     label={t("label-points-are-all-or-nothing")}
                     checked={parsedPeerOrSelfReviewConfig.points_are_all_or_nothing}
                     onChangeByValue={(checked) =>
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       handlePeerReviewValueChange(checked.toString(), "points_are_all_or_nothing")
                     }
                     disabled={
@@ -559,7 +559,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     onChangeByValue={(checked) =>
                       handlePeerReviewValueChange(
                         checked.toString(),
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "reset_answer_if_zero_points_from_review",
                       )
                     }
@@ -593,7 +593,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                     }
                     value={parsedPeerOrSelfReviewConfig.accepting_threshold}
                     onChangeByValue={(value) => {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       handlePeerReviewValueChange(value, "accepting_threshold")
                     }}
                   />
@@ -609,7 +609,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                             <StyledSelectField
                               label={t("peer-review-question-type")}
                               onChange={(e) => {
-                                // eslint-disable-next-line i18next/no-literal-string
+                                // oxlint-disable-next-line i18next/no-literal-string
                                 handlePeerOrSelfReviewQuestionValueChange(id, e, "question_type")
                               }}
                               defaultValue={question_type}
@@ -627,7 +627,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                                   step={0.01}
                                   value={weight}
                                   onChange={(e) => {
-                                    // eslint-disable-next-line i18next/no-literal-string
+                                    // oxlint-disable-next-line i18next/no-literal-string
                                     handlePeerOrSelfReviewQuestionValueChange(id, e, "weight")
                                   }}
                                   className={css`
@@ -640,7 +640,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                             <TextAreaField
                               label={t("peer-review-question")}
                               onChange={(event) => {
-                                // eslint-disable-next-line i18next/no-literal-string
+                                // oxlint-disable-next-line i18next/no-literal-string
                                 handlePeerOrSelfReviewQuestionValueChange(id, event, "question")
                               }}
                               defaultValue={question}
@@ -659,7 +659,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                                   handlePeerOrSelfReviewQuestionValueChange(
                                     id,
                                     e,
-                                    // eslint-disable-next-line i18next/no-literal-string
+                                    // oxlint-disable-next-line i18next/no-literal-string
                                     "answer_required",
                                   )
                                 }
@@ -670,7 +670,7 @@ const PeerReviewEditor: React.FC<PeerReviewEditorProps> = ({
                                   min-width: 93px;
                                 `}
                               >
-                                {/* eslint-disable-next-line i18next/no-literal-string */}
+                                {/* oxlint-disable-next-line i18next/no-literal-string */}
                                 &nbsp;
                               </div>
                             )}
@@ -719,7 +719,7 @@ function defaultPeerOrSelfReviewConfig(
     id: v4(),
     exercise_id: exerciseId ? exerciseId : null,
     course_id: courseId,
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     processing_strategy: "AutomaticallyGradeOrManualReviewByAverage",
     accepting_threshold: 2.1,
     peer_reviews_to_give: 3,

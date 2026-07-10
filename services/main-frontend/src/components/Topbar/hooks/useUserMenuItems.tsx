@@ -115,14 +115,14 @@ export function useUserMenuItems({
     return userMenuItems.map((item, i) => {
       if (item.type === "separator") {
         return {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           id: `user-sep-${i}`,
           type: "separator" as const,
         }
       }
 
       return {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: `user-${"href" in item ? item.href : "label" in item ? item.label : i}`,
         type: item.type,
         label: "label" in item ? item.label : undefined,

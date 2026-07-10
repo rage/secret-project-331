@@ -78,9 +78,9 @@ const otpSlotLgCss = css`
   font-size: 1.4rem;
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const slotInputSelector = "input"
 
 function resolveOtpSlotSizeCss(fieldSize: FieldSize) {

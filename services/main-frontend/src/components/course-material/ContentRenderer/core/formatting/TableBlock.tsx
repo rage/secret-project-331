@@ -150,7 +150,7 @@ const TableBlock: React.FC<
                     cellRows.cells.map((cell: CellAttributes, i) => (
                       <ParsedText
                         key={i}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                         tag="th"
                         tagProps={{
@@ -159,7 +159,7 @@ const TableBlock: React.FC<
                           rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                         }}
                         useWrapperElement={false}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         wrapperRef={getRef(`head-${j}-${i}`)}
                       />
                     ))}
@@ -174,7 +174,7 @@ const TableBlock: React.FC<
                   cellRows.cells.map((cell: CellAttributes, i: number) => (
                     <ParsedText
                       key={i}
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                       tag="td"
                       tagProps={{
@@ -183,7 +183,7 @@ const TableBlock: React.FC<
                         rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                       }}
                       useWrapperElement={false}
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       wrapperRef={getRef(`body-${j}-${i}`)}
                     />
                   ))}
@@ -198,7 +198,7 @@ const TableBlock: React.FC<
                     cellRows.cells.map((cell: CellAttributes, i: number) => (
                       <ParsedText
                         key={i}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         text={cell.content !== "" ? (cell.content ?? "&#xFEFF;") : "&#xFEFF;"}
                         tag="td"
                         tagProps={{
@@ -207,7 +207,7 @@ const TableBlock: React.FC<
                           rowSpan: stringToNumberOrPlaceholder(cell.rowspan, undefined),
                         }}
                         useWrapperElement={false}
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         wrapperRef={getRef(`foot-${j}-${i}`)}
                       />
                     ))}

@@ -17,7 +17,7 @@ import { TooltipBox } from "./TooltipBox"
 
 import { baseTheme } from "@/shared-module/common/styles"
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const StyledButton = styled(ReactAriaButton)`
   text-decoration: underline;
   border: none;

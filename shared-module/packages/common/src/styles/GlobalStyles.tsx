@@ -89,7 +89,7 @@ const globalCss = css`
   }
 `
 
-// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+// oxlint-disable-next-line typescript/no-unused-expressions
 injectGlobal`
 ${globalCss}
 `

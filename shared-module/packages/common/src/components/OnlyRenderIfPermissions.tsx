@@ -26,7 +26,7 @@ const OnlyRenderIfPermissions: React.FC<React.PropsWithChildren<ComponentProps>>
     ...getAuthUserInfoOptions(),
     enabled: loginState.signedIn === true,
   })
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const userScopedCacheKey = userInfo.data?.user_id ?? "anonymous"
   const data = useQuery({
     queryKey: [

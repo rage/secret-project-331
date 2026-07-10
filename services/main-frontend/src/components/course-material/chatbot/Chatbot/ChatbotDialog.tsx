@@ -99,7 +99,7 @@ const ChatbotDialog: React.FC<ChatbotDialogProps> = (props) => {
   )
 
   const dialogRef = useRef(null)
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   let { dialogProps, titleProps } = useDialog({ role: "dialog" }, dialogRef)
   dialogProps = { ...dialogProps, "aria-labelledby": chatbotTitleId }
   titleProps = { ...titleProps, id: chatbotTitleId }

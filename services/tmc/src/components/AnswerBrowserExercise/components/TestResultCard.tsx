@@ -17,7 +17,7 @@ export const TestResultCard: React.FC<TestResultCardProps> = (p) => (
     {(p.message || (p.exception && p.exception.length > 0)) && (
       <TestResultMessage>
         {p.message}
-        {/* eslint-disable-next-line i18next/no-literal-string -- raw test exception output */}
+        {/* oxlint-disable-next-line i18next/no-literal-string -- raw test exception output */}
         {p.exception && p.exception.length > 0 ? `\n${p.exception.join("\n")}` : ""}
       </TestResultMessage>
     )}

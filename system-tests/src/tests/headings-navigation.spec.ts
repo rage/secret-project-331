@@ -43,7 +43,7 @@ test("headings navigation works", async ({ page, headless }, testInfo) => {
 
   await page.locator('button:has-text("Third heading")').click()
 
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(500)
   const scrollY = await page.evaluate(() => {
     return window.scrollY

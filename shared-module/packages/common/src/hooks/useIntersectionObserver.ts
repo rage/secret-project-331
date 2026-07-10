@@ -95,7 +95,7 @@ export function useIntersectionObserver(
     refresh()
 
     return cleanup
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh])
 
   return { ref, entry, inView, refresh }

@@ -28,7 +28,7 @@ const ClosedSectionFields = (): React.ReactElement => {
     control,
   } = useFormContext<EditCourseFormValues>()
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const isClosed = useWatch({ name: "set_course_closed_at", control })
 
   return (

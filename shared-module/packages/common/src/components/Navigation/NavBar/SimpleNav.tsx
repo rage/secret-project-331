@@ -57,7 +57,7 @@ const Navigation: React.FC<React.PropsWithChildren<NavigationProps>> = ({
   const makeTopLeftButtonToTemporarilyGoToMoocfi = true
 
   const moocfiUrl =
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     i18n?.language?.indexOf("fi") !== -1 ? "https://www.mooc.fi" : "https://www.mooc.fi/en"
 
   const logoHref = logoLinkUrl ?? (makeTopLeftButtonToTemporarilyGoToMoocfi ? moocfiUrl : "/")

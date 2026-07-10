@@ -21,7 +21,7 @@ function getLanguageLabels(targetCode: string, displayLocale: string) {
   return {
     native: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode)),
     localized: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode, displayLocale)),
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     english: capitalizeFirst(ietfLanguageTagToHumanReadableName(targetCode, "en")),
   }
 }
@@ -92,7 +92,7 @@ export function useLanguageMenuItems({
         } else {
           // Set cookie BEFORE calling i18n.changeLanguage so that useLanguage() picks up the new value
           if (typeof document !== "undefined") {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             document.cookie = `${LANGUAGE_COOKIE_KEY}=${newLanguageCode}; path=/; SameSite=Strict; max-age=31536000;`
           }
           // Fallback to basic i18n change
@@ -140,7 +140,7 @@ export function useLanguageMenuItems({
       const selected = code === currentLanguage
 
       return {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: `lang-${code}`,
         code,
         label: native,

@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
+/* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 
 import { expect, Locator, Page, test, TestInfo } from "@playwright/test"
 
@@ -24,7 +24,7 @@ import {
 
 // Same regex as Playwright uses to sanitize the filenames so that we can access those same files.
 const PLAYWRIGHT_SCREENSHOT_NAME_SANITIZE_REGEX =
-  // eslint-disable-next-line no-control-regex
+  // oxlint-disable-next-line no-control-regex
   /[\x00-\x2C\x2E-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F]+/g
 
 const viewPorts = {
@@ -163,7 +163,7 @@ export default async function expectScreenshotsToMatchSnapshots({
             replaceSomePartsWithPlaceholders,
             waitForMessageChannelIframeReadiness,
             useCoordinatesFromTheBottomForSavingYCoordinates,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line typescript/no-explicit-any
             screenshotTarget: screenshotTarget as any,
           })
         }
@@ -181,7 +181,7 @@ export default async function expectScreenshotsToMatchSnapshots({
           replaceSomePartsWithPlaceholders,
           waitForMessageChannelIframeReadiness,
           useCoordinatesFromTheBottomForSavingYCoordinates,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // oxlint-disable-next-line typescript/no-explicit-any
           screenshotTarget: screenshotTarget as any,
         })
       } finally {

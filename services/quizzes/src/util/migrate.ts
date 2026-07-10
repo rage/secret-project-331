@@ -1,5 +1,5 @@
 // Allow any for this file, because we are checking for properties that no longer exist in interfaces.
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* oxlint-disable typescript/no-explicit-any */
 
 import { OldQuiz, OldQuizItemOption, QuizItem } from "../../types/oldQuizTypes"
 

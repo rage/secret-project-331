@@ -52,7 +52,7 @@ export function OneTimePassCodeField({ onChange }: Props) {
 
   const handlePaste = useCallback(
     (e: React.ClipboardEvent, idx: number) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       const pasted = e.clipboardData.getData("text").replace(/\D/g, "") // digits only
       if (!pasted) {
         return
@@ -97,10 +97,10 @@ export function OneTimePassCodeField({ onChange }: Props) {
               ref={(el) => {
                 inputs.current[idx] = el
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               aria-label={`Digit ${idx + 1}`}
               type="text"
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               inputMode="numeric"
               maxLength={1}
               value={val}

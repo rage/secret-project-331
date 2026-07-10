@@ -28,7 +28,7 @@ const EssayEditor: React.FC<EssayEditorProps> = ({ quizItemId }) => {
 
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemEssay>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemEssay>(quiz, quizItemId, "essay")
     },
   )

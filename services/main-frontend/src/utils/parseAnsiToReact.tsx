@@ -3,7 +3,7 @@
 import React from "react"
 
 export const parseAnsiToReact = (text: string): React.ReactNode[] => {
-  // eslint-disable-next-line no-control-regex
+  // oxlint-disable-next-line no-control-regex
   const ansiRegex = /\x1b\[([0-9;]*)m/g
   const parts: React.ReactNode[] = []
   let lastIndex = 0
@@ -33,15 +33,15 @@ export const parseAnsiToReact = (text: string): React.ReactNode[] => {
     if (code === 0) {
       currentStyles = {}
     } else if (code === 1) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       currentStyles.fontWeight = "bold"
     } else if (code === 2) {
       currentStyles.opacity = 0.6
     } else if (code === 3) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       currentStyles.fontStyle = "italic"
     } else if (code === 4) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       currentStyles.textDecoration = "underline"
     } else if (code >= 30 && code <= 37) {
       currentStyles.color = colorMap[code]
@@ -55,7 +55,7 @@ export const parseAnsiToReact = (text: string): React.ReactNode[] => {
       const textContent = text.slice(lastIndex, match.index)
       if (Object.keys(currentStyles).length > 0) {
         parts.push(
-          // eslint-disable-next-line react/forbid-dom-props
+          // oxlint-disable-next-line react/forbid-dom-props
           <span key={lastIndex} style={{ ...currentStyles }}>
             {textContent}
           </span>,
@@ -79,7 +79,7 @@ export const parseAnsiToReact = (text: string): React.ReactNode[] => {
     const textContent = text.slice(lastIndex)
     if (Object.keys(currentStyles).length > 0) {
       parts.push(
-        // eslint-disable-next-line react/forbid-dom-props
+        // oxlint-disable-next-line react/forbid-dom-props
         <span key={lastIndex} style={{ ...currentStyles }}>
           {textContent}
         </span>,

@@ -81,13 +81,13 @@ const EmailTemplatesList: React.FC = () => {
     const courseMap = coursesQueries.data || new Map<string, Course>()
 
     const templateTypes: EmailTemplateType[] = [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "reset_password_email",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "delete_user_email",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "confirm_email_code",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       "generic",
     ]
 

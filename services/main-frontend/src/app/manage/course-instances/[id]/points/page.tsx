@@ -176,7 +176,7 @@ const CourseInstancePointsList: React.FC = () => {
                     </th>
 
                     {data.chapter_points.map((c) => {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       const courseSorting = `#ch${c.chapter_number}`
                       return (
                         <th key={c.id}>
@@ -206,7 +206,7 @@ const CourseInstancePointsList: React.FC = () => {
                       const userChapterPoints = data.user_chapter_points[user.user_id] || {}
                       const chapterPoints = Object.fromEntries(
                         data.chapter_points.map((c) => [
-                          // eslint-disable-next-line i18next/no-literal-string
+                          // oxlint-disable-next-line i18next/no-literal-string
                           `ch${c.chapter_number}`,
                           userChapterPoints[c.id] || 0,
                         ]),

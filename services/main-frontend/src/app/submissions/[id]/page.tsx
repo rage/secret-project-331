@@ -68,7 +68,7 @@ const Submission: React.FC = () => {
     userDetails.refetch()
     exerciseSubmissions.refetch()
     userCourseSettings.refetch()
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, []) // oxlint-disable-line react-hooks/exhaustive-deps
 
   let userExerciseStateId = getSubmissionInfo.data?.user_exercise_state?.id
 
@@ -106,7 +106,7 @@ const Submission: React.FC = () => {
       },
       {
         text: t("title-submission-id", { id }),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         url: `/submissions/${id}`,
       },
     ]
@@ -144,7 +144,7 @@ const Submission: React.FC = () => {
                     title: t("submission-details"),
                     items: [
                       {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         key: "submission-id",
                         label: t("submission-id"),
                         colSpan: 3,
@@ -156,21 +156,21 @@ const Submission: React.FC = () => {
                         ),
                       },
                       {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         key: "submission-created",
                         label: t("submission-created"),
                         colSpan: 3,
                         value: dateToString(submissionInfo.exercise_slide_submission.created_at),
                       },
                       {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         key: "points",
                         label: t("points-from-whole-exercise"),
                         value: pointsFromWholeExercise,
                         colSpan: 2,
                       },
                       {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         key: "max-points",
                         label: t("max-points"),
                         value: submissionInfo.exercise.score_maximum,
@@ -183,25 +183,25 @@ const Submission: React.FC = () => {
                           title: t("user-information"),
                           items: [
                             {
-                              // eslint-disable-next-line i18next/no-literal-string
+                              // oxlint-disable-next-line i18next/no-literal-string
                               key: "first-name",
                               label: t("first-name"),
                               value: user.first_name,
                             },
                             {
-                              // eslint-disable-next-line i18next/no-literal-string
+                              // oxlint-disable-next-line i18next/no-literal-string
                               key: "last-name",
                               label: t("last-name"),
                               value: user.last_name,
                             },
                             {
-                              // eslint-disable-next-line i18next/no-literal-string
+                              // oxlint-disable-next-line i18next/no-literal-string
                               key: "email",
                               label: t("email"),
                               value: user.email,
                             },
                             {
-                              // eslint-disable-next-line i18next/no-literal-string
+                              // oxlint-disable-next-line i18next/no-literal-string
                               key: "user-id",
                               label: t("user-id"),
                               colSpan: 3,

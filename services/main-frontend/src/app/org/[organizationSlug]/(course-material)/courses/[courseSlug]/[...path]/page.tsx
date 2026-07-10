@@ -110,7 +110,7 @@ const PagePage: React.FC = () => {
   // Reset language preference when course loads or changes
   useEffect(() => {
     if (courseMaterialState.status === "ready" && courseMaterialState.course?.id) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setLanguagePreference("same-as-course")
     }
   }, [courseMaterialState.status, courseMaterialState.course?.id, setLanguagePreference])
@@ -131,7 +131,7 @@ const PagePage: React.FC = () => {
         languageOptions.setOnLanguageChange(undefined)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [languageOptions?.setOnLanguageChange])
 
   // Update language options context when available languages change
@@ -175,7 +175,7 @@ const PagePage: React.FC = () => {
   }
 
   if (courseMaterialState.error) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     if ((courseMaterialState.error as any)?.response?.status === 404) {
       return <PageNotFound path={path} courseId={courseSlug} organizationSlug={organizationSlug} />
     }

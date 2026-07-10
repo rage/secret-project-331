@@ -76,7 +76,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
     reset,
     watch,
   } = useForm<EditCourseModuleFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: makeDefaultValues(module, chapters),
   })
@@ -331,7 +331,7 @@ const EditCourseModuleForm: React.FC<Props> = ({
                 label={t("ects-credits")}
                 placeholder={t("ects-credits")}
                 type="number"
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 step="any"
                 {...register("ects_credits", {
                   valueAsNumber: true,

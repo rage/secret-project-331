@@ -130,7 +130,7 @@ function parseListBlock({ attributes, innerBlocks }: Block<unknown>): string[] {
   }
   // Handle the old type of list
   const parser = new DOMParser()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const listItem = parser.parseFromString(values, "text/html")
   const children: string[] = [].slice
     .call(listItem.body.childNodes)

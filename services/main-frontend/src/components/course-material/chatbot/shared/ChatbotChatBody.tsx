@@ -309,7 +309,7 @@ const ChatbotChatBody: React.FC<ChatbotStateAndData> = ({
                 }
               }
             }}
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             resize={"none"}
             autoResize={true}
             onAutoResized={scrollToBottom}

@@ -21,7 +21,7 @@ const TableBox: React.FC<React.PropsWithChildren<BlockRendererProps<TableBoxAttr
 ) => {
   const width = props.data.attributes?.width
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const smallScreen = useMedia(`@media (max-width: ${width}px)`)
   const isFullWidth = smallScreen || !width
 

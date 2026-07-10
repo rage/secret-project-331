@@ -104,7 +104,7 @@ const CourseUsersCountsByExercise: React.FC<
                     )}
                     options={{
                       tooltip: {
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         trigger: "axis",
                         axisPointer: {
                           type: "shadow",

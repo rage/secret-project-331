@@ -36,7 +36,7 @@ const ExerciseTask: React.FC<React.PropsWithChildren<ExerciseTaskProps>> = ({
 }) => {
   const { signedIn } = useContext(LoginStateContext)
   const { t } = useTranslation()
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const currentExerciseTaskAssignment = exerciseTask.assignment as Block<any>[]
   const url = exerciseTask.exercise_iframe_url
 

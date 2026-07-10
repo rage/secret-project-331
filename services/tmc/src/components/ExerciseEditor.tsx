@@ -19,7 +19,7 @@ const ExerciseEditor: React.FC<React.PropsWithChildren<Props>> = ({
 }) => {
   const { t } = useTranslation()
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => requestRepositoryExercises(), [])
 
   // cms editor view

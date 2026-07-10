@@ -96,7 +96,7 @@ export const courseMaterialAtom = atom<CourseMaterialState>((get) => {
       return emptyState
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const enrollmentData = (data as any).enrollment_data
     const examPage = enrollmentData?.tag === "EnrolledAndStarted" ? enrollmentData.page : null
 

@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-wait-for-timeout */
+/* oxlint-disable playwright/no-wait-for-timeout */
 
 import { Page } from "playwright"
 

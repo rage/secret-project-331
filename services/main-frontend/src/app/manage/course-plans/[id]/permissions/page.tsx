@@ -33,7 +33,7 @@ function formatPlanMemberDisplayName(
   member: Pick<PlanMemberWithDetails, "first_name" | "last_name">,
 ) {
   if (!member.first_name && !member.last_name) {
-    // eslint-disable-next-line i18next/no-literal-string -- empty name placeholder
+    // oxlint-disable-next-line i18next/no-literal-string -- empty name placeholder
     return "—"
   }
 

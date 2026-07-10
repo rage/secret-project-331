@@ -69,7 +69,7 @@ const MainFrontedViewSubmission: React.FC<MainFrontedViewSubmissionProps> = ({
             <ExerciseCardPointsBadge
               score={totalScoreGiven ?? null}
               maxScore={submissionData.exercise.score_maximum}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               dataTestId="submission-points"
             />
           }

@@ -73,7 +73,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
     // Search button
     if (enableSearch && courseId && currentPagePath) {
       items.push({
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: "mobile-search",
         type: "action",
         label: t("button-label-search-for-pages"),
@@ -95,7 +95,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
       const currentLanguageName = currentLanguageItem?.nativeLabel || ""
 
       items.push({
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: "mobile-language-menu",
         type: "submenu",
         label: currentLanguageName,
@@ -103,7 +103,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
         lang: languageMenu.currentLanguage,
         dir: getDir(languageMenu.currentLanguage),
         submenuItems: languageMenu.items.map((langItem) => {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           const label = langItem.isSelected ? `${langItem.nativeLabel} ✓` : langItem.nativeLabel
           return {
             id: langItem.id,
@@ -133,13 +133,13 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
     // Login/Signup for non-signed-in users
     if (!userMenu.shouldShow) {
       const returnTo = currentPagePath || ""
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       const loginPathWithReturnTo = `/login?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       const signUpPathWithReturnTo = `/signup?return_to=${encodeURIComponent(returnTo)}&lang=${i18n.language}`
 
       items.push({
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: "mobile-signup",
         type: "link",
         label: t("create-new-account"),
@@ -147,7 +147,7 @@ export const MobileMenuOverlay: React.FC<MobileMenuOverlayProps> = ({
       })
 
       items.push({
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: "mobile-login",
         type: "link",
         label: t("log-in"),

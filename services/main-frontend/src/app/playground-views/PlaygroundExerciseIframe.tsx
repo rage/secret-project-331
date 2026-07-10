@@ -45,7 +45,7 @@ const uploadFilesFromIframe = async (
   const response = await uploadFilesFromExerciseService({
     body: form as unknown as string,
     path: {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       exercise_service_slug: "playground",
     },
   })
@@ -89,7 +89,7 @@ const PlaygroundExerciseIframe: React.FC<
         url={url}
         postThisStateToIFrame={
           {
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             view_type: "answer-exercise",
             exercise_task_id: EXAMPLE_UUID,
             user_information: userInformation,
@@ -108,14 +108,14 @@ const PlaygroundExerciseIframe: React.FC<
               let response: MessageToIframe
               try {
                 response = {
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
                   success: true,
                   urls: files,
                 }
               } catch (e) {
                 response = {
-                  // eslint-disable-next-line i18next/no-literal-string
+                  // oxlint-disable-next-line i18next/no-literal-string
                   message: "upload-result",
                   success: false,
                   error: JSON.stringify(e, null, 2),

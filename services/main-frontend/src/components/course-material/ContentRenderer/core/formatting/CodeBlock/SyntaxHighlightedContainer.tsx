@@ -62,7 +62,7 @@ const SyntaxHighlightedContainer: React.FC<SyntaxHighlightedContainerProps> = ({
 
     // Reset className before re-highlighting so hljs- and language-* classes don't accumulate.
     // A chosen language sets language-<id> so highlight.js uses it instead of auto-detecting.
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     ref.current.className = language ? `${codeBlockStyles} language-${language}` : codeBlockStyles
 
     // Sanitization is the source of truth for HTML safety; highlight.js does not preserve arbitrary HTML.

@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css, cx } from "@emotion/css"
 import DOMPurify from "dompurify"
 import { useSearchParams } from "next/navigation"
@@ -104,7 +104,7 @@ export type BlockRendererProps<T> = {
 
 const LatexBlock = dynamicImport(() => import("./moocfi/LatexBlock"))
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export const blockToRendererMap: { [blockName: string]: any } = {
   "core/block": DefaultBlock,
 

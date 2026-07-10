@@ -42,7 +42,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   const triggerRefetch = useSetAtom(refetchViewAtom)
   const { confirm } = useDialog()
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [lockState, setLockState] = useState<LockState>("idle")
   const [showAnimation, setShowAnimation] = useState(false)
   const [isLoadingPreview, setIsLoadingPreview] = useState(false)
@@ -62,7 +62,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
         },
       }),
     onSuccess: async () => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       setLockState("locking")
       setShowAnimation(true)
       await refetchUserChapterLocks(queryClient, courseId)
@@ -175,7 +175,7 @@ const LockChapter: React.FC<LockChapterProps> = ({ chapterId, blockProps }) => {
   }
 
   const handleAnimationComplete = async () => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     setLockState("locked")
     await triggerRefetch()
     await new Promise((resolve) => setTimeout(resolve, 200))

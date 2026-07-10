@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 
 import { fireEvent, render } from "@testing-library/react"
 import type React from "react"

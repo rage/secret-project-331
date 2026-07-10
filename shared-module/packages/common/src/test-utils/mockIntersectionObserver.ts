@@ -16,7 +16,7 @@ export class MockIntersectionObserver implements IntersectionObserver {
   ) {
     this.root = options?.root instanceof Element ? options.root : null
     this.rootMargin = options?.rootMargin ?? "0px 0px 0px 0px"
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     this.scrollMargin = (options as any)?.scrollMargin ?? "0px 0px 0px 0px"
     this.thresholds = Array.isArray(options?.threshold)
       ? options!.threshold!.slice().sort((a, b) => a - b)
@@ -48,9 +48,9 @@ export class MockIntersectionObserver implements IntersectionObserver {
 }
 
 export function setupIntersectionObserverMock() {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ;(global as any).IntersectionObserver = MockIntersectionObserver
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ;(window as any).IntersectionObserver = MockIntersectionObserver
 }
 
@@ -74,10 +74,10 @@ export function triggerIntersection(
     target: el,
     isIntersecting: opts.isIntersecting,
     intersectionRatio: opts.intersectionRatio ?? (opts.isIntersecting ? 1 : 0),
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     boundingClientRect: opts.boundingClientRect ?? el.getBoundingClientRect?.() ?? ({} as any),
     rootBounds: opts.rootBounds ?? null,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     intersectionRect: opts.intersectionRect ?? ({} as any),
   }
 

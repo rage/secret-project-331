@@ -307,7 +307,7 @@ const PeerOrSelfReviewViewImpl: React.FC<React.PropsWithChildren<PeerOrSelfRevie
                   exerciseTaskId={course_material_exercise_task.id}
                   key={course_material_exercise_task.id}
                   postThisStateToIFrame={{
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     view_type: "view-submission",
                     exercise_task_id: course_material_exercise_task.id,
                     user_information: {

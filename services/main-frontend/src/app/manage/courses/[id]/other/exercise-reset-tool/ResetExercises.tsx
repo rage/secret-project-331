@@ -41,7 +41,7 @@ const ResetExercises: React.FC<CourseManagementPagesProps> = ({ courseId }) => {
         addUser(user)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [users])
 
   const addUser = (user: UserDetail) => {

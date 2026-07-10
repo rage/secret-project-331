@@ -288,7 +288,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
           const rows = params
             .map((p) => {
               const value = Math.round(Number(p.value ?? 0)).toLocaleString()
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               return `
                 <div class="${tooltipRow}">
                   <span class="${tooltipLabel}">
@@ -300,7 +300,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
             })
             .join("")
 
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           return `
             <div class="${tooltipContainer}">
               <div class="${tooltipHeader}">
@@ -322,7 +322,7 @@ const LineChartByInstance: React.FC<LineChartByInstanceProps> = ({
       },
       legend: {
         type: "scroll" as const,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         orient: "horizontal" as const,
         bottom: 0,
       },

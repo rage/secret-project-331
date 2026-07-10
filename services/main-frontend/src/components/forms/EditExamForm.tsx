@@ -45,7 +45,7 @@ const EditExamForm: React.FC<React.PropsWithChildren<EditExamFormProps>> = ({
     formState: { errors },
     watch,
   } = useForm<EditExamFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: initialData.name,

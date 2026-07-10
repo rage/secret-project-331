@@ -24,7 +24,7 @@ import { baseTheme, typography } from "@/shared-module/common/styles"
 
 interface Props {
   data: Page[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   refetch: () => any
   courseId: string
   chapter?: Chapter
@@ -117,7 +117,7 @@ const PageList: React.FC<React.PropsWithChildren<Props>> = ({
         chapterId={chapter?.id}
         courseId={courseId}
         onSubmitForm={handleCreateTopLevelPage}
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         prefix={chapter && `/chapter-${chapter.chapter_number}/`}
         isUpdate={false}
         open={showNewOrEditPageForm}

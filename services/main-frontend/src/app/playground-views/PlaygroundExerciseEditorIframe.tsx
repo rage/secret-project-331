@@ -52,7 +52,7 @@ const PlaygroundExerciseEditorIframe: React.FC<
         key={iframeKey}
         url={url}
         postThisStateToIFrame={{
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           view_type: "exercise-editor",
           exercise_task_id: EXAMPLE_UUID,
           data: {

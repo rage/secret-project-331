@@ -58,7 +58,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
       return
     }
     const selectedLanguage = newLanguage.split("-")
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     document.cookie = `${LANGUAGE_COOKIE_KEY}=${selectedLanguage[0]}; path=/; SameSite=Strict; max-age=31536000;`
   }
 
@@ -100,7 +100,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
             z-index: 800;
           `}
           ref={setPopperElement}
-          // eslint-disable-next-line react/forbid-dom-props
+          // oxlint-disable-next-line react/forbid-dom-props
           style={styles.popper}
           {...attributes.popper}
         >
@@ -137,7 +137,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({
               })}
             </ul>
           </LanguageMenu>
-          {/* eslint-disable-next-line react/forbid-dom-props */}
+          {/* oxlint-disable-next-line react/forbid-dom-props */}
           <div ref={setArrowElement} style={styles.arrow} />
         </div>
       </div>

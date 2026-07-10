@@ -45,7 +45,7 @@ const Submission: React.FC = () => {
   })
 
   const handleGetAssignments = (task: CourseMaterialExerciseTask) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const assignments = task.assignment as Block<any>[]
     return assignments.map((assignment) => assignment.attributes?.content)
   }
@@ -66,13 +66,13 @@ const Submission: React.FC = () => {
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${examId}` },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${examId}/questions` },
       {
         text: t("header-submissions"),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         url: `/manage/exercises/${exerciseId}/exam-submissions`,
       },
       { text: id, url: "" },

@@ -40,7 +40,7 @@ const FeedbackHandler: React.FC<React.PropsWithChildren<Props>> = ({
   const feedbackButtonRef = useRef<HTMLButtonElement>(null)
 
   const handleGiveFeedbackClick = () => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     setCurrentlyOpenFeedbackDialog("select-type")
   }
 

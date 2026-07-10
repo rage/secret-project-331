@@ -202,9 +202,9 @@ const GradingPage: React.FC = () => {
 
   const pieces: BreadcrumbPiece[] = useMemo(() => {
     const pieces = [
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("link-manage"), url: `/manage/exams/${id}` },
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       { text: t("questions"), url: `/manage/exams/${id}/questions` },
     ]
     return pieces

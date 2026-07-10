@@ -185,7 +185,7 @@ const ClosedEndedQuestionEditor: React.FC<ClosedEndedQuestionEditorProps> = ({ q
       return findQuizItem<PrivateSpecQuizItemClosedEndedQuestion>(
         quiz,
         quizItemId,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "closed-ended-question",
       )
     })

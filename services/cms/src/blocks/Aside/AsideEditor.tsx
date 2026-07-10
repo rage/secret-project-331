@@ -29,7 +29,7 @@ const AsideEditor = ({
           attributes={attributes}
           setAttributes={setAttributes}
           defaultBackgroundColor="#007acc"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           customAttributeName="separatorColor"
           customTitle={t("separator-color")}
         />

@@ -18,7 +18,7 @@ export interface PeerOrSelfReviewViewProps {
 }
 
 export const getPeerReviewBeginningScrollingId = (exerciseId: string) =>
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   `start-of-peer-review-${exerciseId}`
 
 const PeerOrSelfReviewView: React.FC<React.PropsWithChildren<PeerOrSelfReviewViewProps>> = (

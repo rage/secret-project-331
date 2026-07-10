@@ -182,7 +182,7 @@ const IframeViewPlayground: React.FC = () => {
 
   const [currentStateReceivedFromIframe, setCurrentStateReceivedFromIframe] =
     useState<CurrentStateMessage | null>(null)
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const [currentView, setCurrentView] = useState<IframeViewType>("exercise-editor")
   const [submissionViewSendModelsolutionSpec, setSubmissionViewSendModelsolutionSpec] =
     useState(true)
@@ -191,15 +191,15 @@ const IframeViewPlayground: React.FC = () => {
   const [refreshKey, setRefreshKey] = useState(0)
 
   const { register, setValue, watch } = useForm<PlaygroundFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       url: localStorage.getItem("service-info-url") ?? DEFAULT_SERVICE_INFO_URL,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       private_spec: "null",
       showIframeBorders: true,
       disableSandbox: false,
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       pseudonymousUserId: "78b62532-b836-4387-8f99-673cb023b903",
       signedIn: true,
     },
@@ -310,7 +310,7 @@ const IframeViewPlayground: React.FC = () => {
           throw new Error("Playground websocket is not registered.")
         }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
             websocket_id: websocketId,
           })}?playground-grading-callback-claim=${encodeURIComponent(
@@ -590,7 +590,7 @@ const IframeViewPlayground: React.FC = () => {
                 <QueryResult query={publicSpecQuery}>
                   {(data) => (
                     <StyledPre fullWidth={false}>
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
                       {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
                     </StyledPre>
                   )}
@@ -611,7 +611,7 @@ const IframeViewPlayground: React.FC = () => {
                 <QueryResult query={modelSolutionSpecQuery}>
                   {(data) => (
                     <StyledPre fullWidth={false}>
-                      {/* eslint-disable-next-line i18next/no-literal-string */}
+                      {/* oxlint-disable-next-line i18next/no-literal-string */}
                       {JSON.stringify(data, undefined, 2).replaceAll("\\n", "\n")}
                     </StyledPre>
                   )}
@@ -683,7 +683,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("exercise-editor")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               exercise-editor
             </button>
@@ -693,7 +693,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("answer-exercise")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               answer-exercise
             </button>
@@ -703,7 +703,7 @@ const IframeViewPlayground: React.FC = () => {
                 setCurrentStateReceivedFromIframe(null)
                 setCurrentView("view-submission")
               }}
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
             >
               view-submission
             </button>
@@ -722,36 +722,36 @@ const IframeViewPlayground: React.FC = () => {
                   userInformation={userInformation}
                   repositoryExercises={[
                     {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       id: "sample-exercise-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_id: "sample-repository-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       part: "part01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       name: "ex01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_url: "https://github.com/testmycode/tmc-testcourse",
                       checksum: [1, 2, 3, 4],
                       download_url:
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-1.tar.zst`,
                     },
                     {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       id: "sample-exercise-2",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_id: "sample-repository-1",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       part: "part01",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       name: "ex02",
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       repository_url: "https://github.com/testmycode/tmc-testcourse",
                       checksum: [5, 6, 7, 8],
 
                       download_url:
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         `${PUBLIC_ADDRESS}/api/v0/files/playground-views/repository-exercise-2.tar.zst`,
                     },
                   ]}
@@ -864,7 +864,7 @@ const IframeViewPlayground: React.FC = () => {
                 setValue(
                   "private_spec",
                   JSON.stringify(
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    // oxlint-disable-next-line typescript/no-explicit-any
                     (currentStateReceivedFromIframe?.data as any)?.private_spec,
                     undefined,
                     2,

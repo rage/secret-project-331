@@ -105,7 +105,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       let transcript = createChatbotTranscript(info)
       downloadStringAsFile(
         transcript,
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         "txt",
         `${t("conversation-with", { name: info?.chatbot_name })}`,
       )
@@ -119,7 +119,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   let items: DropdownMenuItem[] = [
     {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-new-conversation-button",
       onAction: () => {
         if (!newConversationMutation.isPending) {
@@ -143,7 +143,7 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
 
   if (currentConversationInfo.data?.current_conversation) {
     items.push({
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       id: "chatbot-header-menu-dl-transcript-button",
       onAction: createTranscript.mutate,
       disabled: createTranscript.isPending,
@@ -196,9 +196,9 @@ const ChatbotChatHeader: React.FC<ChatbotChatHeaderProps> = (props) => {
       </Heading>
       <div className={buttonsWrapper}>
         <DropdownMenu
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           menuTestId="chatbot-header-menu"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           menuButtonTestId="chatbot-header-menu-button"
           controlButtonClassName={buttonStyle}
           controlButtonIconColor={`${baseTheme.colors.green[700]}`}

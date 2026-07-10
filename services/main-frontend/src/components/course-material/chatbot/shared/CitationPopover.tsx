@@ -118,7 +118,7 @@ const CitationPopover: React.FC<CitationPopoverProps> = ({
           setTriggerElementId("")
         }}
         popoverLabel={t("citation-n", { n: citationNumber })}
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         dataTestId="chatbot-citation-popover"
         {...hoverPopoverProps}
       >

@@ -13,7 +13,7 @@ const PartnersBlock: React.FC<React.PropsWithChildren<BlockRendererProps<Partner
 ) => {
   return (
     <BreakFromCentered sidebar={false}>
-      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+      {/* oxlint-disable-next-line typescript/no-explicit-any */}
       <Partner logos={props.data.innerBlocks as any} />
     </BreakFromCentered>
   )

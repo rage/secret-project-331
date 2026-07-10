@@ -58,7 +58,7 @@ const formatOriginalErrorMessage = (originalMessage: string): string => {
     const formatted = JSON.stringify(parsed, null, 2)
 
     // Replace the JSON part in the original message with the formatted version
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return originalMessage.replace(jsonMatch[0], `\n${formatted}`)
   } catch {
     return originalMessage

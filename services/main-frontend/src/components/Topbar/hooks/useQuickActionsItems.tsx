@@ -128,14 +128,14 @@ export function useQuickActionsItems({
     return quickActions.map((item, idx) => {
       if (item.type === "separator") {
         return {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           id: `quick-sep-${idx}`,
           type: "separator" as const,
         }
       }
 
       return {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         id: `quick-${item.href || item.label || idx}`,
         type: item.type,
         label: item.label,

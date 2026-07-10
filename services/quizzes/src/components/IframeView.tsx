@@ -86,7 +86,7 @@ const IframeView: React.FC = () => {
 
           if (isOldQuiz(messageData.data.previous_submission as OldQuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              // oxlint-disable-next-line typescript/no-explicit-any
               (messageData.data.previous_submission as any)?.private_spec as OldQuizAnswer,
               publicSpec as PublicSpecQuiz,
             )
@@ -128,9 +128,9 @@ const IframeView: React.FC = () => {
                 title: null,
                 body: null,
                 awardPointsEvenIfWrong: false,
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 grantPointsPolicy: "grant_whenever_possible",
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 quizItemDisplayDirection: "vertical",
                 submitMessage: null,
                 items: [],
@@ -141,7 +141,7 @@ const IframeView: React.FC = () => {
           } else {
             let converted: unknown = privateSpec
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line typescript/no-explicit-any
             if (isOldQuiz(converted as any)) {
               converted = migrateQuiz(converted)
               converted = migratePrivateSpecQuiz(converted as OldQuiz)
@@ -154,10 +154,10 @@ const IframeView: React.FC = () => {
                 title: null,
                 body: null,
                 awardPointsEvenIfWrong: false,
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 grantPointsPolicy: "grant_whenever_possible",
                 submitMessage: null,
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 quizItemDisplayDirection: "vertical",
                 items: [],
               } satisfies PrivateSpecQuiz
@@ -188,7 +188,7 @@ const IframeView: React.FC = () => {
           }
           if (isOldQuiz(messageData.data.user_answer as OldQuizAnswer)) {
             quiz_answer = migrateQuizAnswer(
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              // oxlint-disable-next-line typescript/no-explicit-any
               messageData.data.user_answer as any as OldQuizAnswer,
               public_spec as PublicSpecQuiz,
             )

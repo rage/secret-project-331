@@ -14,7 +14,7 @@ export const SpotifyEmbedBlock: React.FC<React.PropsWithChildren<EmbedAttributes
     <iframe
       src={`https://open.spotify.com/embed/${type}/${spotifyId}`}
       frameBorder="0"
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       title="Spotify"
       // Cross-origin Spotify player; both flags are required and the frame runs under open.spotify.com, not our origin.
       // oxlint-disable-next-line react/iframe-missing-sandbox

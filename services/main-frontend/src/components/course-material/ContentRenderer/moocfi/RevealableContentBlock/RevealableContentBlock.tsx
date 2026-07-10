@@ -12,7 +12,7 @@ import Centered from "@/shared-module/common/components/Centering/Centered"
 import withErrorBoundary from "@/shared-module/common/utils/withErrorBoundary"
 import { Block } from "@/types/courseMaterialBlock"
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// oxlint-disable-next-line typescript/no-empty-object-type
 interface RevealableContentProps {}
 
 const RevealableContentBlock: React.FC<

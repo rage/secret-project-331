@@ -67,9 +67,9 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
    * @param event User keyboard event
    */
   const tabListOnKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const previousSiblingKey = orientation === "horizontal" ? "ArrowLeft" : "ArrowUp"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const nextSiblingKey = orientation === "horizontal" ? "ArrowRight" : "ArrowDown"
     if (event.key === previousSiblingKey) {
       event.preventDefault()
@@ -115,7 +115,7 @@ const TabLinkNavigation: React.FC<React.PropsWithChildren<TabLinkNavigationProps
 
   return (
     // Interactive support is done in children
-    // eslint-disable-next-line jsx-a11y/interactive-supports-focus
+    // oxlint-disable-next-line jsx-a11y/interactive-supports-focus
     <div
       ref={tabsRef}
       role="tablist"

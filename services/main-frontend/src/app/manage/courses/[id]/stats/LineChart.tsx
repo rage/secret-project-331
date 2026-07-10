@@ -91,7 +91,7 @@ const LineChart: React.FC<LineChartProps> = ({
       },
     ],
     tooltip: {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       trigger: "axis" as const,
       formatter: (params: TooltipComponentFormatterCallbackParams) => {
         if (!Array.isArray(params) || !params[0]) {
@@ -102,10 +102,10 @@ const LineChart: React.FC<LineChartProps> = ({
         const value = data?.[dataIndex].count
         try {
           const formattedDate = format(new Date(period || ""), dateFormat)
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           return `${formattedDate}<br/>${tooltipValueLabel}: ${value}`
         } catch {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           return `${period}<br/>${tooltipValueLabel}: ${value}`
         }
       },

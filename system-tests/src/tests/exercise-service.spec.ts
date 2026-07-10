@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, Page, test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../utils/expect"

@@ -30,7 +30,7 @@ const BlockPlaceholderWrapper: React.FC<React.PropsWithChildren<BlockPlaceholder
   return (
     <div
       {...blockProps}
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       {...(id ? { id: `placeholder-block-${id}` } : {})}
     >
       <Placeholder icon={icon} label={title} instructions={explanation}>

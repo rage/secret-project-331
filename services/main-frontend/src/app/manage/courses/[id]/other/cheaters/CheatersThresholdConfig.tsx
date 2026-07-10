@@ -295,9 +295,9 @@ export default function CheatersThresholdConfig({ courseId }: CheatersThresholdC
                 (durationSeconds !== undefined && durationSeconds === configuredSeconds) ||
                 (!hasValue && !hasConfiguredValue)
               const minHours = minimumSeconds / SECONDS_PER_HOUR
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               const inputId = `duration-input-${module.id}`
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               const labelId = `${inputId}-label`
               return (
                 <tr key={module.id}>

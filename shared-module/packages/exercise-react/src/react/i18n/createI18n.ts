@@ -9,7 +9,7 @@ export type LoadTranslations = (language: string, namespace: string) => Promise<
  * shared package while sharing the i18next configuration across all exercise services.
  */
 export function createI18n(defaultNS: string, loadTranslations: LoadTranslations): typeof i18n {
-  // eslint-disable-next-line import/no-named-as-default-member
+  // oxlint-disable-next-line import/no-named-as-default-member
   i18n
     .use(initReactI18next)
     .use({

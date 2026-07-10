@@ -161,7 +161,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
     formState: { isValid, isSubmitting },
     reset,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       year: "",
@@ -171,7 +171,7 @@ const TimelineContent: React.FC<React.PropsWithChildren<TimelineContentProps>> =
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemTimeline>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemTimeline>(quiz, quizItemId, "timeline")
     })
 

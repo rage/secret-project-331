@@ -104,7 +104,7 @@ const Dialog: React.FC<DialogProps> = ({
           overflow-y: auto;
         `}
       >
-        {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+        {/* oxlint-disable-next-line jsx-a11y/no-autofocus */}
         <FocusScope contain restoreFocus autoFocus>
           <div
             {...activeOverlayProps}

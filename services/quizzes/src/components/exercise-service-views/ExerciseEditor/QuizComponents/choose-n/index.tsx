@@ -84,7 +84,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemChooseN>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemChooseN>(quiz, quizItemId, "choose-n")
     })
 

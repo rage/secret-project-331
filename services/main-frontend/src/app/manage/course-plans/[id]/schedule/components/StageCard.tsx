@@ -155,7 +155,7 @@ export default function StageCard({
               : {
                   type: "tween",
                   duration: 0.18,
-                  // eslint-disable-next-line i18next/no-literal-string -- Motion ease value
+                  // oxlint-disable-next-line i18next/no-literal-string -- Motion ease value
                   ease: "easeOut",
                 }
             : reduceMotion
@@ -169,10 +169,10 @@ export default function StageCard({
         }}
       >
         <div className={stageMonthBlocksStyles}>
-          {/* eslint-disable-next-line i18next/no-literal-string -- Motion mode name */}
+          {/* oxlint-disable-next-line i18next/no-literal-string -- Motion mode name */}
           <AnimatePresence initial={false} mode="popLayout">
             {months.map((month) => {
-              // eslint-disable-next-line i18next/no-literal-string -- stable layout animation id prefix
+              // oxlint-disable-next-line i18next/no-literal-string -- stable layout animation id prefix
               const monthLayoutId = `month-${month.id}`
               return (
                 <MonthBlock

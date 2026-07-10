@@ -28,7 +28,7 @@ export function UserDetailsPopover({
     {
       triggerRef,
       popoverRef,
-      // eslint-disable-next-line i18next/no-literal-string -- placement value for popover positioning
+      // oxlint-disable-next-line i18next/no-literal-string -- placement value for popover positioning
       placement: "bottom start" as const,
       offset: 8,
     },

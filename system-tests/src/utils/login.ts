@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { Page } from "playwright"
 
 export async function login(

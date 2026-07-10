@@ -39,7 +39,7 @@ const NewCourseModuleForm: React.FC<Props> = ({ chapters, onSubmitForm }) => {
     reset,
     watch,
   } = useForm<Fields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       name: "",

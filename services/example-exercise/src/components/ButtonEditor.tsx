@@ -56,7 +56,7 @@ const ButtonEditor: React.FC<React.PropsWithChildren<Props>> = ({ item, onDelete
           onChange({ ...item, name: e.target.value })
         }}
       />
-      {/* eslint-disable-next-line i18next/no-literal-string */}
+      {/* oxlint-disable-next-line i18next/no-literal-string */}
       <DeleteButton onClick={onDelete}>x</DeleteButton>
     </StyledButtonEditor>
   )

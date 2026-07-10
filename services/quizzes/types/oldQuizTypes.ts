@@ -386,8 +386,8 @@ export interface OldEntities {
 /** @deprecated */
 export interface OldAction {
   type: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   payload?: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   meta?: any
 }

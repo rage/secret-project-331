@@ -1,7 +1,7 @@
 "use client"
 
 // This page is not translated because this page is a development tool and using different languages here would just create confusing terminology and weird language.
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import { css } from "@emotion/css"
 import styled from "@emotion/styled"
 import { isServer, UseMutationResult, UseQueryResult } from "@tanstack/react-query"
@@ -39,7 +39,7 @@ interface PlaygroundPreviewProps {
   userAnswer: unknown
   setUserAnswer: (answer: unknown) => void
   // Caused weird type errors when the parameter generic was set to unknown
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   submitAnswerMutation: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
   settingsForm: UseFormReturn<PlaygroundSettings>
 }
@@ -353,7 +353,7 @@ const PlaygroundPreview: React.FC<PlaygroundPreviewProps> = ({
                   settingsForm.setValue(
                     "private_spec",
                     JSON.stringify(
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      // oxlint-disable-next-line typescript/no-explicit-any
                       (currentStateReceivedFromIframe?.data as any)?.private_spec,
                       undefined,
                       2,

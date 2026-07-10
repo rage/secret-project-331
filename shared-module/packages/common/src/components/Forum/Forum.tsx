@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 import styled from "@emotion/styled"
 import React, { useRef, useState } from "react"
 import { useTranslation } from "react-i18next"

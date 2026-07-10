@@ -215,7 +215,7 @@ export const CopyButton: React.FC<CopyButtonProps> = ({ content }) => {
             ) : (
               <CopyIcon className={iconStyles} />
             )
-          // eslint-disable-next-line react/forbid-component-props
+          // oxlint-disable-next-line react/forbid-component-props
           return <AnimatedDiv style={style}>{IconComponent}</AnimatedDiv>
         })}
       </div>

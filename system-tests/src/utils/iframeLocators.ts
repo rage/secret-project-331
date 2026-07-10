@@ -117,7 +117,7 @@ export async function waitForExerciseServiceIframeToBeStable(
 export async function scrollLocatorsParentIframeToViewIfNeeded(locator: Locator) {
   const page = locator.page()
   // We must wait here to counteract the automatic scrolling we do in `makeSureComponentStaysVisibleAfterChangingView`
-  // eslint-disable-next-line playwright/no-wait-for-timeout
+  // oxlint-disable-next-line playwright/no-wait-for-timeout
   await page.waitForTimeout(550)
   // Logic to make getting element handles from inside iframes that are offscreen to work
   await expect(async () => {

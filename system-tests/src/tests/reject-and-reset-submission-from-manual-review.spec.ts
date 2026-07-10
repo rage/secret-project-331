@@ -187,7 +187,7 @@ test("Reject and reset submission", async () => {
     )
     await teacherPage.getByRole("link", { name: "View answers requiring" }).click()
     await teacherPage.getByRole("button", { name: "Reject and reset" }).waitFor()
-    // eslint-disable-next-line playwright/no-wait-for-timeout
+    // oxlint-disable-next-line playwright/no-wait-for-timeout
     await teacherPage.waitForTimeout(100)
     await waitForSuccessNotification(teacherPage, async () => {
       await teacherPage.getByRole("button", { name: "Reject and reset" }).first().click()

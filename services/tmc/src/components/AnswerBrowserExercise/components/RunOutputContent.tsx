@@ -80,7 +80,7 @@ export const RunOutputContent: React.FC<RunOutputContentProps> = ({
   useEffect(() => {
     if (waitingForInput && inputRef.current) {
       /* scrollIntoView options: ScrollBehavior and ScrollLogicalPosition (not user-facing) */
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       inputRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" })
     }
   }, [waitingForInput])

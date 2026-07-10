@@ -70,11 +70,11 @@ const resizeToContent = (textarea: HTMLTextAreaElement | null) => {
     return
   }
   // Reset so the field can shrink as well as grow, then size to content.
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   textarea.style.height = "auto"
   // +5 covers the 2px borders under border-box (scrollHeight excludes them); without it the last
   // line clips. Matches the shared TextAreaField.
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   textarea.style.height = `${textarea.scrollHeight + 5}px`
 }
 
@@ -125,7 +125,7 @@ const AutoExpandingTextField: React.FC<AutoExpandingTextFieldProps> = ({
   }
 
   // HTML attribute value (not user-facing text): soft wrapping so long text flows onto new rows.
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const wrapMode = "soft"
 
   return (

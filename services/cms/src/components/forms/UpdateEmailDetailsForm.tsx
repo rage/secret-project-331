@@ -68,22 +68,22 @@ const UpdateEmailDetailsForm: React.FC<React.PropsWithChildren<UpdateEmailDetail
             }}
             options={[
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "reset_password_email",
                 label: t("email-template-type-reset-password-email"),
               },
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "delete_user_email",
                 label: t("email-template-type-delete-user-email"),
               },
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "generic",
                 label: t("email-template-type-generic"),
               },
               {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 value: "confirm_email_code",
                 label: t("email-template-type-confirm-email-code"),
               },

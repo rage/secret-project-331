@@ -22,7 +22,7 @@ const ExpandableContentInnerBlockEditor: React.FC<
   React.PropsWithChildren<BlockEditProps<ExpandableContentConfigurationProps>>
 > = ({ clientId, attributes, setAttributes }) => {
   const { t } = useTranslation()
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const blockProps = useBlockProps({ className: "moocfi-expandable-content-inner-block" })
 
   return (

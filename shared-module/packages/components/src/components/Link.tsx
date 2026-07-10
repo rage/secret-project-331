@@ -142,7 +142,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
       ) || undefined
 
     const resolvedIcon = styledAsButtonResolved ? icon : undefined
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const defaultIconPosition: IconPosition = "start"
     const resolvedIconPosition =
       (styledAsButtonResolved ? iconPosition : undefined) ?? defaultIconPosition
@@ -168,7 +168,7 @@ export const Link = React.forwardRef<HTMLAnchorElement, LinkProps>(
         data-disabled-reason={
           isLoading ? "loading" : isInteractivelyDisabled ? "disabled" : undefined
         }
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         aria-busy={isLoading ? "true" : undefined}
         tabIndex={finalTabIndex}
       >

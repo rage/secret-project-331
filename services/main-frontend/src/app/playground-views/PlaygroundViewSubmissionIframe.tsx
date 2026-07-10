@@ -19,7 +19,7 @@ interface PlaygroundViewSubmissionIframeProps {
   url: string
   publicSpecQuery: UseQueryResult<unknown, unknown>
   // Caused weird type errors when the parameter generic was set to unknown
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   gradingQuery: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
   modelSolutionSpecQuery: UseQueryResult<unknown, unknown>
   userAnswer: unknown
@@ -61,7 +61,7 @@ const PlaygroundViewSubmissionIframe: React.FC<
     return <>{t("error-no-grading")}</>
   }
   const iframeState: ExerciseIframeState = {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     view_type: "view-submission",
     exercise_task_id: EXAMPLE_UUID,
     user_information: userInformation,

@@ -67,7 +67,7 @@ export const StateRenderer: React.FC<React.PropsWithChildren<Props>> = ({
             return updater(prev)
           }
           const fakePrev: ExerciseIframeState = {
-            // eslint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
+            // oxlint-disable-next-line i18next/no-literal-string -- internal state discriminant (not user-facing)
             view_type: "answer-exercise",
             public_spec: prev.public_spec,
             user_answer: prev.submission,

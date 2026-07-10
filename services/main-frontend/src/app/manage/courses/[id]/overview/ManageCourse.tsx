@@ -166,7 +166,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
           size="medium"
           onClick={async () => {
             const confirmation = await confirm(
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               `${t("delete-course-confirmation")}\n\n${t(
                 "delete-course-confirmation-explanation",
               )}`,
@@ -387,7 +387,7 @@ const ManageCourse: React.FC<React.PropsWithChildren<Props>> = ({ course, refetc
       </OnlyRenderIfPermissions>
       {course.is_joinable_by_code_only && (
         <div>
-          {/*eslint-disable-next-line i18next/no-literal-string */}
+          {/*oxlint-disable-next-line i18next/no-literal-string */}
           <a href={`/join?code=${course.join_code}`}>{`/join?code=${course.join_code}`}</a>
           <div>
             <Button

@@ -328,7 +328,7 @@ const CompletionsPage: React.FC = () => {
                   {data.sortedCourseModules
                     .sort((a, b) => a.order_number - b.order_number)
                     .map((module) => {
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       const moduleSorting = `#mod${module.order_number}`
                       return (
                         <th key={module.id} colSpan={2}>

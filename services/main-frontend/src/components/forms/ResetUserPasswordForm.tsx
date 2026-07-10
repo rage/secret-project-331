@@ -29,7 +29,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     watch,
     formState: { errors },
   } = useForm<ResetPasswordFormFields>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       token,
@@ -58,7 +58,7 @@ const ResetPasswordForm: React.FC<ResetPasswordFormProps> = ({ token }) => {
     },
     {
       onSuccess: () => {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         router.push("/login?return_to=%2F")
       },
     },

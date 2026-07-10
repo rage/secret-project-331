@@ -87,7 +87,7 @@ const Essay: React.FunctionComponent<
           onPaste={(e) => {
             // Warn, but do not block: pasting your own draft is legitimate, so we never discard the
             // student's text. The warning dialog is shown by the parent over the iframe protocol.
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             const warning = getEssayPasteWarning(e.clipboardData.getData("text"), t)
             if (warning) {
               void openDialog(warning)

@@ -169,7 +169,7 @@ export function FloatingHeaderTable<T extends object>({
     // sync top trailer
     const trailer = trailerRef.current
     if (trailer && syncingRef.current !== "top") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       syncingRef.current = "wrap"
       trailer.scrollLeft = wrap.scrollLeft
       syncingRef.current = null
@@ -186,7 +186,7 @@ export function FloatingHeaderTable<T extends object>({
       return
     }
     if (syncingRef.current !== "wrap") {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       syncingRef.current = "top"
       wrap.scrollLeft = trailer.scrollLeft
       syncingRef.current = null

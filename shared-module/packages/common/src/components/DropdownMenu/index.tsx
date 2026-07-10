@@ -101,7 +101,7 @@ const DropdownMenu: React.FC<React.PropsWithChildren<DropdownMenuProps>> = ({ it
       </button>
       {expanded && (
         <div
-          // eslint-disable-next-line react/forbid-dom-props
+          // oxlint-disable-next-line react/forbid-dom-props
           style={styles.popper}
           {...attributes.popper}
           className={css`

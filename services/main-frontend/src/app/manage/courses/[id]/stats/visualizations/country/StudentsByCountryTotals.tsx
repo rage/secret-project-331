@@ -42,7 +42,7 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
     }
     const totalCountsByCountryObject = totalCountsByCountry.reduce(
       (acc, d) => {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         acc[d.country ?? "null"] = d.count
         return acc
       },
@@ -104,9 +104,9 @@ const StudentsByCountryTotals: React.FC<Props> = ({ courseId }) => {
                     },
                   ],
                   tooltip: {
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     trigger: "item",
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     formatter: "{b}: {c}",
                   },
                 }}

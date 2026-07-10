@@ -67,11 +67,11 @@ const ChooseN: React.FunctionComponent<
     }
   }
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const statusId = `${groupId}-status`
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const hintId = `${groupId}-hint`
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const liveId = `${groupId}-live`
 
   return (
@@ -96,7 +96,7 @@ const ChooseN: React.FunctionComponent<
 
       <div>
         <ToggleButtonGroup
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           selectionMode="multiple"
           selectedKeys={new Set(selectedIds)}
           onSelectionChange={handleSelectionChange}

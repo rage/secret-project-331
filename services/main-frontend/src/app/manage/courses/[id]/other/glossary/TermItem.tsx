@@ -35,7 +35,7 @@ const TermItem: React.FC<TermItemProps> = ({ term, isEditing, onEdit, onCancel, 
     formState: { errors, isValid },
     reset,
   } = useForm<UpdateTermForm>({
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     mode: "onChange",
     defaultValues: {
       updatedTerm: term.term,

@@ -88,7 +88,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
 
   useEffect(() => {
     if (!subtabFromUrl && courseId) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       router.replace(manageCourseStudentsRoute(courseId, "users"))
     }
   }, [subtabFromUrl, courseId, router])
@@ -145,7 +145,7 @@ const StudentsPage: React.FC<Props> = ({ courseId }) => {
                   })
                 }}
               />
-              {/* eslint-disable-next-line i18next/no-literal-string */}
+              {/* oxlint-disable-next-line i18next/no-literal-string */}
               <span className={styles.searchIcon}>🔍</span>
             </div>
 

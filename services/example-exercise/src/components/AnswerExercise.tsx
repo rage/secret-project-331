@@ -24,7 +24,7 @@ const Exercise: React.FC<React.PropsWithChildren<Props>> = ({ port, state }) => 
     // Report the current answer to the parent so it can be saved.
     const data: Answer = { selectedOptionId: optionId }
     const message: CurrentStateMessage = {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       message: "current-state",
       data,
       valid: true,

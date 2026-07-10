@@ -88,7 +88,7 @@ export function useCoursePlanWorkspacePageState({
     setIsOverviewOpen(false)
 
     const nextStage = result.plan.active_stage ?? null
-    // eslint-disable-next-line i18next/no-literal-string -- internal sentinel value, not user-facing copy
+    // oxlint-disable-next-line i18next/no-literal-string -- internal sentinel value, not user-facing copy
     const transitionKey = nextStage ?? "completed"
     if (welcomedStageRef.current === transitionKey) {
       return

@@ -83,7 +83,7 @@ const ExerciseTaskIFrameEditor: React.FC<
       onMessageFromIframe={async (messageContainer, responsePort) => {
         if (isMessageFromIframe(messageContainer)) {
           if (messageContainer.message === "current-state") {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line typescript/no-explicit-any
             onPrivateSpecChange(JSON.stringify((messageContainer.data as any).private_spec))
           }
           if (messageContainer.message === "request-repository-exercises") {
@@ -94,7 +94,7 @@ const ExerciseTaskIFrameEditor: React.FC<
                 },
               })
               const message: MessageToIframe = {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 message: "repository-exercises",
                 repository_exercises: repositoryExercises,
               }
@@ -103,7 +103,7 @@ const ExerciseTaskIFrameEditor: React.FC<
               console.warn("Missing page context")
               // todo: handle missing page context properly?
               const message: MessageToIframe = {
-                // eslint-disable-next-line i18next/no-literal-string
+                // oxlint-disable-next-line i18next/no-literal-string
                 message: "repository-exercises",
                 repository_exercises: [],
               }
@@ -118,9 +118,9 @@ const ExerciseTaskIFrameEditor: React.FC<
         largeScreen
           ? {
               sidebar: true,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               sidebarWidth: `${SIDEBAR_WIDTH_PX}px`,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               sidebarPosition: "right",
             }
           : undefined

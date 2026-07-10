@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { selectCourseInstanceIfPrompted } from "../../../utils/courseMaterialActions"
@@ -44,7 +44,7 @@ test.describe("Quizzes open feedback", () => {
       .getByText("When you started studying at the uni? Give the date in yyyy-mm-dd format.")
       .waitFor()
 
-    // eslint-disable-next-line playwright/no-conditional-in-test
+    // oxlint-disable-next-line playwright/no-conditional-in-test
     if (testInfo.retry && (await page.getByText("Try again").isVisible())) {
       await page.getByText("Try again").click()
       await page.getByText("Try again").waitFor({ state: "hidden" })

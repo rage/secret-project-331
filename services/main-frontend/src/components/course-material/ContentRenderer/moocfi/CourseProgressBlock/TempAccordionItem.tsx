@@ -69,7 +69,7 @@ const TempAccordion: React.FC<
           />
         )}
       </div>
-      {/* eslint-disable-next-line react/forbid-component-props */}
+      {/* oxlint-disable-next-line react/forbid-component-props */}
       {open ? <AnimatedDiv style={openAnimation}>{children}</AnimatedDiv> : null}
     </div>
   )

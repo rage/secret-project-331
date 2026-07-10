@@ -40,7 +40,7 @@ const fileButtonLgCss = css`
   font-size: var(--font-size-lg);
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const stackedLayout = "stacked" as const
 
 function resolveFileButtonSizeCss(fieldSize: FieldSize) {

@@ -1,4 +1,4 @@
-/* eslint-disable playwright/prefer-locator */
+/* oxlint-disable playwright/prefer-locator */
 import { Locator, Page, test } from "@playwright/test"
 
 import expectUrlPathWithRandomUuid from "../../utils/expect"
@@ -100,10 +100,10 @@ const addNewQuiz = async (page: Page) => {
     do {
       steps++
       await page.getByText("Add task").click()
-      // eslint-disable-next-line playwright/no-wait-for-timeout
+      // oxlint-disable-next-line playwright/no-wait-for-timeout
       await page.waitForTimeout(100)
       // Sometimes the add task button doesn't respond due to lag
-      // eslint-disable-next-line playwright/no-conditional-in-test
+      // oxlint-disable-next-line playwright/no-conditional-in-test
     } while ((await page.locator('[aria-label="Edit"]').count()) == 0 && steps < 10)
 
     await page.locator('[aria-label="Edit"]').nth(0).click()

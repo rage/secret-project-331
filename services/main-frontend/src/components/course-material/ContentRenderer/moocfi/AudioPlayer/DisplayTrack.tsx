@@ -42,7 +42,7 @@ const DisplayTrack = ({ tracks, audioRef, setDuration, progressBarRef }: Display
   return (
     <>
       <div>
-        {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+        {/* oxlint-disable-next-line jsx-a11y/media-has-caption */}
         <audio ref={audioRef} onLoadedMetadata={onLoadedMetadata}>
           {sortedTracks.map(({ path, mime }: AudioFile) => (
             <source key={path} src={path} type={mime} />

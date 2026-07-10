@@ -50,9 +50,9 @@ export type YearMonthPickerProps = {
 
 const MONTHS_IN_YEAR = 12
 const YEAR_PAGE_SIZE = 12
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const monthView = "month" as const
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const yearView = "year" as const
 
 export function YearMonthPicker({
@@ -89,7 +89,7 @@ export function YearMonthPicker({
 
   const monthFormatter = useMemo(
     () =>
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       new Intl.DateTimeFormat(locale, { month: "long", timeZone: "UTC" }),
     [locale],
   )

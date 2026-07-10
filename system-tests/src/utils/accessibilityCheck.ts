@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-conditional-in-test */
+/* oxlint-disable playwright/no-conditional-in-test */
 import { AxeBuilder } from "@axe-core/playwright"
 import { test } from "@playwright/test"
 import { CheckResult } from "axe-core"
@@ -130,7 +130,7 @@ class StoringStream extends Writable {
     this.chunks = []
   }
   override _write(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     chunk: any,
     encoding: BufferEncoding,
     callback: (error?: Error | null | undefined) => void,

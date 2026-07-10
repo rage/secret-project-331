@@ -11,7 +11,7 @@ import { ExerciseTaskGradingResult } from "@/utils/playgroundSchemas"
 
 interface PlaygroundAnswersProps {
   userAnswer: unknown
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   submitAnswerMutation: UseMutationResult<ExerciseTaskGradingResult, unknown, any, unknown>
 }
 

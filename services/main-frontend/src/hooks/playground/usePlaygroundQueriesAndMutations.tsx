@@ -191,7 +191,7 @@ const usePlaygroundQueriesAndMutations = (args: UsePlaygroundQueriesArguments) =
           throw new Error(t("playground.websocketNotRegistered"))
         }
         const gradingRequest: GradingRequest = {
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           grading_update_url: `${buildGeneratedApiUrl(PLAYGROUND_VIEWS_GRADING_PATH, {
             websocket_id: websocketId,
           })}?playground-grading-callback-claim=${encodeURIComponent(

@@ -379,9 +379,9 @@ const PlanOverviewPanel: React.FC<PlanOverviewPanelProps> = ({
   /** Formats a Date as localized month and year. */
   const formatMonthYearFromDate = (date: Date): string =>
     date.toLocaleDateString(i18n.language, {
-      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       month: "long",
-      // eslint-disable-next-line i18next/no-literal-string -- Intl date format keys
+      // oxlint-disable-next-line i18next/no-literal-string -- Intl date format keys
       year: "numeric",
     })
 

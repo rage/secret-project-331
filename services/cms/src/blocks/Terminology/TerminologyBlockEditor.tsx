@@ -31,7 +31,7 @@ const TerminologyBlockEditor: React.FC<
           attributes={attributes}
           setAttributes={setAttributes}
           defaultBackgroundColor="rgb(53, 63, 75)"
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           customAttributeName="primaryColor"
           customTitle={t("primary-color")}
         />

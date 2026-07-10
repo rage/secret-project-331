@@ -126,7 +126,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMultiplechoice>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemMultiplechoice>(quiz, quizItemId, "multiple-choice")
     })
 
@@ -260,7 +260,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "vertical"
                   })
                 }}
@@ -273,7 +273,7 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                     if (!draft) {
                       return
                     }
-                    // eslint-disable-next-line i18next/no-literal-string
+                    // oxlint-disable-next-line i18next/no-literal-string
                     draft.optionDisplayDirection = "horizontal"
                   })
                 }}
@@ -338,22 +338,22 @@ const MultipleChoiceEditor: React.FC<MultipleChoiceEditorProps> = ({ quizItemId 
                   }
                   switch (value) {
                     case "default":
-                      // eslint-disable-next-line i18next/no-literal-string
+                      // oxlint-disable-next-line i18next/no-literal-string
                       draft.multipleChoiceMultipleOptionsGradingPolicy = "default"
                       break
                     case "points-off-incorrect-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-incorrect-options"
                       break
                     case "points-off-unselected-options":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "points-off-unselected-options"
                       break
                     case "some-correct-none-incorrect":
                       draft.multipleChoiceMultipleOptionsGradingPolicy =
-                        // eslint-disable-next-line i18next/no-literal-string
+                        // oxlint-disable-next-line i18next/no-literal-string
                         "some-correct-none-incorrect"
                       break
                   }

@@ -69,7 +69,7 @@ const PartnersSectionBlock: React.FC<PartnersBlockProps> = ({ courseId }) => {
               const { url, alt, href, linkDestination } = block.attributes
 
               // Ensure that the link is always a full URL (https://)
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               const formattedLink = href && !/^https?:\/\//i.test(href) ? `https://${href}` : href
               const isSvgUrl = url.endsWith(".svg")
 

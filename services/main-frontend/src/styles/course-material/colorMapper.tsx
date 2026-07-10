@@ -1,6 +1,6 @@
 "use client"
 
-/* eslint-disable i18next/no-literal-string */
+/* oxlint-disable i18next/no-literal-string */
 // Gutenberg specific, don't use in other contexes
 
 export const colorMap: { [colorName: string]: string | undefined } = {

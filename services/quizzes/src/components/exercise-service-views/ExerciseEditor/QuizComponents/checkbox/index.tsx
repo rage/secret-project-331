@@ -45,7 +45,7 @@ const CheckboxEditor: React.FC<CheckboxEditorProps> = ({ quizItemId }) => {
 
   const { selected, updateState } =
     useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemCheckbox>((quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemCheckbox>(quiz, quizItemId, "checkbox")
     })
 

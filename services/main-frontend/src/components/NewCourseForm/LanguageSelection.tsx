@@ -84,7 +84,7 @@ const LanguageSelection: React.FC<LanguageSelectionProps> = ({ form }) => {
           label={t("other-language")}
           value="other"
           {...register("language_code")}
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           onChange={(_event) => handleLanguageSelectionChange("other")}
         />
       </FieldContainer>

@@ -31,10 +31,10 @@ const normalizeCssSize = (value: number | string | undefined): string | undefine
     return undefined
   }
   if (typeof value === "number") {
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     return `${value}px`
   }
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return /^\d+$/.test(value) ? `${value}px` : value
 }
 
@@ -87,18 +87,18 @@ const ImageBlock: React.FC<
   // Only use the fallback when no explicit width was given.
   const fallbackWidth =
     fallbackWidthPx !== null && normalizeCssSize(width) === undefined
-      ? // eslint-disable-next-line i18next/no-literal-string
+      ? // oxlint-disable-next-line i18next/no-literal-string
         `${fallbackWidthPx}px`
       : undefined
 
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const imageWidthCss = normalizeCssSize(width) ?? fallbackWidth ?? "auto"
   // Constrain a floated figure to the image's width, else a caption wider than the image flows
   // beside the float instead of stacking under it.
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const floatWidthCss = imageWidthCss === "auto" ? "fit-content" : imageWidthCss
   const isFloated = align === "left" || align === "right"
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   const wrapperWidthCss = isFloated ? floatWidthCss : "fit-content"
 
   // Width can shrink to the container (max-width: 100%), so height follows via aspect-ratio, not a

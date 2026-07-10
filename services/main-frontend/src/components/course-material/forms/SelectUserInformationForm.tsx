@@ -52,7 +52,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
     reset,
     register,
     setValue,
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
   } = useForm<SelectUserInfoFormFields>({ mode: "onChange" })
 
   const countriesOptions = React.useMemo(
@@ -126,7 +126,7 @@ export const SelectUserInformationForm: React.FC<SelectUserInfoFormProps> = ({
           {
             type: "submit",
             disabled: postUserCountryMutation.isPending || !isValid,
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             className: "primary-button",
 
             variant: "primary",

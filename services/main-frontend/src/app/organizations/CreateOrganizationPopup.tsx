@@ -35,7 +35,7 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
   } = useForm<CreateOrganizationForm>({
     defaultValues: {
       name: "",
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       visibility: "public", // internal value, not a UI label
       slug: "",
     },
@@ -93,9 +93,9 @@ const CreateOrganizationPopup: React.FC<CreateOrganizationPopupProps> = ({
           id="org-visibility"
           label={t("label-visibility")}
           options={[
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             { value: "public", label: t("label-visible") }, // uses internal value
-            // eslint-disable-next-line i18next/no-literal-string
+            // oxlint-disable-next-line i18next/no-literal-string
             { value: "private", label: t("label-hidden") }, // uses internal value
           ]}
         />

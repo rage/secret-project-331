@@ -42,7 +42,7 @@ const ExampleTitle = styled.p`
   color: ${baseTheme.colors.gray[700]};
 `
 
-// eslint-disable-next-line i18next/no-literal-string
+// oxlint-disable-next-line i18next/no-literal-string
 const CodeExample = styled.pre`
   background-color: ${baseTheme.colors.clear[200]};
   padding: 0.75rem;

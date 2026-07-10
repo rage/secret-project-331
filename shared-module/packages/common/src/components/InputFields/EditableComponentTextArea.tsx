@@ -13,7 +13,7 @@ export interface TextFieldProps extends TextareaHTMLAttributes<HTMLTextAreaEleme
 function updateHeight(ref: React.RefObject<HTMLTextAreaElement | null>) {
   if (ref.current) {
     ref.current.style.height = "20px"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     ref.current.style.height = `${ref.current.scrollHeight /* + 5 */}px`
   }
 }

@@ -12,7 +12,7 @@ const buttonStyle = (clicked: boolean) => css`
 
 export const citationId = (cit_n: string, idx: string) => {
   // cit_n = citation number, idx = makes this id unique
-  // eslint-disable-next-line i18next/no-literal-string
+  // oxlint-disable-next-line i18next/no-literal-string
   return `chatbot-citation-${cit_n}-${idx}`
 }
 

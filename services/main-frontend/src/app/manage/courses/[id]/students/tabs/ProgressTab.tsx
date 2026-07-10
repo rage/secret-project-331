@@ -90,15 +90,15 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
     const cols = [
       {
         header: t("label-student"),
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         columns: [{ header: "", accessorKey: "student" }],
       },
       {
         header: t("total"),
         columns: [
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           { header: t("points"), accessorKey: "total_points" },
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           { header: t("attempts"), accessorKey: "total_attempted", meta: { altBg: true } },
         ],
       },
@@ -110,12 +110,12 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
           columns: [
             {
               header: `${t("points")} /${ptsMax ?? "0"}`,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               accessorKey: `ch_${ch.id}_points`,
             },
             {
               header: `${t("attempts")} /${attMax ?? "0"}`,
-              // eslint-disable-next-line i18next/no-literal-string
+              // oxlint-disable-next-line i18next/no-literal-string
               accessorKey: `ch_${ch.id}_attempts`,
               meta: { altBg: true },
             },
@@ -167,9 +167,9 @@ export const ProgressTabContent: React.FC<{ courseId: string; searchQuery: strin
       }
 
       for (const ch of sortedChapters) {
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const pointsKey: ChapterCellKey = `ch_${ch.id}_points`
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         const attemptsKey: ChapterCellKey = `ch_${ch.id}_attempts`
         const cell = byUserChapter[u.user_id]?.[ch.id]
         row[pointsKey] = cell ? cell.points : 0

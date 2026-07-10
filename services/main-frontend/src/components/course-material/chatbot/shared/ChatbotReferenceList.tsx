@@ -171,7 +171,7 @@ const ChatbotReferenceList: React.FC<ChatbotReferenceListProps> = ({
                         <b>{citationNumber}</b>{" "}
                         {cit.title.length <= citationTitleLen
                           ? citationTitle
-                          : // eslint-disable-next-line i18next/no-literal-string
+                          : // oxlint-disable-next-line i18next/no-literal-string
                             citationTitle.slice(0, citationTitleLen - 3).concat("\u2026")}
                       </>
                     )}

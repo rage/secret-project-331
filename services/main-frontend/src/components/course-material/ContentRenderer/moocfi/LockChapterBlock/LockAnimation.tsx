@@ -214,7 +214,7 @@ const LockAnimation: React.FC<LockAnimationProps> = ({ onComplete, size = 260, p
 
   return (
     <div
-      // eslint-disable-next-line react/forbid-dom-props
+      // oxlint-disable-next-line react/forbid-dom-props
       style={{
         position: "relative",
         width: containerSize,
@@ -305,7 +305,7 @@ function LockSVG({ shackle, size }: { shackle: { a: SpringValue<number> }; size:
       viewBox="0 0 24 24"
       preserveAspectRatio="xMidYMid meet"
       overflow="visible"
-      // eslint-disable-next-line react/forbid-dom-props
+      // oxlint-disable-next-line react/forbid-dom-props
       style={{
         width: size,
         height: "auto",

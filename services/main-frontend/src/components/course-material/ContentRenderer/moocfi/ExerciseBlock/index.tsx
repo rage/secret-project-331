@@ -461,7 +461,7 @@ const ExerciseBlock: React.FC<
             end = end.padEnd(2, "0")
           }
 
-          // eslint-disable-next-line i18next/no-literal-string
+          // oxlint-disable-next-line i18next/no-literal-string
           const timezoneOffset = `(UTC${sign}${start}:${end})`
           deadlineAsString = deadlineAsString + ` ${timezoneOffset}`
         }

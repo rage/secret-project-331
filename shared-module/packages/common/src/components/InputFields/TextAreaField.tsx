@@ -23,16 +23,16 @@ function updateHeight(
   if (ref.current) {
     const currentHeight = ref.current.style.height
     // set the height as auto to set the height based on content length
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     ref.current.style.height = "auto"
-    // eslint-disable-next-line i18next/no-literal-string
+    // oxlint-disable-next-line i18next/no-literal-string
     const contentHeight = `${ref.current.scrollHeight + 5}px`
 
     if (maxHeightPx && ref.current.scrollHeight > maxHeightPx) {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       ref.current.style.height = `${maxHeightPx}px`
     } else {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       ref.current.style.height = `${ref.current.scrollHeight + 5}px`
     }
     if (onAutoResized && currentHeight !== contentHeight) {

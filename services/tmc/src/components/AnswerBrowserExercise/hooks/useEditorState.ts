@@ -14,7 +14,7 @@ export function useEditorState(
 
   useEffect(() => {
     originalStateRef.current = cloneDeep(initialState)
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- sync only when exercise changes
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- sync only when exercise changes
   }, [stubDownloadUrl])
 
   const setEditorState = (files: Array<ExerciseFile>) => {

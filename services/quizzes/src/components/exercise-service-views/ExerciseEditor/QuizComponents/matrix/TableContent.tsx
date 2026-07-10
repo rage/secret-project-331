@@ -35,7 +35,7 @@ interface TableContentProps {
 const TableContent: React.FC<React.PropsWithChildren<TableContentProps>> = ({ quizItemId }) => {
   const { selected, updateState } = useQuizzesExerciseServiceOutputState<PrivateSpecQuizItemMatrix>(
     (quiz) => {
-      // eslint-disable-next-line i18next/no-literal-string
+      // oxlint-disable-next-line i18next/no-literal-string
       return findQuizItem<PrivateSpecQuizItemMatrix>(quiz, quizItemId, "matrix")
     },
   )

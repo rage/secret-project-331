@@ -101,7 +101,7 @@ const Pages = ({ query }: PagesProps) => {
     {
       onSuccess: (newData) => {
         // Refetch, setQueryData or invalidateQueries?
-        // eslint-disable-next-line i18next/no-literal-string
+        // oxlint-disable-next-line i18next/no-literal-string
         queryClient.setQueryData([`page-${id}`], newData)
       },
     },

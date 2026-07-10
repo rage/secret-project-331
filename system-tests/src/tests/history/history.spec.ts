@@ -1,4 +1,4 @@
-/* eslint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
+/* oxlint-disable playwright/no-wait-for-timeout, playwright/prefer-locator */
 import { expect, test } from "@playwright/test"
 
 import { saveCMSPage } from "../../utils/cmsUtils"
@@ -31,7 +31,7 @@ test("history test", async ({ page, headless }, testInfo) => {
   await page.click('a:has-text("The Basics")')
 
   await page.getByText("1Page One").click()
-  // eslint-disable-next-line playwright/no-networkidle
+  // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
 
   await expectScreenshotsToMatchSnapshots({
@@ -212,7 +212,7 @@ screenshotTarget: page,
 
   await page.getByText("1Page One").click()
 
-  // eslint-disable-next-line playwright/no-networkidle
+  // oxlint-disable-next-line playwright/no-networkidle
   await page.waitForLoadState("networkidle")
   await expectScreenshotsToMatchSnapshots({
     screenshotTarget: page,

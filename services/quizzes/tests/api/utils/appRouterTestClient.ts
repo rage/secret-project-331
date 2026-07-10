@@ -7,7 +7,7 @@ interface TestResponse {
   status: number
   text: string
   // Parsed JSON response body. Typed loosely so tests can read response shapes without casts.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   body: any
   headers: Headers
 }

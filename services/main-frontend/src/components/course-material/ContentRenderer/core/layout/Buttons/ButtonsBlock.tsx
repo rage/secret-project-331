@@ -1,9 +1,9 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useTranslation } from "react-i18next"
 
 import { BlockRendererProps } from "../../.."
+import { OpensInNewTabNotice, relForLinkTarget } from "../../../util/links"
 
 import { ButtonAttributes, ButtonsAttributes } from "@/../types/GutenbergBlockAttributes"
 import Button from "@/shared-module/common/components/Button"
@@ -26,20 +26,45 @@ interface ExtraAttributes {
 const ButtonsBlock: React.FC<
   React.PropsWithChildren<BlockRendererProps<ButtonsAttributes & ExtraAttributes>>
 > = ({ data }) => {
-  const { t } = useTranslation()
-
-  const orientation = data.attributes?.orientation as string | undefined | null
-  const contentJustification = data.attributes?.justifyContent as string | undefined | null
+  // Fall back to top-level attributes for blocks saved before settings moved into `layout`.
+  const layout = data.attributes?.layout as
+    | { orientation?: string; justifyContent?: string; verticalAlignment?: string }
+    | undefined
+  const orientation =
+    layout?.orientation ?? (data.attributes?.orientation as string | undefined | null)
+  const contentJustification =
+    layout?.justifyContent ?? (data.attributes?.justifyContent as string | undefined | null)
+  const verticalAlignment = layout?.verticalAlignment as string | undefined | null
 
   const getContentJustification = (contentJustification: string) => {
+    const JUSTIFY_CENTER = "justify-content: center;"
+    const JUSTIFY_FLEX_END = "justify-content: flex-end;"
+    const JUSTIFY_SPACE_BETWEEN = "justify-content: space-between;"
+    const JUSTIFY_FLEX_START = "justify-content: flex-start;"
     if (contentJustification === "center") {
-      return "justify-content: center; align-items: center;"
+      return JUSTIFY_CENTER
     } else if (contentJustification === "right") {
-      return "justify-content: flex-end; align-items: flex-end;"
+      return JUSTIFY_FLEX_END
     } else if (contentJustification === "space-between") {
-      return "justify-content: space-between;"
+      return JUSTIFY_SPACE_BETWEEN
     } else {
-      return "justify-content: flex-start; align-items: flex-start;"
+      return JUSTIFY_FLEX_START
+    }
+  }
+
+  const getAlignItems = (verticalAlignment: string) => {
+    const ALIGN_CENTER = "align-items: center;"
+    const ALIGN_FLEX_END = "align-items: flex-end;"
+    const ALIGN_STRETCH = "align-items: stretch;"
+    const ALIGN_FLEX_START = "align-items: flex-start;"
+    if (verticalAlignment === "center") {
+      return ALIGN_CENTER
+    } else if (verticalAlignment === "bottom") {
+      return ALIGN_FLEX_END
+    } else if (verticalAlignment === "stretch") {
+      return ALIGN_STRETCH
+    } else {
+      return ALIGN_FLEX_START
     }
   }
 
@@ -79,17 +104,10 @@ const ButtonsBlock: React.FC<
       className,
     } = button.attributes as ButtonAttributes & { className?: string }
 
-    const ENSURE_REL_NO_OPENER_IF_TARGET_BLANK =
-      linkTarget && linkTarget.includes("_blank")
-        ? rel && !rel.includes("noopener")
-          ? rel.split(" ").join(" ").concat(" noopener")
-          : "noopener"
-        : rel
-
     return (
       <a
         key={button.clientId}
-        rel={ENSURE_REL_NO_OPENER_IF_TARGET_BLANK}
+        rel={relForLinkTarget(rel, linkTarget)}
         href={url}
         target={linkTarget}
       >
@@ -97,12 +115,10 @@ const ButtonsBlock: React.FC<
           className={css`
             ${backgroundColor && `background: ${colorMapper(backgroundColor)} !important;`}
             ${gradient && `background: ${colorMapper(gradient)} !important;`}
-            ${
-              textColor &&
-              `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
-                textColor,
-              )} !important;`
-            }
+            ${textColor &&
+            `color: ${colorMapper(textColor)} !important; border-color: ${colorMapper(
+              textColor,
+            )} !important;`}
             ${fontSize && `font-size: ${fontSizeMapper(fontSize)} !important;`}
             margin: 0.5rem 0rem;
             margin-right: 0.5rem;
@@ -111,9 +127,7 @@ const ButtonsBlock: React.FC<
           size="medium"
           dangerouslySetInnerHTML={{ __html: text ?? placeholder ?? "BUTTON" }}
         />
-        {linkTarget && linkTarget.includes("_blank") && (
-          <span className="screen-reader-only">{t("screen-reader-opens-in-new-tab")}</span>
-        )}
+        <OpensInNewTabNotice linkTarget={linkTarget} />
       </a>
     )
   })
@@ -124,6 +138,7 @@ const ButtonsBlock: React.FC<
         flex-wrap: wrap;
         ${orientation === "vertical" ? "flex-direction: column;" : "flex-direction: row;"}
         ${contentJustification && getContentJustification(contentJustification)}
+        ${verticalAlignment ? getAlignItems(verticalAlignment) : "align-items: flex-start;"}
       `}
     >
       {mappedButtons}

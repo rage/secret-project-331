@@ -49,6 +49,22 @@
           (mkPackageManagerStub "yarnpkg" "Example: pnpm install, pnpm run <script>.")
         ];
 
+        # eslint and prettier were replaced by oxlint and oxfmt. Stub the removed binaries so an
+        # accidental `eslint`/`prettier` (or `pnpm exec eslint`, which falls through to PATH) prints
+        # how to run the real tools instead of "command not found" now that the packages are gone.
+        mkRemovedToolStub =
+          name: replacement: hint:
+          pkgs.writeShellScriptBin name ''
+            echo "error: ${name} was removed from this project; use ${replacement} instead." >&2
+            echo "${hint}" >&2
+            exit 1
+          '';
+
+        removedToolStubs = [
+          (mkRemovedToolStub "eslint" "oxlint" "Run: pnpm run lint (autofix) or pnpm run lint:ci (check only).")
+          (mkRemovedToolStub "prettier" "oxfmt" "Run: pnpm run format (write) or pnpm run format:check (check only).")
+        ];
+
         # passwd-only getent when /usr/bin/getent is missing (Tilt). Exit 0 only if every key matched.
         getentCompat = pkgs.writeShellScriptBin "getent" ''
           if [ -x /usr/bin/getent ]; then
@@ -166,7 +182,7 @@
           pkgs.minikube
           pkgs.mold
         ];
-        pathPriorityPackages = packageManagerStubs ++ [
+        pathPriorityPackages = packageManagerStubs ++ removedToolStubs ++ [
           pkgs.nodejs_24
           rustToolchain
         ]

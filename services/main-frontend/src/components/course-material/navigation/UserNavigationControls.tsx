@@ -81,7 +81,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
               <a href={manageCourseRoute(courseId)}>
                 <Button
                   className={css`
-                    color: ${baseTheme.colors.green[600]}!important;
+                    color: ${baseTheme.colors.green[600]} !important;
                   `}
                   variant="primary"
                   size="medium"
@@ -94,7 +94,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           <li>
             <Button
               className={css`
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
               size="medium"
               variant="primary"
@@ -110,7 +110,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
             <a href={"/user-settings"}>
               <Button
                 className={css`
-                  color: ${baseTheme.colors.green[600]}!important;
+                  color: ${baseTheme.colors.green[600]} !important;
                 `}
                 size="medium"
                 variant="primary"
@@ -123,7 +123,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           <li className={cx(styles)}>
             <Button
               className={css`
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
               size="medium"
               variant="primary"
@@ -142,7 +142,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           <a href={signUpPathWithReturnTo}>
             <Button
               className={css`
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
               size="medium"
               variant="primary"
@@ -155,7 +155,7 @@ const UserNavigationControls: React.FC<React.PropsWithChildren<UserNavigationCon
           <a href={loginPathWithReturnTo}>
             <Button
               className={css`
-                color: ${baseTheme.colors.green[600]}!important;
+                color: ${baseTheme.colors.green[600]} !important;
               `}
               size="medium"
               variant="primary"

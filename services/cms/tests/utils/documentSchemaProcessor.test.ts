@@ -136,6 +136,7 @@ const exampleCMSPageUpdate: CmsPageUpdate = {
   url_path: "/path/to/page",
   title: "Example page",
   chapter_id: "babb2322-8bdf-417f-be05-89b2263f4851",
+  hidden: false,
 }
 
 // Doing this separately so that we get type errors when the type changes
@@ -249,6 +250,7 @@ const exampleUnnormalizedDocument: UnnormalizedDocument = {
   title: "Example page",
   urlPath: "/path/to/page",
   chapterId: "babb2322-8bdf-417f-be05-89b2263f4851",
+  hidden: false,
 }
 
 test("We get the original document if we first denormalize and then normalize", async () => {

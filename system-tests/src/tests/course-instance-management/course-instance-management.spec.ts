@@ -28,6 +28,7 @@ test("Managing course instances works", async ({ page }) => {
   await page.getByText("For instructions on how to edit your course materials, view the").waitFor()
   await page.getByRole("tab", { name: "Course instances" }).waitFor()
 
+  await page.getByText("Export submissions (exercise tasks) as CSV").waitFor()
   await page.getByText("Export submissions (exercise tasks) as CSV").scrollIntoViewIfNeeded()
 
   const [submissionsDownload] = await Promise.all([

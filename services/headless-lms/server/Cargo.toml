@@ -68,14 +68,7 @@ blake3 = "1.8.5"
 # Recursively walk a directory.
 walkdir = "2.5.0"
 # higher level HTTP client library
-reqwest = { version = "0.13.4", features = [
-  "brotli",
-  "gzip",
-  "json",
-  "http2",
-  "rustls",
-  "stream",
-] }
+reqwest = { version = "0.13.4", features = ["brotli", "gzip", "json", "http2", "rustls", "stream"] }
 # Sessions for Actix web
 actix-session = { version = "0.11.0", features = ["cookie-session"] }
 # An extensible, strongly-typed implementation of OAuth2

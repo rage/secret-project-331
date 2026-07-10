@@ -208,9 +208,9 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
               >
                 <div
                   className={css`
-                    background-color: ${
-                      url ? baseTheme.colors.green[600] : baseTheme.colors.gray[600]
-                    };
+                    background-color: ${url
+                      ? baseTheme.colors.green[600]
+                      : baseTheme.colors.gray[600]};
 
                     flex: 1;
                     line-height: 1.3;
@@ -260,9 +260,9 @@ const NextSectionLink: React.FC<React.PropsWithChildren<NextSectionLinkProps>> =
                   className={css`
                     color: white;
                     padding: 16px 16px 16px 0;
-                    background-color: ${
-                      url ? baseTheme.colors.green[600] : baseTheme.colors.gray[600]
-                    };
+                    background-color: ${url
+                      ? baseTheme.colors.green[600]
+                      : baseTheme.colors.gray[600]};
                     display: flex;
                     justify-content: center;
                     align-items: center;

@@ -178,13 +178,11 @@ const Controls = ({
           {...rewindFocusProps}
           ref={rewindButtonRef}
           className={css`
-            ${
-              isRewindFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isRewindFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           <Rewind aria-hidden="true" />
@@ -196,13 +194,11 @@ const Controls = ({
           ref={actualPlayPauseRef}
           aria-label={isPlaying ? t("audio-player-pause") : t("audio-player-play")}
           className={css`
-            ${
-              isPlayPauseFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isPlayPauseFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           {isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}
@@ -212,13 +208,11 @@ const Controls = ({
           {...fastForwardFocusProps}
           ref={fastForwardButtonRef}
           className={css`
-            ${
-              isFastForwardFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isFastForwardFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           <FastForward aria-hidden="true" />
@@ -231,13 +225,11 @@ const Controls = ({
           ref={muteButtonRef}
           aria-label={muteVolume ? t("audio-player-unmute") : t("audio-player-mute")}
           className={css`
-            ${
-              isMuteFocusVisible &&
-              css`
-                outline: 2px solid #4a90e2;
-                outline-offset: 2px;
-              `
-            }
+            ${isMuteFocusVisible &&
+            css`
+              outline: 2px solid #4a90e2;
+              outline-offset: 2px;
+            `}
           `}
         >
           {muteVolume || volume < 1 ? (

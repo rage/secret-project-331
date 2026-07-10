@@ -101,7 +101,7 @@ const MultipleChoice: React.FunctionComponent<
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.title} />
       </div>
-      <p
+      <div
         className={css`
           color: ${quizTheme.quizBodyColor};
           font-size: ${quizTheme.quizBodyFontSize};
@@ -109,7 +109,7 @@ const MultipleChoice: React.FunctionComponent<
         `}
       >
         <ParsedText parseLatex parseMarkdown inline text={quizItem.body} />
-      </p>
+      </div>
       <div
         className={css`
           display: flex;
@@ -117,12 +117,10 @@ const MultipleChoice: React.FunctionComponent<
 
           ${respondToOrLarger.sm} {
             flex-direction: ${direction};
-            ${
-              direction === ROW &&
-              `
-              column-gap: 0.625rem;
+            ${direction === ROW &&
             `
-            }
+              column-gap: 0.625rem;
+            `}
           }
         `}
       >

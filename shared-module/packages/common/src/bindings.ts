@@ -621,7 +621,11 @@ export type CourseDesignerStageWorkspace = {
 }
 
 export type CourseDesignerPlanStatus =
-  "Draft" | "Scheduling" | "InProgress" | "Completed" | "Archived"
+  | "Draft"
+  | "Scheduling"
+  | "InProgress"
+  | "Completed"
+  | "Archived"
 
 export interface CourseDesignerPlanSummary {
   id: string
@@ -643,7 +647,11 @@ export interface CourseDesignerScheduleStageInput {
 }
 
 export type CourseDesignerStage =
-  "Analysis" | "Design" | "Development" | "Implementation" | "Evaluation"
+  | "Analysis"
+  | "Design"
+  | "Development"
+  | "Implementation"
+  | "Evaluation"
 
 export interface CourseBackgroundQuestionAnswer {
   id: string
@@ -811,7 +819,8 @@ export interface AutomaticCompletionRequirements {
 }
 
 export type CompletionPolicy =
-  ({ policy: "automatic" } & AutomaticCompletionRequirements) | { policy: "manual" }
+  | ({ policy: "automatic" } & AutomaticCompletionRequirements)
+  | { policy: "manual" }
 
 export interface CourseModule {
   id: string
@@ -1016,7 +1025,10 @@ export interface EmailTemplateUpdate {
 }
 
 export type EmailTemplateType =
-  "reset_password_email" | "delete_user_email" | "confirm_email_code" | "generic"
+  | "reset_password_email"
+  | "delete_user_email"
+  | "confirm_email_code"
+  | "generic"
 
 export interface CourseExam {
   id: string
@@ -1250,7 +1262,8 @@ export interface ExerciseTaskGradingResult {
 }
 
 export type UserPointsUpdateStrategy =
-  "CanAddPointsButCannotRemovePoints" | "CanAddPointsAndCanRemovePoints"
+  | "CanAddPointsButCannotRemovePoints"
+  | "CanAddPointsAndCanRemovePoints"
 
 export interface ExerciseTaskSubmission {
   id: string
@@ -2129,7 +2142,9 @@ export type PeerReviewProcessingStrategy =
   | "ManualReviewEverything"
 
 export type PeerOrSelfReviewAnswer =
-  { type: "no-answer" } | { type: "essay"; value: string } | { type: "scale"; value: number }
+  | { type: "no-answer" }
+  | { type: "essay"; value: string }
+  | { type: "scale"; value: number }
 
 export interface PeerOrSelfReviewQuestionAndAnswer {
   peer_or_self_review_config_id: string
@@ -2478,7 +2493,11 @@ export interface NewTeacherGradingDecision {
 }
 
 export type TeacherDecisionType =
-  "FullPoints" | "ZeroPoints" | "CustomPoints" | "SuspectedPlagiarism" | "RejectAndReset"
+  | "FullPoints"
+  | "ZeroPoints"
+  | "CustomPoints"
+  | "SuspectedPlagiarism"
+  | "RejectAndReset"
 
 export interface TeacherGradingDecision {
   id: string

@@ -44,20 +44,18 @@ const referenceListStyle = (expanded: boolean, referenceList: string) => css`
   #${referenceList} {
     display: flex;
     flex: 10;
-    ${
-      expanded
-        ? `
+    ${expanded
+      ? `
     flex-flow: column nowrap;
     padding: 7px;
     justify-content: space-around;
     `
-        : `
+      : `
     flex-flow: row nowrap;
     overflow: hidden;
     white-space: pre;
     mask-image: linear-gradient(0.25turn, black 66%, transparent);
-  `
-    }
+  `}
   }
 `
 

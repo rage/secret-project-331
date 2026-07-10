@@ -54,8 +54,7 @@ const ChapterParts = styled.div`
     :hover {
       background-color: rgb(235, 239, 242) !important;
     }
-  `}
-  :hover {
+  `}: hover {
     background-color: rgb(235, 239, 242);
   }
 

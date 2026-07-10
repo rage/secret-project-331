@@ -22,11 +22,11 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       return { error: error instanceof Error ? error.message : String(error) }
     }
 
-    componentDidCatch(error: Error, info: ErrorInfo) {
+    override componentDidCatch(error: Error, info: ErrorInfo) {
       console.error("ErrorBoundary caught an error:", error, info.componentStack)
     }
 
-    render() {
+    override render() {
       const { error } = this.state
       if (error !== undefined) {
         return (

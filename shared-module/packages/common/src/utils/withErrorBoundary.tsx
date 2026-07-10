@@ -28,7 +28,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       }
     }
 
-    componentDidCatch(error: Error, info: ErrorInfo) {
+    override componentDidCatch(error: Error, info: ErrorInfo) {
       console.group(
         `ErrorBoundary caught an error in ${
           Component.displayName ?? "unknown"
@@ -62,7 +62,7 @@ export default function withErrorBoundary<T>(Component: ComponentType<T>): Compo
       this.setState({ error: error.message, trace: info.componentStack ?? undefined })
     }
 
-    render() {
+    override render() {
       const { error, trace } = this.state
 
       if (error) {

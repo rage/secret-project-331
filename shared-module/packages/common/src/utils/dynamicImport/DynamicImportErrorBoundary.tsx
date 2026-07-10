@@ -21,17 +21,17 @@ class DynamicImportErrorBoundary extends React.Component<
   DynamicImportErrorBoundaryProps,
   DynamicImportErrorBoundaryState
 > {
-  state: DynamicImportErrorBoundaryState = { hasError: false }
+  override state: DynamicImportErrorBoundaryState = { hasError: false }
 
   static getDerivedStateFromError(): DynamicImportErrorBoundaryState {
     return { hasError: true }
   }
 
-  componentDidCatch(error: unknown, errorInfo: React.ErrorInfo) {
+  override componentDidCatch(error: unknown, errorInfo: React.ErrorInfo) {
     this.props.onError(error, errorInfo)
   }
 
-  render() {
+  override render() {
     if (this.state.hasError) {
       return (
         <div>

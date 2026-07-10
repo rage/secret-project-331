@@ -88,7 +88,7 @@ export class AppApiError extends Error {
   method: string | null
   body: unknown
   rawText: string | null
-  cause?: unknown
+  override cause?: unknown
 
   constructor(init: AppApiErrorInit) {
     const title = init.title?.trim() ? init.title : "Request failed"

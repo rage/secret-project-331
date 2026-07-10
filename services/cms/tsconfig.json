@@ -11,6 +11,7 @@
     "skipLibCheck": true,
     "strict": false,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,

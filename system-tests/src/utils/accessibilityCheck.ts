@@ -129,7 +129,7 @@ class StoringStream extends Writable {
     super()
     this.chunks = []
   }
-  _write(
+  override _write(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     chunk: any,
     encoding: BufferEncoding,

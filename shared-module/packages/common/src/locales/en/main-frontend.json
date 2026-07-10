@@ -1497,6 +1497,7 @@
   "seconds": "seconds",
   "select-LLM": "Model to use",
   "select-a-country": "Select a country",
+  "select-chatbot": "Chatbot to test",
   "select-course-instance-explanation": "The teachers or administrative staff of the course instance you select will be able to see your points, submissions, completion status, and other information related your course progress.",
   "select-course-module": "Select course module",
   "select-course-version-to-see-your-progress": "Select course version to see your progress.",

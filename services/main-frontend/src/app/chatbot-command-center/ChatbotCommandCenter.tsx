@@ -1,11 +1,10 @@
 "use client"
 
 import { css } from "@emotion/css"
-import { useEffect, useState } from "react"
-
-import ChatbotChatBox from "@/components/course-material/ContentRenderer/moocfi/ChatbotBlock/ChatbotChatBox"
-import useChatbotStateAndData from "@/components/course-material/chatbot/shared/hooks/useChatbotStateAndData"
-import SelectMenu from "@/shared-module/common/components/SelectMenu"
+import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+import ChatbotChat from "@/components/course-material/chatbot/shared/ChatbotChat"
+import { Select } from "@/shared-module/components"
 
 interface ChatbotCommandCenterData {
   configuration_id: string
@@ -18,39 +17,44 @@ interface Props {
 }
 
 const ChatbotCommandCenter = ({ chatbotData }: Props) => {
-  const firstChatbot = chatbotData[0].configuration_id
-  const [chatbotConfigurationId, setChatbotConfigurationId] = useState(firstChatbot)
+  const { t } = useTranslation()
+  const firstChatbot = chatbotData[0]
+  const { control, watch } = useForm<ChatbotCommandCenterData>({
+    defaultValues: {
+      configuration_id: firstChatbot.configuration_id,
+      chatbot_name: firstChatbot.chatbot_name,
+      course_name: firstChatbot.course_name,
+    },
+  })
 
-  const chatbotStateAndData = useChatbotStateAndData(chatbotConfigurationId, undefined)
-
-  useEffect(() => {
-    chatbotStateAndData.newConversationMutation.mutate()
-  }, [chatbotConfigurationId])
+  const configuration_id = watch("configuration_id")
 
   return (
     <div>
-      <SelectMenu
-        id={"chatbot-select"}
-        options={chatbotData.map((data) => {
-          return {
-            label: `${data.course_name}: ${data.chatbot_name}`,
-            value: data.configuration_id,
-          }
-        })}
-        value={chatbotConfigurationId}
-        onChange={(e) => setChatbotConfigurationId(e.currentTarget.value)}
-        className={css`
-          margin-bottom: 0;
-          min-width: 120px;
-        `}
-        showDefaultOption={false}
-      />
+      <form>
+        <Select
+          id={"chatbot-select"}
+          control={control}
+          name={"configuration_id"}
+          label={t("select-chatbot")}
+          options={chatbotData.map((data) => {
+            return {
+              label: `${data.course_name}: ${data.chatbot_name}`,
+              value: data.configuration_id,
+            }
+          })}
+          className={css`
+            margin-bottom: 1rem;
+          `}
+        />
+      </form>
+
       <div
         className={css`
           height: 75vh;
         `}
       >
-        <ChatbotChatBox {...chatbotStateAndData} />
+        <ChatbotChat chatbotConfigurationId={configuration_id} isCourseMaterialBlock={true} />
       </div>
     </div>
   )

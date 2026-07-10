@@ -621,7 +621,7 @@ async fn process_llm_response(response: Response) -> ChatbotResult<LLMResponse> 
         let azure_response = serde_json::from_str::<AzureResponse>(&error_text);
         let error = match azure_response {
             Ok(response) => {
-                let azure_error = response.error;
+                let azure_error: Option<ResponseError> = response.error;
                 // Format the error message to be minimal and add the Azure source.
                 let mut error = chatbot_err!(
                     FailedAzureResponse,
@@ -724,7 +724,7 @@ pub async fn make_streaming_llm_request(
         let azure_response = serde_json::from_str::<AzureResponse>(&error_text);
         let error = match azure_response {
             Ok(response) => {
-                let azure_error = response.error;
+                let azure_error: Option<ResponseError> = response.error;
                 // Format the error message to be minimal and add the Azure source.
                 let mut error = chatbot_err!(
                     FailedAzureResponse,

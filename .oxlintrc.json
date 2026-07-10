@@ -197,7 +197,8 @@
     "unicorn/no-array-reverse": "warn",
     "unicorn/no-useless-undefined": "off",
     "unicorn/prefer-at": "off",
-    "unicorn/prefer-dom-node-dataset": "off"
+    "unicorn/prefer-dom-node-dataset": "off",
+    "unicorn/prefer-optional-catch-binding": "off"
   },
   "overrides": [
     {

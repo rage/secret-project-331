@@ -60,7 +60,7 @@ const PlaygroundSpecs: React.FC<PlaygroundSpecsProps> = ({
               try {
                 JSON.parse(value)
                 return true
-              } catch {
+              } catch (_e) {
                 return false
               }
             },

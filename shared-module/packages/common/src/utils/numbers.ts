@@ -55,7 +55,7 @@ export function stringToNumberOrPlaceholder<T>(
   let res: number
   try {
     res = Number(s)
-  } catch {
+  } catch (_e) {
     return missingNumberSubstitute
   }
   if (isNaN(res)) {
@@ -80,7 +80,7 @@ export function stringToNumberOrPlaceholder<T>(
 export function formatNumber(num: number, locale?: string): string {
   try {
     return new Intl.NumberFormat(locale).format(num)
-  } catch {
+  } catch (_error) {
     // If the locale is invalid or causes an error, fall back to English
     return new Intl.NumberFormat("en").format(num)
   }

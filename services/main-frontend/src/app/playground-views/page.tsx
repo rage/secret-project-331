@@ -500,7 +500,7 @@ const IframeViewPlayground: React.FC = () => {
                   try {
                     JSON.parse(value)
                     return true
-                  } catch {
+                  } catch (_e) {
                     return false
                   }
                 },

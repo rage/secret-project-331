@@ -80,7 +80,7 @@ const DebugModal: React.FC<React.PropsWithChildren<DebugModalProps>> = ({
     try {
       new Parser().parse(data)
       return true
-    } catch {
+    } catch (_error) {
       return false
     }
   }, [data, size])

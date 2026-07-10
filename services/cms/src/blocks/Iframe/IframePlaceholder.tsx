@@ -57,7 +57,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
           try {
             new URL(input)
             url = input
-          } catch {
+          } catch (_e) {
             const parser = new DOMParser()
 
             const htmlDoc = parser.parseFromString(input, "text/html")
@@ -67,7 +67,7 @@ const IFramePlaceHolder: React.FC<IFramePlaceHolderProps> = ({ setUrl, defaultVa
               try {
                 new URL(iframe.src)
                 url = iframe.src
-              } catch {
+              } catch (_e) {
                 // NOP
               }
             }

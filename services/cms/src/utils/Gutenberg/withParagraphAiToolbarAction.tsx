@@ -116,7 +116,7 @@ const withParagraphAiToolbarAction = createHigherOrderComponent((BlockEdit) => {
             toast.error(t("ai-action-failed"))
           }
         }
-      } catch {
+      } catch (_err) {
         toast.error(t("ai-action-failed"))
       } finally {
         setRunning(false)

@@ -309,7 +309,7 @@ async function cleanUpFolders() {
           console.warn(`Could not remove ${fullPathToDestination}`, e)
         }
       }
-    } catch {
+    } catch (_e) {
       // NOP
     }
     await exec(`mkdir -p '${fullPathToDestination}'`)
